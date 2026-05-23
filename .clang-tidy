@@ -1,0 +1,44 @@
+---
+Checks: "*,
+         -altera-*,
+         -boost-use-ranges,
+         -bugprone-easily-swappable-parameters,
+         -cert-err58-cpp,
+         -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
+         -fuchsia-default-arguments-calls,
+         -fuchsia-statically-constructed-objects,
+         -google-readability-namespace-comments,-llvm-namespace-comment,
+         -google-readability-todo,
+         -llvm-else-after-return,-readability-else-after-return,
+         -llvm-prefer-static-over-anonymous-namespace,
+         -llvmlibc-callee-namespace,
+         -llvmlibc-implementation-in-namespace,
+         -llvmlibc-inline-function-decl,
+         -llvmlibc-restrict-system-libc-headers,
+         -misc-include-cleaner,
+         -modernize-use-trailing-return-type,
+         -performance-enum-size,
+         -readability-avoid-unconditional-preprocessor-if,
+         -readability-convert-member-functions-to-static,
+"
+WarningsAsErrors: '*'
+HeaderFileExtensions:
+  - ''
+  - h
+  - hh
+  - hpp
+  - hxx
+ImplementationFileExtensions:
+  - c
+  - cc
+  - cpp
+  - cxx
+HeaderFilterRegex: '.*'
+FormatStyle:     none
+SystemHeaders:   false
+CheckOptions:
+  - key:             readability-identifier-length.IgnoredVariableNames
+    value:           'i|j|k|c|os|it|wb|ws'
+  - key:             readability-identifier-length.IgnoredParameterNames
+    value:           'i|j|k|c|os|it'
+...
