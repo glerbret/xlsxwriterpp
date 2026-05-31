@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
       .author_  = "A User",
       .created_ = std::chrono::sys_days{2010y / std::chrono::January / 01d} + 0h + 0min + 0s,
   };
-  xwpp::core_t core(properties);
+  const xwpp::core_t core(properties);
 
   BOOST_CHECK_EQUAL(expected, core.assemble_xml_file());
 }
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
       .status_   = "Quo",
       .created_  = std::chrono::sys_days{2011y / std::chrono::April / 06d} + 19h + 45min + 15s,
   };
-  xwpp::core_t core(properties);
+  const xwpp::core_t core(properties);
 
   BOOST_CHECK_EQUAL(expected, core.assemble_xml_file());
 }

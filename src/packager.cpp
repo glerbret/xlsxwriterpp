@@ -799,7 +799,7 @@ void packager_t::write_app_file(const workbook_t& workbook)
 
 void packager_t::write_core_file(const workbook_t& workbook)
 {
-  core_t core(workbook.properties_);
+  const core_t core(workbook.properties_);
 
   const std::string xml_data = core.assemble_xml_file();
   add_buffer_to_zip(xml_data, "docProps/core.xml");

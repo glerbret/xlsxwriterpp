@@ -1855,20 +1855,11 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   ///     int32_t xf_index = 0;
-  double height;
+  const double height = (row.height_changed_ ? row.height_ : default_row_height_);
 
   ///     if (row->format) {
   ///         xf_index = lxw_format_get_xf_index(row->format);
   ///     }
-
-  if(row.height_changed_)
-  {
-    height = row.height_;
-  }
-  else
-  {
-    height = default_row_height_;
-  }
 
   attributes.emplace_back("r", std::to_string(row.row_num_ + 1));
 
@@ -3952,7 +3943,7 @@ std::string worksheet_t::write_cols() const
 
   std::string xml_data = xml_start_tag("cols");
 
-  for(col_num_t col = 0; col < col_options_.size(); col++)
+  for(size_t col = 0; col < col_options_.size(); col++)
   {
     if(col_options_[col].firstcol_ == col)
     {
@@ -7457,13 +7448,13 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 ///     return worksheet_write_comment_opt(self, row_num, col_num, string, NULL);
 /// }
 
-void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width /* TODO,
+void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width /* TODO,
                           lxw_format *format,
                           lxw_row_col_options *user_options*/)
 {
   ///     lxw_col_options *copied_options;
-  bool ignore_row = true;
-  bool ignore_col = true;
+  const bool ignore_row = true;
+  const bool ignore_col = true;
   ///     uint8_t hidden = LXW_FALSE;
   ///     uint8_t level = 0;
   ///     uint8_t collapsed = LXW_FALSE;
@@ -7477,9 +7468,9 @@ void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width
   ///     }
   ///
   // Ensure second col is larger than first.
-  if(firstcol > lastcol)
+  if(first_col > last_col)
   {
-    std::swap(firstcol, lastcol);
+    std::swap(first_col, last_col);
   }
 
   /* Ensure that the cols are valid and store max and min values.
@@ -7488,12 +7479,12 @@ void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width
   ///     if (TODO format != NULL || (width != LXW_DEF_COL_WIDTH && hidden))
   ///         ignore_col = LXW_FALSE;
   ///
-  check_dimensions(0, firstcol, ignore_row, ignore_col);
-  check_dimensions(0, lastcol, ignore_row, ignore_col);
+  check_dimensions(0, first_col, ignore_row, ignore_col);
+  check_dimensions(0, last_col, ignore_row, ignore_col);
 
-  if(firstcol >= col_options_.size())
+  if(first_col >= col_options_.size())
   {
-    col_options_.resize(firstcol + 1);
+    col_options_.resize(first_col + 1);
   }
   ///
   ///     /* Store the column options. */
@@ -7508,9 +7499,9 @@ void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width
   ///         self->outline_col_level = level;
   ///
   // Set the column properties.
-  col_options_[firstcol].firstcol_ = firstcol;
-  col_options_[firstcol].lastcol_  = lastcol;
-  col_options_[firstcol].width_    = width;
+  col_options_[first_col].firstcol_ = first_col;
+  col_options_[first_col].lastcol_  = last_col;
+  col_options_[first_col].width_    = width;
   ///     copied_options->format = format;
   ///     copied_options->hidden = hidden;
   ///     copied_options->level = level;
@@ -7522,7 +7513,7 @@ void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width
   ///     }
   ///
   // Store the column change to allow optimizations.
-  col_size_changed_                = true;
+  col_size_changed_                 = true;
 }
 
 /// lxw_error
@@ -7563,7 +7554,7 @@ void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width
 void worksheet_t::set_row(row_num_t row_num,
                           double height /*TODO, lxw_format *format, lxw_row_col_options *user_options*/)
 {
-  col_num_t min_col;
+  const col_num_t min_col = (dim_colmin_ != COL_MAX ? dim_colmin_ : 0);
   ///     uint8_t hidden = LXW_FALSE;
   ///     uint8_t level = 0;
   ///     uint8_t collapsed = LXW_FALSE;
@@ -7575,16 +7566,6 @@ void worksheet_t::set_row(row_num_t row_num,
   ///         level = user_options->level;
   ///         collapsed = user_options->collapsed;
   ///     }
-  ///
-  // Use minimum col in _check_dimensions().
-  if(dim_colmin_ != COL_MAX)
-  {
-    min_col = dim_colmin_;
-  }
-  else
-  {
-    min_col = 0;
-  }
 
   check_dimensions(row_num, min_col, false, false);
   ///
