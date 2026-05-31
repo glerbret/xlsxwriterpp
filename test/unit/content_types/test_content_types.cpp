@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
       "<Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/>"
       "<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>"
       "<Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
-///           "<Override PartName=\"/xl/sharedStrings.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\"/>"
+      "<Override PartName=\"/xl/sharedStrings.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\"/>"
 ///           "<Override PartName=\"/xl/calcChain.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml\"/>"
     "</Types>";
   // clang-format on
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   content_types.add_override("/xl/workbook.xml", xwpp::content_types_t::APP_DOCUMENT + "spreadsheetml.sheet.main+xml");
   content_types.add_worksheet_name("/xl/worksheets/sheet1.xml");
   content_types.add_default("jpeg", "image/jpeg");
-  ///     lxw_ct_add_shared_strings(content_types);
+  content_types.add_shared_strings();
   ///     lxw_ct_add_calc_chain(content_types);
 
   BOOST_CHECK_EQUAL(expected, content_types.assemble_xml_file());

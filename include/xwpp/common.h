@@ -13,8 +13,10 @@
 #ifndef XWPP_COMMON_H
 #define XWPP_COMMON_H
 
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <variant>
 
 namespace xwpp
 {
@@ -52,14 +54,15 @@ using col_num_t = uint16_t;
 
 /// } lxw_datetime;
 
-/// enum lxw_custom_property_types {
-///     LXW_CUSTOM_NONE,
-///     LXW_CUSTOM_STRING,
-///     LXW_CUSTOM_DOUBLE,
-///     LXW_CUSTOM_INTEGER,
-///     LXW_CUSTOM_BOOLEAN,
-///     LXW_CUSTOM_DATETIME
-/// };
+enum class custom_property_types_t
+{
+  NONE,
+  STRING,
+  DOUBLE,
+  INTEGER,
+  BOOLEAN,
+  DATETIME
+};
 
 /* Size of MD5 byte arrays. */
 /// #define LXW_MD5_SIZE              16
@@ -299,7 +302,6 @@ const std::string SCHEMA_CONTENT   = SCHEMA_ROOT + "/package/2006/content-types"
 
 /* Define the queue.h structs for the generic data structs. */
 /// STAILQ_HEAD(lxw_tuples, lxw_tuple);
-/// STAILQ_HEAD(lxw_custom_properties, lxw_custom_property);
 
 /// typedef struct lxw_tuple {
 ///     char *key;
@@ -309,22 +311,12 @@ const std::string SCHEMA_CONTENT   = SCHEMA_ROOT + "/package/2006/content-types"
 /// } lxw_tuple;
 
 /* Define custom property used in workbook.c and custom.c. */
-/// typedef struct lxw_custom_property {
-
-///     enum lxw_custom_property_types type;
-///     char *name;
-
-///     union {
-///         char *string;
-///         double number;
-///         int32_t integer;
-///         uint8_t boolean;
-///         lxw_datetime datetime;
-///     } u;
-
-///     STAILQ_ENTRY (lxw_custom_property) list_pointers;
-
-/// } lxw_custom_property;
+struct custom_property_t
+{
+  custom_property_types_t type_;
+  std::string name_;
+  std::variant<std::string, int32_t, double, bool, std::chrono::system_clock::time_point> value_;
+};
 
 }
 

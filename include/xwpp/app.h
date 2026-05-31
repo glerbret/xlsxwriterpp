@@ -35,6 +35,8 @@ class app_t
 public:
   void add_part_name(const std::string& name);
   void add_heading_pair(const std::string& key, const std::string& value);
+  void set_properties(const doc_properties_t& properties);
+
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
@@ -59,7 +61,7 @@ private:
 
   std::vector<heading_pair_t> heading_pairs_;
   std::vector<part_name_t> part_names_;
-  ///  lxw_doc_properties*       properties;
+  doc_properties_t properties_;
   uint8_t doc_security_ = 0;
 };
 

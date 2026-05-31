@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(xml_data_element)
 
 BOOST_AUTO_TEST_CASE(xml_data_element_no_data)
 {
-  const std::string expected = "<foo></foo>";
+  const std::string expected = "<foo/>";
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"));
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s));

@@ -27,6 +27,7 @@ public:
   void add_override(std::string_view key, std::string_view value);
   void add_worksheet_name(std::string_view name);
   void add_shared_strings();
+  void add_custom_properties();
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -54,7 +55,7 @@ private:
 /// void lxw_ct_add_vml_name(lxw_content_types *content_types);
 
 /// void lxw_ct_add_calc_chain(lxw_content_types *content_types);
-/// void lxw_ct_add_custom_properties(lxw_content_types *content_types);
+
 /// void lxw_ct_add_metadata(lxw_content_types *content_types);
 /// void lxw_ct_add_rich_value(lxw_content_types *content_types);
 /// STATIC void _content_types_xml_declaration(lxw_content_types *self);

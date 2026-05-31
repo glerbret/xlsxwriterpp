@@ -152,7 +152,7 @@ std::string xml_data_element(std::string_view tag, std::string_view data)
 }
 std::string xml_data_element(std::string_view tag)
 {
-  return std::format("<{0}></{0}>", tag);
+  return std::format("<{0}/>", tag);
 }
 
 std::string xml_rich_si_element(std::string_view str)

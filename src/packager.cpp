@@ -48,6 +48,7 @@
 #include "xwpp/app.h"
 #include "xwpp/content_types.h"
 #include "xwpp/core.h"
+#include "xwpp/custom.h"
 #include "xwpp/exception.h"
 #include "xwpp/relationships.h"
 #include "xwpp/shared_strings.h"
@@ -57,6 +58,8 @@
 
 #include <format>
 #include <string>
+
+#include <iostream>
 
 namespace xwpp
 {
@@ -785,8 +788,8 @@ void packager_t::write_app_file(const workbook_t& workbook)
   ///         lxw_app_add_heading_pair(app, "Named Ranges", number);
   ///     }
 
-  /* Set the app/doc properties. */
-  ///     app->properties = workbook->properties;
+  // Set the app/doc properties.
+  app.set_properties(workbook.properties_);
 
   ///     app->doc_security = workbook->read_only;
 
@@ -794,11 +797,11 @@ void packager_t::write_app_file(const workbook_t& workbook)
   add_buffer_to_zip(xml_data, "docProps/app.xml");
 }
 
-void packager_t::write_core_file()
+void packager_t::write_core_file(const workbook_t& workbook)
 {
-  const core_t core;
+  core_t core;
 
-  ///  core->properties = self->workbook->properties;
+  core.set_properties(workbook.properties_);
 
   const std::string xml_data = core.assemble_xml_file();
   add_buffer_to_zip(xml_data, "docProps/core.xml");
@@ -1005,43 +1008,14 @@ void packager_t::write_core_file()
 ///     return err;
 /// }
 
-/// STATIC lxw_error
-/// _write_custom_file(lxw_packager *self)
-/// {
-///     lxw_custom *custom;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-///     lxw_error err = LXW_NO_ERROR;
+void packager_t::write_custom_file(const workbook_t& workbook)
+{
+  custom_t custom(workbook.custom_properties_);
 
-///     if (STAILQ_EMPTY(self->workbook->custom_properties))
-///         return LXW_NO_ERROR;
-
-///     custom = lxw_custom_new();
-///     if (!custom) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
-
-///     custom->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!custom->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
-
-///     custom->custom_properties = self->workbook->custom_properties;
-
-///     lxw_custom_assemble_xml_file(custom);
-
-///     err = _add_to_zip(self, custom->file, &buffer, &buffer_size,
-///                       "docProps/custom.xml");
-
-///     fclose(custom->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_custom_free(custom);
-///     return err;
-/// }
+  const std::string xml_data = custom.assemble_xml_file();
+  std::cout << "XML : \n" << xml_data << "\n";
+  add_buffer_to_zip(xml_data, "docProps/custom.xml");
+}
 
 void packager_t::write_theme_file()
 {
@@ -1208,8 +1182,10 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_shared_strings();
   }
 
-  ///     if (!STAILQ_EMPTY(self->workbook->custom_properties))
-  ///         lxw_ct_add_custom_properties(content_types);
+  if(!workbook.custom_properties_.empty())
+  {
+    content_types.add_custom_properties();
+  }
 
   ///     if (workbook->has_metadata)
   ///         lxw_ct_add_metadata(content_types);
@@ -1618,16 +1594,16 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
 ///     return err;
 /// }
 
-void packager_t::write_root_rels_file()
+void packager_t::write_root_rels_file(const workbook_t& workbook)
 {
   relationships_t relationships;
   relationships.add_document("/officeDocument", "xl/workbook.xml");
   relationships.add_package("/metadata/core-properties", "docProps/core.xml");
   relationships.add_document("/extended-properties", "docProps/app.xml");
-  ///     if (!STAILQ_EMPTY(self->workbook->custom_properties))
-  ///         lxw_add_document_relationship(rels,
-  ///                                       "/custom-properties",
-  ///                                       "docProps/custom.xml");
+  if(!workbook.custom_properties_.empty())
+  {
+    relationships.add_document("/custom-properties", "docProps/custom.xml");
+  }
   const std::string xml_data = relationships.assemble_xml_file();
   add_buffer_to_zip(xml_data, "_rels/.rels");
 }
@@ -1726,7 +1702,7 @@ void packager_t::create_package(const workbook_t& workbook)
   zipfile_ = zipOpen(filename_.c_str(), 0);
 
   write_content_types_file(workbook);
-  write_root_rels_file();
+  write_root_rels_file(workbook);
   write_workbook_rels_file(workbook);
   write_worksheet_files(workbook);
   ///     error = _write_chartsheet_files(self);
@@ -1737,7 +1713,7 @@ void packager_t::create_package(const workbook_t& workbook)
   ///     error = _write_comment_files(self);
   ///     error = _write_table_files(self);
   write_shared_strings_file(workbook);
-  ///     error = _write_custom_file(self);
+  write_custom_file(workbook);
   write_theme_file();
   write_styles_file(workbook);
   ///     error = _write_worksheet_rels_file(self);
@@ -1747,7 +1723,7 @@ void packager_t::create_package(const workbook_t& workbook)
   ///     error = _add_vba_project(self);
   ///     error = _add_vba_project_signature(self);
   ///     error = _write_vba_project_rels_file(self);
-  write_core_file();
+  write_core_file(workbook);
   ///     error = _write_metadata_file(self);
   ///     error = _write_rich_value_file(self);
   ///     error = _write_rich_value_rel_file(self);

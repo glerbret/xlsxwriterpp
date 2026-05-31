@@ -41,8 +41,10 @@
 #ifndef XWPP_WORKBOOK_H
 #define XWPP_WORKBOOK_H
 
-#include "worksheet.h"
+#include "xwpp/common.h"
+#include "xwpp/worksheet.h"
 
+#include <chrono>
 #include <cstdint>
 #include <list>
 #include <string_view>
@@ -177,47 +179,52 @@ each.
 ///     TAILQ_ENTRY (lxw_defined_name) list_pointers;
 /// } lxw_defined_name;
 
-/**
- * Workbook document properties. Set any unused fields to NULL or 0.
- */
-/// typedef struct lxw_doc_properties {
-/** The title of the Excel Document. */
-///     const char *title;
+struct doc_properties_t
+{
+  // TODO Add "dc:language" and "cp:revision"
 
-/** The subject of the Excel Document. */
-///     const char *subject;
+  /** The title of the Excel Document. */
+  std::string title_;
 
-/** The author of the Excel Document. */
-///     const char *author;
+  /** The subject of the Excel Document. */
+  std::string subject_;
 
-/** The manager field of the Excel Document. */
-///     const char *manager;
+  /** The author of the Excel Document. */
+  std::string author_;
 
-/** The company field of the Excel Document. */
-///     const char *company;
+  /** The author of modification of the Excel Document. */
+  std::string modif_author_;
 
-/** The category of the Excel Document. */
-///     const char *category;
+  /** The manager field of the Excel Document. */
+  std::string manager_;
 
-/** The keywords of the Excel Document. */
-///     const char *keywords;
+  /** The company field of the Excel Document. */
+  std::string company_;
 
-/** The comment field of the Excel Document. */
-///     const char *comments;
+  /** The category of the Excel Document. */
+  std::string category_;
 
-/** The status of the Excel Document. */
-///     const char *status;
+  /** The keywords of the Excel Document. */
+  std::string keywords_;
 
-/** The hyperlink base URL of the Excel Document. */
-///     const char *hyperlink_base;
+  /** The comment field of the Excel Document. */
+  std::string comments_;
 
-/** The file creation date/time shown in Excel. This defaults to the
- * current time and date if set to 0. If you wish to create files that are
- * binary equivalent (for the same input data) then you should set this
- * creation date/time to a known value. */
-///     time_t created;
+  /** The status of the Excel Document. */
+  std::string status_;
 
-/// } lxw_doc_properties;
+  /** The hyperlink base URL of the Excel Document. */
+  ///     const char *hyperlink_base;
+
+  /** The file creation date/time shown in Excel. This defaults to the
+   * current time and date. If you wish to create files that are
+   * binary equivalent (for the same input data) then you should set this
+   * creation date/time to a known value. */
+  std::chrono::system_clock::time_point created_;
+
+  /** The file modification date/time shown in Excel. */
+  std::chrono::system_clock::time_point modified_;
+};
 
 /**
  * @brief Workbook options.
@@ -376,6 +383,109 @@ public:
   [[nodiscard]] std::string assemble_xml_file() const;
 
   /**
+   * @brief Set the document properties such as Title, Author etc.
+   *
+   * @param workbook   Pointer to a lxw_workbook instance.
+   * @param properties Document properties to set.
+   *
+   * @return A #lxw_error.
+   *
+   * The `%set_properties` function can be used to set the document
+   * properties of the Excel file created by `Xlsxwriter++`. These properties
+   * are visible when you use the `Office Button -> Prepare -> Properties`
+   * option in Excel and are also available to external applications that read
+   * or index windows files.
+   *
+   * The properties that can be set are:
+   *
+   * - `title`
+   * - `subject`
+   * - `author`
+   * - `manager`
+   * - `company`
+   * - `category`
+   * - `keywords`
+   * - `comments`
+   * - `hyperlink_base`
+   * - `created`
+   *
+   * The properties are specified via a `doc_properties_t` struct. All the
+   * fields are all optional. An example of how to create and pass the
+   * properties is:
+   *
+   * @code
+   *     // Create a properties structure and set some of the fields.
+   *     doc_properties_t properties = {
+   *         .title    = "This is an example spreadsheet",
+   *         .subject  = "With document properties",
+   *         .author   = "John McNamara",
+   *         .manager  = "Dr. Heinz Doofenshmirtz",
+   *         .company  = "of Wolves",
+   *         .category = "Example spreadsheets",
+   *         .keywords = "Sample, Example, Properties",
+   *         .comments = "Created with Xlsxwriter++",
+   *         .status   = "Quo",
+   *     };
+   *
+   *     // Set the properties in the workbook.
+   *     workbook.set_properties(properties);
+   * @endcode
+   *
+   * @image html doc_properties.png
+   *
+   * The `created` parameter sets the file creation date/time shown in
+   * Excel. This defaults to the current time and date if set to 0. If you wish
+   * to create files that are binary equivalent (for the same input data) then
+   * you should set this creation date/time to a known value using a `time_t`
+   * value.
+   *
+   */
+  void set_properties(const doc_properties_t& properties);
+
+  /**
+   * @brief Set a custom document text property.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   * @param name     The name of the custom property.
+   * @param value    The value of the custom property.
+   *
+   * @return A #lxw_error.
+   *
+   * The `%set_custom_property()` function can be used to set one
+   * or more custom document text properties not covered by the standard
+   * properties in the `set_properties()` function above.
+   *
+   *  For example:
+   *
+   * @code
+   *     set_custom_property(workbook, "Checked by", "Eve");
+   * @endcode
+   *
+   * @image html custom_properties.png
+   *
+   * There are several `set_custom_property()` overload functions for each
+   * of the custom property types supported by Excel:
+   *
+   * - text/string
+   * - number (int32_t and double)
+   * - datetime
+   * - boolean
+   *
+   * **Note**: the name and value parameters are limited to 255 characters
+   * by Excel.
+   */
+  void set_custom_property(std::string_view name, const std::string& value);
+  void set_custom_property(std::string_view name, const char* value);
+  // TODO Add overload for all integer types (template)
+  void set_custom_property(std::string_view name, int32_t value);
+  // TODO Add overload for all float types (template)
+  void set_custom_property(std::string_view name, double value);
+  void set_custom_property(std::string_view name, bool value);
+  // TODO Add overload with tm, ...
+  void set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value);
+  void set_custom_property(std::string_view name, const std::chrono::year_month_day& value);
+
+  /**
    * @brief Saves the workbook objet in Excel file.
    *
    * @param filename The name of the Excel file to create.
@@ -451,8 +561,8 @@ private:
   ///     struct lxw_formats *formats;
   ///     struct lxw_defined_names *defined_names;
   shared_strings_t sst_;
-  ///     lxw_doc_properties *properties;
-  ///     struct lxw_custom_properties *custom_properties;
+  doc_properties_t properties_;
+  std::vector<custom_property_t> custom_properties_;
 
   ///     char *filename;
   ///     lxw_workbook_options options;
@@ -704,149 +814,6 @@ Chart
 /// lxw_chart *workbook_add_chart(lxw_workbook *workbook, uint8_t chart_type);
 
 /**
- * @brief Set the document properties such as Title, Author etc.
- *
- * @param workbook   Pointer to a lxw_workbook instance.
- * @param properties Document properties to set.
- *
- * @return A #lxw_error.
- *
- * The `%workbook_set_properties` function can be used to set the document
- * properties of the Excel file created by `Xlsxwriter++`. These properties
- * are visible when you use the `Office Button -> Prepare -> Properties`
- * option in Excel and are also available to external applications that read
- * or index windows files.
- *
- * The properties that can be set are:
- *
- * - `title`
- * - `subject`
- * - `author`
- * - `manager`
- * - `company`
- * - `category`
- * - `keywords`
- * - `comments`
- * - `hyperlink_base`
- * - `created`
- *
- * The properties are specified via a `lxw_doc_properties` struct. All the
- * fields are all optional. An example of how to create and pass the
- * properties is:
- *
- * @code
- *     // Create a properties structure and set some of the fields.
- *     lxw_doc_properties properties = {
- *         .title    = "This is an example spreadsheet",
- *         .subject  = "With document properties",
- *         .author   = "John McNamara",
- *         .manager  = "Dr. Heinz Doofenshmirtz",
- *         .company  = "of Wolves",
- *         .category = "Example spreadsheets",
- *         .keywords = "Sample, Example, Properties",
- *         .comments = "Created with Xlsxwriter++",
- *         .status   = "Quo",
- *     };
- *
- *     // Set the properties in the workbook.
- *     workbook_set_properties(workbook, &properties);
- * @endcode
- *
- * @image html doc_properties.png
- *
- * The `created` parameter sets the file creation date/time shown in
- * Excel. This defaults to the current time and date if set to 0. If you wish
- * to create files that are binary equivalent (for the same input data) then
- * you should set this creation date/time to a known value using a `time_t`
- * value.
- *
- */
-/// lxw_error workbook_set_properties(lxw_workbook *workbook,
-///                                   lxw_doc_properties *properties);
-
-/**
- * @brief Set a custom document text property.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     The name of the custom property.
- * @param value    The value of the custom property.
- *
- * @return A #lxw_error.
- *
- * The `%workbook_set_custom_property_string()` function can be used to set one
- * or more custom document text properties not covered by the standard
- * properties in the `workbook_set_properties()` function above.
- *
- *  For example:
- *
- * @code
- *     workbook_set_custom_property_string(workbook, "Checked by", "Eve");
- * @endcode
- *
- * @image html custom_properties.png
- *
- * There are 4 `workbook_set_custom_property_string_*()` functions for each
- * of the custom property types supported by Excel:
- *
- * - text/string: `workbook_set_custom_property_string()`
- * - number:      `workbook_set_custom_property_number()`
- * - datetime:    `workbook_set_custom_property_datetime()`
- * - boolean:     `workbook_set_custom_property_boolean()`
- *
- * **Note**: the name and value parameters are limited to 255 characters
- * by Excel.
- *
- */
-/// lxw_error workbook_set_custom_property_string(lxw_workbook *workbook,
-///                                               const char *name,
-///                                               const char *value);
-/**
- * @brief Set a custom document number property.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     The name of the custom property.
- * @param value    The value of the custom property.
- *
- * @return A #lxw_error.
- *
- * Set a custom document number property.
- * See `workbook_set_custom_property_string()` above for details.
- *
- * @code
- *     workbook_set_custom_property_number(workbook, "Document number", 12345);
- * @endcode
- */
-/// lxw_error workbook_set_custom_property_number(lxw_workbook *workbook,
-///                                               const char *name, double
-///                                               value);
-
-/* Undocumented since the user can use workbook_set_custom_property_number().
- * Only implemented for file format completeness and testing.
- */
-/// lxw_error workbook_set_custom_property_integer(lxw_workbook *workbook,
-///                                                const char *name,
-///                                                int32_t value);
-
-/**
- * @brief Set a custom document boolean property.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     The name of the custom property.
- * @param value    The value of the custom property.
- *
- * @return A #lxw_error.
- *
- * Set a custom document boolean property.
- * See `workbook_set_custom_property_string()` above for details.
- *
- * @code
- *     workbook_set_custom_property_boolean(workbook, "Has Review", 1);
- * @endcode
- */
-/// lxw_error workbook_set_custom_property_boolean(lxw_workbook *workbook,
-///                                                const char *name,
-///                                                uint8_t value);
-/**
  * @brief Set a custom document date or time property.
  *
  * @param workbook Pointer to a lxw_workbook instance.
@@ -856,7 +823,7 @@ Chart
  * @return A #lxw_error.
  *
  * Set a custom date or time number property.
- * See `workbook_set_custom_property_string()` above for details.
+ * See `set_custom_property()` above for details.
  *
  * @code
  *     lxw_datetime datetime  = {2016, 12, 1,  11, 55, 0.0};

@@ -2182,6 +2182,7 @@ class worksheet_t
 public:
   explicit worksheet_t(const worksheet_init_data_t& init_data);
 
+  // TODO Use overload of write (don't use suffix like "_string")
   /**
    * @brief Write a string to a worksheet cell.
    *

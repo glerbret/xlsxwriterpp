@@ -24,7 +24,7 @@ std::string app_t::write_properties() const
 
 std::string app_t::write_application() const
 {
-  return xml_data_element("Application", "Microsoft Excel");
+  return xml_data_element("Application", "Xslswriter++");
 }
 
 std::string app_t::write_doc_security() const
@@ -125,24 +125,23 @@ std::string app_t::write_titles_of_parts() const
 
 std::string app_t::write_manager() const
 {
-  /// lxw_doc_properties *properties = self->properties;
-
-  /// if (!properties)
-  ///   return;
-
-  /// if (properties->manager)
-  ///   lxw_xml_data_element(self->file, "Manager", properties->manager, NULL);
-  return "";
+  if(properties_.manager_.empty())
+  {
+    return "";
+  }
+  return xml_data_element("Manager", properties_.manager_);
 }
 
 std::string app_t::write_company() const
 {
-  /// lxw_doc_properties *properties = self->properties;
-
-  /// if (properties && properties->company)
-  ///   lxw_xml_data_element(self->file, "Company", properties->company, NULL);
-  /// else
-  return xml_data_element("Company", "");
+  if(!properties_.company_.empty())
+  {
+    return xml_data_element("Company", properties_.company_);
+  }
+  else
+  {
+    return xml_data_element("Company", "");
+  }
 }
 
 std::string app_t::write_links_up_to_date() const
@@ -215,6 +214,11 @@ void app_t::add_heading_pair(const std::string& key, const std::string& value)
   }
 
   heading_pairs_.emplace_back(key, value);
+}
+
+void app_t::set_properties(const doc_properties_t& properties)
+{
+  properties_ = properties;
 }
 
 }

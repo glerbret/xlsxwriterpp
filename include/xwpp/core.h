@@ -9,6 +9,8 @@
 #ifndef XWPP_CORE_H
 #define XWPP_CORE_H
 
+#include "xwpp/workbook.h"
+
 #include <string>
 
 namespace xwpp
@@ -18,6 +20,7 @@ class core_t
 {
 public:
   [[nodiscard]] std::string assemble_xml_file() const;
+  void set_properties(const doc_properties_t& properties);
 
 private:
   [[nodiscard]] std::string write_cp_core_properties() const;
@@ -33,7 +36,7 @@ private:
   [[nodiscard]] std::string write_cp_category() const;
   [[nodiscard]] std::string write_cp_content_status() const;
 
-  ///  lxw_doc_properties *properties;
+  doc_properties_t properties_;
 };
 
 }

@@ -9,13 +9,13 @@
 
 int main()
 {
-  xwpp::workbook_t wb;
-  xwpp::worksheet_t& ws = wb.add_worksheet();
+  xwpp::workbook_t workbook;
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  ws.write_string(0, 0, "Hello");
-  ws.write_number(1, 0, 123);
+  worksheet.write_string(0, 0, "Hello");
+  worksheet.write_number(1, 0, 123);
 
-  wb.save("hello_world.xlsx");
+  workbook.save("hello_world.xlsx");
 
   return 0;
 }

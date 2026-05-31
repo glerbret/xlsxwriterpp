@@ -65,7 +65,7 @@ if (MSVC)
   add_compile_options(/W4)
 else()
   # additional warnings
-  add_compile_options(-Wall -Wextra -Wpedantic -Wno-comment)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-comment -Wno-missing-field-initializers)
 endif()
 
 set(XLSXPP_PROJECT_NAME

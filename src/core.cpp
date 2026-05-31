@@ -17,26 +17,26 @@ namespace
 {
 
 // TODO Should be moved to utility
-std::string datetime_to_iso8601_date(time_t* /*timer*/)
+std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point& time)
 {
-  // TODO Should be initialised in workbook constructor with local date and time
-  const auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
-  /// struct tm *tmp_datetime;
-  /// time_t current_time = time(NULL);
+  if(time.time_since_epoch().count() == 0)
+  {
+    return std::format("{:%FT%TZ}",
+                       std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()));
+  }
 
-  /// if (*timer)
-  ///   tmp_datetime = gmtime(timer);
-  /// else
-  ///   tmp_datetime = gmtime(&current_time);
-
-  /// strftime(str, size - 1, "%Y-%m-%dT%H:%M:%SZ", tmp_datetime);
-  return std::format("{:%FT%TZ}", now);
+  return std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(time));
 }
 
 }
 
 namespace xwpp
 {
+
+void core_t::set_properties(const doc_properties_t& properties)
+{
+  properties_ = properties;
+}
 
 std::string core_t::write_cp_core_properties() const
 {
@@ -52,28 +52,31 @@ std::string core_t::write_cp_core_properties() const
 
 std::string core_t::write_dc_creator() const
 {
-  /// if (self->properties->author) {
-  ///   lxw_xml_data_element(self->file, "dc:creator",
-  ///                             self->properties->author, NULL);
-  ///   }
-  ///     else {
-  return xml_data_element("dc:creator");
-  ///   }
+  if(!properties_.author_.empty())
+  {
+    return xml_data_element("dc:creator", properties_.author_);
+  }
+  else
+  {
+    return xml_data_element("dc:creator");
+  }
 }
 
 std::string core_t::write_cp_last_modified_by() const
 {
-  /// if (self->properties->author) {
-  ///   lxw_xml_data_element(self->file, "cp:lastModifiedBy", self->properties->author, NULL);
-  /// }
-  /// else {
-  return xml_data_element("cp:lastModifiedBy");
-  /// }
+  if(!properties_.modif_author_.empty())
+  {
+    return xml_data_element("cp:lastModifiedBy", properties_.modif_author_);
+  }
+  else
+  {
+    return xml_data_element("cp:lastModifiedBy");
+  }
 }
 
 std::string core_t::write_dcterms_created() const
 {
-  return xml_data_element("dcterms:created", datetime_to_iso8601_date(nullptr /* TODO &self->properties->created*/),
+  return xml_data_element("dcterms:created", datetime_to_iso8601_date(properties_.created_),
                           {
                               {"xsi:type", "dcterms:W3CDTF"}
   });
@@ -81,7 +84,12 @@ std::string core_t::write_dcterms_created() const
 
 std::string core_t::write_dcterms_modified() const
 {
-  return xml_data_element("dcterms:modified", datetime_to_iso8601_date(nullptr /* TODO &self->properties->created*/),
+  if(properties_.modified_.time_since_epoch().count() == 0)
+  {
+    return "";
+  }
+
+  return xml_data_element("dcterms:modified", datetime_to_iso8601_date(properties_.modified_),
                           {
                               {"xsi:type", "dcterms:W3CDTF"}
   });
@@ -89,56 +97,62 @@ std::string core_t::write_dcterms_modified() const
 
 std::string core_t::write_dc_title() const
 {
-  /// if (!self->properties->title)
-  ///   return;
+  if(properties_.title_.empty())
+  {
+    return "";
+  }
 
-  /// return xml_data_element("dc:title", self->properties->title,);
-  return "";
+  return xml_data_element("dc:title", properties_.title_);
 }
 
 std::string core_t::write_dc_subject() const
 {
-  /// if (!self->properties->subject)
-  ///   return;
+  if(properties_.subject_.empty())
+  {
+    return "";
+  }
 
-  /// return xml_data_element("dc:subject", self->properties->subject);
-  return "";
+  return xml_data_element("dc:subject", properties_.subject_);
 }
 
 std::string core_t::write_cp_keywords() const
 {
-  /// if (!self->properties->keywords)
-  ///   return;
+  if(properties_.keywords_.empty())
+  {
+    return "";
+  }
 
-  /// return xml_data_element(self->file, "cp:keywords", self->properties->keywords);
-  return "";
+  return xml_data_element("cp:keywords", properties_.keywords_);
 }
 
 std::string core_t::write_dc_description() const
 {
-  /// if (!self->properties->comments)
-  ///   return;
+  if(properties_.comments_.empty())
+  {
+    return "";
+  }
 
-  ///  return xml_data_element("dc:description", self->properties->comments);
-  return "";
+  return xml_data_element("dc:description", properties_.comments_);
 }
 
 std::string core_t::write_cp_category() const
 {
-  /// if (!self->properties->category)
-  ///   return;
+  if(properties_.category_.empty())
+  {
+    return "";
+  }
 
-  /// return xml_data_element("cp:category", self->properties->category);
-  return "";
+  return xml_data_element("cp:category", properties_.category_);
 }
 
 std::string core_t::write_cp_content_status() const
 {
-  /// if (!self->properties->status)
-  ///   return;
+  if(properties_.status_.empty())
+  {
+    return "";
+  }
 
-  /// return xml_data_element("cp:contentStatus", self->properties->status);
-  return "";
+  return xml_data_element("cp:contentStatus", properties_.status_);
 }
 
 std::string core_t::assemble_xml_file() const

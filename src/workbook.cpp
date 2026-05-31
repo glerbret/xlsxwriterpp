@@ -12,8 +12,11 @@
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
+#include <chrono>
 #include <format>
 #include <string>
+
+using namespace std::literals::chrono_literals;
 
 namespace xwpp
 {
@@ -40,25 +43,6 @@ namespace xwpp
 /// _image_md5_cmp(lxw_image_md5 *tuple1, lxw_image_md5 *tuple2)
 /// {
 ///     return strcmp(tuple1->md5, tuple2->md5);
-/// }
-
-/// STATIC void
-/// _free_doc_properties(lxw_doc_properties *properties)
-/// {
-///     if (properties) {
-///         free((void *) properties->title);
-///         free((void *) properties->subject);
-///         free((void *) properties->author);
-///         free((void *) properties->manager);
-///         free((void *) properties->company);
-///         free((void *) properties->category);
-///         free((void *) properties->keywords);
-///         free((void *) properties->comments);
-///         free((void *) properties->status);
-///         free((void *) properties->hyperlink_base);
-///     }
-
-///     free(properties);
 /// }
 
 /// STATIC void  _free_custom_doc_property(lxw_custom_property *custom_property)
@@ -1535,10 +1519,6 @@ workbook_t::workbook_t()
 ///     workbook->sst = lxw_sst_new();
 ///     GOTO_LABEL_ON_MEM_ERROR(workbook->sst, mem_error);
 
-/* Add the default workbook properties. */
-///     workbook->properties = calloc(1, sizeof(lxw_doc_properties));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->properties, mem_error);
-
 /* Add a hash table to track format indices. */
 ///     workbook->used_xf_formats = lxw_hash_new(128, 1, 0);
 ///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_xf_formats, mem_error);
@@ -1546,12 +1526,6 @@ workbook_t::workbook_t()
 /* Add a hash table to track format indices. */
 ///     workbook->used_dxf_formats = lxw_hash_new(128, 1, 0);
 ///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_dxf_formats, mem_error);
-
-/* Add the worksheets list. */
-///     workbook->custom_properties =
-///         calloc(1, sizeof(struct lxw_custom_properties));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->custom_properties, mem_error);
-///     STAILQ_INIT(workbook->custom_properties);
 
 /* Add the default cell format. */
 ///     format = workbook_add_format(workbook);
@@ -1890,285 +1864,105 @@ void workbook_t::save(std::string_view filename)
 ///     return _store_defined_name(self, name, NULL, formula, -1, LXW_FALSE);
 /// }
 
-/// lxw_error workbook_set_properties(lxw_workbook *self, lxw_doc_properties *user_props)
-/// {
-///     lxw_doc_properties *doc_props;
+void workbook_t::set_properties(const doc_properties_t& properties)
+{
+  properties_ = properties;
+}
 
-/* Free any existing properties. */
-///     _free_doc_properties(self->properties);
+void workbook_t::set_custom_property(std::string_view name, const std::string& value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+  }
 
-///     doc_props = calloc(1, sizeof(lxw_doc_properties));
-///     GOTO_LABEL_ON_MEM_ERROR(doc_props, mem_error);
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+  }
 
-/* Copy the user properties to an internal structure. */
-///     if (user_props->title) {
-///         doc_props->title = lxw_strdup(user_props->title);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->title, mem_error);
-///     }
+  if(value.size() > 255)
+  {
+    throw xwpp_out_of_range_t(std::format("Value of custom property ({}) is too long", value));
+  }
 
-///     if (user_props->subject) {
-///         doc_props->subject = lxw_strdup(user_props->subject);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->subject, mem_error);
-///     }
+  custom_properties_.emplace_back(custom_property_types_t::STRING, std::string(name), std::string(value));
+}
 
-///     if (user_props->author) {
-///         doc_props->author = lxw_strdup(user_props->author);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->author, mem_error);
-///     }
+void workbook_t::set_custom_property(std::string_view name, const char* value)
+{
+  set_custom_property(name, std::string(value));
+}
 
-///     if (user_props->manager) {
-///         doc_props->manager = lxw_strdup(user_props->manager);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->manager, mem_error);
-///     }
+void workbook_t::set_custom_property(std::string_view name, int32_t value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+  }
 
-///     if (user_props->company) {
-///         doc_props->company = lxw_strdup(user_props->company);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->company, mem_error);
-///     }
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+  }
 
-///     if (user_props->category) {
-///         doc_props->category = lxw_strdup(user_props->category);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->category, mem_error);
-///     }
+  custom_properties_.emplace_back(custom_property_types_t::INTEGER, std::string(name), value);
+}
 
-///     if (user_props->keywords) {
-///         doc_props->keywords = lxw_strdup(user_props->keywords);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->keywords, mem_error);
-///     }
+void workbook_t::set_custom_property(std::string_view name, double value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+  }
 
-///     if (user_props->comments) {
-///         doc_props->comments = lxw_strdup(user_props->comments);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->comments, mem_error);
-///     }
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+  }
 
-///     if (user_props->status) {
-///         doc_props->status = lxw_strdup(user_props->status);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->status, mem_error);
-///     }
+  custom_properties_.emplace_back(custom_property_types_t::DOUBLE, std::string(name), value);
+}
 
-///     if (user_props->hyperlink_base) {
-///         doc_props->hyperlink_base = lxw_strdup(user_props->hyperlink_base);
-///         GOTO_LABEL_ON_MEM_ERROR(doc_props->hyperlink_base, mem_error);
-///     }
+void workbook_t::set_custom_property(std::string_view name, bool value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+  }
 
-///     doc_props->created = user_props->created;
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+  }
 
-///     self->properties = doc_props;
+  custom_properties_.emplace_back(custom_property_types_t::BOOLEAN, std::string(name), value);
+}
 
-///     return LXW_NO_ERROR;
+void workbook_t::set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+  }
 
-/// mem_error:
-///     _free_doc_properties(doc_props);
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+  }
 
-/// lxw_error workbook_set_custom_property_string(lxw_workbook *self, const char *name,
-///                                     const char *value)
-/// {
-///     lxw_custom_property *custom_property;
+  if(value.time_since_epoch().count() == 0)
+  {
+    throw xwpp_exception_t("No date set");
+  }
 
-///     if (!name) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_string(): "
-///                         "parameter 'name' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
+  custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
+}
 
-///     if (lxw_str_is_empty(name)) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_string(): "
-///                         "parameter 'name' cannot be an empty string.");
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-
-///     if (!value) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_string(): "
-///                         "parameter 'value' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (lxw_utf8_strlen(name) > 255) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_string(): parameter "
-///                         "'name' exceeds Excel length limit of 255.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-///     if (lxw_utf8_strlen(value) > 255) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_string(): parameter "
-///                         "'value' exceeds Excel length limit of 255.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Create a struct to hold the custom property. */
-///     custom_property = calloc(1, sizeof(struct lxw_custom_property));
-///     RETURN_ON_MEM_ERROR(custom_property, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///     custom_property->name = lxw_strdup(name);
-///     custom_property->u.string = lxw_strdup(value);
-///     custom_property->type = LXW_CUSTOM_STRING;
-
-///     STAILQ_INSERT_TAIL(self->custom_properties, custom_property,
-///                        list_pointers);
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// lxw_error workbook_set_custom_property_number(lxw_workbook *self, const char *name,
-///                                     double value)
-/// {
-///     lxw_custom_property *custom_property;
-
-///     if (!name) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_number(): parameter "
-///                         "'name' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (lxw_str_is_empty(name)) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_number(): parameter "
-///                         "'name' cannot be an empty string.");
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-
-///     if (lxw_utf8_strlen(name) > 255) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_number(): parameter "
-///                         "'name' exceeds Excel length limit of 255.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Create a struct to hold the custom property. */
-///     custom_property = calloc(1, sizeof(struct lxw_custom_property));
-///     RETURN_ON_MEM_ERROR(custom_property, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///     custom_property->name = lxw_strdup(name);
-///     custom_property->u.number = value;
-///     custom_property->type = LXW_CUSTOM_DOUBLE;
-
-///     STAILQ_INSERT_TAIL(self->custom_properties, custom_property,
-///                        list_pointers);
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// lxw_error workbook_set_custom_property_integer(lxw_workbook *self, const char *name,
-///                                      int32_t value)
-/// {
-///     lxw_custom_property *custom_property;
-
-///     if (!name) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_integer(): parameter "
-///                         "'name' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (lxw_str_is_empty(name)) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_integer(): parameter "
-///                         "'name' cannot be an empty string.");
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-
-///     if (strlen(name) > 255) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_integer(): parameter "
-///                         "'name' exceeds Excel length limit of 255.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Create a struct to hold the custom property. */
-///     custom_property = calloc(1, sizeof(struct lxw_custom_property));
-///     RETURN_ON_MEM_ERROR(custom_property, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///     custom_property->name = lxw_strdup(name);
-///     custom_property->u.integer = value;
-///     custom_property->type = LXW_CUSTOM_INTEGER;
-
-///     STAILQ_INSERT_TAIL(self->custom_properties, custom_property,
-///                        list_pointers);
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// lxw_error workbook_set_custom_property_boolean(lxw_workbook *self, const char *name,
-///                                      uint8_t value)
-/// {
-///     lxw_custom_property *custom_property;
-
-///     if (!name) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_boolean(): parameter "
-///                         "'name' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (lxw_str_is_empty(name)) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_boolean(): parameter "
-///                         "'name' cannot be an empty string.");
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-
-///     if (lxw_utf8_strlen(name) > 255) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_boolean(): parameter "
-///                         "'name' exceeds Excel length limit of 255.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Create a struct to hold the custom property. */
-///     custom_property = calloc(1, sizeof(struct lxw_custom_property));
-///     RETURN_ON_MEM_ERROR(custom_property, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///     custom_property->name = lxw_strdup(name);
-///     custom_property->u.boolean = value;
-///     custom_property->type = LXW_CUSTOM_BOOLEAN;
-
-///     STAILQ_INSERT_TAIL(self->custom_properties, custom_property,
-///                        list_pointers);
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// lxw_error workbook_set_custom_property_datetime(lxw_workbook *self, const char *name,
-///                                       lxw_datetime *datetime)
-/// {
-///     lxw_custom_property *custom_property;
-
-///     if (!name) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_datetime(): parameter "
-///                         "'name' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (lxw_str_is_empty(name)) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_datetime(): parameter "
-///                         "'name' cannot be an empty string.");
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-
-///     if (lxw_utf8_strlen(name) > 255) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_datetime(): parameter "
-///                         "'name' exceeds Excel length limit of 255.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (!datetime) {
-///         LXW_WARN_FORMAT("workbook_set_custom_property_datetime(): parameter "
-///                         "'datetime' cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-
-///     if (lxw_datetime_validate(datetime) != LXW_NO_ERROR) {
-///         return LXW_ERROR_DATETIME_VALIDATION;
-///     }
-
-/* Create a struct to hold the custom property. */
-///     custom_property = calloc(1, sizeof(struct lxw_custom_property));
-///     RETURN_ON_MEM_ERROR(custom_property, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///     custom_property->name = lxw_strdup(name);
-
-///     memcpy(&custom_property->u.datetime, datetime, sizeof(lxw_datetime));
-///     custom_property->type = LXW_CUSTOM_DATETIME;
-
-///     STAILQ_INSERT_TAIL(self->custom_properties, custom_property,
-///                        list_pointers);
-
-///     return LXW_NO_ERROR;
-/// }
+void workbook_t::set_custom_property(std::string_view name, const std::chrono::year_month_day& value)
+{
+  set_custom_property(name, std::chrono::sys_days{value} + 0h + 0min + 0s + 0ms);
+}
 
 /// lxw_worksheet * workbook_get_worksheet_by_name(lxw_workbook *self, const char *name)
 /// {
