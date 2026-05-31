@@ -1008,6 +1008,11 @@ void packager_t::write_core_file(const workbook_t& workbook)
 
 void packager_t::write_custom_file(const workbook_t& workbook)
 {
+  if(workbook.custom_properties_.empty())
+  {
+    return;
+  }
+
   custom_t custom(workbook.custom_properties_);
 
   const std::string xml_data = custom.assemble_xml_file();
