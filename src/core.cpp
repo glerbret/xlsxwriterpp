@@ -33,9 +33,9 @@ std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point
 namespace xwpp
 {
 
-void core_t::set_properties(const doc_properties_t& properties)
+core_t::core_t(const doc_properties_t& properties)
+  : properties_{properties}
 {
-  properties_ = properties;
 }
 
 std::string core_t::write_cp_core_properties() const

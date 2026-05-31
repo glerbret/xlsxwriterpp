@@ -19,8 +19,9 @@ namespace xwpp
 class core_t
 {
 public:
+  explicit core_t(const doc_properties_t& properties);
+
   [[nodiscard]] std::string assemble_xml_file() const;
-  void set_properties(const doc_properties_t& properties);
 
 private:
   [[nodiscard]] std::string write_cp_core_properties() const;
