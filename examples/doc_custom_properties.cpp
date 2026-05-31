@@ -28,7 +28,7 @@ int main()
   workbook.set_custom_property("Signed off", false);
 
   // Add some text to the file.
-  // TODO worksheet.set_column(0, 0, 50);
+  worksheet.set_column(0, 0, 50);
   worksheet.write_string(0, 0, "Select 'Workbook Properties' to see properties.");
 
   workbook.save("doc_custom_properties.xlsx");

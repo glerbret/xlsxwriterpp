@@ -68,7 +68,7 @@ namespace xwpp
 /// #define LXW_BREAKS_MAX        1023
 
 /** Default Excel column width in character units. */
-/// #define LXW_DEF_COL_WIDTH (double)8.43
+const double DEF_COL_WIDTH = 8.43;
 
 /** Default Excel column width in pixels. */
 /// #define LXW_DEF_COL_WIDTH_PIXELS 64
@@ -76,6 +76,7 @@ namespace xwpp
 /** Default Excel column height in pixels. */
 /// #define LXW_DEF_ROW_HEIGHT_PIXELS 20
 
+/** Default Excel row height in character units. */
 const double DEF_ROW_HEIGHT = 15.0;
 
 /** Gridline options using in `worksheet_gridlines()`. */
@@ -776,15 +777,15 @@ struct cell_t
 
 struct row_t
 {
-  row_num_t row_num_ = 0;
-  double height_     = DEF_ROW_HEIGHT;
+  row_num_t row_num_   = 0;
+  double height_       = DEF_ROW_HEIGHT;
   ///     lxw_format *format;
   ///     uint8_t hidden;
   ///     uint8_t level;
   ///     uint8_t collapsed;
   ///     uint8_t row_changed;
-  bool data_changed_ = false;
-  ///     uint8_t height_changed;
+  bool data_changed_   = false;
+  bool height_changed_ = false;
 
   std::map<col_num_t, cell_t> cells_;
 };
@@ -893,9 +894,9 @@ struct table_rows_t
 
 struct col_options_t
 {
-  col_num_t firstcol_;
-  col_num_t lastcol_;
-  double width_;
+  col_num_t firstcol_ = 0;
+  col_num_t lastcol_  = 0;
+  double width_       = DEF_COL_WIDTH;
   ///     lxw_format *format;
   ///     uint8_t hidden;
   ///     uint8_t level;
@@ -2182,6 +2183,124 @@ class worksheet_t
 public:
   explicit worksheet_t(const worksheet_init_data_t& init_data);
 
+  // TODO Add API with option (original worksheet_set_column_opt) and with format
+  // TODO Add API with col names
+  /**
+   * @brief Set the properties for one or more columns of cells with options.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_col The zero indexed first column.
+   * @param last_col  The zero indexed last column.
+   * @param width     The width of the column(s).
+  /// * @param format    A pointer to a Format instance or NULL.
+  /// * @param options   Optional row parameters: hidden, level, collapsed.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_column_opt()` function  is the same as
+   * `worksheet_set_column()` with an additional `options` parameter.
+   *
+   * The `options` parameter is a #lxw_row_col_options struct. It has the
+   * following members:
+   *
+   * - `hidden`
+   * - `level`
+   * - `collapsed`
+   *
+   * The `"hidden"` option is used to hide a column. This can be used, for
+   * example, to hide intermediary steps in a complicated calculation:
+   *
+   * @code
+   *     lxw_row_col_options options1 = {.hidden = 1, .level = 0, .collapsed = 0};
+   *
+   *     worksheet_set_column_opt(worksheet, COLS("D:E"),  LXW_DEF_COL_WIDTH,
+   * NULL, &options1);
+   * @endcode
+   *
+   * @image html hide_row_col3.png
+   *
+   * The `"hidden"`, `"level"`,  and `"collapsed"`, options can also be used to
+   * create Outlines and Grouping. See @ref working_with_outlines.
+   *
+   * @code
+   *     lxw_row_col_options options1 = {.hidden = 0, .level = 1, .collapsed = 0};
+   *
+   *     worksheet_set_column_opt(worksheet, COLS("B:G"),  5, NULL, &options1);
+   * @endcode
+   *
+   * @image html outline8.png
+   */
+  void set_column(col_num_t first_col, col_num_t last_col,
+                  double width /* TODO, lxw_format *format, lxw_row_col_options *options*/);
+
+  // TODO Add API with option (original worksheet_set_row_opt) and format
+  // TODO Add API with row names
+  /**
+   * @brief Set the properties for a row of cells.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param height    The row height.
+   * @param format    A pointer to a Format instance or NULL.
+   * @param options   Optional row parameters: hidden, level, collapsed.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_row_opt()` function  is the same as
+   *  `worksheet_set_row()` with an additional `options` parameter.
+   *
+   * The `options` parameter is a #lxw_row_col_options struct. It has the
+   * following members:
+   *
+   * - `hidden`
+   * - `level`
+   * - `collapsed`
+   *
+   * The `"hidden"` option is used to hide a row. This can be used, for
+   * example, to hide intermediary steps in a complicated calculation:
+   *
+   * @code
+   *     lxw_row_col_options options1 = {.hidden = 1, .level = 0, .collapsed = 0};
+   *
+   *     // Hide the fourth and fifth (zero indexed) rows.
+   *     worksheet_set_row_opt(worksheet, 3,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 4,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1);
+   *
+   * @endcode
+   *
+   * @image html hide_row_col2.png
+   *
+   * The `"hidden"`, `"level"`,  and `"collapsed"`, options can also be used to
+   * create Outlines and Grouping. See @ref working_with_outlines.
+   *
+   * @code
+   *     // The option structs with the outline level set.
+   *     lxw_row_col_options options1 = {.hidden = 0, .level = 2, .collapsed = 0};
+   *     lxw_row_col_options options2 = {.hidden = 0, .level = 1, .collapsed = 0};
+   *
+   *
+   *     // Set the row options with the outline level.
+   *     worksheet_set_row_opt(worksheet, 1,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 2,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 3,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 4,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 5,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options2);
+   *
+   *     worksheet_set_row_opt(worksheet, 6,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 7,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 8,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 9,  LXW_DEF_ROW_HEIGHT, NULL,
+   * &options1); worksheet_set_row_opt(worksheet, 10, LXW_DEF_ROW_HEIGHT, NULL,
+   * &options2);
+   * @endcode
+   *
+   * @image html outline1.png
+   *
+   */
+  void set_row(row_num_t row, double height /* TODO, lxw_format *format, lxw_row_col_options *options*/);
+
   // TODO Use overload of write (don't use suffix like "_string")
   /**
    * @brief Write a string to a worksheet cell.
@@ -2342,7 +2461,7 @@ private:
   [[nodiscard]] std::string write_picture() const;
   [[nodiscard]] std::string write_table_parts() const;
   [[nodiscard]] std::string write_ext_list() const;
-  [[nodiscard]] std::string worksheet_write_rows() const;
+  [[nodiscard]] std::string write_rows() const;
   [[nodiscard]] std::string write_row(const row_t& row /* TODO char *spans*/) const;
   [[nodiscard]] std::string write_cell(const cell_t& cell /* TODO lxw_format *row_format*/) const;
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
@@ -2389,7 +2508,7 @@ private:
   ///     uint16_t *first_sheet;
   ///     uint8_t is_chartsheet;
 
-  ///     col_options_t **col_options;
+  std::vector<col_options_t> col_options_;
   ///     uint16_t col_options_max;
 
   ///     double *col_sizes;
@@ -2398,7 +2517,7 @@ private:
   ///     lxw_format **col_formats;
   ///     uint16_t col_formats_max;
 
-  ///     uint8_t col_size_changed;
+  bool col_size_changed_ = false;
   ///     uint8_t row_size_changed;
   ///     uint8_t optimize;
   ///     struct row_t *optimize_row;
@@ -3376,76 +3495,6 @@ private:
 ///                             *format);
 
 /**
- * @brief Set the properties for a row of cells.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param height    The row height.
- * @param format    A pointer to a Format instance or NULL.
- * @param options   Optional row parameters: hidden, level, collapsed.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_row_opt()` function  is the same as
- *  `worksheet_set_row()` with an additional `options` parameter.
- *
- * The `options` parameter is a #lxw_row_col_options struct. It has the
- * following members:
- *
- * - `hidden`
- * - `level`
- * - `collapsed`
- *
- * The `"hidden"` option is used to hide a row. This can be used, for
- * example, to hide intermediary steps in a complicated calculation:
- *
- * @code
- *     lxw_row_col_options options1 = {.hidden = 1, .level = 0, .collapsed = 0};
- *
- *     // Hide the fourth and fifth (zero indexed) rows.
- *     worksheet_set_row_opt(worksheet, 3,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 4,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1);
- *
- * @endcode
- *
- * @image html hide_row_col2.png
- *
- * The `"hidden"`, `"level"`,  and `"collapsed"`, options can also be used to
- * create Outlines and Grouping. See @ref working_with_outlines.
- *
- * @code
- *     // The option structs with the outline level set.
- *     lxw_row_col_options options1 = {.hidden = 0, .level = 2, .collapsed = 0};
- *     lxw_row_col_options options2 = {.hidden = 0, .level = 1, .collapsed = 0};
- *
- *
- *     // Set the row options with the outline level.
- *     worksheet_set_row_opt(worksheet, 1,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 2,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 3,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 4,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 5,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options2);
- *
- *     worksheet_set_row_opt(worksheet, 6,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 7,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 8,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 9,  LXW_DEF_ROW_HEIGHT, NULL,
- * &options1); worksheet_set_row_opt(worksheet, 10, LXW_DEF_ROW_HEIGHT, NULL,
- * &options2);
- * @endcode
- *
- * @image html outline1.png
- *
- */
-/// lxw_error worksheet_set_row_opt(lxw_worksheet *worksheet,
-///                                 row_num_t row,
-///                                 double height,
-///                                 lxw_format *format,
-///                                 lxw_row_col_options *options);
-
-/**
  * @brief Set the properties for a row of cells, with the height in pixels.
  *
  * @param worksheet Pointer to a lxw_worksheet instance to be updated.
@@ -3594,58 +3643,6 @@ private:
 ///                                col_num_t first_col,
 ///                                col_num_t last_col,
 ///                                double width, lxw_format *format);
-
-/**
- * @brief Set the properties for one or more columns of cells with options.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col The zero indexed first column.
- * @param last_col  The zero indexed last column.
- * @param width     The width of the column(s).
- * @param format    A pointer to a Format instance or NULL.
- * @param options   Optional row parameters: hidden, level, collapsed.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_column_opt()` function  is the same as
- * `worksheet_set_column()` with an additional `options` parameter.
- *
- * The `options` parameter is a #lxw_row_col_options struct. It has the
- * following members:
- *
- * - `hidden`
- * - `level`
- * - `collapsed`
- *
- * The `"hidden"` option is used to hide a column. This can be used, for
- * example, to hide intermediary steps in a complicated calculation:
- *
- * @code
- *     lxw_row_col_options options1 = {.hidden = 1, .level = 0, .collapsed = 0};
- *
- *     worksheet_set_column_opt(worksheet, COLS("D:E"),  LXW_DEF_COL_WIDTH,
- * NULL, &options1);
- * @endcode
- *
- * @image html hide_row_col3.png
- *
- * The `"hidden"`, `"level"`,  and `"collapsed"`, options can also be used to
- * create Outlines and Grouping. See @ref working_with_outlines.
- *
- * @code
- *     lxw_row_col_options options1 = {.hidden = 0, .level = 1, .collapsed = 0};
- *
- *     worksheet_set_column_opt(worksheet, COLS("B:G"),  5, NULL, &options1);
- * @endcode
- *
- * @image html outline8.png
- */
-/// lxw_error worksheet_set_column_opt(lxw_worksheet *worksheet,
-///                                    col_num_t first_col,
-///                                    col_num_t last_col,
-///                                    double width,
-///                                    lxw_format *format,
-///                                    lxw_row_col_options *options);
 
 /**
  * @brief Set the properties for one or more columns of cells, with the width

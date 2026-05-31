@@ -1013,7 +1013,6 @@ void packager_t::write_custom_file(const workbook_t& workbook)
   custom_t custom(workbook.custom_properties_);
 
   const std::string xml_data = custom.assemble_xml_file();
-  std::cout << "XML : \n" << xml_data << "\n";
   add_buffer_to_zip(xml_data, "docProps/custom.xml");
 }
 

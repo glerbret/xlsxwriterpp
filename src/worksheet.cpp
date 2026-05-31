@@ -1687,7 +1687,7 @@ std::string worksheet_t::write_sheet_data() const
   else
   {
     std::string xml_data = xml_start_tag("sheetData");
-    xml_data += worksheet_write_rows();
+    xml_data += write_rows();
     xml_data += xml_end_tag("sheetData");
     return xml_data;
   }
@@ -1855,16 +1855,20 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   ///     int32_t xf_index = 0;
-  ///     double height;
+  double height;
 
   ///     if (row->format) {
   ///         xf_index = lxw_format_get_xf_index(row->format);
   ///     }
 
-  ///     if (row->height_changed)
-  ///         height = row->height;
-  ///     else
-  ///         height = self->default_row_height;
+  if(row.height_changed_)
+  {
+    height = row.height_;
+  }
+  else
+  {
+    height = default_row_height_;
+  }
 
   attributes.emplace_back("r", std::to_string(row.row_num_ + 1));
 
@@ -1877,14 +1881,18 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
   ///     if (row->format)
   ///         LXW_PUSH_ATTRIBUTES_STR("customFormat", "1");
 
-  ///     if (height != LXW_DEF_ROW_HEIGHT)
-  ///         LXW_PUSH_ATTRIBUTES_DBL("ht", height);
+  if(height != DEF_ROW_HEIGHT)
+  {
+    attributes.emplace_back("ht", std::to_string(height));
+  }
 
   ///     if (row->hidden)
   ///         LXW_PUSH_ATTRIBUTES_STR("hidden", "1");
 
-  ///     if (height != LXW_DEF_ROW_HEIGHT)
-  ///         LXW_PUSH_ATTRIBUTES_STR("customHeight", "1");
+  if(height != DEF_ROW_HEIGHT)
+  {
+    attributes.emplace_back("customHeight", "1");
+  }
 
   ///     if (row->level)
   ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevel", row->level);
@@ -3737,7 +3745,7 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
   return "";
 }
 
-std::string worksheet_t::worksheet_write_rows() const
+std::string worksheet_t::write_rows() const
 {
   std::string xml_data;
   ///     row_t *row;
@@ -3884,54 +3892,34 @@ std::string worksheet_t::worksheet_write_rows() const
 ///     }
 /// }
 
-std::string worksheet_t::write_col_info(const col_options_t& /*options*/) const
+std::string worksheet_t::write_col_info(const col_options_t& options) const
 {
   std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-  ///     double width = options->width;
-  ///     uint8_t has_custom_width = LXW_TRUE;
+  double width          = options.width_;
+  bool has_custom_width = true;
   ///     int32_t xf_index = 0;
-  ///     double max_digit_width = 7.0;       /* For Calabri 11. */
-  ///     double padding = 5.0;
 
   /* Get the format index. */
   ///     if (options->format) {
   ///         xf_index = lxw_format_get_xf_index(options->format);
   ///     }
 
-  /* Check if width is the Excel default. */
-  ///     if (width == LXW_DEF_COL_WIDTH) {
+  // Check if width is the Excel default.
+  if(width == DEF_COL_WIDTH)
+  {
 
-  /* The default col width changes to 0 for hidden columns. */
-  ///         if (options->hidden)
-  ///             width = 0;
-  ///         else
-  ///             has_custom_width = LXW_FALSE;
+    // The default col width changes to 0 for hidden columns.
+    ///         if (options->hidden)
+    ///             width = 0;
+    ///         else
+    has_custom_width = false;
+  }
 
-  ///     }
-
-  /* Convert column width from user units to character width. */
-  ///     if (width > 0) {
-  ///         if (width < 1) {
-  ///             width = (uint16_t) (((uint16_t)
-  ///                                  (width * (max_digit_width + padding) +
-  ///                                  0.5))
-  ///                                 / max_digit_width * 256.0) / 256.0;
-  ///         }
-  ///         else {
-  ///             width = (uint16_t) (((uint16_t)
-  ///                                  (width * max_digit_width + 0.5) +
-  ///                                  padding)
-  ///                                 / max_digit_width * 256.0) / 256.0;
-  ///         }
-  ///     }
-
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_INT("min", 1 + options->firstcol);
-  ///     LXW_PUSH_ATTRIBUTES_INT("max", 1 + options->lastcol);
-  ///     LXW_PUSH_ATTRIBUTES_DBL("width", width);
+  attributes.emplace_back("min", std::to_string(options.firstcol_ + 1));
+  attributes.emplace_back("max", std::to_string(options.lastcol_ + 1));
+  attributes.emplace_back("width", std::format("{}", width));
 
   ///     if (xf_index)
   ///         LXW_PUSH_ATTRIBUTES_INT("style", xf_index);
@@ -3939,8 +3927,10 @@ std::string worksheet_t::write_col_info(const col_options_t& /*options*/) const
   ///     if (options->hidden)
   ///         LXW_PUSH_ATTRIBUTES_STR("hidden", "1");
 
-  ///     if (has_custom_width)
-  ///         LXW_PUSH_ATTRIBUTES_STR("customWidth", "1");
+  if(has_custom_width)
+  {
+    attributes.emplace_back("customWidth", "1");
+  }
 
   ///     if (options->level)
   ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevel", options->level);
@@ -3948,27 +3938,30 @@ std::string worksheet_t::write_col_info(const col_options_t& /*options*/) const
   ///     if (options->collapsed)
   ///         LXW_PUSH_ATTRIBUTES_STR("collapsed", "1");
 
-  ///     lxw_xml_empty_tag(self->file, "col", &attributes);
+  xml_data += xml_empty_tag("col", attributes);
 
   return xml_data;
 }
 
 std::string worksheet_t::write_cols() const
 {
-  std::string xml_data;
-  ///     col_num_t col;
+  if(!col_size_changed_)
+  {
+    return "";
+  }
 
-  ///     if (!self->col_size_changed)
-  ///         return;
+  std::string xml_data = xml_start_tag("cols");
 
-  ///     lxw_xml_start_tag(self->file, "cols", NULL);
+  for(col_num_t col = 0; col < col_options_.size(); col++)
+  {
+    if(col_options_[col].firstcol_ == col)
+    {
+      xml_data += write_col_info(col_options_[col]);
+    }
+  }
 
-  ///     for (col = 0; col < self->col_options_max; col++) {
-  ///         if (self->col_options[col])
-  ///             _worksheet_write_col_info(self, self->col_options[col]);
-  ///     }
+  xml_data += xml_end_tag("cols");
 
-  ///     lxw_xml_end_tag(self->file, "cols");
   return xml_data;
 }
 
@@ -7464,124 +7457,73 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 ///     return worksheet_write_comment_opt(self, row_num, col_num, string, NULL);
 /// }
 
-/// lxw_error
-/// worksheet_set_column_opt(lxw_worksheet *self,
-///                          col_num_t firstcol,
-///                          col_num_t lastcol,
-///                          double width,
-///                          lxw_format *format,
-///                          lxw_row_col_options *user_options)
-/// {
-///     lxw_col_options *copied_options;
-///     uint8_t ignore_row = LXW_TRUE;
-///     uint8_t ignore_col = LXW_TRUE;
-///     uint8_t hidden = LXW_FALSE;
-///     uint8_t level = 0;
-///     uint8_t collapsed = LXW_FALSE;
-///     col_num_t col;
-///     lxw_error err;
-///
-///     if (user_options) {
-///         hidden = user_options->hidden;
-///         level = user_options->level;
-///         collapsed = user_options->collapsed;
-///     }
-///
-///     /* Ensure second col is larger than first. */
-///     if (firstcol > lastcol) {
-///         col_num_t tmp = firstcol;
-///         firstcol = lastcol;
-///         lastcol = tmp;
-///     }
-///
-///     /* Ensure that the cols are valid and store max and min values.
-///      * NOTE: The check shouldn't modify the row dimensions and should only
-///      *       modify the column dimensions in certain cases. */
-///     if (format != NULL || (width != LXW_DEF_COL_WIDTH && hidden))
-///         ignore_col = LXW_FALSE;
-///
-///     err = _check_dimensions(self, 0, firstcol, ignore_row, ignore_col);
-///
-///     if (!err)
-///         err = _check_dimensions(self, 0, lastcol, ignore_row, ignore_col);
-///
-///     if (err)
-///         return err;
-///
-///     /* Resize the col_options array if required. */
-///     if (firstcol >= self->col_options_max) {
-///         col_num_t col_tmp;
-///         col_num_t old_size = self->col_options_max;
-///         col_num_t new_size = _next_power_of_two(firstcol + 1);
-///         lxw_col_options **new_ptr = realloc(self->col_options,
-///                                             new_size *
-///                                             sizeof(lxw_col_options *));
-///
-///         if (new_ptr) {
-///             for (col_tmp = old_size; col_tmp < new_size; col_tmp++)
-///                 new_ptr[col_tmp] = NULL;
-///
-///             self->col_options = new_ptr;
-///             self->col_options_max = new_size;
-///         }
-///         else {
-///             return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         }
-///     }
-///
-///     /* Resize the col_formats array if required. */
-///     if (lastcol >= self->col_formats_max) {
-///         col_num_t col;
-///         col_num_t old_size = self->col_formats_max;
-///         col_num_t new_size = _next_power_of_two(lastcol + 1);
-///         lxw_format **new_ptr = realloc(self->col_formats,
-///                                        new_size * sizeof(lxw_format *));
-///
-///         if (new_ptr) {
-///             for (col = old_size; col < new_size; col++)
-///                 new_ptr[col] = NULL;
-///
-///             self->col_formats = new_ptr;
-///             self->col_formats_max = new_size;
-///         }
-///         else {
-///             return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         }
-///     }
-///
-///     /* Store the column options. */
-///     copied_options = calloc(1, sizeof(lxw_col_options));
-///     RETURN_ON_MEM_ERROR(copied_options, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     /* Ensure the level is <= 7). */
-///     if (level > 7)
-///         level = 7;
-///
-///     if (level > self->outline_col_level)
-///         self->outline_col_level = level;
-///
-///     /* Set the column properties. */
-///     copied_options->firstcol = firstcol;
-///     copied_options->lastcol = lastcol;
-///     copied_options->width = width;
-///     copied_options->format = format;
-///     copied_options->hidden = hidden;
-///     copied_options->level = level;
-///     copied_options->collapsed = collapsed;
-///
-///     free(self->col_options[firstcol]);
-///     self->col_options[firstcol] = copied_options;
-///
-///     /* Store the column formats for use when writing cell data. */
-///     for (col = firstcol; col <= lastcol; col++) {
-///         self->col_formats[col] = format;
-///     }
-///
-///     /* Store the column change to allow optimizations. */
-///     self->col_size_changed = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::set_column(col_num_t firstcol, col_num_t lastcol, double width /* TODO,
+                          lxw_format *format,
+                          lxw_row_col_options *user_options*/)
+{
+  ///     lxw_col_options *copied_options;
+  bool ignore_row = true;
+  bool ignore_col = true;
+  ///     uint8_t hidden = LXW_FALSE;
+  ///     uint8_t level = 0;
+  ///     uint8_t collapsed = LXW_FALSE;
+  ///     col_num_t col;
+  ///     lxw_error err;
+  ///
+  ///     if (user_options) {
+  ///         hidden = user_options->hidden;
+  ///         level = user_options->level;
+  ///         collapsed = user_options->collapsed;
+  ///     }
+  ///
+  // Ensure second col is larger than first.
+  if(firstcol > lastcol)
+  {
+    std::swap(firstcol, lastcol);
+  }
+
+  /* Ensure that the cols are valid and store max and min values.
+   * NOTE: The check shouldn't modify the row dimensions and should only
+   *       modify the column dimensions in certain cases. */
+  ///     if (TODO format != NULL || (width != LXW_DEF_COL_WIDTH && hidden))
+  ///         ignore_col = LXW_FALSE;
+  ///
+  check_dimensions(0, firstcol, ignore_row, ignore_col);
+  check_dimensions(0, lastcol, ignore_row, ignore_col);
+
+  if(firstcol >= col_options_.size())
+  {
+    col_options_.resize(firstcol + 1);
+  }
+  ///
+  ///     /* Store the column options. */
+  ///     copied_options = calloc(1, sizeof(lxw_col_options));
+  ///     RETURN_ON_MEM_ERROR(copied_options, LXW_ERROR_MEMORY_MALLOC_FAILED);
+  ///
+  ///     /* Ensure the level is <= 7). */
+  ///     if (level > 7)
+  ///         level = 7;
+  ///
+  ///     if (level > self->outline_col_level)
+  ///         self->outline_col_level = level;
+  ///
+  // Set the column properties.
+  col_options_[firstcol].firstcol_ = firstcol;
+  col_options_[firstcol].lastcol_  = lastcol;
+  col_options_[firstcol].width_    = width;
+  ///     copied_options->format = format;
+  ///     copied_options->hidden = hidden;
+  ///     copied_options->level = level;
+  ///     copied_options->collapsed = collapsed;
+  ///
+  ///     /* Store the column formats for use when writing cell data. */
+  ///     for (col = firstcol; col <= lastcol; col++) {
+  ///         self->col_formats[col] = format;
+  ///     }
+  ///
+  // Store the column change to allow optimizations.
+  col_size_changed_                = true;
+}
 
 /// lxw_error
 /// worksheet_set_column(lxw_worksheet *self,
@@ -7618,64 +7560,61 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 ///                                     user_options);
 /// }
 
-/// lxw_error
-/// worksheet_set_row_opt(lxw_worksheet *self,
-///                       row_num_t row_num,
-///                       double height,
-///                       lxw_format *format, lxw_row_col_options *user_options)
-/// {
-///
-///     col_num_t min_col;
-///     uint8_t hidden = LXW_FALSE;
-///     uint8_t level = 0;
-///     uint8_t collapsed = LXW_FALSE;
-///     row_t *row;
-///     lxw_error err;
-///
-///     if (user_options) {
-///         hidden = user_options->hidden;
-///         level = user_options->level;
-///         collapsed = user_options->collapsed;
-///     }
-///
-///     /* Use minimum col in _check_dimensions(). */
-///     if (self->dim_colmin != LXW_COL_MAX)
-///         min_col = self->dim_colmin;
-///     else
-///         min_col = 0;
-///
-///     err = _check_dimensions(self, row_num, min_col, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* If the height is 0 the row is hidden and the height is the default. */
-///     if (height == 0) {
-///         hidden = LXW_TRUE;
-///         height = self->default_row_height;
-///     }
-///
-///     /* Ensure the level is <= 7). */
-///     if (level > 7)
-///         level = 7;
-///
-///     if (level > self->outline_row_level)
-///         self->outline_row_level = level;
-///
-///     /* Store the row properties. */
-///     row = _get_row(self, row_num);
-///
-///     row->height = height;
-///     row->format = format;
-///     row->hidden = hidden;
-///     row->level = level;
-///     row->collapsed = collapsed;
-///     row->row_changed = LXW_TRUE;
-///
-///     if (height != self->default_row_height)
-///         row->height_changed = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::set_row(row_num_t row_num,
+                          double height /*TODO, lxw_format *format, lxw_row_col_options *user_options*/)
+{
+  col_num_t min_col;
+  ///     uint8_t hidden = LXW_FALSE;
+  ///     uint8_t level = 0;
+  ///     uint8_t collapsed = LXW_FALSE;
+  ///     row_t *row;
+  ///     lxw_error err;
+  ///
+  ///     if (user_options) {
+  ///         hidden = user_options->hidden;
+  ///         level = user_options->level;
+  ///         collapsed = user_options->collapsed;
+  ///     }
+  ///
+  // Use minimum col in _check_dimensions().
+  if(dim_colmin_ != COL_MAX)
+  {
+    min_col = dim_colmin_;
+  }
+  else
+  {
+    min_col = 0;
+  }
+
+  check_dimensions(row_num, min_col, false, false);
+  ///
+  ///     /* If the height is 0 the row is hidden and the height is the default. */
+  ///     if (height == 0) {
+  ///         hidden = LXW_TRUE;
+  ///         height = self->default_row_height;
+  ///     }
+  ///
+  ///     /* Ensure the level is <= 7). */
+  ///     if (level > 7)
+  ///         level = 7;
+  ///
+  ///     if (level > self->outline_row_level)
+  ///         self->outline_row_level = level;
+  ///
+  // Store the row properties.
+  row_t& row  = get_row(row_num);
+  row.height_ = height;
+  ///     row->format = format;
+  ///     row->hidden = hidden;
+  ///     row->level = level;
+  ///     row->collapsed = collapsed;
+  ///     row->row_changed = LXW_TRUE;
+  ///
+  if(row.height_ != default_row_height_)
+  {
+    row.height_changed_ = true;
+  }
+}
 
 /// lxw_error
 /// worksheet_set_row(lxw_worksheet *self,
@@ -10191,5 +10130,4 @@ void worksheet_t::select()
 ///     _insert_cell(self, row_num, col_num, cell);
 ///
 /// }
-
 }
