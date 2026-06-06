@@ -149,7 +149,7 @@ packager_t::packager_t(std::string_view filename /*, const char *tmpdir, uint8_t
   /// packager->use_zip64 = use_zip64;
 }
 
-void packager_t::write_workbook_file(const workbook_t& workbook)
+void packager_t::write_workbook_file(workbook_t& workbook)
 {
   const std::string xml_data = workbook.assemble_xml_file();
   add_buffer_to_zip(xml_data, "xl/workbook.xml");
@@ -1027,26 +1027,11 @@ void packager_t::write_theme_file()
   add_buffer_to_zip(xml_data, "xl/theme/theme1.xml");
 }
 
-void packager_t::write_styles_file(const workbook_t& /*workbook*/)
+void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
-  const styles_t styles;
+  const style_t styles(workbook.font_count_, workbook.used_xf_formats_);
   ///     lxw_hash_element *hash_element;
-
-  /* Copy the unique and in-use formats from the workbook to the styles
-   * xf_format list. */
-  ///     LXW_FOREACH_ORDERED(hash_element, self->workbook->used_xf_formats) {
-  ///         lxw_format *workbook_format = (lxw_format *) hash_element->value;
-  ///         lxw_format *style_format = lxw_format_new();
-
-  ///         if (!style_format) {
-  ///             err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-  ///             goto mem_error;
-  ///         }
-
-  ///         memcpy(style_format, workbook_format, sizeof(lxw_format));
-  ///         STAILQ_INSERT_TAIL(styles->xf_formats, style_format, list_pointers);
-  ///     }
 
   /* Copy the unique and in-use dxf formats from the workbook to the styles
    * dxf_format list. */
@@ -1063,7 +1048,6 @@ void packager_t::write_styles_file(const workbook_t& /*workbook*/)
   ///         STAILQ_INSERT_TAIL(styles->dxf_formats, style_format, list_pointers);
   ///     }
 
-  ///     styles->font_count = self->workbook->font_count;
   ///     styles->border_count = self->workbook->border_count;
   ///     styles->fill_count = self->workbook->fill_count;
   ///     styles->num_format_count = self->workbook->num_format_count;
@@ -1695,7 +1679,8 @@ void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& f
 ///         _add_file_to_zip(self, file, filename);
 /// }
 
-void packager_t::create_package(const workbook_t& workbook)
+// TODO const remove to allow prepare, to be refactored
+void packager_t::create_package(workbook_t& workbook)
 {
   ///     lxw_error error;
   ///     int8_t zip_error;

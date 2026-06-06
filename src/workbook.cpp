@@ -16,7 +16,11 @@
 #include <format>
 #include <string>
 
+#include <iostream>
+
 using namespace std::literals::chrono_literals;
+
+// TODO Add API to configure default format, in particular font
 
 namespace xwpp
 {
@@ -71,56 +75,55 @@ namespace xwpp
 ///     }
 /// }
 
-/// STATIC void _prepare_fonts(lxw_workbook *self)
-/// {
-///     lxw_hash_table *fonts = lxw_hash_new(128, 1, 1);
-///     lxw_hash_element *hash_element;
-///     lxw_hash_element *used_format_element;
-///     uint16_t index = 0;
+// ICI
+void workbook_t::prepare_fonts()
+{
+  std::vector<format_t*> fonts;
+  ///     lxw_hash_table *fonts = lxw_hash_new(128, 1, 1);
+  ///     lxw_hash_element *hash_element;
+  ///     lxw_hash_element *used_format_element;
+  ///     uint16_t index = 0;
 
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_xf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
-///         lxw_font *key = lxw_format_get_font_key(format);
+  // TODO Use unordered_set to optimise this search
+  for(const auto format: used_xf_formats_)
+  {
+    for(const auto font: fonts)
+    {
+      if(format->font_name_ == font->font_name_ && format->font_size_ == font->font_size_ &&
+         format->bold_ == font->bold_ && format->italic_ == font->italic_ && format->underline_ == font->underline_ &&
+         format->theme_ == font->theme_ && format->font_color_ == font->font_color_ &&
+         format->font_strikeout_ == font->font_strikeout_ && format->font_outline_ == font->font_outline_ &&
+         format->font_shadow_ == font->font_shadow_ && format->font_script_ == font->font_script_ &&
+         format->font_family_ == font->font_family_ && format->font_charset_ == font->font_charset_ &&
+         format->font_condense_ == font->font_condense_ && format->font_extend_ == font->font_extend_)
+      {
+        // Font has already been used.
+        format->font_index_ = font->font_index_;
+        format->has_font_   = false;
+      }
+    }
+    if(format->font_index_ == format_t::PROPERTY_UNSET)
+    {
+      format->font_index_ = static_cast<int32_t>(fonts.size());
+      format->has_font_   = true;
+      fonts.push_back(format);
+    }
+  }
 
-///         if (key) {
-/* Look up the format in the hash table. */
-///             hash_element = lxw_hash_key_exists(fonts, key, sizeof(lxw_font));
+  /* For DXF formats we only need to check if the properties have changed. */
+  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
+  ///         lxw_format *format = (lxw_format *) used_format_element->value;
 
-///             if (hash_element) {
-/* Font has already been used. */
-///                 format->font_index = *(uint16_t *) hash_element->value;
-///                 format->has_font = LXW_FALSE;
-///                 free(key);
-///             }
-///             else {
-/* This is a new font. */
-///                 uint16_t *font_index = calloc(1, sizeof(uint16_t));
-///                 *font_index = index;
-///                 format->font_index = index;
-///                 format->has_font = LXW_TRUE;
-///                 lxw_insert_hash_element(fonts, key, font_index,
-///                                         sizeof(lxw_font));
-///                 index++;
-///             }
-///         }
-///     }
+  /* The only font properties that can change for a DXF format are:
+   * color, bold, italic, underline and strikethrough. */
+  ///         if (format->font_color || format->bold || format->italic
+  ///             || format->underline || format->font_strikeout) {
+  ///             format->has_dxf_font = LXW_TRUE;
+  ///         }
+  ///     }
 
-///     lxw_hash_free(fonts);
-
-/* For DXF formats we only need to check if the properties have changed. */
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
-
-/* The only font properties that can change for a DXF format are:
- * color, bold, italic, underline and strikethrough. */
-///         if (format->font_color || format->bold || format->italic
-///             || format->underline || format->font_strikeout) {
-///             format->has_dxf_font = LXW_TRUE;
-///         }
-///     }
-
-///     self->font_count = index;
-/// }
+  font_count_ = static_cast<uint32_t>(fonts.size());
+}
 
 /// STATIC void _prepare_borders(lxw_workbook *self)
 /// {
@@ -375,20 +378,20 @@ namespace xwpp
 ///     self->num_format_count = num_format_count;
 /// }
 
-/// STATIC void _prepare_workbook(lxw_workbook *self)
-/// {
-/* Set the font index for the format objects. */
-///     _prepare_fonts(self);
+void workbook_t::prepare_workbook()
+{
+  // Set the font index for the format objects.
+  prepare_fonts();
 
-/* Set the number format index for the format objects. */
-///     _prepare_num_formats(self);
+  // Set the number format index for the format objects.
+  ///     _prepare_num_formats(self);
 
-/* Set the border index for the format objects. */
-///     _prepare_borders(self);
+  // Set the border index for the format objects.
+  ///     _prepare_borders(self);
 
-/* Set the fill index for the format objects. */
-///     _prepare_fills(self);
-/// }
+  // Set the fill index for the format objects.
+  ///     _prepare_fills(self);
+}
 
 /// static int _compare_defined_names(lxw_defined_name *a, lxw_defined_name *b)
 /// {
@@ -1399,10 +1402,10 @@ std::string workbook_t::write_defined_names() const
   return "";
 }
 
-std::string workbook_t::assemble_xml_file() const
+std::string workbook_t::assemble_xml_file()
 {
-  /* Prepare workbook and sub-objects for writing. */
-  ///    _prepare_workbook(self);
+  // Prepare workbook and sub-objects for writing.
+  prepare_workbook();
 
   std::string xml_data = xml_declaration();
   xml_data += write_workbook();
@@ -1418,138 +1421,113 @@ std::string workbook_t::assemble_xml_file() const
   return xml_data;
 }
 
-workbook_t::workbook_t()
+workbook_t::workbook_t(/*lxw_workbook_options *options*/)
 {
-  // TODO Manage other constructor (with options)
-  // return workbook_new_opt(filename, NULL);
+  ///     lxw_format *format;
+  ///     lxw_workbook *workbook;
+
+  /* Create the workbook object. */
+  ///     workbook = calloc(1, sizeof(lxw_workbook));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook, mem_error);
+  ///     workbook->filename = lxw_strdup(filename);
+
+  /* Add the sheets list. */
+  ///     workbook->sheets = calloc(1, sizeof(struct lxw_sheets));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->sheets, mem_error);
+  ///     STAILQ_INIT(workbook->sheets);
+
+  /* Add the worksheets list. */
+  ///     workbook->worksheets = calloc(1, sizeof(struct lxw_worksheets));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->worksheets, mem_error);
+  ///     STAILQ_INIT(workbook->worksheets);
+
+  /* Add the chartsheets list. */
+  ///     workbook->chartsheets = calloc(1, sizeof(struct lxw_chartsheets));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->chartsheets, mem_error);
+  ///     STAILQ_INIT(workbook->chartsheets);
+
+  /* Add the worksheet names tree. */
+  ///     workbook->worksheet_names = calloc(1, sizeof(struct lxw_worksheet_names));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->worksheet_names, mem_error);
+  ///     RB_INIT(workbook->worksheet_names);
+
+  /* Add the chartsheet names tree. */
+  ///     workbook->chartsheet_names = calloc(1,
+  ///                                         sizeof(struct lxw_chartsheet_names));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->chartsheet_names, mem_error);
+  ///     RB_INIT(workbook->chartsheet_names);
+
+  /* Add the image MD5 tree. */
+  ///     workbook->image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->image_md5s, mem_error);
+  ///     RB_INIT(workbook->image_md5s);
+
+  /* Add the embedded image MD5 tree. */
+  ///     workbook->embedded_image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->embedded_image_md5s, mem_error);
+  ///     RB_INIT(workbook->embedded_image_md5s);
+
+  /* Add the header image MD5 tree. */
+  ///     workbook->header_image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->header_image_md5s, mem_error);
+  ///     RB_INIT(workbook->header_image_md5s);
+
+  /* Add the background image MD5 tree. */
+  ///     workbook->background_md5s = calloc(1, sizeof(struct lxw_image_md5s));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->background_md5s, mem_error);
+  ///     RB_INIT(workbook->background_md5s);
+
+  /* Add the charts list. */
+  ///     workbook->charts = calloc(1, sizeof(struct lxw_charts));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->charts, mem_error);
+  ///     STAILQ_INIT(workbook->charts);
+
+  /* Add the ordered charts list to track chart insertion order. */
+  ///     workbook->ordered_charts = calloc(1, sizeof(struct lxw_charts));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->ordered_charts, mem_error);
+  ///     STAILQ_INIT(workbook->ordered_charts);
+
+  /* Add the formats list. */
+  ///     workbook->formats = calloc(1, sizeof(struct lxw_formats));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->formats, mem_error);
+  ///     STAILQ_INIT(workbook->formats);
+
+  /* Add the defined_names list. */
+  ///     workbook->defined_names = calloc(1, sizeof(struct lxw_defined_names));
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->defined_names, mem_error);
+  ///     TAILQ_INIT(workbook->defined_names);
+
+  /* Add the shared strings table. */
+  ///     workbook->sst = lxw_sst_new();
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->sst, mem_error);
+
+  /* Add a hash table to track format indices. */
+  ///     workbook->used_xf_formats = lxw_hash_new(128, 1, 0);
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_xf_formats, mem_error);
+
+  /* Add a hash table to track format indices. */
+  ///     workbook->used_dxf_formats = lxw_hash_new(128, 1, 0);
+  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_dxf_formats, mem_error);
+
+  // Add the default cell format.
+  auto format = add_format();
+  // Initialize its index.
+  get_xf_index(format);
+
+  /* Add the default hyperlink format. */
+  ///     format = workbook_add_format(workbook);
+  ///     GOTO_LABEL_ON_MEM_ERROR(format, mem_error);
+  ///     format_set_hyperlink(format);
+  ///     workbook->default_url_format = format;
+
+  ///     if (options) {
+  ///         workbook->options.constant_memory = options->constant_memory;
+  ///         workbook->options.tmpdir = lxw_strdup(options->tmpdir);
+  ///         workbook->options.use_zip64 = options->use_zip64;
+  ///         workbook->options.output_buffer = options->output_buffer;
+  ///         workbook->options.output_buffer_size = options->output_buffer_size;
+  ///     }
 }
-
-/* Deprecated function name for backwards compatibility. */
-/// lxw_workbook * new_workbook(const char *filename)
-/// {
-///     return workbook_new_opt(filename, NULL);
-/// }
-
-/* Deprecated function name for backwards compatibility. */
-/// lxw_workbook * new_workbook_opt(const char *filename, lxw_workbook_options *options)
-/// {
-/// return workbook_new_opt(filename, options);
-/// }
-
-/*
- * Create a new workbook object with options.
- */
-/// lxw_workbook * workbook_new_opt(const char *filename, lxw_workbook_options *options)
-/// {
-///     lxw_format *format;
-///     lxw_workbook *workbook;
-
-/* Create the workbook object. */
-///     workbook = calloc(1, sizeof(lxw_workbook));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook, mem_error);
-///     workbook->filename = lxw_strdup(filename);
-
-/* Add the sheets list. */
-///     workbook->sheets = calloc(1, sizeof(struct lxw_sheets));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->sheets, mem_error);
-///     STAILQ_INIT(workbook->sheets);
-
-/* Add the worksheets list. */
-///     workbook->worksheets = calloc(1, sizeof(struct lxw_worksheets));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->worksheets, mem_error);
-///     STAILQ_INIT(workbook->worksheets);
-
-/* Add the chartsheets list. */
-///     workbook->chartsheets = calloc(1, sizeof(struct lxw_chartsheets));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->chartsheets, mem_error);
-///     STAILQ_INIT(workbook->chartsheets);
-
-/* Add the worksheet names tree. */
-///     workbook->worksheet_names = calloc(1, sizeof(struct lxw_worksheet_names));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->worksheet_names, mem_error);
-///     RB_INIT(workbook->worksheet_names);
-
-/* Add the chartsheet names tree. */
-///     workbook->chartsheet_names = calloc(1,
-///                                         sizeof(struct lxw_chartsheet_names));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->chartsheet_names, mem_error);
-///     RB_INIT(workbook->chartsheet_names);
-
-/* Add the image MD5 tree. */
-///     workbook->image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->image_md5s, mem_error);
-///     RB_INIT(workbook->image_md5s);
-
-/* Add the embedded image MD5 tree. */
-///     workbook->embedded_image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->embedded_image_md5s, mem_error);
-///     RB_INIT(workbook->embedded_image_md5s);
-
-/* Add the header image MD5 tree. */
-///     workbook->header_image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->header_image_md5s, mem_error);
-///     RB_INIT(workbook->header_image_md5s);
-
-/* Add the background image MD5 tree. */
-///     workbook->background_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->background_md5s, mem_error);
-///     RB_INIT(workbook->background_md5s);
-
-/* Add the charts list. */
-///     workbook->charts = calloc(1, sizeof(struct lxw_charts));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->charts, mem_error);
-///     STAILQ_INIT(workbook->charts);
-
-/* Add the ordered charts list to track chart insertion order. */
-///     workbook->ordered_charts = calloc(1, sizeof(struct lxw_charts));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->ordered_charts, mem_error);
-///     STAILQ_INIT(workbook->ordered_charts);
-
-/* Add the formats list. */
-///     workbook->formats = calloc(1, sizeof(struct lxw_formats));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->formats, mem_error);
-///     STAILQ_INIT(workbook->formats);
-
-/* Add the defined_names list. */
-///     workbook->defined_names = calloc(1, sizeof(struct lxw_defined_names));
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->defined_names, mem_error);
-///     TAILQ_INIT(workbook->defined_names);
-
-/* Add the shared strings table. */
-///     workbook->sst = lxw_sst_new();
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->sst, mem_error);
-
-/* Add a hash table to track format indices. */
-///     workbook->used_xf_formats = lxw_hash_new(128, 1, 0);
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_xf_formats, mem_error);
-
-/* Add a hash table to track format indices. */
-///     workbook->used_dxf_formats = lxw_hash_new(128, 1, 0);
-///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_dxf_formats, mem_error);
-
-/* Add the default cell format. */
-///     format = workbook_add_format(workbook);
-///     GOTO_LABEL_ON_MEM_ERROR(format, mem_error);
-
-/* Initialize its index. */
-///     lxw_format_get_xf_index(format);
-
-/* Add the default hyperlink format. */
-///     format = workbook_add_format(workbook);
-///     GOTO_LABEL_ON_MEM_ERROR(format, mem_error);
-///     format_set_hyperlink(format);
-///     workbook->default_url_format = format;
-
-///     if (options) {
-///         workbook->options.constant_memory = options->constant_memory;
-///         workbook->options.tmpdir = lxw_strdup(options->tmpdir);
-///         workbook->options.use_zip64 = options->use_zip64;
-///         workbook->options.output_buffer = options->output_buffer;
-///         workbook->options.output_buffer_size = options->output_buffer_size;
-///     }
-
-///     return workbook;
-/// }
 
 worksheet_t& workbook_t::add_worksheet()
 {
@@ -1697,20 +1675,29 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
 ///     return chart;
 /// }
 
-/// lxw_format * workbook_add_format(lxw_workbook *self)
-/// {
-/* Create a new format object. */
-///     lxw_format *format = lxw_format_new();
-///     RETURN_ON_MEM_ERROR(format, NULL);
+// TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
+// TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship)
+format_t* workbook_t::add_format()
+{
+  formats_.emplace_back();
 
-///     format->xf_format_indices = self->used_xf_formats;
-///     format->dxf_format_indices = self->used_dxf_formats;
-///     format->num_xf_formats = &self->num_xf_formats;
+  return &formats_.back();
+}
 
-///     STAILQ_INSERT_TAIL(self->formats, format, list_pointers);
+int32_t workbook_t::get_xf_index(format_t* format)
+{
+  // Format already has an index number so return it.
+  if(format->xf_index_ != format_t::PROPERTY_UNSET)
+  {
+    return format->xf_index_;
+  }
 
-///     return format;
-/// }
+  // TODO Add search two be sure there is no duplication.
+  format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
+  used_xf_formats_.push_back(format);
+
+  return format->xf_index_;
+}
 
 void workbook_t::save(std::string_view filename)
 {

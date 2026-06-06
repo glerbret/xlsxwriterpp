@@ -99,8 +99,6 @@ enum class color_t : uint32_t
 const uint32_t COLOR_MASK = 0xFFFFFF;
 
 /// #define LXW_FORMAT_FIELD_LEN            128
-/// #define LXW_DEFAULT_FONT_NAME           "Calibri"
-/// #define LXW_DEFAULT_FONT_THEME          1
 /// #define LXW_COLOR_UNSET                 0x000000
 /// #define LXW_COLOR_MASK                  0xFFFFFF
 /// #define LXW_MIN_FONT_SIZE               1.0
@@ -132,14 +130,17 @@ enum class format_underlines_t
 };
 
 /** Superscript and subscript values for format_set_font_script(). */
-/// enum lxw_format_scripts {
+enum class format_scripts_t
+{
+  /** No script */
+  NONE,
 
-/** Superscript font */
-///     LXW_FONT_SUPERSCRIPT = 1,
+  /** Superscript font */
+  SUPERSCRIPT,
 
-/** Subscript font */
-///     LXW_FONT_SUBSCRIPT
-/// };
+  /** Subscript font */
+  SUBSCRIPT
+};
 
 // Alignment values for format_set_align().
 enum class format_alignments_t
@@ -329,11 +330,18 @@ enum class format_borders_t
  * @endcode
  *
  */
+// TODO After creation of higher level class, this should become a struct with all field public
 class format_t
 {
 public:
+  static const int32_t PROPERTY_UNSET = -1;
+  static const std::string DEFAULT_FONT_NAME;
+
 private:
-  static const int32_t PROPERTY_UNSET      = -1;
+  // TODO friend up to refactoring with struct / class
+  friend class workbook_t;
+  friend class style_t;
+
   static const uint8_t DEFAULT_FONT_FAMILY = 2;
 
   ///  lxw_hash_table *xf_format_indices_ = nullptr;
@@ -347,7 +355,7 @@ private:
   std::string font_name_;
   std::string font_scheme_;
   uint16_t num_format_index_        = 0;
-  uint16_t font_index_              = 0;
+  int32_t font_index_               = PROPERTY_UNSET;
   bool has_font_                    = false;
   bool has_dxf_font_                = false;
   double font_size_                 = 11.0;
@@ -358,7 +366,7 @@ private:
   bool font_strikeout_              = false;
   bool font_outline_                = false;
   bool font_shadow_                 = false;
-  bool font_script_                 = false;
+  format_scripts_t font_script_     = format_scripts_t::NONE;
   uint8_t font_family_              = DEFAULT_FONT_FAMILY;
   bool font_charset_                = false;
   bool font_condense_               = false;
@@ -401,7 +409,7 @@ private:
   bool merge_range_                 = false;
   uint8_t reading_order_            = 0;
   bool just_distrib_                = false;
-  bool color_indexed_               = false;
+  uint8_t color_indexed_            = 0;
   bool font_only_                   = false;
   bool quote_prefix_                = false;
 };
@@ -458,9 +466,7 @@ private:
 
 /// } lxw_fill;
 
-/// int32_t lxw_format_get_xf_index(lxw_format *format);
 /// int32_t lxw_format_get_dxf_index(lxw_format *format);
-/// lxw_font *lxw_format_get_font_key(lxw_format *format);
 /// lxw_border *lxw_format_get_border_key(lxw_format *format);
 /// lxw_fill *lxw_format_get_fill_key(lxw_format *format);
 

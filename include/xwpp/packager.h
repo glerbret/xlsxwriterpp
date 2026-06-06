@@ -52,14 +52,14 @@ public:
   );
 
   // Write the xml files that make up the XLSX OPC package.
-  void create_package(const workbook_t& workbook);
+  void create_package(workbook_t& workbook);
 
 private:
   void write_content_types_file(const workbook_t& workbook);
   void write_root_rels_file(const workbook_t& workbook);
   void write_workbook_rels_file(const workbook_t& workbook);
   void write_worksheet_files(const workbook_t& workbook);
-  void write_workbook_file(const workbook_t& workbook);
+  void write_workbook_file(workbook_t& workbook);
   void write_styles_file(const workbook_t& workbook);
   void write_shared_strings_file(const workbook_t& workbook);
   void write_theme_file();

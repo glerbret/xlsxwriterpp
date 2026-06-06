@@ -39,33 +39,6 @@ namespace xwpp
 ///   return NULL;
 /// }
 
-/// lxw_font * lxw_format_get_font_key(lxw_format *self)
-/// {
-///   lxw_font *key = calloc(1, sizeof(lxw_font));
-///   GOTO_LABEL_ON_MEM_ERROR(key, mem_error);
-
-///   LXW_FORMAT_FIELD_COPY(key->font_name, self->font_name);
-///   key->font_size = self->font_size;
-///   key->bold = self->bold;
-///   key->italic = self->italic;
-///   key->underline = self->underline;
-///   key->theme = self->theme;
-///   key->font_color = self->font_color;
-///   key->font_strikeout = self->font_strikeout;
-///   key->font_outline = self->font_outline;
-///   key->font_shadow = self->font_shadow;
-///   key->font_script = self->font_script;
-///   key->font_family = self->font_family;
-///   key->font_charset = self->font_charset;
-///   key->font_condense = self->font_condense;
-///   key->font_extend = self->font_extend;
-
-///   return key;
-
-/// mem_error:
-///   return NULL;
-/// }
-
 /// lxw_border * lxw_format_get_border_key(lxw_format *self)
 /// {
 ///   lxw_border *key = calloc(1, sizeof(lxw_border));
@@ -102,50 +75,6 @@ namespace xwpp
 
 /// mem_error:
 ///   return NULL;
-/// }
-
-/// int32_t lxw_format_get_xf_index(lxw_format *self)
-/// {
-///   lxw_format *format_key;
-///   lxw_format *existing_format;
-///   lxw_hash_element *hash_element;
-///   lxw_hash_table *formats_hash_table = self->xf_format_indices;
-///   int32_t index;
-
-/* Note: The formats_hash_table/xf_format_indices contains the unique and
- * more importantly the *used* formats in the workbook.
- */
-
-/* Format already has an index number so return it. */
-///   if (self->xf_index != LXW_PROPERTY_UNSET) {
-///     return self->xf_index;
-///   }
-
-/* Otherwise, the format doesn't have an index number so we assign one.
- * First generate a unique key to identify the format in the hash table.
- */
-///   format_key = _get_format_key(self);
-
-/* Return the default format index if the key generation failed. */
-///   if (!format_key)
-///     return 0;
-
-/* Look up the format in the hash table. */
-///   hash_element = lxw_hash_key_exists(formats_hash_table, format_key, sizeof(lxw_format));
-
-///   if (hash_element) {
-/* Format matches existing format with an index. */
-///     free(format_key);
-///     existing_format = hash_element->value;
-///     return existing_format->xf_index;
-///   }
-///   else {
-/* New format requiring an index. */
-///     index = formats_hash_table->unique_count;
-///     self->xf_index = index;
-///     lxw_insert_hash_element(formats_hash_table, format_key, self, sizeof(lxw_format));
-///     return index;
-///  }
 /// }
 
 /// int32_t lxw_format_get_dxf_index(lxw_format *self)
@@ -481,5 +410,7 @@ namespace xwpp
 /// {
 ///   self->quote_prefix = LXW_TRUE;
 /// }
+
+const std::string format_t::DEFAULT_FONT_NAME = "Calibri";
 
 }

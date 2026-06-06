@@ -49,6 +49,7 @@
 #include <list>
 #include <string_view>
 #include <variant>
+#include <vector>
 
 namespace xwpp
 {
@@ -380,7 +381,37 @@ public:
   worksheet_t& add_worksheet(std::string_view sheetname);
   worksheet_t& add_worksheet();
 
-  [[nodiscard]] std::string assemble_xml_file() const;
+  // TODO Add builder API to create format
+  /**
+   * @brief Create a new @ref format.h "Format" object to formats cells in
+   *        worksheets.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   *
+   * @return A lxw_format instance.
+   *
+   * The `workbook_add_format()` function can be used to create new @ref
+   * format.h "Format" objects which are used to apply formatting to a cell.
+   *
+   * @code
+   *    // Create the Format.
+   *    lxw_format *format = workbook_add_format(workbook);
+   *
+   *    // Set some of the format properties.
+   *    format_set_bold(format);
+   *    format_set_font_color(format, LXW_COLOR_RED);
+   *
+   *    // Use the format to change the text format in a cell.
+   *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
+   * @endcode
+   *
+   * See @ref format.h "the Format object" and @ref working_with_formats
+   * sections for more details about Format properties and how to set them.
+   *
+   */
+  format_t* add_format();
+
+  [[nodiscard]] std::string assemble_xml_file();
 
   /**
    * @brief Set the document properties such as Title, Author etc.
@@ -503,31 +534,27 @@ private:
   // TODO packager_t needs to access to workbook field.
   friend class packager_t;
 
-  /*
-   * Iterate through the worksheets and set up the VML objects.
-   */
+  // TODO Should be provided to worksheet as callback
+  int32_t get_xf_index(format_t* format);
+
+  void prepare_workbook();
+  void prepare_fonts();
+
+  // Iterate through the worksheets and set up the VML objects.
   void prepare_vml();
 
-  /*
-   * Iterate through the worksheets and store any defined names used for print
-   * ranges or repeat rows/columns.
-   */
+  // Iterate through the worksheets and store any defined names used for print
+  // ranges or repeat rows/columns.
   void prepare_defined_names();
 
-  /*
-   * Iterate through the worksheets and set up any chart or image drawings.
-   */
+  // Iterate through the worksheets and set up any chart or image drawings.
   void prepare_drawings();
 
-  /*
-   * Add "cached" data to charts to provide the numCache and strCache data for
-   * series and title/axis ranges.
-   */
+  // Add "cached" data to charts to provide the numCache and strCache data for
+  // series and title/axis ranges.
   void add_chart_cache_data();
 
-  /*
-   * Iterate through the worksheets and set up the table objects.
-   */
+  // Iterate through the worksheets and set up the table objects.
   void prepare_tables();
 
   [[nodiscard]] std::string write_workbook() const;
@@ -545,7 +572,7 @@ private:
   static const size_t XWPP_SHEETNAME_MAX = 31;
 
   // Use list to not invalidate referenced owned by caller in case of insertion
-  // of new sheets
+  // of new sheet
   std::list<std::variant<worksheet_t>> sheets_;
 
   ///     struct lxw_worksheets *worksheets;
@@ -558,7 +585,10 @@ private:
   ///     struct lxw_image_md5s *background_md5s;
   ///     struct lxw_charts *charts;
   ///     struct lxw_charts *ordered_charts;
-  ///     struct lxw_formats *formats;
+  // Use list to not invalidate referenced owned by caller in case of insertion
+  // of new format
+  std::list<format_t> formats_;
+
   ///     struct lxw_defined_names *defined_names;
   shared_strings_t sst_;
   doc_properties_t properties_;
@@ -581,7 +611,7 @@ private:
   uint16_t window_width_   = 16095;
   uint16_t window_height_  = 9660;
 
-  ///     uint16_t font_count;
+  uint16_t font_count_     = 0;
   ///     uint16_t border_count;
   ///     uint16_t fill_count;
   ///     uint8_t optimize;
@@ -599,7 +629,10 @@ private:
   ///     uint8_t has_dynamic_functions;
   ///     uint8_t has_embedded_image_descriptions;
 
-  ///     lxw_hash_table *used_xf_formats;
+  // TODO Combine with unordered_set to optimize search and assure uniqueness.
+  // TODO And encapsule this combination and related functions in a dedicated types.
+  std::vector<format_t*> used_xf_formats_;
+
   ///     lxw_hash_table *used_dxf_formats;
 
   ///     char *vba_project;
@@ -724,35 +757,6 @@ Chart
  */
 /// lxw_chartsheet *workbook_add_chartsheet(lxw_workbook *workbook,
 ///                                         const char *sheetname);
-
-/**
- * @brief Create a new @ref format.h "Format" object to formats cells in
- *        worksheets.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- *
- * @return A lxw_format instance.
- *
- * The `workbook_add_format()` function can be used to create new @ref
- * format.h "Format" objects which are used to apply formatting to a cell.
- *
- * @code
- *    // Create the Format.
- *    lxw_format *format = workbook_add_format(workbook);
- *
- *    // Set some of the format properties.
- *    format_set_bold(format);
- *    format_set_font_color(format, LXW_COLOR_RED);
- *
- *    // Use the format to change the text format in a cell.
- *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
- * @endcode
- *
- * See @ref format.h "the Format object" and @ref working_with_formats
- * sections for more details about Format properties and how to set them.
- *
- */
-/// lxw_format *workbook_add_format(lxw_workbook *workbook);
 
 /**
  * @brief Create a new chart to be added to a worksheet:

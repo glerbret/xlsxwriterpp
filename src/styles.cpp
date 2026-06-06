@@ -11,11 +11,11 @@
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
+#include <format>
+#include <string>
+
 namespace xwpp
 {
-
-/// STATIC void _write_font(lxw_styles *self, lxw_format *format, uint8_t is_dxf,
-///                         uint8_t is_rich_string);
 
 /// void lxw_styles_write_string_fragment(lxw_styles *self, const char *string)
 /// {
@@ -40,7 +40,7 @@ namespace xwpp
 ///     _write_font(self, format, LXW_FALSE, LXW_TRUE);
 /// }
 
-std::string styles_t::write_style_sheet() const
+std::string style_t::write_style_sheet() const
 {
   return xml_start_tag("styleSheet", {
                                          {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
@@ -120,7 +120,7 @@ std::string styles_t::write_style_sheet() const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-std::string styles_t::write_num_fmts() const
+std::string style_t::write_num_fmts() const
 {
   ///     struct xml_attribute_list attributes;
   ///     struct xml_attribute *attribute;
@@ -157,276 +157,256 @@ std::string styles_t::write_num_fmts() const
   return "";
 }
 
-/// STATIC void
-/// _write_font_size(lxw_styles *self, double font_size)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_DBL("val", font_size);
-
-///     lxw_xml_empty_tag(self->file, "sz", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_color_theme(lxw_styles *self, uint8_t theme)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("theme", theme);
-
-///     lxw_xml_empty_tag(self->file, "color", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_color_rgb(lxw_styles *self, int32_t rgb)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb_str[LXW_ATTR_32];
-
-///     lxw_snprintf(rgb_str, LXW_ATTR_32, "FF%06X", rgb & LXW_COLOR_MASK);
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("rgb", rgb_str);
-
-///     lxw_xml_empty_tag(self->file, "color", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_color_indexed(lxw_styles *self, uint8_t index)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("indexed", index);
-
-///     lxw_xml_empty_tag(self->file, "color", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_name(lxw_styles *self, const char *font_name,
-///                  uint8_t is_rich_string)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-
-///     if (*font_name)
-///         LXW_PUSH_ATTRIBUTES_STR("val", font_name);
-///     else
-///         LXW_PUSH_ATTRIBUTES_STR("val", LXW_DEFAULT_FONT_NAME);
-
-///     if (is_rich_string)
-///         lxw_xml_empty_tag(self->file, "rFont", &attributes);
-///     else
-///         lxw_xml_empty_tag(self->file, "name", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_family(lxw_styles *self, uint8_t font_family)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("val", font_family);
-
-///     lxw_xml_empty_tag(self->file, "family", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_charset(lxw_styles *self, uint8_t font_charset)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("val", font_charset);
-
-///     lxw_xml_empty_tag(self->file, "charset", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_scheme(lxw_styles *self, const char *font_scheme)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-
-///     if (*font_scheme)
-///         LXW_PUSH_ATTRIBUTES_STR("val", font_scheme);
-///     else
-///         LXW_PUSH_ATTRIBUTES_STR("val", "minor");
-
-///     lxw_xml_empty_tag(self->file, "scheme", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_underline(lxw_styles *self, uint8_t underline)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-
-/* Handle the underline variants. */
-///     if (underline == LXW_UNDERLINE_DOUBLE)
-///         LXW_PUSH_ATTRIBUTES_STR("val", "double");
-///     else if (underline == LXW_UNDERLINE_SINGLE_ACCOUNTING)
-///         LXW_PUSH_ATTRIBUTES_STR("val", "singleAccounting");
-///     else if (underline == LXW_UNDERLINE_DOUBLE_ACCOUNTING)
-///         LXW_PUSH_ATTRIBUTES_STR("val", "doubleAccounting");
-/* Default to single underline. */
-
-///     lxw_xml_empty_tag(self->file, "u", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_condense(lxw_styles *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("val", "0");
-
-///     lxw_xml_empty_tag(self->file, "condense", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_extend(lxw_styles *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("val", "0");
-
-///     lxw_xml_empty_tag(self->file, "extend", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font_vert_align(lxw_styles *self, const char *align)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("val", align);
-
-///     lxw_xml_empty_tag(self->file, "vertAlign", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_font(lxw_styles *self, lxw_format *format, uint8_t is_dxf,
-///             uint8_t is_rich_string)
-/// {
-///     if (is_rich_string)
-///         lxw_xml_start_tag(self->file, "rPr", NULL);
-///     else
-///         lxw_xml_start_tag(self->file, "font", NULL);
-
-///     if (format->font_condense)
-///         _write_font_condense(self);
-
-///     if (format->font_extend)
-///         _write_font_extend(self);
-
-///     if (format->bold)
-///         lxw_xml_empty_tag(self->file, "b", NULL);
-
-///     if (format->italic)
-///         lxw_xml_empty_tag(self->file, "i", NULL);
-
-///     if (format->font_strikeout)
-///         lxw_xml_empty_tag(self->file, "strike", NULL);
-
-///     if (format->font_outline)
-///         lxw_xml_empty_tag(self->file, "outline", NULL);
-
-///     if (format->font_shadow)
-///         lxw_xml_empty_tag(self->file, "shadow", NULL);
-
-///     if (format->underline)
-///         _write_font_underline(self, format->underline);
-
-///     if (format->font_script == LXW_FONT_SUPERSCRIPT)
-///         _write_font_vert_align(self, "superscript");
-
-///     if (format->font_script == LXW_FONT_SUBSCRIPT)
-///         _write_font_vert_align(self, "subscript");
-
-///     if (!is_dxf && format->font_size > 0.0)
-///         _write_font_size(self, format->font_size);
-
-///     if (format->theme)
-///         _write_font_color_theme(self, format->theme);
-///     else if (format->color_indexed)
-///         _write_font_color_indexed(self, format->color_indexed);
-///     else if (format->font_color != LXW_COLOR_UNSET)
-///         _write_font_color_rgb(self, format->font_color);
-///     else if (!is_dxf)
-///         _write_font_color_theme(self, LXW_DEFAULT_FONT_THEME);
-
-///     if (!is_dxf) {
-///         _write_font_name(self, format->font_name, is_rich_string);
-///         _write_font_family(self, format->font_family);
-
-///         if (format->font_charset)
-///             _write_font_charset(self, format->font_charset);
-
-/* Only write the scheme element for the default font type if it
- * isn't a hyperlink. */
-///         if ((!*format->font_name
-///              || strcmp(LXW_DEFAULT_FONT_NAME, format->font_name) == 0)
-///             && !format->hyperlink) {
-///             _write_font_scheme(self, format->font_scheme);
-///         }
-///     }
-
-///     if (format->hyperlink) {
-///         self->has_hyperlink = LXW_TRUE;
-
-///         if (self->hyperlink_font_id == 0)
-///             self->hyperlink_font_id = format->font_index;
-///     }
-
-///     if (is_rich_string)
-///         lxw_xml_end_tag(self->file, "rPr");
-///     else
-///         lxw_xml_end_tag(self->file, "font");
-/// }
+std::string style_t::write_font_size(double font_size) const
+{
+  return xml_empty_tag("sz", {
+                                 {"val", std::format("{}", font_size)}
+  });
+}
+
+std::string style_t::write_font_color_theme(uint8_t theme) const
+{
+  return xml_empty_tag("color", {
+                                    {"theme", std::format("{:d}", theme)}
+  });
+}
+
+std::string style_t::write_font_color_rgb(color_t rgb) const
+{
+  return xml_empty_tag("color", {
+                                    {"rgb", std::to_string(static_cast<uint32_t>(rgb))}
+  });
+}
+
+std::string style_t::write_font_color_indexed(uint8_t index) const
+{
+  return xml_empty_tag("color", {
+                                    {"indexed", std::format("{:d}", index)}
+  });
+}
+
+std::string style_t::write_font_name(const std::string& font_name, bool is_rich_string) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(!font_name.empty())
+  {
+    attributes.emplace_back("val", font_name);
+  }
+  else
+  {
+    attributes.emplace_back("val", format_t::DEFAULT_FONT_NAME);
+  }
+
+  if(is_rich_string)
+  {
+    return xml_empty_tag("rFont", attributes);
+  }
+  else
+  {
+    return xml_empty_tag("name", attributes);
+  }
+}
+
+std::string style_t::write_font_family(uint8_t font_family) const
+{
+  return xml_empty_tag("family", {
+                                     {"val", std::format("{:d}", font_family)}
+  });
+}
+
+std::string style_t::write_font_charset(uint8_t font_charset) const
+{
+  return xml_empty_tag("charset", {
+                                      {"val", std::format("{:d}", font_charset)}
+  });
+}
+
+std::string style_t::write_font_scheme(const std::string& font_scheme) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  if(!font_scheme.empty())
+  {
+    attributes.emplace_back("val", font_scheme);
+  }
+  else
+  {
+    attributes.emplace_back("val", "minor");
+  }
+
+  return xml_empty_tag("scheme", attributes);
+}
+
+std::string style_t::write_font_underline(format_underlines_t underline) const
+{
+  switch(underline)
+  {
+    case format_underlines_t::SINGLE:
+      return xml_empty_tag("u");
+
+    case format_underlines_t::DOUBLE:
+      return xml_empty_tag("u", {
+                                    {"val", "double"}
+      });
+
+    case format_underlines_t::SINGLE_ACCOUNTING:
+      return xml_empty_tag("u", {
+                                    {"val", "singleAccounting"}
+      });
+
+    case format_underlines_t::DOUBLE_ACCOUNTING:
+      return xml_empty_tag("u", {
+                                    {"val", "doubleAccounting"}
+      });
+
+    case format_underlines_t::NONE:
+    default:
+      return "";
+  }
+}
+
+std::string style_t::write_font_condense() const
+{
+  return xml_empty_tag("condense", {
+                                       {"val", "0"}
+  });
+}
+
+std::string style_t::write_font_extend() const
+{
+  return xml_empty_tag("extend", {
+                                     {"val", "0"}
+  });
+}
+
+std::string style_t::write_font_vert_align(const std::string& align) const
+{
+  return xml_empty_tag("vertAlign", {
+                                        {"val", align}
+  });
+}
+
+[[nodiscard]] std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_rich_string) const
+{
+  std::string xml_data;
+
+  if(is_rich_string)
+  {
+    xml_data += xml_start_tag("rPr");
+  }
+  else
+  {
+    xml_data += xml_start_tag("font");
+  }
+
+  if(format->font_condense_)
+  {
+    xml_data += write_font_condense();
+  }
+
+  if(format->font_extend_)
+  {
+    xml_data += write_font_extend();
+  }
+
+  if(format->bold_)
+  {
+    xml_data += xml_empty_tag("b");
+  }
+
+  if(format->italic_)
+  {
+    xml_data += xml_empty_tag("i");
+  }
+
+  if(format->font_strikeout_)
+  {
+    xml_data += xml_empty_tag("strike");
+  }
+
+  if(format->font_outline_)
+  {
+    xml_data += xml_empty_tag("outline");
+  }
+
+  if(format->font_shadow_)
+  {
+    xml_data += xml_empty_tag("shadow");
+  }
+
+  if(format->underline_ != format_underlines_t::NONE)
+  {
+    xml_data += write_font_underline(format->underline_);
+  }
+
+  if(format->font_script_ == format_scripts_t::SUPERSCRIPT)
+  {
+    xml_data += write_font_vert_align("superscript");
+  }
+
+  if(format->font_script_ == format_scripts_t::SUBSCRIPT)
+  {
+    xml_data += write_font_vert_align("subscript");
+  }
+
+  if(!is_dxf && format->font_size_ > 0.0)
+  {
+    xml_data += write_font_size(format->font_size_);
+  }
+
+  if(format->theme_)
+  {
+    xml_data += write_font_color_theme(format->theme_);
+  }
+  else if(format->color_indexed_)
+  {
+    xml_data += write_font_color_indexed(format->color_indexed_);
+  }
+  else if(format->font_color_ != color_t::UNSET)
+  {
+    xml_data += write_font_color_rgb(format->font_color_);
+  }
+  else if(!is_dxf)
+  {
+    // Default font theme
+    xml_data += write_font_color_theme(1);
+  }
+
+  if(!is_dxf)
+  {
+    xml_data += write_font_name(format->font_name_, is_rich_string);
+    xml_data += write_font_family(format->font_family_);
+
+    if(format->font_charset_)
+    {
+      xml_data += write_font_charset(format->font_charset_);
+    }
+
+    // Only write the scheme element for the default font type if it isn't a hyperlink.
+    if((format->font_name_.empty() || format->font_name_ == format_t::DEFAULT_FONT_NAME) && !format->hyperlink_)
+    {
+      xml_data += write_font_scheme(format->font_scheme_);
+    }
+  }
+
+  ///     if (format->hyperlink) {
+  ///         self->has_hyperlink = LXW_TRUE;
+
+  ///         if (self->hyperlink_font_id == 0)
+  ///             self->hyperlink_font_id = format->font_index;
+  ///     }
+
+  if(is_rich_string)
+  {
+    xml_data += xml_end_tag("rPr");
+  }
+  else
+  {
+    xml_data += xml_end_tag("font");
+  }
+
+  return xml_data;
+}
 
 /// STATIC void
 /// _write_comment_font(lxw_styles *self)
@@ -441,14 +421,18 @@ std::string styles_t::write_num_fmts() const
 ///     lxw_xml_end_tag(self->file, "font");
 /// }
 
-std::string styles_t::write_fonts() const
+style_t::style_t(uint32_t font_count, const std::vector<format_t*>& xf_formats)
+  : font_count_{font_count}
+  , xf_formats_{xf_formats}
+{
+}
+
+std::string style_t::write_fonts() const
 {
   ///    struct xml_attribute_list attributes;
   ///    struct xml_attribute *attribute;
   ///    lxw_format *format;
-  const uint32_t count = 0;
-
-  ///    count = self->font_count;
+  const uint16_t count = font_count_;
   ///    if (self->has_comments)
   ///        count++;
 
@@ -456,10 +440,13 @@ std::string styles_t::write_fonts() const
                                                     {"count", std::to_string(count)}
   });
 
-  ///     STAILQ_FOREACH(format, self->xf_formats, list_pointers) {
-  ///         if (format->has_font)
-  ///             _write_font(self, format, LXW_FALSE, LXW_FALSE);
-  ///     }
+  for(const auto format: xf_formats_)
+  {
+    if(format->has_font_)
+    {
+      xml_data += write_font(format, false, false);
+    }
+  }
 
   ///     if (self->has_comments)
   ///         _write_comment_font(self);
@@ -469,7 +456,7 @@ std::string styles_t::write_fonts() const
   return xml_data;
 }
 
-std::string styles_t::write_default_fill(const std::string& pattern) const
+std::string style_t::write_default_fill(const std::string& pattern) const
 {
   std::string xml_data = xml_start_tag("fill");
   xml_data += xml_empty_tag("patternFill", {
@@ -586,7 +573,7 @@ std::string styles_t::write_default_fill(const std::string& pattern) const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-std::string styles_t::write_fills() const
+std::string style_t::write_fills() const
 {
   ///     lxw_format *format;
 
@@ -720,7 +707,7 @@ std::string styles_t::write_fills() const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-std::string styles_t::write_borders() const
+std::string style_t::write_borders() const
 {
   ///     lxw_format *format;
   std::string xml_data = xml_start_tag("borders", {
@@ -764,7 +751,7 @@ std::string styles_t::write_borders() const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-std::string styles_t::write_style_xf(bool has_hyperlink, uint16_t font_id) const
+std::string style_t::write_style_xf(bool has_hyperlink, uint16_t font_id) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
       {"numFmtId", "0"                    },
@@ -793,7 +780,7 @@ std::string styles_t::write_style_xf(bool has_hyperlink, uint16_t font_id) const
   }
 }
 
-std::string styles_t::write_cell_style_xfs() const
+std::string style_t::write_cell_style_xfs() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -1023,7 +1010,7 @@ std::string styles_t::write_cell_style_xfs() const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-std::string styles_t::write_cell_xfs() const
+std::string style_t::write_cell_xfs() const
 {
   ///     struct xml_attribute_list attributes;
   ///     struct xml_attribute *attribute;
@@ -1055,7 +1042,7 @@ std::string styles_t::write_cell_xfs() const
   return xml_data;
 }
 
-std::string styles_t::write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id) const
+std::string style_t::write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id) const
 {
   return xml_empty_tag("cellStyle", {
                                         {"name",      name                      },
@@ -1064,7 +1051,7 @@ std::string styles_t::write_cell_style(const std::string& name, uint8_t xf_id, u
   });
 }
 
-std::string styles_t::write_cell_styles() const
+std::string style_t::write_cell_styles() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -1084,7 +1071,7 @@ std::string styles_t::write_cell_styles() const
   return xml_data;
 }
 
-std::string styles_t::write_dxfs() const
+std::string style_t::write_dxfs() const
 {
   ///     lxw_format *format;
   ///     uint32_t count = self->dxf_count;
@@ -1121,7 +1108,7 @@ std::string styles_t::write_dxfs() const
   ///     }
 }
 
-std::string styles_t::write_table_styles() const
+std::string style_t::write_table_styles() const
 {
   return xml_empty_tag("tableStyles", {
                                           {"count",             "0"                },
@@ -1130,7 +1117,7 @@ std::string styles_t::write_table_styles() const
   });
 }
 
-std::string styles_t::assemble_xml_file() const
+std::string style_t::assemble_xml_file() const
 {
   std::string xml_data = xml_declaration();
   xml_data += write_style_sheet();
