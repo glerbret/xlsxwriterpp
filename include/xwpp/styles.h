@@ -53,6 +53,11 @@ private:
   [[nodiscard]] std::string write_cell_xfs() const;
   [[nodiscard]] std::string write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id) const;
   [[nodiscard]] std::string write_cell_styles() const;
+  [[nodiscard]] bool apply_alignment(const format_t* format) const;
+  [[nodiscard]] bool has_alignment(const format_t* format) const;
+  [[nodiscard]] std::string write_alignment(const format_t* format) const;
+  [[nodiscard]] std::string write_protection(const format_t* format) const;
+  [[nodiscard]] std::string write_xf(const format_t* format) const;
   [[nodiscard]] std::string write_dxfs() const;
   [[nodiscard]] std::string write_table_styles() const;
 
@@ -71,8 +76,6 @@ private:
 
 /// void lxw_styles_write_string_fragment(lxw_styles *self, const char *string);
 /// void lxw_styles_write_rich_font(lxw_styles *styles, lxw_format *format);
-
-/// STATIC void _write_xf(lxw_styles *self, lxw_format *format);
 }
 
 #endif

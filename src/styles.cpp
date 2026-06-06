@@ -826,243 +826,298 @@ std::string style_t::write_cell_style_xfs() const
   return xml_data;
 }
 
-/// STATIC uint8_t
-/// _apply_alignment(lxw_format *format)
-/// {
-///     return format->text_h_align != LXW_ALIGN_NONE
-///         || format->text_v_align != LXW_ALIGN_NONE
-///         || format->indent != 0
-///         || format->rotation != 0
-///         || format->text_wrap != 0
-///         || format->shrink != 0 || format->reading_order != 0;
-/// }
+bool style_t::apply_alignment(const format_t* format) const
+{
+  return format->text_h_align_ != format_alignments_t::NONE || format->text_v_align_ != format_alignments_t::NONE ||
+         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ != 0 || format->shrink_ != 0 ||
+         format->reading_order_ != 0;
+}
 
-/// STATIC uint8_t
-/// _has_alignment(lxw_format *format)
-/// {
-///     return format->text_h_align != LXW_ALIGN_NONE
-///         || !(format->text_v_align == LXW_ALIGN_NONE ||
-///              format->text_v_align == LXW_ALIGN_VERTICAL_BOTTOM)
-///         || format->indent != 0
-///         || format->rotation != 0
-///         || format->text_wrap != 0
-///         || format->shrink != 0 || format->reading_order != 0;
-/// }
+bool style_t::has_alignment(const format_t* format) const
+{
+  return format->text_h_align_ != format_alignments_t::NONE ||
+         !(format->text_v_align_ == format_alignments_t::NONE ||
+           format->text_v_align_ == format_alignments_t::VERTICAL_BOTTOM) ||
+         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ != 0 || format->shrink_ != 0 ||
+         format->reading_order_ != 0;
+}
 
-/// STATIC void
-/// _write_alignment(lxw_styles *self, lxw_format *format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     int16_t rotation = format->rotation;
+std::string style_t::write_alignment(const format_t* format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  int16_t rotation                 = format->rotation_;
+  format_alignments_t text_h_align = format->text_h_align_;
+  bool shrink                      = format->shrink_;
+  bool just_distrib                = format->just_distrib_;
 
-///     LXW_INIT_ATTRIBUTES();
+  /* Indent is only allowed for some alignment properties. */
+  /* If it is defined for any other alignment or no alignment has been  */
+  /* set then default to left alignment. */
+  if(format->indent_ && text_h_align != format_alignments_t::HORIZONTAL_LEFT &&
+     text_h_align != format_alignments_t::HORIZONTAL_RIGHT &&
+     text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED &&
+     format->text_v_align_ != format_alignments_t::VERTICAL_TOP &&
+     format->text_v_align_ != format_alignments_t::VERTICAL_BOTTOM &&
+     format->text_v_align_ != format_alignments_t::VERTICAL_DISTRIBUTED)
+  {
+    text_h_align = format_alignments_t::HORIZONTAL_LEFT;
+  }
 
-/* Indent is only allowed for some alignment properties. */
-/* If it is defined for any other alignment or no alignment has been  */
-/* set then default to left alignment. */
-///     if (format->indent
-///         && format->text_h_align != LXW_ALIGN_LEFT
-///         && format->text_h_align != LXW_ALIGN_RIGHT
-///         && format->text_h_align != LXW_ALIGN_DISTRIBUTED
-///         && format->text_v_align != LXW_ALIGN_VERTICAL_TOP
-///         && format->text_v_align != LXW_ALIGN_VERTICAL_BOTTOM
-///         && format->text_v_align != LXW_ALIGN_VERTICAL_DISTRIBUTED) {
-///         format->text_h_align = LXW_ALIGN_LEFT;
-///     }
+  // Check for properties that are mutually exclusive.
+  if(format->text_wrap_)
+  {
+    shrink = false;
+  }
 
-/* Check for properties that are mutually exclusive. */
-///     if (format->text_wrap)
-///         format->shrink = 0;
+  if(text_h_align == format_alignments_t::HORIZONTAL_FILL)
+  {
+    shrink = false;
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_FILL)
-///         format->shrink = 0;
+  if(text_h_align == format_alignments_t::HORIZONTAL_JUSTIFY)
+  {
+    shrink = false;
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_JUSTIFY)
-///         format->shrink = 0;
+  if(text_h_align == format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  {
+    shrink = false;
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_DISTRIBUTED)
-///         format->shrink = 0;
+  if(text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  {
+    just_distrib = 0;
+  }
 
-///     if (format->text_h_align != LXW_ALIGN_DISTRIBUTED)
-///         format->just_distrib = 0;
+  if(format->indent_)
+  {
+    just_distrib = 0;
+  }
 
-///     if (format->indent)
-///         format->just_distrib = 0;
+  if(text_h_align == format_alignments_t::HORIZONTAL_LEFT)
+  {
+    attributes.emplace_back("horizontal", "left");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_LEFT)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "left");
+  if(text_h_align == format_alignments_t::HORIZONTAL_CENTER)
+  {
+    attributes.emplace_back("horizontal", "center");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_CENTER)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "center");
+  if(text_h_align == format_alignments_t::HORIZONTAL_RIGHT)
+  {
+    attributes.emplace_back("horizontal", "right");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_RIGHT)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "right");
+  if(text_h_align == format_alignments_t::HORIZONTAL_FILL)
+  {
+    attributes.emplace_back("horizontal", "fill");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_FILL)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "fill");
+  if(text_h_align == format_alignments_t::HORIZONTAL_JUSTIFY)
+  {
+    attributes.emplace_back("horizontal", "justify");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_JUSTIFY)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "justify");
+  if(text_h_align == format_alignments_t::HORIZONTAL_CENTER_ACROSS)
+  {
+    attributes.emplace_back("horizontal", "centerContinuous");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_CENTER_ACROSS)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "centerContinuous");
+  if(text_h_align == format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  {
+    attributes.emplace_back("horizontal", "distributed");
+  }
 
-///     if (format->text_h_align == LXW_ALIGN_DISTRIBUTED)
-///         LXW_PUSH_ATTRIBUTES_STR("horizontal", "distributed");
+  if(just_distrib)
+  {
+    attributes.emplace_back("justifyLastLine", "1");
+  }
 
-///     if (format->just_distrib)
-///         LXW_PUSH_ATTRIBUTES_STR("justifyLastLine", "1");
+  if(format->text_v_align_ == format_alignments_t::VERTICAL_TOP)
+  {
+    attributes.emplace_back("vertical", "top");
+  }
 
-///     if (format->text_v_align == LXW_ALIGN_VERTICAL_TOP)
-///         LXW_PUSH_ATTRIBUTES_STR("vertical", "top");
+  if(format->text_v_align_ == format_alignments_t::VERTICAL_CENTER)
+  {
+    attributes.emplace_back("vertical", "center");
+  }
 
-///     if (format->text_v_align == LXW_ALIGN_VERTICAL_CENTER)
-///         LXW_PUSH_ATTRIBUTES_STR("vertical", "center");
+  if(format->text_v_align_ == format_alignments_t::VERTICAL_JUSTIFY)
+  {
+    attributes.emplace_back("vertical", "justify");
+  }
 
-///     if (format->text_v_align == LXW_ALIGN_VERTICAL_JUSTIFY)
-///         LXW_PUSH_ATTRIBUTES_STR("vertical", "justify");
+  if(format->text_v_align_ == format_alignments_t::VERTICAL_DISTRIBUTED)
+  {
+    attributes.emplace_back("vertical", "distributed");
+  }
 
-///     if (format->text_v_align == LXW_ALIGN_VERTICAL_DISTRIBUTED)
-///         LXW_PUSH_ATTRIBUTES_STR("vertical", "distributed");
+  // Map rotation to Excel values.
+  if(rotation != 0)
+  {
+    if(rotation == 270)
+    {
+      rotation = 255;
+    }
+    else if(rotation < 0)
+    {
+      rotation = -rotation + 90;
+    }
 
-/* Map rotation to Excel values. */
-///     if (rotation) {
-///         if (rotation == 270)
-///             rotation = 255;
-///         else if (rotation < 0)
-///             rotation = -rotation + 90;
+    attributes.emplace_back("textRotation", std::to_string(rotation));
+  }
 
-///         LXW_PUSH_ATTRIBUTES_INT("textRotation", rotation);
-///     }
+  if(format->indent_)
+  {
+    attributes.emplace_back("indent", std::to_string(format->indent_));
+  }
 
-///     if (format->indent)
-///         LXW_PUSH_ATTRIBUTES_INT("indent", format->indent);
+  if(format->text_wrap_)
+  {
+    attributes.emplace_back("wrapText", "1");
+  }
 
-///     if (format->text_wrap)
-///         LXW_PUSH_ATTRIBUTES_STR("wrapText", "1");
+  if(shrink)
+  {
+    attributes.emplace_back("shrinkToFit", "1");
+  }
 
-///     if (format->shrink)
-///         LXW_PUSH_ATTRIBUTES_STR("shrinkToFit", "1");
+  if(format->reading_order_ == 1)
+  {
+    attributes.emplace_back("readingOrder", "1");
+  }
 
-///     if (format->reading_order == 1)
-///         LXW_PUSH_ATTRIBUTES_STR("readingOrder", "1");
+  if(format->reading_order_ == 2)
+  {
+    attributes.emplace_back("readingOrder", "2");
+  }
 
-///     if (format->reading_order == 2)
-///         LXW_PUSH_ATTRIBUTES_STR("readingOrder", "2");
+  if(!attributes.empty())
+  {
+    return xml_empty_tag("alignment", attributes);
+  }
+  else
+  {
+    return "";
+  }
+}
 
-///     if (!STAILQ_EMPTY(&attributes))
-///         lxw_xml_empty_tag(self->file, "alignment", &attributes);
+std::string style_t::write_protection(const format_t* format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  if(!format->locked_)
+  {
+    attributes.emplace_back("locked", "0");
+  }
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  if(format->hidden_)
+  {
+    attributes.emplace_back("hidden", "1");
+  }
 
-/// STATIC void
-/// _write_protection(lxw_styles *self, lxw_format *format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+  return xml_empty_tag("protection", attributes);
+}
 
-///     LXW_INIT_ATTRIBUTES();
+std::string style_t::write_xf(const format_t* format) const
+{
+  const bool has_protection = (!format->locked_) | format->hidden_;
 
-///     if (!format->locked)
-///         LXW_PUSH_ATTRIBUTES_STR("locked", "0");
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"numFmtId", std::to_string(format->num_format_index_)},
+      {"fontId",   std::to_string(format->font_index_)      },
+      {"fillId",   std::to_string(format->fill_index_)      },
+      {"borderId", std::to_string(format->border_index_)    },
+      {"xfId",     std::to_string(format->xf_id_)           },
+  };
 
-///     if (format->hidden)
-///         LXW_PUSH_ATTRIBUTES_STR("hidden", "1");
+  if(format->quote_prefix_)
+  {
+    attributes.emplace_back("quotePrefix", "1");
+  }
 
-///     lxw_xml_empty_tag(self->file, "protection", &attributes);
+  if(format->num_format_index_ > 0)
+  {
+    attributes.emplace_back("applyNumberFormat", "1");
+  }
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  // Add applyFont attribute if XF format uses a font element.
+  if(format->font_index_ > 0 && !format->hyperlink_)
+  {
+    attributes.emplace_back("applyFont", "1");
+  }
 
-/// STATIC void
-/// _write_xf(lxw_styles *self, lxw_format *format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     uint8_t has_protection = (!format->locked) | format->hidden;
-///     uint8_t has_alignment = _has_alignment(format);
-///     uint8_t apply_alignment = _apply_alignment(format);
+  // Add applyFill attribute if XF format uses a fill element.
+  if(format->fill_index_ > 0)
+  {
+    attributes.emplace_back("applyFill", "1");
+  }
 
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("numFmtId", format->num_format_index);
-///     LXW_PUSH_ATTRIBUTES_INT("fontId", format->font_index);
-///     LXW_PUSH_ATTRIBUTES_INT("fillId", format->fill_index);
-///     LXW_PUSH_ATTRIBUTES_INT("borderId", format->border_index);
-///     LXW_PUSH_ATTRIBUTES_INT("xfId", format->xf_id);
+  // Add applyBorder attribute if XF format uses a border element.
+  if(format->border_index_ > 0)
+  {
+    attributes.emplace_back("applyBorder", "1");
+  }
 
-///     if (format->quote_prefix)
-///         LXW_PUSH_ATTRIBUTES_STR("quotePrefix", "1");
+  // We can also have applyAlignment without a sub-element.
+  if(apply_alignment(format) || format->hyperlink_)
+  {
+    attributes.emplace_back("applyAlignment", "1");
+  }
 
-///     if (format->num_format_index > 0)
-///         LXW_PUSH_ATTRIBUTES_STR("applyNumberFormat", "1");
+  if(has_protection || format->hyperlink_)
+  {
+    attributes.emplace_back("applyProtection", "1");
+  }
 
-/* Add applyFont attribute if XF format uses a font element. */
-///     if (format->font_index > 0 && !format->hyperlink)
-///         LXW_PUSH_ATTRIBUTES_STR("applyFont", "1");
+  // Write XF with sub-elements if required.
+  if(has_alignment(format) || has_protection)
+  {
+    std::string xml_data = xml_start_tag("xf", attributes);
 
-/* Add applyFill attribute if XF format uses a fill element. */
-///     if (format->fill_index > 0)
-///         LXW_PUSH_ATTRIBUTES_STR("applyFill", "1");
+    if(has_alignment(format))
+    {
+      xml_data += write_alignment(format);
+    }
 
-/* Add applyBorder attribute if XF format uses a border element. */
-///     if (format->border_index > 0)
-///         LXW_PUSH_ATTRIBUTES_STR("applyBorder", "1");
+    if(has_protection)
+    {
+      xml_data += write_protection(format);
+    }
 
-/* We can also have applyAlignment without a sub-element. */
-///     if (apply_alignment || format->hyperlink)
-///         LXW_PUSH_ATTRIBUTES_STR("applyAlignment", "1");
+    xml_data += xml_end_tag("xf");
 
-///     if (has_protection || format->hyperlink)
-///         LXW_PUSH_ATTRIBUTES_STR("applyProtection", "1");
-
-/* Write XF with sub-elements if required. */
-///     if (has_alignment || has_protection) {
-///         lxw_xml_start_tag(self->file, "xf", &attributes);
-
-///         if (has_alignment)
-///             _write_alignment(self, format);
-
-///         if (has_protection)
-///             _write_protection(self, format);
-
-///         lxw_xml_end_tag(self->file, "xf");
-///     }
-///     else {
-///         lxw_xml_empty_tag(self->file, "xf", &attributes);
-///     }
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("xf", attributes);
+  }
+}
 
 std::string style_t::write_cell_xfs() const
 {
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     lxw_format *format;
-  ///     uint32_t count = self->xf_count;
-  ///     uint32_t i = 0;
-
+  uint32_t count = xf_formats_.size();
   /* If the last format is "font_only" it is for the comment font and
    * shouldn't be counted. This is a workaround to get the last object
    * in the list since STAILQ_LAST() requires __containerof and isn't
    * ANSI compatible. */
-  ///     STAILQ_FOREACH(format, self->xf_formats, list_pointers) {
-  ///         i++;
-  ///         if (i == self->xf_count && format->font_only)
-  ///             count--;
-  ///     }
+  if(xf_formats_.back()->font_only_)
+  {
+    count--;
+  }
 
   std::string xml_data = xml_start_tag("cellXfs", {
-                                                      {"count", "0" /* TODO count*/}
+                                                      {"count", std::to_string(count)}
   });
-
-  ///     STAILQ_FOREACH(format, self->xf_formats, list_pointers) {
-  ///         if (!format->font_only)
-  ///             _write_xf(self, format);
-  ///     }
-
+  for(const auto format: xf_formats_)
+  {
+    if(!format->font_only_)
+    {
+      xml_data += write_xf(format);
+    }
+  }
   xml_data += xml_end_tag("cellXfs");
 
   return xml_data;
