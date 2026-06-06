@@ -2347,7 +2347,8 @@ public:
    * @image html write_string03.png
    *
    */
-  void write_string(row_num_t row, col_num_t col, const std::string& str /*, lxw_format *format*/);
+  void write_string(row_num_t row, col_num_t col, const std::string& str);
+  void write_string(row_num_t row, col_num_t col, const std::string& str, const format_t* format);
 
   /**
    * @brief Write a number to a worksheet cell.

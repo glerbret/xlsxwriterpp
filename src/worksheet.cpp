@@ -241,15 +241,15 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
 namespace
 {
 
-cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id, const std::string& sst_string
-                       /* TODO ,lxw_format *format*/)
+cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id, const std::string& sst_string,
+                       const format_t* format)
 {
   cell_t cell;
 
   cell.row_num_    = row_num;
   cell.col_num_    = col_num;
   cell.type_       = cell_types_t::STRING_CELL;
-  ///    cell->format = format;
+  cell.format_     = const_cast<format_t*>(format);
   cell.data_       = string_id;
   cell.sst_string_ = sst_string;
 
@@ -6647,7 +6647,12 @@ void worksheet_t::write_number(row_num_t row_num, col_num_t col_num, double numb
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::string& str /*,lxw_format *format*/)
+void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::string& str)
+{
+  write_string(row_num, col_num, str, nullptr);
+}
+
+void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::string& str, const format_t* format)
 {
   ///  char *string_copy;
 
@@ -6672,7 +6677,7 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
   // Get the SST element and string id.
   const shared_strings_element_t sst_element = sst_->get_index(str, false);
 
-  const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_ /*, TODO format */);
+  const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
   ///     }
   ///     else {
   /* Look for and escape control chars in the string. */

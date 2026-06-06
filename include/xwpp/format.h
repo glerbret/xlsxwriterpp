@@ -374,6 +374,42 @@ public:
    */
   void set_num_format(const std::string& num_format);
 
+  /**
+   * @brief Turn on bold for the format font.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * Set the bold property of the font:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_bold(format);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "Bold Text", format);
+   * @endcode
+   *
+   * @image html format_font_bold.png
+   */
+  void set_bold();
+
+  /**
+   * @brief Turn on italic for the format font.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * Set the italic property of the font:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_italic(format);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "Italic Text", format);
+   * @endcode
+   *
+   * @image html format_font_italic.png
+   */
+  void set_italic();
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -578,42 +614,6 @@ private:
  * and format_set_pattern() methods.
  */
 /// void format_set_font_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Turn on bold for the format font.
- *
- * @param format Pointer to a Format instance.
- *
- * Set the bold property of the font:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_bold(format);
- *
- *     worksheet_write_string(worksheet, 0, 0, "Bold Text", format);
- * @endcode
- *
- * @image html format_font_bold.png
- */
-/// void format_set_bold(lxw_format *format);
-
-/**
- * @brief Turn on italic for the format font.
- *
- * @param format Pointer to a Format instance.
- *
- * Set the italic property of the font:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_italic(format);
- *
- *     worksheet_write_string(worksheet, 0, 0, "Italic Text", format);
- * @endcode
- *
- * @image html format_font_italic.png
- */
-/// void format_set_italic(lxw_format *format);
 
 /**
  * @brief Turn on underline for the format:

@@ -137,15 +137,15 @@ namespace xwpp
 ///   self->font_color = color;
 /// }
 
-/// void format_set_bold(lxw_format *self)
-/// {
-///   self->bold = LXW_TRUE;
-/// }
+void format_t::set_bold()
+{
+  bold_ = true;
+}
 
-/// void format_set_italic(lxw_format *self)
-/// {
-///   self->italic = LXW_TRUE;
-/// }
+void format_t::set_italic()
+{
+  italic_ = true;
+}
 
 /// void format_set_underline(lxw_format *self, uint8_t style)
 /// {

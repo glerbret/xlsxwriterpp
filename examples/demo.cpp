@@ -14,10 +14,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a format.
-  ///  lxw_format *format = workbook_add_format(workbook);
+  xwpp::format_t* format = workbook.add_format();
 
   // Set the bold property for the format
-  ///  format_set_bold(format);
+  format->set_bold();
 
   // Change the column width for clarity.
   worksheet.set_column(0, 0, 20);
@@ -26,7 +26,7 @@ int main()
   worksheet.write_string(0, 0, "Hello");
 
   // Text with formatting.
-  ///  worksheet.write_string(1, 0, "World", format);
+  worksheet.write_string(1, 0, "World", format);
 
   // Write some numbers.
   worksheet.write_number(2, 0, 123);
