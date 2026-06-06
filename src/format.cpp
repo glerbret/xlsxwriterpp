@@ -174,10 +174,10 @@ namespace xwpp
 ///   self->font_shadow = LXW_TRUE;
 /// }
 
-/// void format_set_num_format(lxw_format *self, const char *num_format)
-/// {
-///   LXW_FORMAT_FIELD_COPY(self->num_format, num_format);
-/// }
+void format_t::set_num_format(const std::string& num_format)
+{
+  num_format_ = num_format;
+}
 
 /// void format_set_unlocked(lxw_format *self)
 /// {

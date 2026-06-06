@@ -15,6 +15,8 @@
 #include <format>
 #include <string>
 
+#include <iostream>
+
 namespace xwpp
 {
 
@@ -48,114 +50,109 @@ std::string style_t::write_style_sheet() const
   });
 }
 
-/// STATIC void
-/// _write_num_fmt(lxw_styles *self, uint16_t num_fmt_id, char *format_code)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char *format_codes[] = {
-///         "General",
-///         "0",
-///         "0.00",
-///         "#,##0",
-///         "#,##0.00",
-///         "($#,##0_);($#,##0)",
-///         "($#,##0_);[Red]($#,##0)",
-///         "($#,##0.00_);($#,##0.00)",
-///         "($#,##0.00_);[Red]($#,##0.00)",
-///         "0%",
-///         "0.00%",
-///         "0.00E+00",
-///         "# ?/?",
-///         "# ?" "?/?" "?",        /* Split string to avoid unintentional trigraph. */
-///         "m/d/yy",
-///         "d-mmm-yy",
-///         "d-mmm",
-///         "mmm-yy",
-///         "h:mm AM/PM",
-///         "h:mm:ss AM/PM",
-///         "h:mm",
-///         "h:mm:ss",
-///         "m/d/yy h:mm",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "General",
-///         "(#,##0_);(#,##0)",
-///         "(#,##0_);[Red](#,##0)",
-///         "(#,##0.00_);(#,##0.00)",
-///         "(#,##0.00_);[Red](#,##0.00)",
-///         "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)",
-///         "_($* #,##0_);_($* (#,##0);_($* \"-\"_);_(@_)",
-///         "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)",
-///         "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
-///         "mm:ss",
-///         "[h]:mm:ss",
-///         "mm:ss.0",
-///         "##0.0E+0",
-///         "@"
-///     };
+std::string style_t::write_num_fmt(uint16_t num_fmt_id, const std::string& format_code) const
+{
+  ///     char *format_codes[] = {
+  ///         "General",
+  ///         "0",
+  ///         "0.00",
+  ///         "#,##0",
+  ///         "#,##0.00",
+  ///         "($#,##0_);($#,##0)",
+  ///         "($#,##0_);[Red]($#,##0)",
+  ///         "($#,##0.00_);($#,##0.00)",
+  ///         "($#,##0.00_);[Red]($#,##0.00)",
+  ///         "0%",
+  ///         "0.00%",
+  ///         "0.00E+00",
+  ///         "# ?/?",
+  ///         "# ?" "?/?" "?",        /* Split string to avoid unintentional trigraph. */
+  ///         "m/d/yy",
+  ///         "d-mmm-yy",
+  ///         "d-mmm",
+  ///         "mmm-yy",
+  ///         "h:mm AM/PM",
+  ///         "h:mm:ss AM/PM",
+  ///         "h:mm",
+  ///         "h:mm:ss",
+  ///         "m/d/yy h:mm",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "General",
+  ///         "(#,##0_);(#,##0)",
+  ///         "(#,##0_);[Red](#,##0)",
+  ///         "(#,##0.00_);(#,##0.00)",
+  ///         "(#,##0.00_);[Red](#,##0.00)",
+  ///         "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)",
+  ///         "_($* #,##0_);_($* (#,##0);_($* \"-\"_);_(@_)",
+  ///         "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)",
+  ///         "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
+  ///         "mm:ss",
+  ///         "[h]:mm:ss",
+  ///         "mm:ss.0",
+  ///         "##0.0E+0",
+  ///         "@"
+  ///     };
 
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("numFmtId", num_fmt_id);
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"numFmtId", std::to_string(num_fmt_id)}
+  };
+  ///     if (num_fmt_id < 50)
+  ///         LXW_PUSH_ATTRIBUTES_STR("formatCode", format_codes[num_fmt_id]);
+  ///     else if (num_fmt_id < 164)
+  ///         LXW_PUSH_ATTRIBUTES_STR("formatCode", "General");
+  ///     else
+  attributes.emplace_back("formatCode", format_code);
 
-///     if (num_fmt_id < 50)
-///         LXW_PUSH_ATTRIBUTES_STR("formatCode", format_codes[num_fmt_id]);
-///     else if (num_fmt_id < 164)
-///         LXW_PUSH_ATTRIBUTES_STR("formatCode", "General");
-///     else
-///         LXW_PUSH_ATTRIBUTES_STR("formatCode", format_code);
-
-///     lxw_xml_empty_tag(self->file, "numFmt", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("numFmt", attributes);
+}
 
 std::string style_t::write_num_fmts() const
 {
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     lxw_format *format;
-  ///     uint16_t last_format_index = 0;
+  uint16_t last_format_index = 0;
+  if(num_format_count_ == 0)
+  {
+    return "";
+  }
 
-  ///     if (!self->num_format_count)
-  ///         return;
+  std::string xml_data = xml_start_tag("numFmts", {
+                                                      {"count", std::to_string(num_format_count_)}
+  });
 
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_INT("count", self->num_format_count);
+  // Write the numFmts elements.
+  for(const auto format: xf_formats_)
+  {
+    // Ignore built-in number formats, i.e., < 0xA4.
+    // TODO Add constantes for 0xA4
+    if(format->num_format_index_ < 0xA4)
+    {
+      continue;
+    }
 
-  ///     lxw_xml_start_tag(self->file, "numFmts", &attributes);
+    // Ignore duplicates which have an already used index.
+    if(format->num_format_index_ <= last_format_index)
+    {
+      continue;
+    }
 
-  /* Write the numFmts elements. */
-  ///     STAILQ_FOREACH(format, self->xf_formats, list_pointers) {
+    xml_data += write_num_fmt(format->num_format_index_, format->num_format_);
+    last_format_index = format->num_format_index_;
+  }
 
-  /* Ignore built-in number formats, i.e., < 164. */
-  ///         if (format->num_format_index < 164)
-  ///             continue;
+  xml_data += xml_end_tag("numFmts");
 
-  /* Ignore duplicates which have an already used index. */
-  ///         if (format->num_format_index <= last_format_index)
-  ///             continue;
-
-  ///         _write_num_fmt(self, format->num_format_index, format->num_format);
-
-  ///         last_format_index = format->num_format_index;
-  ///     }
-
-  ///     lxw_xml_end_tag(self->file, "numFmts");
-
-  ///     LXW_FREE_ATTRIBUTES();
-  return "";
+  return xml_data;
 }
 
 std::string style_t::write_font_size(double font_size) const
@@ -422,8 +419,10 @@ std::string style_t::write_font_vert_align(const std::string& align) const
 ///     lxw_xml_end_tag(self->file, "font");
 /// }
 
-style_t::style_t(uint32_t font_count, uint32_t border_count, const std::vector<format_t*>& xf_formats)
+style_t::style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count,
+                 const std::vector<format_t*>& xf_formats)
   : font_count_{font_count}
+  , num_format_count_{num_format_count}
   , border_count_{border_count}
   , xf_formats_{xf_formats}
 {

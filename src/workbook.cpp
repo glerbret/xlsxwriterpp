@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <format>
+#include <functional>
 #include <string>
 
 #include <iostream>
@@ -280,90 +281,84 @@ void workbook_t::prepare_borders()
 ///     lxw_hash_free(fills);
 /// }
 
-/// STATIC void
-/// _prepare_num_formats(lxw_workbook *self)
-/// {
-///     lxw_hash_table *num_formats = lxw_hash_new(128, 0, 1);
-///     lxw_hash_element *hash_element;
-///     lxw_hash_element *used_format_element;
-///     uint16_t index = 0xA4;
-///     uint16_t num_format_count = 0;
-///     uint16_t *num_format_index;
+void workbook_t::prepare_num_formats()
+{
+  std::vector<format_t*> num_formats;
 
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_xf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
+  ///     lxw_hash_table *num_formats = lxw_hash_new(128, 0, 1);
+  ///     lxw_hash_element *hash_element;
+  ///     lxw_hash_element *used_format_element;
+  ///     uint16_t index = 0xA4;
+  ///     uint16_t num_format_count = 0;
+  ///     uint16_t *num_format_index;
 
-/* Format already has a number format index. */
-///         if (format->num_format_index)
-///             continue;
+  // TODO Use unordered_set to optimise this search
+  for(const auto format: used_xf_formats_)
+  {
+    // Format already has a number format index.
+    if(format->num_format_index_ != 0)
+    {
+      continue;
+    }
 
-/* Check if there is a user defined number format string. */
-///         if (*format->num_format) {
-///             char num_format[LXW_FORMAT_FIELD_LEN] = { 0 };
-///             lxw_snprintf(num_format, LXW_FORMAT_FIELD_LEN, "%s",
-///                          format->num_format);
+    // Check if there is a user defined number format string.
+    if(!format->num_format_.empty())
+    {
+      for(const auto num_format: num_formats)
+      {
+        if(format->num_format_ == num_format->num_format_)
+        {
+          // Format number has already been used.
+          format->num_format_index_ = num_format->num_format_index_;
+        }
+      }
 
-/* Look up the num_format in the hash table. */
-///             hash_element = lxw_hash_key_exists(num_formats, num_format,
-///                                                LXW_FORMAT_FIELD_LEN);
+      if(format->num_format_index_ == 0)
+      {
+        // Custom number formats start at 0xA4
+        format->num_format_index_ = static_cast<int32_t>(num_formats.size()) + 0xA4;
+        num_formats.push_back(format);
+      }
+    }
+  }
 
-///             if (hash_element) {
-/* Num_Format has already been used. */
-///                 format->num_format_index = *(uint16_t *) hash_element->value;
-///             }
-///             else {
-/* This is a new num_format. */
-///                 num_format_index = calloc(1, sizeof(uint16_t));
-///                 *num_format_index = index;
-///                 format->num_format_index = index;
-///                 lxw_insert_hash_element(num_formats, format->num_format,
-///                                         num_format_index,
-///                                         LXW_FORMAT_FIELD_LEN);
-///                 index++;
-///                 num_format_count++;
-///             }
-///         }
-///     }
+  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
+  ///         lxw_format *format = (lxw_format *) used_format_element->value;
 
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
+  /* Format already has a number format index. */
+  ///         if (format->num_format_index)
+  ///             continue;
 
-/* Format already has a number format index. */
-///         if (format->num_format_index)
-///             continue;
+  /* Check if there is a user defined number format string. */
+  ///         if (*format->num_format) {
+  ///             char num_format[LXW_FORMAT_FIELD_LEN] = { 0 };
+  ///             lxw_snprintf(num_format, LXW_FORMAT_FIELD_LEN, "%s",
+  ///                          format->num_format);
 
-/* Check if there is a user defined number format string. */
-///         if (*format->num_format) {
-///             char num_format[LXW_FORMAT_FIELD_LEN] = { 0 };
-///             lxw_snprintf(num_format, LXW_FORMAT_FIELD_LEN, "%s",
-///                          format->num_format);
+  /* Look up the num_format in the hash table. */
+  ///             hash_element = lxw_hash_key_exists(num_formats, num_format,
+  ///                                                LXW_FORMAT_FIELD_LEN);
 
-/* Look up the num_format in the hash table. */
-///             hash_element = lxw_hash_key_exists(num_formats, num_format,
-///                                                LXW_FORMAT_FIELD_LEN);
+  ///             if (hash_element) {
+  /* Num_Format has already been used. */
+  ///                 format->num_format_index = *(uint16_t *) hash_element->value;
+  ///             }
+  ///             else {
+  /* This is a new num_format. */
+  ///                 num_format_index = calloc(1, sizeof(uint16_t));
+  ///                 *num_format_index = index;
+  ///                 format->num_format_index = index;
+  ///                 lxw_insert_hash_element(num_formats, format->num_format,
+  ///                                         num_format_index,
+  ///                                         LXW_FORMAT_FIELD_LEN);
+  ///                 index++;
+  /* Don't update num_format_count for DXF formats. */
+  ///             }
+  ///         }
+  ///     }
 
-///             if (hash_element) {
-/* Num_Format has already been used. */
-///                 format->num_format_index = *(uint16_t *) hash_element->value;
-///             }
-///             else {
-/* This is a new num_format. */
-///                 num_format_index = calloc(1, sizeof(uint16_t));
-///                 *num_format_index = index;
-///                 format->num_format_index = index;
-///                 lxw_insert_hash_element(num_formats, format->num_format,
-///                                         num_format_index,
-///                                         LXW_FORMAT_FIELD_LEN);
-///                 index++;
-/* Don't update num_format_count for DXF formats. */
-///             }
-///         }
-///     }
-
-///     lxw_hash_free(num_formats);
-
-///     self->num_format_count = num_format_count;
-/// }
+  num_format_count_ = static_cast<uint32_t>(num_formats.size());
+}
 
 void workbook_t::prepare_workbook()
 {
@@ -371,7 +366,7 @@ void workbook_t::prepare_workbook()
   prepare_fonts();
 
   // Set the number format index for the format objects.
-  ///     _prepare_num_formats(self);
+  prepare_num_formats();
 
   // Set the border index for the format objects.
   prepare_borders();
@@ -1546,7 +1541,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       ///     .use_1904_epoch = self->use_1904_epoch,
   };
 
-  sheets_.emplace_back(worksheet_t{init_data});
+  sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1)});
   num_worksheets_++;
   num_sheets_++;
 

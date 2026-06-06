@@ -336,6 +336,44 @@ enum class format_borders_t
 class format_t
 {
 public:
+  /**
+   * @brief Set the number format for a cell.
+   *
+   * @param format      Pointer to a Format instance.
+   * @param num_format The cell number format string.
+   *
+   * This method is used to define the numerical format of a number in
+   * Excel. It controls whether a number is displayed as an integer, a
+   * floating point number, a date, a currency value or some other user
+   * defined format.
+   *
+   * The numerical format of a cell can be specified by using a format
+   * string:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_num_format(format, "d mmm yyyy");
+   * @endcode
+   *
+   * Format strings can control any aspect of number formatting allowed by Excel:
+   *
+   * @dontinclude format_num_format.c
+   * @skipline set_num_format
+   * @until 1209
+   *
+   * @image html format_set_num_format.png
+   *
+   * To set a number format that matches an Excel format category such as "Date"
+   * or "Currency" see @ref ww_formats_categories.
+   *
+   * The number system used for dates is described in @ref working_with_dates.
+   *
+   * For more information on number formats in Excel refer to the
+   * [Microsoft documentation on cell
+   * formats](http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx).
+   */
+  void set_num_format(const std::string& num_format);
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -356,7 +394,7 @@ private:
   std::string num_format_;
   std::string font_name_;
   std::string font_scheme_;
-  uint16_t num_format_index_         = 0;
+  int32_t num_format_index_          = 0;
   int32_t font_index_                = PROPERTY_UNSET;
   bool has_font_                     = false;
   bool has_dxf_font_                 = false;
@@ -659,44 +697,6 @@ private:
  *
  */
 /// void format_set_font_charset(lxw_format *format, uint8_t value);
-
-/**
- * @brief Set the number format for a cell.
- *
- * @param format      Pointer to a Format instance.
- * @param num_format The cell number format string.
- *
- * This method is used to define the numerical format of a number in
- * Excel. It controls whether a number is displayed as an integer, a
- * floating point number, a date, a currency value or some other user
- * defined format.
- *
- * The numerical format of a cell can be specified by using a format
- * string:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_num_format(format, "d mmm yyyy");
- * @endcode
- *
- * Format strings can control any aspect of number formatting allowed by Excel:
- *
- * @dontinclude format_num_format.c
- * @skipline set_num_format
- * @until 1209
- *
- * @image html format_set_num_format.png
- *
- * To set a number format that matches an Excel format category such as "Date"
- * or "Currency" see @ref ww_formats_categories.
- *
- * The number system used for dates is described in @ref working_with_dates.
- *
- * For more information on number formats in Excel refer to the
- * [Microsoft documentation on cell
- * formats](http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx).
- */
-/// void format_set_num_format(lxw_format *format, const char *num_format);
 
 /**
  * @brief Set the Excel built-in number format for a cell.

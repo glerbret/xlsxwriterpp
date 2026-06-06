@@ -20,12 +20,14 @@ namespace xwpp
 class style_t
 {
 public:
-  style_t(uint32_t font_count, uint32_t border_count, const std::vector<format_t*>& xf_formats);
+  style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count,
+          const std::vector<format_t*>& xf_formats);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
   [[nodiscard]] std::string write_style_sheet() const;
+  [[nodiscard]] std::string write_num_fmt(uint16_t num_fmt_id, const std::string& format_code) const;
   [[nodiscard]] std::string write_num_fmts() const;
   [[nodiscard]] std::string write_font_condense() const;
   [[nodiscard]] std::string write_font_extend() const;
@@ -64,7 +66,7 @@ private:
   uint32_t font_count_;
   ///  uint32_t xf_count;
   ///  uint32_t dxf_count;
-  ///  uint32_t num_format_count;
+  uint32_t num_format_count_;
   uint32_t border_count_;
   ///  uint32_t fill_count;
   std::vector<format_t*> xf_formats_;

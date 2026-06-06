@@ -538,6 +538,7 @@ private:
   int32_t get_xf_index(format_t* format);
 
   void prepare_fonts();
+  void prepare_num_formats();
   void prepare_borders();
   void prepare_workbook();
 
@@ -598,19 +599,19 @@ private:
   ///     char *filename;
   ///     lxw_workbook_options options;
 
-  uint16_t num_sheets_     = 0; // TODO Needed ?
-  uint16_t num_worksheets_ = 0;
+  uint16_t num_sheets_       = 0; // TODO Needed ?
+  uint16_t num_worksheets_   = 0;
   ///     uint16_t num_chartsheets;
   ///     uint16_t first_sheet;
-  uint16_t active_sheet_   = 0;
+  uint16_t active_sheet_     = 0;
   ///     uint16_t num_xf_formats;
   ///     uint16_t num_dxf_formats;
-  ///     uint16_t num_format_count;
+  uint16_t num_format_count_ = 0;
   ///     uint16_t drawing_count;
   ///     uint16_t comment_count;
   ///     uint32_t num_embedded_images;
-  uint16_t window_width_   = 16095;
-  uint16_t window_height_  = 9660;
+  uint16_t window_width_     = 16095;
+  uint16_t window_height_    = 9660;
 
   uint16_t font_count_     = 0;
   uint16_t border_count_   = 0;

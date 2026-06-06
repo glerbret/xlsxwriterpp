@@ -49,6 +49,7 @@ NULL);
 #include "xwpp/shared_strings.h"
 
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <string>
 #include <variant>
@@ -756,7 +757,7 @@ struct cell_t
   col_num_t col_num_ = 0;
   cell_types_t type_ = cell_types_t::BLANK_CELL;
   ///     enum cell_types type;
-  ///     lxw_format *format;
+  format_t* format_  = nullptr;
   ///     lxw_vml_obj *comment;
 
   std::variant<uint32_t, double> data_;
@@ -2181,7 +2182,7 @@ struct worksheet_init_data_t
 class worksheet_t
 {
 public:
-  explicit worksheet_t(const worksheet_init_data_t& init_data);
+  worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index);
 
   // TODO Add API with option (original worksheet_set_column_opt) and with format
   // TODO Add API with col names
@@ -2393,7 +2394,8 @@ public:
    */
   // TODO Add overload for all integer and number types (template)
   // TODO Add API with col/row names and cell name
-  void write_number(row_num_t row, col_num_t col, double number /*, lxw_format *format*/);
+  void write_number(row_num_t row, col_num_t col, double number);
+  void write_number(row_num_t row, col_num_t col, double number, const format_t* format);
 
   /**
    * @brief Set a worksheet tab as selected.
@@ -2467,6 +2469,7 @@ private:
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
 
+  std::function<int32_t(format_t*)> get_xf_index_;
   ///     FILE *file;
   ///     FILE *optimize_tmpfile;
   ///     char *optimize_buffer;

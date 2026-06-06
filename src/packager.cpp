@@ -1030,7 +1030,8 @@ void packager_t::write_theme_file()
 void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
-  const style_t styles(workbook.font_count_, workbook.border_count_, workbook.used_xf_formats_);
+  const style_t styles(workbook.font_count_, workbook.border_count_, workbook.num_format_count_,
+                       workbook.used_xf_formats_);
   ///     lxw_hash_element *hash_element;
 
   /* Copy the unique and in-use dxf formats from the workbook to the styles
@@ -1048,9 +1049,7 @@ void packager_t::write_styles_file(const workbook_t& workbook)
   ///         STAILQ_INSERT_TAIL(styles->dxf_formats, style_format, list_pointers);
   ///     }
 
-  ///     styles->border_count = self->workbook->border_count;
   ///     styles->fill_count = self->workbook->fill_count;
-  ///     styles->num_format_count = self->workbook->num_format_count;
   ///     styles->xf_count = self->workbook->used_xf_formats->unique_count;
   ///     styles->dxf_count = self->workbook->used_dxf_formats->unique_count;
   ///     styles->has_comments = self->workbook->has_comments;

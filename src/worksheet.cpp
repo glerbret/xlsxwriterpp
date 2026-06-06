@@ -70,8 +70,9 @@ namespace xwpp
 ///     return RB_FIND(lxw_table_cells, row->cells, &tmp_cell);
 /// }
 
-worksheet_t::worksheet_t(const worksheet_init_data_t& init_data)
-  : sst_{init_data.sst_}
+worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index)
+  : get_xf_index_{get_xf_index}
+  , sst_{init_data.sst_}
   , name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
@@ -255,14 +256,14 @@ cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id,
   return cell;
 }
 
-cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value /* TODO, lxw_format *format*/)
+cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const format_t* format)
 {
   cell_t cell;
 
   cell.row_num_ = row_num;
   cell.col_num_ = col_num;
   cell.type_    = cell_types_t::NUMBER_CELL;
-  ///    cell->format = format;
+  cell.format_  = const_cast<format_t*>(format);
   cell.data_    = value;
 
   return cell;
@@ -3649,13 +3650,14 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
 {
   ///     struct xml_attribute_list attributes;
   ///     struct xml_attribute *attribute;
-  const int32_t style_index = 0;
+  int32_t style_index = 0;
 
   const std::string range = rowcol_to_cell(cell.row_num_, cell.col_num_);
 
-  ///     if (cell->format) {
-  ///         style_index = lxw_format_get_xf_index(cell->format);
-  ///     }
+  if(cell.format_)
+  {
+    style_index = get_xf_index_(cell.format_);
+  }
   ///     else if (row_format) {
   ///         style_index = lxw_format_get_xf_index(row_format);
   ///     }
@@ -6631,11 +6633,16 @@ uint16_t worksheet_t::get_sheet_index() const
   return index_;
 }
 
-void worksheet_t::write_number(row_num_t row_num, col_num_t col_num, double number /*, lxw_format *format*/)
+void worksheet_t::write_number(row_num_t row_num, col_num_t col_num, double number)
+{
+  write_number(row_num, col_num, number, nullptr);
+}
+
+void worksheet_t::write_number(row_num_t row_num, col_num_t col_num, double number, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
 
-  const cell_t cell = new_number_cell(row_num, col_num, number /*, TODO format */);
+  const cell_t cell = new_number_cell(row_num, col_num, number, format);
 
   insert_cell(row_num, col_num, cell);
 }
