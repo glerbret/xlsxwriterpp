@@ -20,7 +20,7 @@ namespace xwpp
 class style_t
 {
 public:
-  style_t(uint32_t font_count, const std::vector<format_t*>& xf_formats);
+  style_t(uint32_t font_count, uint32_t border_count, const std::vector<format_t*>& xf_formats);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -43,6 +43,10 @@ private:
   [[nodiscard]] std::string write_fonts() const;
   [[nodiscard]] std::string write_default_fill(const std::string& pattern) const;
   [[nodiscard]] std::string write_fills() const;
+  [[nodiscard]] std::string convert_format_borders_style(format_borders_t style) const;
+  [[nodiscard]] std::string write_border_color(color_t color) const;
+  [[nodiscard]] std::string write_sub_border(const std::string& type, format_borders_t style, color_t color) const;
+  [[nodiscard]] std::string write_border(const format_t* format, bool is_dxf) const;
   [[nodiscard]] std::string write_borders() const;
   [[nodiscard]] std::string write_style_xf(bool has_hyperlink, uint16_t font_id) const;
   [[nodiscard]] std::string write_cell_style_xfs() const;
@@ -56,7 +60,7 @@ private:
   ///  uint32_t xf_count;
   ///  uint32_t dxf_count;
   ///  uint32_t num_format_count;
-  ///  uint32_t border_count;
+  uint32_t border_count_;
   ///  uint32_t fill_count;
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
@@ -68,8 +72,6 @@ private:
 /// void lxw_styles_write_string_fragment(lxw_styles *self, const char *string);
 /// void lxw_styles_write_rich_font(lxw_styles *styles, lxw_format *format);
 
-/// STATIC void _write_border(lxw_styles *self, lxw_format *format,
-///                           uint8_t is_dxf);
 /// STATIC void _write_xf(lxw_styles *self, lxw_format *format);
 }
 

@@ -75,14 +75,9 @@ namespace xwpp
 ///     }
 /// }
 
-// ICI
 void workbook_t::prepare_fonts()
 {
   std::vector<format_t*> fonts;
-  ///     lxw_hash_table *fonts = lxw_hash_new(128, 1, 1);
-  ///     lxw_hash_element *hash_element;
-  ///     lxw_hash_element *used_format_element;
-  ///     uint16_t index = 0;
 
   // TODO Use unordered_set to optimise this search
   for(const auto format: used_xf_formats_)
@@ -125,54 +120,46 @@ void workbook_t::prepare_fonts()
   font_count_ = static_cast<uint32_t>(fonts.size());
 }
 
-/// STATIC void _prepare_borders(lxw_workbook *self)
-/// {
-///     lxw_hash_table *borders = lxw_hash_new(128, 1, 1);
-///     lxw_hash_element *hash_element;
-///     lxw_hash_element *used_format_element;
-///     uint16_t index = 0;
+void workbook_t::prepare_borders()
+{
+  std::vector<format_t*> borders;
 
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_xf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
-///         lxw_border *key = lxw_format_get_border_key(format);
+  // TODO Use unordered_set to optimise this search
+  for(const auto format: used_xf_formats_)
+  {
+    for(const auto border: borders)
+    {
+      if(format->bottom_ == border->bottom_ && format->left_ == border->left_ && format->right_ == border->right_ &&
+         format->top_ == border->top_ && format->diag_border_ == border->diag_border_ &&
+         format->diag_type_ == border->diag_type_ && format->bottom_color_ == border->bottom_color_ &&
+         format->left_color_ == border->left_color_ && format->right_color_ == border->right_color_ &&
+         format->top_color_ == border->top_color_ && format->diag_color_ == border->diag_color_)
+      {
+        // Font has already been used.
+        format->border_index_ = border->border_index_;
+        format->has_border_   = false;
+      }
+    }
 
-///         if (key) {
-/* Look up the format in the hash table. */
-///             hash_element =
-///                 lxw_hash_key_exists(borders, key, sizeof(lxw_border));
+    if(format->border_index_ == format_t::PROPERTY_UNSET)
+    {
+      format->border_index_ = static_cast<int32_t>(borders.size());
+      format->has_border_   = true;
+      borders.push_back(format);
+    }
+  }
 
-///             if (hash_element) {
-/* Border has already been used. */
-///                 format->border_index = *(uint16_t *) hash_element->value;
-///                 format->has_border = LXW_FALSE;
-///                 free(key);
-///             }
-///             else {
-/* This is a new border. */
-///                 uint16_t *border_index = calloc(1, sizeof(uint16_t));
-///                 *border_index = index;
-///                 format->border_index = index;
-///                 format->has_border = 1;
-///                 lxw_insert_hash_element(borders, key, border_index,
-///                                         sizeof(lxw_border));
-///                 index++;
-///             }
-///         }
-///     }
+  /* For DXF formats we only need to check if the properties have changed. */
+  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
+  ///         lxw_format *format = (lxw_format *) used_format_element->value;
 
-/* For DXF formats we only need to check if the properties have changed. */
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
+  ///         if (format->left || format->right || format->top || format->bottom) {
+  ///             format->has_dxf_border = LXW_TRUE;
+  ///         }
+  ///     }
 
-///         if (format->left || format->right || format->top || format->bottom) {
-///             format->has_dxf_border = LXW_TRUE;
-///         }
-///     }
-
-///     lxw_hash_free(borders);
-
-///     self->border_count = index;
-/// }
+  border_count_ = static_cast<uint32_t>(borders.size());
+}
 
 /// STATIC void _prepare_fills(lxw_workbook *self)
 /// {
@@ -387,7 +374,7 @@ void workbook_t::prepare_workbook()
   ///     _prepare_num_formats(self);
 
   // Set the border index for the format objects.
-  ///     _prepare_borders(self);
+  prepare_borders();
 
   // Set the fill index for the format objects.
   ///     _prepare_fills(self);

@@ -11,6 +11,7 @@
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
+#include <cassert>
 #include <format>
 #include <string>
 
@@ -421,8 +422,9 @@ std::string style_t::write_font_vert_align(const std::string& align) const
 ///     lxw_xml_end_tag(self->file, "font");
 /// }
 
-style_t::style_t(uint32_t font_count, const std::vector<format_t*>& xf_formats)
+style_t::style_t(uint32_t font_count, uint32_t border_count, const std::vector<format_t*>& xf_formats)
   : font_count_{font_count}
+  , border_count_{border_count}
   , xf_formats_{xf_formats}
 {
 }
@@ -595,128 +597,152 @@ std::string style_t::write_fills() const
   return xml_data;
 }
 
-/// STATIC void
-/// _write_border_color(lxw_styles *self, lxw_color_t color)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb_str[LXW_ATTR_32];
+std::string style_t::write_border_color(color_t color) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     LXW_INIT_ATTRIBUTES();
+  if(color != color_t::UNSET)
+  {
+    attributes.emplace_back("rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK));
+  }
+  else
+  {
+    attributes.emplace_back("auto", "1");
+  }
 
-///     if (color != LXW_COLOR_UNSET) {
-///         lxw_snprintf(rgb_str, LXW_ATTR_32, "FF%06X", color & LXW_COLOR_MASK);
-///         LXW_PUSH_ATTRIBUTES_STR("rgb", rgb_str);
-///     }
-///     else {
-///         LXW_PUSH_ATTRIBUTES_STR("auto", "1");
-///     }
+  return xml_empty_tag("color", attributes);
+}
 
-///     lxw_xml_empty_tag(self->file, "color", &attributes);
+std::string style_t::convert_format_borders_style(format_borders_t style) const
+{
+  switch(style)
+  {
+    case format_borders_t::THIN:
+      return "thin";
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+    case format_borders_t::MEDIUM:
+      return "medium";
 
-/// STATIC void
-/// _write_sub_border(lxw_styles *self, const char *type, uint8_t style,
-///                   lxw_color_t color)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+    case format_borders_t::DASHED:
+      return "dashed";
 
-///     char *border_styles[] = {
-///         "none",
-///         "thin",
-///         "medium",
-///         "dashed",
-///         "dotted",
-///         "thick",
-///         "double",
-///         "hair",
-///         "mediumDashed",
-///         "dashDot",
-///         "mediumDashDot",
-///         "dashDotDot",
-///         "mediumDashDotDot",
-///         "slantDashDot",
-///     };
+    case format_borders_t::DOTTED:
+      return "dotted";
 
-///     if (!style) {
-///         lxw_xml_empty_tag(self->file, type, NULL);
-///         return;
-///     }
+    case format_borders_t::THICK:
+      return "thick";
 
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("style", border_styles[style]);
+    case format_borders_t::DOUBLE:
+      return "double";
 
-///     lxw_xml_start_tag(self->file, type, &attributes);
+    case format_borders_t::HAIR:
+      return "hair";
 
-///     _write_border_color(self, color);
+    case format_borders_t::MEDIUM_DASHED:
+      return "mediumDashed";
 
-///     lxw_xml_end_tag(self->file, type);
+    case format_borders_t::DASH_DOT:
+      return "dashDot";
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+    case format_borders_t::MEDIUM_DASH_DOT:
+      return "mediumDashDot";
 
-/// STATIC void
-/// _write_border(lxw_styles *self, lxw_format *format, uint8_t is_dxf)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+    case format_borders_t::DASH_DOT_DOT:
+      return "dashDotDot";
 
-///     LXW_INIT_ATTRIBUTES();
+    case format_borders_t::MEDIUM_DASH_DOT_DOT:
+      return "mediumDashDotDot";
 
-/* Add attributes for diagonal borders. */
-///     if (format->diag_type == LXW_DIAGONAL_BORDER_UP) {
-///         LXW_PUSH_ATTRIBUTES_STR("diagonalUp", "1");
-///     }
-///     else if (format->diag_type == LXW_DIAGONAL_BORDER_DOWN) {
-///         LXW_PUSH_ATTRIBUTES_STR("diagonalDown", "1");
-///     }
-///     else if (format->diag_type == LXW_DIAGONAL_BORDER_UP_DOWN) {
-///         LXW_PUSH_ATTRIBUTES_STR("diagonalUp", "1");
-///         LXW_PUSH_ATTRIBUTES_STR("diagonalDown", "1");
-///     }
+    case format_borders_t::SLANT_DASH_DOT:
+      return "slantDashDot";
 
-/* Ensure that a default diag border is set if the diag type is set. */
-///     if (format->diag_type && !format->diag_border) {
-///         format->diag_border = LXW_BORDER_THIN;
-///     }
+    case format_borders_t::NONE:
+    default:
+      return "none";
+  }
+}
 
-/* Write the start border tag. */
-///     lxw_xml_start_tag(self->file, "border", &attributes);
+std::string style_t::write_sub_border(const std::string& type, format_borders_t style, color_t color) const
+{
+  if(style == format_borders_t::NONE)
+  {
+    return xml_empty_tag(type);
+  }
 
-/* Write the <border> sub elements. */
-///     _write_sub_border(self, "left", format->left, format->left_color);
-///     _write_sub_border(self, "right", format->right, format->right_color);
-///     _write_sub_border(self, "top", format->top, format->top_color);
-///     _write_sub_border(self, "bottom", format->bottom, format->bottom_color);
+  std::string xml_data = xml_start_tag(type, {
+                                                 {"style", convert_format_borders_style(style)}
+  });
+  xml_data += write_border_color(color);
+  xml_data += xml_end_tag(type);
 
-///     if (is_dxf) {
-///         _write_sub_border(self, "vertical", 0, LXW_COLOR_UNSET);
-///         _write_sub_border(self, "horizontal", 0, LXW_COLOR_UNSET);
-///     }
+  return xml_data;
+}
 
-/* Conditional DXF formats don't allow diagonal borders. */
-///     if (!is_dxf)
-///         _write_sub_border(self, "diagonal",
-///                           format->diag_border, format->diag_color);
+std::string style_t::write_border(const format_t* format, bool is_dxf) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     lxw_xml_end_tag(self->file, "border");
+  // Add attributes for diagonal borders.
+  if(format->diag_type_ == format_diagonal_types_t::BORDER_UP)
+  {
+    attributes.emplace_back("diagonalUp", "1");
+  }
+  else if(format->diag_type_ == format_diagonal_types_t::BORDER_DOWN)
+  {
+    attributes.emplace_back("diagonalDown", "1");
+  }
+  else if(format->diag_type_ == format_diagonal_types_t::BORDER_UP_DOWN)
+  {
+    attributes.emplace_back("diagonalUp", "1");
+    attributes.emplace_back("diagonalDown", "1");
+  }
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  // Ensure that a default diag border is set if the diag type is set.
+  format_borders_t diag_border = format->diag_border_;
+  if(format->diag_type_ != format_diagonal_types_t::NONE && diag_border == format_borders_t::NONE)
+  {
+    diag_border = format_borders_t::THIN;
+  }
+
+  // Write the start border tag.
+  std::string xml_data = xml_start_tag("border", attributes);
+
+  // Write the <border> sub elements.
+  xml_data += write_sub_border("left", format->left_, format->left_color_);
+  xml_data += write_sub_border("right", format->right_, format->right_color_);
+  xml_data += write_sub_border("top", format->top_, format->top_color_);
+  xml_data += write_sub_border("bottom", format->bottom_, format->bottom_color_);
+
+  if(is_dxf)
+  {
+    xml_data += write_sub_border("vertical", format_borders_t::NONE, color_t::UNSET);
+    xml_data += write_sub_border("horizontal", format_borders_t::NONE, color_t::UNSET);
+  }
+
+  // Conditional DXF formats don't allow diagonal borders.
+  if(!is_dxf)
+  {
+    xml_data += write_sub_border("diagonal", diag_border, format->diag_color_);
+  }
+
+  xml_data += xml_end_tag("border");
+
+  return xml_data;
+}
 
 std::string style_t::write_borders() const
 {
-  ///     lxw_format *format;
   std::string xml_data = xml_start_tag("borders", {
-                                                      {"count", "0" /*self->border_count*/}
+                                                      {"count", std::to_string(border_count_)}
   });
-  ///     STAILQ_FOREACH(format, self->xf_formats, list_pointers) {
-  ///         if (format->has_border)
-  ///             _write_border(self, format, LXW_FALSE);
-  ///     }
+
+  for(const auto format: xf_formats_)
+  {
+    if(format->has_border_)
+    {
+      xml_data += write_border(format, false);
+    }
+  }
 
   xml_data += xml_end_tag("borders");
 

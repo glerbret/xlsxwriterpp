@@ -537,8 +537,9 @@ private:
   // TODO Should be provided to worksheet as callback
   int32_t get_xf_index(format_t* format);
 
-  void prepare_workbook();
   void prepare_fonts();
+  void prepare_borders();
+  void prepare_workbook();
 
   // Iterate through the worksheets and set up the VML objects.
   void prepare_vml();
@@ -612,7 +613,7 @@ private:
   uint16_t window_height_  = 9660;
 
   uint16_t font_count_     = 0;
-  ///     uint16_t border_count;
+  uint16_t border_count_   = 0;
   ///     uint16_t fill_count;
   ///     uint8_t optimize;
   uint16_t max_url_length_ = 2079;
