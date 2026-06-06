@@ -15,6 +15,9 @@
 #include "xlsxwriterpp.h"
 
 #include <algorithm>
+#include <chrono>
+
+#include <iostream>
 
 /// #ifdef USE_DTOA_LIBRARY
 /// #include "xlsxwriter/third_party/emyg_dtoa.h"
@@ -339,102 +342,93 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
 ///     return LXW_NO_ERROR;
 /// }
 
-/// double
-/// lxw_datetime_to_excel_date_with_epoch(lxw_datetime *datetime,
-///                                       uint8_t use_1904_epoch)
-/// {
-///     int year = datetime->year;
-///     int month = datetime->month;
-///     int day = datetime->day;
-///     int hour = datetime->hour;
-///     int min = datetime->min;
-///     double sec = datetime->sec;
-///     double seconds;
-///     int epoch = use_1904_epoch ? 1904 : 1900;
-///     int offset = use_1904_epoch ? 4 : 0;
-///     int norm = 300;
-///     int range;
-/* Set month days and check for leap year. */
-///     int mdays[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-///     int leap = 0;
-///     int days = 0;
-///     int i;
+double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
+{
+  const auto dp = floor<std::chrono::days>(datetime);
+  const std::chrono::year_month_day ymd{dp};
+  const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - dp)};
+  const int year   = static_cast<int>(ymd.year());
+  const int month  = static_cast<unsigned int>(ymd.month());
+  const int day    = static_cast<unsigned int>(ymd.day());
+  const int hour   = time.hours().count();
+  const int min    = time.minutes().count();
+  const double sec = time.seconds().count() + time.subseconds().count() / 1000.0;
+  const int epoch  = use_1904_epoch ? 1904 : 1900;
+  const int offset = use_1904_epoch ? 4 : 0;
+  const int norm   = 300;
+  // Set month days and check for leap year.
+  int mdays[]      = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  int leap         = 0;
+  int days         = 0;
+  int i;
 
-///     if (lxw_datetime_validate(datetime) != LXW_NO_ERROR)
-///         return 0.0;
+  // Convert the Excel seconds to a fraction of the seconds in 24 hours.
+  const double seconds = (hour * 60 * 60 + min * 60 + sec) / (24 * 60 * 60.0);
 
-/* For times without dates set the default date for the epoch. */
-///     if (!year) {
-///         if (!use_1904_epoch) {
-///             year = 1899;
-///             month = 12;
-///             day = 31;
-///         }
-///         else {
-///             year = 1904;
-///             month = 1;
-///             day = 1;
-///         }
-///     }
+  // Special cases for Excel dates in the 1900 epoch.
+  if(!use_1904_epoch)
+  {
+    // Excel 1900 epoch.
+    if(year == 1899 && month == 12 && day == 31)
+    {
+      return seconds;
+    }
 
-/* Convert the Excel seconds to a fraction of the seconds in 24 hours. */
-///     seconds = (hour * 60 * 60 + min * 60 + sec) / (24 * 60 * 60.0);
+    // Excel 1900 epoch.
+    if(year == 1900 && month == 1 && day == 0)
+    {
+      return seconds;
+    }
 
-/* Special cases for Excel dates in the 1900 epoch. */
-///     if (!use_1904_epoch) {
-/* Excel 1900 epoch. */
-///         if (year == 1899 && month == 12 && day == 31)
-///             return seconds;
+    // Excel false leapday
+    if(year == 1900 && month == 2 && day == 29)
+    {
+      return 60 + seconds;
+    }
+  }
 
-/* Excel 1900 epoch. */
-///         if (year == 1900 && month == 1 && day == 0)
-///             return seconds;
+  /* We calculate the date by calculating the number of days since the
+     epoch and adjust for the number of leap days. We calculate the
+     number of leap days by normalizing the year in relation to the
+     epoch. Thus the year 2000 becomes 100 for 4-year and 100-year
+     leapdays and 400 for 400-year leapdays. */
+  const int range = year - epoch;
 
-/* Excel false leapday */
-///         if (year == 1900 && month == 2 && day == 29)
-///             return 60 + seconds;
-///     }
+  if(year % 4 == 0 && (year % 100 > 0 || year % 400 == 0))
+  {
+    leap     = 1;
+    mdays[2] = 29;
+  }
 
-/* We calculate the date by calculating the number of days since the */
-/* epoch and adjust for the number of leap days. We calculate the */
-/* number of leap days by normalizing the year in relation to the */
-/* epoch. Thus the year 2000 becomes 100 for 4-year and 100-year */
-/* leapdays and 400 for 400-year leapdays. */
-///     range = year - epoch;
+  // Calculate the serial date by accumulating the number of days
+  //  since the epoch.
 
-///     if (year % 4 == 0 && (year % 100 > 0 || year % 400 == 0)) {
-///         leap = 1;
-///         mdays[2] = 29;
-///     }
+  // Add days for previous months.
+  for(i = 0; i < month; i++)
+  {
+    days += mdays[i];
+  }
+  // Add days for current month.
+  days += day;
+  // Add days for all previous years.
+  days += range * 365;
+  // Add 4 year leapdays.
+  days += range / 4;
+  // Remove 100 year leapdays.
+  days -= (range + offset) / 100;
+  // Add 400 year leapdays.
+  days += (range + offset + norm) / 400;
+  // Remove leap days already counted.
+  days -= leap;
 
-/*
- * Calculate the serial date by accumulating the number of days
- * since the epoch.
- */
+  // Adjust for Excel erroneously treating 1900 as a leap year.
+  if(!use_1904_epoch && days > 59)
+  {
+    days++;
+  }
 
-/* Add days for previous months. */
-///     for (i = 0; i < month; i++) {
-///         days += mdays[i];
-///     }
-/* Add days for current month. */
-///     days += day;
-/* Add days for all previous years.  */
-///     days += range * 365;
-/* Add 4 year leapdays. */
-///     days += range / 4;
-/* Remove 100 year leapdays. */
-///     days -= (range + offset) / 100;
-/* Add 400 year leapdays. */
-///     days += (range + offset + norm) / 400;
-/* Remove leap days already counted. */
-///     days -= leap;
-
-/* Adjust for Excel erroneously treating 1900 as a leap year. */
-///     if (!use_1904_epoch && days > 59)
-///         days++;
-
-///     return days + seconds;
-/// }
+  return days + seconds;
+}
 
 /// double
 /// lxw_datetime_to_excel_datetime(lxw_datetime *datetime)
@@ -456,20 +450,20 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
  * Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
  * 1900 or 1904 epoch.
  */
-/// double
-/// lxw_unixtime_to_excel_date_with_epoch(int64_t unixtime,
-///                                       uint8_t use_1904_epoch)
-/// {
-///     double excel_datetime = 0.0;
-///     double epoch = use_1904_epoch ? 24107.0 : 25568.0;
+double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
+{
+  double excel_datetime = 0.0;
+  double epoch          = use_1904_epoch ? 24107.0 : 25568.0;
 
-///     excel_datetime = epoch + (unixtime / (24 * 60 * 60.0));
+  excel_datetime = epoch + (unixtime / (24 * 60 * 60.0));
 
-///     if (!use_1904_epoch && excel_datetime >= 60.0)
-///         excel_datetime = excel_datetime + 1.0;
+  if(!use_1904_epoch && excel_datetime >= 60.0)
+  {
+    excel_datetime = excel_datetime + 1.0;
+  }
 
-///     return excel_datetime;
-/// }
+  return excel_datetime;
+}
 
 /// char *
 /// lxw_strdup(const char *str)

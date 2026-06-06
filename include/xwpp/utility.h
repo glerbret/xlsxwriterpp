@@ -198,8 +198,7 @@ namespace xwpp
  *        or the 1900 epoch (false).
  *
  */
-/// double lxw_datetime_to_excel_date_with_epoch(lxw_datetime *datetime,
-///                                              uint8_t use_1904_epoch);
+double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch);
 
 /**
  * @brief Validate a #lxw_datetime struct.
@@ -256,8 +255,7 @@ namespace xwpp
  *        or the 1900 epoch (false).
  *
  */
-/// double lxw_unixtime_to_excel_date_with_epoch(int64_t unixtime,
-///                                              uint8_t use_1904_epoch);
+double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
 
 /// char *lxw_strdup(const char *str);
 /// char *lxw_strdup_formula(const char *formula);

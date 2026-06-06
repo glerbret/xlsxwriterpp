@@ -6990,57 +6990,33 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 ///     return LXW_NO_ERROR;
 /// }
 
-/// lxw_error
-/// worksheet_write_datetime(lxw_worksheet *self,
-///                          row_num_t row_num,
-///                          col_num_t col_num, lxw_datetime *datetime,
-///                          lxw_format *format)
-/// {
-///     cell_t *cell;
-///     double excel_date;
-///     lxw_error err;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     err = lxw_datetime_validate(datetime);
-///     if (err)
-///         return err;
-///
-///     excel_date =
-///         lxw_datetime_to_excel_date_with_epoch(datetime, self->use_1904_epoch);
-///
-///     cell = _new_number_cell(row_num, col_num, excel_date, format);
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
+                                 const std::chrono::system_clock::time_point& datetime)
+{
+  write_datetime(row_num, col_num, datetime, nullptr);
+}
 
-/// lxw_error
-/// worksheet_write_unixtime(lxw_worksheet *self,
-///                          row_num_t row_num,
-///                          col_num_t col_num,
-///                          int64_t unixtime, lxw_format *format)
-/// {
-///     cell_t *cell;
-///     double excel_date;
-///     lxw_error err;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     excel_date =
-///         lxw_unixtime_to_excel_date_with_epoch(unixtime, self->use_1904_epoch);
-///
-///     cell = _new_number_cell(row_num, col_num, excel_date, format);
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
+                                 const std::chrono::system_clock::time_point& datetime, const format_t* format)
+{
+  check_dimensions(row_num, col_num, false, false);
+  const double excel_date = datetime_to_excel_date_with_epoch(datetime, false /* TODOself->use_1904_epoch*/);
+  const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
+  insert_cell(row_num, col_num, cell);
+}
+
+void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime)
+{
+  write_unixtime(row_num, col_num, unixtime, nullptr);
+}
+
+void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format)
+{
+  check_dimensions(row_num, col_num, false, false);
+  const double excel_date = unixtime_to_excel_date_with_epoch(unixtime, false /* TODO self->use_1904_epoch*/);
+  const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
+  insert_cell(row_num, col_num, cell);
+}
 
 /// lxw_error
 /// worksheet_write_url_opt(lxw_worksheet *self,

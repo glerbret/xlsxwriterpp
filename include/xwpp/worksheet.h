@@ -48,6 +48,7 @@ NULL);
 #include "xwpp/format.h"
 #include "xwpp/shared_strings.h"
 
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -2347,8 +2348,8 @@ public:
    * @image html write_string03.png
    *
    */
-  void write_string(row_num_t row, col_num_t col, const std::string& str);
-  void write_string(row_num_t row, col_num_t col, const std::string& str, const format_t* format);
+  void write_string(row_num_t row_num, col_num_t col_num, const std::string& str);
+  void write_string(row_num_t row_num, col_num_t col_num, const std::string& str, const format_t* format);
 
   /**
    * @brief Write a number to a worksheet cell.
@@ -2395,8 +2396,82 @@ public:
    */
   // TODO Add overload for all integer and number types (template)
   // TODO Add API with col/row names and cell name
-  void write_number(row_num_t row, col_num_t col, double number);
-  void write_number(row_num_t row, col_num_t col, double number, const format_t* format);
+  void write_number(row_num_t row_num, col_num_t col_num, double number);
+  void write_number(row_num_t row_num, col_num_t col_num, double number, const format_t* format);
+
+  /**
+   * @brief Write a date or time to a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param datetime  The datetime to write to the cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_datetime()` function can be used to write a date or
+   * time to the cell specified by `row` and `column`:
+   *
+   * @dontinclude dates_and_times02.c
+   * @skip include
+   * @until num_format
+   * @skip Feb
+   * @until }
+   *
+   * The `format` parameter should be used to apply formatting to the cell using
+   * a @ref format.h "Format" object as shown above. Without a date format the
+   * datetime will appear as a number only.
+   *
+   * See @ref working_with_dates for more information about handling dates and
+   * times in Xlsxwriter++.
+   */
+  // TODO Add API with col/row names and cell name
+  // TODO Add overload with other date and time type
+  void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime);
+  void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime,
+                      const format_t* format);
+
+  /**
+   * @brief Write a Unix datetime to a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param unixtime  The Unix datetime to write to the cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_unixtime()` function can be used to write dates and
+   * times in Unix date format to the cell specified by `row` and
+   * `column`. [Unix Time](https://en.wikipedia.org/wiki/Unix_time) which is a
+   * common integer time format. It is defined as the number of seconds since
+   * the Unix epoch (1970-01-01 00:00 UTC). Negative values can also be used for
+   * dates prior to 1970:
+   *
+   * @dontinclude dates_and_times03.c
+   * @skip 1970
+   * @until 2208988800
+   *
+   * The `format` parameter should be used to apply formatting to the cell using
+   * a @ref format.h "Format" object as shown above. Without a date format the
+   * datetime will appear as a number only.
+   *
+   * The output from this code sample is:
+   *
+   * @image html date_example03.png
+   *
+   * Unixtime is generally represented with a 32 bit `time_t` type which has a
+   * range of approximately 1900-12-14 to 2038-01-19. To access the full Excel
+   * date range of 1900-01-01 to 9999-12-31 this function uses a 64 bit
+   * parameter.
+   *
+   * See @ref working_with_dates for more information about handling dates and
+   * times in Xlsxwriter++.
+   */
+  void write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime);
+  void write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format);
 
   /**
    * @brief Set a worksheet tab as selected.
@@ -2890,38 +2965,6 @@ private:
 ///                                               const char *formula,
 ///                                               lxw_format *format,
 ///                                               double result);
-
-/**
- * @brief Write a date or time to a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param datetime  The datetime to write to the cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_datetime()` function can be used to write a date or
- * time to the cell specified by `row` and `column`:
- *
- * @dontinclude dates_and_times02.c
- * @skip include
- * @until num_format
- * @skip Feb
- * @until }
- *
- * The `format` parameter should be used to apply formatting to the cell using
- * a @ref format.h "Format" object as shown above. Without a date format the
- * datetime will appear as a number only.
- *
- * See @ref working_with_dates for more information about handling dates and
- * times in Xlsxwriter++.
- */
-/// lxw_error worksheet_write_datetime(lxw_worksheet *worksheet,
-///                                    row_num_t row,
-///                                    col_num_t col, lxw_datetime *datetime,
-///                                    lxw_format *format);
 
 /**
  * @brief Write a Unix datetime to a worksheet cell.
