@@ -189,16 +189,33 @@ void format_t::set_num_format(const std::string& num_format)
 ///   self->hidden = LXW_TRUE;
 /// }
 
-/// void format_set_align(lxw_format *self, uint8_t value)
-/// {
-///   if (value >= LXW_ALIGN_LEFT && value <= LXW_ALIGN_DISTRIBUTED) {
-///     self->text_h_align = value;
-///   }
+void format_t::set_align(format_alignments_t alignment)
+{
+  switch(alignment)
+  {
+    case format_alignments_t::HORIZONTAL_LEFT:
+    case format_alignments_t::HORIZONTAL_CENTER:
+    case format_alignments_t::HORIZONTAL_RIGHT:
+    case format_alignments_t::HORIZONTAL_FILL:
+    case format_alignments_t::HORIZONTAL_JUSTIFY:
+    case format_alignments_t::HORIZONTAL_CENTER_ACROSS:
+    case format_alignments_t::HORIZONTAL_DISTRIBUTED:
+      text_h_align_ = alignment;
+      break;
 
-///   if (value >= LXW_ALIGN_VERTICAL_TOP && value <= LXW_ALIGN_VERTICAL_DISTRIBUTED) {
-///     self->text_v_align = value;
-///   }
-/// }
+    case format_alignments_t::VERTICAL_TOP:
+    case format_alignments_t::VERTICAL_BOTTOM:
+    case format_alignments_t::VERTICAL_CENTER:
+    case format_alignments_t::VERTICAL_JUSTIFY:
+    case format_alignments_t::VERTICAL_DISTRIBUTED:
+      text_v_align_ = alignment;
+      break;
+
+    case format_alignments_t::NONE:
+      // NOP
+      break;
+ }
+}
 
 /// void format_set_text_wrap(lxw_format *self)
 /// {

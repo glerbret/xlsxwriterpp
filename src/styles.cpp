@@ -258,9 +258,10 @@ std::string style_t::write_font_underline(format_underlines_t underline) const
       });
 
     case format_underlines_t::NONE:
-    default:
       return "";
   }
+
+  return "";
 }
 
 std::string style_t::write_font_condense() const
@@ -656,9 +657,10 @@ std::string style_t::convert_format_borders_style(format_borders_t style) const
       return "slantDashDot";
 
     case format_borders_t::NONE:
-    default:
       return "none";
   }
+
+  return "none";
 }
 
 std::string style_t::write_sub_border(const std::string& type, format_borders_t style, color_t color) const

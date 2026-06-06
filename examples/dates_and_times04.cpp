@@ -60,7 +60,7 @@ int main()
     // Create a format for the date or time.
     xwpp::format_t* format = workbook.add_format();
     format->set_num_format(date_format);
-    /// format->set_align(format, LXW_ALIGN_LEFT);
+    format->set_align(xwpp::format_alignments_t::HORIZONTAL_LEFT);
 
     // Write the datetime with each format.
     worksheet.write_datetime(row, col, datetime, format);

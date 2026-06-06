@@ -410,6 +410,56 @@ public:
    */
   void set_italic();
 
+/**
+ * @brief Set the alignment for data in the cell.
+ *
+ * @param format    Pointer to a Format instance.
+ * @param alignment The horizontal and or vertical alignment direction.
+ *
+ * This method is used to set the horizontal and vertical text alignment within
+ * a cell. The following are the available horizontal alignments:
+ *
+ * - #LXW_ALIGN_LEFT
+ * - #LXW_ALIGN_CENTER
+ * - #LXW_ALIGN_RIGHT
+ * - #LXW_ALIGN_FILL
+ * - #LXW_ALIGN_JUSTIFY
+ * - #LXW_ALIGN_CENTER_ACROSS
+ * - #LXW_ALIGN_DISTRIBUTED
+ *
+ * The following are the available vertical alignments:
+ *
+ * - #LXW_ALIGN_VERTICAL_TOP
+ * - #LXW_ALIGN_VERTICAL_BOTTOM
+ * - #LXW_ALIGN_VERTICAL_CENTER
+ * - #LXW_ALIGN_VERTICAL_JUSTIFY
+ * - #LXW_ALIGN_VERTICAL_DISTRIBUTED
+ *
+ * As in Excel, vertical and horizontal alignments can be combined:
+ *
+ * @code
+ *     format = workbook_add_format(workbook);
+ *
+ *     format_set_align(format, LXW_ALIGN_CENTER);
+ *     format_set_align(format, LXW_ALIGN_VERTICAL_CENTER);
+ *
+ *     worksheet_set_row(0, 30);
+ *     worksheet_write_string(worksheet, 0, 0, "Some Text", format);
+ * @endcode
+ *
+ * @image html format_font_align.png
+ *
+ * Text can be aligned across two or more adjacent cells using the
+ * center_across property. However, for genuine merged cells it is better to
+ * use the worksheet_merge_range() worksheet method.
+ *
+ * The vertical justify option can be used to provide automatic text wrapping
+ * in a cell. The height of the cell will be adjusted to accommodate the
+ * wrapped text. To specify where the text wraps use the
+ * format_set_text_wrap() method.
+ */
+ void set_align(format_alignments_t alignment);
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -821,56 +871,6 @@ private:
  * @endcode
  */
 /// void format_set_hidden(lxw_format *format);
-
-/**
- * @brief Set the alignment for data in the cell.
- *
- * @param format    Pointer to a Format instance.
- * @param alignment The horizontal and or vertical alignment direction.
- *
- * This method is used to set the horizontal and vertical text alignment within
- * a cell. The following are the available horizontal alignments:
- *
- * - #LXW_ALIGN_LEFT
- * - #LXW_ALIGN_CENTER
- * - #LXW_ALIGN_RIGHT
- * - #LXW_ALIGN_FILL
- * - #LXW_ALIGN_JUSTIFY
- * - #LXW_ALIGN_CENTER_ACROSS
- * - #LXW_ALIGN_DISTRIBUTED
- *
- * The following are the available vertical alignments:
- *
- * - #LXW_ALIGN_VERTICAL_TOP
- * - #LXW_ALIGN_VERTICAL_BOTTOM
- * - #LXW_ALIGN_VERTICAL_CENTER
- * - #LXW_ALIGN_VERTICAL_JUSTIFY
- * - #LXW_ALIGN_VERTICAL_DISTRIBUTED
- *
- * As in Excel, vertical and horizontal alignments can be combined:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *
- *     format_set_align(format, LXW_ALIGN_CENTER);
- *     format_set_align(format, LXW_ALIGN_VERTICAL_CENTER);
- *
- *     worksheet_set_row(0, 30);
- *     worksheet_write_string(worksheet, 0, 0, "Some Text", format);
- * @endcode
- *
- * @image html format_font_align.png
- *
- * Text can be aligned across two or more adjacent cells using the
- * center_across property. However, for genuine merged cells it is better to
- * use the worksheet_merge_range() worksheet method.
- *
- * The vertical justify option can be used to provide automatic text wrapping
- * in a cell. The height of the cell will be adjusted to accommodate the
- * wrapped text. To specify where the text wraps use the
- * format_set_text_wrap() method.
- */
-/// void format_set_align(lxw_format *format, uint8_t alignment);
 
 /**
  * @brief Wrap text in a cell.
