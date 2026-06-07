@@ -112,15 +112,15 @@ std::string content_types_t::assemble_xml_file() const
 ///   lxw_ct_add_override(self, name, LXW_APP_DOCUMENT "spreadsheetml.table+xml");
 /// }
 
-/// void lxw_ct_add_vml_name(lxw_content_types *self)
-/// {
-///   lxw_ct_add_default(self, "vml", LXW_APP_DOCUMENT "vmlDrawing");
-/// }
+void content_types_t::add_vml_name()
+{
+  add_default("vml", APP_DOCUMENT + "vmlDrawing");
+}
 
-/// void lxw_ct_add_comment_name(lxw_content_types *self, const char *name)
-/// {
-///   lxw_ct_add_override(self, name,LXW_APP_DOCUMENT "spreadsheetml.comments+xml");
-/// }
+void content_types_t::add_comment_name(std::string_view name)
+{
+  add_override(name, APP_DOCUMENT + "spreadsheetml.comments+xml");
+}
 
 void content_types_t::add_shared_strings()
 {

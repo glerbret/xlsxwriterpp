@@ -20,7 +20,7 @@ namespace xwpp
 class style_t
 {
 public:
-  style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count,
+  style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
           const std::vector<format_t*>& xf_formats);
 
   [[nodiscard]] std::string assemble_xml_file();
@@ -42,6 +42,7 @@ private:
   [[nodiscard]] std::string write_font_charset(uint8_t font_charset) const;
   [[nodiscard]] std::string write_font_scheme(const std::string& font_scheme) const;
   [[nodiscard]] std::string write_font(const format_t* format, bool is_dxf, bool is_rich_string);
+  [[nodiscard]] std::string write_comment_font() const;
   [[nodiscard]] std::string write_fonts();
   [[nodiscard]] std::string write_default_fill(const std::string& pattern) const;
   [[nodiscard]] std::string write_fills() const;
@@ -73,9 +74,9 @@ private:
   ///  uint32_t fill_count;
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
-  bool has_hyperlink_;
+  bool has_hyperlink_         = false;
   uint16_t hyperlink_font_id_ = 0;
-  ///  uint8_t has_comments;
+  bool has_comments_          = false;
 };
 
 /// void lxw_styles_write_string_fragment(lxw_styles *self, const char *string);

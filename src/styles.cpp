@@ -410,25 +410,25 @@ std::string style_t::write_font_vert_align(const std::string& align) const
   return xml_data;
 }
 
-/// STATIC void
-/// _write_comment_font(lxw_styles *self)
-/// {
-///     lxw_xml_start_tag(self->file, "font", NULL);
+std::string style_t::write_comment_font() const
+{
+  std::string xml_data = xml_start_tag("font");
+  xml_data += write_font_size(8);
+  xml_data += write_font_color_indexed(81);
+  xml_data += write_font_name("Tahoma", false);
+  xml_data += write_font_family(2);
+  xml_data += xml_end_tag("font");
 
-///     _write_font_size(self, 8);
-///     _write_font_color_indexed(self, 81);
-///     _write_font_name(self, "Tahoma", LXW_FALSE);
-///     _write_font_family(self, 2);
+  return xml_data;
+}
 
-///     lxw_xml_end_tag(self->file, "font");
-/// }
-
-style_t::style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count,
+style_t::style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
                  const std::vector<format_t*>& xf_formats)
   : font_count_{font_count}
   , num_format_count_{num_format_count}
   , border_count_{border_count}
   , xf_formats_{xf_formats}
+  , has_comments_{has_comments}
 {
 }
 
@@ -437,9 +437,11 @@ std::string style_t::write_fonts()
   ///    struct xml_attribute_list attributes;
   ///    struct xml_attribute *attribute;
   ///    lxw_format *format;
-  const uint16_t count = font_count_;
-  ///    if (self->has_comments)
-  ///        count++;
+  uint16_t count = font_count_;
+  if(has_comments_)
+  {
+    count++;
+  }
 
   std::string xml_data = xml_start_tag("fonts", {
                                                     {"count", std::to_string(count)}
@@ -453,8 +455,10 @@ std::string style_t::write_fonts()
     }
   }
 
-  ///     if (self->has_comments)
-  ///         _write_comment_font(self);
+  if(has_comments_)
+  {
+    xml_data += write_comment_font();
+  }
 
   xml_data += xml_end_tag("fonts");
 

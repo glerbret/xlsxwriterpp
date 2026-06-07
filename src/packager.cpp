@@ -46,6 +46,7 @@
 #include "xwpp/packager.h"
 
 #include "xwpp/app.h"
+#include "xwpp/comment.h"
 #include "xwpp/content_types.h"
 #include "xwpp/core.h"
 #include "xwpp/custom.h"
@@ -54,6 +55,7 @@
 #include "xwpp/shared_strings.h"
 #include "xwpp/styles.h"
 #include "xwpp/theme.h"
+#include "xwpp/vml.h"
 #include "xwpp/xmlwriter.h"
 
 #include <format>
@@ -550,170 +552,109 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
 ///   return table_count;
 /// }
 
-/// STATIC lxw_error _write_vml_files(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_sheet *sheet;
-///   lxw_worksheet *worksheet;
-///   lxw_vml *vml;
-///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-///   char *buffer = NULL;
-///   size_t buffer_size = 0;
-///   uint32_t index = 1;
-///   lxw_error err;
+void packager_t::write_vml_files(const workbook_t& workbook)
+{
+  ///   lxw_workbook *workbook = self->workbook;
+  ///   lxw_sheet *sheet;
+  ///   lxw_worksheet *worksheet;
+  ///   lxw_vml *vml;
+  ///   char filename[LXW_FILENAME_LENGTH] = { 0 };
+  ///   char *buffer = NULL;
+  ///   size_t buffer_size = 0;
+  uint32_t index = 1;
+  ///   lxw_error err;
 
-///   STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///     if (sheet->is_chartsheet)
-///       continue;
-///     else
-///       worksheet = sheet->u.worksheet;
+  for(const auto& sheet: workbook.sheets_)
+  {
+    // TODO Ignore charsheeet
+    ///         if (sheet->is_chartsheet)
+    ///             continue;
+    const auto& ws = std::get<worksheet_t>(sheet);
 
-///     if (!worksheet->has_vml && !worksheet->has_header_vml)
-///       continue;
+    if(!ws.has_vml_ && !ws.has_header_vml_)
+    {
+      continue;
+    }
 
-///     if (worksheet->has_vml) {
-///       vml = lxw_vml_new();
-///       if (!vml)
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
+    if(ws.has_vml_)
+    {
+      vml_t vml(ws.vml_data_id_str_, ws.comment_objs_, ws.vml_shape_id_, ws.comment_display_default_);
 
-///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                    "xl/drawings/vmlDrawing%d.vml", index++);
+      ///  vml->button_objs = worksheet->button_objs;
 
-///       vml->file = lxw_get_filehandle(&buffer, &buffer_size,
-///                                      self->tmpdir);
-///       if (!vml->file) {
-///         lxw_vml_free(vml);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///       }
+      const std::string xml_data = vml.assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
+      index++;
+    }
 
-///       vml->comment_objs = worksheet->comment_objs;
-///       vml->button_objs = worksheet->button_objs;
-///       vml->vml_shape_id = worksheet->vml_shape_id;
-///       vml->comment_display_default = worksheet->comment_display_default;
+    ///     if (worksheet->has_header_vml) {
 
-///       if (worksheet->vml_data_id_str) {
-///         vml->vml_data_id_str = worksheet->vml_data_id_str;
-///       }
-///       else {
-///         fclose(vml->file);
-///         free(buffer);
-///         lxw_vml_free(vml);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///       }
+    ///     err = _write_vml_drawing_rels_file(self, worksheet, index);
+    ///             RETURN_ON_ERROR(err);
 
-///       lxw_vml_assemble_xml_file(vml);
+    ///             vml = lxw_vml_new();
+    ///             if (!vml)
+    ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
 
-///       err = _add_to_zip(self, vml->file, &buffer, &buffer_size,
-///                         filename);
+    ///             lxw_snprintf(filename, LXW_FILENAME_LENGTH,
+    ///                          "xl/drawings/vmlDrawing%d.vml", index++);
 
-///       fclose(vml->file);
-///       free(buffer);
-///       lxw_vml_free(vml);
+    ///             vml->file = lxw_get_filehandle(&buffer, &buffer_size,
+    ///                                            self->tmpdir);
+    ///             if (!vml->file) {
+    ///                 lxw_vml_free(vml);
+    ///                 return LXW_ERROR_CREATING_TMPFILE;
+    ///             }
 
-///       RETURN_ON_ERROR(err);
-///     }
+    ///             vml->image_objs = worksheet->header_image_objs;
+    ///             vml->vml_shape_id = worksheet->vml_header_id * 1024;
 
-///     if (worksheet->has_header_vml) {
+    ///             if (worksheet->vml_header_id_str) {
+    ///                 vml->vml_data_id_str = worksheet->vml_header_id_str;
+    ///             }
+    ///             else {
+    ///                 fclose(vml->file);
+    ///                 free(buffer);
+    ///                 lxw_vml_free(vml);
+    ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
+    ///             }
 
-///     err = _write_vml_drawing_rels_file(self, worksheet, index);
-///             RETURN_ON_ERROR(err);
+    ///             lxw_vml_assemble_xml_file(vml);
 
-///             vml = lxw_vml_new();
-///             if (!vml)
-///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
+    ///             err = _add_to_zip(self, vml->file, &buffer, &buffer_size,
+    ///                               filename);
 
-///             lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                          "xl/drawings/vmlDrawing%d.vml", index++);
+    ///             fclose(vml->file);
+    ///             free(buffer);
+    ///             lxw_vml_free(vml);
 
-///             vml->file = lxw_get_filehandle(&buffer, &buffer_size,
-///                                            self->tmpdir);
-///             if (!vml->file) {
-///                 lxw_vml_free(vml);
-///                 return LXW_ERROR_CREATING_TMPFILE;
-///             }
+    ///             RETURN_ON_ERROR(err);
+    ///         }
+  }
+}
 
-///             vml->image_objs = worksheet->header_image_objs;
-///             vml->vml_shape_id = worksheet->vml_header_id * 1024;
+void packager_t::write_comment_files(const workbook_t& workbook)
+{
+  uint32_t index = 1;
 
-///             if (worksheet->vml_header_id_str) {
-///                 vml->vml_data_id_str = worksheet->vml_header_id_str;
-///             }
-///             else {
-///                 fclose(vml->file);
-///                 free(buffer);
-///                 lxw_vml_free(vml);
-///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///             }
+  for(const auto& sheet: workbook.sheets_)
+  {
+    // TODO Ignore charsheeet
+    ///         if (sheet->is_chartsheet)
+    ///             continue;
+    const auto& ws = std::get<worksheet_t>(sheet);
 
-///             lxw_vml_assemble_xml_file(vml);
+    if(!ws.has_comments_)
+    {
+      continue;
+    }
 
-///             err = _add_to_zip(self, vml->file, &buffer, &buffer_size,
-///                               filename);
-
-///             fclose(vml->file);
-///             free(buffer);
-///             lxw_vml_free(vml);
-
-///             RETURN_ON_ERROR(err);
-///         }
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// STATIC lxw_error
-/// _write_comment_files(lxw_packager *self)
-/// {
-///     lxw_workbook *workbook = self->workbook;
-///     lxw_sheet *sheet;
-///     lxw_worksheet *worksheet;
-///     lxw_comment *comment;
-///     char filename[LXW_FILENAME_LENGTH] = { 0 };
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-///     uint32_t index = 1;
-///     lxw_error err;
-
-///     STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///         if (sheet->is_chartsheet)
-///             continue;
-///         else
-///             worksheet = sheet->u.worksheet;
-
-///         if (!worksheet->has_comments)
-///             continue;
-
-///         comment = lxw_comment_new();
-///         if (!comment)
-///             return LXW_ERROR_MEMORY_MALLOC_FAILED;
-
-///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                      "xl/comments%d.xml", index++);
-
-///         comment->file = lxw_get_filehandle(&buffer, &buffer_size,
-///                                            self->tmpdir);
-///         if (!comment->file) {
-///             lxw_comment_free(comment);
-///             return LXW_ERROR_CREATING_TMPFILE;
-///         }
-
-///         comment->comment_objs = worksheet->comment_objs;
-///         comment->comment_author = worksheet->comment_author;
-
-///         lxw_comment_assemble_xml_file(comment);
-
-///         err = _add_to_zip(self, comment->file, &buffer, &buffer_size,
-///                           filename);
-
-///         fclose(comment->file);
-///         free(buffer);
-///         lxw_comment_free(comment);
-
-///         RETURN_ON_ERROR(err);
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
+    comment_t comment(ws.comment_objs_, ws.comment_author_);
+    const std::string xml_data = comment.assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/comments{}.xml", index));
+    index++;
+  }
+}
 
 void packager_t::write_shared_strings_file(const workbook_t& workbook)
 {
@@ -1031,9 +972,9 @@ void packager_t::write_theme_file()
 void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
-  style_t styles(workbook.font_count_, workbook.border_count_, workbook.num_format_count_, workbook.used_xf_formats_);
+  style_t styles(workbook.font_count_, workbook.border_count_, workbook.num_format_count_, workbook.has_comments_,
+                 workbook.used_xf_formats_);
   ///     lxw_hash_element *hash_element;
-
   /* Copy the unique and in-use dxf formats from the workbook to the styles
    * dxf_format list. */
   ///     LXW_FOREACH_ORDERED(hash_element, self->workbook->used_dxf_formats) {
@@ -1052,7 +993,6 @@ void packager_t::write_styles_file(const workbook_t& workbook)
   ///     styles->fill_count = self->workbook->fill_count;
   ///     styles->xf_count = self->workbook->used_xf_formats->unique_count;
   ///     styles->dxf_count = self->workbook->used_dxf_formats->unique_count;
-  ///     styles->has_comments = self->workbook->has_comments;
 
   ///     styles->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
   ///     if (!styles->file) {
@@ -1153,14 +1093,15 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   ///         lxw_ct_add_table_name(content_types, filename);
   ///     }
 
-  ///     if (workbook->has_vml)
-  ///         lxw_ct_add_vml_name(content_types);
+  if(workbook.has_vml_)
+  {
+    content_types.add_vml_name();
+  }
 
-  ///     for (index = 1; index <= workbook->comment_count; index++) {
-  ///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-  ///                      "/xl/comments%d.xml", index);
-  ///         lxw_ct_add_comment_name(content_types, filename);
-  ///     }
+  for(size_t index = 1; index <= workbook.comment_count_; index++)
+  {
+    content_types.add_comment_name(std::format("/xl/comments{}.xml", index));
+  }
 
   if(workbook.sst_.has_string())
   {
@@ -1194,21 +1135,20 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
   ///     uint32_t chartsheet_index = 1;
   ///     lxw_error err = LXW_NO_ERROR;
 
-  ///     STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-  ///         if (sheet->is_chartsheet) {
-  ///             lxw_snprintf(sheetname,
-  ///                          LXW_FILENAME_LENGTH,
-  ///                          "chartsheets/sheet%d.xml", chartsheet_index++);
-  ///             lxw_add_document_relationship(rels, "/chartsheet", sheetname);
-  ///         }
-  ///         else {
-  ///             lxw_snprintf(sheetname,
-  ///                          LXW_FILENAME_LENGTH,
-  ///                          "worksheets/sheet%d.xml", worksheet_index++);
-  relationships.add_document("/worksheet", std::format("worksheets/sheet{}.xml", worksheet_index));
-  worksheet_index++;
-  ///         }
-  ///     }
+  for(const auto& sheet: workbook.sheets_)
+  {
+    // TODO Sheet type
+    ///         if (sheet->is_chartsheet) {
+    ///             lxw_snprintf(sheetname,
+    ///                          LXW_FILENAME_LENGTH,
+    ///                          "chartsheets/sheet%d.xml", chartsheet_index++);
+    ///             lxw_add_document_relationship(rels, "/chartsheet", sheetname);
+    ///         }
+    ///         else {
+    relationships.add_document("/worksheet", std::format("worksheets/sheet{}.xml", worksheet_index));
+    worksheet_index++;
+    ///         }
+  }
 
   relationships.add_document("/theme", "theme/theme1.xml");
   relationships.add_document("/styles", "styles.xml");
@@ -1257,14 +1197,13 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
     index++;
 
-    if(ws.external_hyperlinks_.empty()
-       ///             STAILQ_EMPTY(worksheet->external_drawing_links) &&
-       ///             STAILQ_EMPTY(worksheet->external_table_links) &&
-       ///             !worksheet->external_vml_header_link &&
-       ///             !worksheet->external_vml_comment_link &&
-       ///             !worksheet->external_background_link &&
-       ///             !worksheet->external_comment_link
-    )
+    if(ws.external_hyperlinks_.empty() &&
+       ///             STAILQ_EMPTY(ws.external_drawing_links) &&
+       ///             STAILQ_EMPTY(ws.external_table_links) &&
+       ///             !ws.external_vml_header_link &&
+       !ws.external_vml_comment_link_.has_value() &&
+       ///             !ws.external_background_link &&
+       !ws.external_comment_link_.has_value())
     {
       continue;
     }
@@ -1279,10 +1218,11 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
     ///                                            rel->target_mode);
     ///         }
 
-    ///         rel = worksheet->external_vml_comment_link;
-    ///         if (rel)
-    ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-    ///                                            rel->target_mode);
+    if(ws.external_vml_comment_link_.has_value())
+    {
+      auto comment = ws.external_vml_comment_link_.value();
+      relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+    }
 
     ///         rel = worksheet->external_vml_header_link;
     ///         if (rel)
@@ -1299,10 +1239,11 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
     ///                                            rel->target_mode);
     ///         }
 
-    ///         rel = worksheet->external_comment_link;
-    ///         if (rel)
-    ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-    ///                                            rel->target_mode);
+    if(ws.external_comment_link_.has_value())
+    {
+      auto comment = ws.external_comment_link_.value();
+      relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+    }
 
     const std::string xml_data = relationships.assemble_xml_file();
     add_buffer_to_zip(xml_data, std::format("xl/worksheets/_rels/sheet{}.xml.rels", index));
@@ -1681,8 +1622,8 @@ void packager_t::create_package(workbook_t& workbook)
   write_workbook_file(workbook);
   ///     error = _write_chart_files(self);
   ///     error = _write_drawing_files(self);
-  ///     error = _write_vml_files(self);
-  ///     error = _write_comment_files(self);
+  write_vml_files(workbook);
+  write_comment_files(workbook);
   ///     error = _write_table_files(self);
   write_shared_strings_file(workbook);
   write_custom_file(workbook);

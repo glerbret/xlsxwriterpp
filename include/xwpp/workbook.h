@@ -630,7 +630,7 @@ private:
   ///     uint16_t num_dxf_formats;
   uint16_t num_format_count_ = 0;
   ///     uint16_t drawing_count;
-  ///     uint16_t comment_count;
+  uint16_t comment_count_    = 0;
   ///     uint32_t num_embedded_images;
   uint16_t window_width_     = 16095;
   uint16_t window_height_    = 9660;
@@ -646,8 +646,8 @@ private:
   ///     uint8_t has_jpeg;
   ///     uint8_t has_bmp;
   ///     uint8_t has_gif;
-  ///     uint8_t has_vml;
-  ///     uint8_t has_comments;
+  bool has_vml_      = false;
+  bool has_comments_ = false;
   ///     uint8_t has_metadata;
   ///     uint8_t has_embedded_images;
   ///     uint8_t has_dynamic_functions;

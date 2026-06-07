@@ -228,10 +228,10 @@ void format_t::set_align(format_alignments_t alignment)
   }
 }
 
-/// void format_set_text_wrap(lxw_format *self)
-/// {
-///   self->text_wrap = LXW_TRUE;
-/// }
+void format_t::set_text_wrap()
+{
+  text_wrap_ = true;
+}
 
 /// void format_set_rotation(lxw_format *self, int16_t angle)
 /// {

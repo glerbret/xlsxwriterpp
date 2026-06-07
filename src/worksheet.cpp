@@ -12,6 +12,7 @@
 
 #include "xwpp/worksheet.h"
 
+#include "xwpp/drawing.h"
 #include "xwpp/exception.h"
 #include "xwpp/shared_strings.h"
 #include "xwpp/utility.h"
@@ -51,26 +52,36 @@ namespace xwpp
 /// STATIC int _cond_format_hash_cmp(lxw_cond_format_hash_element *elem_1,
 ///                                  lxw_cond_format_hash_element *elem_2);
 
-/// row_t * lxw_worksheet_find_row(lxw_worksheet *self, row_num_t row_num)
-/// {
-///     row_t tmp_row;
+row_t* worksheet_t::find_row(row_num_t row_num)
+{
+  auto it = table_.rbh_root_.find(row_num);
+  if(it != std::end(table_.rbh_root_))
+  {
+    return &it->second;
+  }
+  else
+  {
+    return nullptr;
+  }
+}
 
-///     tmp_row.row_num = row_num;
+cell_t* worksheet_t::find_cell_in_row(row_t* row, col_num_t col_num)
+{
+  if(!row)
+  {
+    return nullptr;
+  }
 
-///     return RB_FIND(table_rows_t, self->table, &tmp_row);
-/// }
-
-/// cell_t * lxw_worksheet_find_cell_in_row(row_t *row, col_num_t col_num)
-/// {
-///     cell_t tmp_cell;
-
-///     if (!row)
-///         return NULL;
-
-///     tmp_cell.col_num = col_num;
-
-///     return RB_FIND(lxw_table_cells, row->cells, &tmp_cell);
-/// }
+  auto it = row->cells_.find(col_num);
+  if(it != std::end(row->cells_))
+  {
+    return &it->second;
+  }
+  else
+  {
+    return nullptr;
+  }
+}
 
 worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index)
   : get_xf_index_{get_xf_index}
@@ -101,11 +112,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         worksheet->array = calloc(LXW_COL_MAX, sizeof(struct cell_t *));
   ///         GOTO_LABEL_ON_MEM_ERROR(worksheet->array, mem_error);
   ///     }
-
-  ///     worksheet->col_options =
-  ///         calloc(LXW_COL_META_MAX, sizeof(lxw_col_options *));
-  ///     worksheet->col_options_max = LXW_COL_META_MAX;
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->col_options, mem_error);
 
   ///     worksheet->col_formats = calloc(LXW_COL_META_MAX, sizeof(lxw_format
   ///     *)); worksheet->col_formats_max = LXW_COL_META_MAX;
@@ -281,6 +287,200 @@ cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t lin
   return cell;
 }
 
+cell_t new_comment_cell(row_num_t row_num, col_num_t col_num, const vml_obj_t& comment)
+{
+  cell_t cell;
+
+  cell.row_num_ = row_num;
+  cell.col_num_ = col_num;
+  cell.type_    = cell_types_t::COMMENT;
+  cell.comment_ = comment;
+
+  return cell;
+}
+
+cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* format)
+{
+  cell_t cell;
+
+  cell.row_num_ = row_num;
+  cell.col_num_ = col_num;
+  cell.type_    = cell_types_t::BLANK_CELL;
+  cell.format_  = const_cast<format_t*>(format);
+  ;
+
+  return cell;
+}
+
+/*
+ * This function handles the additional optional parameters to
+ * worksheet_write_comment_opt() as well as calculating the comment object
+ * position and vertices.
+ */
+void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> options)
+{
+  row_num_t start_row;
+  col_num_t start_col;
+  int32_t x_offset;
+  int32_t y_offset;
+  uint32_t height = 74;
+  uint32_t width  = 128;
+  double x_scale  = 1.0;
+  double y_scale  = 1.0;
+  row_num_t row   = comment.row_;
+  col_num_t col   = comment.col_;
+
+  /* Set the default start cell and offsets for the comment. These are
+   * generally fixed in relation to the parent cell. However there are some
+   * edge cases for cells at the, well yes, edges. */
+  if(row == 0)
+  {
+    y_offset = 2;
+  }
+  else if(row == worksheet_t::ROW_MAX - 3)
+  {
+    y_offset = 16;
+  }
+  else if(row == worksheet_t::ROW_MAX - 2)
+  {
+    y_offset = 16;
+  }
+  else if(row == worksheet_t::ROW_MAX - 1)
+  {
+    y_offset = 14;
+  }
+  else
+  {
+    y_offset = 10;
+  }
+
+  if(col == worksheet_t::COL_MAX - 3)
+  {
+    x_offset = 49;
+  }
+  else if(col == worksheet_t::COL_MAX - 2)
+  {
+    x_offset = 49;
+  }
+  else if(col == worksheet_t::COL_MAX - 1)
+  {
+    x_offset = 49;
+  }
+  else
+  {
+    x_offset = 15;
+  }
+
+  if(row == 0)
+  {
+    start_row = 0;
+  }
+  else if(row == worksheet_t::ROW_MAX - 3)
+  {
+    start_row = worksheet_t::ROW_MAX - 7;
+  }
+  else if(row == worksheet_t::ROW_MAX - 2)
+  {
+    start_row = worksheet_t::ROW_MAX - 6;
+  }
+  else if(row == worksheet_t::ROW_MAX - 1)
+  {
+    start_row = worksheet_t::ROW_MAX - 5;
+  }
+  else
+  {
+    start_row = row - 1;
+  }
+
+  if(col == worksheet_t::COL_MAX - 3)
+  {
+    start_col = worksheet_t::COL_MAX - 6;
+  }
+  else if(col == worksheet_t::COL_MAX - 2)
+  {
+    start_col = worksheet_t::COL_MAX - 5;
+  }
+  else if(col == worksheet_t::COL_MAX - 1)
+  {
+    start_col = worksheet_t::COL_MAX - 4;
+  }
+  else
+  {
+    start_col = col + 1;
+  }
+
+  // Set the default font properties.
+  comment.font_size_   = 8;
+  comment.font_family_ = 2;
+
+  // Set any user defined options.
+  if(options)
+  {
+    if(options->width_ > 0.0)
+    {
+      width = options->width_;
+    }
+
+    if(options->height_ > 0.0)
+    {
+      height = options->height_;
+    }
+
+    if(options->x_scale_ > 0.0)
+    {
+      x_scale = options->x_scale_;
+    }
+
+    if(options->y_scale_ > 0.0)
+    {
+      y_scale = options->y_scale_;
+    }
+
+    if(options->x_offset_ != 0)
+    {
+      x_offset = options->x_offset_;
+    }
+
+    if(options->y_offset_ != 0)
+    {
+      y_offset = options->y_offset_;
+    }
+
+    if(options->start_row_ > 0 || options->start_col_ > 0)
+    {
+      start_row = options->start_row_;
+      start_col = options->start_col_;
+    }
+
+    if(options->font_size_ > 0.0)
+    {
+      comment.font_size_ = options->font_size_;
+    }
+
+    if(options->font_family_ > 0)
+    {
+      comment.font_family_ = options->font_family_;
+    }
+
+    comment.visible_   = options->visible_;
+    comment.color_     = options->color_;
+    comment.author_    = options->author_;
+    comment.font_name_ = options->font_name_;
+  }
+
+  // Scale the width/height to the default/user scale and round to the
+  // nearest pixel.
+  width  = (uint32_t)(0.5 + x_scale * width);
+  height = (uint32_t)(0.5 + y_scale * height);
+
+  comment.width_     = width;
+  comment.height_    = height;
+  comment.start_col_ = start_col;
+  comment.start_row_ = start_row;
+  comment.x_offset_  = x_offset;
+  comment.y_offset_  = y_offset;
+}
+
 }
 
 /// STATIC cell_t * _new_inline_string_cell(row_num_t row_num,
@@ -353,20 +553,6 @@ cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t lin
 /// }
 
 /// STATIC cell_t *
-/// _new_blank_cell(row_num_t row_num, col_num_t col_num, lxw_format *format)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = BLANK_CELL;
-///     cell->format = format;
-
-///     return cell;
-/// }
-
-/// STATIC cell_t *
 /// _new_boolean_cell(row_num_t row_num, col_num_t col_num, int value,
 ///                   lxw_format *format)
 /// {
@@ -394,21 +580,6 @@ cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t lin
 ///     cell->type = ERROR_CELL;
 ///     cell->format = format;
 ///     cell->u.number = value;
-
-///     return cell;
-/// }
-
-/// STATIC cell_t *
-/// _new_comment_cell(row_num_t row_num, col_num_t col_num,
-///                   lxw_vml_obj *comment_obj)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = COMMENT;
-///     cell->comment = comment_obj;
 
 ///     return cell;
 /// }
@@ -477,30 +648,20 @@ void worksheet_t::insert_cell(row_num_t row_num, col_num_t col_num, const cell_t
  * blank cell doesn't have a format it is ignored when writing. If there is
  * already a cell in the required position we don't have add a new cell.
  */
-/// STATIC void
-/// _insert_cell_placeholder(lxw_worksheet *self, row_num_t row_num,
-///                          col_num_t col_num)
-/// {
-///     row_t *row;
-///     cell_t *cell;
+void worksheet_t::insert_cell_placeholder(row_num_t row_num, col_num_t col_num)
+{
+  /* The spans calculation isn't required in constant_memory mode. */
+  ///     if (self->optimize)
+  ///         return;
 
-/* The spans calculation isn't required in constant_memory mode. */
-///     if (self->optimize)
-///         return;
-
-///     cell = _new_blank_cell(row_num, col_num, NULL);
-///     if (!cell)
-///         return;
-
-/* Only add a cell if one doesn't already exist. */
-///     row = _get_row(self, row_num);
-///     if (!RB_FIND(lxw_table_cells, row->cells, cell)) {
-///         _insert_cell_list(row->cells, cell, col_num); // TODO Replace with direct access to row.cells
-///     }
-///     else {
-///         _free_cell(cell);
-///     }
-/// }
+  // Only add a cell if one doesn't already exist.
+  row_t& row = get_row(row_num);
+  if(row.cells_.find(col_num) == std::end(row.cells_))
+  {
+    cell_t cell         = new_blank_cell(row_num, col_num, nullptr);
+    row.cells_[col_num] = cell;
+  }
+}
 
 void worksheet_t::insert_hyperlink(row_num_t row_num, col_num_t col_num, const cell_t& link)
 {
@@ -509,14 +670,12 @@ void worksheet_t::insert_hyperlink(row_num_t row_num, col_num_t col_num, const c
   row.cells_[col_num] = link;
 }
 
-/// STATIC void
-/// _insert_comment(lxw_worksheet *self, row_num_t row_num, col_num_t col_num,
-///                 cell_t *link)
-/// {
-///     row_t *row = _get_row_list(self->comments, row_num);
+void worksheet_t::insert_comment(row_num_t row_num, col_num_t col_num, const cell_t& link)
+{
+  row_t& row = comments_.get_row_list(row_num);
 
-///     _insert_cell_list(row->cells, link, col_num); // TODO Replace with direct access to row.cells
-/// }
+  row.cells_[col_num] = link;
+}
 
 /// STATIC col_num_t
 /// _next_power_of_two(uint16_t col)
@@ -1867,7 +2026,7 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 
   if(height != DEF_ROW_HEIGHT)
   {
-    attributes.emplace_back("ht", std::to_string(height));
+    attributes.emplace_back("ht", std::format("{}", height));
   }
 
   ///     if (row->hidden)
@@ -1897,76 +2056,87 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
   }
 }
 
-/// STATIC int32_t _worksheet_size_col(lxw_worksheet *self, col_num_t col_num, uint8_t anchor)
-/// {
-///     lxw_col_options *col_opt = NULL;
-///     uint32_t pixels;
-///     double width;
-///     double max_digit_width = 7.0;       /* For Calabri 11. */
-///     double padding = 5.0;
-///     col_num_t col_index;
+// ICI 2
+int32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
+{
+  col_options_t* col_opt = nullptr;
+  uint32_t pixels        = 0;
 
-/* Search for the col number in the array of col_options. Each col_option
- * entry contains the start and end column for a range.
- */
-///     for (col_index = 0; col_index < self->col_options_max; col_index++) {
-///         col_opt = self->col_options[col_index];
+  // Search for the col number in the array of col_options. Each col_option
+  // entry contains the start and end column for a range.
+  for(col_num_t col_index = 0; col_index < col_options_max_; col_index++)
+  {
+    if(col_index < col_options_.size())
+    {
+      col_opt = &col_options_[col_index];
+      if(col_num >= col_opt->firstcol_ && col_num <= col_opt->lastcol_)
+      {
+        break;
+      }
+      else
+      {
+        col_opt = nullptr;
+      }
+    }
+  }
 
-///         if (col_opt) {
-///             if (col_num >= col_opt->firstcol && col_num <= col_opt->lastcol)
-///                 break;
-///             else
-///                 col_opt = NULL;
-///         }
-///     }
+  if(col_opt)
+  {
+    double width                 = col_opt->width_;
+    const double max_digit_width = 7.0; /* For Calabri 11. */
+    const double padding         = 5.0;
 
-///     if (col_opt) {
-///         width = col_opt->width;
+    // Convert to pixels.
+    if(col_opt->hidden_ && anchor != object_position_t::MOVE_AND_SIZE_AFTER)
+    {
+      pixels = 0;
+    }
+    else if(width < 1.0)
+    {
+      pixels = (uint32_t)(width * (max_digit_width + padding) + 0.5);
+    }
+    else
+    {
+      pixels = (uint32_t)(width * max_digit_width + 0.5) + 5;
+    }
+  }
+  else
+  {
+    pixels = default_col_pixels_;
+  }
 
-/* Convert to pixels. */
-///         if (col_opt->hidden && anchor != LXW_OBJECT_MOVE_AND_SIZE_AFTER) {
-///             pixels = 0;
-///         }
-///         else if (width < 1.0) {
-///             pixels = (uint32_t) (width * (max_digit_width + padding) + 0.5);
-///         }
-///         else {
-///             pixels = (uint32_t) (width * max_digit_width + 0.5) + 5;
-///         }
-///     }
-///     else {
-///         pixels = self->default_col_pixels;
-///     }
-
-///     return pixels;
-/// }
+  return pixels;
+}
 
 /*
  * Convert the height of a cell from user's units to pixels. If the height
  * hasn't been set by the user we use the default value. If the row is hidden
  * it has a value of zero.
  */
-/// STATIC int32_t
-/// _worksheet_size_row(lxw_worksheet *self, row_num_t row_num, uint8_t anchor)
-/// {
-///     row_t *row;
-///     uint32_t pixels;
+int32_t worksheet_t::size_row(row_num_t row_num, object_position_t anchor)
+{
+  uint32_t pixels = 0;
 
-///     row = lxw_worksheet_find_row(self, row_num);
+  row_t* row = find_row(row_num);
+  /* Note, the 0.75 below is due to the difference between 72/96 DPI. */
+  if(row)
+  {
+    if(row->hidden_ && anchor != object_position_t::MOVE_AND_SIZE_AFTER)
+    {
+      pixels = 0;
+    }
+    else
+    {
+      pixels = static_cast<uint32_t>(row->height_ / 0.75);
+    }
+  }
+  else
+  {
+    pixels = static_cast<uint32_t>(default_row_height_ / 0.75);
+  }
 
-/* Note, the 0.75 below is due to the difference between 72/96 DPI. */
-///     if (row) {
-///         if (row->hidden && anchor != LXW_OBJECT_MOVE_AND_SIZE_AFTER)
-///             pixels = 0;
-///         else
-///             pixels = (uint32_t) (row->height / 0.75);
-///     }
-///     else {
-///         pixels = (uint32_t) (self->default_row_height / 0.75);
-///     }
-
-///     return pixels;
-/// }
+  return pixels;
+}
 
 /*
  * Calculate the vertices that define the position of a graphical object
@@ -2003,136 +2173,138 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
  * the width and height of the object from the width and height of the
  * underlying cells.
  */
-/// STATIC void
-/// _worksheet_position_object_pixels(lxw_worksheet *self,
-///                                   lxw_object_properties *object_props,
-///                                   lxw_drawing_object *drawing_object)
-/// {
-///     col_num_t col_start;        /* Column containing upper left corner.  */
-///     int32_t x1;                 /* Distance to left side of object.      */
+void worksheet_t::position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object)
+{
+  col_num_t col_start = object_props.col_;      // Column containing upper left corner.
+  int32_t x1          = object_props.x_offset_; // Distance to left side of object.
+  row_num_t row_start = object_props.row_;      // Row containing top left corner.
+  int32_t y1          = object_props.y_offset_; // Distance to top of object.
+  col_num_t col_end;                            // Column containing lower right corner.
+  double x2;                                    // Distance to right side of object.
+  row_num_t row_end;                            // Row containing bottom right corner.
+  double y2;                                    // Distance to bottom of object.
+  double width   = object_props.width_;         // Width of object frame.
+  double height  = object_props.height_;        // Height of object frame.
+  uint32_t x_abs = 0;                           // Abs. distance to left side of object.
+  uint32_t y_abs = 0;                           // Abs. distance to top  side of object.
+  uint32_t i;
+  object_position_t anchor        = static_cast<object_position_t>(drawing_object.anchor_);
+  object_position_t ignore_anchor = object_position_t::DEFAULT;
 
-///     row_num_t row_start;        /* Row containing top left corner.       */
-///     int32_t y1;                 /* Distance to top of object.            */
+  // Adjust start column for negative offsets.
+  while(x1 < 0 && col_start > 0)
+  {
+    x1 += size_col(col_start - 1, ignore_anchor);
+    col_start--;
+  }
 
-///     col_num_t col_end;          /* Column containing lower right corner. */
-///     double x2;                  /* Distance to right side of object.     */
+  // Adjust start row for negative offsets.
+  while(y1 < 0 && row_start > 0)
+  {
+    y1 += size_row(row_start - 1, ignore_anchor);
+    row_start--;
+  }
 
-///     row_num_t row_end;          /* Row containing bottom right corner.   */
-///     double y2;                  /* Distance to bottom of object.         */
+  // Ensure that the image isn't shifted off the page at top left.
+  if(x1 < 0)
+  {
+    x1 = 0;
+  }
 
-///     double width;               /* Width of object frame.                */
-///     double height;              /* Height of object frame.               */
+  if(y1 < 0)
+  {
+    y1 = 0;
+  }
 
-///     uint32_t x_abs = 0;         /* Abs. distance to left side of object. */
-///     uint32_t y_abs = 0;         /* Abs. distance to top  side of object. */
+  // Calculate the absolute x offset of the top-left vertex.
+  if(col_size_changed_)
+  {
+    for(i = 0; i < col_start; i++)
+    {
+      x_abs += size_col(i, ignore_anchor);
+    }
+  }
+  else
+  {
+    // Optimization for when the column widths haven't changed.
+    x_abs += default_col_pixels_ * col_start;
+  }
+  x_abs += x1;
 
-///     uint32_t i;
-///     uint8_t anchor = drawing_object->anchor;
-///     uint8_t ignore_anchor = LXW_OBJECT_POSITION_DEFAULT;
+  // Calculate the absolute y offset of the top-left vertex.
+  // Store the column change to allow optimizations.
+  if(row_size_changed_)
+  {
+    for(i = 0; i < row_start; i++)
+    {
+      y_abs += size_row(i, ignore_anchor);
+    }
+  }
+  else
+  {
+    // Optimization for when the row heights haven"t changed.
+    y_abs += default_row_pixels_ * row_start;
+  }
+  y_abs += y1;
 
-///     col_start = object_props->col;
-///     row_start = object_props->row;
-///     x1 = object_props->x_offset;
-///     y1 = object_props->y_offset;
-///     width = object_props->width;
-///     height = object_props->height;
+  // Adjust start col for offsets that are greater than the col width.
+  while(x1 >= size_col(col_start, anchor))
+  {
+    x1 -= size_col(col_start, ignore_anchor);
+    col_start++;
+  }
 
-/* Adjust start column for negative offsets. */
-///     while (x1 < 0 && col_start > 0) {
-///         x1 += _worksheet_size_col(self, col_start - 1, ignore_anchor);
-///         col_start--;
-///     }
+  // Adjust start row for offsets that are greater than the row height.
+  while(y1 >= size_row(row_start, anchor))
+  {
+    y1 -= size_row(row_start, ignore_anchor);
+    row_start++;
+  }
 
-/* Adjust start row for negative offsets. */
-///     while (y1 < 0 && row_start > 0) {
-///         y1 += _worksheet_size_row(self, row_start - 1, ignore_anchor);
-///         row_start--;
-///     }
+  // Initialize end cell to the same as the start cell.
+  col_end = col_start;
+  row_end = row_start;
 
-/* Ensure that the image isn't shifted off the page at top left. */
-///     if (x1 < 0)
-///         x1 = 0;
+  // Only offset the image in the cell if the row/col is hidden.
+  if(size_col(col_start, anchor) > 0)
+  {
+    width = width + x1;
+  }
+  if(size_row(row_start, anchor) > 0)
+  {
+    height = height + y1;
+  }
 
-///     if (y1 < 0)
-///         y1 = 0;
+  // Subtract the underlying cell widths to find the end cell.
+  while(width >= size_col(col_end, anchor) && col_end < COL_MAX)
+  {
+    width -= size_col(col_end, anchor);
+    col_end++;
+  }
 
-/* Calculate the absolute x offset of the top-left vertex. */
-///     if (self->col_size_changed) {
-///         for (i = 0; i < col_start; i++)
-///             x_abs += _worksheet_size_col(self, i, ignore_anchor);
-///     }
-///     else {
-/* Optimization for when the column widths haven't changed. */
-///         x_abs += self->default_col_pixels * col_start;
-///     }
+  // Subtract the underlying cell heights to find the end cell.
+  while(height >= size_row(row_end, anchor) && row_end < ROW_MAX)
+  {
+    height -= size_row(row_end, anchor);
+    row_end++;
+  }
 
-///     x_abs += x1;
+  // The end vertices are whatever is left from the width and height.
+  x2 = width;
+  y2 = height;
 
-/* Calculate the absolute y offset of the top-left vertex. */
-/* Store the column change to allow optimizations. */
-///     if (self->row_size_changed) {
-///         for (i = 0; i < row_start; i++)
-///             y_abs += _worksheet_size_row(self, i, ignore_anchor);
-///     }
-///     else {
-/* Optimization for when the row heights haven"t changed. */
-///         y_abs += self->default_row_pixels * row_start;
-///     }
-
-///     y_abs += y1;
-
-/* Adjust start col for offsets that are greater than the col width. */
-///     while (x1 >= _worksheet_size_col(self, col_start, anchor)) {
-///         x1 -= _worksheet_size_col(self, col_start, ignore_anchor);
-///         col_start++;
-///     }
-
-/* Adjust start row for offsets that are greater than the row height. */
-///     while (y1 >= _worksheet_size_row(self, row_start, anchor)) {
-///         y1 -= _worksheet_size_row(self, row_start, ignore_anchor);
-///         row_start++;
-///     }
-
-/* Initialize end cell to the same as the start cell. */
-///     col_end = col_start;
-///     row_end = row_start;
-
-/* Only offset the image in the cell if the row/col is hidden. */
-///     if (_worksheet_size_col(self, col_start, anchor) > 0)
-///         width = width + x1;
-///     if (_worksheet_size_row(self, row_start, anchor) > 0)
-///         height = height + y1;
-
-/* Subtract the underlying cell widths to find the end cell. */
-///     while (width >= _worksheet_size_col(self, col_end, anchor)
-///            && col_end < LXW_COL_MAX) {
-///         width -= _worksheet_size_col(self, col_end, anchor);
-///         col_end++;
-///     }
-
-/* Subtract the underlying cell heights to find the end cell. */
-///     while (height >= _worksheet_size_row(self, row_end, anchor)
-///            && row_end < LXW_ROW_MAX) {
-///         height -= _worksheet_size_row(self, row_end, anchor);
-///         row_end++;
-///     }
-
-/* The end vertices are whatever is left from the width and height. */
-///     x2 = width;
-///     y2 = height;
-
-/* Add the dimensions to the drawing object. */
-///     drawing_object->from.col = col_start;
-///     drawing_object->from.row = row_start;
-///     drawing_object->from.col_offset = x1;
-///     drawing_object->from.row_offset = y1;
-///     drawing_object->to.col = col_end;
-///     drawing_object->to.row = row_end;
-///     drawing_object->to.col_offset = x2;
-///     drawing_object->to.row_offset = y2;
-///     drawing_object->col_absolute = x_abs;
-///     drawing_object->row_absolute = y_abs;
-/// }
+  // Add the dimensions to the drawing object.
+  drawing_object.from_.col_        = col_start;
+  drawing_object.from_.row_        = row_start;
+  drawing_object.from_.col_offset_ = x1;
+  drawing_object.from_.row_offset_ = y1;
+  drawing_object.to_.col_          = col_end;
+  drawing_object.to_.row_          = row_end;
+  drawing_object.to_.col_offset_   = x2;
+  drawing_object.to_.row_offset_   = y2;
+  drawing_object.col_absolute_     = x_abs;
+  drawing_object.row_absolute_     = y_abs;
+}
 
 /*
  * Calculate the vertices that define the position of a graphical object
@@ -2155,122 +2327,6 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 ///     drawing_object->to.row_offset += 0.5;
 ///     drawing_object->col_absolute *= 9525;
 ///     drawing_object->row_absolute *= 9525;
-/// }
-
-/*
- * This function handles the additional optional parameters to
- * worksheet_write_comment_opt() as well as calculating the comment object
- * position and vertices.
- */
-/// void
-/// _get_comment_params(lxw_vml_obj *comment, lxw_comment_options *options)
-/// {
-///     row_num_t start_row;
-///     col_num_t start_col;
-///     int32_t x_offset;
-///     int32_t y_offset;
-///     uint32_t height = 74;
-///     uint32_t width = 128;
-///     double x_scale = 1.0;
-///     double y_scale = 1.0;
-///     row_num_t row = comment->row;
-///     col_num_t col = comment->col;;
-
-/* Set the default start cell and offsets for the comment. These are
- * generally fixed in relation to the parent cell. However there are some
- * edge cases for cells at the, well yes, edges. */
-///     if (row == 0)
-///         y_offset = 2;
-///     else if (row == LXW_ROW_MAX - 3)
-///         y_offset = 16;
-///     else if (row == LXW_ROW_MAX - 2)
-///         y_offset = 16;
-///     else if (row == LXW_ROW_MAX - 1)
-///         y_offset = 14;
-///     else
-///         y_offset = 10;
-
-///     if (col == LXW_COL_MAX - 3)
-///         x_offset = 49;
-///     else if (col == LXW_COL_MAX - 2)
-///         x_offset = 49;
-///     else if (col == LXW_COL_MAX - 1)
-///         x_offset = 49;
-///     else
-///         x_offset = 15;
-
-///     if (row == 0)
-///         start_row = 0;
-///     else if (row == LXW_ROW_MAX - 3)
-///         start_row = LXW_ROW_MAX - 7;
-///     else if (row == LXW_ROW_MAX - 2)
-///         start_row = LXW_ROW_MAX - 6;
-///     else if (row == LXW_ROW_MAX - 1)
-///         start_row = LXW_ROW_MAX - 5;
-///     else
-///         start_row = row - 1;
-
-///     if (col == LXW_COL_MAX - 3)
-///         start_col = LXW_COL_MAX - 6;
-///     else if (col == LXW_COL_MAX - 2)
-///         start_col = LXW_COL_MAX - 5;
-///     else if (col == LXW_COL_MAX - 1)
-///         start_col = LXW_COL_MAX - 4;
-///     else
-///         start_col = col + 1;
-
-/* Set the default font properties. */
-///     comment->font_size = 8;
-///     comment->font_family = 2;
-
-/* Set any user defined options. */
-///     if (options) {
-///         if (options->width > 0.0)
-///             width = options->width;
-
-///         if (options->height > 0.0)
-///             height = options->height;
-
-///         if (options->x_scale > 0.0)
-///             x_scale = options->x_scale;
-
-///         if (options->y_scale > 0.0)
-///             y_scale = options->y_scale;
-
-///         if (options->x_offset != 0)
-///             x_offset = options->x_offset;
-
-///         if (options->y_offset != 0)
-///             y_offset = options->y_offset;
-
-///         if (options->start_row > 0 || options->start_col > 0) {
-///             start_row = options->start_row;
-///             start_col = options->start_col;
-///         }
-
-///         if (options->font_size > 0.0)
-///             comment->font_size = options->font_size;
-
-///         if (options->font_family > 0)
-///             comment->font_family = options->font_family;
-
-///         comment->visible = options->visible;
-///         comment->color = options->color;
-///         comment->author = lxw_strdup(options->author);
-///         comment->font_name = lxw_strdup(options->font_name);
-///     }
-
-/* Scale the width/height to the default/user scale and round to the
- * nearest pixel. */
-///     width = (uint32_t) (0.5 + x_scale * width);
-///     height = (uint32_t) (0.5 + y_scale * height);
-
-///     comment->width = width;
-///     comment->height = height;
-///     comment->start_col = start_col;
-///     comment->start_row = start_row;
-///     comment->x_offset = x_offset;
-///     comment->y_offset = y_offset;
 /// }
 
 /*
@@ -2367,34 +2423,33 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 ///     return LXW_NO_ERROR;
 /// }
 
-/// void
-/// _worksheet_position_vml_object(lxw_worksheet *self, lxw_vml_obj *vml_obj)
-/// {
-///     lxw_object_properties object_props;
-///     lxw_drawing_object drawing_object;
+void worksheet_t::position_vml_object(vml_obj_t& vml_obj)
+{
+  object_properties_t object_props;
+  drawing_object_t drawing_object;
 
-///     object_props.col = vml_obj->start_col;
-///     object_props.row = vml_obj->start_row;
-///     object_props.x_offset = vml_obj->x_offset;
-///     object_props.y_offset = vml_obj->y_offset;
-///     object_props.width = vml_obj->width;
-///     object_props.height = vml_obj->height;
+  object_props.col_      = vml_obj.start_col_;
+  object_props.row_      = vml_obj.start_row_;
+  object_props.x_offset_ = vml_obj.x_offset_;
+  object_props.y_offset_ = vml_obj.y_offset_;
+  object_props.width_    = vml_obj.width_;
+  object_props.height_   = vml_obj.height_;
 
-///     drawing_object.anchor = LXW_OBJECT_DONT_MOVE_DONT_SIZE;
+  drawing_object.anchor_ = static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE);
 
-///     _worksheet_position_object_pixels(self, &object_props, &drawing_object);
+  position_object_pixels(object_props, drawing_object);
 
-///     vml_obj->from.col = drawing_object.from.col;
-///     vml_obj->from.row = drawing_object.from.row;
-///     vml_obj->from.col_offset = drawing_object.from.col_offset;
-///     vml_obj->from.row_offset = drawing_object.from.row_offset;
-///     vml_obj->to.col = drawing_object.to.col;
-///     vml_obj->to.row = drawing_object.to.row;
-///     vml_obj->to.col_offset = drawing_object.to.col_offset;
-///     vml_obj->to.row_offset = drawing_object.to.row_offset;
-///     vml_obj->col_absolute = drawing_object.col_absolute;
-///     vml_obj->row_absolute = drawing_object.row_absolute;
-/// }
+  vml_obj.from_.col_        = drawing_object.from_.col_;
+  vml_obj.from_.row_        = drawing_object.from_.row_;
+  vml_obj.from_.col_offset_ = drawing_object.from_.col_offset_;
+  vml_obj.from_.row_offset_ = drawing_object.from_.row_offset_;
+  vml_obj.to_.col_          = drawing_object.to_.col_;
+  vml_obj.to_.row_          = drawing_object.to_.row_;
+  vml_obj.to_.col_offset_   = drawing_object.to_.col_offset_;
+  vml_obj.to_.row_offset_   = drawing_object.to_.row_offset_;
+  vml_obj.col_absolute_     = drawing_object.col_absolute_;
+  vml_obj.row_absolute_     = drawing_object.row_absolute_;
+}
 
 /// void
 /// lxw_worksheet_prepare_image(lxw_worksheet *self,
@@ -2778,116 +2833,50 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 ///     }
 /// }
 
-/// uint32_t
-/// lxw_worksheet_prepare_vml_objects(lxw_worksheet *self,
-///                                   uint32_t vml_data_id,
-///                                   uint32_t vml_shape_id,
-///                                   uint32_t vml_drawing_id,
-///                                   uint32_t comment_id)
-/// {
-///     row_t *row;
-///     cell_t *cell;
-///     lxw_rel_tuple *relationship;
-///     char filename[LXW_FILENAME_LENGTH];
-///     uint32_t comment_count = 0;
-///     uint32_t i;
-///     uint32_t tmp_data_id;
-///     size_t data_str_len = 0;
-///     size_t used = 0;
-///     char *vml_data_id_str;
+uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
+                                          uint32_t comment_id)
+{
+  uint32_t comment_count = 0;
 
-///     RB_FOREACH(row, table_rows_t, self->comments) {
+  for(auto& [index, row]: comments_.rbh_root_)
+  {
+    for(auto& [index, cell]: row.cells_)
+    {
+      // Calculate the worksheet position of the comment.
+      position_vml_object(cell.comment_.value());
 
-///         RB_FOREACH(cell, lxw_table_cells, row->cells) {
-/* Calculate the worksheet position of the comment. */
-///             _worksheet_position_vml_object(self, cell->comment);
+      // Store comment in a simple list for use by packager.
+      comment_objs_.push_back(cell.comment_.value());
+      comment_count++;
+    }
+  }
 
-/* Store comment in a simple list for use by packager. */
-///             STAILQ_INSERT_TAIL(self->comment_objs, cell->comment,
-///                                list_pointers);
-///             comment_count++;
-///         }
-///     }
+  // Set up the VML relationship for comments/buttons/header images.
+  external_vml_comment_link_ =
+      std::make_tuple("/vmlDrawing"s, std::format("../drawings/vmlDrawing{}.vml", vml_drawing_id), ""s);
 
-/* Set up the VML relationship for comments/buttons/header images. */
-///     relationship = calloc(1, sizeof(lxw_rel_tuple));
-///     GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
+  if(has_comments_)
+  {
+    // Only need this relationship object for comment VMLs.
+    external_comment_link_ = std::make_tuple("/comments"s, std::format("../comments{}.xml", comment_id), ""s);
+  }
 
-///     relationship->type = lxw_strdup("/vmlDrawing");
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
+  // Create the CSV list in the allocated space.
+  for(size_t i = 0; i <= comment_count / 1024; i++)
+  {
+    vml_data_id_str_ += std::format("{},", vml_data_id + i);
+  }
 
-///     lxw_snprintf(filename, 32, "../drawings/vmlDrawing%d.vml",
-///                  vml_drawing_id);
+  // Remove last comma
+  if(!vml_data_id_str_.empty() && vml_data_id_str_.back() == ',')
+  {
+    vml_data_id_str_.pop_back();
+  }
 
-///     relationship->target = lxw_strdup(filename);
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
+  vml_shape_id_ = vml_shape_id;
 
-///     self->external_vml_comment_link = relationship;
-
-///     if (self->has_comments) {
-/* Only need this relationship object for comment VMLs. */
-
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-///         relationship->type = lxw_strdup("/comments");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-///         lxw_snprintf(filename, 32, "../comments%d.xml", comment_id);
-
-///         relationship->target = lxw_strdup(filename);
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///         self->external_comment_link = relationship;
-///     }
-
-/* The vml.c <o:idmap> element data id contains a comma separated range
- * when there is more than one 1024 block of comments, like this:
- * data="1,2,3". Since this could potentially (but unlikely) exceed
- * LXW_MAX_ATTRIBUTE_LENGTH we need to allocate space dynamically. */
-
-/* Calculate the total space required for the ID for each 1024 block. */
-///     for (i = 0; i <= comment_count / 1024; i++) {
-///         tmp_data_id = vml_data_id + i;
-
-/* Calculate the space required for the digits in the id. */
-///         while (tmp_data_id) {
-///             data_str_len++;
-///             tmp_data_id /= 10;
-///         }
-
-/* Add an extra char for comma separator or '\O'. */
-///         data_str_len++;
-///     };
-
-/* If this allocation fails it will be dealt with in packager.c. */
-///     vml_data_id_str = calloc(1, data_str_len + 2);
-///     GOTO_LABEL_ON_MEM_ERROR(vml_data_id_str, mem_error);
-
-/* Create the CSV list in the allocated space. */
-///     for (i = 0; i <= comment_count / 1024; i++) {
-///         tmp_data_id = vml_data_id + i;
-///         lxw_snprintf(vml_data_id_str + used, data_str_len - used, "%d,",
-///                      tmp_data_id);
-
-///         used = strlen(vml_data_id_str);
-///     };
-
-///     self->vml_shape_id = vml_shape_id;
-///     self->vml_data_id_str = vml_data_id_str;
-
-///     return comment_count;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-
-///     return 0;
-/// }
+  return comment_count;
+}
 
 /// void
 /// lxw_worksheet_prepare_header_vml_objects(lxw_worksheet *self,
@@ -3642,8 +3631,7 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
 {
   ///     struct xml_attribute_list attributes;
   ///     struct xml_attribute *attribute;
-  int32_t style_index = 0;
-
+  int32_t style_index     = 0;
   const std::string range = rowcol_to_cell(cell.row_num_, cell.col_num_);
 
   if(cell.format_)
@@ -4546,25 +4534,18 @@ std::string worksheet_t::write_hyperlinks()
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-std::string worksheet_t::write_legacy_drawing() const
+std::string worksheet_t::write_legacy_drawing()
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
+  if(!has_vml_)
+  {
+    return "";
+  }
 
-  ///     if (!self->has_vml)
-  ///         return;
-  ///     else
-  ///         self->rel_count++;
+  rel_count_++;
 
-  ///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", self->rel_count);
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-
-  ///     lxw_xml_empty_tag(self->file, "legacyDrawing", &attributes);
-
-  return xml_data;
+  return xml_empty_tag("legacyDrawing", {
+                                            {"r:id", std::format("rId{}", rel_count_)}
+  });
 }
 
 std::string worksheet_t::write_legacy_drawing_hf() const
@@ -7289,68 +7270,44 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
 ///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
 /// }
 
-/// lxw_error
-/// worksheet_write_comment_opt(lxw_worksheet *self,
-///                             row_num_t row_num, col_num_t col_num,
-///                             const char *text, lxw_comment_options *options)
-/// {
-///     cell_t *cell;
-///     lxw_error err;
-///     lxw_vml_obj *comment;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     if (!text)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     if (lxw_str_is_empty(text))
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///
-///     if (lxw_utf8_strlen(text) > LXW_STR_MAX)
-///         return LXW_ERROR_MAX_STRING_LENGTH_EXCEEDED;
-///
-///     comment = calloc(1, sizeof(lxw_vml_obj));
-///     GOTO_LABEL_ON_MEM_ERROR(comment, mem_error);
-///
-///     comment->text = lxw_strdup(text);
-///     GOTO_LABEL_ON_MEM_ERROR(comment->text, mem_error);
-///
-///     comment->row = row_num;
-///     comment->col = col_num;
-///
-///     cell = _new_comment_cell(row_num, col_num, comment);
-///     GOTO_LABEL_ON_MEM_ERROR(cell, mem_error);
-///
-///     _insert_comment(self, row_num, col_num, cell);
-///
-///     /* Set user and default parameters for the comment. */
-///     _get_comment_params(comment, options);
-///
-///     self->has_vml = LXW_TRUE;
-///     self->has_comments = LXW_TRUE;
-///
-///     /* Insert a placeholder in the cell RB table in the same position so
-///      * that the worksheet row "spans" calculations are correct. */
-///     _insert_cell_placeholder(self, row_num, col_num);
-///
-///     return LXW_NO_ERROR;
-///
-/// mem_error:
-///     if (comment)
-///         _free_vml_object(comment);
-///
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std::string& text,
+                                std::optional<comment_options_t> options)
+{
+  check_dimensions(row_num, col_num, false, false);
 
-/// lxw_error
-/// worksheet_write_comment(lxw_worksheet *self,
-///                         row_num_t row_num, col_num_t col_num,
-///                         const char *string)
-/// {
-///     return worksheet_write_comment_opt(self, row_num, col_num, string, NULL);
-/// }
+  if(text.empty())
+  {
+    throw xwpp_exception_t("Comment is empty");
+  }
+
+  if(text.size() > STR_MAX)
+  {
+    throw xwpp_out_of_range_t(std::format("Comment {} is too long ({} / {})", text, text.size(), STR_MAX));
+  }
+
+  vml_obj_t comment;
+  comment.text_ = text;
+  comment.row_  = row_num;
+  comment.col_  = col_num;
+
+  // Set user and default parameters for the comment.
+  get_comment_params(comment, options);
+
+  cell_t cell = new_comment_cell(row_num, col_num, comment);
+  insert_comment(row_num, col_num, cell);
+
+  has_vml_      = true;
+  has_comments_ = true;
+
+  // Insert a placeholder in the cell RB table in the same position so
+  // that the worksheet row "spans" calculations are correct.
+  insert_cell_placeholder(row_num, col_num);
+}
+
+void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std::string& text)
+{
+  write_comment(row_num, col_num, text, std::nullopt);
+}
 
 void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width /* TODO,
                           lxw_format *format,
@@ -9941,11 +9898,10 @@ void worksheet_t::select()
 ///     self->comment_author = lxw_strdup(author);
 /// }
 
-/// void
-/// worksheet_show_comments(lxw_worksheet *self)
-/// {
-///     self->comment_display_default = LXW_COMMENT_DISPLAY_VISIBLE;
-/// }
+void worksheet_t::show_comments()
+{
+  comment_display_default_ = comment_display_t::VISIBLE;
+}
 
 /// lxw_error
 /// worksheet_ignore_errors(lxw_worksheet *self, uint8_t type, const char *range)

@@ -67,7 +67,8 @@ private:
   void write_core_file(const workbook_t& workbook);
   void write_custom_file(const workbook_t& workbook);
   void write_worksheet_rels_file(const workbook_t& workbook);
-
+  void write_vml_files(const workbook_t& workbook);
+  void write_comment_files(const workbook_t& workbook);
   void add_buffer_to_zip(std::string_view buffer, const std::string& filename);
 
   ///     size_t buffer_size;

@@ -511,6 +511,37 @@ public:
    */
   void set_underline(format_underlines_t style);
 
+  /**
+   * @brief Wrap text in a cell.
+   *
+   * Turn text wrapping on for text in a cell.
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_text_wrap(format);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "Some long text to wrap in a
+   * cell", format);
+   * @endcode
+   *
+   * If you wish to control where the text is wrapped you can add newline
+   * characters to the string:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_text_wrap(format);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "It's\na bum\nwrap", format);
+   * @endcode
+   *
+   * @image html format_font_text_wrap.png
+   *
+   * Excel will adjust the height of the row to accommodate the wrapped text. A
+   * similar effect can be obtained without newlines using the
+   * format_set_align() function with #LXW_ALIGN_VERTICAL_JUSTIFY.
+   */
+  void set_text_wrap();
+
   void set_hyperlink();
 
   static const int32_t PROPERTY_UNSET = -1;
@@ -519,6 +550,7 @@ public:
 private:
   // TODO friend up to refactoring with struct / class
   friend class workbook_t;
+  friend class worksheet_t; // TODO for debug
   friend class style_t;
 
   static const uint8_t DEFAULT_FONT_FAMILY = 2;
@@ -873,37 +905,6 @@ private:
  * @endcode
  */
 /// void format_set_hidden(lxw_format *format);
-
-/**
- * @brief Wrap text in a cell.
- *
- * Turn text wrapping on for text in a cell.
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_text_wrap(format);
- *
- *     worksheet_write_string(worksheet, 0, 0, "Some long text to wrap in a
- * cell", format);
- * @endcode
- *
- * If you wish to control where the text is wrapped you can add newline
- * characters to the string:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_text_wrap(format);
- *
- *     worksheet_write_string(worksheet, 0, 0, "It's\na bum\nwrap", format);
- * @endcode
- *
- * @image html format_font_text_wrap.png
- *
- * Excel will adjust the height of the row to accommodate the wrapped text. A
- * similar effect can be obtained without newlines using the
- * format_set_align() function with #LXW_ALIGN_VERTICAL_JUSTIFY.
- */
-/// void format_set_text_wrap(lxw_format *format);
 
 /**
  * @brief Set the rotation of the text in a cell.

@@ -28,6 +28,8 @@ public:
   void add_worksheet_name(std::string_view name);
   void add_shared_strings();
   void add_custom_properties();
+  void add_vml_name();
+  void add_comment_name(std::string_view name);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -50,9 +52,6 @@ private:
 ///                              const char *name);
 /// void lxw_ct_add_table_name(lxw_content_types *content_types,
 ///                            const char *name);
-/// void lxw_ct_add_comment_name(lxw_content_types *content_types,
-///                              const char *name);
-/// void lxw_ct_add_vml_name(lxw_content_types *content_types);
 
 /// void lxw_ct_add_calc_chain(lxw_content_types *content_types);
 

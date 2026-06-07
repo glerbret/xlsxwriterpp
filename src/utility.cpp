@@ -204,27 +204,35 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
 ///     lxw_rowcol_to_cell_abs(&formula[pos], last_row, last_col, 1, 1);
 /// }
 
-/// row_num_t
-/// lxw_name_to_row(const char *row_str)
-/// {
-///     row_num_t row_num = 0;
+// TODO string
+row_num_t name_to_row(const char* row_str)
+{
+  row_num_t row_num = 0;
 
-///     if (!row_str)
-///         return row_num;
+  if(!row_str)
+  {
+    return row_num;
+  }
 
-/* Skip the column letters and absolute symbol of the A1 cell. */
-///     while (*row_str && !isdigit((unsigned char) *row_str))
-///         row_str++;
+  /* Skip the column letters and absolute symbol of the A1 cell. */
+  while(*row_str && !isdigit((unsigned char)*row_str))
+  {
+    row_str++;
+  }
 
-/* Convert the row part of the A1 cell to a number. */
-///     if (*row_str)
-///         row_num = atoi(row_str);
+  /* Convert the row part of the A1 cell to a number. */
+  if(*row_str)
+  {
+    row_num = atoi(row_str);
+  }
 
-///     if (row_num)
-///         row_num--;
+  if(row_num)
+  {
+    row_num--;
+  }
 
-///     return row_num;
-/// }
+  return row_num;
+}
 
 /// uint32_t
 /// lxw_name_to_row_2(const char *row_str)
@@ -242,26 +250,33 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
 ///         return 0;
 /// }
 
-/// col_num_t
-/// lxw_name_to_col(const char *col_str)
-/// {
-///     col_num_t col_num = 0;
+// TODO String
+col_num_t name_to_col(const char* col_str)
+{
+  col_num_t col_num = 0;
 
-///     if (!col_str)
-///         return col_num;
+  if(!col_str)
+  {
+    return col_num;
+  }
 
-/* Convert leading column letters of A1 cell. Ignore absolute $ marker. */
-///     while (*col_str && (isupper((unsigned char) *col_str) || *col_str == '$')) {
-///         if (*col_str != '$')
-///             col_num = (col_num * 26) + (*col_str - 'A' + 1);
-///         col_str++;
-///     }
+  /* Convert leading column letters of A1 cell. Ignore absolute $ marker. */
+  while(*col_str && (isupper((unsigned char)*col_str) || *col_str == '$'))
+  {
+    if(*col_str != '$')
+    {
+      col_num = (col_num * 26) + (*col_str - 'A' + 1);
+    }
+    col_str++;
+  }
 
-///     if (col_num)
-///         col_num--;
+  if(col_num)
+  {
+    col_num--;
+  }
 
-///     return col_num;
-/// }
+  return col_num;
+}
 
 /// uint16_t
 /// lxw_name_to_col_2(const char *col_str)

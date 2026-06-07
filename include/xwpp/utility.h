@@ -40,8 +40,8 @@ namespace xwpp
  * This macro shouldn't be used in performance critical situations since it
  * expands to two function calls.
  */
-/// #define CELL(cell) \
-///     lxw_name_to_row(cell), lxw_name_to_col(cell)
+// TODO Replace by overload
+#define CELL(cell) xwpp::name_to_row(cell), xwpp::name_to_col(cell)
 
 /**
  * @brief Convert an Excel `A:B` column range into a `(col1, col2)` pair.
@@ -159,8 +159,8 @@ namespace xwpp
 ///                                row_num_t first_row, col_num_t first_col,
 ///                                row_num_t last_row, col_num_t last_col);
 
-/// uint32_t lxw_name_to_row(const char *row_str);
-/// uint16_t lxw_name_to_col(const char *col_str);
+uint32_t name_to_row(const char* row_str);
+uint16_t name_to_col(const char* col_str);
 
 /// uint32_t lxw_name_to_row_2(const char *row_str);
 /// uint16_t lxw_name_to_col_2(const char *col_str);

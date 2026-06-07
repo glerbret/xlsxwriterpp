@@ -990,54 +990,51 @@ void workbook_t::prepare_drawings()
 
 void workbook_t::prepare_vml()
 {
-  ///     lxw_worksheet *worksheet;
-  ///     lxw_sheet *sheet;
-  ///     uint32_t comment_id = 0;
-  ///     uint32_t vml_drawing_id = 0;
-  ///     uint32_t vml_data_id = 1;
+  uint32_t comment_id     = 0;
+  uint32_t vml_drawing_id = 0;
+  uint32_t vml_data_id    = 1;
   ///     uint32_t vml_header_id = 0;
-  ///     uint32_t vml_shape_id = 1024;
-  ///     uint32_t comment_count = 0;
+  uint32_t vml_shape_id   = 1024;
+  uint32_t comment_count  = 0;
 
-  ///     STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-  ///         if (sheet->is_chartsheet)
-  ///             continue;
-  ///         else
-  ///             worksheet = sheet->u.worksheet;
+  for(auto& sheet: sheets_)
+  {
+    ///         if (sheet->is_chartsheet)
+    ///             continue;
+    ///         else
+    auto& ws = std::get<0>(sheet);
 
-  ///         if (!worksheet->has_vml && !worksheet->has_header_vml)
-  ///             continue;
+    ///         if (!ws->has_vml && !ws->has_header_vml)
+    ///             continue;
 
-  ///         if (worksheet->has_vml) {
-  ///             self->has_vml = LXW_TRUE;
-  ///             if (worksheet->has_comments) {
-  ///                 self->comment_count++;
-  ///                 comment_id++;
-  ///                 self->has_comments = LXW_TRUE;
-  ///             }
+    if(ws.has_vml_)
+    {
+      has_vml_ = true;
+      if(ws.has_comments_)
+      {
+        comment_count_++;
+        comment_id++;
+        has_comments_ = true;
+      }
 
-  ///             vml_drawing_id++;
+      vml_drawing_id++;
 
-  ///             comment_count = lxw_worksheet_prepare_vml_objects(worksheet,
-  ///                                                               vml_data_id,
-  ///                                                               vml_shape_id,
-  ///                                                               vml_drawing_id,
-  ///                                                               comment_id);
+      comment_count = ws.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
 
-  /* Each VML should start with a shape id incremented by 1024. */
-  ///             vml_data_id += 1 * ((1024 + comment_count) / 1024);
-  ///             vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
-  ///         }
+      // Each VML should start with a shape id incremented by 1024.
+      vml_data_id += 1 * ((1024 + comment_count) / 1024);
+      vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
+    }
 
-  ///         if (worksheet->has_header_vml) {
-  ///             self->has_vml = LXW_TRUE;
-  ///             vml_drawing_id++;
-  ///             vml_header_id++;
-  ///             lxw_worksheet_prepare_header_vml_objects(worksheet,
-  ///                                                      vml_header_id,
-  ///                                                      vml_drawing_id);
-  ///         }
-  ///     }
+    ///         if (worksheet->has_header_vml) {
+    ///             self->has_vml = LXW_TRUE;
+    ///             vml_drawing_id++;
+    ///             vml_header_id++;
+    ///             lxw_worksheet_prepare_header_vml_objects(worksheet,
+    ///                                                      vml_header_id,
+    ///                                                      vml_drawing_id);
+    ///         }
+  }
 }
 
 void workbook_t::prepare_defined_names()
