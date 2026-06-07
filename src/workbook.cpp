@@ -1496,12 +1496,9 @@ workbook_t::workbook_t(/*lxw_workbook_options *options*/)
   // Initialize its index.
   get_xf_index(format);
 
-  /* Add the default hyperlink format. */
-  ///     format = workbook_add_format(workbook);
-  ///     GOTO_LABEL_ON_MEM_ERROR(format, mem_error);
-  ///     format_set_hyperlink(format);
-  ///     workbook->default_url_format = format;
-
+  // Add the default hyperlink format.
+  default_url_format_ = add_format();
+  default_url_format_->set_hyperlink();
   ///     if (options) {
   ///         workbook->options.constant_memory = options->constant_memory;
   ///         workbook->options.tmpdir = lxw_strdup(options->tmpdir);
@@ -1527,16 +1524,16 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   ///     lxw_worksheet_name *worksheet_name = NULL;
   ///     lxw_error error;
   const worksheet_init_data_t init_data{
-      .index_       = num_sheets_,
-      .hidden_      = 0,
+      .index_              = num_sheets_,
+      .hidden_             = 0,
       ///     .optimize = self->options.constant_memory,
       ///     .active_sheet = &self->active_sheet,
       ///     .first_sheet = &self->first_sheet,
-      .sst_         = &sst_,
-      .name_        = std::string{sheetname},
-      .quoted_name_ = quote_sheetname(sheetname),
+      .sst_                = &sst_,
+      .name_               = std::string{sheetname},
+      .quoted_name_        = quote_sheetname(sheetname),
       ///     .tmpdir = self->options.tmpdir,
-      ///     .default_url_format = self->default_url_format,
+      .default_url_format_ = default_url_format_,
       ///     .max_url_length = self->max_url_length,
       ///     .use_1904_epoch = self->use_1904_epoch,
   };
@@ -1969,18 +1966,18 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::y
 ///         return NULL;
 /// }
 
-/// lxw_format * workbook_get_default_url_format(lxw_workbook *self)
-/// {
-///     return self->default_url_format;
-/// }
+format_t* workbook_t::get_default_url_format() const
+{
+  return default_url_format_;
+}
 
-/// void workbook_unset_default_url_format(lxw_workbook *self)
-/// {
-///     self->default_url_format->hyperlink = LXW_FALSE;
-///     self->default_url_format->xf_id = 0;
-///     self->default_url_format->underline = LXW_UNDERLINE_NONE;
-///     self->default_url_format->theme = 0;
-/// }
+void workbook_t::unset_default_url_format()
+{
+  default_url_format_->hyperlink_ = false;
+  default_url_format_->xf_id_     = 0;
+  default_url_format_->underline_ = format_underlines_t::NONE;
+  default_url_format_->theme_     = 0;
+}
 
 void workbook_t::validate_sheetname(std::string_view sheetname) const
 {

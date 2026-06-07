@@ -8,6 +8,7 @@
 
 #include "xwpp/xmlwriter.h"
 
+#include <cctype>
 #include <format>
 #include <string>
 #include <string_view>
@@ -253,61 +254,60 @@ std::string escape_control_characters(std::string_view str)
   return encoded;
 }
 
-/// char * lxw_escape_url_characters(const char *string, uint8_t escape_hash)
-/// {
-///     size_t escape_len = sizeof("%XX") - 1;
-///     size_t encoded_len = (strlen(string) * escape_len + 1);
+std::string escape_url_characters(const std::string& str, bool escape_hash)
+{
+  std::string encoded;
+  encoded.reserve(2 * str.size());
 
-///     char *encoded = (char *) calloc(encoded_len, 1);
-///     char *p_encoded = encoded;
+  for(size_t i = 0; i < str.size(); i++)
+  {
+    switch(str[i])
+    {
+      case ' ':
+      case '"':
+      case '<':
+      case '>':
+      case '[':
+      case ']':
+      case '`':
+      case '^':
+      case '{':
+      case '}':
+        encoded += std::format("%{:02x}", str[i]);
+        break;
 
-///     while (*string) {
-///         switch (*string) {
-///             case ' ':
-///             case '"':
-///             case '<':
-///             case '>':
-///             case '[':
-///             case ']':
-///             case '`':
-///             case '^':
-///             case '{':
-///             case '}':
-///                 lxw_snprintf(p_encoded, escape_len + 1, "%%%2x", *string);
-///                 p_encoded += escape_len;
-///                 break;
-///             case '#':
-/* This is only escaped for "external:" style links. */
-///                 if (escape_hash) {
-///                     lxw_snprintf(p_encoded, escape_len + 1, "%%%2x", *string);
-///                     p_encoded += escape_len;
-///                 }
-///                 else {
-///                     *p_encoded = *string;
-///                     p_encoded++;
-///                 }
-///                 break;
-///             case '%':
-/* Only escape % if it isn't already an escape. */
-///                 if (!isxdigit(*(string + 1)) || !isxdigit(*(string + 2))) {
-///                     lxw_snprintf(p_encoded, escape_len + 1, "%%%2x", *string);
-///                     p_encoded += escape_len;
-///                 }
-///                 else {
-///                     *p_encoded = *string;
-///                     p_encoded++;
-///                 }
-///                 break;
-///             default:
-///                 *p_encoded = *string;
-///                 p_encoded++;
-///                 break;
-///         }
-///         string++;
-///     }
+      case '#':
+        // This is only escaped for "external:" style links.
+        if(escape_hash)
+        {
+          encoded += std::format("%{:02x}", str[i]);
+        }
+        else
+        {
+          encoded.push_back(str[i]);
+        }
+        break;
 
-///     return encoded;
-/// }
+      case '%':
+        // Only escape % if it isn't already an escape.
+        if(i >= str.size() - 2 || !isxdigit(str[i + 1]) || !isxdigit(str[i + 1]))
+        {
+          encoded += std::format("%{:02x}", str[i]);
+        }
+        else
+        {
+          encoded.push_back(str[i]);
+        }
+        break;
+
+      default:
+        encoded.push_back(str[i]);
+        break;
+    }
+  }
+
+  return encoded;
+}
 
 /// struct xml_attribute * lxw_new_attribute_str(const char *key, const char *value)
 /// {

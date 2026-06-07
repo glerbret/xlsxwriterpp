@@ -174,7 +174,7 @@ const size_t MAX_ATTRIBUTE_LENGTH = 2080;
 
 /// uint8_t lxw_has_control_characters(const char *string);
 [[nodiscard]] std::string escape_control_characters(std::string_view str);
-/// char *lxw_escape_url_characters(const char *string, uint8_t escape_hash);
+[[nodiscard]] std::string escape_url_characters(const std::string& str, bool escape_hash);
 
 [[nodiscard]] std::string escape_data(std::string_view data);
 

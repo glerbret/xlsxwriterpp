@@ -410,55 +410,108 @@ public:
    */
   void set_italic();
 
-/**
- * @brief Set the alignment for data in the cell.
- *
- * @param format    Pointer to a Format instance.
- * @param alignment The horizontal and or vertical alignment direction.
- *
- * This method is used to set the horizontal and vertical text alignment within
- * a cell. The following are the available horizontal alignments:
- *
- * - #LXW_ALIGN_LEFT
- * - #LXW_ALIGN_CENTER
- * - #LXW_ALIGN_RIGHT
- * - #LXW_ALIGN_FILL
- * - #LXW_ALIGN_JUSTIFY
- * - #LXW_ALIGN_CENTER_ACROSS
- * - #LXW_ALIGN_DISTRIBUTED
- *
- * The following are the available vertical alignments:
- *
- * - #LXW_ALIGN_VERTICAL_TOP
- * - #LXW_ALIGN_VERTICAL_BOTTOM
- * - #LXW_ALIGN_VERTICAL_CENTER
- * - #LXW_ALIGN_VERTICAL_JUSTIFY
- * - #LXW_ALIGN_VERTICAL_DISTRIBUTED
- *
- * As in Excel, vertical and horizontal alignments can be combined:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *
- *     format_set_align(format, LXW_ALIGN_CENTER);
- *     format_set_align(format, LXW_ALIGN_VERTICAL_CENTER);
- *
- *     worksheet_set_row(0, 30);
- *     worksheet_write_string(worksheet, 0, 0, "Some Text", format);
- * @endcode
- *
- * @image html format_font_align.png
- *
- * Text can be aligned across two or more adjacent cells using the
- * center_across property. However, for genuine merged cells it is better to
- * use the worksheet_merge_range() worksheet method.
- *
- * The vertical justify option can be used to provide automatic text wrapping
- * in a cell. The height of the cell will be adjusted to accommodate the
- * wrapped text. To specify where the text wraps use the
- * format_set_text_wrap() method.
- */
- void set_align(format_alignments_t alignment);
+  /**
+   * @brief Set the alignment for data in the cell.
+   *
+   * @param format    Pointer to a Format instance.
+   * @param alignment The horizontal and or vertical alignment direction.
+   *
+   * This method is used to set the horizontal and vertical text alignment within
+   * a cell. The following are the available horizontal alignments:
+   *
+   * - #LXW_ALIGN_LEFT
+   * - #LXW_ALIGN_CENTER
+   * - #LXW_ALIGN_RIGHT
+   * - #LXW_ALIGN_FILL
+   * - #LXW_ALIGN_JUSTIFY
+   * - #LXW_ALIGN_CENTER_ACROSS
+   * - #LXW_ALIGN_DISTRIBUTED
+   *
+   * The following are the available vertical alignments:
+   *
+   * - #LXW_ALIGN_VERTICAL_TOP
+   * - #LXW_ALIGN_VERTICAL_BOTTOM
+   * - #LXW_ALIGN_VERTICAL_CENTER
+   * - #LXW_ALIGN_VERTICAL_JUSTIFY
+   * - #LXW_ALIGN_VERTICAL_DISTRIBUTED
+   *
+   * As in Excel, vertical and horizontal alignments can be combined:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *
+   *     format_set_align(format, LXW_ALIGN_CENTER);
+   *     format_set_align(format, LXW_ALIGN_VERTICAL_CENTER);
+   *
+   *     worksheet_set_row(0, 30);
+   *     worksheet_write_string(worksheet, 0, 0, "Some Text", format);
+   * @endcode
+   *
+   * @image html format_font_align.png
+   *
+   * Text can be aligned across two or more adjacent cells using the
+   * center_across property. However, for genuine merged cells it is better to
+   * use the worksheet_merge_range() worksheet method.
+   *
+   * The vertical justify option can be used to provide automatic text wrapping
+   * in a cell. The height of the cell will be adjusted to accommodate the
+   * wrapped text. To specify where the text wraps use the
+   * format_set_text_wrap() method.
+   */
+  void set_align(format_alignments_t alignment);
+
+  /**
+   * @brief Set the color of the font used in the cell.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell font color.
+   *
+   *
+   * Set the font color:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_font_color(format, LXW_COLOR_RED);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "Wheelbarrow", format);
+   * @endcode
+   *
+   * @image html format_font_color.png
+   *
+   * The color should be an RGB integer value, see @ref working_with_colors.
+   *
+   * @note
+   * The format_set_font_color() method is used to set the font color in a
+   * cell. To set the color of a cell background use the format_set_bg_color()
+   * and format_set_pattern() methods.
+   */
+  void set_font_color(color_t color);
+
+  /**
+   * @brief Turn on underline for the format:
+   *
+   * @param format Pointer to a Format instance.
+   * @param style Underline style.
+   *
+   * Set the underline property of the format:
+   *
+   * @code
+   *     format_set_underline(format, LXW_UNDERLINE_SINGLE);
+   * @endcode
+   *
+   * @image html format_font_underlined.png
+   *
+   * The available underline styles are:
+   *
+   * - #LXW_UNDERLINE_SINGLE
+   * - #LXW_UNDERLINE_DOUBLE
+   * - #LXW_UNDERLINE_SINGLE_ACCOUNTING
+   * - #LXW_UNDERLINE_DOUBLE_ACCOUNTING
+   *
+   */
+  void set_underline(format_underlines_t style);
+
+  void set_hyperlink();
 
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
@@ -637,57 +690,6 @@ private:
  * row using the worksheet_set_row() function.
  */
 /// void format_set_font_size(lxw_format *format, double size);
-
-/**
- * @brief Set the color of the font used in the cell.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell font color.
- *
- *
- * Set the font color:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_font_color(format, LXW_COLOR_RED);
- *
- *     worksheet_write_string(worksheet, 0, 0, "Wheelbarrow", format);
- * @endcode
- *
- * @image html format_font_color.png
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- *
- * @note
- * The format_set_font_color() method is used to set the font color in a
- * cell. To set the color of a cell background use the format_set_bg_color()
- * and format_set_pattern() methods.
- */
-/// void format_set_font_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Turn on underline for the format:
- *
- * @param format Pointer to a Format instance.
- * @param style Underline style.
- *
- * Set the underline property of the format:
- *
- * @code
- *     format_set_underline(format, LXW_UNDERLINE_SINGLE);
- * @endcode
- *
- * @image html format_font_underlined.png
- *
- * The available underline styles are:
- *
- * - #LXW_UNDERLINE_SINGLE
- * - #LXW_UNDERLINE_DOUBLE
- * - #LXW_UNDERLINE_SINGLE_ACCOUNTING
- * - #LXW_UNDERLINE_DOUBLE_ACCOUNTING
- *
- */
-/// void format_set_underline(lxw_format *format, uint8_t style);
 
 /**
  * @brief Set the strikeout property of the font.
@@ -1307,7 +1309,7 @@ private:
 /// void format_set_font_extend(lxw_format *format);
 /// void format_set_reading_order(lxw_format *format, uint8_t value);
 /// void format_set_theme(lxw_format *format, uint8_t value);
-/// void format_set_hyperlink(lxw_format *format);
+
 /// void format_set_color_indexed(lxw_format *format, uint8_t value);
 /// void format_set_font_only(lxw_format *format);
 

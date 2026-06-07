@@ -33,6 +33,8 @@
 /// #endif
 /// #endif
 
+using namespace std::literals;
+
 namespace xwpp
 {
 
@@ -76,6 +78,7 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
+  , default_url_format_{init_data.default_url_format_}
 {
   ///     worksheet->table = calloc(1, sizeof(struct table_rows_t));
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->table, mem_error);
@@ -155,11 +158,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->table_objs, mem_error);
   ///     STAILQ_INIT(worksheet->table_objs);
 
-  ///     worksheet->external_hyperlinks = calloc(1, sizeof(struct
-  ///     lxw_rel_tuples));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->external_hyperlinks, mem_error);
-  ///     STAILQ_INIT(worksheet->external_hyperlinks);
-
   ///     worksheet->external_drawing_links =
   ///         calloc(1, sizeof(struct lxw_rel_tuples));
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->external_drawing_links, mem_error);
@@ -232,7 +230,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         worksheet->optimize = init_data->optimize;
   ///         worksheet->active_sheet = init_data->active_sheet;
   ///         worksheet->first_sheet = init_data->first_sheet;
-  ///         worksheet->default_url_format = init_data->default_url_format;
   ///         worksheet->max_url_length = init_data->max_url_length;
   ///         worksheet->use_1904_epoch = init_data->use_1904_epoch;
   ///     }
@@ -265,6 +262,21 @@ cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const
   cell.type_    = cell_types_t::NUMBER_CELL;
   cell.format_  = const_cast<format_t*>(format);
   cell.data_    = value;
+
+  return cell;
+}
+
+cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t link_type, const std::string& url,
+                          const std::string& str, const std::string& tooltip)
+{
+  cell_t cell;
+
+  cell.row_num_    = row_num;
+  cell.col_num_    = col_num;
+  cell.type_       = link_type;
+  cell.data_       = url;
+  cell.user_data1_ = str;
+  cell.user_data2_ = tooltip;
 
   return cell;
 }
@@ -401,24 +413,6 @@ cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const
 ///     return cell;
 /// }
 
-/// STATIC cell_t *
-/// _new_hyperlink_cell(row_num_t row_num, col_num_t col_num,
-///                     enum cell_types link_type, char *url, char *string,
-///                     char *tooltip)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = link_type;
-///     cell->u.string = url;
-///     cell->user_data1 = string;
-///     cell->user_data2 = tooltip;
-
-///     return cell;
-/// }
-
 row_t& table_rows_t::get_row_list(row_num_t row_num)
 {
   row_t& row = rbh_root_[row_num];
@@ -508,14 +502,12 @@ void worksheet_t::insert_cell(row_num_t row_num, col_num_t col_num, const cell_t
 ///     }
 /// }
 
-/// STATIC void
-/// _insert_hyperlink(lxw_worksheet *self, row_num_t row_num, col_num_t col_num,
-///                   cell_t *link)
-/// {
-///     row_t *row = _get_row_list(self->hyperlinks, row_num);
+void worksheet_t::insert_hyperlink(row_num_t row_num, col_num_t col_num, const cell_t& link)
+{
+  row_t& row = hyperlinks_.get_row_list(row_num);
 
-///     _insert_cell_list(row->cells, link, col_num); // TODO Replace with direct access to row.cells
-/// }
+  row.cells_[col_num] = link;
+}
 
 /// STATIC void
 /// _insert_comment(lxw_worksheet *self, row_num_t row_num, col_num_t col_num,
@@ -4396,123 +4388,90 @@ std::string worksheet_t::write_auto_filter() const
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_hyperlink_external(lxw_worksheet *self, row_num_t row_num,
-///                                     col_num_t col_num, const char *location,
-///                                     const char *tooltip, uint16_t id)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char ref[LXW_MAX_CELL_NAME_LENGTH];
-///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
-///
-///     lxw_rowcol_to_cell(ref, row_num, col_num);
-///
-///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", id);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("ref", ref);
-///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-///
-///     if (location)
-///         LXW_PUSH_ATTRIBUTES_STR("location", location);
-///
-///     if (tooltip)
-///         LXW_PUSH_ATTRIBUTES_STR("tooltip", tooltip);
-///
-///     lxw_xml_empty_tag(self->file, "hyperlink", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_hyperlink_internal(lxw_worksheet *self, row_num_t row_num,
-///                                     col_num_t col_num, const char *location,
-///                                     const char *display, const char *tooltip)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char ref[LXW_MAX_CELL_NAME_LENGTH];
-///
-///     lxw_rowcol_to_cell(ref, row_num, col_num);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("ref", ref);
-///
-///     if (location)
-///         LXW_PUSH_ATTRIBUTES_STR("location", location);
-///
-///     if (tooltip)
-///         LXW_PUSH_ATTRIBUTES_STR("tooltip", tooltip);
-///
-///     if (display)
-///         LXW_PUSH_ATTRIBUTES_STR("display", display);
-///
-///     lxw_xml_empty_tag(self->file, "hyperlink", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-std::string worksheet_t::write_hyperlinks() const
+std::string worksheet_t::write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
+                                                  const std::string& tooltip, uint16_t id) const
 {
-  std::string xml_data;
+  const std::string range = rowcol_to_cell(row_num, col_num);
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"ref", range},
+      {"r:id", std::format("rId{}", id)}
+  };
+
+  if(!location.empty())
+  {
+    attributes.emplace_back("location", location);
+  }
+
+  if(!tooltip.empty())
+  {
+    attributes.emplace_back("tooltip", tooltip);
+  }
+
+  return xml_empty_tag("hyperlink", attributes);
+}
+
+std::string worksheet_t::write_hyperlink_internal(row_num_t row_num, col_num_t col_num, const std::string& location,
+                                                  const std::string& display, const std::string& tooltip) const
+{
+  const std::string range = rowcol_to_cell(row_num, col_num);
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"ref", range}
+  };
+
+  if(!location.empty())
+  {
+    attributes.emplace_back("location", location);
+  }
+
+  if(!tooltip.empty())
+  {
+    attributes.emplace_back("tooltip", tooltip);
+  }
+
+  if(!display.empty())
+  {
+    attributes.emplace_back("display", display);
+  }
+
+  return xml_empty_tag("hyperlink", attributes);
+}
+
+// TODO Add again const (remove to allow increment of rel_count_)
+std::string worksheet_t::write_hyperlinks()
+{
   ///     row_t *row;
   ///     cell_t *link;
   ///     lxw_rel_tuple *relationship;
 
-  ///     if (RB_EMPTY(self->hyperlinks))
-  ///         return;
+  if(hyperlinks_.rbh_root_.empty())
+  {
+    return "";
+  }
 
-  /* Write the hyperlink elements. */
-  ///     lxw_xml_start_tag(self->file, "hyperlinks", NULL);
+  // Write the hyperlink elements.
+  std::string xml_data = xml_start_tag("hyperlinks");
+  for(const auto& [index, row]: hyperlinks_.rbh_root_)
+  {
+    for(const auto& [index, link]: row.cells_)
+    {
+      if(link.type_ == cell_types_t::HYPERLINK_URL || link.type_ == cell_types_t::HYPERLINK_EXTERNAL)
+      {
+        rel_count_++;
+        external_hyperlinks_.emplace_back("/hyperlink", std::get<std::string>(link.data_), "External");
+        xml_data +=
+            write_hyperlink_external(link.row_num_, link.col_num_, link.user_data1_, link.user_data2_, rel_count_);
+      }
 
-  ///     RB_FOREACH(row, table_rows_t, self->hyperlinks) {
+      if(link.type_ == cell_types_t::HYPERLINK_INTERNAL)
+      {
+        xml_data += write_hyperlink_internal(link.row_num_, link.col_num_, std::get<std::string>(link.data_),
+                                             link.user_data1_, link.user_data2_);
+      }
+    }
+  }
 
-  ///         RB_FOREACH(link, lxw_table_cells, row->cells) {
+  xml_data += xml_end_tag("hyperlinks");
 
-  ///             if (link->type == HYPERLINK_URL
-  ///                 || link->type == HYPERLINK_EXTERNAL) {
-
-  ///                 self->rel_count++;
-
-  ///                 relationship = calloc(1, sizeof(lxw_rel_tuple));
-  ///                 GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-  ///                 relationship->type = lxw_strdup("/hyperlink");
-  ///                 GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-  ///                 relationship->target = lxw_strdup(link->u.string);
-  ///                 GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-  ///                 relationship->target_mode = lxw_strdup("External");
-  ///                 GOTO_LABEL_ON_MEM_ERROR(relationship->target_mode,
-  ///                 mem_error);
-
-  ///                 STAILQ_INSERT_TAIL(self->external_hyperlinks,
-  ///                 relationship,
-  ///                                    list_pointers);
-
-  ///                 _worksheet_write_hyperlink_external(self, link->row_num,
-  ///                                                     link->col_num,
-  ///                                                     link->user_data1,
-  ///                                                     link->user_data2,
-  ///                                                     self->rel_count);
-  ///             }
-
-  ///             if (link->type == HYPERLINK_INTERNAL) {
-
-  ///                 _worksheet_write_hyperlink_internal(self, link->row_num,
-  ///                                                     link->col_num,
-  ///                                                     link->u.string,
-  ///                                                     link->user_data1,
-  ///                                                     link->user_data2);
-  ///             }
-
-  ///         }
-
-  ///     }
-
-  ///     lxw_xml_end_tag(self->file, "hyperlinks");
   return xml_data;
 }
 
@@ -6583,7 +6542,7 @@ std::string worksheet_t::write_table_parts() const
 ///     _worksheet_write_header_footer(self);
 /// }
 
-std::string worksheet_t::assemble_xml_file() const
+std::string worksheet_t::assemble_xml_file()
 {
   std::string xml_data = xml_declaration();
   xml_data += write_worksheet();
@@ -7018,209 +6977,166 @@ void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t u
   insert_cell(row_num, col_num, cell);
 }
 
-/// lxw_error
-/// worksheet_write_url_opt(lxw_worksheet *self,
-///                         row_num_t row_num,
-///                         col_num_t col_num, const char *url,
-///                         lxw_format *user_format, const char *string,
-///                         const char *tooltip)
-/// {
-///     cell_t *link;
-///     char *string_copy = NULL;
-///     char *url_copy = NULL;
-///     char *url_external = NULL;
-///     char *url_string = NULL;
-///     char *tooltip_copy = NULL;
-///     char *found_string;
-///     char *tmp_string = NULL;
-///     lxw_format *format = NULL;
-///     size_t string_size;
-///     size_t i;
-///     lxw_error err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     enum cell_types link_type = HYPERLINK_URL;
-///
-///     if (!url || !*url)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     /* Check the Excel limit of URLS per worksheet. */
-///     if (self->hlink_count > LXW_MAX_NUMBER_URLS) {
-///         LXW_WARN("worksheet_write_url()/_opt(): URL ignored since it exceeds "
-///                  "the maximum number of allowed worksheet URLs (65530).");
-///         return LXW_ERROR_WORKSHEET_MAX_NUMBER_URLS_EXCEEDED;
-///     }
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Reset default error condition. */
-///     err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///
-///     /* Set the URI scheme from internal links. */
-///     found_string = strstr(url, "internal:");
-///     if (found_string)
-///         link_type = HYPERLINK_INTERNAL;
-///
-///     /* Set the URI scheme from external links. */
-///     found_string = strstr(url, "external:");
-///     if (found_string)
-///         link_type = HYPERLINK_EXTERNAL;
-///
-///     if (string) {
-///         string_copy = lxw_strdup(string);
-///         GOTO_LABEL_ON_MEM_ERROR(string_copy, mem_error);
-///     }
-///     else {
-///         if (link_type == HYPERLINK_URL) {
-///             /* Strip the mailto header. */
-///             found_string = strstr(url, "mailto:");
-///             if (found_string)
-///                 string_copy = lxw_strdup(url + sizeof("mailto"));
-///             else
-///                 string_copy = lxw_strdup(url);
-///         }
-///         else {
-///             string_copy = lxw_strdup(url + sizeof("__ternal"));
-///         }
-///         GOTO_LABEL_ON_MEM_ERROR(string_copy, mem_error);
-///     }
-///
-///     if (url) {
-///         if (link_type == HYPERLINK_URL)
-///             url_copy = lxw_strdup(url);
-///         else
-///             url_copy = lxw_strdup(url + sizeof("__ternal"));
-///
-///         GOTO_LABEL_ON_MEM_ERROR(url_copy, mem_error);
-///     }
-///
-///     if (tooltip) {
-///         tooltip_copy = lxw_strdup(tooltip);
-///         GOTO_LABEL_ON_MEM_ERROR(tooltip_copy, mem_error);
-///     }
-///
-///     if (link_type == HYPERLINK_INTERNAL) {
-///         url_string = lxw_strdup(string_copy);
-///         GOTO_LABEL_ON_MEM_ERROR(url_string, mem_error);
-///     }
-///
-///     /* Split url into the link and optional anchor/location. */
-///     found_string = strchr(url_copy, '#');
-///
-///     if (found_string) {
-///         free(url_string);
-///         url_string = lxw_strdup(found_string + 1);
-///         GOTO_LABEL_ON_MEM_ERROR(url_string, mem_error);
-///
-///         *found_string = '\0';
-///     }
-///
-///     /* Escape the URL. */
-///     if (link_type == HYPERLINK_URL || link_type == HYPERLINK_EXTERNAL) {
-///         tmp_string = lxw_escape_url_characters(url_copy, LXW_FALSE);
-///         GOTO_LABEL_ON_MEM_ERROR(tmp_string, mem_error);
-///
-///         free(url_copy);
-///         url_copy = tmp_string;
-///     }
-///
-///     if (link_type == HYPERLINK_EXTERNAL) {
-///         /* External Workbook links need to be modified into the right format.
-///          * The URL will look something like "c:\temp\file.xlsx#Sheet!A1". */
-///
-///         /* For external links change the dir separator from Unix to DOS. */
-///         for (i = 0; i <= strlen(url_copy); i++)
-///             if (url_copy[i] == '/')
-///                 url_copy[i] = '\\';
-///
-///         for (i = 0; i <= strlen(string_copy); i++)
-///             if (string_copy[i] == '/')
-///                 string_copy[i] = '\\';
-///
-///         /* Look for Windows style "C:/" link or Windows share "\\" link. */
-///         found_string = strchr(url_copy, ':');
-///         if (!found_string)
-///             found_string = strstr(url_copy, "\\\\");
-///
-///         if (found_string) {
-///             /* Add the file:/// URI to the url if non-local. */
-///             string_size = sizeof("file:///") + strlen(url_copy);
-///             url_external = calloc(1, string_size);
-///             GOTO_LABEL_ON_MEM_ERROR(url_external, mem_error);
-///
-///             lxw_snprintf(url_external, string_size, "file:///%s", url_copy);
-///
-///         }
-///
-///         /* Convert a ./dir/file.xlsx link to dir/file.xlsx. */
-///         found_string = strstr(url_copy, ".\\");
-///         if (found_string == url_copy)
-///             memmove(url_copy, url_copy + 2, strlen(url_copy) - 1);
-///
-///         if (url_external) {
-///             free(url_copy);
-///             url_copy = lxw_strdup(url_external);
-///             GOTO_LABEL_ON_MEM_ERROR(url_copy, mem_error);
-///
-///             free(url_external);
-///             url_external = NULL;
-///         }
-///
-///     }
-///
-///     /* Check if URL exceeds Excel's length limit. */
-///     if (lxw_utf8_strlen(url_copy) > self->max_url_length) {
-///         LXW_WARN_FORMAT2("worksheet_write_url()/_opt(): URL exceeds "
-///                          "Excel's allowable length of %d characters: %s",
-///                          self->max_url_length, url_copy);
-///         err = LXW_ERROR_WORKSHEET_MAX_URL_LENGTH_EXCEEDED;
-///         goto mem_error;
-///     }
-///
-///     /* Use the default URL format if none is specified. */
-///     if (!user_format)
-///         format = self->default_url_format;
-///     else
-///         format = user_format;
-///
-///     if (!self->storing_embedded_image) {
-///         err =
-///             worksheet_write_string(self, row_num, col_num, string_copy,
-///                                    format);
-///         if (err)
-///             goto mem_error;
-///     }
-///
-///     /* Reset default error condition. */
-///     err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///
-///     link = _new_hyperlink_cell(row_num, col_num, link_type, url_copy,
-///                                url_string, tooltip_copy);
-///     GOTO_LABEL_ON_MEM_ERROR(link, mem_error);
-///
-///     _insert_hyperlink(self, row_num, col_num, link);
-///
-///     free(string_copy);
-///     self->hlink_count++;
-///     return LXW_NO_ERROR;
-///
-/// mem_error:
-///     free(string_copy);
-///     free(url_copy);
-///     free(url_external);
-///     free(url_string);
-///     free(tooltip_copy);
-///     return err;
-/// }
+void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::string& url)
+{
+  write_url(row_num, col_num, url, nullptr, "", "");
+}
 
-/// lxw_error
-/// worksheet_write_url(lxw_worksheet *self,
-///                     row_num_t row_num,
-///                     col_num_t col_num, const char *url, lxw_format *format)
-/// {
-///     return worksheet_write_url_opt(self, row_num, col_num, url, format, NULL,
-///                                    NULL);
-/// }
+void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format)
+{
+  write_url(row_num, col_num, url, format, "", "");
+}
+
+void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format,
+                            const std::string& str, const std::string& tooltip)
+{
+  std::string string_copy;
+  std::string url_copy;
+  std::string url_external;
+  std::string url_string;
+  cell_types_t link_type = cell_types_t::HYPERLINK_URL;
+
+  if(url.empty())
+  {
+    throw xwpp_exception_t("URL is empty");
+  }
+
+  // Check the Excel limit of URLS per worksheet.
+  if(hlink_count_ > MAX_NUMBER_URLS)
+  {
+    throw xwpp_out_of_range_t(std::format("Max number of URL exceeded ({} / {})", hlink_count_, MAX_NUMBER_URLS));
+  }
+
+  check_dimensions(row_num, col_num, false, false);
+
+  // Set the URI scheme from internal links.
+  if(url.find("internal:") != std::string::npos)
+  {
+    link_type = cell_types_t::HYPERLINK_INTERNAL;
+  }
+
+  // Set the URI scheme from external links.
+  if(url.find("external:") != std::string::npos)
+  {
+    link_type = cell_types_t::HYPERLINK_EXTERNAL;
+  }
+
+  if(!str.empty())
+  {
+    string_copy = str;
+  }
+  else
+  {
+    if(link_type == cell_types_t::HYPERLINK_URL)
+    {
+      // Strip the mailto header.
+      if(url.find("mailto:") != std::string::npos)
+      {
+        string_copy = url.substr(sizeof("mailto"));
+      }
+      else
+      {
+        string_copy = url;
+      }
+    }
+    else
+    {
+      string_copy = url.substr(sizeof("__ternal"));
+    }
+  }
+
+  if(link_type == cell_types_t::HYPERLINK_URL)
+  {
+    url_copy = url;
+  }
+  else
+  {
+    url_copy = url.substr(sizeof("__ternal"));
+  }
+
+  if(link_type == cell_types_t::HYPERLINK_INTERNAL)
+  {
+    url_string = string_copy;
+  }
+
+  // Split url into the link and optional anchor/location.
+  size_t found_string = url_copy.find("#");
+  if(found_string != std::string::npos)
+  {
+    url_string = url_copy.substr(found_string + 1);
+    url_copy   = url_copy.substr(0, found_string);
+  }
+
+  // Escape the URL.
+  if(link_type == cell_types_t::HYPERLINK_URL || link_type == cell_types_t::HYPERLINK_EXTERNAL)
+  {
+    url_copy = escape_url_characters(url_copy, false);
+  }
+
+  if(link_type == cell_types_t::HYPERLINK_EXTERNAL)
+  {
+    // External Workbook links need to be modified into the right format.
+    // The URL will look something like "c:\temp\file.xlsx#Sheet!A1".
+
+    // For external links change the dir separator from Unix to DOS.
+    for(auto& c: url_copy)
+    {
+      if(c == '/')
+      {
+        c = '\\';
+      }
+    }
+
+    for(auto& c: string_copy)
+    {
+      if(c == '/')
+      {
+        c = '\\';
+      }
+    }
+
+    // Look for Windows style "C:/" link or Windows share "\\" link.
+    found_string = url_copy.find(':');
+    if(found_string == std::string::npos)
+    {
+      found_string = url_copy.find("\\\\");
+    }
+
+    if(found_string != std::string::npos)
+    {
+      // Add the file:/// URI to the url if non-local.
+      url_external = "file:///"s + url_copy;
+    }
+
+    // Convert a ./dir/file.xlsx link to dir/file.xlsx.
+    found_string = url_copy.find(".\\");
+    if(found_string == 0)
+    {
+      url_copy = url_copy.substr(2);
+    }
+
+    if(!url_external.empty())
+    {
+      url_copy = url_external;
+    }
+  }
+
+  // Check if URL exceeds Excel's length limit.
+  if(url_copy.size() > max_url_length_)
+  {
+    throw xwpp_out_of_range_t(std::format("URL too long ({} / {})", url_copy.size(), max_url_length_));
+  }
+
+  // Use the default URL format if none is specified.
+  if(!storing_embedded_image_)
+  {
+    write_string(row_num, col_num, string_copy, format ? format : default_url_format_);
+  }
+
+  const cell_t link = new_hyperlink_cell(row_num, col_num, link_type, url_copy, url_string, tooltip);
+  insert_hyperlink(row_num, col_num, link);
+  hlink_count_++;
+}
 
 /*
  * Write a rich string to an Excel file.

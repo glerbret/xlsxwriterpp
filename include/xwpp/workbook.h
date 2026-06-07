@@ -517,6 +517,26 @@ public:
   void set_custom_property(std::string_view name, const std::chrono::year_month_day& value);
 
   /**
+   * @brief Get the default URL format used with `worksheet_write_url()`.
+   *
+   * @param  workbook Pointer to a lxw_workbook instance.
+   * @return A lxw_format instance that has hyperlink properties set.
+   *
+   * This function returns a lxw_format instance that is used for the default
+   * blue underline hyperlink in the `worksheet_write_url()` function when a
+   * format isn't specified:
+   *
+   * @code
+   *     lxw_format *url_format = workbook_get_default_url_format(workbook);
+   * @endcode
+   *
+   * The format is the hyperlink style defined by Excel for the default theme.
+   * This format is only ever required when overwriting a string URL with
+   * data of a different type. See the example below.
+   */
+  format_t* get_default_url_format() const;
+
+  /**
    * @brief Saves the workbook objet in Excel file.
    *
    * @param filename The name of the Excel file to create.
@@ -529,6 +549,8 @@ public:
    */
   // TODO Add API with C++ filesystem (std::path)
   void save(std::string_view filename);
+
+  void unset_default_url_format();
 
 private:
   // TODO packager_t needs to access to workbook field.
@@ -643,7 +665,7 @@ private:
 
   ///     uint8_t use_1904_epoch;
 
-  ///     lxw_format *default_url_format;
+  format_t* default_url_format_;
 };
 
 /**
@@ -895,26 +917,6 @@ Chart
 ///                                const char *formula);
 
 /**
- * @brief Get the default URL format used with `worksheet_write_url()`.
- *
- * @param  workbook Pointer to a lxw_workbook instance.
- * @return A lxw_format instance that has hyperlink properties set.
- *
- * This function returns a lxw_format instance that is used for the default
- * blue underline hyperlink in the `worksheet_write_url()` function when a
- * format isn't specified:
- *
- * @code
- *     lxw_format *url_format = workbook_get_default_url_format(workbook);
- * @endcode
- *
- * The format is the hyperlink style defined by Excel for the default theme.
- * This format is only ever required when overwriting a string URL with
- * data of a different type. See the example below.
- */
-/// lxw_format *workbook_get_default_url_format(lxw_workbook *workbook);
-
-/**
  * @brief Get a worksheet object from its name.
  *
  * @param workbook Pointer to a lxw_workbook instance.
@@ -1101,7 +1103,6 @@ Chart
 
 /// void lxw_workbook_free(lxw_workbook *workbook);
 /// void lxw_workbook_set_default_xf_indices(lxw_workbook *workbook);
-/// void workbook_unset_default_url_format(lxw_workbook *workbook);
 
 /// STATIC void _write_defined_name(lxw_workbook *self,
 ///                                 lxw_defined_name *define_name);

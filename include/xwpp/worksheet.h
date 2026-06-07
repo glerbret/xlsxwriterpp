@@ -60,7 +60,6 @@ namespace xwpp
 
 /// #define LXW_COL_META_MAX            128
 /// #define LXW_HEADER_FOOTER_MAX       255
-/// #define LXW_MAX_NUMBER_URLS         65530
 /// #define LXW_PANE_NAME_LENGTH        12  /* bottomRight + 1 */
 /// #define LXW_IMAGE_BUFFER_SIZE       1024
 /// #define LXW_HEADER_FOOTER_OBJS_MAX  6   /* Header/footer image objs. */
@@ -761,16 +760,11 @@ struct cell_t
   format_t* format_  = nullptr;
   ///     lxw_vml_obj *comment;
 
-  std::variant<uint32_t, double> data_;
-  ///     union {
-  ///         double number;
-  ///         int32_t string_id;
-  ///         const char *string;
-  ///     } u;
+  std::variant<uint32_t, double, std::string> data_;
 
   ///     double formula_result;
-  ///     char *user_data1;
-  ///     char *user_data2;
+  std::string user_data1_;
+  std::string user_data2_;
   std::string sst_string_;
 
   /* List pointers for tree.h. */
@@ -2168,7 +2162,7 @@ struct worksheet_init_data_t
   std::string name_;
   std::string quoted_name_;
   ///     const char *tmpdir;
-  ///     lxw_format *default_url_format;
+  format_t* default_url_format_;
   ///     uint16_t max_url_length;
   ///     uint8_t use_1904_epoch;
 };
@@ -2474,6 +2468,164 @@ public:
   void write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format);
 
   /**
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param url       The url to write to the cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   *
+   * The `%worksheet_write_url()` function is used to write a URL/hyperlink to a
+   * worksheet cell specified by `row` and `column`.
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "http://libxlsxwriter.github.io",
+   * NULL);
+   * @endcode
+   *
+   * @image html hyperlinks_short.png
+   *
+   * The `format` parameter is used to apply formatting to the cell. This
+   * parameter can be `NULL`, in which case the default Excel blue underlined
+   * hyperlink style will be used. If required a user defined @ref format.h
+   * "Format" object can be used:
+   * underline:
+   *
+   * @code
+   *    lxw_format *url_format   = workbook_add_format(workbook);
+   *
+   *    format_set_underline (url_format, LXW_UNDERLINE_SINGLE);
+   *    format_set_font_color(url_format, LXW_COLOR_RED);
+   *
+   * @endcode
+   *
+   * The usual web style URI's are supported: `%http://`, `%https://`, `%ftp://`
+   * and `mailto:` :
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "ftp://www.python.org/",     NULL);
+   *     worksheet_write_url(worksheet, 1, 0, "http://www.python.org/",    NULL);
+   *     worksheet_write_url(worksheet, 2, 0, "https://www.python.org/",   NULL);
+   *     worksheet_write_url(worksheet, 3, 0, "mailto:jmcnamara@cpan.org", NULL);
+   *
+   * @endcode
+   *
+   * An Excel hyperlink is comprised of two elements: the displayed string and
+   * the non-displayed link. By default the displayed string is the same as the
+   * link. However, it is possible to overwrite it with any other
+   * `Xlsxwriter++` type using the appropriate `worksheet_write_*()`
+   * function. The most common case is to overwrite the displayed link text with
+   * another string. To do this we must also match the default URL format using
+   * `workbook_get_default_url_format()`:
+   *
+   * @code
+   *     // Write a hyperlink with the default blue underline format.
+   *     worksheet_write_url(worksheet, 2, 0, "http://libxlsxwriter.github.io",
+   * NULL);
+   *
+   *     // Get the default url format.
+   *     lxw_format *url_format = workbook_get_default_url_format(workbook);
+   *
+   *     // Overwrite the hyperlink with a user defined string and default format.
+   *     worksheet_write_string(worksheet, 2, 0, "Read the documentation.",
+   * url_format);
+   * @endcode
+   *
+   * @image html hyperlinks_short2.png
+   *
+   * Two local URIs are supported: `internal:` and `external:`. These are used
+   * for hyperlinks to internal worksheet references or external workbook and
+   * worksheet references:
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "internal:Sheet2!A1", NULL);
+   *     worksheet_write_url(worksheet, 1, 0, "internal:Sheet2!B2", NULL);
+   *     worksheet_write_url(worksheet, 2, 0, "internal:Sheet2!A1:B2", NULL);
+   *     worksheet_write_url(worksheet, 3, 0, "internal:'Sales Data'!A1", NULL);
+   *     worksheet_write_url(worksheet, 4, 0, "external:c:\\temp\\foo.xlsx",
+   * NULL); worksheet_write_url(worksheet, 5, 0,
+   * "external:c:\\foo.xlsx#Sheet2!A1",   NULL); worksheet_write_url(worksheet, 6,
+   * 0, "external:..\\foo.xlsx",             NULL); worksheet_write_url(worksheet,
+   * 7, 0, "external:..\\foo.xlsx#Sheet2!A1",   NULL);
+   *     worksheet_write_url(worksheet, 8, 0, "external:\\\\NET\\share\\foo.xlsx",
+   * NULL);
+   *
+   * @endcode
+   *
+   * Worksheet references are typically of the form `Sheet1!A1`. You can also
+   * link to a worksheet range using the standard Excel notation:
+   * `Sheet1!A1:B2`.
+   *
+   * In external links the workbook and worksheet name must be separated by the
+   * `#` character:
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "external:c:\\foo.xlsx#Sheet2!A1",
+   * NULL);
+   * @endcode
+   *
+   * You can also link to a named range in the target worksheet: For example say
+   * you have a named range called `my_name` in the workbook `c:\temp\foo.xlsx`
+   * you could link to it as follows:
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0,
+   * "external:c:\\temp\\foo.xlsx#my_name", NULL);
+   *
+   * @endcode
+   *
+   * Excel requires that worksheet names containing spaces or non alphanumeric
+   * characters are single quoted as follows:
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "internal:'Sales Data'!A1", NULL);
+   * @endcode
+   *
+   * Links to network files are also supported. Network files normally begin
+   * with two back slashes as follows `\\NETWORK\etc`. In order to represent
+   * this in a C string literal the backslashes should be escaped:
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "external:\\\\NET\\share\\foo.xlsx",
+   * NULL);
+   * @endcode
+   *
+   *
+   * Alternatively, you can use Unix style forward slashes. These are
+   * translated internally to backslashes:
+   *
+   * @code
+   *     worksheet_write_url(worksheet, 0, 0, "external:c:/temp/foo.xlsx", NULL);
+   *     worksheet_write_url(worksheet, 1, 0, "external://NET/share/foo.xlsx",
+   * NULL);
+   *
+   * @endcode
+   *
+   *
+   * **Note:**
+   *
+   *    Xlsxwriter++ will escape the following characters in URLs as required
+   *    by Excel: `\s " < > \ [ ]  ^ { }`. Existing URL `%%xx` style escapes in
+   *    the string are ignored to allow for user-escaped strings.
+   *
+   * **Note:**
+   *
+   *    The maximum allowable URL length in recent versions of Excel is 2079
+   *    characters. In older versions of Excel (and Xlsxwriter++ <= 0.8.8) the
+   *    limit was 255 characters.
+   */
+  void write_url(row_num_t row_num, col_num_t col_num, const std::string& url);
+  void write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format);
+
+  /* Don't document for now since the string option can be achieved by a
+   * subsequent cell worksheet_write() as shown in the docs, and the
+   * tooltip option isn't very useful. */
+  void write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format,
+                 const std::string& str, const std::string& tooltip);
+
+  /**
    * @brief Set a worksheet tab as selected.
    *
    * @param worksheet Pointer to a lxw_worksheet instance to be updated.
@@ -2496,18 +2648,23 @@ public:
    */
   void select();
 
-  [[nodiscard]] std::string assemble_xml_file() const;
+  [[nodiscard]] std::string assemble_xml_file();
 
   [[nodiscard]] std::string get_sheet_name() const;
   [[nodiscard]] uint16_t get_sheet_index() const;
   [[nodiscard]] row_t& get_row(row_num_t row_num);
   void insert_cell(row_num_t row_num, col_num_t col_num, const cell_t& cell);
+  void insert_hyperlink(row_num_t row_num, col_num_t col_num, const cell_t& link);
 
-  static const row_num_t ROW_MAX = 1048576;
-  static const col_num_t COL_MAX = 16384;
-  static const size_t STR_MAX    = 32767;
+  static const size_t MAX_NUMBER_URLS = 65530;
+  static const row_num_t ROW_MAX      = 1048576;
+  static const col_num_t COL_MAX      = 16384;
+  static const size_t STR_MAX         = 32767;
 
 private:
+  // TODO To be reworked
+  friend class packager_t;
+
   void check_dimensions(row_num_t row_num, col_num_t col_num, bool ignore_row, bool ignore_col);
 
   [[nodiscard]] std::string write_worksheet() const;
@@ -2525,7 +2682,7 @@ private:
   [[nodiscard]] std::string write_merge_cells() const;
   [[nodiscard]] std::string write_conditional_formats() const;
   [[nodiscard]] std::string write_data_validations() const;
-  [[nodiscard]] std::string write_hyperlinks() const;
+  [[nodiscard]] std::string write_hyperlinks();
   [[nodiscard]] std::string write_print_options() const;
   [[nodiscard]] std::string write_page_margins() const;
   [[nodiscard]] std::string write_page_setup() const;
@@ -2544,6 +2701,10 @@ private:
   [[nodiscard]] std::string write_cell(const cell_t& cell /* TODO lxw_format *row_format*/) const;
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
+  [[nodiscard]] std::string write_hyperlink_internal(row_num_t row_num, col_num_t col_num, const std::string& location,
+                                                     const std::string& display, const std::string& tooltip) const;
+  [[nodiscard]] std::string write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
+                                                     const std::string& tooltip, uint16_t id) const;
 
   std::function<int32_t(format_t*)> get_xf_index_;
   ///     FILE *file;
@@ -2551,7 +2712,7 @@ private:
   ///     char *optimize_buffer;
   ///     size_t optimize_buffer_size;
   table_rows_t table_;
-  ///     struct table_rows_t *hyperlinks;
+  table_rows_t hyperlinks_;
   ///     struct table_rows_t *comments;
   ///     struct cell_t **array;
   ///     struct lxw_merged_ranges *merged_ranges;
@@ -2604,10 +2765,10 @@ private:
   uint16_t fit_height_        = 0;
   uint16_t fit_width_         = 0;
   uint16_t horizontal_dpi_    = 0;
-  ///     uint16_t hlink_count;
+  uint16_t hlink_count_       = 0;
   uint16_t page_start_        = 0;
   uint16_t print_scale_       = 100;
-  ///     uint16_t rel_count;
+  uint16_t rel_count_         = 0;
   uint16_t vertical_dpi_      = 0;
   uint16_t zoom_              = 100;
   ///     uint8_t filter_on;
@@ -2673,7 +2834,7 @@ private:
 
   ///     uint32_t drawing_rel_id;
   ///     uint32_t vml_drawing_rel_id;
-  ///     struct lxw_rel_tuples *external_hyperlinks;
+  std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
   ///     struct lxw_rel_tuples *external_drawing_links;
   ///     struct lxw_rel_tuples *drawing_links;
   ///     struct lxw_rel_tuples *vml_drawing_links;
@@ -2685,14 +2846,14 @@ private:
   ///     struct lxw_protection_obj protection;
 
   ///     lxw_drawing *drawing;
-  ///     lxw_format *default_url_format;
+  format_t* default_url_format_;
 
   ///     uint8_t has_vml;
   ///     uint8_t has_comments;
   ///     uint8_t has_header_vml;
   ///     uint8_t has_background_image;
   ///     uint8_t has_buttons;
-  ///     uint8_t storing_embedded_image;
+  bool storing_embedded_image_               = false;
   ///     lxw_rel_tuple *external_vml_comment_link;
   ///     lxw_rel_tuple *external_comment_link;
   ///     lxw_rel_tuple *external_vml_header_link;
@@ -3008,169 +3169,6 @@ private:
 ///                                    row_num_t row,
 ///                                    col_num_t col, int64_t unixtime,
 ///                                    lxw_format *format);
-
-/**
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param url       The url to write to the cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- *
- * The `%worksheet_write_url()` function is used to write a URL/hyperlink to a
- * worksheet cell specified by `row` and `column`.
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "http://libxlsxwriter.github.io",
- * NULL);
- * @endcode
- *
- * @image html hyperlinks_short.png
- *
- * The `format` parameter is used to apply formatting to the cell. This
- * parameter can be `NULL`, in which case the default Excel blue underlined
- * hyperlink style will be used. If required a user defined @ref format.h
- * "Format" object can be used:
- * underline:
- *
- * @code
- *    lxw_format *url_format   = workbook_add_format(workbook);
- *
- *    format_set_underline (url_format, LXW_UNDERLINE_SINGLE);
- *    format_set_font_color(url_format, LXW_COLOR_RED);
- *
- * @endcode
- *
- * The usual web style URI's are supported: `%http://`, `%https://`, `%ftp://`
- * and `mailto:` :
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "ftp://www.python.org/",     NULL);
- *     worksheet_write_url(worksheet, 1, 0, "http://www.python.org/",    NULL);
- *     worksheet_write_url(worksheet, 2, 0, "https://www.python.org/",   NULL);
- *     worksheet_write_url(worksheet, 3, 0, "mailto:jmcnamara@cpan.org", NULL);
- *
- * @endcode
- *
- * An Excel hyperlink is comprised of two elements: the displayed string and
- * the non-displayed link. By default the displayed string is the same as the
- * link. However, it is possible to overwrite it with any other
- * `Xlsxwriter++` type using the appropriate `worksheet_write_*()`
- * function. The most common case is to overwrite the displayed link text with
- * another string. To do this we must also match the default URL format using
- * `workbook_get_default_url_format()`:
- *
- * @code
- *     // Write a hyperlink with the default blue underline format.
- *     worksheet_write_url(worksheet, 2, 0, "http://libxlsxwriter.github.io",
- * NULL);
- *
- *     // Get the default url format.
- *     lxw_format *url_format = workbook_get_default_url_format(workbook);
- *
- *     // Overwrite the hyperlink with a user defined string and default format.
- *     worksheet_write_string(worksheet, 2, 0, "Read the documentation.",
- * url_format);
- * @endcode
- *
- * @image html hyperlinks_short2.png
- *
- * Two local URIs are supported: `internal:` and `external:`. These are used
- * for hyperlinks to internal worksheet references or external workbook and
- * worksheet references:
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "internal:Sheet2!A1", NULL);
- *     worksheet_write_url(worksheet, 1, 0, "internal:Sheet2!B2", NULL);
- *     worksheet_write_url(worksheet, 2, 0, "internal:Sheet2!A1:B2", NULL);
- *     worksheet_write_url(worksheet, 3, 0, "internal:'Sales Data'!A1", NULL);
- *     worksheet_write_url(worksheet, 4, 0, "external:c:\\temp\\foo.xlsx",
- * NULL); worksheet_write_url(worksheet, 5, 0,
- * "external:c:\\foo.xlsx#Sheet2!A1",   NULL); worksheet_write_url(worksheet, 6,
- * 0, "external:..\\foo.xlsx",             NULL); worksheet_write_url(worksheet,
- * 7, 0, "external:..\\foo.xlsx#Sheet2!A1",   NULL);
- *     worksheet_write_url(worksheet, 8, 0, "external:\\\\NET\\share\\foo.xlsx",
- * NULL);
- *
- * @endcode
- *
- * Worksheet references are typically of the form `Sheet1!A1`. You can also
- * link to a worksheet range using the standard Excel notation:
- * `Sheet1!A1:B2`.
- *
- * In external links the workbook and worksheet name must be separated by the
- * `#` character:
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "external:c:\\foo.xlsx#Sheet2!A1",
- * NULL);
- * @endcode
- *
- * You can also link to a named range in the target worksheet: For example say
- * you have a named range called `my_name` in the workbook `c:\temp\foo.xlsx`
- * you could link to it as follows:
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0,
- * "external:c:\\temp\\foo.xlsx#my_name", NULL);
- *
- * @endcode
- *
- * Excel requires that worksheet names containing spaces or non alphanumeric
- * characters are single quoted as follows:
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "internal:'Sales Data'!A1", NULL);
- * @endcode
- *
- * Links to network files are also supported. Network files normally begin
- * with two back slashes as follows `\\NETWORK\etc`. In order to represent
- * this in a C string literal the backslashes should be escaped:
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "external:\\\\NET\\share\\foo.xlsx",
- * NULL);
- * @endcode
- *
- *
- * Alternatively, you can use Unix style forward slashes. These are
- * translated internally to backslashes:
- *
- * @code
- *     worksheet_write_url(worksheet, 0, 0, "external:c:/temp/foo.xlsx", NULL);
- *     worksheet_write_url(worksheet, 1, 0, "external://NET/share/foo.xlsx",
- * NULL);
- *
- * @endcode
- *
- *
- * **Note:**
- *
- *    Xlsxwriter++ will escape the following characters in URLs as required
- *    by Excel: `\s " < > \ [ ]  ^ { }`. Existing URL `%%xx` style escapes in
- *    the string are ignored to allow for user-escaped strings.
- *
- * **Note:**
- *
- *    The maximum allowable URL length in recent versions of Excel is 2079
- *    characters. In older versions of Excel (and Xlsxwriter++ <= 0.8.8) the
- *    limit was 255 characters.
- */
-/// lxw_error worksheet_write_url(lxw_worksheet *worksheet,
-///                               row_num_t row,
-///                               col_num_t col, const char *url,
-///                               lxw_format *format);
-
-/* Don't document for now since the string option can be achieved by a
- * subsequent cell worksheet_write() as shown in the docs, and the
- * tooltip option isn't very useful. */
-/// lxw_error worksheet_write_url_opt(lxw_worksheet *worksheet,
-///                                   row_num_t row_num,
-///                                   col_num_t col_num, const char *url,
-///                                   lxw_format *format, const char *string,
-///                                   const char *tooltip);
 
 /**
  * @brief Write a formatted boolean worksheet cell.

@@ -23,7 +23,7 @@ public:
   style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count,
           const std::vector<format_t*>& xf_formats);
 
-  [[nodiscard]] std::string assemble_xml_file() const;
+  [[nodiscard]] std::string assemble_xml_file();
 
 private:
   [[nodiscard]] std::string write_style_sheet() const;
@@ -41,8 +41,8 @@ private:
   [[nodiscard]] std::string write_font_family(uint8_t font_family) const;
   [[nodiscard]] std::string write_font_charset(uint8_t font_charset) const;
   [[nodiscard]] std::string write_font_scheme(const std::string& font_scheme) const;
-  [[nodiscard]] std::string write_font(const format_t* format, bool is_dxf, bool is_rich_string) const;
-  [[nodiscard]] std::string write_fonts() const;
+  [[nodiscard]] std::string write_font(const format_t* format, bool is_dxf, bool is_rich_string);
+  [[nodiscard]] std::string write_fonts();
   [[nodiscard]] std::string write_default_fill(const std::string& pattern) const;
   [[nodiscard]] std::string write_fills() const;
   [[nodiscard]] std::string convert_format_borders_style(format_borders_t style) const;
@@ -62,6 +62,8 @@ private:
   [[nodiscard]] std::string write_xf(const format_t* format) const;
   [[nodiscard]] std::string write_dxfs() const;
   [[nodiscard]] std::string write_table_styles() const;
+  [[nodiscard]] std::string write_hyperlink_alignment() const;
+  [[nodiscard]] std::string write_hyperlink_protection() const;
 
   uint32_t font_count_;
   ///  uint32_t xf_count;
@@ -71,8 +73,8 @@ private:
   ///  uint32_t fill_count;
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
-  ///  uint8_t has_hyperlink;
-  ///  uint16_t hyperlink_font_id;
+  bool has_hyperlink_;
+  uint16_t hyperlink_font_id_ = 0;
   ///  uint8_t has_comments;
 };
 

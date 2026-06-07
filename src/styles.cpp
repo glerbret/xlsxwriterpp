@@ -172,7 +172,7 @@ std::string style_t::write_font_color_theme(uint8_t theme) const
 std::string style_t::write_font_color_rgb(color_t rgb) const
 {
   return xml_empty_tag("color", {
-                                    {"rgb", std::to_string(static_cast<uint32_t>(rgb))}
+                                    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(rgb) & COLOR_MASK)}
   });
 }
 
@@ -285,7 +285,7 @@ std::string style_t::write_font_vert_align(const std::string& align) const
   });
 }
 
-[[nodiscard]] std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_rich_string) const
+[[nodiscard]] std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_rich_string)
 {
   std::string xml_data;
 
@@ -388,12 +388,15 @@ std::string style_t::write_font_vert_align(const std::string& align) const
     }
   }
 
-  ///     if (format->hyperlink) {
-  ///         self->has_hyperlink = LXW_TRUE;
+  if(format->hyperlink_)
+  {
+    has_hyperlink_ = true;
 
-  ///         if (self->hyperlink_font_id == 0)
-  ///             self->hyperlink_font_id = format->font_index;
-  ///     }
+    if(hyperlink_font_id_ == 0)
+    {
+      hyperlink_font_id_ = format->font_index_;
+    }
+  }
 
   if(is_rich_string)
   {
@@ -429,7 +432,7 @@ style_t::style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format
 {
 }
 
-std::string style_t::write_fonts() const
+std::string style_t::write_fonts()
 {
   ///    struct xml_attribute_list attributes;
   ///    struct xml_attribute *attribute;
@@ -750,33 +753,19 @@ std::string style_t::write_borders() const
   return xml_data;
 }
 
-/// STATIC void
-/// _write_hyperlink_alignment(lxw_styles *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+std::string style_t::write_hyperlink_alignment() const
+{
+  return xml_empty_tag("alignment", {
+                                        {"vertical", "top"}
+  });
+}
 
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("vertical", "top");
-
-///     lxw_xml_empty_tag(self->file, "alignment", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _write_hyperlink_protection(lxw_styles *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("locked", "0");
-
-///     lxw_xml_empty_tag(self->file, "protection", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string style_t::write_hyperlink_protection() const
+{
+  return xml_empty_tag("protection", {
+                                         {"locked", "0"}
+  });
+}
 
 std::string style_t::write_style_xf(bool has_hyperlink, uint16_t font_id) const
 {
@@ -796,8 +785,8 @@ std::string style_t::write_style_xf(bool has_hyperlink, uint16_t font_id) const
     attributes.emplace_back("applyProtection", "0");
 
     std::string xml_data = xml_start_tag("xf", attributes);
-    ///         _write_hyperlink_alignment(self);
-    ///        _write_hyperlink_protection(self);
+    xml_data += write_hyperlink_alignment();
+    xml_data += write_hyperlink_protection();
     xml_data += xml_end_tag("xf");
     return xml_data;
   }
@@ -811,16 +800,22 @@ std::string style_t::write_cell_style_xfs() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  ///   if (self->has_hyperlink)
-  ///     LXW_PUSH_ATTRIBUTES_STR("count", "2");
-  ///   else
-  attributes.emplace_back("count", "1");
+  if(has_hyperlink_)
+  {
+    attributes.emplace_back("count", "2");
+  }
+  else
+  {
+    attributes.emplace_back("count", "1");
+  }
 
   std::string xml_data = xml_start_tag("cellStyleXfs", attributes);
   xml_data += write_style_xf(false, 0);
 
-  ///   if (self->has_hyperlink)
-  ///     _write_style_xf(self, self->has_hyperlink, self->hyperlink_font_id);
+  if(has_hyperlink_)
+  {
+    xml_data += write_style_xf(has_hyperlink_, hyperlink_font_id_);
+  }
 
   xml_data += xml_end_tag("cellStyleXfs");
 
@@ -1137,15 +1132,21 @@ std::string style_t::write_cell_styles() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  ///    if (self->has_hyperlink)
-  ///        LXW_PUSH_ATTRIBUTES_STR("count", "2");
-  ///    else
-  attributes.emplace_back("count", "1");
+  if(has_hyperlink_)
+  {
+    attributes.emplace_back("count", "2");
+  }
+  else
+  {
+    attributes.emplace_back("count", "1");
+  }
 
   std::string xml_data = xml_start_tag("cellStyles", attributes);
 
-  ///    if (self->has_hyperlink)
-  ///        _write_cell_style(self, "Hyperlink", 1, 8);
+  if(has_hyperlink_)
+  {
+    xml_data += write_cell_style("Hyperlink", 1, 8);
+  }
 
   xml_data += write_cell_style("Normal", 0, 0);
   xml_data += xml_end_tag("cellStyles");
@@ -1199,7 +1200,8 @@ std::string style_t::write_table_styles() const
   });
 }
 
-std::string style_t::assemble_xml_file() const
+// TODO Add const (remove to change hyperlink property)
+std::string style_t::assemble_xml_file()
 {
   std::string xml_data = xml_declaration();
   xml_data += write_style_sheet();

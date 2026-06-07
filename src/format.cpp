@@ -132,10 +132,10 @@ namespace xwpp
 ///     self->font_size = size;
 /// }
 
-/// void format_set_font_color(lxw_format *self, lxw_color_t color)
-/// {
-///   self->font_color = color;
-/// }
+void format_t::set_font_color(color_t color)
+{
+  font_color_ = color;
+}
 
 void format_t::set_bold()
 {
@@ -147,11 +147,22 @@ void format_t::set_italic()
   italic_ = true;
 }
 
-/// void format_set_underline(lxw_format *self, uint8_t style)
-/// {
-///   if (style >= LXW_UNDERLINE_SINGLE && style <= LXW_UNDERLINE_DOUBLE_ACCOUNTING)
-///     self->underline = style;
-/// }
+void format_t::set_underline(format_underlines_t style)
+{
+  switch(style)
+  {
+    case format_underlines_t::SINGLE:
+    case format_underlines_t::DOUBLE:
+    case format_underlines_t::SINGLE_ACCOUNTING:
+    case format_underlines_t::DOUBLE_ACCOUNTING:
+      underline_ = style;
+      break;
+
+    case format_underlines_t::NONE:
+      // NOP
+      break;
+  }
+}
 
 /// void format_set_font_strikeout(lxw_format *self)
 /// {
@@ -214,7 +225,7 @@ void format_t::set_align(format_alignments_t alignment)
     case format_alignments_t::NONE:
       // NOP
       break;
- }
+  }
 }
 
 /// void format_set_text_wrap(lxw_format *self)
@@ -415,13 +426,13 @@ void format_t::set_align(format_alignments_t alignment)
 ///   self->font_only = LXW_TRUE;
 /// }
 
-/// void format_set_hyperlink(lxw_format *self)
-/// {
-///   self->hyperlink = LXW_TRUE;
-///   self->xf_id = 1;
-///   self->underline = LXW_UNDERLINE_SINGLE;
-///   self->theme = 10;
-/// }
+void format_t::set_hyperlink()
+{
+  hyperlink_ = true;
+  xf_id_     = 1;
+  underline_ = format_underlines_t::SINGLE;
+  theme_     = 10;
+}
 
 /// void format_set_quote_prefix(lxw_format *self)
 /// {
