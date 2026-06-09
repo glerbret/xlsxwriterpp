@@ -2795,7 +2795,8 @@ private:
   [[nodiscard]] std::string write_table_parts() const;
   [[nodiscard]] std::string write_ext_list() const;
   [[nodiscard]] std::string write_rows() const;
-  [[nodiscard]] std::string write_row(const row_t& row /* TODO char *spans*/) const;
+  [[nodiscard]] std::string write_row(const row_t& row, const std::string& spans) const;
+  [[nodiscard]] std::string write_row(const row_t& row) const;
   [[nodiscard]] std::string write_cell(const cell_t& cell /* TODO lxw_format *row_format*/) const;
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
@@ -2918,7 +2919,7 @@ private:
   uint32_t default_row_pixels_ = 20;
   uint32_t default_col_pixels_ = 64;
   ///     uint8_t default_row_zeroed;
-  ///     uint8_t default_row_set;
+  bool default_row_set_        = false;
   ///     uint8_t outline_row_level;
   ///     uint8_t outline_col_level;
 

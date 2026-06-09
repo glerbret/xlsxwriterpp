@@ -39,6 +39,47 @@ using namespace std::literals;
 namespace xwpp
 {
 
+namespace
+{
+
+/*
+ * Calculate the "spans" attribute of the <row> tag. This is an XLSX
+ * optimization and isn't strictly required. However, it makes comparing
+ * files easier.
+ *
+ * The span is the same for each block of 16 rows.
+ */
+std::string calculate_spans(std::map<col_num_t, row_t>::const_iterator it,
+                            std::map<col_num_t, row_t>::const_iterator end, int32_t& block_num)
+{
+  col_num_t span_col_min = std::numeric_limits<col_num_t>::max();
+  col_num_t span_col_max = std::numeric_limits<col_num_t>::max();
+
+  block_num = it->second.row_num_ / 16;
+
+  for(; it != end && static_cast<int32_t>(it->second.row_num_ / 16) == block_num; it++)
+  {
+    if(!it->second.cells_.empty())
+    {
+      for(const auto& [col_num, cell]: it->second.cells_)
+      {
+        if(col_num < span_col_min || span_col_min == std::numeric_limits<col_num_t>::max())
+        {
+          span_col_min = col_num;
+        }
+        if(col_num > span_col_max || span_col_max == std::numeric_limits<col_num_t>::max())
+        {
+          span_col_max = col_num;
+        }
+      }
+    }
+  }
+
+  return std::format("{}:{}", span_col_min + 1, span_col_max + 1);
+}
+
+}
+
 /// #define LXW_BUFFER_SIZE                  4096
 /// #define LXW_PRINT_ACROSS                 1
 /// #define LXW_VALIDATION_MAX_TITLE_LENGTH  32
@@ -2003,7 +2044,12 @@ std::string worksheet_t::write_print_options() const
   return xml_data;
 }
 
-std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) const
+std::string worksheet_t::write_row(const row_t& row) const
+{
+  return write_row(row, "");
+}
+
+std::string worksheet_t::write_row(const row_t& row, const std::string& spans) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   ///     int32_t xf_index = 0;
@@ -2015,8 +2061,10 @@ std::string worksheet_t::write_row(const row_t& row /* TODO , char *spans*/) con
 
   attributes.emplace_back("r", std::to_string(row.row_num_ + 1));
 
-  ///     if (spans)
-  ///         LXW_PUSH_ATTRIBUTES_STR("spans", spans);
+  if(!spans.empty())
+  {
+    attributes.emplace_back("spans", spans);
+  }
 
   ///     if (xf_index)
   ///         LXW_PUSH_ATTRIBUTES_INT("s", xf_index);
@@ -3585,48 +3633,6 @@ std::string worksheet_t::write_string_cell(std::string_view range, int32_t style
 ///     lxw_xml_data_element(self->file, "v", "#VALUE!", NULL);
 /// }
 
-/*
- * Calculate the "spans" attribute of the <row> tag. This is an XLSX
- * optimization and isn't strictly required. However, it makes comparing
- * files easier.
- *
- * The span is the same for each block of 16 rows.
- */
-/// STATIC void
-/// _calculate_spans(struct row_t *row, char *span, int32_t *block_num)
-/// {
-///     cell_t *cell_min = RB_MIN(lxw_table_cells, row->cells);
-///     cell_t *cell_max = RB_MAX(lxw_table_cells, row->cells);
-///     col_num_t span_col_min = cell_min->col_num;
-///     col_num_t span_col_max = cell_max->col_num;
-///     col_num_t col_min;
-///     col_num_t col_max;
-///     *block_num = row->row_num / 16;
-
-///     row = RB_NEXT(table_rows_t, root, row);
-
-///     while (row && (int32_t) (row->row_num / 16) == *block_num) {
-
-///         if (!RB_EMPTY(row->cells)) {
-///             cell_min = RB_MIN(lxw_table_cells, row->cells);
-///             cell_max = RB_MAX(lxw_table_cells, row->cells);
-///             col_min = cell_min->col_num;
-///             col_max = cell_max->col_num;
-
-///             if (col_min < span_col_min)
-///                 span_col_min = col_min;
-
-///             if (col_max > span_col_max)
-///                 span_col_max = col_max;
-///         }
-
-///         row = RB_NEXT(table_rows_t, root, row);
-///     }
-
-///     lxw_snprintf(span, LXW_MAX_CELL_RANGE_LENGTH,
-///                  "%d:%d", span_col_min + 1, span_col_max + 1);
-/// }
-
 std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row_format*/) const
 {
   ///     struct xml_attribute_list attributes;
@@ -3721,30 +3727,34 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
 std::string worksheet_t::write_rows() const
 {
   std::string xml_data;
-  ///     row_t *row;
-  ///     cell_t *cell;
-  ///     int32_t block_num = -1;
-  ///     char spans[LXW_MAX_CELL_RANGE_LENGTH] = { 0 };
+  int32_t block_num = -1;
+  std::string spans;
 
-  for(const auto& [index, row]: table_.rbh_root_)
+  for(auto it = std::begin(table_.rbh_root_); it != std::end(table_.rbh_root_); it++)
   {
+    const auto& row = it->second;
     if(row.cells_.empty())
     {
-      /* Row contains no cells but has height, format or other data. */
-
-      /* Write a default span for default rows. */
-      ///             if (self->default_row_set)
-      ///                 _write_row(self, row, "1:1");
-      ///             else
-      ///                 _write_row(self, row, NULL);
+      // Row contains no cells but has height, format or other data.
+      // Write a default span for default rows.
+      if(default_row_set_)
+      {
+        xml_data += write_row(row, "1:1");
+      }
+      else
+      {
+        xml_data += write_row(row);
+      }
     }
     else
     {
-      /* Row and cell data. */
-      ///             if ((int32_t) row->row_num / 16 > block_num)
-      ///                 _calculate_spans(row, spans, &block_num);
+      // Row and cell data.
+      if(static_cast<int32_t>(row.row_num_ / 16) > block_num)
+      {
+        spans = calculate_spans(it, std::end(table_.rbh_root_), block_num);
+      }
 
-      xml_data += write_row(row /*TODO , spans*/);
+      xml_data += write_row(row, spans);
 
       if(row.data_changed_)
       {
