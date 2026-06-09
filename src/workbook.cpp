@@ -999,41 +999,41 @@ void workbook_t::prepare_vml()
 
   for(auto& sheet: sheets_)
   {
-    ///         if (sheet->is_chartsheet)
-    ///             continue;
-    ///         else
-    auto& ws = std::get<0>(sheet);
-
-    ///         if (!ws->has_vml && !ws->has_header_vml)
-    ///             continue;
-
-    if(ws.has_vml_)
+    if(std::holds_alternative<worksheet_t>(sheet))
     {
-      has_vml_ = true;
-      if(ws.has_comments_)
+      auto& ws = std::get<worksheet_t>(sheet);
+
+      ///         if (!ws->has_vml && !ws->has_header_vml)
+      ///             continue;
+
+      if(ws.has_vml_)
       {
-        comment_count_++;
-        comment_id++;
-        has_comments_ = true;
+        has_vml_ = true;
+        if(ws.has_comments_)
+        {
+          comment_count_++;
+          comment_id++;
+          has_comments_ = true;
+        }
+
+        vml_drawing_id++;
+
+        comment_count = ws.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
+
+        // Each VML should start with a shape id incremented by 1024.
+        vml_data_id += 1 * ((1024 + comment_count) / 1024);
+        vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
       }
 
-      vml_drawing_id++;
-
-      comment_count = ws.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
-
-      // Each VML should start with a shape id incremented by 1024.
-      vml_data_id += 1 * ((1024 + comment_count) / 1024);
-      vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
+      ///         if (worksheet->has_header_vml) {
+      ///             self->has_vml = LXW_TRUE;
+      ///             vml_drawing_id++;
+      ///             vml_header_id++;
+      ///             lxw_worksheet_prepare_header_vml_objects(worksheet,
+      ///                                                      vml_header_id,
+      ///                                                      vml_drawing_id);
+      ///         }
     }
-
-    ///         if (worksheet->has_header_vml) {
-    ///             self->has_vml = LXW_TRUE;
-    ///             vml_drawing_id++;
-    ///             vml_header_id++;
-    ///             lxw_worksheet_prepare_header_vml_objects(worksheet,
-    ///                                                      vml_header_id,
-    ///                                                      vml_drawing_id);
-    ///         }
   }
 }
 
@@ -1692,10 +1692,11 @@ void workbook_t::save(std::string_view filename)
   // Ensure that at least one worksheet has been selected.
   if(active_sheet_ == 0)
   {
-    auto& sheet = std::get<worksheet_t>(sheets_.front());
-    ////  TODO if (!sheet->is_chartsheet) {
-    sheet.select();
-    ////        }
+    if(std::holds_alternative<worksheet_t>(sheets_.front()))
+    {
+      auto& sheet = std::get<worksheet_t>(sheets_.front());
+      sheet.select();
+    }
   }
 
   /* Set the active sheet and check if a metadata file is needed. */

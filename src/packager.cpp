@@ -171,9 +171,7 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
   // Use ref to modify worksheet (add relations in external_hyperlinks_)
   for(size_t index = 1; auto& sheet: workbook.sheets_)
   {
-    /// if (sheet->is_chartsheet)
-    ///   continue;
-    /// else
+    if(std::holds_alternative<worksheet_t>(sheet))
     {
       auto& worksheet = std::get<0>(sheet);
 
@@ -566,70 +564,70 @@ void packager_t::write_vml_files(const workbook_t& workbook)
 
   for(const auto& sheet: workbook.sheets_)
   {
-    // TODO Ignore charsheeet
-    ///         if (sheet->is_chartsheet)
-    ///             continue;
-    const auto& ws = std::get<worksheet_t>(sheet);
-
-    if(!ws.has_vml_ && !ws.has_header_vml_)
+    if(std::holds_alternative<worksheet_t>(sheet))
     {
-      continue;
+      const auto& ws = std::get<worksheet_t>(sheet);
+
+      if(!ws.has_vml_ && !ws.has_header_vml_)
+      {
+        continue;
+      }
+
+      if(ws.has_vml_)
+      {
+        vml_t vml(ws.vml_data_id_str_, ws.comment_objs_, ws.vml_shape_id_, ws.comment_display_default_);
+
+        ///  vml->button_objs = worksheet->button_objs;
+
+        const std::string xml_data = vml.assemble_xml_file();
+        add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
+        index++;
+      }
+
+      ///     if (worksheet->has_header_vml) {
+
+      ///     err = _write_vml_drawing_rels_file(self, worksheet, index);
+      ///             RETURN_ON_ERROR(err);
+
+      ///             vml = lxw_vml_new();
+      ///             if (!vml)
+      ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
+
+      ///             lxw_snprintf(filename, LXW_FILENAME_LENGTH,
+      ///                          "xl/drawings/vmlDrawing%d.vml", index++);
+
+      ///             vml->file = lxw_get_filehandle(&buffer, &buffer_size,
+      ///                                            self->tmpdir);
+      ///             if (!vml->file) {
+      ///                 lxw_vml_free(vml);
+      ///                 return LXW_ERROR_CREATING_TMPFILE;
+      ///             }
+
+      ///             vml->image_objs = worksheet->header_image_objs;
+      ///             vml->vml_shape_id = worksheet->vml_header_id * 1024;
+
+      ///             if (worksheet->vml_header_id_str) {
+      ///                 vml->vml_data_id_str = worksheet->vml_header_id_str;
+      ///             }
+      ///             else {
+      ///                 fclose(vml->file);
+      ///                 free(buffer);
+      ///                 lxw_vml_free(vml);
+      ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
+      ///             }
+
+      ///             lxw_vml_assemble_xml_file(vml);
+
+      ///             err = _add_to_zip(self, vml->file, &buffer, &buffer_size,
+      ///                               filename);
+
+      ///             fclose(vml->file);
+      ///             free(buffer);
+      ///             lxw_vml_free(vml);
+
+      ///             RETURN_ON_ERROR(err);
+      ///         }
     }
-
-    if(ws.has_vml_)
-    {
-      vml_t vml(ws.vml_data_id_str_, ws.comment_objs_, ws.vml_shape_id_, ws.comment_display_default_);
-
-      ///  vml->button_objs = worksheet->button_objs;
-
-      const std::string xml_data = vml.assemble_xml_file();
-      add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
-      index++;
-    }
-
-    ///     if (worksheet->has_header_vml) {
-
-    ///     err = _write_vml_drawing_rels_file(self, worksheet, index);
-    ///             RETURN_ON_ERROR(err);
-
-    ///             vml = lxw_vml_new();
-    ///             if (!vml)
-    ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
-
-    ///             lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-    ///                          "xl/drawings/vmlDrawing%d.vml", index++);
-
-    ///             vml->file = lxw_get_filehandle(&buffer, &buffer_size,
-    ///                                            self->tmpdir);
-    ///             if (!vml->file) {
-    ///                 lxw_vml_free(vml);
-    ///                 return LXW_ERROR_CREATING_TMPFILE;
-    ///             }
-
-    ///             vml->image_objs = worksheet->header_image_objs;
-    ///             vml->vml_shape_id = worksheet->vml_header_id * 1024;
-
-    ///             if (worksheet->vml_header_id_str) {
-    ///                 vml->vml_data_id_str = worksheet->vml_header_id_str;
-    ///             }
-    ///             else {
-    ///                 fclose(vml->file);
-    ///                 free(buffer);
-    ///                 lxw_vml_free(vml);
-    ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
-    ///             }
-
-    ///             lxw_vml_assemble_xml_file(vml);
-
-    ///             err = _add_to_zip(self, vml->file, &buffer, &buffer_size,
-    ///                               filename);
-
-    ///             fclose(vml->file);
-    ///             free(buffer);
-    ///             lxw_vml_free(vml);
-
-    ///             RETURN_ON_ERROR(err);
-    ///         }
   }
 }
 
@@ -639,20 +637,20 @@ void packager_t::write_comment_files(const workbook_t& workbook)
 
   for(const auto& sheet: workbook.sheets_)
   {
-    // TODO Ignore charsheeet
-    ///         if (sheet->is_chartsheet)
-    ///             continue;
-    const auto& ws = std::get<worksheet_t>(sheet);
-
-    if(!ws.has_comments_)
+    if(std::holds_alternative<worksheet_t>(sheet))
     {
-      continue;
-    }
+      const auto& ws = std::get<worksheet_t>(sheet);
 
-    comment_t comment(ws.comment_objs_, ws.comment_author_);
-    const std::string xml_data = comment.assemble_xml_file();
-    add_buffer_to_zip(xml_data, std::format("xl/comments{}.xml", index));
-    index++;
+      if(!ws.has_comments_)
+      {
+        continue;
+      }
+
+      comment_t comment(ws.comment_objs_, ws.comment_author_);
+      const std::string xml_data = comment.assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/comments{}.xml", index));
+      index++;
+    }
   }
 }
 
@@ -701,15 +699,19 @@ void packager_t::write_app_file(const workbook_t& workbook)
   for(const auto& sheet: workbook.sheets_)
   {
     // TODO Add sheet type verification and support charsheet
-    const auto& ws = std::get<worksheet_t>(sheet);
-    app.add_part_name(ws.get_sheet_name());
+    ///     STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
+    ///         if (sheet->is_chartsheet) {
+    ///             chartsheet = sheet->u.chartsheet;
+    ///             lxw_app_add_part_name(app, chartsheet->name);
+    ///         }
+    ///     }
+
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      const auto& ws = std::get<worksheet_t>(sheet);
+      app.add_part_name(ws.get_sheet_name());
+    }
   }
-  ///     STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-  ///         if (sheet->is_chartsheet) {
-  ///             chartsheet = sheet->u.chartsheet;
-  ///             lxw_app_add_part_name(app, chartsheet->name);
-  ///         }
-  ///     }
 
   /* Add the Named Ranges parts. */
   ///     TAILQ_FOREACH(defined_name, workbook->defined_names, list_pointers) {
@@ -1144,10 +1146,12 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
     ///                          "chartsheets/sheet%d.xml", chartsheet_index++);
     ///             lxw_add_document_relationship(rels, "/chartsheet", sheetname);
     ///         }
-    ///         else {
-    relationships.add_document("/worksheet", std::format("worksheets/sheet{}.xml", worksheet_index));
-    worksheet_index++;
-    ///         }
+
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      relationships.add_document("/worksheet", std::format("worksheets/sheet{}.xml", worksheet_index));
+      worksheet_index++;
+    }
   }
 
   relationships.add_document("/theme", "theme/theme1.xml");
@@ -1189,64 +1193,64 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
   for(const auto& sheet: workbook.sheets_)
   {
-    // TODO Ignore charsheeet
-    ///         if (sheet->is_chartsheet)
-    ///             continue;
-    const auto& ws = std::get<worksheet_t>(sheet);
-    relationships_t relationships;
-
-    index++;
-
-    if(ws.external_hyperlinks_.empty() &&
-       ///             STAILQ_EMPTY(ws.external_drawing_links) &&
-       ///             STAILQ_EMPTY(ws.external_table_links) &&
-       ///             !ws.external_vml_header_link &&
-       !ws.external_vml_comment_link_.has_value() &&
-       ///             !ws.external_background_link &&
-       !ws.external_comment_link_.has_value())
+    if(std::holds_alternative<worksheet_t>(sheet))
     {
-      continue;
+      const auto& ws = std::get<worksheet_t>(sheet);
+      relationships_t relationships;
+
+      index++;
+
+      if(ws.external_hyperlinks_.empty() &&
+         ///             STAILQ_EMPTY(ws.external_drawing_links) &&
+         ///             STAILQ_EMPTY(ws.external_table_links) &&
+         ///             !ws.external_vml_header_link &&
+         !ws.external_vml_comment_link_.has_value() &&
+         ///             !ws.external_background_link &&
+         !ws.external_comment_link_.has_value())
+      {
+        continue;
+      }
+
+      for(const auto& [type, target, target_mode]: ws.external_hyperlinks_)
+      {
+        relationships.add_worksheet_relationship(type, target, target_mode);
+      }
+
+      ///         STAILQ_FOREACH(rel, worksheet->external_drawing_links, list_pointers) {
+      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
+      ///                                            rel->target_mode);
+      ///         }
+
+      if(ws.external_vml_comment_link_.has_value())
+      {
+        auto comment = ws.external_vml_comment_link_.value();
+        relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+      }
+
+      ///         rel = worksheet->external_vml_header_link;
+      ///         if (rel)
+      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
+      ///                                            rel->target_mode);
+
+      ///         rel = worksheet->external_background_link;
+      ///         if (rel)
+      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
+      ///                                            rel->target_mode);
+
+      ///         STAILQ_FOREACH(rel, worksheet->external_table_links, list_pointers) {
+      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
+      ///                                            rel->target_mode);
+      ///         }
+
+      if(ws.external_comment_link_.has_value())
+      {
+        auto comment = ws.external_comment_link_.value();
+        relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+      }
+
+      const std::string xml_data = relationships.assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/worksheets/_rels/sheet{}.xml.rels", index));
     }
-
-    for(const auto& [type, target, target_mode]: ws.external_hyperlinks_)
-    {
-      relationships.add_worksheet_relationship(type, target, target_mode);
-    }
-
-    ///         STAILQ_FOREACH(rel, worksheet->external_drawing_links, list_pointers) {
-    ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-    ///                                            rel->target_mode);
-    ///         }
-
-    if(ws.external_vml_comment_link_.has_value())
-    {
-      auto comment = ws.external_vml_comment_link_.value();
-      relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
-    }
-
-    ///         rel = worksheet->external_vml_header_link;
-    ///         if (rel)
-    ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-    ///                                            rel->target_mode);
-
-    ///         rel = worksheet->external_background_link;
-    ///         if (rel)
-    ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-    ///                                            rel->target_mode);
-
-    ///         STAILQ_FOREACH(rel, worksheet->external_table_links, list_pointers) {
-    ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-    ///                                            rel->target_mode);
-    ///         }
-
-    if(ws.external_comment_link_.has_value())
-    {
-      auto comment = ws.external_comment_link_.value();
-      relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
-    }
-
-    const std::string xml_data = relationships.assemble_xml_file();
-    add_buffer_to_zip(xml_data, std::format("xl/worksheets/_rels/sheet{}.xml.rels", index));
   }
 }
 
