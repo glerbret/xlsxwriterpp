@@ -59,6 +59,7 @@
 #include "xwpp/xmlwriter.h"
 
 #include <format>
+#include <fstream>
 #include <string>
 
 #include <iostream>
@@ -229,95 +230,86 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
 ///   return LXW_NO_ERROR;
 /// }
 
+void packager_t::write_image_files(const workbook_t& workbook)
 /// STATIC lxw_error _write_image_files(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_sheet *sheet;
-///   lxw_worksheet *worksheet;
-///   lxw_object_properties *object_props;
-///   lxw_error err;
-///   FILE *image_stream;
+{
+  ///   lxw_workbook *workbook = self->workbook;
+  ///   lxw_sheet *sheet;
+  ///   lxw_worksheet *worksheet;
+  ///   lxw_object_properties *object_props;
+  ///   lxw_error err;
+  ///   FILE *image_stream;
 
-///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-///   uint32_t index = 1;
+  ///   char filename[LXW_FILENAME_LENGTH] = { 0 };
+  ///   uint32_t index = 1;
 
-///   STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///     if (sheet->is_chartsheet)
-///       continue;
-///     else
-///       worksheet = sheet->u.worksheet;
+  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& worksheet = std::get<0>(sheet);
 
-///     if (STAILQ_EMPTY(worksheet->image_props)
-///           && STAILQ_EMPTY(worksheet->embedded_image_props))
-///       continue;
+      if(!worksheet.image_props_.empty()
+         ///         || !worksheet->embedded_image_props.empty()
+      )
+      {
 
-///     STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
-///                    list_pointers) {
+        ///     STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
+        ///                    list_pointers) {
 
-///       if (object_props->is_duplicate)
-///        continue;
+        ///       if (object_props->is_duplicate)
+        ///        continue;
 
-///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                    "xl/media/image%d.%s", index++,
-///                     object_props->extension);
+        ///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
+        ///                    "xl/media/image%d.%s", index++,
+        ///                     object_props->extension);
 
-///       if (!object_props->is_image_buffer) {
-/* Check that the image file exists and can be opened. */
-///         image_stream = lxw_fopen(object_props->filename, "rb");
-///         if (!image_stream) {
-///           LXW_WARN_FORMAT1("Error adding image to xlsx file: file "
-///                            "doesn't exist or can't be opened: %s.",
-///                            object_props->filename);
-///           return LXW_ERROR_CREATING_TMPFILE;
-///         }
+        ///       if (!object_props->is_image_buffer) {
+        /* Check that the image file exists and can be opened. */
+        ///         image_stream = lxw_fopen(object_props->filename, "rb");
+        ///         if (!image_stream) {
+        ///           LXW_WARN_FORMAT1("Error adding image to xlsx file: file "
+        ///                            "doesn't exist or can't be opened: %s.",
+        ///                            object_props->filename);
+        ///           return LXW_ERROR_CREATING_TMPFILE;
+        ///         }
 
-///         err = _add_file_to_zip(self, image_stream, filename);
-///         fclose(image_stream);
-///       }
-///       else {
-///         err = _add_buffer_to_zip(self,
-///                                  object_props->image_buffer,
-///                                  object_props->image_buffer_size,
-///                                  filename);
-///       }
+        ///         err = _add_file_to_zip(self, image_stream, filename);
+        ///         fclose(image_stream);
+        ///       }
+        ///       else {
+        ///         err = _add_buffer_to_zip(self,
+        ///                                  object_props->image_buffer,
+        ///                                  object_props->image_buffer_size,
+        ///                                  filename);
+        ///       }
 
-///       RETURN_ON_ERROR(err);
-///     }
+        ///       RETURN_ON_ERROR(err);
+        ///     }
 
-///     STAILQ_FOREACH(object_props, worksheet->image_props, list_pointers) {
-///       if (object_props->is_duplicate)
-///         continue;
-
-///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                    "xl/media/image%d.%s", index++,
-///                    object_props->extension);
-
-///       if (!object_props->is_image_buffer) {
-/* Check that the image file exists and can be opened. */
-///         image_stream = lxw_fopen(object_props->filename, "rb");
-///         if (!image_stream) {
-///           LXW_WARN_FORMAT1("Error adding image to xlsx file: file "
-///                            "doesn't exist or can't be opened: %s.",
-///                            object_props->filename);
-///           return LXW_ERROR_CREATING_TMPFILE;
-///         }
-
-///         err = _add_file_to_zip(self, image_stream, filename);
-///         fclose(image_stream);
-///       }
-///       else {
-///         err = _add_buffer_to_zip(self,
-///                                  object_props->image_buffer,
-///                                  object_props->image_buffer_size,
-///                                  filename);
-///       }
-
-///       RETURN_ON_ERROR(err);
-///     }
-///   }
-
-///   return LXW_NO_ERROR;
-/// }
+        for(const auto& object_props: worksheet.image_props_)
+        {
+          if(!object_props.is_duplicate_)
+          {
+            ///       if (!object_props->is_image_buffer) {
+            // Read image.
+            std::ifstream image_stream(object_props.filename_, std::ios::binary);
+            std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
+            index++;
+            ///       }
+            ///       else {
+            ///         err = _add_buffer_to_zip(self,
+            ///                                  object_props->image_buffer,
+            ///                                  object_props->image_buffer_size,
+            ///                                  filename);
+            ///       }
+          }
+        }
+      }
+    }
+  }
+}
 
 /// STATIC lxw_error _add_vba_project(lxw_packager *self)
 /// {
@@ -411,69 +403,67 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
 ///   return chart_count;
 /// }
 
-/// STATIC lxw_error _write_drawing_files(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_sheet *sheet;
-///   lxw_worksheet *worksheet;
-///   lxw_drawing *drawing;
-///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-///   char *buffer = NULL;
-///   size_t buffer_size = 0;
-///   uint32_t index = 1;
-///   lxw_error err;
+void packager_t::write_drawing_files(const workbook_t& workbook)
+{
+  ///   lxw_workbook *workbook = self->workbook;
+  ///   lxw_sheet *sheet;
+  ///   lxw_worksheet *worksheet;
+  ///   lxw_drawing *drawing;
+  ///   char filename[LXW_FILENAME_LENGTH] = { 0 };
+  ///   char *buffer = NULL;
+  ///   size_t buffer_size = 0;
+  ///   lxw_error err;
 
-///   STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///     if (sheet->is_chartsheet)
-///       worksheet = sheet->u.chartsheet->worksheet;
-///     else
-///       worksheet = sheet->u.worksheet;
+  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  {
+    // TODO Charset
+    ///     if (sheet->is_chartsheet)
+    ///       worksheet = sheet->u.chartsheet->worksheet;
+    ///    if(std::holds_alternative<worksheet_t>(sheet))
+    ///    {
+    auto& worksheet = std::get<0>(sheet);
+    ///    }
 
-///     drawing = worksheet->drawing;
+    if(worksheet.drawing_)
+    {
+      const std::string xml_data = worksheet.drawing_->assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/drawings/drawing{}.xml", index));
+      index++;
+    }
+  }
+}
 
-///     if (drawing) {
-///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                    "xl/drawings/drawing%d.xml", index++);
+uint32_t packager_t::get_drawing_count(const workbook_t& workbook) const
+{
+  ///   lxw_workbook *workbook = self->workbook;
+  ///   lxw_sheet *sheet;
+  ///   lxw_worksheet *worksheet;
+  ///   lxw_drawing *drawing;
+  uint32_t drawing_count = 0;
 
-///       drawing->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
+  for(const auto& sheet: workbook.sheets_)
+  {
+    // TODO chartsheet
+    ///     if (sheet->is_chartsheet) {
+    ///       worksheet = sheet->u.chartsheet->worksheet;
+    ///     drawing = worksheet->drawing;
 
-///       if (!drawing->file)
-///         return LXW_ERROR_CREATING_TMPFILE;
+    ///     if (drawing)
+    ///       drawing_count++;
+    ///   }
 
-///       lxw_drawing_assemble_xml_file(drawing);
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      const auto& ws = std::get<worksheet_t>(sheet);
+      if(ws.drawing_)
+      {
+        drawing_count++;
+      }
+    }
+  }
 
-///       err = _add_to_zip(self, drawing->file, &buffer, &buffer_size, filename);
-///       fclose(drawing->file);
-///       free(buffer);
-///       RETURN_ON_ERROR(err);
-///     }
-///   }
-
-///   return LXW_NO_ERROR;
-/// }
-
-/// uint32_t _get_drawing_count(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_sheet *sheet;
-///   lxw_worksheet *worksheet;
-///   lxw_drawing *drawing;
-///   uint32_t drawing_count = 0;
-
-///   STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///     if (sheet->is_chartsheet)
-///       worksheet = sheet->u.chartsheet->worksheet;
-///     else
-///       worksheet = sheet->u.worksheet;
-
-///     drawing = worksheet->drawing;
-
-///     if (drawing)
-///       drawing_count++;
-///   }
-
-///   return drawing_count;
-/// }
+  return drawing_count;
+}
 
 /// STATIC lxw_error _write_table_files(lxw_packager *self)
 /// {
@@ -1018,7 +1008,7 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   ///     uint32_t index = 1;
   uint32_t worksheet_index = 1;
   ///     uint32_t chartsheet_index = 1;
-  ///     uint32_t drawing_count = _get_drawing_count(self);
+  uint32_t drawing_count   = get_drawing_count(workbook);
   ///     uint32_t chart_count = _get_chart_count(self);
   ///     uint32_t table_count = _get_table_count(self);
   ///     lxw_error err = LXW_NO_ERROR;
@@ -1035,32 +1025,44 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   ///         goto mem_error;
   ///     }
 
-  ///     if (workbook->has_png)
-  ///         lxw_ct_add_default(content_types, "png", "image/png");
+  if(workbook.has_png_)
+  {
+    content_types.add_default("png", "image/png");
+  }
 
-  ///     if (workbook->has_jpeg)
-  ///         lxw_ct_add_default(content_types, "jpeg", "image/jpeg");
+  if(workbook.has_jpeg_)
+  {
+    content_types.add_default("jpeg", "image/jpeg");
+  }
 
-  ///     if (workbook->has_bmp)
-  ///         lxw_ct_add_default(content_types, "bmp", "image/bmp");
+  if(workbook.has_bmp_)
+  {
+    content_types.add_default("bmp", "image/bmp");
+  }
 
-  ///     if (workbook->has_gif)
-  ///         lxw_ct_add_default(content_types, "gif", "image/gif");
+  if(workbook.has_gif_)
+  {
+    content_types.add_default("gif", "image/gif");
+  }
 
-  ///     if (workbook->vba_project)
-  ///         lxw_ct_add_default(content_types, "bin",
-  ///                            "application/vnd.ms-office.vbaProject");
+  if(!workbook.vba_project_.empty())
+  {
+    content_types.add_default("bin", "application/vnd.ms-office.vbaProject");
+  }
 
-  ///     if (workbook->vba_project)
-  ///         lxw_ct_add_override(content_types, "/xl/workbook.xml",
-  ///                             LXW_APP_MSEXCEL
-  ///                             "sheet.macroEnabled.main+xml");
-  ///     else
-  content_types.add_override("/xl/workbook.xml", content_types_t::APP_DOCUMENT + "spreadsheetml.sheet.main+xml");
+  if(!workbook.vba_project_.empty())
+  {
+    content_types.add_override("/xl/workbook.xml", content_types_t::APP_MSEXCEL + "sheet.macroEnabled.main+xml");
+  }
+  else
+  {
+    content_types.add_override("/xl/workbook.xml", content_types_t::APP_DOCUMENT + "spreadsheetml.sheet.main+xml");
+  }
 
-  ///     if (workbook->vba_project_signature)
-  ///         lxw_ct_add_override(content_types, "/xl/vbaProjectSignature.bin",
-  ///                             "application/vnd.ms-office.vbaProjectSignature");
+  if(!workbook.vba_project_signature_.empty())
+  {
+    content_types.add_override("/xl/vbaProjectSignature.bin", "application/vnd.ms-office.vbaProjectSignature");
+  }
 
   for(auto sheet: workbook.sheets_)
   {
@@ -1083,11 +1085,10 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   ///         lxw_ct_add_chart_name(content_types, filename);
   ///     }
 
-  ///     for (index = 1; index <= drawing_count; index++) {
-  ///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-  ///                      "/xl/drawings/drawing%d.xml", index);
-  ///         lxw_ct_add_drawing_name(content_types, filename);
-  ///     }
+  for(uint32_t index = 1; index <= drawing_count; index++)
+  {
+    content_types.add_drawing_name(std::format("/xl/drawings/drawing{}.xml", index));
+  }
 
   ///     for (index = 1; index <= table_count; index++) {
   ///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
@@ -1200,8 +1201,7 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
       index++;
 
-      if(ws.external_hyperlinks_.empty() &&
-         ///             STAILQ_EMPTY(ws.external_drawing_links) &&
+      if(ws.external_hyperlinks_.empty() && ws.external_drawing_links_.empty() &&
          ///             STAILQ_EMPTY(ws.external_table_links) &&
          ///             !ws.external_vml_header_link &&
          !ws.external_vml_comment_link_.has_value() &&
@@ -1216,10 +1216,10 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
         relationships.add_worksheet_relationship(type, target, target_mode);
       }
 
-      ///         STAILQ_FOREACH(rel, worksheet->external_drawing_links, list_pointers) {
-      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-      ///                                            rel->target_mode);
-      ///         }
+      for(const auto& [type, target, target_mode]: ws.external_drawing_links_)
+      {
+        relationships.add_worksheet_relationship(type, target, target_mode);
+      }
 
       if(ws.external_vml_comment_link_.has_value())
       {
@@ -1314,58 +1314,32 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 ///     return LXW_NO_ERROR;
 /// }
 
-/// STATIC lxw_error
-/// _write_drawing_rels_file(lxw_packager *self)
-/// {
-///     lxw_relationships *rels;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-///     lxw_rel_tuple *rel;
-///     lxw_workbook *workbook = self->workbook;
-///     lxw_sheet *sheet;
-///     lxw_worksheet *worksheet;
-///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-///     uint32_t index = 1;
-///     lxw_error err;
+void packager_t::write_drawing_rels_file(const workbook_t& workbook)
+{
+  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      // TODO
+      ///         if (sheet->is_chartsheet)
+      ///             worksheet = sheet->u.chartsheet->worksheet;
+      auto& worksheet = std::get<0>(sheet);
 
-///     STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///         if (sheet->is_chartsheet)
-///             worksheet = sheet->u.chartsheet->worksheet;
-///         else
-///             worksheet = sheet->u.worksheet;
+      if(!worksheet.drawing_links_.empty())
+      {
+        relationships_t relationships;
+        for(const auto& [type, target, target_mode]: worksheet.drawing_links_)
+        {
+          relationships.add_worksheet_relationship(type, target, target_mode);
+        }
 
-///         if (STAILQ_EMPTY(worksheet->drawing_links))
-///             continue;
-
-///         rels = lxw_relationships_new();
-
-///         rels->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///         if (!rels->file) {
-///             lxw_free_relationships(rels);
-///             return LXW_ERROR_CREATING_TMPFILE;
-///         }
-
-///         STAILQ_FOREACH(rel, worksheet->drawing_links, list_pointers) {
-///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-///                                            rel->target_mode);
-///         }
-
-///         lxw_snprintf(sheetname, LXW_FILENAME_LENGTH,
-///                      "xl/drawings/_rels/drawing%d.xml.rels", index++);
-
-///         lxw_relationships_assemble_xml_file(rels);
-
-///         err = _add_to_zip(self, rels->file, &buffer, &buffer_size, sheetname);
-
-///         fclose(rels->file);
-///         free(buffer);
-///         lxw_free_relationships(rels);
-
-///         RETURN_ON_ERROR(err);
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
+        const std::string xml_data = relationships.assemble_xml_file();
+        add_buffer_to_zip(xml_data, std::format("xl/drawings/_rels/drawing{}.xml.rels", index));
+        index++;
+      }
+    }
+  }
+}
 
 /// STATIC lxw_error
 /// _write_vml_drawing_rels_file(lxw_packager *self, lxw_worksheet *worksheet,
@@ -1598,6 +1572,26 @@ void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& f
   }
 }
 
+void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename)
+{
+  if(zipOpenNewFileInZip4_64(zipfile_, filename.c_str(), &zip_fileinfo_, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED,
+                             Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
+                             0 /*self->use_zip64*/) != ZIP_OK)
+  {
+    throw xwpp_exception_t(std::format("Error adding member {} to zipfile", filename));
+  }
+
+  if(zipWriteInFileInZip(zipfile_, buffer.data(), buffer.size()) < 0)
+  {
+    throw xwpp_exception_t(std::format("Error in writing member {} to zipfile", filename));
+  }
+
+  if(zipCloseFileInZip(zipfile_) != ZIP_OK)
+  {
+    throw xwpp_exception_t(std::format("Error in closing member {} to zipfile", filename));
+  }
+}
+
 /// STATIC lxw_error
 /// _add_to_zip(lxw_packager *self, FILE *file, char **buffer,
 ///             size_t *buffer_size, const char *filename)
@@ -1625,7 +1619,7 @@ void packager_t::create_package(workbook_t& workbook)
   ///     error = _write_chartsheet_files(self);
   write_workbook_file(workbook);
   ///     error = _write_chart_files(self);
-  ///     error = _write_drawing_files(self);
+  write_drawing_files(workbook);
   write_vml_files(workbook);
   write_comment_files(workbook);
   ///     error = _write_table_files(self);
@@ -1635,8 +1629,8 @@ void packager_t::create_package(workbook_t& workbook)
   write_styles_file(workbook);
   write_worksheet_rels_file(workbook);
   ///     error = _write_chartsheet_rels_file(self);
-  ///     error = _write_drawing_rels_file(self);
-  ///     error = _write_image_files(self);
+  write_drawing_rels_file(workbook);
+  write_image_files(workbook);
   ///     error = _add_vba_project(self);
   ///     error = _add_vba_project_signature(self);
   ///     error = _write_vba_project_rels_file(self);

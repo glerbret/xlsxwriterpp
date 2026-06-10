@@ -1,6 +1,6 @@
 /*
  * Example of setting document properties such as Author, Title, etc., for an
- * Excel spreadsheet using libxlsxwriter.
+ * Excel spreadsheet using Xlsxwriter++.
  *
  * Copyright 2026, Grégory Lerbret
  *
@@ -17,12 +17,12 @@ int main()
   const xwpp::doc_properties_t properties = {
       .title_    = "This is an example spreadsheet",
       .subject_  = "With document properties",
-      .author_   = "Grégory Lebret",
+      .author_   = "Grégory Lerbret",
       .manager_  = "John Doe",
       .company_  = "Mine",
       .category_ = "Example spreadsheets",
       .keywords_ = "Sample, Example, Properties",
-      .comments_ = "Created with libxlsxwriter",
+      .comments_ = "Created with Xlsxwriter++",
       .status_   = "Quo",
   };
 

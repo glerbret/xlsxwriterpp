@@ -15,930 +15,490 @@
 #include "xwpp/worksheet.h"
 #include "xwpp/xmlwriter.h"
 
+#include <format>
+#include <optional>
+
 namespace xwpp
 {
 
-/// #define LXW_OBJ_NAME_LENGTH 14  /* "Picture 65536", or "Chart 65536" */
+void drawing_t::add_drawing_object(const drawing_object_t& drawing_object)
+{
+  drawing_objects_.push_back(drawing_object);
+}
 
-/*
- * Create a new drawing collection.
- */
-/// lxw_drawing *
-/// lxw_drawing_new(void)
-/// {
-///     lxw_drawing *drawing = calloc(1, sizeof(lxw_drawing));
-///     GOTO_LABEL_ON_MEM_ERROR(drawing, mem_error);
-///
-///     drawing->drawing_objects = calloc(1, sizeof(struct lxw_drawing_objects));
-///     GOTO_LABEL_ON_MEM_ERROR(drawing->drawing_objects, mem_error);
-///
-///     STAILQ_INIT(drawing->drawing_objects);
-///
-///     return drawing;
-///
-/// mem_error:
-///     lxw_drawing_free(drawing);
-///     return NULL;
-/// }
+std::string drawing_t::write_drawing_workspace() const
+{
+  return xml_start_tag("xdr:wsDr", {
+                                       {"xmlns:xdr", SCHEMA_DRAWING + "/spreadsheetDrawing"},
+                                       {"xmlns:a",   SCHEMA_DRAWING + "/main"              },
+  });
+}
 
-/*
- * Free a drawing object.
- */
-/// lxw_free_drawing_object(lxw_drawing_object *drawing_object)
-/// {
-///     if (!drawing_object)
-///         return;
-///
-///     free(drawing_object->description);
-///     free(drawing_object->tip);
-///
-///     free(drawing_object);
-/// }
+std::string drawing_t::write_col(const std::string& data) const
+{
+  return xml_data_element("xdr:col", data);
+}
 
-/*
- * Free a drawing collection.
- */
-/// void
-/// lxw_drawing_free(lxw_drawing *drawing)
-/// {
-///     lxw_drawing_object *drawing_object;
-///
-///     if (!drawing)
-///         return;
-///
-///     if (drawing->drawing_objects) {
-///         while (!STAILQ_EMPTY(drawing->drawing_objects)) {
-///             drawing_object = STAILQ_FIRST(drawing->drawing_objects);
-///             STAILQ_REMOVE_HEAD(drawing->drawing_objects, list_pointers);
-///             lxw_free_drawing_object(drawing_object);
-///         }
-///
-///         free(drawing->drawing_objects);
-///     }
-///
-///     free(drawing);
-/// }
+std::string drawing_t::write_col_off(const std::string& data) const
+{
+  return xml_data_element("xdr:colOff", data);
+}
 
-/*
- * Add a drawing object to the drawing collection.
- */
-/// void
-/// lxw_add_drawing_object(lxw_drawing *drawing,
-///                        lxw_drawing_object *drawing_object)
-/// {
-///     STAILQ_INSERT_TAIL(drawing->drawing_objects, drawing_object,
-///                        list_pointers);
-/// }
+std::string drawing_t::write_row(const std::string& data) const
+{
+  return xml_data_element("xdr:row", data);
+}
 
-/*
- * Write the XML declaration.
- */
-/// STATIC void
-/// _drawing_xml_declaration(lxw_drawing *self)
-/// {
-///     lxw_xml_declaration(self->file);
-/// }
+std::string drawing_t::write_row_off(const std::string& data) const
+{
+  return xml_data_element("xdr:rowOff", data);
+}
 
-/*
- * Write the <xdr:wsDr> element.
- */
-/// STATIC void
-/// _write_drawing_workspace(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns_xdr[] = LXW_SCHEMA_DRAWING "/spreadsheetDrawing";
-///     char xmlns_a[] = LXW_SCHEMA_DRAWING "/main";
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:xdr", xmlns_xdr);
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:a", xmlns_a);
-///
-///     lxw_xml_start_tag(self->file, "xdr:wsDr", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_coords(const drawing_coords_t& coords) const
+{
+  std::string xml_data = write_col(std::to_string(coords.col_));
+  xml_data += write_col_off(std::to_string(static_cast<uint32_t>(coords.col_offset_)));
+  xml_data += write_row(std::to_string(coords.row_));
+  xml_data += write_row_off(std::to_string(static_cast<uint32_t>(coords.row_offset_)));
 
-/*
- * Write the <xdr:col> element.
- */
-/// STATIC void
-/// _drawing_write_col(lxw_drawing *self, char *data)
-/// {
-///     lxw_xml_data_element(self->file, "xdr:col", data, NULL);
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:colOff> element.
- */
-///    STATIC void
-/// _drawing_write_col_off(lxw_drawing *self, char *data)
-/// {
-///     lxw_xml_data_element(self->file, "xdr:colOff", data, NULL);
-/// }
+std::string drawing_t::write_from(const drawing_coords_t& coords) const
+{
+  std::string xml_data = xml_start_tag("xdr:from");
+  xml_data += write_coords(coords);
+  xml_data += xml_end_tag("xdr:from");
 
-/*
- * Write the <xdr:row> element.
- */
-/// STATIC void
-/// _drawing_write_row(lxw_drawing *self, char *data)
-/// {
-///     lxw_xml_data_element(self->file, "xdr:row", data, NULL);
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:rowOff> element.
- */
-/// STATIC void
-/// _drawing_write_row_off(lxw_drawing *self, char *data)
-/// {
-///     lxw_xml_data_element(self->file, "xdr:rowOff", data, NULL);
-/// }
+std::string drawing_t::write_to(const drawing_coords_t& coords) const
+{
+  std::string xml_data = xml_start_tag("xdr:to");
+  xml_data += write_coords(coords);
+  xml_data += xml_end_tag("xdr:to");
 
-/*
- * Write the main part of the <xdr:from> and <xdr:to> elements.
- */
-/// STATIC void
-/// _drawing_write_coords(lxw_drawing *self, lxw_drawing_coords *coords)
-/// {
-///     char data[LXW_UINT32_T_LENGTH];
-///
-///     lxw_snprintf(data, LXW_UINT32_T_LENGTH, "%u", coords->col);
-///     _drawing_write_col(self, data);
-///
-///     lxw_snprintf(data, LXW_UINT32_T_LENGTH, "%u",
-///                  (uint32_t) coords->col_offset);
-///     _drawing_write_col_off(self, data);
-///
-///     lxw_snprintf(data, LXW_UINT32_T_LENGTH, "%u", coords->row);
-///     _drawing_write_row(self, data);
-///
-///     lxw_snprintf(data, LXW_UINT32_T_LENGTH, "%u",
-///                  (uint32_t) coords->row_offset);
-///     _drawing_write_row_off(self, data);
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:from> element.
- */
-/// _drawing_write_from(lxw_drawing *self, lxw_drawing_coords *coords)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:from", NULL);
-///
-///     _drawing_write_coords(self, coords);
-///
-///     lxw_xml_end_tag(self->file, "xdr:from");
-/// }
+std::string drawing_t::write_a_hlink_click(uint32_t rel_index, const std::string& tip) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
+      {"r:id", std::format("rId{}", rel_index)},
+  };
 
-/*
- * Write the <xdr:to> element.
- */
-/// STATIC void
-/// _drawing_write_to(lxw_drawing *self, lxw_drawing_coords *coords)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:to", NULL);
-///
-///     _drawing_write_coords(self, coords);
-///
-///     lxw_xml_end_tag(self->file, "xdr:to");
-/// }
+  if(!tip.empty())
+  {
+    attributes.emplace_back("tooltip", tip);
+  }
 
-/*
- * Write the <a:hlinkClick> element.
- */
-/// STATIC void
-/// _drawing_write_a_hlink_click(lxw_drawing *self, uint32_t rel_index, char *tip)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns_r[] = "http://schemas.openxmlformats.org/"
-///         "officeDocument/2006/relationships";
-///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
-///
-///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", rel_index);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:r", xmlns_r);
-///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-///
-///     if (tip)
-///         LXW_PUSH_ATTRIBUTES_STR("tooltip", tip);
-///
-///     lxw_xml_empty_tag(self->file, "a:hlinkClick", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-///
-/*
- * Write the <a16:creationId> element.
- */
-/// STATIC void
-/// _drawing_write_a16_creation_id(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns[] = "http://schemas.microsoft.com/office/drawing/2014/main";
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:a16", xmlns);
-///     LXW_PUSH_ATTRIBUTES_STR("id", "{00000000-0008-0000-0000-000002000000}");
-///
-///     lxw_xml_empty_tag(self->file, "a16:creationId", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("a:hlinkClick", attributes);
+}
 
-/*
- * Write the <adec:decorative> element.
- */
-/// STATIC void
-/// _workbook_write_adec_decorative(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns[] =
-///         "http://schemas.microsoft.com/office/drawing/2017/decorative";
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:adec", xmlns);
-///     LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///     lxw_xml_empty_tag(self->file, "adec:decorative", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a16_creation_id() const
+{
+  return xml_empty_tag("a16:creationId", {
+                                             {"xmlns:a16", "http://schemas.microsoft.com/office/drawing/2014/main"},
+                                             {"id",        "{00000000-0008-0000-0000-000002000000}"               },
+  });
+}
 
-/*
- * Write the <a:ext> element.
- */
-/// STATIC void
-/// _drawing_write_uri_ext(lxw_drawing *self, char *uri)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("uri", uri);
-///
-///     lxw_xml_start_tag(self->file, "a:ext", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_adec_decorative() const
+{
+  return xml_empty_tag("adec:decorative",
+                       {
+                           {"xmlns:adec", "http://schemas.microsoft.com/office/drawing/2017/decorative"},
+                           {"val",        "1"                                                          },
+  });
+}
 
-/*
- * Write the decorative elements.
- */
-/// STATIC void
-/// _workbook_write_decorative(lxw_drawing *self)
-/// {
-///     lxw_xml_start_tag(self->file, "a:extLst", NULL);
-///
-///     _drawing_write_uri_ext(self, "{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}");
-///     _drawing_write_a16_creation_id(self);
-///     lxw_xml_end_tag(self->file, "a:ext");
-///
-///     _drawing_write_uri_ext(self, "{C183D7F6-B498-43B3-948B-1728B52AA6E4}");
-///     _workbook_write_adec_decorative(self);
-///     lxw_xml_end_tag(self->file, "a:ext");
-///
-///     lxw_xml_end_tag(self->file, "a:extLst");
-/// }
+std::string drawing_t::write_uri_ext(const std::string& uri) const
+{
+  return xml_start_tag("a:ext", {
+                                    {"uri", uri}
+  });
+}
 
-/*
- * Write the <xdr:cNvPr> element.
- */
-/// STATIC void
-/// _drawing_write_c_nv_pr(lxw_drawing *self, char *object_name, uint32_t index,
-///                        lxw_drawing_object *drawing_object)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     char name[LXW_OBJ_NAME_LENGTH];
-///     lxw_snprintf(name, LXW_OBJ_NAME_LENGTH, "%s %d", object_name, index);
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_INT("id", index + 1);
-///     LXW_PUSH_ATTRIBUTES_STR("name", name);
-///
-///     if (drawing_object && drawing_object->description
-///         && strlen(drawing_object->description)
-///         && !drawing_object->decorative) {
-///
-///         LXW_PUSH_ATTRIBUTES_STR("descr", drawing_object->description);
-///     }
-///
-///     if (drawing_object
-///         && (drawing_object->url_rel_index || drawing_object->decorative)) {
-///         lxw_xml_start_tag(self->file, "xdr:cNvPr", &attributes);
-///
-///         if (drawing_object->url_rel_index) {
-///             /* Write the a:hlinkClick element. */
-///             _drawing_write_a_hlink_click(self,
-///                                          drawing_object->url_rel_index,
-///                                          drawing_object->tip);
-///         }
-///
-///         if (drawing_object->decorative) {
-///             _workbook_write_decorative(self);
-///         }
-///
-///         lxw_xml_end_tag(self->file, "xdr:cNvPr");
-///     }
-///     else {
-///         lxw_xml_empty_tag(self->file, "xdr:cNvPr", &attributes);
-///     }
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_decorative() const
+{
+  std::string xml_data = xml_start_tag("a:extLst");
 
-/*
- * Write the <a:picLocks> element.
- */
-/// STATIC void
-/// _drawing_write_a_pic_locks(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("noChangeAspect", "1");
-///
-///     lxw_xml_empty_tag(self->file, "a:picLocks", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  xml_data += write_uri_ext("{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}");
+  xml_data += write_a16_creation_id();
+  xml_data += xml_end_tag("a:ext");
 
-/*
- * Write the <xdr:cNvPicPr> element.
- */
-/// STATIC void
-/// _drawing_write_c_nv_pic_pr(lxw_drawing *self)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:cNvPicPr", NULL);
-///
-///     /* Write the a:picLocks element. */
-///     _drawing_write_a_pic_locks(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:cNvPicPr");
-/// }
+  xml_data += write_uri_ext("{C183D7F6-B498-43B3-948B-1728B52AA6E4}");
+  xml_data += write_adec_decorative();
+  xml_data += xml_end_tag("a:ext");
 
-/*
- * Write the <xdr:nvPicPr> element.
- */
-/// STATIC void
-/// _drawing_write_nv_pic_pr(lxw_drawing *self, uint32_t index,
-///                          lxw_drawing_object *drawing_object)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:nvPicPr", NULL);
-///
-///     /* Write the xdr:cNvPr element. */
-///     _drawing_write_c_nv_pr(self, "Picture", index, drawing_object);
-///
-///     /* Write the xdr:cNvPicPr element. */
-///     _drawing_write_c_nv_pic_pr(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:nvPicPr");
-/// }
+  xml_data += xml_end_tag("a:extLst");
 
-/*
- * Write the <a:blip> element.
- */
-/// STATIC void
-/// _drawing_write_a_blip(lxw_drawing *self, uint32_t index)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns_r[] = LXW_SCHEMA_OFFICEDOC "/relationships";
-///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
-///
-///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", index);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:r", xmlns_r);
-///     LXW_PUSH_ATTRIBUTES_STR("r:embed", r_id);
-///
-///     lxw_xml_empty_tag(self->file, "a:blip", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <a:fillRect> element.
- */
-/// STATIC void
-/// _drawing_write_a_fill_rect(lxw_drawing *self)
-/// {
-///     lxw_xml_empty_tag(self->file, "a:fillRect", NULL);
-/// }
+std::string drawing_t::write_c_nv_pr(const std::string& object_name, uint32_t index,
+                                     const std::optional<drawing_object_t>& drawing_object) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"id", std::to_string(index + 1)},
+      {"name", std::format("{} {}", object_name, index)},
+  };
 
-/*
- * Write the <a:stretch> element.
- */
-/// STATIC void
-/// _drawing_write_a_stretch(lxw_drawing *self)
-/// {
-///     lxw_xml_start_tag(self->file, "a:stretch", NULL);
-///
-///     /* Write the a:fillRect element. */
-///     _drawing_write_a_fill_rect(self);
-///
-///     lxw_xml_end_tag(self->file, "a:stretch");
-/// }
+  if(drawing_object && !drawing_object->description_.empty() && !drawing_object->decorative_)
+  {
+    attributes.emplace_back("descr", drawing_object->description_);
+  }
 
-/*
- * Write the <xdr:blipFill> element.
- */
-/// STATIC void
-/// _drawing_write_blip_fill(lxw_drawing *self, uint32_t index)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:blipFill", NULL);
-///
-///     /* Write the a:blip element. */
-///     _drawing_write_a_blip(self, index);
-///
-///     /* Write the a:stretch element. */
-///     _drawing_write_a_stretch(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:blipFill");
-/// }
+  if(drawing_object && (drawing_object->url_rel_index_ != 0 || drawing_object->decorative_))
+  {
+    std::string xml_data = xml_start_tag("xdr:cNvPr", attributes);
 
-/*
- * Write the <a:ext> element.
- */
-/// STATIC void
-/// _drawing_write_a_ext(lxw_drawing *self, lxw_drawing_object *drawing_object)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("cx", drawing_object->width);
-///     LXW_PUSH_ATTRIBUTES_INT("cy", drawing_object->height);
-///
-///     lxw_xml_empty_tag(self->file, "a:ext", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+    if(drawing_object->url_rel_index_ != 0)
+    {
+      xml_data += write_a_hlink_click(drawing_object->url_rel_index_, drawing_object->tip_);
+    }
 
-/*
- * Write the <a:off> element.
- */
-/// STATIC void
-/// _drawing_write_a_off(lxw_drawing *self, lxw_drawing_object *drawing_object)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     /* Use %d to allow for writing uint64_t on ansi 32bit systems. The largest
-///        Excel value will fit without losing precision. */
-///     LXW_PUSH_ATTRIBUTES_DBL("x", drawing_object->col_absolute);
-///     LXW_PUSH_ATTRIBUTES_DBL("y", drawing_object->row_absolute);
-///
-///     lxw_xml_empty_tag(self->file, "a:off", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-///
-/*
- * Write the <a:xfrm> element.
- */
-/// STATIC void
-/// _drawing_write_a_xfrm(lxw_drawing *self, lxw_drawing_object *drawing_object)
-/// {
-///     lxw_xml_start_tag(self->file, "a:xfrm", NULL);
-///
-///     /* Write the a:off element. */
-///     _drawing_write_a_off(self, drawing_object);
-///
-///     /* Write the a:ext element. */
-///     _drawing_write_a_ext(self, drawing_object);
-///
-///     lxw_xml_end_tag(self->file, "a:xfrm");
-/// }
+    if(drawing_object->decorative_)
+    {
+      xml_data += write_decorative();
+    }
+    xml_data += xml_end_tag("xdr:cNvPr");
 
-/*
- * Write the <a:avLst> element.
- */
-/// STATIC void
-/// _drawing_write_a_av_lst(lxw_drawing *self)
-/// {
-///     lxw_xml_empty_tag(self->file, "a:avLst", NULL);
-/// }
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("xdr:cNvPr", attributes);
+  }
+}
 
-/*
- * Write the <a:prstGeom> element.
- */
-/// STATIC void
-/// _drawing_write_a_prst_geom(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("prst", "rect");
-///
-///     lxw_xml_start_tag(self->file, "a:prstGeom", &attributes);
-///
-///     /* Write the a:avLst element. */
-///     _drawing_write_a_av_lst(self);
-///
-///     lxw_xml_end_tag(self->file, "a:prstGeom");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a_pic_locks() const
+{
+  return xml_empty_tag("a:picLocks", {
+                                         {"noChangeAspect", "1"}
+  });
+}
 
-/*
- * Write the <xdr:spPr> element.
- */
-/// STATIC void
-///_drawing_write_sp_pr(lxw_drawing *self, lxw_drawing_object *drawing_object)
-///{
-///     lxw_xml_start_tag(self->file, "xdr:spPr", NULL);
-///
-///     /* Write the a:xfrm element. */
-///     _drawing_write_a_xfrm(self, drawing_object);
-///
-///     /* Write the a:prstGeom element. */
-///     _drawing_write_a_prst_geom(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:spPr");
-/// }
+std::string drawing_t::write_c_nv_pic_pr() const
+{
+  std::string xml_data = xml_start_tag("xdr:cNvPicPr");
+  xml_data += write_a_pic_locks();
+  xml_data += xml_end_tag("xdr:cNvPicPr");
 
-/*
- * Write the <xdr:pic> element.
- */
-/// STATIC void
-///_drawing_write_pic(lxw_drawing *self, uint32_t index,
-///                    lxw_drawing_object *drawing_object)
-///{
-///     lxw_xml_start_tag(self->file, "xdr:pic", NULL);
-///
-///     /* Write the xdr:nvPicPr element. */
-///     _drawing_write_nv_pic_pr(self, index, drawing_object);
-///
-///     /* Write the xdr:blipFill element. */
-///     _drawing_write_blip_fill(self, drawing_object->rel_index);
-///
-///     /* Write the xdr:spPr element. */
-///     _drawing_write_sp_pr(self, drawing_object);
-///
-///     lxw_xml_end_tag(self->file, "xdr:pic");
-///  }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:clientData> element.
- */
-/// STATIC void
-/// _drawing_write_client_data(lxw_drawing *self)
-/// {
-///     lxw_xml_empty_tag(self->file, "xdr:clientData", NULL);
-/// }
+std::string drawing_t::write_nv_pic_pr(uint32_t index, const drawing_object_t& drawing_object) const
+{
+  std::string xml_data = xml_start_tag("xdr:nvPicPr");
+  xml_data += write_c_nv_pr("Picture", index, drawing_object);
+  xml_data += write_c_nv_pic_pr();
+  xml_data += xml_end_tag("xdr:nvPicPr");
 
-/*
- * Write the <a:graphicFrameLocks> element.
- */
-/// STATIC void
-/// _drawing_write_a_graphic_frame_locks(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("noGrp", 1);
-///
-///     lxw_xml_empty_tag(self->file, "a:graphicFrameLocks", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:cNvGraphicFramePr> element.
- */
-/// STATIC void
-/// _drawing_write_c_nv_graphic_frame_pr(lxw_drawing *self)
-/// {
-///     if (self->embedded) {
-///         lxw_xml_empty_tag(self->file, "xdr:cNvGraphicFramePr", NULL);
-///     }
-///     else {
-///         lxw_xml_start_tag(self->file, "xdr:cNvGraphicFramePr", NULL);
-///
-///         /* Write the a:graphicFrameLocks element. */
-///         _drawing_write_a_graphic_frame_locks(self);
-///
-///         lxw_xml_end_tag(self->file, "xdr:cNvGraphicFramePr");
-///     }
-/// }
+std::string drawing_t::write_a_blip(uint32_t index) const
+{
+  return xml_empty_tag("a:blip", {
+                                     {"xmlns:r", SCHEMA_OFFICEDOC + "/relationships"},
+                                     {"r:embed", std::format("rId{}", index)},
+  });
+}
 
-/*
- * Write the <xdr:nvGraphicFramePr> element.
- */
-/// STATIC void
-/// _drawing_write_nv_graphic_frame_pr(lxw_drawing *self, uint32_t index,
-///                                    lxw_drawing_object *drawing_object)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:nvGraphicFramePr", NULL);
-///
-///     /* Write the xdr:cNvPr element. */
-///     _drawing_write_c_nv_pr(self, "Chart", index, drawing_object);
-///
-///     /* Write the xdr:cNvGraphicFramePr element. */
-///     _drawing_write_c_nv_graphic_frame_pr(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:nvGraphicFramePr");
-/// }
+std::string drawing_t::write_a_fill_rect() const
+{
+  return xml_empty_tag("a:fillRect");
+}
 
-/*
- * Write the <a:off> element.
- */
-/// STATIC void
-/// _drawing_write_xfrm_offset(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("x", "0");
-///     LXW_PUSH_ATTRIBUTES_STR("y", "0");
-///
-///     lxw_xml_empty_tag(self->file, "a:off", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a_stretch() const
+{
+  std::string xml_data = xml_start_tag("a:stretch");
+  xml_data += write_a_fill_rect();
+  xml_data += xml_end_tag("a:stretch");
 
-/*
- * Write the <a:ext> element.
- */
-/// STATIC void
-/// _drawing_write_xfrm_extension(lxw_drawing *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("cx", "0");
-///     LXW_PUSH_ATTRIBUTES_STR("cy", "0");
-///
-///     lxw_xml_empty_tag(self->file, "a:ext", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:xfrm> element.
- */
-/// STATIC void
-/// _drawing_write_xfrm(lxw_drawing *self)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:xfrm", NULL);
-///
-///     /* Write the a:off element. */
-///     _drawing_write_xfrm_offset(self);
-///
-///     /* Write the a:ext element. */
-///     _drawing_write_xfrm_extension(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:xfrm");
-/// }
+std::string drawing_t::write_blip_fill(uint32_t index) const
+{
+  std::string xml_data = xml_start_tag("xdr:blipFill");
+  xml_data += write_a_blip(index);
+  xml_data += write_a_stretch();
+  xml_data += xml_end_tag("xdr:blipFill");
 
-/*
- * Write the <c:chart> element.
- */
-/// STATIC void
-/// _drawing_write_chart(lxw_drawing *self, uint32_t index)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns_c[] = LXW_SCHEMA_DRAWING "/chart";
-///     char xmlns_r[] = LXW_SCHEMA_OFFICEDOC "/relationships";
-///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
-///
-///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", index);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:c", xmlns_c);
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:r", xmlns_r);
-///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-///
-///     lxw_xml_empty_tag(self->file, "c:chart", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <a:graphicData> element.
- */
-/// STATIC void
-/// _drawing_write_a_graphic_data(lxw_drawing *self, uint32_t index)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char uri[] = LXW_SCHEMA_DRAWING "/chart";
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("uri", uri);
-///
-///     lxw_xml_start_tag(self->file, "a:graphicData", &attributes);
-///
-///     /* Write the c:chart element. */
-///     _drawing_write_chart(self, index);
-///
-///     lxw_xml_end_tag(self->file, "a:graphicData");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a_ext(const drawing_object_t& drawing_object) const
+{
+  return xml_empty_tag("a:ext", {
+                                    {"cx", std::to_string(drawing_object.width_) },
+                                    {"cy", std::to_string(drawing_object.height_)},
+  });
+}
 
-/*
- * Write the <a:graphic> element.
- */
-/// STATIC void
-/// _drawing_write_a_graphic(lxw_drawing *self, uint32_t index)
-/// {
-///
-///     lxw_xml_start_tag(self->file, "a:graphic", NULL);
-///
-///     /* Write the a:graphicData element. */
-///     _drawing_write_a_graphic_data(self, index);
-///
-///     lxw_xml_end_tag(self->file, "a:graphic");
-/// }
+std::string drawing_t::write_a_off(const drawing_object_t& drawing_object) const
+{
+  return xml_empty_tag("a:off", {
+                                    {"x", std::to_string(drawing_object.col_absolute_)},
+                                    {"y", std::to_string(drawing_object.row_absolute_)},
+  });
+}
 
-/*
- * Write the <xdr:graphicFrame> element.
- */
-/// STATIC void
-/// _drawing_write_graphic_frame(lxw_drawing *self, uint32_t index,
-///                              uint32_t rel_index,
-///                              lxw_drawing_object *drawing_object)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("macro", "");
-///
-///     lxw_xml_start_tag(self->file, "xdr:graphicFrame", &attributes);
-///
-///     /* Write the xdr:nvGraphicFramePr element. */
-///     _drawing_write_nv_graphic_frame_pr(self, index, drawing_object);
-///
-///     /* Write the xdr:xfrm element. */
-///     _drawing_write_xfrm(self);
-///
-///     /* Write the a:graphic element. */
-///     _drawing_write_a_graphic(self, rel_index);
-///
-///     lxw_xml_end_tag(self->file, "xdr:graphicFrame");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a_xfrm(const drawing_object_t& drawing_object) const
+{
+  std::string xml_data = xml_start_tag("a:xfrm");
+  xml_data += write_a_off(drawing_object);
+  xml_data += write_a_ext(drawing_object);
+  xml_data += xml_end_tag("a:xfrm");
 
-/*
- * Write the <xdr:twoCellAnchor> element.
- */
-/// STATIC void
-/// _drawing_write_two_cell_anchor(lxw_drawing *self, uint32_t index,
-///                                lxw_drawing_object *drawing_object)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (drawing_object->anchor == LXW_OBJECT_MOVE_DONT_SIZE)
-///         LXW_PUSH_ATTRIBUTES_STR("editAs", "oneCell");
-///     else if (drawing_object->anchor == LXW_OBJECT_DONT_MOVE_DONT_SIZE)
-///         LXW_PUSH_ATTRIBUTES_STR("editAs", "absolute");
-///
-///     lxw_xml_start_tag(self->file, "xdr:twoCellAnchor", &attributes);
-///
-///     _drawing_write_from(self, &drawing_object->from);
-///     _drawing_write_to(self, &drawing_object->to);
-///
-///     if (drawing_object->type == LXW_DRAWING_CHART) {
-///         /* Write the xdr:graphicFrame element for charts. */
-///         _drawing_write_graphic_frame(self, index, drawing_object->rel_index,
-///                                      drawing_object);
-///     }
-///     else if (drawing_object->type == LXW_DRAWING_IMAGE) {
-///         /* Write the xdr:pic element. */
-///         _drawing_write_pic(self, index, drawing_object);
-///     }
-///     else {
-///         /* Write the xdr:sp element for shapes. */
-///         /* _drawing_write_sp(self, index, col_absolute, row_absolute, width,
-///            height,  shape); */
-///     }
-///
-///     /* Write the xdr:clientData element. */
-///     _drawing_write_client_data(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:twoCellAnchor");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
-/*
- * Write the <xdr:ext> element.
- */
-/// STATIC void
-/// _drawing_write_ext(lxw_drawing *self, uint32_t cx, uint32_t cy)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("cx", cx);
-///     LXW_PUSH_ATTRIBUTES_INT("cy", cy);
-///
-///     lxw_xml_empty_tag(self->file, "xdr:ext", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a_av_lst() const
+{
+  return xml_empty_tag("a:avLst");
+}
 
-/*
- * Write the <xdr:pos> element.
- */
-/// STATIC void
-/// _drawing_write_pos(lxw_drawing *self, int32_t x, int32_t y)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("x", x);
-///     LXW_PUSH_ATTRIBUTES_INT("y", y);
-///
-///     lxw_xml_empty_tag(self->file, "xdr:pos", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string drawing_t::write_a_prst_geom() const
+{
+  std::string xml_data = xml_start_tag("a:prstGeom", {
+                                                         {"prst", "rect"}
+  });
+  xml_data += write_a_av_lst();
+  xml_data += xml_end_tag("a:prstGeom");
 
-/*
- * Write the <xdr:absoluteAnchor> element.
- */
-/// STATIC void
-/// _drawing_write_absolute_anchor(lxw_drawing *self, uint32_t frame_index)
-/// {
-///     lxw_xml_start_tag(self->file, "xdr:absoluteAnchor", NULL);
-///
-///     if (self->orientation == LXW_LANDSCAPE) {
-///         /* Write the xdr:pos element. */
-///         _drawing_write_pos(self, 0, 0);
-///
-///         /* Write the xdr:ext element. */
-///         _drawing_write_ext(self, 9308969, 6078325);
-///     }
-///     else {
-///         /* Write the xdr:pos element. */
-///         _drawing_write_pos(self, 0, -47625);
-///
-///         /* Write the xdr:ext element. */
-///         _drawing_write_ext(self, 6162675, 6124575);
-///     }
-///
-///     _drawing_write_graphic_frame(self, frame_index, frame_index, NULL);
-///
-///     /* Write the xdr:clientData element. */
-///     _drawing_write_client_data(self);
-///
-///     lxw_xml_end_tag(self->file, "xdr:absoluteAnchor");
-/// }
+  return xml_data;
+}
 
-/*
- * Assemble and write the XML file.
- */
-/// void
-/// lxw_drawing_assemble_xml_file(lxw_drawing *self)
-/// {
-///     uint32_t index;
-///     lxw_drawing_object *drawing_object;
-///
-///     /* Write the XML declaration. */
-///     _drawing_xml_declaration(self);
-///
-///     /* Write the xdr:wsDr element. */
-///     _write_drawing_workspace(self);
-///
-///     if (self->embedded) {
-///         index = 1;
-///
-///         STAILQ_FOREACH(drawing_object, self->drawing_objects, list_pointers) {
-///             _drawing_write_two_cell_anchor(self, index, drawing_object);
-///             index++;
-///         }
-///     }
-///     else {
-///         /* Write the xdr:absoluteAnchor element. Mainly for chartsheets. */
-///         _drawing_write_absolute_anchor(self, 1);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "xdr:wsDr");
-/// }
+std::string drawing_t::write_sp_pr(const drawing_object_t& drawing_object) const
+{
+  std::string xml_data = xml_start_tag("xdr:spPr");
+  xml_data += write_a_xfrm(drawing_object);
+  xml_data += write_a_prst_geom();
+  xml_data += xml_end_tag("xdr:spPr");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_pic(uint32_t index, const drawing_object_t& drawing_object) const
+{
+  std::string xml_data = xml_start_tag("xdr:pic");
+  xml_data += write_nv_pic_pr(index, drawing_object);
+  xml_data += write_blip_fill(drawing_object.rel_index_);
+  xml_data += write_sp_pr(drawing_object);
+  xml_data += xml_end_tag("xdr:pic");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_client_data() const
+{
+  return xml_empty_tag("xdr:clientData");
+}
+
+std::string drawing_t::write_a_graphic_frame_locks() const
+{
+  return xml_empty_tag("a:graphicFrameLocks", {
+                                                  {"noGrp", "1"}
+  });
+}
+
+std::string drawing_t::write_c_nv_graphic_frame_pr() const
+{
+  if(embedded_)
+  {
+    return xml_empty_tag("xdr:cNvGraphicFramePr");
+  }
+  else
+  {
+    std::string xml_data = xml_start_tag("xdr:cNvGraphicFramePr");
+    xml_data += write_a_graphic_frame_locks();
+    xml_data += xml_end_tag("xdr:cNvGraphicFramePr");
+
+    return xml_data;
+  }
+}
+
+std::string drawing_t::write_nv_graphic_frame_pr(uint32_t index,
+                                                 const std::optional<drawing_object_t>& drawing_object) const
+{
+  std::string xml_data = xml_start_tag("xdr:nvGraphicFramePr");
+  xml_data += write_c_nv_pr("Chart", index, drawing_object);
+  xml_data += write_c_nv_graphic_frame_pr();
+  xml_data += xml_end_tag("xdr:nvGraphicFramePr");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_xfrm_offset() const
+{
+  return xml_empty_tag("a:off", {
+                                    {"x", "0"},
+                                    {"y", "0"},
+  });
+}
+
+std::string drawing_t::write_xfrm_extension() const
+{
+  return xml_empty_tag("a:ext", {
+                                    {"cx", "0"},
+                                    {"cy", "0"},
+  });
+}
+
+std::string drawing_t::write_xfrm() const
+{
+  std::string xml_data = xml_start_tag("xdr:xfrm");
+  xml_data += write_xfrm_offset();
+  xml_data += write_xfrm_extension();
+  xml_data += xml_end_tag("xdr:xfrm");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_chart(uint32_t index) const
+{
+  return xml_empty_tag("c:chart", {
+                                      {"xmlns:c", SCHEMA_DRAWING + "/chart"},
+                                      {"xmlns:r", SCHEMA_OFFICEDOC + "/relationships"},
+                                      {"r:id", std::format("rId{}", index)},
+  });
+}
+
+std::string drawing_t::write_a_graphic_data(uint32_t index) const
+{
+  std::string xml_data = xml_start_tag("a:graphicData", {
+                                                            {"uri", SCHEMA_DRAWING + "/chart"}
+  });
+  xml_data += write_chart(index);
+  xml_data += xml_end_tag("a:graphicData");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_a_graphic(uint32_t index) const
+{
+  std::string xml_data = xml_start_tag("a:graphic");
+  xml_data += write_a_graphic_data(index);
+  xml_data += xml_end_tag("a:graphic");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_graphic_frame(uint32_t index, uint32_t rel_index,
+                                           const std::optional<drawing_object_t>& drawing_object) const
+{
+  std::string xml_data = xml_start_tag("xdr:graphicFrame", {
+                                                               {"macro", ""}
+  });
+  xml_data += write_nv_graphic_frame_pr(index, drawing_object);
+  xml_data += write_xfrm();
+  xml_data += write_a_graphic(rel_index);
+  xml_data += xml_end_tag("xdr:graphicFrame");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_two_cell_anchor(uint32_t index, const drawing_object_t& drawing_object) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE))
+  {
+    attributes.emplace_back("editAs", "oneCell");
+  }
+  else if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE))
+  {
+    attributes.emplace_back("editAs", "absolute");
+  }
+
+  std::string xml_data = xml_start_tag("xdr:twoCellAnchor", attributes);
+
+  xml_data += write_from(drawing_object.from_);
+  xml_data += write_to(drawing_object.to_);
+
+  if(drawing_object.type_ == drawing_types_t::CHART)
+  {
+    xml_data += write_graphic_frame(index, drawing_object.rel_index_, drawing_object);
+  }
+  else if(drawing_object.type_ == drawing_types_t::IMAGE)
+  {
+    xml_data += write_pic(index, drawing_object);
+  }
+  else
+  {
+    // TODO ???
+    /* Write the xdr:sp element for shapes. */
+    /* _drawing_write_sp(self, index, col_absolute, row_absolute, width, height,  shape); */
+  }
+  xml_data += write_client_data();
+  xml_data += xml_end_tag("xdr:twoCellAnchor");
+
+  return xml_data;
+}
+
+std::string drawing_t::write_ext(uint32_t cx, uint32_t cy) const
+{
+  return xml_empty_tag("xdr:ext", {
+                                      {"cx", std::to_string(cx)},
+                                      {"cy", std::to_string(cy)},
+  });
+}
+
+std::string drawing_t::write_pos(int32_t x, int32_t y) const
+{
+  return xml_empty_tag("xdr:pos", {
+                                      {"x", std::to_string(x)},
+                                      {"y", std::to_string(y)},
+  });
+}
+
+std::string drawing_t::write_absolute_anchor(uint32_t frame_index) const
+{
+  std::string xml_data = xml_start_tag("xdr:absoluteAnchor");
+
+  if(orientation_ == drawing_orientation_t::LANDSCAPE)
+  {
+    xml_data += write_pos(0, 0);
+    xml_data += write_ext(9308969, 6078325);
+  }
+  else
+  {
+    xml_data += write_pos(0, -47625);
+    xml_data += write_ext(6162675, 6124575);
+  }
+  xml_data += write_graphic_frame(frame_index, frame_index, std::nullopt);
+  xml_data += write_client_data();
+  xml_data += xml_end_tag("xdr:absoluteAnchor");
+
+  return xml_data;
+}
+
+std::string drawing_t::assemble_xml_file() const
+{
+  std::string xml_data = xml_declaration();
+  xml_data += write_drawing_workspace();
+
+  if(embedded_)
+  {
+    uint32_t index = 1;
+
+    for(const auto& drawing_object: drawing_objects_)
+    {
+      xml_data += write_two_cell_anchor(index, drawing_object);
+      index++;
+    }
+  }
+  else
+  {
+    xml_data += write_absolute_anchor(1);
+  }
+  xml_data += xml_end_tag("xdr:wsDr");
+
+  return xml_data;
+}
 
 }

@@ -112,32 +112,6 @@ option(
 ###     OFF
 ### )
 
-# `USE_OPENSSL_MD5`
-#
-# Uses OpenSSL to provide a MD5 digest of image files in order to avoid storing
-# duplicates instead of the vendored OpenWall MD5 functions. This will link
-# against libcrypto for MD5 support rather than using the local MD5 support.
-#
-# To enable this option pass `-DUSE_OPENSSL_MD5=ON` during configuration.
-### option(
-###     USE_OPENSSL_MD5
-###     "Build Xlsxwriter++ with the OpenSSL MD5 support instead of built in version"
-###     OFF
-### )
-
-# `USE_NO_MD5`
-#
-# Compile without third party MD5 support. This will turn off the functionality
-# of avoiding duplicate image files in the output xlsx file. This can reduce the
-# executable size slightly if you aren't using images.
-#
-# To enable this option pass `-DUSE_NO_MD5=ON` during configuration.
-### option(
-###     USE_NO_MD5
-###     "Build Xlsxwriter++ without MD5 support for eliminating duplicate images"
-###     OFF
-### )
-
 # `USE_DTOA_LIBRARY`
 #
 # Use the third party Milo Yip DTOA library to handle string formatting of
@@ -233,16 +207,9 @@ endif()
 ###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_STANDARD_TMPFILE)
 ### endif()
 
-### if(NOT USE_OPENSSL_MD5 AND USE_NO_MD5)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_NO_MD5)
-### endif()
-
-### if(USE_OPENSSL_MD5)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_OPENSSL_MD5)
-###     if(NOT MSVC)
-###         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
-###     endif()
-### endif()
+## TODO Replace MD5_Init and co and remove this
+# For openSSL use
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
 
 ### if(USE_MEM_FILE OR USE_FMEMOPEN)
 ###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_FMEMOPEN)
@@ -310,9 +277,7 @@ set(ENABLED_OPTIONS "zlib")
 if(USE_SYSTEM_MINIZIP)
   string(APPEND ENABLED_OPTIONS " minizip")
 endif()
-### if(USE_OPENSSL_MD5)
-###     string(APPEND ENABLED_OPTIONS " libcrypto")
-### endif()
+string(APPEND ENABLED_OPTIONS " libcrypto")
 
 # Expand out the xlsxwriterpp.pc file.
 ### configure_file(dev/release/pkg-config.txt xlsxwriterpp.pc @ONLY)
@@ -340,10 +305,8 @@ if(USE_SYSTEM_MINIZIP)
 endif()
 
 # Set the openssl includes.
-### if(USE_OPENSSL_MD5)
-###     find_package(OpenSSL REQUIRED)
-###     include_directories(${OPENSSL_INCLUDE_DIR})
-### endif()
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
 
 # ----------------------------
 # Set the library dependencies
@@ -388,10 +351,6 @@ endif()
 ###     list(APPEND XWPP_SOURCES third_party/tmpfileplus/tmpfileplus.c)
 ### endif()
 
-### if(NOT USE_OPENSSL_MD5 AND NOT USE_NO_MD5)
-###     list(APPEND XWPP_SOURCES third_party/md5/md5.c)
-### endif()
-
 ### if(USE_DTOA_LIBRARY)
 ###     list(APPEND XWPP_SOURCES third_party/dtoa/emyg_dtoa.c)
 ### endif()
@@ -411,10 +370,7 @@ else()
   target_link_libraries(${PROJECT_NAME} PRIVATE ${MINIZIP_LIBRARIES})
 endif()
 
-### target_link_libraries(
-###     ${PROJECT_NAME}
-###     PRIVATE ${LIB_CRYPTO} ${OPENSSL_CRYPTO_LIBRARY}
-### )
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_CRYPTO} ${OPENSSL_CRYPTO_LIBRARY})
 
 ### target_compile_definitions(
 ###     ${PROJECT_NAME}
@@ -468,6 +424,7 @@ if(NOT MSVC)
 ###     set(XWPP_UNIT_SOURCES test/cpp/test_compilation.cpp)
 endif()
 
+## TODO Autodetect unit tests
 if(BUILD_TESTS)
   find_package(Boost 1.83 REQUIRED COMPONENTS unit_test_framework)
 
@@ -569,6 +526,8 @@ if(BUILD_EXAMPLES)
     add_executable(${basename} ${source})
     target_link_libraries(${basename} ${PROJECT_NAME})
     set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "examples")
+
+    # TODO Copy logo in RUNTIME_OUTPUT_DIRECTORY
   endforeach(source)
 endif()
 

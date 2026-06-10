@@ -69,7 +69,13 @@ private:
   void write_worksheet_rels_file(const workbook_t& workbook);
   void write_vml_files(const workbook_t& workbook);
   void write_comment_files(const workbook_t& workbook);
+  void write_drawing_files(const workbook_t& workbook);
+  void write_drawing_rels_file(const workbook_t& workbook);
+  void write_image_files(const workbook_t& workbook);
+
   void add_buffer_to_zip(std::string_view buffer, const std::string& filename);
+  void add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename);
+  [[nodiscard]] uint32_t get_drawing_count(const workbook_t& workbook) const;
 
   ///     size_t buffer_size;
   ///     size_t output_buffer_size;

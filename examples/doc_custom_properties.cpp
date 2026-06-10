@@ -1,6 +1,6 @@
 /*
  * Example of setting document properties such as Author, Title, etc., for an
- * Excel spreadsheet using libxlsxwriter.
+ * Excel spreadsheet using Xlsxwriter++.
  *
  * Copyright 2026, Grégory Lerbret
  *

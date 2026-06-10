@@ -64,8 +64,8 @@ enum class custom_property_types_t
   DATETIME
 };
 
-/* Size of MD5 byte arrays. */
-/// #define LXW_MD5_SIZE              16
+// Size of MD5 byte arrays.
+const size_t MD5_SIZE = 16;
 
 /* Excel sheetname max of 31 chars. */
 /// #define LXW_SHEETNAME_MAX         31
@@ -99,13 +99,16 @@ enum class custom_property_types_t
 /// #define LXW_FILENAME_LENGTH       128
 /// #define LXW_IGNORE                1
 
-/// #define LXW_PORTRAIT              1
-/// #define LXW_LANDSCAPE             0
+enum class drawing_orientation_t
+{
+  LANDSCAPE,
+  PORTRAIT,
+};
 
 /// #define LXW_SCHEMA_MS
 /// "http://schemas.microsoft.com/office/2006/relationships"
 const std::string SCHEMA_ROOT      = "http://schemas.openxmlformats.org";
-/// #define LXW_SCHEMA_DRAWING   LXW_SCHEMA_ROOT "/drawingml/2006"
+const std::string SCHEMA_DRAWING   = SCHEMA_ROOT + "/drawingml/2006";
 const std::string SCHEMA_OFFICEDOC = SCHEMA_ROOT + "/officeDocument/2006";
 const std::string SCHEMA_PACKAGE   = SCHEMA_ROOT + "/package/2006/relationships";
 const std::string SCHEMA_DOCUMENT  = SCHEMA_ROOT + "/officeDocument/2006/relationships";

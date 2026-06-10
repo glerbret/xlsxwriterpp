@@ -18,21 +18,18 @@
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
+#include <openssl/md5.h>
+
 #include <cstdint>
 #include <format>
+#include <fstream>
+#include <span>
 #include <string>
 #include <string_view>
 #include <tuple>
 #include <vector>
 
 #include <iostream>
-/// #ifdef USE_OPENSSL_MD5
-/// #include <openssl/md5.h>
-/// #else
-/// #ifndef USE_NO_MD5
-/// #include "xwpp/third_party/md5.h"
-/// #endif
-/// #endif
 
 using namespace std::literals;
 
@@ -801,59 +798,46 @@ void worksheet_t::check_dimensions(row_num_t row_num, col_num_t col_num, bool ig
 ///     return strcmp(elem_1->sqref, elem_2->sqref);
 /// }
 
-/// STATIC uint32_t _get_drawing_rel_index(lxw_worksheet *self, char *target)
-/// {
-///     lxw_drawing_rel_id tmp_drawing_rel_id;
-///     lxw_drawing_rel_id *found_duplicate_target = NULL;
-///     lxw_drawing_rel_id *new_drawing_rel_id = NULL;
+uint32_t worksheet_t::get_drawing_rel_index(const std::string& target)
+{
+  if(!target.empty())
+  {
+    const auto it = drawing_rel_ids_.find(target);
+    if(it != std::end(drawing_rel_ids_))
+    {
+      return it->second;
+    }
+    else
+    {
+      drawing_rel_id_++;
+      drawing_rel_ids_[target] = drawing_rel_id_;
+      return drawing_rel_id_;
+    }
+  }
+  else
+  {
+    drawing_rel_id_++;
+    return drawing_rel_id_;
+  }
+}
 
-///     if (target) {
-///         tmp_drawing_rel_id.target = target;
-///         found_duplicate_target = RB_FIND(lxw_drawing_rel_ids,
-///                                          self->drawing_rel_ids,
-///                                          &tmp_drawing_rel_id);
-///     }
+uint32_t worksheet_t::find_drawing_rel_index(const std::string& target)
+{
+  if(target.empty())
+  {
+    return 0;
+  }
 
-///     if (found_duplicate_target) {
-///         return found_duplicate_target->id;
-///     }
-///     else {
-///         self->drawing_rel_id++;
-
-///         if (target) {
-///             new_drawing_rel_id = calloc(1, sizeof(lxw_drawing_rel_id));
-
-///             if (new_drawing_rel_id) {
-///                 new_drawing_rel_id->id = self->drawing_rel_id;
-///                 new_drawing_rel_id->target = lxw_strdup(target);
-
-///                 RB_INSERT(lxw_drawing_rel_ids, self->drawing_rel_ids,
-///                           new_drawing_rel_id);
-///             }
-///         }
-
-///         return self->drawing_rel_id;
-///     }
-/// }
-
-/// STATIC uint32_t _find_drawing_rel_index(lxw_worksheet *self, char *target)
-/// {
-///     lxw_drawing_rel_id tmp_drawing_rel_id;
-///     lxw_drawing_rel_id *found_duplicate_target = NULL;
-
-///     if (!target)
-///         return 0;
-
-///     tmp_drawing_rel_id.target = target;
-///     found_duplicate_target = RB_FIND(lxw_drawing_rel_ids,
-///                                      self->drawing_rel_ids,
-///                                      &tmp_drawing_rel_id);
-
-///     if (found_duplicate_target)
-///         return found_duplicate_target->id;
-///     else
-///         return 0;
-/// }
+  auto it = drawing_rel_ids_.find(target);
+  if(it != std::end(drawing_rel_ids_))
+  {
+    return it->second;
+  }
+  else
+  {
+    return 0;
+  }
+}
 
 /// STATIC uint32_t _get_vml_drawing_rel_index(lxw_worksheet *self, char *target)
 /// {
@@ -2104,7 +2088,6 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
   }
 }
 
-// ICI 2
 int32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
 {
   col_options_t* col_opt = nullptr;
@@ -2360,22 +2343,20 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
  * Metric Units (EMUs). There are 12,700 EMUs per point.
  * Therefore, 12,700 * 3 /4 = 9,525 EMUs per pixel.
  */
-/// STATIC void _worksheet_position_object_emus(lxw_worksheet *self,
-///                                 lxw_object_properties *image,
-///                                 lxw_drawing_object *drawing_object)
-/// {
-///     _worksheet_position_object_pixels(self, image, drawing_object);
+void worksheet_t::position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object)
+{
+  position_object_pixels(image, drawing_object);
 
-/* Convert the pixel values to EMUs. See above. */
-///     drawing_object->from.col_offset *= 9525;
-///     drawing_object->from.row_offset *= 9525;
-///     drawing_object->to.col_offset *= 9525;
-///     drawing_object->to.row_offset *= 9525;
-///     drawing_object->to.col_offset += 0.5;
-///     drawing_object->to.row_offset += 0.5;
-///     drawing_object->col_absolute *= 9525;
-///     drawing_object->row_absolute *= 9525;
-/// }
+  // Convert the pixel values to EMUs. See above.
+  drawing_object.from_.col_offset_ *= 9525;
+  drawing_object.from_.row_offset_ *= 9525;
+  drawing_object.to_.col_offset_ *= 9525;
+  drawing_object.to_.row_offset_ *= 9525;
+  drawing_object.to_.col_offset_ += 0.5;
+  drawing_object.to_.row_offset_ += 0.5;
+  drawing_object.col_absolute_ *= 9525;
+  drawing_object.row_absolute_ *= 9525;
+}
 
 /*
  * This function handles the additional optional parameters to
@@ -2499,193 +2480,116 @@ void worksheet_t::position_vml_object(vml_obj_t& vml_obj)
   vml_obj.row_absolute_     = drawing_object.row_absolute_;
 }
 
-/// void
-/// lxw_worksheet_prepare_image(lxw_worksheet *self,
-///                             uint32_t image_ref_id, uint32_t drawing_id,
-///                             lxw_object_properties *object_props)
-/// {
-///     lxw_drawing_object *drawing_object;
-///     lxw_rel_tuple *relationship;
-///     double width;
-///     double height;
-///     char *url;
-///     char *found_string;
-///     size_t i;
-///     char filename[LXW_FILENAME_LENGTH];
-///     enum cell_types link_type = HYPERLINK_URL;
+void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props)
+{
+  if(!drawing_)
+  {
+    drawing_ = drawing_t{};
+    external_drawing_links_.emplace_back("/drawing", std::format("../drawings/drawing{}.xml", drawing_id), "");
+  }
 
-///     if (!self->drawing) {
-///         self->drawing = lxw_drawing_new();
-///         self->drawing->embedded = LXW_TRUE;
-///         RETURN_VOID_ON_MEM_ERROR(self->drawing);
+  drawing_object_t drawing_object;
+  drawing_object.anchor_ = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE);
+  if(object_props.object_position_ != object_position_t::DEFAULT)
+  {
+    drawing_object.anchor_ = static_cast<uint8_t>(object_props.object_position_);
+  }
 
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
+  drawing_object.type_          = drawing_types_t::IMAGE;
+  drawing_object.description_   = object_props.description_;
+  drawing_object.tip_           = object_props.tip_;
+  drawing_object.rel_index_     = 0;
+  drawing_object.url_rel_index_ = 0;
+  drawing_object.decorative_    = object_props.decorative_;
 
-///         relationship->type = lxw_strdup("/drawing");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
+  // Scale to user scale.
+  double width  = object_props.width_ * object_props.x_scale_;
+  double height = object_props.height_ * object_props.y_scale_;
 
-///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                      "../drawings/drawing%d.xml", drawing_id);
+  // Scale by non 96dpi resolutions.
+  width *= 96.0 / object_props.x_dpi_;
+  height *= 96.0 / object_props.y_dpi_;
 
-///         relationship->target = lxw_strdup(filename);
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
+  object_props.width_  = width;
+  object_props.height_ = height;
 
-///         STAILQ_INSERT_TAIL(self->external_drawing_links, relationship,
-///                            list_pointers);
-///     }
+  position_object_emus(object_props, drawing_object);
 
-///     drawing_object = calloc(1, sizeof(lxw_drawing_object));
-///     RETURN_VOID_ON_MEM_ERROR(drawing_object);
+  // Convert from pixels to emus.
+  drawing_object.width_  = static_cast<uint32_t>(0.5 + width * 9525);
+  drawing_object.height_ = static_cast<uint32_t>(0.5 + height * 9525);
 
-///     drawing_object->anchor = LXW_OBJECT_MOVE_DONT_SIZE;
-///     if (object_props->object_position)
-///         drawing_object->anchor = object_props->object_position;
+  if(!object_props.url_.empty())
+  {
+    std::string url = object_props.url_;
 
-///     drawing_object->type = LXW_DRAWING_IMAGE;
-///     drawing_object->description = lxw_strdup(object_props->description);
-///     drawing_object->tip = lxw_strdup(object_props->tip);
-///     drawing_object->rel_index = 0;
-///     drawing_object->url_rel_index = 0;
-///     drawing_object->decorative = object_props->decorative;
+    // Check the link type. Default to external hyperlinks.
+    // TODO Remove this useless variable
+    cell_types_t link_type = cell_types_t::HYPERLINK_URL;
+    if(url.find("internal:") != std::string::npos)
+    {
+      link_type = cell_types_t::HYPERLINK_INTERNAL;
+    }
+    else if(url.find("external:") != std::string::npos)
+    {
+      link_type = cell_types_t::HYPERLINK_EXTERNAL;
+    }
 
-/* Scale to user scale. */
-///     width = object_props->width * object_props->x_scale;
-///     height = object_props->height * object_props->y_scale;
+    // Set the relationship object for each type of link.
+    if(link_type == cell_types_t::HYPERLINK_INTERNAL)
+    {
+      const std::string target = "#"s + url.substr(sizeof("internal"));
+      drawing_links_.emplace_back("/hyperlink", target, "");
+    }
+    else if(link_type == cell_types_t::HYPERLINK_EXTERNAL)
+    {
+      std::string url_copy = url.substr(sizeof("external"));
 
-/* Scale by non 96dpi resolutions. */
-///     width *= 96.0 / object_props->x_dpi;
-///     height *= 96.0 / object_props->y_dpi;
+      // Look for Windows style "C:/" link or Windows share "\\" link.
+      size_t found_string = url_copy.find(':');
+      if(found_string == std::string::npos)
+      {
+        found_string = url_copy.find("\\\\");
+      }
 
-///     object_props->width = width;
-///     object_props->height = height;
+      if(found_string != std::string::npos)
+      {
+        // Add the file:/// URI to the url if non-local.
+        drawing_links_.emplace_back("/hyperlink", "file:///"s + escape_url_characters(url_copy, true), "External");
+      }
+      else
+      {
+        // Copy the relative url without "external:".
+        std::string url_copy = escape_url_characters(url.substr(sizeof("external")), true);
 
-///     _worksheet_position_object_emus(self, object_props, drawing_object);
+        // Switch backslash to forward slash.
+        for(auto& c: url_copy)
+        {
+          if(c == '/')
+          {
+            c = '\\';
+          }
+        }
+        drawing_links_.emplace_back("/hyperlink", url_copy, "External");
+      }
+    }
+    else
+    {
+      drawing_links_.emplace_back("/hyperlink", escape_url_characters(object_props.url_, false), "External");
+    }
 
-/* Convert from pixels to emus. */
-///     drawing_object->width = (uint32_t) (0.5 + width * 9525);
-///     drawing_object->height = (uint32_t) (0.5 + height * 9525);
+    drawing_object.url_rel_index_ = get_drawing_rel_index(url);
+  }
 
-///     lxw_add_drawing_object(self->drawing, drawing_object);
+  if(find_drawing_rel_index(object_props.md5_) == 0)
+  {
+    drawing_links_.emplace_back("/image", std::format("../media/image{}.{}", image_ref_id, object_props.extension_),
+                                "");
+  }
 
-///     if (object_props->url) {
-///         url = object_props->url;
-
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-///         relationship->type = lxw_strdup("/hyperlink");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-/* Check the link type. Default to external hyperlinks. */
-///         if (strstr(url, "internal:"))
-///             link_type = HYPERLINK_INTERNAL;
-///         else if (strstr(url, "external:"))
-///             link_type = HYPERLINK_EXTERNAL;
-///         else
-///             link_type = HYPERLINK_URL;
-
-/* Set the relationship object for each type of link. */
-///         if (link_type == HYPERLINK_INTERNAL) {
-///             relationship->target_mode = NULL;
-///             relationship->target = lxw_strdup(url + sizeof("internal") - 1);
-///             GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-/* We need to prefix the internal link/range with #. */
-///             relationship->target[0] = '#';
-///         }
-///         else if (link_type == HYPERLINK_EXTERNAL) {
-///             relationship->target_mode = lxw_strdup("External");
-///             GOTO_LABEL_ON_MEM_ERROR(relationship->target_mode, mem_error);
-
-/* Look for Windows style "C:/" link or Windows share "\\" link. */
-///             found_string = strchr(url + sizeof("external:") - 1, ':');
-///             if (!found_string)
-///                 found_string = strstr(url, "\\\\");
-
-///             if (found_string) {
-/* Copy the url with some space at the start to overwrite
- * "external:" with "file:///". */
-///                 relationship->target = lxw_escape_url_characters(url + 1,
-///                                                                  LXW_TRUE);
-///                 GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-/* Add the file:/// URI to the url if absolute path. */
-///                 memcpy(relationship->target, "file:///",
-///                        sizeof("file:///") - 1);
-///             }
-///             else {
-/* Copy the relative url without "external:". */
-///                 relationship->target =
-///                     lxw_escape_url_characters(url + sizeof("external:") - 1,
-///                                               LXW_TRUE);
-///                 GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-/* Switch backslash to forward slash. */
-///                 for (i = 0; i <= strlen(relationship->target); i++)
-///                     if (relationship->target[i] == '\\')
-///                         relationship->target[i] = '/';
-///             }
-///         }
-///         else {
-///             relationship->target_mode = lxw_strdup("External");
-///             GOTO_LABEL_ON_MEM_ERROR(relationship->target_mode, mem_error);
-
-///             relationship->target =
-///                 lxw_escape_url_characters(object_props->url, LXW_FALSE);
-///             GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-///         }
-
-/* Check if URL exceeds Excel's length limit. */
-///         if (lxw_utf8_strlen(url) > self->max_url_length) {
-///             LXW_WARN_FORMAT2("worksheet_insert_image()/_opt(): URL exceeds "
-///                              "Excel's allowable length of %d characters: %s",
-///                              self->max_url_length, url);
-///             goto mem_error;
-///         }
-
-///         if (!_find_drawing_rel_index(self, url)) {
-///             STAILQ_INSERT_TAIL(self->drawing_links, relationship,
-///                                list_pointers);
-///         }
-///         else {
-///             free(relationship->type);
-///             free(relationship->target);
-///             free(relationship->target_mode);
-///             free(relationship);
-///         }
-///         drawing_object->url_rel_index = _get_drawing_rel_index(self, url);
-///     }
-
-///     if (!_find_drawing_rel_index(self, object_props->md5)) {
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-///         relationship->type = lxw_strdup("/image");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-///         lxw_snprintf(filename, 32, "../media/image%d.%s", image_ref_id,
-///                      object_props->extension);
-
-///         relationship->target = lxw_strdup(filename);
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///         STAILQ_INSERT_TAIL(self->drawing_links, relationship, list_pointers);
-///     }
-
-///     drawing_object->rel_index =
-///         _get_drawing_rel_index(self, object_props->md5);
-
-///     return;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-/// }
+  drawing_object.rel_index_ = get_drawing_rel_index(object_props.md5_);
+  drawing_->add_drawing_object(drawing_object);
+}
 
 /// void
 /// lxw_worksheet_prepare_header_image(lxw_worksheet *self,
@@ -3019,109 +2923,84 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
 ///     return;
 /// }
 
-/// STATIC lxw_error _process_png(lxw_object_properties *object_props)
-/// {
-///     uint32_t length;
-///     uint32_t offset;
-///     char type[4];
-///     uint32_t width = 0;
-///     uint32_t height = 0;
-///     double x_dpi = 96;
-///     double y_dpi = 96;
-///     int fseek_err;
+void process_png(object_properties_t& image_props, const std::vector<unsigned char>& data)
+{
+  uint32_t width  = 0;
+  uint32_t height = 0;
+  double x_dpi    = 96;
+  double y_dpi    = 96;
 
-///     FILE *stream = object_props->stream;
+  // Start after header;
+  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  it += (4 + 4);
 
-/* Skip another 4 bytes to the end of the PNG header. */
-///     fseek_err = fseek(stream, 4, SEEK_CUR);
-///     if (fseek_err)
-///         goto file_error;
+  while(it + 3 * 4 < std::end(data))
+  {
+    // Read the PNG length and type fields for the sub-section.
+    const uint32_t length = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+    it += 4;
 
-///     while (!feof(stream)) {
+    std::string type{it, it + 4};
+    it += 4;
 
-/* Read the PNG length and type fields for the sub-section. */
-///         if (fread(&length, sizeof(length), 1, stream) < 1)
-///             break;
+    if(it + length < std::end(data))
+    {
+      if(type == "IHDR")
+      {
+        width = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        it += 4;
 
-///         if (fread(&type, 1, 4, stream) < 4)
-///             break;
+        height = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        it += 4;
 
-/* Convert the length to network order. */
-///         length = LXW_UINT32_NETWORK(length);
+        it += length - 2 * 4;
+      }
+      else if(type == "pHYs")
+      {
+        const uint32_t x_ppu = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        it += 4;
 
-/* The offset for next fseek() is the field length + type length. */
-///         offset = length + 4;
+        const uint32_t y_ppu = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        it += 4;
 
-///         if (memcmp(type, "IHDR", 4) == 0) {
-///             if (fread(&width, sizeof(width), 1, stream) < 1)
-///                 break;
+        const uint8_t units = it[0];
+        it++;
 
-///             if (fread(&height, sizeof(height), 1, stream) < 1)
-///                 break;
+        if(units == 1)
+        {
+          x_dpi = x_ppu * 0.0254;
+          y_dpi = y_ppu * 0.0254;
+        }
 
-///             width = LXW_UINT32_NETWORK(width);
-///             height = LXW_UINT32_NETWORK(height);
+        it += length - (2 * 4 + 1);
+      }
+      else if(type == "IEND")
+      {
+        break;
+      }
+      else
+      {
+        it += length;
+      }
+    }
+    else
+    {
+      // No enough byte for subsection, ==> stop
+      break;
+    }
 
-/* Reduce the offset by the length of previous freads(). */
-///             offset -= 8;
-///         }
+    // Ignore CRC
+    it += 4;
+  }
 
-///         if (memcmp(type, "pHYs", 4) == 0) {
-///             uint32_t x_ppu = 0;
-///             uint32_t y_ppu = 0;
-///             uint8_t units = 1;
-
-///             if (fread(&x_ppu, sizeof(x_ppu), 1, stream) < 1)
-///                 break;
-
-///             if (fread(&y_ppu, sizeof(y_ppu), 1, stream) < 1)
-///                 break;
-
-///             if (fread(&units, sizeof(units), 1, stream) < 1)
-///                 break;
-
-///             if (units == 1) {
-///                 x_ppu = LXW_UINT32_NETWORK(x_ppu);
-///                 y_ppu = LXW_UINT32_NETWORK(y_ppu);
-
-///                 x_dpi = (double) x_ppu *0.0254;
-///                 y_dpi = (double) y_ppu *0.0254;
-///             }
-
-/* Reduce the offset by the length of previous freads(). */
-///             offset -= 9;
-///         }
-
-///         if (memcmp(type, "IEND", 4) == 0)
-///             break;
-
-///         if (!feof(stream)) {
-///             fseek_err = fseek(stream, offset, SEEK_CUR);
-///             if (fseek_err)
-///                 goto file_error;
-///         }
-///     }
-
-/* Ensure that we read some valid data from the file. */
-///     if (width == 0)
-///         goto file_error;
-
-/* Set the image metadata. */
-///     object_props->image_type = LXW_IMAGE_PNG;
-///     object_props->width = width;
-///     object_props->height = height;
-///     object_props->x_dpi = x_dpi ? x_dpi : 96;
-///     object_props->y_dpi = y_dpi ? y_dpi : 96;
-///     object_props->extension = lxw_strdup("png");
-
-///     return LXW_NO_ERROR;
-
-/// file_error:
-///     LXW_WARN_FORMAT1("worksheet image insertion: "
-///                      "no size data found in: %s.", object_props->filename);
-
-///     return LXW_ERROR_IMAGE_DIMENSIONS;
-/// }
+  // Set the image metadata.
+  image_props.image_type_ = image_types_t::PNG;
+  image_props.width_      = width;
+  image_props.height_     = height;
+  image_props.x_dpi_      = x_dpi;
+  image_props.y_dpi_      = y_dpi;
+  image_props.extension_  = "png";
+}
 
 /// STATIC lxw_error
 /// _process_jpeg(lxw_object_properties *image_props)
@@ -3338,79 +3217,53 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
 ///     return LXW_ERROR_IMAGE_DIMENSIONS;
 /// }
 
-/// STATIC lxw_error
-/// _get_image_properties(lxw_object_properties *image_props)
-/// {
-///     unsigned char signature[4];
-/// #ifndef USE_NO_MD5
-///     uint8_t i;
-///     MD5_CTX md5_context;
-///     size_t size_read;
-///     char buffer[LXW_IMAGE_BUFFER_SIZE];
-///     unsigned char md5_checksum[LXW_MD5_SIZE];
-/// #endif
+// TODO Use dedicated library to get image properties
+void get_image_properties(object_properties_t& image_props)
+{
+  ///     uint8_t i;
+  ///     size_t size_read;
+  ///     char buffer[LXW_IMAGE_BUFFER_SIZE];
 
-/* Read 4 bytes to look for the file header/signature. */
-///     if (fread(signature, 1, 4, image_props->stream) < 4) {
-///         LXW_WARN_FORMAT1("worksheet image insertion: "
-///                          "couldn't read image type for: %s.",
-///                          image_props->filename);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
+  // Read image.
+  std::ifstream image_stream(image_props.filename_, std::ios::binary);
+  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
 
-///     if (memcmp(&signature[1], "PNG", 3) == 0) {
-///         if (_process_png(image_props) != LXW_NO_ERROR)
-///             return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-///     else if (signature[0] == 0xFF && signature[1] == 0xD8) {
-///         if (_process_jpeg(image_props) != LXW_NO_ERROR)
-///             return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-///     else if (memcmp(signature, "BM", 2) == 0) {
-///         if (_process_bmp(image_props) != LXW_NO_ERROR)
-///             return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-///     else if (memcmp(signature, "GIF8", 4) == 0) {
-///         if (_process_gif(image_props) != LXW_NO_ERROR)
-///             return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-///     else {
-///         LXW_WARN_FORMAT1("worksheet image insertion: "
-///                          "unsupported image format for: %s.",
-///                          image_props->filename);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
+  if(buffer[1] == 'P' && buffer[2] == 'N' && buffer[3] == 'G')
+  {
+    process_png(image_props, buffer);
+  }
+  // TODO Manage other formats
+  ///     else if (signature[0] == 0xFF && signature[1] == 0xD8) {
+  ///         if (_process_jpeg(image_props) != LXW_NO_ERROR)
+  ///             return LXW_ERROR_IMAGE_DIMENSIONS;
+  ///     }
+  ///     else if (memcmp(signature, "BM", 2) == 0) {
+  ///         if (_process_bmp(image_props) != LXW_NO_ERROR)
+  ///             return LXW_ERROR_IMAGE_DIMENSIONS;
+  ///     }
+  ///     else if (memcmp(signature, "GIF8", 4) == 0) {
+  ///         if (_process_gif(image_props) != LXW_NO_ERROR)
+  ///             return LXW_ERROR_IMAGE_DIMENSIONS;
+  ///     }
+  ///     else {
+  ///         LXW_WARN_FORMAT1("worksheet image insertion: "
+  ///                          "unsupported image format for: %s.",
+  ///                          image_props->filename);
+  ///         return LXW_ERROR_IMAGE_DIMENSIONS;
+  ///     }
 
-/// #ifndef USE_NO_MD5
-/* Calculate an MD5 checksum for the image so that we can remove duplicate
- * images to reduce the xlsx file size.*/
-///     rewind(image_props->stream);
-
-///     MD5_Init(&md5_context);
-
-///     size_read = fread(buffer, 1, LXW_IMAGE_BUFFER_SIZE, image_props->stream);
-///     while (size_read) {
-///         MD5_Update(&md5_context, buffer, (unsigned long) size_read);
-///         size_read =
-///             fread(buffer, 1, LXW_IMAGE_BUFFER_SIZE, image_props->stream);
-///     }
-
-///     MD5_Final(md5_checksum, &md5_context);
-
-/* Create a 32 char hex string buffer for the MD5 checksum. */
-///     image_props->md5 = calloc(1, LXW_MD5_SIZE * 2 + 1);
-
-/* If this calloc fails we just return and don't remove duplicates. */
-///     RETURN_ON_MEM_ERROR(image_props->md5, LXW_NO_ERROR);
-
-/* Convert the 16 byte MD5 buffer to a 32 char hex string. */
-///     for (i = 0; i < LXW_MD5_SIZE; i++) {
-///         lxw_snprintf(&image_props->md5[2 * i], 3, "%02x", md5_checksum[i]);
-///     }
-/// #endif
-
-///     return LXW_NO_ERROR;
-/// }
+  // Calculate an MD5 checksum for the image so that we can remove duplicate
+  // images to reduce the xlsx file size.
+  MD5_CTX md5_context;
+  unsigned char md5_checksum[MD5_SIZE];
+  MD5_Init(&md5_context);
+  MD5_Update(&md5_context, buffer.data(), buffer.size());
+  MD5_Final(md5_checksum, &md5_context);
+  for(const auto b: md5_checksum)
+  {
+    image_props.md5_ += std::format("{:02X}", b);
+  }
+}
 
 /* Conditional formats that refer to the same cell sqref range, like A or
  * B1:B9, need to be written as part of one xml structure. Therefore we need
@@ -4600,32 +4453,22 @@ std::string worksheet_t::write_picture() const
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_drawing(lxw_worksheet *self, uint16_t id)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
-///
-///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", id);
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-///
-///     lxw_xml_empty_tag(self->file, "drawing", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-///
-/// }
-
-std::string worksheet_t::write_drawings() const
+std::string worksheet_t::write_drawing(uint16_t id) const
 {
-  ///     if (!self->drawing)
-  ///         return;
+  return xml_empty_tag("drawing", {
+                                      {"r:id", std::format("rId{}", id)}
+  });
+}
 
-  ///     self->rel_count++;
+std::string worksheet_t::write_drawings()
+{
+  if(!drawing_)
+  {
+    return "";
+  }
 
-  ///     _worksheet_write_drawing(self, self->rel_count);
-  return {};
+  rel_count_++;
+  return write_drawing(rel_count_);
 }
 
 /// STATIC void
@@ -8751,93 +8594,70 @@ void worksheet_t::select()
 ///     self->default_row_set = LXW_TRUE;
 /// }
 
-/// lxw_error
-/// worksheet_insert_image_opt(lxw_worksheet *self,
-///                            row_num_t row_num, col_num_t col_num,
-///                            const char *filename,
-///                            lxw_image_options *user_options)
-/// {
-///     FILE *image_stream;
-///     const char *description;
-///     lxw_object_properties *object_props;
-///
-///     if (!filename) {
-///         LXW_WARN("worksheet_insert_image()/_opt(): "
-///                  "filename must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Check that the image file exists and can be opened. */
-///     image_stream = lxw_fopen(filename, "rb");
-///     if (!image_stream) {
-///         LXW_WARN_FORMAT1("worksheet_insert_image()/_opt(): "
-///                          "file doesn't exist or can't be opened: %s.",
-///                          filename);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Use the filename as the default description, like Excel. */
-///     description = lxw_basename(filename);
-///     if (!description) {
-///         LXW_WARN_FORMAT1("worksheet_insert_image()/_opt(): "
-///                          "couldn't get basename for file: %s.", filename);
-///         fclose(image_stream);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///
-///     if (user_options) {
-///         object_props->x_offset = user_options->x_offset;
-///         object_props->y_offset = user_options->y_offset;
-///         object_props->x_scale = user_options->x_scale;
-///         object_props->y_scale = user_options->y_scale;
-///         object_props->url = lxw_strdup(user_options->url);
-///         object_props->tip = lxw_strdup(user_options->tip);
-///         object_props->object_position = user_options->object_position;
-///         object_props->decorative = user_options->decorative;
-///
-///         if (user_options->description)
-///             description = user_options->description;
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup(filename);
-///     object_props->description = lxw_strdup(description);
-///     object_props->stream = image_stream;
-///     object_props->row = row_num;
-///     object_props->col = col_num;
-///
-///     if (object_props->x_scale == 0.0)
-///         object_props->x_scale = 1;
-///
-///     if (object_props->y_scale == 0.0)
-///         object_props->y_scale = 1;
-///
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         STAILQ_INSERT_TAIL(self->image_props, object_props, list_pointers);
-///         fclose(image_stream);
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
+                               std::optional<image_options_t> user_options)
+{
+  if(filename.empty())
+  {
+    throw xwpp_exception_t("Image filename is empty");
+  }
 
-/// lxw_error
-/// worksheet_insert_image(lxw_worksheet *self,
-///                        row_num_t row_num, col_num_t col_num,
-///                        const char *filename)
-/// {
-///     return worksheet_insert_image_opt(self, row_num, col_num, filename, NULL);
-/// }
+  // Check that the image file exists and can be opened.
+  {
+    std::ifstream image_stream(filename);
+    if(!image_stream)
+    {
+      throw xwpp_exception_t(std::format("Image file {} doesn't exist or cannot be opened", filename));
+    }
+  }
+
+  // Use the filename as the default description, like Excel.
+  std::string description = filename;
+
+  // Create a new object to hold the image properties.
+  object_properties_t object_props;
+
+  if(user_options)
+  {
+    object_props.x_offset_        = user_options->x_offset_;
+    object_props.y_offset_        = user_options->y_offset_;
+    object_props.x_scale_         = user_options->x_scale_;
+    object_props.y_scale_         = user_options->y_scale_;
+    object_props.url_             = user_options->url_;
+    object_props.tip_             = user_options->tip_;
+    object_props.object_position_ = user_options->object_position_;
+    object_props.decorative_      = user_options->decorative_;
+
+    if(!user_options->description_.empty())
+    {
+      description = user_options->description_;
+    }
+  }
+
+  // Copy other options or set defaults.
+  object_props.filename_    = filename;
+  object_props.description_ = description;
+  object_props.row_         = row_num;
+  object_props.col_         = col_num;
+
+  if(object_props.x_scale_ == 0.0)
+  {
+    object_props.x_scale_ = 1;
+  }
+
+  if(object_props.y_scale_ == 0.0)
+  {
+    object_props.y_scale_ = 1;
+  }
+
+  get_image_properties(object_props);
+  image_props_.push_back(object_props);
+}
+
+void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename)
+{
+  insert_image(row_num, col_num, filename, std::nullopt);
+}
 
 /// lxw_error
 /// worksheet_insert_image_buffer_opt(lxw_worksheet *self,

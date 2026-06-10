@@ -170,10 +170,10 @@ int main()
 
   worksheet7.write_string(CELL("C6"),
                           "Move the mouse over this cell and you will see 'Cell C6 "
-                          "commented by libxlsxwriter' in the status bar at the bottom.",
+                          "commented by Xlsxwriter++' in the status bar at the bottom.",
                           text_wrap);
 
-  xwpp::comment_options_t options7a = {.author_ = "libxlsxwriter"};
+  xwpp::comment_options_t options7a = {.author_ = "Xlsxwriter++"};
   worksheet7.write_comment(CELL("C6"), "Hello", options7a);
 
   // Example 8. Demonstrates the need to explicitly set the row height.
@@ -185,7 +185,7 @@ int main()
   worksheet8.write_string(CELL("C3"),
                           "The height of this row has been adjusted explicitly using "
                           "worksheet_set_row(). The size of the comment box is "
-                          "adjusted accordingly by libxlsxwriter",
+                          "adjusted accordingly by Xlsxwriter++",
                           text_wrap);
 
   worksheet8.write_comment(CELL("C3"), "Hello");
@@ -194,7 +194,7 @@ int main()
                           "The height of this row has been adjusted by Excel when the "
                           "file is opened due to the text wrap property being set. "
                           "Unfortunately this means that the height of the row is "
-                          "unknown to libxlsxwriter at run time and thus the comment "
+                          "unknown to Xlsxwriter++ at run time and thus the comment "
                           "box is stretched as well.\n\n"
                           "Use worksheet_set_row() to specify the row height explicitly "
                           "to avoid this problem.",

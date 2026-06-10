@@ -581,6 +581,8 @@ private:
   // Iterate through the worksheets and set up the table objects.
   void prepare_tables();
 
+  void store_image_type(image_types_t image_type);
+
   [[nodiscard]] std::string write_workbook() const;
   [[nodiscard]] std::string write_file_version() const;
   [[nodiscard]] std::string write_file_sharing() const;
@@ -603,7 +605,7 @@ private:
   ///     struct lxw_chartsheets *chartsheets;
   ///     struct lxw_worksheet_names *worksheet_names;
   ///     struct lxw_chartsheet_names *chartsheet_names;
-  ///     struct lxw_image_md5s *image_md5s;
+  std::map<std::string, uint32_t> image_md5_;
   ///     struct lxw_image_md5s *embedded_image_md5s;
   ///     struct lxw_image_md5s *header_image_md5s;
   ///     struct lxw_image_md5s *background_md5s;
@@ -629,7 +631,7 @@ private:
   ///     uint16_t num_xf_formats;
   ///     uint16_t num_dxf_formats;
   uint16_t num_format_count_ = 0;
-  ///     uint16_t drawing_count;
+  uint16_t drawing_count_    = 0;
   uint16_t comment_count_    = 0;
   ///     uint32_t num_embedded_images;
   uint16_t window_width_     = 16095;
@@ -642,10 +644,10 @@ private:
   uint16_t max_url_length_ = 2079;
   ///     uint8_t read_only;
 
-  ///     uint8_t has_png;
-  ///     uint8_t has_jpeg;
-  ///     uint8_t has_bmp;
-  ///     uint8_t has_gif;
+  bool has_png_      = false;
+  bool has_jpeg_     = false;
+  bool has_bmp_      = false;
+  bool has_gif_      = false;
   bool has_vml_      = false;
   bool has_comments_ = false;
   ///     uint8_t has_metadata;
@@ -659,8 +661,8 @@ private:
 
   ///     lxw_hash_table *used_dxf_formats;
 
-  ///     char *vba_project;
-  ///     char *vba_project_signature;
+  std::string vba_project_;
+  std::string vba_project_signature_;
   ///     char *vba_codename;
 
   ///     uint8_t use_1904_epoch;

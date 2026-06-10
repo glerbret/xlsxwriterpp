@@ -30,6 +30,7 @@ public:
   void add_custom_properties();
   void add_vml_name();
   void add_comment_name(std::string_view name);
+  void add_drawing_name(std::string_view name);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -48,8 +49,6 @@ private:
 ///                                 const char *name);
 /// void lxw_ct_add_chart_name(lxw_content_types *content_types,
 ///                            const char *name);
-/// void lxw_ct_add_drawing_name(lxw_content_types *content_types,
-///                              const char *name);
 /// void lxw_ct_add_table_name(lxw_content_types *content_types,
 ///                            const char *name);
 

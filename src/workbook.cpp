@@ -757,235 +757,235 @@ void workbook_t::add_chart_cache_data()
   ///     }
 }
 
-/// STATIC void _store_image_type(lxw_workbook *self, uint8_t image_type)
-/// {
-///     if (image_type == LXW_IMAGE_PNG)
-///         self->has_png = LXW_TRUE;
+void workbook_t::store_image_type(image_types_t image_type)
+{
+  if(image_type == image_types_t::PNG)
+  {
+    has_png_ = true;
+  }
 
-///     if (image_type == LXW_IMAGE_JPEG)
-///         self->has_jpeg = LXW_TRUE;
+  if(image_type == image_types_t::JPEG)
+  {
+    has_jpeg_ = true;
+  }
 
-///     if (image_type == LXW_IMAGE_BMP)
-///         self->has_bmp = LXW_TRUE;
+  if(image_type == image_types_t::BMP)
+  {
+    has_bmp_ = true;
+  }
 
-///     if (image_type == LXW_IMAGE_GIF)
-///         self->has_gif = LXW_TRUE;
-/// }
+  if(image_type == image_types_t::GIF)
+  {
+    has_gif_ = true;
+  }
+}
 
 void workbook_t::prepare_drawings()
 {
   ///     lxw_sheet *sheet;
-  ///     lxw_worksheet *worksheet;
+
   ///     lxw_object_properties *object_props;
   ///     uint32_t chart_ref_id = 0;
-  ///     uint32_t image_ref_id = 0;
+  uint32_t image_ref_id = 0;
   ///     uint32_t ref_id = 0;
-  ///     uint32_t drawing_id = 0;
-  ///     uint8_t is_chartsheet;
+  uint32_t drawing_id   = 0;
+  bool is_chartsheet;
   ///     lxw_image_md5 tmp_image_md5;
   ///     lxw_image_md5 *new_image_md5 = NULL;
   ///     lxw_image_md5 *found_duplicate_image = NULL;
   ///     uint8_t i;
 
-  ///     STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-  ///         if (sheet->is_chartsheet) {
-  ///             worksheet = sheet->u.chartsheet->worksheet;
-  ///             is_chartsheet = LXW_TRUE;
-  ///         }
-  ///         else {
-  ///             worksheet = sheet->u.worksheet;
-  ///             is_chartsheet = LXW_FALSE;
-  ///         }
+  for(auto& sheet: sheets_)
+  {
+    // TODO
+    ///         if (sheet->is_chartsheet) {
+    ///             worksheet = sheet->u.chartsheet->worksheet;
+    ///             is_chartsheet = LXW_TRUE;
+    ///         }
+    //       if(std::holds_alternative<worksheet_t>(sheet))
+    //      {
+    worksheet_t& worksheet = std::get<worksheet_t>(sheet);
+    is_chartsheet          = false;
+    //      }
 
-  ///         if (STAILQ_EMPTY(worksheet->image_props)
-  ///             && STAILQ_EMPTY(worksheet->embedded_image_props)
-  ///             && STAILQ_EMPTY(worksheet->chart_data)
-  ///             && !worksheet->has_header_vml &&
-  ///             !worksheet->has_background_image) { continue;
-  ///         }
+    if(worksheet.image_props_.empty()
+       ///             && STAILQ_EMPTY(worksheet->embedded_image_props)
+       ///             && STAILQ_EMPTY(worksheet->chart_data)
+       ///             && !worksheet->has_header_vml &&
+       ///             !worksheet->has_background_image
+    )
+    {
+      continue;
+    }
 
-  ///         drawing_id++;
+    drawing_id++;
 
-  /* Prepare embedded worksheet images. */
-  ///         STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
-  ///                        list_pointers) {
+    /* Prepare embedded worksheet images. */
+    ///         STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
+    ///                        list_pointers) {
 
-  ///             _store_image_type(self, object_props->image_type);
+    ///             _store_image_type(self, object_props->image_type);
 
-  /* Check for images with alt-text. */
-  ///             if (object_props->description)
-  ///                 self->has_embedded_image_descriptions = LXW_TRUE;
+    /* Check for images with alt-text. */
+    ///             if (object_props->description)
+    ///                 self->has_embedded_image_descriptions = LXW_TRUE;
 
-  /* Check for duplicate images and only store the first instance. */
-  ///             if (object_props->md5) {
-  ///                 tmp_image_md5.md5 = object_props->md5;
-  ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-  ///                                                 self->embedded_image_md5s,
-  ///                                                 &tmp_image_md5);
-  ///             }
+    /* Check for duplicate images and only store the first instance. */
+    ///             if (object_props->md5) {
+    ///                 tmp_image_md5.md5 = object_props->md5;
+    ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
+    ///                                                 self->embedded_image_md5s,
+    ///                                                 &tmp_image_md5);
+    ///             }
 
-  ///             if (found_duplicate_image) {
-  ///                 ref_id = found_duplicate_image->id;
-  ///                 object_props->is_duplicate = LXW_TRUE;
-  ///             }
-  ///             else {
-  ///                 image_ref_id++;
-  ///                 ref_id = image_ref_id;
-  ///                 self->num_embedded_images++;
+    ///             if (found_duplicate_image) {
+    ///                 ref_id = found_duplicate_image->id;
+    ///                 object_props->is_duplicate = LXW_TRUE;
+    ///             }
+    ///             else {
+    ///                 image_ref_id++;
+    ///                 ref_id = image_ref_id;
+    ///                 self->num_embedded_images++;
 
-  /// #ifndef USE_NO_MD5
-  ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-  /// #endif
-  ///                 if (new_image_md5 && object_props->md5) {
-  ///                     new_image_md5->id = ref_id;
-  ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
+    /// #ifndef USE_NO_MD5
+    ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
+    /// #endif
+    ///                 if (new_image_md5 && object_props->md5) {
+    ///                     new_image_md5->id = ref_id;
+    ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
 
-  ///                     RB_INSERT(lxw_image_md5s, self->embedded_image_md5s,
-  ///                               new_image_md5);
-  ///                 }
-  ///             }
+    ///                     RB_INSERT(lxw_image_md5s, self->embedded_image_md5s,
+    ///                               new_image_md5);
+    ///                 }
+    ///             }
 
-  ///             worksheet_set_error_cell(worksheet, object_props, ref_id);
-  ///         }
+    ///             worksheet_set_error_cell(worksheet, object_props, ref_id);
+    ///         }
 
-  /* Prepare background images. */
-  ///         if (worksheet->has_background_image) {
+    /* Prepare background images. */
+    ///         if (worksheet->has_background_image) {
 
-  ///             object_props = worksheet->background_image;
+    ///             object_props = worksheet->background_image;
 
-  ///             _store_image_type(self, object_props->image_type);
+    ///             _store_image_type(self, object_props->image_type);
 
-  /* Check for duplicate images and only store the first instance. */
-  ///             if (object_props->md5) {
-  ///                 tmp_image_md5.md5 = object_props->md5;
-  ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-  ///                                                 self->background_md5s,
-  ///                                                 &tmp_image_md5);
-  ///             }
+    /* Check for duplicate images and only store the first instance. */
+    ///             if (object_props->md5) {
+    ///                 tmp_image_md5.md5 = object_props->md5;
+    ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
+    ///                                                 self->background_md5s,
+    ///                                                 &tmp_image_md5);
+    ///             }
 
-  ///             if (found_duplicate_image) {
-  ///                 ref_id = found_duplicate_image->id;
-  ///                 object_props->is_duplicate = LXW_TRUE;
-  ///             }
-  ///             else {
-  ///                 image_ref_id++;
-  ///                 ref_id = image_ref_id;
+    ///             if (found_duplicate_image) {
+    ///                 ref_id = found_duplicate_image->id;
+    ///                 object_props->is_duplicate = LXW_TRUE;
+    ///             }
+    ///             else {
+    ///                 image_ref_id++;
+    ///                 ref_id = image_ref_id;
 
-  /// #ifndef USE_NO_MD5
-  ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-  /// #endif
-  ///                 if (new_image_md5 && object_props->md5) {
-  ///                     new_image_md5->id = ref_id;
-  ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
+    /// #ifndef USE_NO_MD5
+    ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
+    /// #endif
+    ///                 if (new_image_md5 && object_props->md5) {
+    ///                     new_image_md5->id = ref_id;
+    ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
 
-  ///                     RB_INSERT(lxw_image_md5s, self->background_md5s,
-  ///                               new_image_md5);
-  ///                 }
-  ///             }
+    ///                     RB_INSERT(lxw_image_md5s, self->background_md5s,
+    ///                               new_image_md5);
+    ///                 }
+    ///             }
 
-  ///             lxw_worksheet_prepare_background(worksheet, ref_id,
-  ///             object_props);
-  ///         }
+    ///             lxw_worksheet_prepare_background(worksheet, ref_id,
+    ///             object_props);
+    ///         }
 
-  /* Prepare worksheet images. */
-  ///         STAILQ_FOREACH(object_props, worksheet->image_props,
-  ///         list_pointers) {
+    // Prepare worksheet images.
+    for(auto& object_props: worksheet.image_props_)
+    {
+      // Ignore background image added above.
+      if(object_props.is_background_)
+      {
+        continue;
+      }
 
-  /* Ignore background image added above. */
-  ///             if (object_props->is_background)
-  ///                 continue;
+      store_image_type(object_props.image_type_);
 
-  ///             _store_image_type(self, object_props->image_type);
+      // Check for duplicate images and only store the first instance.
+      uint32_t ref_id;
+      const auto it = image_md5_.find(object_props.md5_);
+      if(it != std::end(image_md5_))
+      {
+        ref_id                     = it->second;
+        object_props.is_duplicate_ = true;
+      }
+      else
+      {
+        image_ref_id++;
+        ref_id                        = image_ref_id;
+        image_md5_[object_props.md5_] = ref_id;
+      }
 
-  /* Check for duplicate images and only store the first instance. */
-  ///             if (object_props->md5) {
-  ///                 tmp_image_md5.md5 = object_props->md5;
-  ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-  ///                                                 self->image_md5s,
-  ///                                                 &tmp_image_md5);
-  ///             }
+      worksheet.prepare_image(ref_id, drawing_id, object_props);
+    }
 
-  ///             if (found_duplicate_image) {
-  ///                 ref_id = found_duplicate_image->id;
-  ///                 object_props->is_duplicate = LXW_TRUE;
-  ///             }
-  ///             else {
-  ///                 image_ref_id++;
-  ///                 ref_id = image_ref_id;
+    /* Prepare worksheet charts. */
+    ///         STAILQ_FOREACH(object_props, worksheet->chart_data, list_pointers)
+    ///         {
+    ///             chart_ref_id++;
+    ///             lxw_worksheet_prepare_chart(worksheet, chart_ref_id,
+    ///             drawing_id,
+    ///                                         object_props, is_chartsheet);
+    ///             if (object_props->chart)
+    ///                 STAILQ_INSERT_TAIL(self->ordered_charts,
+    ///                 object_props->chart,
+    ///                                    ordered_list_pointers);
+    ///         }
 
-  /// #ifndef USE_NO_MD5
-  ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-  /// #endif
-  ///                 if (new_image_md5 && object_props->md5) {
-  ///                     new_image_md5->id = ref_id;
-  ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
+    /* Prepare worksheet header/footer images. */
+    ///         for (i = 0; i < LXW_HEADER_FOOTER_OBJS_MAX; i++) {
 
-  ///                     RB_INSERT(lxw_image_md5s, self->image_md5s,
-  ///                               new_image_md5);
-  ///                 }
-  ///             }
+    ///             object_props = *worksheet->header_footer_objs[i];
+    ///             if (!object_props)
+    ///                 continue;
 
-  ///             lxw_worksheet_prepare_image(worksheet, ref_id, drawing_id,
-  ///                                         object_props);
-  ///         }
+    ///             _store_image_type(self, object_props->image_type);
 
-  /* Prepare worksheet charts. */
-  ///         STAILQ_FOREACH(object_props, worksheet->chart_data, list_pointers)
-  ///         {
-  ///             chart_ref_id++;
-  ///             lxw_worksheet_prepare_chart(worksheet, chart_ref_id,
-  ///             drawing_id,
-  ///                                         object_props, is_chartsheet);
-  ///             if (object_props->chart)
-  ///                 STAILQ_INSERT_TAIL(self->ordered_charts,
-  ///                 object_props->chart,
-  ///                                    ordered_list_pointers);
-  ///         }
+    /* Check for duplicate images and only store the first instance. */
+    ///             if (object_props->md5) {
+    ///                 tmp_image_md5.md5 = object_props->md5;
+    ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
+    ///                                                 self->header_image_md5s,
+    ///                                                 &tmp_image_md5);
+    ///             }
 
-  /* Prepare worksheet header/footer images. */
-  ///         for (i = 0; i < LXW_HEADER_FOOTER_OBJS_MAX; i++) {
+    ///             if (found_duplicate_image) {
+    ///                 ref_id = found_duplicate_image->id;
+    ///                 object_props->is_duplicate = LXW_TRUE;
+    ///             }
+    ///             else {
+    ///                 image_ref_id++;
+    ///                 ref_id = image_ref_id;
 
-  ///             object_props = *worksheet->header_footer_objs[i];
-  ///             if (!object_props)
-  ///                 continue;
+    /// #ifndef USE_NO_MD5
+    ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
+    /// #endif
+    ///                 if (new_image_md5 && object_props->md5) {
+    ///                     new_image_md5->id = ref_id;
+    ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
 
-  ///             _store_image_type(self, object_props->image_type);
+    ///                     RB_INSERT(lxw_image_md5s, self->header_image_md5s,
+    ///                               new_image_md5);
+    ///                 }
+    ///             }
 
-  /* Check for duplicate images and only store the first instance. */
-  ///             if (object_props->md5) {
-  ///                 tmp_image_md5.md5 = object_props->md5;
-  ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-  ///                                                 self->header_image_md5s,
-  ///                                                 &tmp_image_md5);
-  ///             }
+    ///             lxw_worksheet_prepare_header_image(worksheet, ref_id,
+    ///                                                object_props);
+    ///         }
+  }
 
-  ///             if (found_duplicate_image) {
-  ///                 ref_id = found_duplicate_image->id;
-  ///                 object_props->is_duplicate = LXW_TRUE;
-  ///             }
-  ///             else {
-  ///                 image_ref_id++;
-  ///                 ref_id = image_ref_id;
-
-  /// #ifndef USE_NO_MD5
-  ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-  /// #endif
-  ///                 if (new_image_md5 && object_props->md5) {
-  ///                     new_image_md5->id = ref_id;
-  ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
-
-  ///                     RB_INSERT(lxw_image_md5s, self->header_image_md5s,
-  ///                               new_image_md5);
-  ///                 }
-  ///             }
-
-  ///             lxw_worksheet_prepare_header_image(worksheet, ref_id,
-  ///                                                object_props);
-  ///         }
-
-  ///     }
-
-  ///     self->drawing_count = drawing_id;
+  drawing_count_ = drawing_id;
 }
 
 void workbook_t::prepare_vml()

@@ -1775,48 +1775,47 @@ struct col_options_t
  * Options for modifying images inserted via `worksheet_insert_image_opt()` and
  * `worksheet_embed_image_opt()`.
  */
-/// typedef struct lxw_image_options {
+struct image_options_t
+{
+  /** Offset from the left of the cell in pixels. */
+  int32_t x_offset_ = 0;
 
-/** Offset from the left of the cell in pixels. */
-///     int32_t x_offset;
+  /** Offset from the top of the cell in pixels. */
+  int32_t y_offset_ = 0;
 
-/** Offset from the top of the cell in pixels. */
-///     int32_t y_offset;
+  /** X scale of the image as a decimal. */
+  double x_scale_ = 1.;
 
-/** X scale of the image as a decimal. */
-///     double x_scale;
+  /** Y scale of the image as a decimal. */
+  double y_scale_ = 1.;
 
-/** Y scale of the image as a decimal. */
-///     double y_scale;
+  /** Object position - use one of the values of #lxw_object_position.
+   *  See @ref working_with_object_positioning.*/
+  object_position_t object_position_ = object_position_t::DEFAULT;
 
-/** Object position - use one of the values of #lxw_object_position.
- *  See @ref working_with_object_positioning.*/
-///     uint8_t object_position;
+  /** Optional description or "Alt text" for the image. This field can be
+   *  used to provide a text description of the image to help
+   *  accessibility. Defaults to the image filename as in Excel. Set to ""
+   *  to ignore the description field. */
+  std::string description_;
 
-/** Optional description or "Alt text" for the image. This field can be
- *  used to provide a text description of the image to help
- *  accessibility. Defaults to the image filename as in Excel. Set to ""
- *  to ignore the description field. */
-///     const char *description;
+  /** Optional parameter to help accessibility. It is used to mark the image
+   *  as decorative, and thus uninformative, for automated screen
+   *  readers. As in Excel, if this parameter is in use the `description`
+   *  field isn't written. */
+  bool decorative_ = false;
 
-/** Optional parameter to help accessibility. It is used to mark the image
- *  as decorative, and thus uninformative, for automated screen
- *  readers. As in Excel, if this parameter is in use the `description`
- *  field isn't written. */
-///     uint8_t decorative;
+  /** Add an optional hyperlink to the image. Follows the same URL rules
+   *  and types as `worksheet_write_url()`. */
+  std::string url_;
 
-/** Add an optional hyperlink to the image. Follows the same URL rules
- *  and types as `worksheet_write_url()`. */
-///     const char *url;
+  /** Add an optional mouseover tip for a hyperlink to the image. */
+  std::string tip_;
 
-/** Add an optional mouseover tip for a hyperlink to the image. */
-///     const char *tip;
-
-/** Add an optional format to the cell. Only used with
- * `worksheet_embed_image_opt()` */
-///     lxw_format *cell_format;
-
-/// } lxw_image_options;
+  /** Add an optional format to the cell. Only used with
+   * `worksheet_embed_image_opt()` */
+  format_t* cell_format_;
+};
 
 /**
  * @brief Options for inserted charts.
@@ -1861,33 +1860,33 @@ struct col_options_t
  */
 struct object_properties_t
 {
-  int32_t x_offset_;
-  int32_t y_offset_;
-  ///     double x_scale;
-  ///     double y_scale;
+  int32_t x_offset_ = 0;
+  int32_t y_offset_ = 0;
+  double x_scale_   = 1.;
+  double y_scale_   = 1.;
   row_num_t row_;
   col_num_t col_;
-  ///     char *filename;
-  ///     char *description;
-  ///     char *url;
-  ///     char *tip;
-  ///     uint8_t object_position;
+  std::string filename_;
+  std::string description_;
+  std::string url_;
+  std::string tip_;
+  object_position_t object_position_ = object_position_t::DEFAULT;
   ///     FILE *stream;
-  ///     uint8_t image_type;
+  image_types_t image_type_;
   ///     uint8_t is_image_buffer;
   ///     char *image_buffer;
   ///     size_t image_buffer_size;
   double width_;
   double height_;
-  ///     char *extension;
-  ///     double x_dpi;
-  ///     double y_dpi;
+  std::string extension_;
+  double x_dpi_;
+  double y_dpi_;
   ///     lxw_chart *chart;
-  ///     uint8_t is_duplicate;
-  ///     uint8_t is_background;
-  ///     char *md5;
+  bool is_duplicate_  = false;
+  bool is_background_ = false;
+  std::string md5_;
   ///     char *image_position;
-  ///     uint8_t decorative;
+  bool decorative_ = false;
   ///     lxw_format *format;
 };
 
@@ -2701,6 +2700,116 @@ public:
                      std::optional<comment_options_t> options);
 
   /**
+   * @brief Insert an image in a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param filename  The image filename, with path if required.
+   *
+   * @return A #lxw_error code.
+   *
+   * This function can be used to insert a image into a worksheet. The image can
+   * be in PNG, JPEG, GIF or BMP format:
+   *
+   * @code
+   *     worksheet_insert_image(worksheet, 2, 1, "logo.png");
+   * @endcode
+   *
+   * @image html insert_image.png
+   *
+   * The `worksheet_insert_image_opt()` function takes additional optional
+   * parameters to position and scale the image, see below.
+   *
+   * **Note**:
+   * The scaling of a image may be affected if is crosses a row that has its
+   * default height changed due to a font that is larger than the default font
+   * size or that has text wrapping turned on. To avoid this you should explicitly
+   * set the height of the row using `worksheet_set_row()` if it crosses an
+   * inserted image. See @ref working_with_object_positioning.
+   *
+   * **NOTE on SVG files**:
+   * Excel doesn't directly support SVG files in the same way as other image file
+   * formats. It allows SVG to be inserted into a worksheet but converts them to,
+   * and displays them as, PNG files. It stores the original SVG image in the file
+   * so the original format can be retrieved. This removes the file size and
+   * resolution advantage of using SVG files. As such SVG files are not supported
+   * by `Xlsxwriter++` since a conversion to the PNG format would be required
+   * and that format is already supported.
+   *
+   * BMP images are only supported for backward compatibility. In general it is
+   * best to avoid BMP images since they aren't compressed. If used, BMP images
+   * must be 24 bit, true color, bitmaps.
+   */
+  // TODO Add overload with path, ...
+  void insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename);
+
+  /**
+   * @brief Insert an image in a worksheet cell, with options.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param filename  The image filename, with path if required.
+   * @param options   Optional image parameters.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_insert_image_opt()` function is like
+   * `worksheet_insert_image()` function except that it takes an optional
+   * #lxw_image_options struct with the following members/options:
+   *
+   * - `x_offset`: Offset from the left of the cell in pixels.
+   * - `y_offset`: Offset from the top of the cell in pixels.
+   * - `x_scale`: X scale of the image as a decimal.
+   * - `y_scale`: Y scale of the image as a decimal.
+   * - `object_position`: See @ref working_with_object_positioning.
+   * - `description`: Optional description or "Alt text" for the image.
+   * - `decorative`: Optional parameter to mark image as decorative.
+   * - `url`: Add an optional hyperlink to the image.
+   * - `tip`: Add an optional mouseover tip for a hyperlink to the image.
+   *
+   * For example, to scale and position the image:
+   *
+   * @code
+   *     lxw_image_options options = {.x_offset = 30,  .y_offset = 10,
+   *                                 .x_scale  = 0.5, .y_scale  = 0.5};
+   *
+   *     worksheet_insert_image_opt(worksheet, 2, 1, "logo.png", &options);
+   *
+   * @endcode
+   *
+   * @image html insert_image_opt.png
+   *
+   * The `url` field of lxw_image_options can be use to used to add a hyperlink
+   * to an image:
+   *
+   * @code
+   *     lxw_image_options options = {.url = "https://github.com/jmcnamara"};
+   *
+   *     worksheet_insert_image_opt(worksheet, 3, 1, "logo.png", &options);
+   * @endcode
+   *
+   * The supported URL formats are the same as those supported by the
+   * `worksheet_write_url()` method and the same rules/limits apply.
+   *
+   * The `tip` field of lxw_image_options can be use to used to add a mouseover
+   * tip to the hyperlink:
+   *
+   * @code
+   *      lxw_image_options options = {.url = "https://github.com/jmcnamara",
+                                       .tip = "GitHub"};
+   *
+   *     worksheet_insert_image_opt(worksheet, 4, 1, "logo.png", &options);
+   * @endcode
+   *
+   * @note See the notes about row scaling and BMP images in
+   * `worksheet_insert_image()` above.
+   */
+  void insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
+                    std::optional<image_options_t> user_options);
+
+  /**
    * @brief Make all comments in the worksheet visible.
    *
    * @param worksheet Pointer to a lxw_worksheet instance.
@@ -2788,7 +2897,7 @@ private:
   [[nodiscard]] std::string write_row_breaks() const;
   [[nodiscard]] std::string write_col_breaks() const;
   [[nodiscard]] std::string write_ignored_errors() const;
-  [[nodiscard]] std::string write_drawings() const;
+  [[nodiscard]] std::string write_drawings();
   [[nodiscard]] std::string write_legacy_drawing();
   [[nodiscard]] std::string write_legacy_drawing_hf() const;
   [[nodiscard]] std::string write_picture() const;
@@ -2804,6 +2913,7 @@ private:
                                                      const std::string& display, const std::string& tooltip) const;
   [[nodiscard]] std::string write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
                                                      const std::string& tooltip, uint16_t id) const;
+  [[nodiscard]] std::string write_drawing(uint16_t id) const;
 
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
@@ -2811,8 +2921,13 @@ private:
   [[nodiscard]] int32_t size_row(row_num_t row_num, object_position_t anchor);
   [[nodiscard]] row_t* find_row(row_num_t row_num);
   [[nodiscard]] cell_t* find_cell_in_row(row_t* row, col_num_t col_num);
+  void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object);
   void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object);
   void position_vml_object(vml_obj_t& vml_obj);
+  [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
+  [[nodiscard]] uint32_t find_drawing_rel_index(const std::string& target);
+
+  void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
 
   std::function<int32_t(format_t*)> get_xf_index_;
   ///     FILE *file;
@@ -2827,10 +2942,11 @@ private:
   ///     struct lxw_selections *selections;
   ///     struct lxw_data_validations *data_validations;
   ///     struct lxw_cond_format_hash *conditional_formats;
-  ///     struct lxw_image_props *image_props;
+  std::vector<object_properties_t> image_props_;
   ///     struct lxw_image_props *embedded_image_props;
   ///     struct lxw_chart_props *chart_data;
-  ///     struct lxw_drawing_rel_ids *drawing_rel_ids;
+
+  std::map<std::string, uint32_t> drawing_rel_ids_;
   ///     struct lxw_vml_drawing_rel_ids *vml_drawing_rel_ids;
   std::vector<vml_obj_t> comment_objs_;
   ///     struct lxw_comment_objs *header_image_objs;
@@ -2940,11 +3056,11 @@ private:
   ///     uint16_t hbreaks_count;
   ///     uint16_t vbreaks_count;
 
-  ///     uint32_t drawing_rel_id;
+  uint32_t drawing_rel_id_ = 0;
   ///     uint32_t vml_drawing_rel_id;
   std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
-  ///     struct lxw_rel_tuples *external_drawing_links;
-  ///     struct lxw_rel_tuples *drawing_links;
+  std::vector<std::tuple<std::string, std::string, std::string>> external_drawing_links_;
+  std::vector<std::tuple<std::string, std::string, std::string>> drawing_links_;
   ///     struct lxw_rel_tuples *vml_drawing_links;
   ///     struct lxw_rel_tuples *external_table_links;
 
@@ -2953,7 +3069,7 @@ private:
 
   ///     struct lxw_protection_obj protection;
 
-  ///     lxw_drawing *drawing;
+  std::optional<drawing_t> drawing_;
   format_t* default_url_format_;
 
   bool has_vml_                = false;
@@ -3770,119 +3886,6 @@ private:
 ///                                           uint32_t pixels,
 ///                                           lxw_format *format,
 ///                                           lxw_row_col_options *options);
-
-/**
- * @brief Insert an image in a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param filename  The image filename, with path if required.
- *
- * @return A #lxw_error code.
- *
- * This function can be used to insert a image into a worksheet. The image can
- * be in PNG, JPEG, GIF or BMP format:
- *
- * @code
- *     worksheet_insert_image(worksheet, 2, 1, "logo.png");
- * @endcode
- *
- * @image html insert_image.png
- *
- * The `worksheet_insert_image_opt()` function takes additional optional
- * parameters to position and scale the image, see below.
- *
- * **Note**:
- * The scaling of a image may be affected if is crosses a row that has its
- * default height changed due to a font that is larger than the default font
- * size or that has text wrapping turned on. To avoid this you should explicitly
- * set the height of the row using `worksheet_set_row()` if it crosses an
- * inserted image. See @ref working_with_object_positioning.
- *
- * **NOTE on SVG files**:
- * Excel doesn't directly support SVG files in the same way as other image file
- * formats. It allows SVG to be inserted into a worksheet but converts them to,
- * and displays them as, PNG files. It stores the original SVG image in the file
- * so the original format can be retrieved. This removes the file size and
- * resolution advantage of using SVG files. As such SVG files are not supported
- * by `Xlsxwriter++` since a conversion to the PNG format would be required
- * and that format is already supported.
- *
- * BMP images are only supported for backward compatibility. In general it is
- * best to avoid BMP images since they aren't compressed. If used, BMP images
- * must be 24 bit, true color, bitmaps.
- */
-/// lxw_error worksheet_insert_image(lxw_worksheet *worksheet,
-///                                  row_num_t row, col_num_t col,
-///                                  const char *filename);
-
-/**
- * @brief Insert an image in a worksheet cell, with options.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param filename  The image filename, with path if required.
- * @param options   Optional image parameters.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_insert_image_opt()` function is like
- * `worksheet_insert_image()` function except that it takes an optional
- * #lxw_image_options struct with the following members/options:
- *
- * - `x_offset`: Offset from the left of the cell in pixels.
- * - `y_offset`: Offset from the top of the cell in pixels.
- * - `x_scale`: X scale of the image as a decimal.
- * - `y_scale`: Y scale of the image as a decimal.
- * - `object_position`: See @ref working_with_object_positioning.
- * - `description`: Optional description or "Alt text" for the image.
- * - `decorative`: Optional parameter to mark image as decorative.
- * - `url`: Add an optional hyperlink to the image.
- * - `tip`: Add an optional mouseover tip for a hyperlink to the image.
- *
- * For example, to scale and position the image:
- *
- * @code
- *     lxw_image_options options = {.x_offset = 30,  .y_offset = 10,
- *                                 .x_scale  = 0.5, .y_scale  = 0.5};
- *
- *     worksheet_insert_image_opt(worksheet, 2, 1, "logo.png", &options);
- *
- * @endcode
- *
- * @image html insert_image_opt.png
- *
- * The `url` field of lxw_image_options can be use to used to add a hyperlink
- * to an image:
- *
- * @code
- *     lxw_image_options options = {.url = "https://github.com/jmcnamara"};
- *
- *     worksheet_insert_image_opt(worksheet, 3, 1, "logo.png", &options);
- * @endcode
- *
- * The supported URL formats are the same as those supported by the
- * `worksheet_write_url()` method and the same rules/limits apply.
- *
- * The `tip` field of lxw_image_options can be use to used to add a mouseover
- * tip to the hyperlink:
- *
- * @code
- *      lxw_image_options options = {.url = "https://github.com/jmcnamara",
-                                     .tip = "GitHub"};
- *
- *     worksheet_insert_image_opt(worksheet, 4, 1, "logo.png", &options);
- * @endcode
- *
- * @note See the notes about row scaling and BMP images in
- * `worksheet_insert_image()` above.
- */
-/// lxw_error worksheet_insert_image_opt(lxw_worksheet *worksheet,
-///                                      row_num_t row, col_num_t col,
-///                                      const char *filename,
-///                                      lxw_image_options *options);
 
 /**
  * @brief Insert an image in a worksheet cell, from a memory buffer.
@@ -6062,10 +6065,6 @@ private:
 /// void lxw_worksheet_free(lxw_worksheet *worksheet);
 
 /// void lxw_worksheet_write_single_row(lxw_worksheet *worksheet);
-
-/// void lxw_worksheet_prepare_image(lxw_worksheet *worksheet,
-///                                  uint32_t image_ref_id, uint32_t drawing_id,
-///                                  lxw_object_properties *object_props);
 
 /// void lxw_worksheet_prepare_header_image(lxw_worksheet *worksheet,
 ///                                         uint32_t image_ref_id,
