@@ -67,7 +67,7 @@ const uint32_t HEADER_FOOTER_MAX = 255;
 
 /* The Excel 2007 specification says that the maximum number of page
  * breaks is 1026. However, in practice it is actually 1023. */
-/// #define LXW_BREAKS_MAX        1023
+const size_t BREAKS_MAX = 1023;
 
 /** Default Excel column width in character units. */
 const double DEF_COL_WIDTH = 8.43;
@@ -3145,25 +3145,109 @@ public:
    */
   void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options);
 
-/**
- * @brief Set the worksheet margins for the printed page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param left    Left margin in inches.   Excel default is 0.7.
- * @param right   Right margin in inches.  Excel default is 0.7.
- * @param top     Top margin in inches.    Excel default is 0.75.
- * @param bottom  Bottom margin in inches. Excel default is 0.75.
- *
- * The `%worksheet_set_margins()` function is used to set the margins of the
- * worksheet when it is printed. The units are in inches. Specifying `-1` for
- * any parameter will give the default Excel value as shown above.
- *
- * @code
- *    worksheet_set_margins(worksheet, 1.3, 1.2, -1, -1);
- * @endcode
- *
- */
-void set_margins(double left, double right, double top, double bottom);
+  /**
+   * @brief Set the worksheet margins for the printed page.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param left    Left margin in inches.   Excel default is 0.7.
+   * @param right   Right margin in inches.  Excel default is 0.7.
+   * @param top     Top margin in inches.    Excel default is 0.75.
+   * @param bottom  Bottom margin in inches. Excel default is 0.75.
+   *
+   * The `%worksheet_set_margins()` function is used to set the margins of the
+   * worksheet when it is printed. The units are in inches. Specifying `-1` for
+   * any parameter will give the default Excel value as shown above.
+   *
+   * @code
+   *    worksheet_set_margins(worksheet, 1.3, 1.2, -1, -1);
+   * @endcode
+   *
+   */
+  void set_margins(double left, double right, double top, double bottom);
+
+  /**
+   * @brief Set the horizontal page breaks on a worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param breaks    Array of page breaks.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_h_pagebreaks()` function adds horizontal page breaks to
+   * a worksheet. A page break causes all the data that follows it to be printed
+   * on the next page. Horizontal page breaks act between rows.
+   *
+   * The function takes an array of one or more page breaks. The type of the
+   * array data is @ref row_num_t and the last element of the array must be 0:
+   *
+   * @code
+   *    row_num_t breaks1[] = {20, 0}; // 1 page break. Zero indicates the end.
+   *    row_num_t breaks2[] = {20, 40, 60, 80, 0};
+   *
+   *    worksheet_set_h_pagebreaks(worksheet1, breaks1);
+   *    worksheet_set_h_pagebreaks(worksheet2, breaks2);
+   * @endcode
+   *
+   * To create a page break between rows 20 and 21 you must specify the break at
+   * row 21. However in zero index notation this is actually row 20:
+   *
+   * @code
+   *    // Break between row 20 and 21.
+   *    row_num_t breaks[] = {20, 0};
+   *
+   *    worksheet_set_h_pagebreaks(worksheet, breaks);
+   * @endcode
+   *
+   * There is an Excel limitation of 1023 horizontal page breaks per worksheet.
+   *
+   * Note: If you specify the "fit to page" option via the
+   * `worksheet_fit_to_pages()` function it will override all manual page
+   * breaks.
+   *
+   */
+  void set_h_pagebreaks(const std::vector<row_num_t>& breaks);
+
+  /**
+   * @brief Set the vertical page breaks on a worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param breaks    Array of page breaks.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_v_pagebreaks()` function adds vertical page breaks to a
+   * worksheet. A page break causes all the data that follows it to be printed
+   * on the next page. Vertical page breaks act between columns.
+   *
+   * The function takes an array of one or more page breaks. The type of the
+   * array data is @ref col_num_t and the last element of the array must be 0:
+   *
+   * @code
+   *    col_num_t breaks1[] = {20, 0}; // 1 page break. Zero indicates the end.
+   *    col_num_t breaks2[] = {20, 40, 60, 80, 0};
+   *
+   *    worksheet_set_v_pagebreaks(worksheet1, breaks1);
+   *    worksheet_set_v_pagebreaks(worksheet2, breaks2);
+   * @endcode
+   *
+   * To create a page break between columns 20 and 21 you must specify the break
+   * at column 21. However in zero index notation this is actually column 20:
+   *
+   * @code
+   *    // Break between column 20 and 21.
+   *    col_num_t breaks[] = {20, 0};
+   *
+   *    worksheet_set_v_pagebreaks(worksheet, breaks);
+   * @endcode
+   *
+   * There is an Excel limitation of 1023 vertical page breaks per worksheet.
+   *
+   * Note: If you specify the "fit to page" option via the
+   * `worksheet_fit_to_pages()` function it will override all manual page
+   * breaks.
+   *
+   */
+  void set_v_pagebreaks(const std::vector<col_num_t>& breaks);
 
   /**
    * @brief Make all comments in the worksheet visible.
@@ -3272,6 +3356,7 @@ private:
   [[nodiscard]] std::string write_drawing(uint16_t id) const;
   [[nodiscard]] std::string write_odd_header() const;
   [[nodiscard]] std::string write_odd_footer() const;
+  [[nodiscard]] std::string write_brk(uint32_t id, uint32_t max) const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -3403,7 +3488,7 @@ private:
   ///     uint8_t outline_row_level;
   ///     uint8_t outline_col_level;
 
-  bool header_footer_changed_;
+  bool header_footer_changed_ = false;
   std::string header_;
   std::string footer_;
 
@@ -3415,10 +3500,8 @@ private:
   ///     uint16_t merged_range_count;
   uint16_t max_url_length_ = 2079;
 
-  ///     row_num_t *hbreaks;
-  ///     col_num_t *vbreaks;
-  ///     uint16_t hbreaks_count;
-  ///     uint16_t vbreaks_count;
+  std::vector<row_num_t> hbreaks_;
+  std::vector<col_num_t> vbreaks_;
 
   uint32_t drawing_rel_id_     = 0;
   uint32_t vml_drawing_rel_id_ = 0;
@@ -5295,92 +5378,6 @@ private:
  * printer's default paper style.
  */
 /// void worksheet_set_paper(lxw_worksheet *worksheet, uint8_t paper_type);
-
-/**
- * @brief Set the horizontal page breaks on a worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param breaks    Array of page breaks.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_h_pagebreaks()` function adds horizontal page breaks to
- * a worksheet. A page break causes all the data that follows it to be printed
- * on the next page. Horizontal page breaks act between rows.
- *
- * The function takes an array of one or more page breaks. The type of the
- * array data is @ref row_num_t and the last element of the array must be 0:
- *
- * @code
- *    row_num_t breaks1[] = {20, 0}; // 1 page break. Zero indicates the end.
- *    row_num_t breaks2[] = {20, 40, 60, 80, 0};
- *
- *    worksheet_set_h_pagebreaks(worksheet1, breaks1);
- *    worksheet_set_h_pagebreaks(worksheet2, breaks2);
- * @endcode
- *
- * To create a page break between rows 20 and 21 you must specify the break at
- * row 21. However in zero index notation this is actually row 20:
- *
- * @code
- *    // Break between row 20 and 21.
- *    row_num_t breaks[] = {20, 0};
- *
- *    worksheet_set_h_pagebreaks(worksheet, breaks);
- * @endcode
- *
- * There is an Excel limitation of 1023 horizontal page breaks per worksheet.
- *
- * Note: If you specify the "fit to page" option via the
- * `worksheet_fit_to_pages()` function it will override all manual page
- * breaks.
- *
- */
-/// lxw_error worksheet_set_h_pagebreaks(lxw_worksheet *worksheet,
-///                                      row_num_t breaks[]);
-
-/**
- * @brief Set the vertical page breaks on a worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param breaks    Array of page breaks.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_v_pagebreaks()` function adds vertical page breaks to a
- * worksheet. A page break causes all the data that follows it to be printed
- * on the next page. Vertical page breaks act between columns.
- *
- * The function takes an array of one or more page breaks. The type of the
- * array data is @ref col_num_t and the last element of the array must be 0:
- *
- * @code
- *    col_num_t breaks1[] = {20, 0}; // 1 page break. Zero indicates the end.
- *    col_num_t breaks2[] = {20, 40, 60, 80, 0};
- *
- *    worksheet_set_v_pagebreaks(worksheet1, breaks1);
- *    worksheet_set_v_pagebreaks(worksheet2, breaks2);
- * @endcode
- *
- * To create a page break between columns 20 and 21 you must specify the break
- * at column 21. However in zero index notation this is actually column 20:
- *
- * @code
- *    // Break between column 20 and 21.
- *    col_num_t breaks[] = {20, 0};
- *
- *    worksheet_set_v_pagebreaks(worksheet, breaks);
- * @endcode
- *
- * There is an Excel limitation of 1023 vertical page breaks per worksheet.
- *
- * Note: If you specify the "fit to page" option via the
- * `worksheet_fit_to_pages()` function it will override all manual page
- * breaks.
- *
- */
-/// lxw_error worksheet_set_v_pagebreaks(lxw_worksheet *worksheet,
-///                                      col_num_t breaks[]);
 
 /**
  * @brief Set the order in which pages are printed.

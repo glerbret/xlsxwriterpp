@@ -3899,68 +3899,53 @@ std::string worksheet_t::write_sheet_pr() const
   return xml_data;
 }
 
-/// STATIC void _worksheet_write_brk(lxw_worksheet *self, uint32_t id, uint32_t max)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("id", id);
-///     LXW_PUSH_ATTRIBUTES_INT("max", max);
-///     LXW_PUSH_ATTRIBUTES_STR("man", "1");
-
-///     lxw_xml_empty_tag(self->file, "brk", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_brk(uint32_t id, uint32_t max) const
+{
+  return xml_empty_tag("brk", {
+                                  {"id",  std::to_string(id) },
+                                  {"max", std::to_string(max)},
+                                  {"man", "1"                },
+  });
+}
 
 std::string worksheet_t::write_row_breaks() const
 {
-  std::string xml_data;
+  if(hbreaks_.empty())
+  {
+    return "";
+  }
 
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     uint16_t count = self->hbreaks_count;
-  ///     uint16_t i;
+  std::string xml_data = xml_start_tag("rowBreaks", {
+                                                        {"count",            std::to_string(hbreaks_.size())},
+                                                        {"manualBreakCount", std::to_string(hbreaks_.size())},
+  });
 
-  ///     if (!count)
-  ///         return;
-
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_INT("count", count);
-  ///     LXW_PUSH_ATTRIBUTES_INT("manualBreakCount", count);
-
-  ///     lxw_xml_start_tag(self->file, "rowBreaks", &attributes);
-
-  ///     for (i = 0; i < count; i++)
-  ///         _worksheet_write_brk(self, self->hbreaks[i], LXW_COL_MAX - 1);
-
-  ///     lxw_xml_end_tag(self->file, "rowBreaks");
+  for(const auto row: hbreaks_)
+  {
+    xml_data += write_brk(row, COL_MAX - 1);
+  }
+  xml_data += xml_end_tag("rowBreaks");
 
   return xml_data;
 }
 
 std::string worksheet_t::write_col_breaks() const
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     uint16_t count = self->vbreaks_count;
-  ///     uint16_t i;
+  if(vbreaks_.empty())
+  {
+    return "";
+  }
 
-  ///     if (!count)
-  ///         return;
+  std::string xml_data = xml_start_tag("colBreaks", {
+                                                        {"count",            std::to_string(vbreaks_.size())},
+                                                        {"manualBreakCount", std::to_string(vbreaks_.size())},
+  });
 
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_INT("count", count);
-  ///     LXW_PUSH_ATTRIBUTES_INT("manualBreakCount", count);
-
-  ///     lxw_xml_start_tag(self->file, "colBreaks", &attributes);
-
-  ///     for (i = 0; i < count; i++)
-  ///         _worksheet_write_brk(self, self->vbreaks[i], LXW_ROW_MAX - 1);
-
-  ///     lxw_xml_end_tag(self->file, "colBreaks");
+  for(const auto col: vbreaks_)
+  {
+    xml_data += write_brk(col, ROW_MAX - 1);
+  }
+  xml_data += xml_end_tag("colBreaks");
 
   return xml_data;
 }
@@ -7940,17 +7925,25 @@ void worksheet_t::select()
 
 void worksheet_t::set_margins(double left, double right, double top, double bottom)
 {
-  if (left >= 0)
+  if(left >= 0)
+  {
     margin_left_ = left;
+  }
 
-  if (right >= 0)
-      margin_right_ = right;
+  if(right >= 0)
+  {
+    margin_right_ = right;
+  }
 
-  if (top >= 0)
-      margin_top_ = top;
+  if(top >= 0)
+  {
+    margin_top_ = top;
+  }
 
-  if (bottom >= 0)
-      margin_bottom_ = bottom;
+  if(bottom >= 0)
+  {
+    margin_bottom_ = bottom;
+  }
 }
 
 void worksheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
@@ -8275,53 +8268,29 @@ void worksheet_t::set_footer(const std::string& str)
 ///     self->page_setup_changed = LXW_TRUE;
 /// }
 
-/// lxw_error
-/// worksheet_set_h_pagebreaks(lxw_worksheet *self, row_num_t hbreaks[])
-/// {
-///     uint16_t count = 0;
-///
-///     if (hbreaks == NULL)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     while (hbreaks[count])
-///         count++;
-///
-///     /* The Excel 2007 specification says that the maximum number of page
-///      * breaks is 1026. However, in practice it is actually 1023. */
-///     if (count > LXW_BREAKS_MAX)
-///         count = LXW_BREAKS_MAX;
-///
-///     self->hbreaks = calloc(count, sizeof(row_num_t));
-///     RETURN_ON_MEM_ERROR(self->hbreaks, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///     memcpy(self->hbreaks, hbreaks, count * sizeof(row_num_t));
-///     self->hbreaks_count = count;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::set_h_pagebreaks(const std::vector<row_num_t>& breaks)
+{
+  hbreaks_ = breaks;
 
-/// lxw_error
-/// worksheet_set_v_pagebreaks(lxw_worksheet *self, col_num_t vbreaks[])
-/// {
-///     uint16_t count = 0;
-///
-///     if (vbreaks == NULL)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     while (vbreaks[count])
-///         count++;
-///
-///     /* The Excel 2007 specification says that the maximum number of page
-///      * breaks is 1026. However, in practice it is actually 1023. */
-///     if (count > LXW_BREAKS_MAX)
-///         count = LXW_BREAKS_MAX;
-///
-///     self->vbreaks = calloc(count, sizeof(col_num_t));
-///     RETURN_ON_MEM_ERROR(self->vbreaks, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///     memcpy(self->vbreaks, vbreaks, count * sizeof(col_num_t));
-///     self->vbreaks_count = count;
-///
-///     return LXW_NO_ERROR;
-/// }
+  /* The Excel 2007 specification says that the maximum number of page
+   * breaks is 1026. However, in practice it is actually 1023. */
+  if(hbreaks_.size() > BREAKS_MAX)
+  {
+    hbreaks_.resize(BREAKS_MAX);
+  }
+}
+
+void worksheet_t::set_v_pagebreaks(const std::vector<col_num_t>& breaks)
+{
+  vbreaks_ = breaks;
+
+  /* The Excel 2007 specification says that the maximum number of page
+   * breaks is 1026. However, in practice it is actually 1023. */
+  if(vbreaks_.size() > BREAKS_MAX)
+  {
+    vbreaks_.resize(BREAKS_MAX);
+  }
+}
 
 /// void
 /// worksheet_set_zoom(lxw_worksheet *self, uint16_t scale)

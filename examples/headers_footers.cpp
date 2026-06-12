@@ -63,8 +63,6 @@ int main()
   // This is an example of some of the header/footer variables.
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet("Variables");
 
-  ///    lxw_row_t breaks[] = {20, 0};
-
   worksheet3.set_header("&LPage &P of &N"
                         "&CFilename: &F"
                         "&RSheetname: &A");
@@ -74,7 +72,7 @@ int main()
   worksheet3.set_column(0, 0, 50);
   worksheet3.write_string(0, 0, preview);
 
-  ///    worksheet_set_h_pagebreaks(worksheet3, breaks);
+  worksheet3.set_h_pagebreaks({20});
   worksheet3.write_string(20, 0, "Next page");
 
   // This example shows how to use more than one font.
