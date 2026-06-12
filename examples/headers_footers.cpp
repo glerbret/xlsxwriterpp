@@ -56,7 +56,7 @@ int main()
 
   worksheet2.set_header("&L&G", header_options);
 
-  ///    worksheet_set_margins(worksheet2, -1, -1, 1.3, -1);
+  worksheet2.set_margins(-1, -1, 1.3, -1);
   worksheet2.set_column(0, 0, 50);
   worksheet2.write_string(0, 0, preview);
 

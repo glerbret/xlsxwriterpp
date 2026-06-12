@@ -3145,6 +3145,26 @@ public:
    */
   void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options);
 
+/**
+ * @brief Set the worksheet margins for the printed page.
+ *
+ * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+ * @param left    Left margin in inches.   Excel default is 0.7.
+ * @param right   Right margin in inches.  Excel default is 0.7.
+ * @param top     Top margin in inches.    Excel default is 0.75.
+ * @param bottom  Bottom margin in inches. Excel default is 0.75.
+ *
+ * The `%worksheet_set_margins()` function is used to set the margins of the
+ * worksheet when it is printed. The units are in inches. Specifying `-1` for
+ * any parameter will give the default Excel value as shown above.
+ *
+ * @code
+ *    worksheet_set_margins(worksheet, 1.3, 1.2, -1, -1);
+ * @endcode
+ *
+ */
+void set_margins(double left, double right, double top, double bottom);
+
   /**
    * @brief Make all comments in the worksheet visible.
    *
@@ -5275,27 +5295,6 @@ private:
  * printer's default paper style.
  */
 /// void worksheet_set_paper(lxw_worksheet *worksheet, uint8_t paper_type);
-
-/**
- * @brief Set the worksheet margins for the printed page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param left    Left margin in inches.   Excel default is 0.7.
- * @param right   Right margin in inches.  Excel default is 0.7.
- * @param top     Top margin in inches.    Excel default is 0.75.
- * @param bottom  Bottom margin in inches. Excel default is 0.75.
- *
- * The `%worksheet_set_margins()` function is used to set the margins of the
- * worksheet when it is printed. The units are in inches. Specifying `-1` for
- * any parameter will give the default Excel value as shown above.
- *
- * @code
- *    worksheet_set_margins(worksheet, 1.3, 1.2, -1, -1);
- * @endcode
- *
- */
-/// void worksheet_set_margins(lxw_worksheet *worksheet, double left,
-///                            double right, double top, double bottom);
 
 /**
  * @brief Set the horizontal page breaks on a worksheet.

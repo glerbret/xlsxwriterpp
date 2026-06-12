@@ -7938,23 +7938,20 @@ void worksheet_t::select()
 ///     self->page_setup_changed = LXW_TRUE;
 /// }
 
-/// void
-/// worksheet_set_margins(lxw_worksheet *self, double left, double right,
-///                       double top, double bottom)
-/// {
-///
-///     if (left >= 0)
-///         self->margin_left = left;
-///
-///     if (right >= 0)
-///         self->margin_right = right;
-///
-///     if (top >= 0)
-///         self->margin_top = top;
-///
-///     if (bottom >= 0)
-///         self->margin_bottom = bottom;
-/// }
+void worksheet_t::set_margins(double left, double right, double top, double bottom)
+{
+  if (left >= 0)
+    margin_left_ = left;
+
+  if (right >= 0)
+      margin_right_ = right;
+
+  if (top >= 0)
+      margin_top_ = top;
+
+  if (bottom >= 0)
+      margin_bottom_ = bottom;
+}
 
 void worksheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
