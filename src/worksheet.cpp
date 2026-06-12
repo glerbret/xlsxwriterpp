@@ -3450,12 +3450,15 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
   ///         return;
   ///     }
 
-  /* For other cell types use the general functions. */
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_STR("r", range);
+  // For other cell types use the general functions.
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"r", range}
+  };
 
-  ///     if (style_index)
-  ///         LXW_PUSH_ATTRIBUTES_INT("s", style_index);
+  if(style_index != 0)
+  {
+    attributes.emplace_back("s", std::to_string(style_index));
+  }
 
   ///     if (cell->type == FORMULA_CELL) {
   /* If user_data2 is set then the formula has a string result. */
@@ -3471,10 +3474,14 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
 
   ///         lxw_xml_end_tag(self->file, "c");
   ///     }
-  ///     else if (cell->type == BLANK_CELL) {
-  ///         if (cell->format)
-  ///             lxw_xml_empty_tag(self->file, "c", &attributes);
-  ///     }
+  ///     else
+  if(cell.type_ == cell_types_t::BLANK_CELL)
+  {
+    if(cell.format_)
+    {
+      return xml_empty_tag("c", attributes);
+    }
+  }
   ///     else if (cell->type == BOOLEAN_CELL) {
   ///         LXW_PUSH_ATTRIBUTES_STR("t", "b");
   ///         lxw_xml_start_tag(self->file, "c", &attributes);
@@ -3618,6 +3625,8 @@ std::string worksheet_t::get_vml_image_position(image_position_t image_position)
     case image_position_t::FOOTER_RIGHT:
       return "RF";
   }
+
+  return "";
 }
 
 // Process a header/footer image and store it in the correct slot.
@@ -3729,45 +3738,34 @@ std::string worksheet_t::write_cols() const
   return xml_data;
 }
 
-/// STATIC void _worksheet_write_merge_cell(lxw_worksheet *self,
-///                             lxw_merged_range *merged_range)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char ref[LXW_MAX_CELL_RANGE_LENGTH];
+std::string worksheet_t::write_merge_cell(const merged_range_t& merged_range) const
+{
+  // Convert the merge dimensions to a cell range.
+  std::string ref =
+      rowcol_to_range(merged_range.first_row_, merged_range.first_col_, merged_range.last_row_, merged_range.last_col_);
 
-///     LXW_INIT_ATTRIBUTES();
-
-/* Convert the merge dimensions to a cell range. */
-///     lxw_rowcol_to_range(ref, merged_range->first_row, merged_range->first_col,
-///                         merged_range->last_row, merged_range->last_col);
-
-///     LXW_PUSH_ATTRIBUTES_STR("ref", ref);
-
-///     lxw_xml_empty_tag(self->file, "mergeCell", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("mergeCell", {
+                                        {"ref", ref}
+  });
+}
 
 std::string worksheet_t::write_merge_cells() const
 {
-  // std::string xml_data;
-  // std::vector<std::tuple<std::string, std::string>> attributes;
+  if(merged_ranges_.empty())
+  {
+    return "";
+  }
 
-  ///     lxw_merged_range *merged_range;
+  std::string xml_data = xml_start_tag("mergeCells", {
+                                                         {"count", std::to_string(merged_ranges_.size())}
+  });
+  for(const auto& merged_range: merged_ranges_)
+  {
+    xml_data += write_merge_cell(merged_range);
+  }
+  xml_data += xml_end_tag("mergeCells");
 
-  ///     if (self->merged_range_count) {
-  ///         LXW_PUSH_ATTRIBUTES_INT("count", self->merged_range_count);
-
-  ///         lxw_xml_start_tag(self->file, "mergeCells", &attributes);
-
-  ///         STAILQ_FOREACH(merged_range, self->merged_ranges, list_pointers) {
-  ///             _worksheet_write_merge_cell(self, merged_range);
-  ///         }
-  ///         lxw_xml_end_tag(self->file, "mergeCells");
-  ///     }
-
-  return "";
+  return xml_data;
 }
 
 std::string worksheet_t::write_odd_header() const
@@ -3819,11 +3817,14 @@ std::string worksheet_t::write_header_footer() const
 
 std::string worksheet_t::write_tab_color() const
 {
-  if (tab_color_ == color_t::UNSET)
-       return "";
+  if(tab_color_ == color_t::UNSET)
+  {
+    return "";
+  }
 
-  return xml_empty_tag("tabColor", {
-    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(tab_color_) & COLOR_MASK)}
+  return xml_empty_tag("tabColor",
+                       {
+                           {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(tab_color_) & COLOR_MASK)}
   });
 }
 
@@ -3858,14 +3859,12 @@ std::string worksheet_t::write_sheet_pr() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-    if(!fit_page_ &&
-       !filter_on_ &&
-      tab_color_ == color_t::UNSET &&
-      !outline_changed_
-  ///         && !self->vba_codename && !self->is_chartsheet
-      ) {
-          return "";
-      }
+  if(!fit_page_ && !filter_on_ && tab_color_ == color_t::UNSET && !outline_changed_
+     ///         && !self->vba_codename && !self->is_chartsheet
+  )
+  {
+    return "";
+  }
 
   ///     if (self->vba_codename)
   ///         LXW_PUSH_ATTRIBUTES_STR("codeName", self->vba_codename);
@@ -3873,19 +3872,20 @@ std::string worksheet_t::write_sheet_pr() const
   ///     if (self->filter_on)
   ///         LXW_PUSH_ATTRIBUTES_STR("filterMode", "1");
 
-    if(fit_page_ || tab_color_ != color_t::UNSET || outline_changed_)
-    {
-      std::string xml_data = xml_start_tag("sheetPr", attributes);
-      xml_data += write_tab_color();
-  ///         _worksheet_write_outline_pr(self);
-  ///         _worksheet_write_page_set_up_pr(self);
-      xml_data += xml_end_tag("sheetPr");
+  if(fit_page_ || tab_color_ != color_t::UNSET || outline_changed_)
+  {
+    std::string xml_data = xml_start_tag("sheetPr", attributes);
+    xml_data += write_tab_color();
+    ///         _worksheet_write_outline_pr(self);
+    ///         _worksheet_write_page_set_up_pr(self);
+    xml_data += xml_end_tag("sheetPr");
 
-      return xml_data;
-    }
-    else {
-      return xml_empty_tag("sheetPr", attributes);
-    }
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("sheetPr", attributes);
+  }
 }
 
 std::string worksheet_t::write_brk(uint32_t id, uint32_t max) const
@@ -6346,15 +6346,15 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 
 void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::string& str, const format_t* format)
 {
-  ///  char *string_copy;
-
   if(str.empty())
   {
     // Treat an empty string with formatting as a blank cell.
     // Empty strings without formats should be ignored.
-    ///  if (format)
-    ///  return worksheet_write_blank(self, row_num, col_num, format);
-    ///  else
+    if(format)
+    {
+      write_blank(row_num, col_num, format);
+    }
+
     return;
   }
 
@@ -6640,28 +6640,19 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 ///                                 LXW_TRUE);
 /// }
 
-/// lxw_error
-/// worksheet_write_blank(lxw_worksheet *self,
-///                       row_num_t row_num, col_num_t col_num,
-///                       lxw_format *format)
-/// {
-///     cell_t *cell;
-///     lxw_error err;
-///
-///     /* Blank cells without formatting are ignored by Excel. */
-///     if (!format)
-///         return LXW_NO_ERROR;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     cell = _new_blank_cell(row_num, col_num, format);
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format_t* format)
+{
+  // Blank cells without formatting are ignored by Excel.
+  if(!format)
+  {
+    return;
+  }
+
+  check_dimensions(row_num, col_num, false, false);
+
+  cell_t cell = new_blank_cell(row_num, col_num, format);
+  insert_cell(row_num, col_num, cell);
+}
 
 /// lxw_error
 /// worksheet_write_boolean(lxw_worksheet *self,
@@ -7239,65 +7230,58 @@ void worksheet_t::set_row(row_num_t row_num,
 ///     return worksheet_set_row_opt(self, row_num, height, format, user_options);
 /// }
 
-/// lxw_error
-/// worksheet_merge_range(lxw_worksheet *self, row_num_t first_row,
-///                       col_num_t first_col, row_num_t last_row,
-///                       col_num_t last_col, const char *string,
-///                       lxw_format *format)
-/// {
-///     lxw_merged_range *merged_range;
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     lxw_error err;
-///
-///     /* Excel doesn't allow a single cell to be merged */
-///     if (first_row == last_row && first_col == last_col)
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///
-///     /* Swap last row/col with first row/col as necessary */
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     /* Check that column number is valid and store the max value */
-///     err = _check_dimensions(self, last_row, last_col, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Store the merge range. */
-///     merged_range = calloc(1, sizeof(lxw_merged_range));
-///     RETURN_ON_MEM_ERROR(merged_range, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     merged_range->first_row = first_row;
-///     merged_range->first_col = first_col;
-///     merged_range->last_row = last_row;
-///     merged_range->last_col = last_col;
-///
-///     STAILQ_INSERT_TAIL(self->merged_ranges, merged_range, list_pointers);
-///     self->merged_range_count++;
-///
-///     /* Write the first cell */
-///     worksheet_write_string(self, first_row, first_col, string, format);
-///
-///     /* Pad out the rest of the area with formatted blank cells. */
-///     for (tmp_row = first_row; tmp_row <= last_row; tmp_row++) {
-///         for (tmp_col = first_col; tmp_col <= last_col; tmp_col++) {
-///             if (tmp_row == first_row && tmp_col == first_col)
-///                 continue;
-///
-///             worksheet_write_blank(self, tmp_row, tmp_col, format);
-///         }
-///     }
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                              const std::string& str, const format_t* format)
+{
+  ///     lxw_merged_range *merged_range;
+  ///     row_num_t tmp_row;
+  ///     col_num_t tmp_col;
+  ///     lxw_error err;
+  ///
+  // Excel doesn't allow a single cell to be merged
+  if(first_row == last_row && first_col == last_col)
+  {
+    throw xwpp_exception_t("Cannot merge one single cell");
+  }
+
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+
+  // Check that column number is valid and store the max value
+  check_dimensions(last_row, last_col, false, false);
+
+  // Store the merge range.
+  merged_range_t merged_range{
+      .first_row_ = first_row,
+      .last_row_  = last_row,
+      .first_col_ = first_col,
+      .last_col_  = last_col,
+  };
+
+  merged_ranges_.push_back(merged_range);
+
+  // Write the first cell
+  write_string(first_row, first_col, str, format);
+
+  // Pad out the rest of the area with formatted blank cells.
+  for(row_num_t tmp_row = first_row; tmp_row <= last_row; tmp_row++)
+  {
+    for(col_num_t tmp_col = first_col; tmp_col <= last_col; tmp_col++)
+    {
+      if(tmp_row != first_row || tmp_col != first_col)
+      {
+        write_blank(tmp_row, tmp_col, format);
+      }
+    }
+  }
+}
 
 /// lxw_error
 /// worksheet_autofilter(lxw_worksheet *self, row_num_t first_row,

@@ -932,14 +932,13 @@ struct col_options_t
   ///     uint8_t collapsed;
 };
 
-/// typedef struct lxw_merged_range {
-///     row_num_t first_row;
-///     row_num_t last_row;
-///     col_num_t first_col;
-///     col_num_t last_col;
-
-///     STAILQ_ENTRY (lxw_merged_range) list_pointers;
-/// } lxw_merged_range;
+struct merged_range_t
+{
+  row_num_t first_row_;
+  row_num_t last_row_;
+  col_num_t first_col_;
+  col_num_t last_col_;
+};
 
 /// typedef struct lxw_repeat_rows {
 ///     uint8_t in_use;
@@ -3250,6 +3249,35 @@ public:
   void set_v_pagebreaks(const std::vector<col_num_t>& breaks);
 
   /**
+   * @brief Write a formatted blank worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * Write a blank cell specified by `row` and `column`:
+   *
+   * @code
+   *     worksheet_write_blank(worksheet, 1, 1, border_format);
+   * @endcode
+   *
+   * This function is used to add formatting to a cell which doesn't contain a
+   * string or number value.
+   *
+   * Excel differentiates between an "Empty" cell and a "Blank" cell. An Empty
+   * cell is a cell which doesn't contain data or formatting whilst a Blank cell
+   * doesn't contain data but does contain formatting. Excel stores Blank cells
+   * but ignores Empty cells.
+   *
+   * As such, if you write an empty cell without formatting it is ignored.
+   *
+   */
+  void write_blank(row_num_t row_num, col_num_t col_num, const format_t* format);
+
+  /**
    * @brief Make all comments in the worksheet visible.
    *
    * @param worksheet Pointer to a lxw_worksheet instance.
@@ -3291,24 +3319,89 @@ public:
    */
   void select();
 
-/**
- * @brief Set the color of the worksheet tab.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param color     The tab color.
- *
- * The `%worksheet_set_tab_color()` function is used to change the color of
- * the worksheet tab:
- *
- * @code
- *      worksheet_set_tab_color(worksheet1, LXW_COLOR_RED);
- *      worksheet_set_tab_color(worksheet2, LXW_COLOR_GREEN);
- *      worksheet_set_tab_color(worksheet3, 0xFF9900); // Orange.
- * @endcode
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- */
-void set_tab_color(color_t color);
+  /**
+   * @brief Set the color of the worksheet tab.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param color     The tab color.
+   *
+   * The `%worksheet_set_tab_color()` function is used to change the color of
+   * the worksheet tab:
+   *
+   * @code
+   *      worksheet_set_tab_color(worksheet1, LXW_COLOR_RED);
+   *      worksheet_set_tab_color(worksheet2, LXW_COLOR_GREEN);
+   *      worksheet_set_tab_color(worksheet3, 0xFF9900); // Orange.
+   * @endcode
+   *
+   * The color should be an RGB integer value, see @ref working_with_colors.
+   */
+  void set_tab_color(color_t color);
+
+  /**
+   * @brief Merge a range of cells.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row The first row of the range. (All zero indexed.)
+   * @param first_col The first column of the range.
+   * @param last_row  The last row of the range.
+   * @param last_col  The last col of the range.
+   * @param string    String to write to the merged range.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_merge_range()` function allows cells to be merged together
+   * so that they act as a single area.
+   *
+   * Excel generally merges and centers cells at same time. To get similar
+   * behavior with Xlsxwriter++ you need to apply a @ref format.h "Format"
+   * object with the appropriate alignment:
+   *
+   * @code
+   *     lxw_format *merge_format = workbook_add_format(workbook);
+   *     format_set_align(merge_format, LXW_ALIGN_CENTER);
+   *
+   *     worksheet_merge_range(worksheet, 1, 1, 1, 3, "Merged Range",
+   * merge_format);
+   *
+   * @endcode
+   *
+   * It is possible to apply other formatting to the merged cells as well:
+   *
+   * @code
+   *    format_set_align   (merge_format, LXW_ALIGN_CENTER);
+   *    format_set_align   (merge_format, LXW_ALIGN_VERTICAL_CENTER);
+   *    format_set_border  (merge_format, LXW_BORDER_DOUBLE);
+   *    format_set_bold    (merge_format);
+   *    format_set_bg_color(merge_format, 0xD7E4BC);
+   *
+   *    worksheet_merge_range(worksheet, 2, 1, 3, 3, "Merged Range",
+   * merge_format);
+   *
+   * @endcode
+   *
+   * @image html merge.png
+   *
+   * The `%worksheet_merge_range()` function writes a `char*` string using
+   * `worksheet_write_string()`. In order to write other data types, such as a
+   * number or a formula, you can overwrite the first cell with a call to one of
+   * the other write functions. The same Format should be used as was used in
+   * the merged range.
+   *
+   * @code
+   *    // First write a range with a blank string.
+   *    worksheet_merge_range (worksheet, 1, 1, 1, 3, "", format);
+   *
+   *    // Then overwrite the first cell with a number.
+   *    worksheet_write_number(worksheet, 1, 1, 123, format);
+   * @endcode
+   *
+   * @note Merged ranges generally don't work in Xlsxwriter++ when the Workbook
+   * #lxw_workbook_options `constant_memory` mode is enabled.
+   */
+  void merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                   const std::string& str, const format_t* format);
 
   [[nodiscard]] std::string assemble_xml_file();
 
@@ -3377,9 +3470,8 @@ private:
   [[nodiscard]] std::string write_odd_footer() const;
   [[nodiscard]] std::string write_brk(uint32_t id, uint32_t max) const;
   [[nodiscard]] std::string write_tab_color() const;
-///  [[nodiscard]] std::string () const;
-///  [[nodiscard]] std::string () const;
-
+  [[nodiscard]] std::string write_merge_cell(const merged_range_t& merged_range) const;
+  ///  [[nodiscard]] std::string () const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -3410,7 +3502,7 @@ private:
   table_rows_t hyperlinks_;
   table_rows_t comments_;
   ///     struct cell_t **array;
-  ///     struct lxw_merged_ranges *merged_ranges;
+  std::vector<merged_range_t> merged_ranges_;
   ///     struct lxw_selections *selections;
   ///     struct lxw_data_validations *data_validations;
   ///     struct lxw_cond_format_hash *conditional_formats;
@@ -3467,11 +3559,11 @@ private:
   uint16_t rel_count_         = 0;
   uint16_t vertical_dpi_      = 0;
   uint16_t zoom_              = 100;
-  bool  filter_on_ = false;
-  bool fit_page_           = false;
+  bool filter_on_             = false;
+  bool fit_page_              = false;
   ///     uint8_t hcenter;
   bool orientation_           = true;
-  bool outline_changed_ = false;
+  bool outline_changed_       = false;
   bool outline_on_            = true;
   bool outline_style_         = true;
   bool outline_below_         = true;
@@ -3520,7 +3612,6 @@ private:
   ///     struct lxw_print_area print_area;
   ///     struct lxw_autofilter autofilter;
 
-  ///     uint16_t merged_range_count;
   uint16_t max_url_length_ = 2079;
 
   std::vector<row_num_t> hbreaks_;
@@ -3885,37 +3976,6 @@ private:
 /// lxw_error worksheet_write_boolean(lxw_worksheet *worksheet,
 ///                                   row_num_t row, col_num_t col,
 ///                                   int value, lxw_format *format);
-
-/**
- * @brief Write a formatted blank worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * Write a blank cell specified by `row` and `column`:
- *
- * @code
- *     worksheet_write_blank(worksheet, 1, 1, border_format);
- * @endcode
- *
- * This function is used to add formatting to a cell which doesn't contain a
- * string or number value.
- *
- * Excel differentiates between an "Empty" cell and a "Blank" cell. An Empty
- * cell is a cell which doesn't contain data or formatting whilst a Blank cell
- * doesn't contain data but does contain formatting. Excel stores Blank cells
- * but ignores Empty cells.
- *
- * As such, if you write an empty cell without formatting it is ignored.
- *
- */
-/// lxw_error worksheet_write_blank(lxw_worksheet *worksheet,
-///                                 row_num_t row, col_num_t col,
-///                                 lxw_format *format);
 
 /**
  * @brief Write a formula to a worksheet cell with a user defined numeric
@@ -4611,74 +4671,6 @@ private:
 ///                                      row_num_t row, col_num_t col,
 ///                                      lxw_chart *chart,
 ///                                      lxw_chart_options *user_options);
-
-/**
- * @brief Merge a range of cells.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_row The first row of the range. (All zero indexed.)
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- * @param string    String to write to the merged range.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_merge_range()` function allows cells to be merged together
- * so that they act as a single area.
- *
- * Excel generally merges and centers cells at same time. To get similar
- * behavior with Xlsxwriter++ you need to apply a @ref format.h "Format"
- * object with the appropriate alignment:
- *
- * @code
- *     lxw_format *merge_format = workbook_add_format(workbook);
- *     format_set_align(merge_format, LXW_ALIGN_CENTER);
- *
- *     worksheet_merge_range(worksheet, 1, 1, 1, 3, "Merged Range",
- * merge_format);
- *
- * @endcode
- *
- * It is possible to apply other formatting to the merged cells as well:
- *
- * @code
- *    format_set_align   (merge_format, LXW_ALIGN_CENTER);
- *    format_set_align   (merge_format, LXW_ALIGN_VERTICAL_CENTER);
- *    format_set_border  (merge_format, LXW_BORDER_DOUBLE);
- *    format_set_bold    (merge_format);
- *    format_set_bg_color(merge_format, 0xD7E4BC);
- *
- *    worksheet_merge_range(worksheet, 2, 1, 3, 3, "Merged Range",
- * merge_format);
- *
- * @endcode
- *
- * @image html merge.png
- *
- * The `%worksheet_merge_range()` function writes a `char*` string using
- * `worksheet_write_string()`. In order to write other data types, such as a
- * number or a formula, you can overwrite the first cell with a call to one of
- * the other write functions. The same Format should be used as was used in
- * the merged range.
- *
- * @code
- *    // First write a range with a blank string.
- *    worksheet_merge_range (worksheet, 1, 1, 1, 3, "", format);
- *
- *    // Then overwrite the first cell with a number.
- *    worksheet_write_number(worksheet, 1, 1, 123, format);
- * @endcode
- *
- * @note Merged ranges generally don't work in Xlsxwriter++ when the Workbook
- * #lxw_workbook_options `constant_memory` mode is enabled.
- */
-/// lxw_error worksheet_merge_range(lxw_worksheet *worksheet, row_num_t
-/// first_row,
-///                                 col_num_t first_col, row_num_t last_row,
-///                                 col_num_t last_col, const char *string,
-///                                 lxw_format *format);
 
 /**
  * @brief Set the autofilter area in the worksheet.
@@ -6096,7 +6088,6 @@ private:
 ///                                         lxw_merged_range *merged_range);
 
 /// STATIC void _worksheet_write_sheet_pr(lxw_worksheet *worksheet);
-
 
 /// STATIC double _pixels_to_height(double pixels);
 /// STATIC double _pixels_to_width(double pixels);
