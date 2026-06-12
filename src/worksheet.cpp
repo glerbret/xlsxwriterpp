@@ -128,6 +128,7 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
   , default_url_format_{init_data.default_url_format_}
+  , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
   ///     worksheet->table = calloc(1, sizeof(struct table_rows_t));
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->table, mem_error);
@@ -254,18 +255,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         calloc(1, sizeof(struct lxw_cond_format_hash));
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->conditional_formats, mem_error);
   ///     RB_INIT(worksheet->conditional_formats);
-
-  /* Initialize the page setup properties. */
-  ///     worksheet->header_footer_objs[0] =
-  ///     &worksheet->header_left_object_props; worksheet->header_footer_objs[1]
-  ///     = &worksheet->header_center_object_props;
-  ///     worksheet->header_footer_objs[2] =
-  ///     &worksheet->header_right_object_props;
-  ///     worksheet->header_footer_objs[3] =
-  ///     &worksheet->footer_left_object_props; worksheet->header_footer_objs[4]
-  ///     = &worksheet->footer_center_object_props;
-  ///     worksheet->header_footer_objs[5] =
-  ///     &worksheet->footer_right_object_props;
 
   ///     if (init_data) {
   ///         worksheet->tmpdir = init_data->tmpdir;
@@ -839,59 +828,46 @@ uint32_t worksheet_t::find_drawing_rel_index(const std::string& target)
   }
 }
 
-/// STATIC uint32_t _get_vml_drawing_rel_index(lxw_worksheet *self, char *target)
-/// {
-///     lxw_drawing_rel_id tmp_drawing_rel_id;
-///     lxw_drawing_rel_id *found_duplicate_target = NULL;
-///     lxw_drawing_rel_id *new_drawing_rel_id = NULL;
+uint32_t worksheet_t::get_vml_drawing_rel_index(const std::string& target)
+{
+  if(!target.empty())
+  {
+    const auto it = vml_drawing_rel_ids_.find(target);
+    if(it != std::end(vml_drawing_rel_ids_))
+    {
+      return it->second;
+    }
+    else
+    {
+      vml_drawing_rel_id_++;
+      vml_drawing_rel_ids_[target] = vml_drawing_rel_id_;
+      return vml_drawing_rel_id_;
+    }
+  }
+  else
+  {
+    vml_drawing_rel_id_++;
+    return vml_drawing_rel_id_;
+  }
+}
 
-///     if (target) {
-///         tmp_drawing_rel_id.target = target;
-///         found_duplicate_target = RB_FIND(lxw_vml_drawing_rel_ids,
-///                                          self->vml_drawing_rel_ids,
-///                                          &tmp_drawing_rel_id);
-///     }
+uint32_t worksheet_t::find_vml_drawing_rel_index(const std::string& target)
+{
+  if(target.empty())
+  {
+    return 0;
+  }
 
-///     if (found_duplicate_target) {
-///         return found_duplicate_target->id;
-///     }
-///     else {
-///         self->vml_drawing_rel_id++;
-
-///         if (target) {
-///             new_drawing_rel_id = calloc(1, sizeof(lxw_drawing_rel_id));
-
-///             if (new_drawing_rel_id) {
-///                 new_drawing_rel_id->id = self->vml_drawing_rel_id;
-///                 new_drawing_rel_id->target = lxw_strdup(target);
-
-///                 RB_INSERT(lxw_vml_drawing_rel_ids, self->vml_drawing_rel_ids,
-///                           new_drawing_rel_id);
-///             }
-///         }
-
-///         return self->vml_drawing_rel_id;
-///     }
-/// }
-
-/// STATIC uint32_t _find_vml_drawing_rel_index(lxw_worksheet *self, char *target)
-/// {
-///     lxw_drawing_rel_id tmp_drawing_rel_id;
-///     lxw_drawing_rel_id *found_duplicate_target = NULL;
-
-///     if (!target)
-///         return 0;
-
-///     tmp_drawing_rel_id.target = target;
-///     found_duplicate_target = RB_FIND(lxw_vml_drawing_rel_ids,
-///                                      self->vml_drawing_rel_ids,
-///                                      &tmp_drawing_rel_id);
-
-///     if (found_duplicate_target)
-///         return found_duplicate_target->id;
-///     else
-///         return 0;
-/// }
+  auto it = vml_drawing_rel_ids_.find(target);
+  if(it != std::end(vml_drawing_rel_ids_))
+  {
+    return it->second;
+  }
+  else
+  {
+    return 0;
+  }
+}
 
 /// const char * lxw_basename(const char *path)
 /// {
@@ -2591,69 +2567,40 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
   drawing_->add_drawing_object(drawing_object);
 }
 
-/// void
-/// lxw_worksheet_prepare_header_image(lxw_worksheet *self,
-///                                    uint32_t image_ref_id,
-///                                    lxw_object_properties *object_props)
-/// {
-///     lxw_rel_tuple *relationship = NULL;
-///     char filename[LXW_FILENAME_LENGTH];
-///     lxw_vml_obj *header_image_vml;
-///     char *extension;
+void worksheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props)
+{
+  ///     lxw_rel_tuple *relationship = NULL;
+  ///     char filename[LXW_FILENAME_LENGTH];
+  ///     lxw_vml_obj *header_image_vml;
+  ///     char *extension;
 
-///     STAILQ_INSERT_TAIL(self->image_props, object_props, list_pointers);
+  image_props_.push_back(object_props);
 
-///     if (!_find_vml_drawing_rel_index(self, object_props->md5)) {
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         RETURN_VOID_ON_MEM_ERROR(relationship);
+  if(find_vml_drawing_rel_index(object_props.md5_) == 0)
+  {
+    vml_drawing_links_.emplace_back("/image", std::format("../media/image{}.{}", image_ref_id, object_props.extension_),
+                                    "");
+  }
 
-///         relationship->type = lxw_strdup("/image");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
+  vml_obj_t header_image_vml;
+  header_image_vml.width_          = static_cast<uint32_t>(object_props.width_);
+  header_image_vml.height_         = static_cast<uint32_t>(object_props.height_);
+  header_image_vml.x_dpi_          = object_props.x_dpi_;
+  header_image_vml.y_dpi_          = object_props.y_dpi_;
+  header_image_vml.rel_index_      = 1;
+  header_image_vml.image_position_ = object_props.image_position_;
+  header_image_vml.name_           = object_props.description_;
 
-///         lxw_snprintf(filename, 32, "../media/image%d.%s", image_ref_id,
-///                      object_props->extension);
+  // Strip the extension from the filename.
+  const size_t pos = header_image_vml.name_.find_last_of('.');
+  if(pos != std::string::npos)
+  {
+    header_image_vml.name_ = header_image_vml.name_.substr(0, pos);
+  }
 
-///         relationship->target = lxw_strdup(filename);
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///         STAILQ_INSERT_TAIL(self->vml_drawing_links, relationship,
-///                            list_pointers);
-///     }
-
-///     header_image_vml = calloc(1, sizeof(lxw_vml_obj));
-///     GOTO_LABEL_ON_MEM_ERROR(header_image_vml, mem_error);
-
-///     header_image_vml->width = (uint32_t) object_props->width;
-///     header_image_vml->height = (uint32_t) object_props->height;
-///     header_image_vml->x_dpi = object_props->x_dpi;
-///     header_image_vml->y_dpi = object_props->y_dpi;
-///     header_image_vml->rel_index = 1;
-
-///     header_image_vml->image_position =
-///         lxw_strdup(object_props->image_position);
-///     header_image_vml->name = lxw_strdup(object_props->description);
-
-/* Strip the extension from the filename. */
-///     extension = strchr(header_image_vml->name, '.');
-///     if (extension)
-///         *extension = '\0';
-
-///     header_image_vml->rel_index =
-///         _get_vml_drawing_rel_index(self, object_props->md5);
-
-///     STAILQ_INSERT_TAIL(self->header_image_objs, header_image_vml,
-///                        list_pointers);
-
-///     return;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-/// }
+  header_image_vml.rel_index_ = get_vml_drawing_rel_index(object_props.md5_);
+  header_image_objs_.push_back(header_image_vml);
+}
 
 /// void
 /// lxw_worksheet_prepare_background(lxw_worksheet *self,
@@ -2830,52 +2777,16 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
   return comment_count;
 }
 
-/// void
-/// lxw_worksheet_prepare_header_vml_objects(lxw_worksheet *self,
-///                                          uint32_t vml_header_id,
-///                                          uint32_t vml_drawing_id)
-/// {
-///     lxw_rel_tuple *relationship;
-///     char filename[LXW_FILENAME_LENGTH];
-///     char *vml_data_id_str;
+void worksheet_t::prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id)
+{
+  vml_header_id_ = vml_header_id;
 
-///     self->vml_header_id = vml_header_id;
+  // Set up the VML relationship for header images.
+  external_vml_header_link_ =
+      std::make_tuple("/vmlDrawing"s, std::format("../drawings/vmlDrawing{}.vml", vml_drawing_id), ""s);
 
-/* Set up the VML relationship for header images. */
-///     relationship = calloc(1, sizeof(lxw_rel_tuple));
-///     GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-///     relationship->type = lxw_strdup("/vmlDrawing");
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-///     lxw_snprintf(filename, 32, "../drawings/vmlDrawing%d.vml",
-///                  vml_drawing_id);
-
-///     relationship->target = lxw_strdup(filename);
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///     self->external_vml_header_link = relationship;
-
-/* If this allocation fails it will be dealt with in packager.c. */
-///     vml_data_id_str = calloc(1, sizeof("4294967295"));
-///     GOTO_LABEL_ON_MEM_ERROR(vml_data_id_str, mem_error);
-
-///     lxw_snprintf(vml_data_id_str, sizeof("4294967295"), "%d", vml_header_id);
-
-///     self->vml_header_id_str = vml_data_id_str;
-
-///     return;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-
-///     return;
-/// }
+  vml_header_id_str_ = std::to_string(vml_header_id);
+}
 
 /// void lxw_worksheet_prepare_tables(lxw_worksheet *self, uint32_t table_id)
 /// {
@@ -3684,64 +3595,66 @@ std::string worksheet_t::write_rows() const
 ///     row->row_changed = LXW_FALSE;
 /// }
 
-/* Process a header/footer image and store it in the correct slot. */
-/// lxw_error _worksheet_set_header_footer_image(lxw_worksheet *self, const char *filename,
-///                                    uint8_t image_position)
-/// {
-///     FILE *image_stream;
-///     const char *description;
-///     lxw_object_properties *object_props;
-///     char *image_strings[] = { "LH", "CH", "RH", "LF", "CF", "RF" };
+// Set VML image position string based on the header/footer/position.
+std::string worksheet_t::get_vml_image_position(image_position_t image_position) const
+{
+  switch(image_position)
+  {
+    case image_position_t::HEADER_LEFT:
+      return "LH";
 
-/* Not all slots will have image files. */
-///     if (!filename)
-///         return LXW_NO_ERROR;
+    case image_position_t::HEADER_CENTER:
+      return "CH";
 
-/* Check that the image file exists and can be opened. */
-///     image_stream = lxw_fopen(filename, "rb");
-///     if (!image_stream) {
-///         LXW_WARN_FORMAT1("worksheet_set_header_opt/footer_opt(): "
-///                          "file doesn't exist or can't be opened: %s.",
-///                          filename);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
+    case image_position_t::HEADER_RIGHT:
+      return "RH";
 
-/* Use the filename as the default description, like Excel. */
-///     description = lxw_basename(filename);
-///     if (!description) {
-///         LXW_WARN_FORMAT1("worksheet_set_header_opt/footer_opt(): "
-///                          "couldn't get basename for file: %s.", filename);
-///         fclose(image_stream);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
+    case image_position_t::FOOTER_LEFT:
+      return "LF";
 
-/* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
+    case image_position_t::FOOTER_CENTER:
+      return "CF";
 
-/* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup(filename);
-///     object_props->description = lxw_strdup(description);
-///     object_props->stream = image_stream;
+    case image_position_t::FOOTER_RIGHT:
+      return "RF";
+  }
+}
 
-/* Set VML image position string based on the header/footer/position. */
-///     object_props->image_position = lxw_strdup(image_strings[image_position]);
+// Process a header/footer image and store it in the correct slot.
+void worksheet_t::set_header_footer_image(const std::string& filename, image_position_t image_position)
+{
+  // Not all slots will have image files.
+  if(filename.empty())
+  {
+    return;
+  }
 
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         *self->header_footer_objs[image_position] = object_props;
-///         self->has_header_vml = LXW_TRUE;
-///         fclose(image_stream);
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+  // Check that the image file exists and can be opened.
+  {
+    std::ifstream image_stream(filename);
+    if(!image_stream)
+    {
+      throw xwpp_exception_t(std::format("Image file {} doesn't exist or cannot be opened", filename));
+    }
+  }
+
+  // Create a new object to hold the image properties.
+  object_properties_t object_props;
+
+  // Copy other options or set defaults.
+  object_props.filename_    = filename;
+  // Use the filename as the default description, like Excel.
+  // TODO Use basename of file, not full name
+  object_props.description_ = filename;
+
+  // Set VML image position string based on the header/footer/position.
+  object_props.image_position_ = get_vml_image_position(image_position);
+
+  get_image_properties(object_props);
+
+  header_footer_objs_[static_cast<size_t>(image_position)] = object_props;
+  has_header_vml_                                          = true;
+}
 
 std::string worksheet_t::write_col_info(const col_options_t& options) const
 {
@@ -3857,31 +3770,33 @@ std::string worksheet_t::write_merge_cells() const
   return "";
 }
 
-/// /// STATIC void _worksheet_write_odd_header(lxw_worksheet *self)
-/// {
-///     lxw_xml_data_element(self->file, "oddHeader", self->header, NULL);
-/// }
+std::string worksheet_t::write_odd_header() const
+{
+  return xml_data_element("oddHeader", header_);
+}
 
-/// STATIC void _worksheet_write_odd_footer(lxw_worksheet *self)
-/// {
-///     lxw_xml_data_element(self->file, "oddFooter", self->footer, NULL);
-/// }
+std::string worksheet_t::write_odd_footer() const
+{
+  return xml_data_element("oddFooter", footer_);
+}
 
 std::string worksheet_t::write_header_footer() const
 {
-  std::string xml_data;
-  ///     if (!self->header_footer_changed)
-  ///         return;
+  if(!header_footer_changed_)
+  {
+    return "";
+  }
 
-  ///     lxw_xml_start_tag(self->file, "headerFooter", NULL);
-
-  ///     if (self->header)
-  ///         _worksheet_write_odd_header(self);
-
-  ///     if (self->footer)
-  ///         _worksheet_write_odd_footer(self);
-
-  ///     lxw_xml_end_tag(self->file, "headerFooter");
+  std::string xml_data = xml_start_tag("headerFooter");
+  if(!header_.empty())
+  {
+    xml_data += write_odd_header();
+  }
+  if(!footer_.empty())
+  {
+    xml_data += write_odd_footer();
+  }
+  xml_data += xml_end_tag("headerFooter");
 
   return xml_data;
 }
@@ -4426,25 +4341,20 @@ std::string worksheet_t::write_legacy_drawing()
   });
 }
 
-std::string worksheet_t::write_legacy_drawing_hf() const
+std::string worksheet_t::write_legacy_drawing_hf()
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
+  if(!has_header_vml_)
+  {
+    return "";
+  }
+  else
+  {
+    rel_count_++;
+  }
 
-  ///     if (!self->has_header_vml)
-  ///         return;
-  ///     else
-  ///         self->rel_count++;
-
-  ///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", self->rel_count);
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-
-  ///     lxw_xml_empty_tag(self->file, "legacyDrawingHF", &attributes);
-
-  return xml_data;
+  return xml_empty_tag("legacyDrawingHF", {
+                                              {"r:id", std::format("rId{}", rel_count_)}
+  });
 }
 
 std::string worksheet_t::write_picture() const
@@ -8046,259 +7956,164 @@ void worksheet_t::select()
 ///         self->margin_bottom = bottom;
 /// }
 
-/// lxw_error
-/// worksheet_set_header_opt(lxw_worksheet *self, const char *string,
-///                          lxw_header_footer_options *options)
-/// {
-///     lxw_error err;
-///     char *tmp_header;
-///     char *found_string;
-///     char *offset_string;
-///     uint8_t placeholder_count = 0;
-///     uint8_t image_count = 0;
-///
-///     if (!string) {
-///         LXW_WARN_FORMAT("worksheet_set_header_opt/footer_opt(): "
-///                         "header/footer string cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     if (lxw_utf8_strlen(string) > LXW_HEADER_FOOTER_MAX) {
-///         LXW_WARN_FORMAT("worksheet_set_header_opt/footer_opt(): "
-///                         "header/footer string exceeds Excel's limit of "
-///                         "255 characters.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-///
-///     tmp_header = lxw_strdup(string);
-///     RETURN_ON_MEM_ERROR(tmp_header, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     /* Replace &[Picture] with &G which is used internally by Excel. */
-///     while ((found_string = strstr(tmp_header, "&[Picture]"))) {
-///         found_string++;
-///         *found_string = 'G';
-///
-///         do {
-///             found_string++;
-///             offset_string = found_string + sizeof("Picture");
-///             *found_string = *offset_string;
-///         } while (*offset_string);
-///     }
-///
-///     /* Count &G placeholders and ensure there are sufficient images. */
-///     found_string = tmp_header;
-///     while (*found_string) {
-///         if (*found_string == '&' && *(found_string + 1) == 'G')
-///             placeholder_count++;
-///         found_string++;
-///     }
-///
-///     if (placeholder_count > 0 && !options) {
-///         LXW_WARN_FORMAT1("worksheet_set_header_opt/footer_opt(): "
-///                          "the number of &G/&[Picture] placeholders in option "
-///                          "string \"%s\" does not match the number of supplied "
-///                          "images.", string);
-///
-///         free(tmp_header);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Free any previous header string so we can overwrite it. */
-///     free(self->header);
-///     self->header = NULL;
-///
-///     if (options) {
-///         /* Ensure there are enough images to match the placeholders. There is
-///          * a potential bug where there are sufficient images but in the wrong
-///          * positions but we don't currently try to deal with that.*/
-///         if (options->image_left)
-///             image_count++;
-///         if (options->image_center)
-///             image_count++;
-///         if (options->image_right)
-///             image_count++;
-///
-///         if (placeholder_count != image_count) {
-///             LXW_WARN_FORMAT1("worksheet_set_header_opt/footer_opt(): "
-///                              "the number of &G/&[Picture] placeholders in option "
-///                              "string \"%s\" does not match the number of supplied "
-///                              "images.", string);
-///
-///             free(tmp_header);
-///             return LXW_ERROR_PARAMETER_VALIDATION;
-///         }
-///
-///         /* Free any existing header image objects. */
-///         _free_object_properties(self->header_left_object_props);
-///         _free_object_properties(self->header_center_object_props);
-///         _free_object_properties(self->header_right_object_props);
-///
-///         if (options->margin > 0.0)
-///             self->margin_header = options->margin;
-///
-///         err = _worksheet_set_header_footer_image(self,
-///                                                  options->image_left,
-///                                                  HEADER_LEFT);
-///         if (err) {
-///             free(tmp_header);
-///             return err;
-///         }
-///
-///         err = _worksheet_set_header_footer_image(self,
-///                                                  options->image_center,
-///                                                  HEADER_CENTER);
-///         if (err) {
-///             free(tmp_header);
-///             return err;
-///         }
-///
-///         err = _worksheet_set_header_footer_image(self,
-///                                                  options->image_right,
-///                                                  HEADER_RIGHT);
-///         if (err) {
-///             free(tmp_header);
-///             return err;
-///         }
-///     }
-///
-///     self->header = tmp_header;
-///     self->header_footer_changed = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
+{
+  ///     lxw_error err;
+  ///     char *tmp_header;
+  ///     char *found_string;
+  ///     char *offset_string;
 
-/// lxw_error
-/// worksheet_set_footer_opt(lxw_worksheet *self, const char *string,
-///                          lxw_header_footer_options *options)
-/// {
-///     lxw_error err;
-///     char *tmp_footer;
-///     char *found_string;
-///     char *offset_string;
-///     uint8_t placeholder_count = 0;
-///     uint8_t image_count = 0;
-///
-///     if (!string) {
-///         LXW_WARN_FORMAT("worksheet_set_header_opt/footer_opt(): "
-///                         "header/footer string cannot be NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     if (lxw_utf8_strlen(string) > LXW_HEADER_FOOTER_MAX) {
-///         LXW_WARN_FORMAT("worksheet_set_header_opt/footer_opt(): "
-///                         "header/footer string exceeds Excel's limit of "
-///                         "255 characters.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-///
-///     tmp_footer = lxw_strdup(string);
-///     RETURN_ON_MEM_ERROR(tmp_footer, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     /* Replace &[Picture] with &G which is used internally by Excel. */
-///     while ((found_string = strstr(tmp_footer, "&[Picture]"))) {
-///         found_string++;
-///         *found_string = 'G';
-///
-///         do {
-///             found_string++;
-///             offset_string = found_string + sizeof("Picture");
-///             *found_string = *offset_string;
-///         } while (*offset_string);
-///     }
-///
-///     /* Count &G placeholders and ensure there are sufficient images. */
-///     found_string = tmp_footer;
-///     while (*found_string) {
-///         if (*found_string == '&' && *(found_string + 1) == 'G')
-///             placeholder_count++;
-///         found_string++;
-///     }
-///
-///     if (placeholder_count > 0 && !options) {
-///         LXW_WARN_FORMAT1("worksheet_set_header_opt/footer_opt(): "
-///                          "the number of &G/&[Picture] placeholders in option "
-///                          "string \"%s\" does not match the number of supplied "
-///                          "images.", string);
-///
-///         free(tmp_footer);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Free any previous footer string so we can overwrite it. */
-///     free(self->footer);
-///     self->footer = NULL;
-///
-///     if (options) {
-///         /* Ensure there are enough images to match the placeholders. There is
-///          * a potential bug where there are sufficient images but in the wrong
-///          * positions but we don't currently try to deal with that.*/
-///         if (options->image_left)
-///             image_count++;
-///         if (options->image_center)
-///             image_count++;
-///         if (options->image_right)
-///             image_count++;
-///
-///         if (placeholder_count != image_count) {
-///             LXW_WARN_FORMAT1("worksheet_set_header_opt/footer_opt(): "
-///                              "the number of &G/&[Picture] placeholders in option "
-///                              "string \"%s\" does not match the number of supplied "
-///                              "images.", string);
-///
-///             free(tmp_footer);
-///             return LXW_ERROR_PARAMETER_VALIDATION;
-///         }
-///
-///         /* Free any existing footer image objects. */
-///         _free_object_properties(self->footer_left_object_props);
-///         _free_object_properties(self->footer_center_object_props);
-///         _free_object_properties(self->footer_right_object_props);
-///
-///         if (options->margin > 0.0)
-///             self->margin_footer = options->margin;
-///
-///         err = _worksheet_set_header_footer_image(self,
-///                                                  options->image_left,
-///                                                  FOOTER_LEFT);
-///         if (err) {
-///             free(tmp_footer);
-///             return err;
-///         }
-///
-///         err = _worksheet_set_header_footer_image(self,
-///                                                  options->image_center,
-///                                                  FOOTER_CENTER);
-///         if (err) {
-///             free(tmp_footer);
-///             return err;
-///         }
-///
-///         err = _worksheet_set_header_footer_image(self,
-///                                                  options->image_right,
-///                                                  FOOTER_RIGHT);
-///         if (err) {
-///             free(tmp_footer);
-///             return err;
-///         }
-///     }
-///
-///     self->footer = tmp_footer;
-///     self->header_footer_changed = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+  if(str.empty())
+  {
+    throw xwpp_exception_t("Header is empty");
+  }
 
-/// lxw_error
-/// worksheet_set_header(lxw_worksheet *self, const char *string)
-/// {
-///     return worksheet_set_header_opt(self, string, NULL);
-/// }
+  if(str.size() > HEADER_FOOTER_MAX)
+  {
+    throw xwpp_out_of_range_t(std::format("Header {} is empty too long ({}/{})", str, str.size(), HEADER_FOOTER_MAX));
+  }
 
-/// lxw_error
-/// worksheet_set_footer(lxw_worksheet *self, const char *string)
-/// {
-///     return worksheet_set_footer_opt(self, string, NULL);
-/// }
+  std::string tmp_header = str;
+
+  // Count &G placeholders and ensure there are sufficient images.
+  uint8_t placeholder_count = 0;
+  for(size_t i = 0; i < tmp_header.size() - 1; ++i)
+  {
+    if(tmp_header[i] == '&' && tmp_header[i + 1] == 'G')
+    {
+      placeholder_count++;
+    }
+  }
+
+  if(placeholder_count > 0 && !options)
+  {
+    throw xwpp_exception_t("&G placeholders present but no image supplied");
+  }
+
+  if(options)
+  {
+    uint8_t image_count = 0;
+
+    /* Ensure there are enough images to match the placeholders. There is
+     * a potential bug where there are sufficient images but in the wrong
+     * positions but we don't currently try to deal with that.*/
+    if(!options->image_left_.empty())
+    {
+      image_count++;
+    }
+    if(!options->image_center_.empty())
+    {
+      image_count++;
+    }
+    if(!options->image_right_.empty())
+    {
+      image_count++;
+    }
+
+    if(placeholder_count != image_count)
+    {
+      throw xwpp_exception_t("Number of &G placeholders does not match number of supplied images");
+    }
+
+    if(options->margin_ > 0.0)
+    {
+      margin_header_ = options->margin_;
+    }
+
+    set_header_footer_image(options->image_left_, image_position_t::HEADER_LEFT);
+    set_header_footer_image(options->image_center_, image_position_t::HEADER_CENTER);
+    set_header_footer_image(options->image_right_, image_position_t::HEADER_RIGHT);
+  }
+
+  header_                = tmp_header;
+  header_footer_changed_ = true;
+}
+
+// TODO Quite similar to set_header. Maybe merged in one generic function
+void worksheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
+{
+  ///     lxw_error err;
+  ///     char *tmp_footer;
+  ///     char *found_string;
+  ///     char *offset_string;
+  ///     uint8_t placeholder_count = 0;
+  ///     uint8_t image_count = 0;
+  ///
+  if(str.empty())
+  {
+    throw xwpp_exception_t("Footer is empty");
+  }
+
+  if(str.size() > HEADER_FOOTER_MAX)
+  {
+    throw xwpp_out_of_range_t(std::format("Footer {} is empty too long ({}/{})", str, str.size(), HEADER_FOOTER_MAX));
+  }
+
+  std::string tmp_footer = str;
+
+  // Count &G placeholders and ensure there are sufficient images.
+  uint8_t placeholder_count = 0;
+  for(size_t i = 0; i < tmp_footer.size() - 1; ++i)
+  {
+    if(tmp_footer[i] == '&' && tmp_footer[i + 1] == 'G')
+    {
+      placeholder_count++;
+    }
+  }
+
+  if(placeholder_count > 0 && !options)
+  {
+    throw xwpp_exception_t("&G placeholders present but no image provided");
+  }
+
+  if(options)
+  {
+    uint8_t image_count = 0;
+
+    /* Ensure there are enough images to match the placeholders. There is
+     * a potential bug where there are sufficient images but in the wrong
+     * positions but we don't currently try to deal with that.*/
+    if(!options->image_left_.empty())
+    {
+      image_count++;
+    }
+    if(!options->image_center_.empty())
+    {
+      image_count++;
+    }
+    if(!options->image_right_.empty())
+    {
+      image_count++;
+    }
+
+    if(placeholder_count != image_count)
+    {
+      throw xwpp_exception_t("Number of &G placeholders does not match number of supplied images");
+    }
+
+    if(options->margin_ > 0.0)
+    {
+      margin_footer_ = options->margin_;
+    }
+
+    set_header_footer_image(options->image_left_, image_position_t::FOOTER_LEFT);
+    set_header_footer_image(options->image_center_, image_position_t::FOOTER_CENTER);
+    set_header_footer_image(options->image_right_, image_position_t::FOOTER_RIGHT);
+  }
+
+  footer_                = tmp_footer;
+  header_footer_changed_ = true;
+}
+
+void worksheet_t::set_header(const std::string& str)
+{
+  set_header(str, std::nullopt);
+}
+
+void worksheet_t::set_footer(const std::string& str)
+{
+  set_footer(str, std::nullopt);
+}
 
 /// void
 /// worksheet_gridlines(lxw_worksheet *self, uint8_t option)
@@ -8627,6 +8442,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   }
 
   // Use the filename as the default description, like Excel.
+  // TODO Use basename of file, not fullname
   std::string description = filename;
 
   // Create a new object to hold the image properties.

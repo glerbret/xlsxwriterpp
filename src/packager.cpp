@@ -77,10 +77,6 @@ namespace xwpp
 ///                              char **buffer, size_t *buffer_size,
 ///                              const char *filename);
 
-/// STATIC lxw_error _write_vml_drawing_rels_file(lxw_packager *self,
-///                                               lxw_worksheet *worksheet,
-///                                               uint32_t index);
-
 /// STATIC voidpf ZCALLBACK _fopen_memstream(voidpf opaque, const char *filename, int mode)
 /// {
 ///   lxw_packager *packager = (lxw_packager *) opaque;
@@ -547,6 +543,25 @@ uint32_t packager_t::get_drawing_count(const workbook_t& workbook) const
 ///   return table_count;
 /// }
 
+void packager_t::write_vml_drawing_rels_file(const worksheet_t& worksheet, uint32_t index)
+{
+  ///     lxw_relationships *rels;
+  ///     char *buffer = NULL;
+  ///     size_t buffer_size = 0;
+  ///     lxw_rel_tuple *rel;
+  ///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
+  ///     lxw_error err = LXW_NO_ERROR;
+  relationships_t relationships;
+
+  for(const auto& [type, target, target_mode]: worksheet.vml_drawing_links_)
+  {
+    relationships.add_worksheet_relationship(type, target, target_mode);
+  }
+
+  const std::string xml_data = relationships.assemble_xml_file();
+  add_buffer_to_zip(xml_data, std::format("xl/drawings/_rels/vmlDrawing{}.vml.rels", index));
+}
+
 void packager_t::write_vml_files(const workbook_t& workbook)
 {
   ///   lxw_workbook *workbook = self->workbook;
@@ -581,49 +596,14 @@ void packager_t::write_vml_files(const workbook_t& workbook)
         index++;
       }
 
-      ///     if (worksheet->has_header_vml) {
-
-      ///     err = _write_vml_drawing_rels_file(self, worksheet, index);
-      ///             RETURN_ON_ERROR(err);
-
-      ///             vml = lxw_vml_new();
-      ///             if (!vml)
-      ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
-
-      ///             lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-      ///                          "xl/drawings/vmlDrawing%d.vml", index++);
-
-      ///             vml->file = lxw_get_filehandle(&buffer, &buffer_size,
-      ///                                            self->tmpdir);
-      ///             if (!vml->file) {
-      ///                 lxw_vml_free(vml);
-      ///                 return LXW_ERROR_CREATING_TMPFILE;
-      ///             }
-
-      ///             vml->image_objs = worksheet->header_image_objs;
-      ///             vml->vml_shape_id = worksheet->vml_header_id * 1024;
-
-      ///             if (worksheet->vml_header_id_str) {
-      ///                 vml->vml_data_id_str = worksheet->vml_header_id_str;
-      ///             }
-      ///             else {
-      ///                 fclose(vml->file);
-      ///                 free(buffer);
-      ///                 lxw_vml_free(vml);
-      ///                 return LXW_ERROR_MEMORY_MALLOC_FAILED;
-      ///             }
-
-      ///             lxw_vml_assemble_xml_file(vml);
-
-      ///             err = _add_to_zip(self, vml->file, &buffer, &buffer_size,
-      ///                               filename);
-
-      ///             fclose(vml->file);
-      ///             free(buffer);
-      ///             lxw_vml_free(vml);
-
-      ///             RETURN_ON_ERROR(err);
-      ///         }
+      if(ws.has_header_vml_)
+      {
+        write_vml_drawing_rels_file(ws, index);
+        vml_t vml(ws.vml_header_id_str_, ws.header_image_objs_, ws.vml_header_id_ * 1024);
+        const std::string xml_data = vml.assemble_xml_file();
+        add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
+        index++;
+      }
     }
   }
 }
@@ -1210,8 +1190,7 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
       if(ws.external_hyperlinks_.empty() && ws.external_drawing_links_.empty() &&
          ///             STAILQ_EMPTY(ws.external_table_links) &&
-         ///             !ws.external_vml_header_link &&
-         !ws.external_vml_comment_link_.has_value() &&
+         !ws.external_vml_header_link_.has_value() && !ws.external_vml_comment_link_.has_value() &&
          ///             !ws.external_background_link &&
          !ws.external_comment_link_.has_value())
       {
@@ -1234,10 +1213,11 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
         relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
       }
 
-      ///         rel = worksheet->external_vml_header_link;
-      ///         if (rel)
-      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-      ///                                            rel->target_mode);
+      if(ws.external_vml_header_link_.has_value())
+      {
+        auto header = ws.external_vml_header_link_.value();
+        relationships.add_worksheet_relationship(std::get<0>(header), std::get<1>(header), std::get<2>(header));
+      }
 
       ///         rel = worksheet->external_background_link;
       ///         if (rel)
@@ -1347,44 +1327,6 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
     }
   }
 }
-
-/// STATIC lxw_error
-/// _write_vml_drawing_rels_file(lxw_packager *self, lxw_worksheet *worksheet,
-///                              uint32_t index)
-/// {
-///     lxw_relationships *rels;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-///     lxw_rel_tuple *rel;
-///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-///     lxw_error err = LXW_NO_ERROR;
-
-///     rels = lxw_relationships_new();
-
-///     rels->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rels->file) {
-///         lxw_free_relationships(rels);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///     }
-
-///     STAILQ_FOREACH(rel, worksheet->vml_drawing_links, list_pointers) {
-///         lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-///                                        rel->target_mode);
-///     }
-
-///     lxw_snprintf(sheetname, LXW_FILENAME_LENGTH,
-///                  "xl/drawings/_rels/vmlDrawing%d.vml.rels", index);
-
-///     lxw_relationships_assemble_xml_file(rels);
-
-///     err = _add_to_zip(self, rels->file, &buffer, &buffer_size, sheetname);
-
-///     fclose(rels->file);
-///     free(buffer);
-///     lxw_free_relationships(rels);
-
-///     return err;
-/// }
 
 /// STATIC lxw_error
 /// _write_vba_project_rels_file(lxw_packager *self)

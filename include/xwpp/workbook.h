@@ -607,7 +607,7 @@ private:
   ///     struct lxw_chartsheet_names *chartsheet_names;
   std::map<std::string, uint32_t> image_md5_;
   ///     struct lxw_image_md5s *embedded_image_md5s;
-  ///     struct lxw_image_md5s *header_image_md5s;
+  std::map<std::string, uint32_t> header_image_md5_;
   ///     struct lxw_image_md5s *background_md5s;
   ///     struct lxw_charts *charts;
   ///     struct lxw_charts *ordered_charts;

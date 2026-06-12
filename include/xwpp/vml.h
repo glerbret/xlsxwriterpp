@@ -20,7 +20,8 @@ namespace xwpp
 class vml_t
 {
 public:
-  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& comment_objs, uint32_t vml_shape_id,
+  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& comment_objs, uint32_t vml_shape_id);
+  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& image_objs, uint32_t vml_shape_id,
         comment_display_t comment_display_default);
 
   [[nodiscard]] std::string assemble_xml_file();
@@ -45,11 +46,33 @@ private:
   [[nodiscard]] std::string write_row(const vml_obj_t& vml_obj) const;
   [[nodiscard]] std::string write_column(const vml_obj_t& vml_obj) const;
   [[nodiscard]] std::string write_visible() const;
+  [[nodiscard]] std::string write_image_shapetype() const;
+  [[nodiscard]] std::string write_formulas() const;
+  [[nodiscard]] std::string write_formula(const std::string& equation) const;
+  [[nodiscard]] std::string write_image_path() const;
+  [[nodiscard]] std::string write_aspect_ratio_lock() const;
+  [[nodiscard]] std::string write_image_shape(uint32_t vml_shape_id, uint32_t z_index,
+                                              const vml_obj_t& image_obj) const;
+  [[nodiscard]] std::string write_imagedata(uint32_t rel_index, const std::string& name) const;
+  [[nodiscard]] std::string write_rotation_lock() const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
+  // [[nodiscard]] std::string () const;
 
   ///     uint8_t type;
   ///     struct lxw_comment_objs *button_objs;
   std::vector<vml_obj_t> comment_objs_;
-  ///     struct lxw_comment_objs *image_objs;
+  std::vector<vml_obj_t> image_objs_;
   std::string vml_data_id_str_;
   uint32_t vml_shape_id_;
   comment_display_t comment_display_default_;

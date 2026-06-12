@@ -16,6 +16,4 @@ int main()
   worksheet.write_number(1, 0, 123);
 
   workbook.save("hello_world.xlsx");
-
-  return 0;
 }

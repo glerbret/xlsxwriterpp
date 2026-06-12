@@ -28,51 +28,44 @@ vml_t::vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& c
 {
 }
 
+vml_t::vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& image_objs, uint32_t vml_shape_id)
+  : image_objs_{image_objs}
+  , vml_data_id_str_{vml_data_id_str}
+  , vml_shape_id_{vml_shape_id}
+{
+}
+
 std::string vml_t::write_visible() const
 {
   return xml_empty_tag("x:Visible");
 }
 
-/*
- * Write the <v:f> element.
- */
-/// STATIC void
-/// _vml_write_formula(lxw_vml *self, char *equation)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("eqn", equation);
-///
-///     lxw_xml_empty_tag(self->file, "v:f", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string vml_t::write_formula(const std::string& equation) const
+{
+  return xml_empty_tag("v:f", {
+                                  {"eqn", equation}
+  });
+}
 
-/*
- * Write the <v:formulas> element.
- */
-/// STATIC void
-/// _vml_write_formulas(lxw_vml *self)
-/// {
-///     lxw_xml_start_tag(self->file, "v:formulas", NULL);
-///
-///     _vml_write_formula(self, "if lineDrawn pixelLineWidth 0");
-///     _vml_write_formula(self, "sum @0 1 0");
-///     _vml_write_formula(self, "sum 0 0 @1");
-///     _vml_write_formula(self, "prod @2 1 2");
-///     _vml_write_formula(self, "prod @3 21600 pixelWidth");
-///     _vml_write_formula(self, "prod @3 21600 pixelHeight");
-///     _vml_write_formula(self, "sum @0 0 1");
-///     _vml_write_formula(self, "prod @6 1 2");
-///     _vml_write_formula(self, "prod @7 21600 pixelWidth");
-///     _vml_write_formula(self, "sum @8 21600 0");
-///     _vml_write_formula(self, "prod @7 21600 pixelHeight");
-///     _vml_write_formula(self, "sum @10 21600 0");
-///
-///     lxw_xml_end_tag(self->file, "v:formulas");
-/// }
+std::string vml_t::write_formulas() const
+{
+  std::string xml_data = xml_start_tag("v:formulas");
+  xml_data += write_formula("if lineDrawn pixelLineWidth 0");
+  xml_data += write_formula("sum @0 1 0");
+  xml_data += write_formula("sum 0 0 @1");
+  xml_data += write_formula("prod @2 1 2");
+  xml_data += write_formula("prod @3 21600 pixelWidth");
+  xml_data += write_formula("prod @3 21600 pixelHeight");
+  xml_data += write_formula("sum @0 0 1");
+  xml_data += write_formula("prod @6 1 2");
+  xml_data += write_formula("prod @7 21600 pixelWidth");
+  xml_data += write_formula("sum @8 21600 0");
+  xml_data += write_formula("prod @7 21600 pixelHeight");
+  xml_data += write_formula("sum @10 21600 0");
+  xml_data += xml_end_tag("v:formulas");
+
+  return xml_data;
+}
 
 /*
  * Write the <x:TextHAlign> element.
@@ -111,41 +104,21 @@ std::string vml_t::write_visible() const
 ///     lxw_xml_data_element(self->file, "x:PrintObject", "False", NULL);
 /// }
 
-/*
- * Write the <o:lock> element.
- */
-/// STATIC void
-/// _vml_write_aspect_ratio_lock(lxw_vml *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("v:ext", "edit");
-///     LXW_PUSH_ATTRIBUTES_STR("aspectratio", "t");
-///
-///     lxw_xml_empty_tag(self->file, "o:lock", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string vml_t::write_aspect_ratio_lock() const
+{
+  return xml_empty_tag("o:lock", {
+                                     {"v:ext",       "edit"},
+                                     {"aspectratio", "t"   },
+  });
+}
 
-/*
- * Write the <o:lock> element.
- */
-/// STATIC void
-/// _vml_write_rotation_lock(lxw_vml *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("v:ext", "edit");
-///     LXW_PUSH_ATTRIBUTES_STR("rotation", "t");
-///
-///     lxw_xml_empty_tag(self->file, "o:lock", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string vml_t::write_rotation_lock() const
+{
+  return xml_empty_tag("o:lock", {
+                                     {"v:ext",    "edit"},
+                                     {"rotation", "t"   },
+  });
+}
 
 std::string vml_t::write_column(const vml_obj_t& vml_obj) const
 {
@@ -231,143 +204,76 @@ std::string vml_t::write_stroke() const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-/// STATIC void
-/// _vml_write_imagedata(lxw_vml *self, uint32_t rel_index, char *name)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rel_id[LXW_ATTR_32];
-///
-///     lxw_snprintf(rel_id, LXW_ATTR_32, "rId%d", rel_index);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("o:relid", rel_id);
-///     LXW_PUSH_ATTRIBUTES_STR("o:title", name);
-///
-///     lxw_xml_empty_tag(self->file, "v:imagedata", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string vml_t::write_imagedata(uint32_t rel_index, const std::string& name) const
+{
+  return xml_empty_tag("v:imagedata", {
+                                          {"o:relid", std::format("rId{}", rel_index)},
+                                          {"o:title", name},
+  });
+}
 
-/*
- * Write the <v:path> element.
- */
-/// STATIC void
-/// _vml_write_image_path(lxw_vml *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("o:extrusionok", "f");
-///     LXW_PUSH_ATTRIBUTES_STR("gradientshapeok", "t");
-///     LXW_PUSH_ATTRIBUTES_STR("o:connecttype", "rect");
-///
-///     lxw_xml_empty_tag(self->file, "v:path", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string vml_t::write_image_path() const
+{
+  return xml_empty_tag("v:path", {
+                                     {"o:extrusionok",   "f"   },
+                                     {"gradientshapeok", "t"   },
+                                     {"o:connecttype",   "rect"},
+  });
+}
 
-/*
- * Write the <v:shape> element.
- */
-/// STATIC void
-/// _vml_write_image_shape(lxw_vml *self, uint32_t vml_shape_id, uint32_t z_index,
-///                        lxw_vml_obj *image_obj)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char width_str[LXW_ATTR_32];
-///     char height_str[LXW_ATTR_32];
-///     char style[LXW_MAX_ATTRIBUTE_LENGTH];
-///     char o_spid[LXW_ATTR_32];
-///     char type[] = "#_x0000_t75";
-///     double width;
-///     double height;
-///
-///     /* Scale the height/width by the resolution, relative to 72dpi. */
-///     width = image_obj->width * (72.0 / image_obj->x_dpi);
-///     height = image_obj->height * (72.0 / image_obj->y_dpi);
-///
-///     /* Excel uses a rounding based around 72 and 96 dpi. */
-///     width = 72.0 / 96.0 * (uint32_t) (width * 96.0 / 72 + 0.25);
-///     height = 72.0 / 96.0 * (uint32_t) (height * 96.0 / 72 + 0.25);
-///
-///     lxw_sprintf_dbl(width_str, width);
-///     lxw_sprintf_dbl(height_str, height);
-///
-///     lxw_snprintf(o_spid, LXW_ATTR_32, "_x0000_s%d", vml_shape_id);
-///
-///     lxw_snprintf(style,
-///                  LXW_MAX_ATTRIBUTE_LENGTH,
-///                  "position:absolute;"
-///                  "margin-left:0;"
-///                  "margin-top:0;"
-///                  "width:%spt;"
-///                  "height:%spt;" "z-index:%d", width_str, height_str, z_index);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("id", image_obj->image_position);
-///     LXW_PUSH_ATTRIBUTES_STR("o:spid", o_spid);
-///     LXW_PUSH_ATTRIBUTES_STR("type", type);
-///     LXW_PUSH_ATTRIBUTES_STR("style", style);
-///
-///     lxw_xml_start_tag(self->file, "v:shape", &attributes);
-///
-///     /* Write the v:imagedata element. */
-///     _vml_write_imagedata(self, image_obj->rel_index, image_obj->name);
-///
-///     /* Write the o:lock element. */
-///     _vml_write_rotation_lock(self);
-///
-///     lxw_xml_end_tag(self->file, "v:shape");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& image_obj) const
+{
+  ///     struct xml_attribute_list attributes;
+  ///     struct xml_attribute *attribute;
+  ///     char width_str[LXW_ATTR_32];
+  ///     char height_str[LXW_ATTR_32];
+  ///     char style[LXW_MAX_ATTRIBUTE_LENGTH];
+  ///     char o_spid[LXW_ATTR_32];
+  ///     char type[] = ;
 
-/*
- * Write the <v:shapetype> element for images.
- */
-/// STATIC void
-/// _vml_write_image_shapetype(lxw_vml *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char id[] = "_x0000_t75";
-///     char coordsize[] = "21600,21600";
-///     char o_spt[] = "75";
-///     char o_preferrelative[] = "t";
-///     char path[] = "m@4@5l@4@11@9@11@9@5xe";
-///     char filled[] = "f";
-///     char stroked[] = "f";
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("id", id);
-///     LXW_PUSH_ATTRIBUTES_STR("coordsize", coordsize);
-///     LXW_PUSH_ATTRIBUTES_STR("o:spt", o_spt);
-///     LXW_PUSH_ATTRIBUTES_STR("o:preferrelative", o_preferrelative);
-///     LXW_PUSH_ATTRIBUTES_STR("path", path);
-///     LXW_PUSH_ATTRIBUTES_STR("filled", filled);
-///     LXW_PUSH_ATTRIBUTES_STR("stroked", stroked);
-///
-///     lxw_xml_start_tag(self->file, "v:shapetype", &attributes);
-///
-///     /* Write the v:stroke element. */
-///     _vml_write_stroke(self);
-///
-///     /* Write the v:formulas element. */
-///     _vml_write_formulas(self);
-///
-///     /* Write the v:path element. */
-///     _vml_write_image_path(self);
-///
-///     /* Write the o:lock element. */
-///     _vml_write_aspect_ratio_lock(self);
-///
-///     lxw_xml_end_tag(self->file, "v:shapetype");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  // Scale the height/width by the resolution, relative to 72dpi.
+  double width  = image_obj.width_ * (72.0 / image_obj.x_dpi_);
+  double height = image_obj.height_ * (72.0 / image_obj.y_dpi_);
+
+  // Excel uses a rounding based around 72 and 96 dpi.
+  width  = 72.0 / 96.0 * static_cast<uint32_t>(width * 96.0 / 72 + 0.25);
+  height = 72.0 / 96.0 * static_cast<uint32_t>(height * 96.0 / 72 + 0.25);
+
+  std::string xml_data = xml_start_tag(
+      "v:shape",
+      {
+          {"id", image_obj.image_position_},
+          {"o:spid", std::format("_x0000_s{}", vml_shape_id)},
+          {"type", "#_x0000_t75"},
+          {"style", std::format("position:absolute;margin-left:0;margin-top:0;width:{}pt;height:{}pt;z-index:{}", width,
+           height, z_index)},
+  });
+  xml_data += write_imagedata(image_obj.rel_index_, image_obj.name_);
+  xml_data += write_rotation_lock();
+  xml_data += xml_end_tag("v:shape");
+
+  return xml_data;
+}
+
+std::string vml_t::write_image_shapetype() const
+{
+  std::string xml_data = xml_start_tag("v:shapetype", {
+                                                          {"id",               "_x0000_t75"            },
+                                                          {"coordsize",        "21600,21600"           },
+                                                          {"o:spt",            "75"                    },
+                                                          {"o:preferrelative", "t"                     },
+                                                          {"path",             "m@4@5l@4@11@9@11@9@5xe"},
+                                                          {"filled",           "f"                     },
+                                                          {"stroked",          "f"                     },
+  });
+  xml_data += write_stroke();
+  xml_data += write_formulas();
+  xml_data += write_image_path();
+  xml_data += write_aspect_ratio_lock();
+  xml_data += xml_end_tag("v:shapetype");
+
+  return xml_data;
+}
 
 /*
  * Write the <x:ClientData> element.
@@ -769,22 +675,18 @@ std::string vml_t::assemble_xml_file()
       z_index++;
     }
   }
-  ///
-  ///     if (self->image_objs && !STAILQ_EMPTY(self->image_objs)) {
-  ///         /* Write the <v:shapetype> element. */
-  ///         _vml_write_image_shapetype(self);
-  ///
-  ///         STAILQ_FOREACH(image_obj, self->image_objs, list_pointers) {
-  ///             self->vml_shape_id++;
-  ///
-  ///             /* Write the <v:shape> element. */
-  ///             _vml_write_image_shape(self, self->vml_shape_id, z_index,
-  ///                                    image_obj);
-  ///
-  ///             z_index++;
-  ///         }
-  ///     }
-  ///
+
+  if(!image_objs_.empty())
+  {
+    xml_data += write_image_shapetype();
+    for(const auto& image_obj: image_objs_)
+    {
+      vml_shape_id_++;
+      xml_data += write_image_shape(vml_shape_id_, z_index, image_obj);
+
+      z_index++;
+    }
+  }
   xml_data += xml_end_tag("xml");
 
   return xml_data;

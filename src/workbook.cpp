@@ -783,7 +783,6 @@ void workbook_t::store_image_type(image_types_t image_type)
 void workbook_t::prepare_drawings()
 {
   ///     lxw_sheet *sheet;
-
   ///     lxw_object_properties *object_props;
   ///     uint32_t chart_ref_id = 0;
   uint32_t image_ref_id = 0;
@@ -808,10 +807,10 @@ void workbook_t::prepare_drawings()
     is_chartsheet          = false;
     //      }
 
-    if(worksheet.image_props_.empty()
+    if(worksheet.image_props_.empty() &&
        ///             && STAILQ_EMPTY(worksheet->embedded_image_props)
        ///             && STAILQ_EMPTY(worksheet->chart_data)
-       ///             && !worksheet->has_header_vml &&
+       !worksheet.has_header_vml_
        ///             !worksheet->has_background_image
     )
     {
@@ -943,46 +942,31 @@ void workbook_t::prepare_drawings()
     ///                                    ordered_list_pointers);
     ///         }
 
-    /* Prepare worksheet header/footer images. */
-    ///         for (i = 0; i < LXW_HEADER_FOOTER_OBJS_MAX; i++) {
+    // Prepare worksheet header/footer images.
+    for(auto& object_props: worksheet.header_footer_objs_)
+    {
+      if(object_props)
+      {
+        store_image_type(object_props->image_type_);
 
-    ///             object_props = *worksheet->header_footer_objs[i];
-    ///             if (!object_props)
-    ///                 continue;
+        // Check for duplicate images and only store the first instance.
+        uint32_t ref_id;
+        const auto it = header_image_md5_.find(object_props->md5_);
+        if(it != std::end(header_image_md5_))
+        {
+          ref_id                      = it->second;
+          object_props->is_duplicate_ = true;
+        }
+        else
+        {
+          image_ref_id++;
+          ref_id                                = image_ref_id;
+          header_image_md5_[object_props->md5_] = ref_id;
+        }
 
-    ///             _store_image_type(self, object_props->image_type);
-
-    /* Check for duplicate images and only store the first instance. */
-    ///             if (object_props->md5) {
-    ///                 tmp_image_md5.md5 = object_props->md5;
-    ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-    ///                                                 self->header_image_md5s,
-    ///                                                 &tmp_image_md5);
-    ///             }
-
-    ///             if (found_duplicate_image) {
-    ///                 ref_id = found_duplicate_image->id;
-    ///                 object_props->is_duplicate = LXW_TRUE;
-    ///             }
-    ///             else {
-    ///                 image_ref_id++;
-    ///                 ref_id = image_ref_id;
-
-    /// #ifndef USE_NO_MD5
-    ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-    /// #endif
-    ///                 if (new_image_md5 && object_props->md5) {
-    ///                     new_image_md5->id = ref_id;
-    ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
-
-    ///                     RB_INSERT(lxw_image_md5s, self->header_image_md5s,
-    ///                               new_image_md5);
-    ///                 }
-    ///             }
-
-    ///             lxw_worksheet_prepare_header_image(worksheet, ref_id,
-    ///                                                object_props);
-    ///         }
+        worksheet.prepare_header_image(ref_id, *object_props);
+      }
+    }
   }
 
   drawing_count_ = drawing_id;
@@ -993,7 +977,7 @@ void workbook_t::prepare_vml()
   uint32_t comment_id     = 0;
   uint32_t vml_drawing_id = 0;
   uint32_t vml_data_id    = 1;
-  ///     uint32_t vml_header_id = 0;
+  uint32_t vml_header_id  = 0;
   uint32_t vml_shape_id   = 1024;
   uint32_t comment_count  = 0;
 
@@ -1003,8 +987,10 @@ void workbook_t::prepare_vml()
     {
       auto& ws = std::get<worksheet_t>(sheet);
 
-      ///         if (!ws->has_vml && !ws->has_header_vml)
-      ///             continue;
+      if(!ws.has_vml_ && !ws.has_header_vml_)
+      {
+        continue;
+      }
 
       if(ws.has_vml_)
       {
@@ -1025,14 +1011,13 @@ void workbook_t::prepare_vml()
         vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
       }
 
-      ///         if (worksheet->has_header_vml) {
-      ///             self->has_vml = LXW_TRUE;
-      ///             vml_drawing_id++;
-      ///             vml_header_id++;
-      ///             lxw_worksheet_prepare_header_vml_objects(worksheet,
-      ///                                                      vml_header_id,
-      ///                                                      vml_drawing_id);
-      ///         }
+      if(ws.has_header_vml_)
+      {
+        has_vml_ = true;
+        vml_drawing_id++;
+        vml_header_id++;
+        ws.prepare_header_vml_objects(vml_header_id, vml_drawing_id);
+      }
     }
   }
 }

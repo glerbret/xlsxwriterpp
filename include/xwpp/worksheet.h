@@ -60,7 +60,7 @@ NULL);
 namespace xwpp
 {
 
-/// #define LXW_HEADER_FOOTER_MAX       255
+const uint32_t HEADER_FOOTER_MAX = 255;
 /// #define LXW_PANE_NAME_LENGTH        12  /* bottomRight + 1 */
 /// #define LXW_IMAGE_BUFFER_SIZE       1024
 /// #define LXW_HEADER_FOOTER_OBJS_MAX  6   /* Header/footer image objs. */
@@ -737,14 +737,15 @@ enum class cell_types_t
 ///     FREEZE_SPLIT_PANES
 /// };
 
-/// enum lxw_image_position {
-///     HEADER_LEFT = 0,
-///     HEADER_CENTER,
-///     HEADER_RIGHT,
-///     FOOTER_LEFT,
-///     FOOTER_CENTER,
-///     FOOTER_RIGHT
-/// };
+enum class image_position_t
+{
+  HEADER_LEFT = 0,
+  HEADER_CENTER,
+  HEADER_RIGHT,
+  FOOTER_LEFT,
+  FOOTER_CENTER,
+  FOOTER_RIGHT
+};
 
 /* Define the tree.h RB structs for the red-black head types. */
 /// RB_HEAD(lxw_table_cells, cell_t);
@@ -765,21 +766,21 @@ struct vml_obj_t
   uint64_t row_absolute_;
   uint32_t width_;
   uint32_t height_;
-  ///     double x_dpi;
-  ///     double y_dpi;
+  double x_dpi_;
+  double y_dpi_;
   color_t color_ = color_t::UNSET;
   uint8_t font_family_;
   comment_display_t visible_ = comment_display_t::DEFAULT;
   uint32_t author_id_        = 0;
-  ///     uint32_t rel_index;
+  uint32_t rel_index_;
   double font_size_;
   drawing_coords_t from_;
   drawing_coords_t to_;
   std::string author_;
   std::string font_name_;
   std::string text_;
-  ///     char *image_position;
-  ///     char *name;
+  std::string image_position_;
+  std::string name_;
   ///     char *macro;
   ///     STAILQ_ENTRY (lxw_vml_obj) list_pointers;
 };
@@ -1883,7 +1884,7 @@ struct object_properties_t
   bool is_duplicate_  = false;
   bool is_background_ = false;
   std::string md5_;
-  ///     char *image_position;
+  std::string image_position_;
   bool decorative_ = false;
   ///     lxw_format *format;
 };
@@ -2019,27 +2020,27 @@ struct comment_options_t
  * worksheet_set_footer_opt() functions.
  *
  */
-/// typedef struct lxw_header_footer_options {
-/** Header or footer margin in inches. Excel default is 0.3. Must by
- *  larger than 0.0.  See `worksheet_set_header_opt()`. */
-///     double margin;
+struct header_footer_options_t
+{
+  /** Header or footer margin in inches. Excel default is 0.3. Must by
+   *  larger than 0.0.  See `worksheet_set_header_opt()`. */
+  double margin_;
 
-/** The left header image filename, with path if required. This should
- * have a corresponding `&G/&[Picture]` placeholder in the `&L` section of
- * the header/footer string. See `worksheet_set_header_opt()`. */
-///     const char *image_left;
+  /** The left header image filename, with path if required. This should
+   * have a corresponding `&G/&[Picture]` placeholder in the `&L` section of
+   * the header/footer string. See `worksheet_set_header_opt()`. */
+  std::string image_left_;
 
-/** The center header image filename, with path if required. This should
- * have a corresponding `&G/&[Picture]` placeholder in the `&C` section of
- * the header/footer string. See `worksheet_set_header_opt()`. */
-///     const char *image_center;
+  /** The center header image filename, with path if required. This should
+   * have a corresponding `&G/&[Picture]` placeholder in the `&C` section of
+   * the header/footer string. See `worksheet_set_header_opt()`. */
+  std::string image_center_;
 
-/** The right header image filename, with path if required. This should
- * have a corresponding `&G/&[Picture]` placeholder in the `&R` section of
- * the header/footer string. See `worksheet_set_header_opt()`. */
-///     const char *image_right;
-
-/// } lxw_header_footer_options;
+  /** The right header image filename, with path if required. This should
+   * have a corresponding `&G/&[Picture]` placeholder in the `&R` section of
+   * the header/footer string. See `worksheet_set_header_opt()`. */
+  std::string image_right_;
+};
 
 /**
  * @brief Worksheet protection options.
@@ -2884,6 +2885,267 @@ public:
                            std::optional<image_options_t> user_options);
 
   /**
+   * @brief Set the printed page header caption.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param string    The header string.
+   *
+   * @return A #lxw_error code.
+   *
+   * Headers and footers are generated using a string which is a combination of
+   * plain text and control characters.
+   *
+   * The available control character are:
+   *
+   *
+   *   | Control         | Category      | Description           |
+   *   | --------------- | ------------- | --------------------- |
+   *   | `&L`            | Justification | Left                  |
+   *   | `&C`            |               | Center                |
+   *   | `&R`            |               | Right                 |
+   *   | `&P`            | Information   | Page number           |
+   *   | `&N`            |               | Total number of pages |
+   *   | `&D`            |               | Date                  |
+   *   | `&T`            |               | Time                  |
+   *   | `&F`            |               | File name             |
+   *   | `&A`            |               | Worksheet name        |
+   *   | `&Z`            |               | Workbook path         |
+   *   | `&fontsize`     | Font          | Font size             |
+   *   | `&"font,style"` |               | Font name and style   |
+   *   | `&U`            |               | Single underline      |
+   *   | `&E`            |               | Double underline      |
+   *   | `&S`            |               | Strikethrough         |
+   *   | `&X`            |               | Superscript           |
+   *   | `&Y`            |               | Subscript             |
+   *   | `&G`            | Images        | Image placeholder     |
+   *   | `&&`            | Miscellaneous | Literal ampersand &   |
+   *
+   * Note: inserting images requires the `worksheet_set_header_opt()` function.
+   *
+   * Text in headers and footers can be justified (aligned) to the left, center
+   * and right by prefixing the text with the control characters `&L`, `&C` and
+   * `&R`.
+   *
+   * For example (with ASCII art representation of the results):
+   *
+   * @code
+   *     worksheet_set_header(worksheet, "&LHello");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    | Hello                                                         |
+   *     //    |                                                               |
+   *
+   *
+   *     worksheet_set_header(worksheet, "&CHello");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    |                          Hello                                |
+   *     //    |                                                               |
+   *
+   *
+   *     worksheet_set_header(worksheet, "&RHello");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    |                                                         Hello |
+   *     //    |                                                               |
+   *
+   *
+   * @endcode
+   *
+   * For simple text, if you do not specify any justification the text will be
+   * centered. However, you must prefix the text with `&C` if you specify a font
+   * name or any other formatting:
+   *
+   * @code
+   *     worksheet_set_header(worksheet, "Hello");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    |                          Hello                                |
+   *     //    |                                                               |
+   *
+   * @endcode
+   *
+   * You can have text in each of the justification regions:
+   *
+   * @code
+   *     worksheet_set_header(worksheet, "&LCiao&CBello&RCielo");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    | Ciao                     Bello                          Cielo |
+   *     //    |                                                               |
+   *
+   * @endcode
+   *
+   * The information control characters act as variables that Excel will update
+   * as the workbook or worksheet changes. Times and dates are in the users
+   * default format:
+   *
+   * @code
+   *     worksheet_set_header(worksheet, "&CPage &P of &N");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    |                        Page 1 of 6                            |
+   *     //    |                                                               |
+   *
+   *     worksheet_set_header(worksheet, "&CUpdated at &T");
+   *
+   *     //     ---------------------------------------------------------------
+   *     //    |                                                               |
+   *     //    |                    Updated at 12:30 PM                        |
+   *     //    |                                                               |
+   *
+   * @endcode
+   *
+   * You can specify the font size of a section of the text by prefixing it with
+   * the control character `&n` where `n` is the font size:
+   *
+   * @code
+   *     worksheet_set_header(worksheet1, "&C&30Hello Big");
+   *     worksheet_set_header(worksheet2, "&C&10Hello Small");
+   *
+   * @endcode
+   *
+   * You can specify the font of a section of the text by prefixing it with the
+   * control sequence `&"font,style"` where `fontname` is a font name such as
+   * Windows font descriptions: "Regular", "Italic", "Bold" or "Bold Italic":
+   * "Courier New" or "Times New Roman" and `style` is one of the standard
+   *
+   * @code
+   *     worksheet_set_header(worksheet1, "&C&\"Courier New,Italic\"Hello");
+   *     worksheet_set_header(worksheet2, "&C&\"Courier New,Bold Italic\"Hello");
+   *     worksheet_set_header(worksheet3, "&C&\"Times New Roman,Regular\"Hello");
+   *
+   * @endcode
+   *
+   * It is possible to combine all of these features together to create
+   * sophisticated headers and footers. As an aid to setting up complicated
+   * headers and footers you can record a page set-up as a macro in Excel and
+   * look at the format strings that VBA produces. Remember however that VBA
+   * uses two double quotes `""` to indicate a single double quote. For the last
+   * example above the equivalent VBA code looks like this:
+   *
+   * @code
+   *     .LeftHeader = ""
+   *     .CenterHeader = "&""Times New Roman,Regular""Hello"
+   *     .RightHeader = ""
+   *
+   * @endcode
+   *
+   * Alternatively you can inspect the header and footer strings in an Excel
+   * file by unzipping it and grepping the XML sub-files. The following shows
+   * how to do that using libxml's xmllint to format the XML for clarity:
+   *
+   * @code
+   *
+   *    $ unzip myfile.xlsm -d myfile
+   *    $ xmllint --format `find myfile -name "*.xml" | xargs` | egrep
+   * "Header|Footer" | sed 's/&amp;/\&/g'
+   *
+   *      <headerFooter scaleWithDoc="0">
+   *        <oddHeader>&L&P</oddHeader>
+   *      </headerFooter>
+   *
+   * @endcode
+   *
+   * To include a single literal ampersand `&` in a header or footer you should
+   * use a double ampersand `&&`:
+   *
+   * @code
+   *     worksheet_set_header(worksheet, "&CCuriouser && Curiouser - Attorneys at
+   * Law");
+   * @endcode
+   *
+   * @note
+   * Excel requires that the header or footer string cannot be longer than 255
+   * characters, including the control characters. Strings longer than this will
+   * not be written.
+   *
+   */
+  void set_header(const std::string& str);
+
+  /**
+   * @brief Set the printed page footer caption.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param string    The footer string.
+   *
+   * @return A #lxw_error code.
+   *
+   * The syntax of this function is the same as worksheet_set_header().
+   *
+   */
+  void set_footer(const std::string& str);
+
+  /**
+   * @brief Set the printed page header caption with additional options.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param string    The header string.
+   * @param options   Header options.
+   *
+   * @return A #lxw_error code.
+   *
+   * The syntax of this function is the same as `worksheet_set_header()` with an
+   * additional parameter to specify options for the header.
+   *
+   * The #lxw_header_footer_options options are:
+   *
+   * - `margin`: Header or footer margin in inches. The value must by larger
+   *   than 0.0. The Excel default is 0.3.
+   *
+   * - `image_left`: The left header image filename, with path if required. This
+   *   should have a corresponding `&G/&[Picture]` placeholder in the `&L`
+   *   section of the header/footer string.
+   *
+   * - `image_center`: The center header image filename, with path if
+   *   required. This should have a corresponding `&G/&[Picture]` placeholder in
+   *   the `&C` section of the header/footer string.
+   *
+   * - `image_right`: The right header image filename, with path if
+   *   required. This should have a corresponding `&G/&[Picture]` placeholder in
+   *   the `&R` section of the header/footer string.
+   *
+   * @code
+   *     lxw_header_footer_options header_options = { .margin = 0.2 };
+   *
+   *     worksheet_set_header_opt(worksheet, "Some text", &header_options);
+   * @endcode
+   *
+   * Images can be inserted in the header by specifying the `&[Picture]`
+   * placeholder and a filename/path to the image:
+   *
+   * @code
+   *     lxw_header_footer_options header_options = {.image_left = "logo.png"};
+   *
+   *    worksheet_set_header_opt(worksheet, "&L&[Picture]", &header_options);
+   * @endcode
+   *
+   * @image html headers_footers.png
+   *
+   */
+  void set_header(const std::string& str, const std::optional<header_footer_options_t>& options);
+
+  /**
+   * @brief Set the printed page footer caption with additional options.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param string    The footer string.
+   * @param options   Footer options.
+   *
+   * @return A #lxw_error code.
+   *
+   * The syntax of this function is the same as `worksheet_set_header_opt()`.
+   *
+   */
+  void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options);
+
+  /**
    * @brief Make all comments in the worksheet visible.
    *
    * @param worksheet Pointer to a lxw_worksheet instance.
@@ -2973,7 +3235,7 @@ private:
   [[nodiscard]] std::string write_ignored_errors() const;
   [[nodiscard]] std::string write_drawings();
   [[nodiscard]] std::string write_legacy_drawing();
-  [[nodiscard]] std::string write_legacy_drawing_hf() const;
+  [[nodiscard]] std::string write_legacy_drawing_hf();
   [[nodiscard]] std::string write_picture() const;
   [[nodiscard]] std::string write_table_parts() const;
   [[nodiscard]] std::string write_ext_list() const;
@@ -2988,7 +3250,10 @@ private:
   [[nodiscard]] std::string write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
                                                      const std::string& tooltip, uint16_t id) const;
   [[nodiscard]] std::string write_drawing(uint16_t id) const;
+  [[nodiscard]] std::string write_odd_header() const;
+  [[nodiscard]] std::string write_odd_footer() const;
 
+  void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
   [[nodiscard]] int32_t size_col(col_num_t col_num, object_position_t anchor);
@@ -2998,10 +3263,15 @@ private:
   void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object);
   void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object);
   void position_vml_object(vml_obj_t& vml_obj);
-  [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t find_drawing_rel_index(const std::string& target);
+  [[nodiscard]] std::string get_vml_image_position(image_position_t image_position) const;
+  [[nodiscard]] uint32_t find_vml_drawing_rel_index(const std::string& target);
+  [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
+  [[nodiscard]] uint32_t get_vml_drawing_rel_index(const std::string& target);
 
   void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
+  void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
+  void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
 
   std::function<int32_t(format_t*)> get_xf_index_;
   ///     FILE *file;
@@ -3021,9 +3291,9 @@ private:
   ///     struct lxw_chart_props *chart_data;
 
   std::map<std::string, uint32_t> drawing_rel_ids_;
-  ///     struct lxw_vml_drawing_rel_ids *vml_drawing_rel_ids;
+  std::map<std::string, uint32_t> vml_drawing_rel_ids_;
   std::vector<vml_obj_t> comment_objs_;
-  ///     struct lxw_comment_objs *header_image_objs;
+  std::vector<vml_obj_t> header_image_objs_;
   ///     struct lxw_comment_objs *button_objs;
   ///     struct lxw_table_objs *table_objs;
   ///     uint16_t table_count;
@@ -3113,9 +3383,9 @@ private:
   ///     uint8_t outline_row_level;
   ///     uint8_t outline_col_level;
 
-  ///     uint8_t header_footer_changed;
-  ///     char *header;
-  ///     char *footer;
+  bool header_footer_changed_;
+  std::string header_;
+  std::string footer_;
 
   ///     struct lxw_repeat_rows repeat_rows;
   ///     struct lxw_repeat_cols repeat_cols;
@@ -3130,12 +3400,12 @@ private:
   ///     uint16_t hbreaks_count;
   ///     uint16_t vbreaks_count;
 
-  uint32_t drawing_rel_id_ = 0;
-  ///     uint32_t vml_drawing_rel_id;
+  uint32_t drawing_rel_id_     = 0;
+  uint32_t vml_drawing_rel_id_ = 0;
   std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
   std::vector<std::tuple<std::string, std::string, std::string>> external_drawing_links_;
   std::vector<std::tuple<std::string, std::string, std::string>> drawing_links_;
-  ///     struct lxw_rel_tuples *vml_drawing_links;
+  std::vector<std::tuple<std::string, std::string, std::string>> vml_drawing_links_;
   ///     struct lxw_rel_tuples *external_table_links;
 
   ///     struct lxw_panes panes;
@@ -3154,13 +3424,13 @@ private:
   bool storing_embedded_image_ = false;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
-  ///     lxw_rel_tuple *external_vml_header_link;
+  std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
   ///     lxw_rel_tuple *external_background_link;
   std::string comment_author_;
   std::string vml_data_id_str_;
-  ///     char *vml_header_id_str;
+  std::string vml_header_id_str_;
   uint32_t vml_shape_id_;
-  ///     uint32_t vml_header_id;
+  uint32_t vml_header_id_;
   ///     uint32_t dxf_priority;
   comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
   ///     uint32_t data_bar_2010_index;
@@ -3180,8 +3450,8 @@ private:
 
   ///     uint16_t excel_version;
 
-  ///     lxw_object_properties
-  ///     **header_footer_objs[LXW_HEADER_FOOTER_OBJS_MAX];
+  std::optional<object_properties_t> header_footer_objs_[6];
+
   ///     lxw_object_properties *header_left_object_props;
   ///     lxw_object_properties *header_center_object_props;
   ///     lxw_object_properties *header_right_object_props;
@@ -5028,274 +5298,6 @@ private:
 ///                            double right, double top, double bottom);
 
 /**
- * @brief Set the printed page header caption.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param string    The header string.
- *
- * @return A #lxw_error code.
- *
- * Headers and footers are generated using a string which is a combination of
- * plain text and control characters.
- *
- * The available control character are:
- *
- *
- *   | Control         | Category      | Description           |
- *   | --------------- | ------------- | --------------------- |
- *   | `&L`            | Justification | Left                  |
- *   | `&C`            |               | Center                |
- *   | `&R`            |               | Right                 |
- *   | `&P`            | Information   | Page number           |
- *   | `&N`            |               | Total number of pages |
- *   | `&D`            |               | Date                  |
- *   | `&T`            |               | Time                  |
- *   | `&F`            |               | File name             |
- *   | `&A`            |               | Worksheet name        |
- *   | `&Z`            |               | Workbook path         |
- *   | `&fontsize`     | Font          | Font size             |
- *   | `&"font,style"` |               | Font name and style   |
- *   | `&U`            |               | Single underline      |
- *   | `&E`            |               | Double underline      |
- *   | `&S`            |               | Strikethrough         |
- *   | `&X`            |               | Superscript           |
- *   | `&Y`            |               | Subscript             |
- *   | `&[Picture]`    | Images        | Image placeholder     |
- *   | `&G`            |               | Same as `&[Picture]`  |
- *   | `&&`            | Miscellaneous | Literal ampersand &   |
- *
- * Note: inserting images requires the `worksheet_set_header_opt()` function.
- *
- * Text in headers and footers can be justified (aligned) to the left, center
- * and right by prefixing the text with the control characters `&L`, `&C` and
- * `&R`.
- *
- * For example (with ASCII art representation of the results):
- *
- * @code
- *     worksheet_set_header(worksheet, "&LHello");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    | Hello                                                         |
- *     //    |                                                               |
- *
- *
- *     worksheet_set_header(worksheet, "&CHello");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    |                          Hello                                |
- *     //    |                                                               |
- *
- *
- *     worksheet_set_header(worksheet, "&RHello");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    |                                                         Hello |
- *     //    |                                                               |
- *
- *
- * @endcode
- *
- * For simple text, if you do not specify any justification the text will be
- * centered. However, you must prefix the text with `&C` if you specify a font
- * name or any other formatting:
- *
- * @code
- *     worksheet_set_header(worksheet, "Hello");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    |                          Hello                                |
- *     //    |                                                               |
- *
- * @endcode
- *
- * You can have text in each of the justification regions:
- *
- * @code
- *     worksheet_set_header(worksheet, "&LCiao&CBello&RCielo");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    | Ciao                     Bello                          Cielo |
- *     //    |                                                               |
- *
- * @endcode
- *
- * The information control characters act as variables that Excel will update
- * as the workbook or worksheet changes. Times and dates are in the users
- * default format:
- *
- * @code
- *     worksheet_set_header(worksheet, "&CPage &P of &N");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    |                        Page 1 of 6                            |
- *     //    |                                                               |
- *
- *     worksheet_set_header(worksheet, "&CUpdated at &T");
- *
- *     //     ---------------------------------------------------------------
- *     //    |                                                               |
- *     //    |                    Updated at 12:30 PM                        |
- *     //    |                                                               |
- *
- * @endcode
- *
- * You can specify the font size of a section of the text by prefixing it with
- * the control character `&n` where `n` is the font size:
- *
- * @code
- *     worksheet_set_header(worksheet1, "&C&30Hello Big");
- *     worksheet_set_header(worksheet2, "&C&10Hello Small");
- *
- * @endcode
- *
- * You can specify the font of a section of the text by prefixing it with the
- * control sequence `&"font,style"` where `fontname` is a font name such as
- * Windows font descriptions: "Regular", "Italic", "Bold" or "Bold Italic":
- * "Courier New" or "Times New Roman" and `style` is one of the standard
- *
- * @code
- *     worksheet_set_header(worksheet1, "&C&\"Courier New,Italic\"Hello");
- *     worksheet_set_header(worksheet2, "&C&\"Courier New,Bold Italic\"Hello");
- *     worksheet_set_header(worksheet3, "&C&\"Times New Roman,Regular\"Hello");
- *
- * @endcode
- *
- * It is possible to combine all of these features together to create
- * sophisticated headers and footers. As an aid to setting up complicated
- * headers and footers you can record a page set-up as a macro in Excel and
- * look at the format strings that VBA produces. Remember however that VBA
- * uses two double quotes `""` to indicate a single double quote. For the last
- * example above the equivalent VBA code looks like this:
- *
- * @code
- *     .LeftHeader = ""
- *     .CenterHeader = "&""Times New Roman,Regular""Hello"
- *     .RightHeader = ""
- *
- * @endcode
- *
- * Alternatively you can inspect the header and footer strings in an Excel
- * file by unzipping it and grepping the XML sub-files. The following shows
- * how to do that using libxml's xmllint to format the XML for clarity:
- *
- * @code
- *
- *    $ unzip myfile.xlsm -d myfile
- *    $ xmllint --format `find myfile -name "*.xml" | xargs` | egrep
- * "Header|Footer" | sed 's/&amp;/\&/g'
- *
- *      <headerFooter scaleWithDoc="0">
- *        <oddHeader>&L&P</oddHeader>
- *      </headerFooter>
- *
- * @endcode
- *
- * To include a single literal ampersand `&` in a header or footer you should
- * use a double ampersand `&&`:
- *
- * @code
- *     worksheet_set_header(worksheet, "&CCuriouser && Curiouser - Attorneys at
- * Law");
- * @endcode
- *
- * @note
- * Excel requires that the header or footer string cannot be longer than 255
- * characters, including the control characters. Strings longer than this will
- * not be written.
- *
- */
-/// lxw_error worksheet_set_header(lxw_worksheet *worksheet, const char
-/// *string);
-
-/**
- * @brief Set the printed page footer caption.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param string    The footer string.
- *
- * @return A #lxw_error code.
- *
- * The syntax of this function is the same as worksheet_set_header().
- *
- */
-/// lxw_error worksheet_set_footer(lxw_worksheet *worksheet, const char
-/// *string);
-
-/**
- * @brief Set the printed page header caption with additional options.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param string    The header string.
- * @param options   Header options.
- *
- * @return A #lxw_error code.
- *
- * The syntax of this function is the same as `worksheet_set_header()` with an
- * additional parameter to specify options for the header.
- *
- * The #lxw_header_footer_options options are:
- *
- * - `margin`: Header or footer margin in inches. The value must by larger
- *   than 0.0. The Excel default is 0.3.
- *
- * - `image_left`: The left header image filename, with path if required. This
- *   should have a corresponding `&G/&[Picture]` placeholder in the `&L`
- *   section of the header/footer string.
- *
- * - `image_center`: The center header image filename, with path if
- *   required. This should have a corresponding `&G/&[Picture]` placeholder in
- *   the `&C` section of the header/footer string.
- *
- * - `image_right`: The right header image filename, with path if
- *   required. This should have a corresponding `&G/&[Picture]` placeholder in
- *   the `&R` section of the header/footer string.
- *
- * @code
- *     lxw_header_footer_options header_options = { .margin = 0.2 };
- *
- *     worksheet_set_header_opt(worksheet, "Some text", &header_options);
- * @endcode
- *
- * Images can be inserted in the header by specifying the `&[Picture]`
- * placeholder and a filename/path to the image:
- *
- * @code
- *     lxw_header_footer_options header_options = {.image_left = "logo.png"};
- *
- *    worksheet_set_header_opt(worksheet, "&L&[Picture]", &header_options);
- * @endcode
- *
- * @image html headers_footers.png
- *
- */
-/// lxw_error worksheet_set_header_opt(lxw_worksheet *worksheet,
-///                                    const char *string,
-///                                    lxw_header_footer_options *options);
-
-/**
- * @brief Set the printed page footer caption with additional options.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param string    The footer string.
- * @param options   Footer options.
- *
- * @return A #lxw_error code.
- *
- * The syntax of this function is the same as `worksheet_set_header_opt()`.
- *
- */
-/// lxw_error worksheet_set_footer_opt(lxw_worksheet *worksheet,
-///                                    const char *string,
-///                                    lxw_header_footer_options *options);
-
-/**
  * @brief Set the horizontal page breaks on a worksheet.
  *
  * @param worksheet Pointer to a lxw_worksheet instance to be updated.
@@ -6055,11 +6057,6 @@ private:
 
 /// void lxw_worksheet_write_single_row(lxw_worksheet *worksheet);
 
-/// void lxw_worksheet_prepare_header_image(lxw_worksheet *worksheet,
-///                                         uint32_t image_ref_id,
-///                                         lxw_object_properties
-///                                         *object_props);
-
 /// void lxw_worksheet_prepare_background(lxw_worksheet *worksheet,
 ///                                       uint32_t image_ref_id,
 ///                                       lxw_object_properties *object_props);
@@ -6068,10 +6065,6 @@ private:
 ///                                  uint32_t chart_ref_id, uint32_t drawing_id,
 ///                                  lxw_object_properties *object_props,
 ///                                  uint8_t is_chartsheet);
-
-/// void lxw_worksheet_prepare_header_vml_objects(lxw_worksheet *worksheet,
-///                                               uint32_t vml_header_id,
-///                                               uint32_t vml_drawing_id);
 
 /// void lxw_worksheet_prepare_tables(lxw_worksheet *worksheet,
 ///                                   uint32_t table_id);
@@ -6101,9 +6094,6 @@ private:
 
 /// STATIC void _worksheet_write_merge_cell(lxw_worksheet *worksheet,
 ///                                         lxw_merged_range *merged_range);
-
-/// STATIC void _worksheet_write_odd_header(lxw_worksheet *worksheet);
-/// STATIC void _worksheet_write_odd_footer(lxw_worksheet *worksheet);
 
 /// STATIC void _worksheet_write_sheet_pr(lxw_worksheet *worksheet);
 /// STATIC void _worksheet_write_tab_color(lxw_worksheet *worksheet);
