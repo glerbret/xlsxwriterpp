@@ -3291,6 +3291,25 @@ public:
    */
   void select();
 
+/**
+ * @brief Set the color of the worksheet tab.
+ *
+ * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+ * @param color     The tab color.
+ *
+ * The `%worksheet_set_tab_color()` function is used to change the color of
+ * the worksheet tab:
+ *
+ * @code
+ *      worksheet_set_tab_color(worksheet1, LXW_COLOR_RED);
+ *      worksheet_set_tab_color(worksheet2, LXW_COLOR_GREEN);
+ *      worksheet_set_tab_color(worksheet3, 0xFF9900); // Orange.
+ * @endcode
+ *
+ * The color should be an RGB integer value, see @ref working_with_colors.
+ */
+void set_tab_color(color_t color);
+
   [[nodiscard]] std::string assemble_xml_file();
 
   [[nodiscard]] std::string get_sheet_name() const;
@@ -3357,6 +3376,10 @@ private:
   [[nodiscard]] std::string write_odd_header() const;
   [[nodiscard]] std::string write_odd_footer() const;
   [[nodiscard]] std::string write_brk(uint32_t id, uint32_t max) const;
+  [[nodiscard]] std::string write_tab_color() const;
+///  [[nodiscard]] std::string () const;
+///  [[nodiscard]] std::string () const;
+
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -3444,11 +3467,11 @@ private:
   uint16_t rel_count_         = 0;
   uint16_t vertical_dpi_      = 0;
   uint16_t zoom_              = 100;
-  ///     uint8_t filter_on;
-  uint8_t fit_page_           = 0;
+  bool  filter_on_ = false;
+  bool fit_page_           = false;
   ///     uint8_t hcenter;
   bool orientation_           = true;
-  ///     uint8_t outline_changed;
+  bool outline_changed_ = false;
   bool outline_on_            = true;
   bool outline_style_         = true;
   bool outline_below_         = true;
@@ -5718,25 +5741,6 @@ private:
 /// void worksheet_hide_zero(lxw_worksheet *worksheet);
 
 /**
- * @brief Set the color of the worksheet tab.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param color     The tab color.
- *
- * The `%worksheet_set_tab_color()` function is used to change the color of
- * the worksheet tab:
- *
- * @code
- *      worksheet_set_tab_color(worksheet1, LXW_COLOR_RED);
- *      worksheet_set_tab_color(worksheet2, LXW_COLOR_GREEN);
- *      worksheet_set_tab_color(worksheet3, 0xFF9900); // Orange.
- * @endcode
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- */
-/// void worksheet_set_tab_color(lxw_worksheet *worksheet, lxw_color_t color);
-
-/**
  * @brief Protect elements of a worksheet from modification.
  *
  * @param worksheet Pointer to a lxw_worksheet instance to be updated.
@@ -6092,7 +6096,7 @@ private:
 ///                                         lxw_merged_range *merged_range);
 
 /// STATIC void _worksheet_write_sheet_pr(lxw_worksheet *worksheet);
-/// STATIC void _worksheet_write_tab_color(lxw_worksheet *worksheet);
+
 
 /// STATIC double _pixels_to_height(double pixels);
 /// STATIC double _pixels_to_width(double pixels);

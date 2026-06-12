@@ -3817,25 +3817,15 @@ std::string worksheet_t::write_header_footer() const
 ///     LXW_FREE_ATTRIBUTES();
 /// }
 
-/// STATIC void _worksheet_write_tab_color(lxw_worksheet *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb_str[LXW_ATTR_32];
+std::string worksheet_t::write_tab_color() const
+{
+  if (tab_color_ == color_t::UNSET)
+       return "";
 
-///     if (self->tab_color == LXW_COLOR_UNSET)
-///         return;
-
-///     lxw_snprintf(rgb_str, LXW_ATTR_32, "FF%06X",
-///                  self->tab_color & LXW_COLOR_MASK);
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("rgb", rgb_str);
-
-///     lxw_xml_empty_tag(self->file, "tabColor", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("tabColor", {
+    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(tab_color_) & COLOR_MASK)}
+  });
+}
 
 /// STATIC void _worksheet_write_outline_pr(lxw_worksheet *self)
 /// {
@@ -3866,17 +3856,16 @@ std::string worksheet_t::write_header_footer() const
 
 std::string worksheet_t::write_sheet_pr() const
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-  ///     if (!self->fit_page
-  ///         && !self->filter_on
-  ///         && self->tab_color == LXW_COLOR_UNSET
-  ///         && !self->outline_changed
-  ///         && !self->vba_codename && !self->is_chartsheet) {
-  ///         return;
-  ///     }
+    if(!fit_page_ &&
+       !filter_on_ &&
+      tab_color_ == color_t::UNSET &&
+      !outline_changed_
+  ///         && !self->vba_codename && !self->is_chartsheet
+      ) {
+          return "";
+      }
 
   ///     if (self->vba_codename)
   ///         LXW_PUSH_ATTRIBUTES_STR("codeName", self->vba_codename);
@@ -3884,19 +3873,19 @@ std::string worksheet_t::write_sheet_pr() const
   ///     if (self->filter_on)
   ///         LXW_PUSH_ATTRIBUTES_STR("filterMode", "1");
 
-  ///     if (self->fit_page || self->tab_color != LXW_COLOR_UNSET
-  ///         || self->outline_changed) {
-  ///         lxw_xml_start_tag(self->file, "sheetPr", &attributes);
-  ///         _worksheet_write_tab_color(self);
+    if(fit_page_ || tab_color_ != color_t::UNSET || outline_changed_)
+    {
+      std::string xml_data = xml_start_tag("sheetPr", attributes);
+      xml_data += write_tab_color();
   ///         _worksheet_write_outline_pr(self);
   ///         _worksheet_write_page_set_up_pr(self);
-  ///         lxw_xml_end_tag(self->file, "sheetPr");
-  ///     }
-  ///     else {
-  ///         lxw_xml_empty_tag(self->file, "sheetPr", &attributes);
-  ///     }
+      xml_data += xml_end_tag("sheetPr");
 
-  return xml_data;
+      return xml_data;
+    }
+    else {
+      return xml_empty_tag("sheetPr", attributes);
+    }
 }
 
 std::string worksheet_t::write_brk(uint32_t id, uint32_t max) const
@@ -8317,11 +8306,10 @@ void worksheet_t::set_v_pagebreaks(const std::vector<col_num_t>& breaks)
 ///     self->right_to_left = LXW_TRUE;
 /// }
 
-/// void
-/// worksheet_set_tab_color(lxw_worksheet *self, lxw_color_t color)
-/// {
-///     self->tab_color = color;
-/// }
+void worksheet_t::set_tab_color(color_t color)
+{
+  tab_color_ = color;
+}
 
 /// void
 /// worksheet_protect(lxw_worksheet *self, const char *password,
