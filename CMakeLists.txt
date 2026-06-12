@@ -520,14 +520,14 @@ endif()
 
 file(GLOB XWPP_EXAMPLE_SOURCES examples/*.cpp)
 
+
+# TODO Copy logo in RUNTIME_OUTPUT_DIRECTORY
 if(BUILD_EXAMPLES)
   foreach(source ${XWPP_EXAMPLE_SOURCES})
     get_filename_component(basename ${source} NAME_WE)
     add_executable(${basename} ${source})
     target_link_libraries(${basename} ${PROJECT_NAME})
     set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "examples")
-
-    # TODO Copy logo in RUNTIME_OUTPUT_DIRECTORY
   endforeach(source)
 endif()
 

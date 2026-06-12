@@ -291,11 +291,18 @@ void packager_t::write_image_files(const workbook_t& workbook)
         {
           if(!object_props.is_duplicate_)
           {
-            ///       if (!object_props->is_image_buffer) {
-            // Read image.
-            std::ifstream image_stream(object_props.filename_, std::ios::binary);
-            std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
-            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
+            if(object_props.image_buffer_.empty())
+            {
+              // Read image.
+              std::ifstream image_stream(object_props.filename_, std::ios::binary);
+              std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+              add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
+            }
+            else
+            {
+              add_buffer_to_zip(object_props.image_buffer_,
+                                std::format("xl/media/image{}.{}", index, object_props.extension_));
+            }
             index++;
             ///       }
             ///       else {

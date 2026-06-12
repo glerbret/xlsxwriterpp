@@ -3217,16 +3217,11 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
 ///     return LXW_ERROR_IMAGE_DIMENSIONS;
 /// }
 
-// TODO Use dedicated library to get image properties
-void get_image_properties(object_properties_t& image_props)
+void process_image(object_properties_t& image_props, const std::vector<unsigned char>& buffer)
 {
   ///     uint8_t i;
   ///     size_t size_read;
   ///     char buffer[LXW_IMAGE_BUFFER_SIZE];
-
-  // Read image.
-  std::ifstream image_stream(image_props.filename_, std::ios::binary);
-  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
 
   if(buffer[1] == 'P' && buffer[2] == 'N' && buffer[3] == 'G')
   {
@@ -3262,6 +3257,26 @@ void get_image_properties(object_properties_t& image_props)
   for(const auto b: md5_checksum)
   {
     image_props.md5_ += std::format("{:02X}", b);
+  }
+}
+
+// TODO Use dedicated library to get image properties
+void get_image_properties(object_properties_t& image_props)
+{
+  ///     uint8_t i;
+  ///     size_t size_read;
+  ///     char buffer[LXW_IMAGE_BUFFER_SIZE];
+
+  if(image_props.image_buffer_.empty())
+  {
+    // Read image.
+    std::ifstream image_stream(image_props.filename_, std::ios::binary);
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+    process_image(image_props, buffer);
+  }
+  else
+  {
+    process_image(image_props, image_props.image_buffer_);
   }
 }
 
@@ -8659,110 +8674,55 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   insert_image(row_num, col_num, filename, std::nullopt);
 }
 
-/// lxw_error
-/// worksheet_insert_image_buffer_opt(lxw_worksheet *self,
-///                                   row_num_t row_num,
-///                                   col_num_t col_num,
-///                                   const unsigned char *image_buffer,
-///                                   size_t image_size,
-///                                   lxw_image_options *user_options)
-/// {
-///     FILE *image_stream;
-///     lxw_object_properties *object_props;
-///
-///     if (!image_size) {
-///         LXW_WARN("worksheet_insert_image_buffer()/_opt(): "
-///                  "size must be non-zero.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Write the image buffer to a file (preferably in memory) so we can read
-///      * the dimensions like an ordinary file. */
-/// #ifdef USE_FMEMOPEN
-///     image_stream = fmemopen((void *) image_buffer, image_size, "rb");
-///
-///     if (!image_stream)
-///         return LXW_ERROR_CREATING_TMPFILE;
-/// #else
-///     image_stream = lxw_tmpfile(self->tmpdir);
-///
-///     if (!image_stream)
-///         return LXW_ERROR_CREATING_TMPFILE;
-///
-///     if (fwrite(image_buffer, 1, image_size, image_stream) != image_size) {
-///         fclose(image_stream);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///     }
-///
-///     rewind(image_stream);
-/// #endif
-///
-///     /* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///
-///     /* Store the image data in the properties structure. */
-///     object_props->image_buffer = calloc(1, image_size);
-///     if (!object_props->image_buffer) {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///     else {
-///         memcpy(object_props->image_buffer, image_buffer, image_size);
-///         object_props->image_buffer_size = image_size;
-///         object_props->is_image_buffer = LXW_TRUE;
-///     }
-///
-///     if (user_options) {
-///         object_props->x_offset = user_options->x_offset;
-///         object_props->y_offset = user_options->y_offset;
-///         object_props->x_scale = user_options->x_scale;
-///         object_props->y_scale = user_options->y_scale;
-///         object_props->url = lxw_strdup(user_options->url);
-///         object_props->tip = lxw_strdup(user_options->tip);
-///         object_props->object_position = user_options->object_position;
-///         object_props->description = lxw_strdup(user_options->description);
-///         object_props->decorative = user_options->decorative;
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup("image_buffer");
-///     object_props->stream = image_stream;
-///     object_props->row = row_num;
-///     object_props->col = col_num;
-///
-///     if (object_props->x_scale == 0.0)
-///         object_props->x_scale = 1;
-///
-///     if (object_props->y_scale == 0.0)
-///         object_props->y_scale = 1;
-///
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         STAILQ_INSERT_TAIL(self->image_props, object_props, list_pointers);
-///         fclose(image_stream);
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
+                                      const std::vector<unsigned char>& image_buffer,
+                                      std::optional<image_options_t> user_options)
+{
+  if(image_buffer.empty())
+  {
+    throw xwpp_exception_t("Image id empty");
+  }
 
-/// lxw_error
-/// worksheet_insert_image_buffer(lxw_worksheet *self,
-///                               row_num_t row_num,
-///                               col_num_t col_num,
-///                               const unsigned char *image_buffer,
-///                               size_t image_size)
-/// {
-///     return worksheet_insert_image_buffer_opt(self, row_num, col_num,
-///                                              image_buffer, image_size, NULL);
-/// }
+  object_properties_t object_props;
+
+  object_props.image_buffer_ = image_buffer;
+  if(user_options)
+  {
+    object_props.x_offset_        = user_options->x_offset_;
+    object_props.y_offset_        = user_options->y_offset_;
+    object_props.x_scale_         = user_options->x_scale_;
+    object_props.y_scale_         = user_options->y_scale_;
+    object_props.url_             = user_options->url_;
+    object_props.tip_             = user_options->tip_;
+    object_props.object_position_ = user_options->object_position_;
+    object_props.description_     = user_options->description_;
+    object_props.decorative_      = user_options->decorative_;
+  }
+
+  // Copy other options or set defaults.
+  object_props.filename_ = "image_buffer";
+  object_props.row_      = row_num;
+  object_props.col_      = col_num;
+
+  if(object_props.x_scale_ == 0.0)
+  {
+    object_props.x_scale_ = 1;
+  }
+
+  if(object_props.y_scale_ == 0.0)
+  {
+    object_props.y_scale_ = 1;
+  }
+
+  get_image_properties(object_props);
+  image_props_.push_back(object_props);
+}
+
+void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
+                                      const std::vector<unsigned char>& image_buffer)
+{
+  insert_image_buffer(row_num, col_num, image_buffer, std::nullopt);
+}
 
 /// lxw_error
 /// worksheet_embed_image_opt(lxw_worksheet *self,

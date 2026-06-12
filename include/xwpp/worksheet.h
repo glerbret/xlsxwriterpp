@@ -1873,9 +1873,7 @@ struct object_properties_t
   object_position_t object_position_ = object_position_t::DEFAULT;
   ///     FILE *stream;
   image_types_t image_type_;
-  ///     uint8_t is_image_buffer;
-  ///     char *image_buffer;
-  ///     size_t image_buffer_size;
+  std::vector<unsigned char> image_buffer_;
   double width_;
   double height_;
   std::string extension_;
@@ -2808,6 +2806,82 @@ public:
    */
   void insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
                     std::optional<image_options_t> user_options);
+
+  /**
+   * @brief Insert an image in a worksheet cell, from a memory buffer.
+   *
+   * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+   * @param row          The zero indexed row number.
+   * @param col          The zero indexed column number.
+   * @param image_buffer Pointer to an array of bytes that holds the image data.
+   * @param image_size   The size of the array of bytes.
+   *
+   * @return A #lxw_error code.
+   *
+   * This function can be used to insert a image into a worksheet from a memory
+   * buffer:
+   *
+   * @code
+   *     worksheet_insert_image_buffer(worksheet, CELL("B3"), image_buffer,
+   * image_size);
+   * @endcode
+   *
+   * @image html image_buffer.png
+   *
+   * The buffer should be a pointer to an array of unsigned char data with a
+   * specified size.
+   *
+   * See `worksheet_insert_image()` for details about the supported image
+   * formats, and other image features.
+   */
+  void insert_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer);
+
+  /**
+   * @brief Insert an image in a worksheet cell, from a memory buffer.
+   *
+   * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+   * @param row          The zero indexed row number.
+   * @param col          The zero indexed column number.
+   * @param image_buffer Pointer to an array of bytes that holds the image data.
+   * @param image_size   The size of the array of bytes.
+   * @param options      Optional image parameters.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_insert_image_buffer_opt()` function is like
+   * `worksheet_insert_image_buffer()` function except that it takes an optional
+   * #lxw_image_options struct with the following members/options:
+   *
+   * - `x_offset`: Offset from the left of the cell in pixels.
+   * - `y_offset`: Offset from the top of the cell in pixels.
+   * - `x_scale`: X scale of the image as a decimal.
+   * - `y_scale`: Y scale of the image as a decimal.
+   * - `object_position`: See @ref working_with_object_positioning.
+   * - `description`: Optional description or "Alt text" for the image.
+   * - `decorative`: Optional parameter to mark image as decorative.
+   * - `url`: Add an optional hyperlink to the image.
+   * - `tip`: Add an optional mouseover tip for a hyperlink to the image.
+   *
+   * For example, to scale and position the image:
+   *
+   * @code
+   *     lxw_image_options options = {.x_offset = 32, .y_offset = 4,
+   *                                  .x_scale  = 2,  .y_scale  = 1};
+   *
+   *     worksheet_insert_image_buffer_opt(worksheet, CELL("B3"), image_buffer,
+   * image_size, &options);
+   * @endcode
+   *
+   * @image html image_buffer_opt.png
+   *
+   * The buffer should be a pointer to an array of unsigned char data with a
+   * specified size.
+   *
+   * See `worksheet_insert_image_buffer_opt()` for details about the supported
+   * image formats, and other image options.
+   */
+  void insert_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,
+                           std::optional<image_options_t> user_options);
 
   /**
    * @brief Make all comments in the worksheet visible.
@@ -3886,91 +3960,6 @@ private:
 ///                                           uint32_t pixels,
 ///                                           lxw_format *format,
 ///                                           lxw_row_col_options *options);
-
-/**
- * @brief Insert an image in a worksheet cell, from a memory buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- *
- * @return A #lxw_error code.
- *
- * This function can be used to insert a image into a worksheet from a memory
- * buffer:
- *
- * @code
- *     worksheet_insert_image_buffer(worksheet, CELL("B3"), image_buffer,
- * image_size);
- * @endcode
- *
- * @image html image_buffer.png
- *
- * The buffer should be a pointer to an array of unsigned char data with a
- * specified size.
- *
- * See `worksheet_insert_image()` for details about the supported image
- * formats, and other image features.
- */
-/// lxw_error worksheet_insert_image_buffer(lxw_worksheet *worksheet,
-///                                         row_num_t row,
-///                                         col_num_t col,
-///                                         const unsigned char *image_buffer,
-///                                         size_t image_size);
-
-/**
- * @brief Insert an image in a worksheet cell, from a memory buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- * @param options      Optional image parameters.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_insert_image_buffer_opt()` function is like
- * `worksheet_insert_image_buffer()` function except that it takes an optional
- * #lxw_image_options struct with the following members/options:
- *
- * - `x_offset`: Offset from the left of the cell in pixels.
- * - `y_offset`: Offset from the top of the cell in pixels.
- * - `x_scale`: X scale of the image as a decimal.
- * - `y_scale`: Y scale of the image as a decimal.
- * - `object_position`: See @ref working_with_object_positioning.
- * - `description`: Optional description or "Alt text" for the image.
- * - `decorative`: Optional parameter to mark image as decorative.
- * - `url`: Add an optional hyperlink to the image.
- * - `tip`: Add an optional mouseover tip for a hyperlink to the image.
- *
- * For example, to scale and position the image:
- *
- * @code
- *     lxw_image_options options = {.x_offset = 32, .y_offset = 4,
- *                                  .x_scale  = 2,  .y_scale  = 1};
- *
- *     worksheet_insert_image_buffer_opt(worksheet, CELL("B3"), image_buffer,
- * image_size, &options);
- * @endcode
- *
- * @image html image_buffer_opt.png
- *
- * The buffer should be a pointer to an array of unsigned char data with a
- * specified size.
- *
- * See `worksheet_insert_image_buffer_opt()` for details about the supported
- * image formats, and other image options.
- */
-/// lxw_error worksheet_insert_image_buffer_opt(lxw_worksheet *worksheet,
-///                                             row_num_t row,
-///                                             col_num_t col,
-///                                             const unsigned char
-///                                             *image_buffer, size_t
-///                                             image_size, lxw_image_options
-///                                             *options);
 
 /**
  * @brief Embed an image in a worksheet cell.
