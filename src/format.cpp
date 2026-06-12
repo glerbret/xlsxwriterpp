@@ -11,13 +11,30 @@
 namespace xwpp
 {
 
-/// STATIC uint8_t _check_border(uint8_t border)
-/// {
-///   if (border >= LXW_BORDER_THIN && border <= LXW_BORDER_SLANT_DASH_DOT)
-///     return border;
-///   else
-///     return LXW_BORDER_NONE;
-/// }
+format_borders_t format_t::check_border(format_borders_t style) const
+{
+  switch(style)
+  {
+    case format_borders_t::NONE:
+    case format_borders_t::THIN:
+    case format_borders_t::MEDIUM:
+    case format_borders_t::DASHED:
+    case format_borders_t::DOTTED:
+    case format_borders_t::THICK:
+    case format_borders_t::DOUBLE:
+    case format_borders_t::HAIR:
+    case format_borders_t::MEDIUM_DASHED:
+    case format_borders_t::DASH_DOT:
+    case format_borders_t::MEDIUM_DASH_DOT:
+    case format_borders_t::DASH_DOT_DOT:
+    case format_borders_t::MEDIUM_DASH_DOT_DOT:
+    case format_borders_t::SLANT_DASH_DOT:
+      return style;
+
+    default:
+      return format_borders_t::NONE;
+  }
+}
 
 /// STATIC lxw_format * _get_format_key(lxw_format *self)
 /// {
@@ -276,24 +293,25 @@ void format_t::set_text_wrap()
 ///   self->pattern = value;
 /// }
 
-/// void format_set_bg_color(lxw_format *self, lxw_color_t color)
-/// {
-///   self->bg_color = color;
-/// }
+void format_t::set_bg_color(color_t color)
+{
+  bg_color_ = color;
+}
 
 /// void format_set_fg_color(lxw_format *self, lxw_color_t color)
 /// {
 ///   self->fg_color = color;
 /// }
 
-/// void format_set_border(lxw_format *self, uint8_t style)
-/// {
-///   style = _check_border(style);
-///   self->bottom = style;
-///   self->top = style;
-///   self->left = style;
-///   self->right = style;
-/// }
+void format_t::set_border(format_borders_t style)
+{
+  style = check_border(style);
+
+  bottom_ = style;
+  top_    = style;
+  left_   = style;
+  right_  = style;
+}
 
 /// void format_set_border_color(lxw_format *self, lxw_color_t color)
 /// {
@@ -303,40 +321,40 @@ void format_t::set_text_wrap()
 ///   self->right_color = color;
 /// }
 
-/// void format_set_bottom(lxw_format *self, uint8_t style)
-/// {
-///   self->bottom = _check_border(style);
-/// }
+void format_t::set_bottom(format_borders_t style)
+{
+  bottom_ = check_border(style);
+}
 
 /// void format_set_bottom_color(lxw_format *self, lxw_color_t color)
 /// {
 ///   self->bottom_color = color;
 /// }
 
-/// void format_set_left(lxw_format *self, uint8_t style)
-/// {
-///   self->left = _check_border(style);
-/// }
+void format_t::set_left(format_borders_t style)
+{
+  left_ = check_border(style);
+}
 
 /// void format_set_left_color(lxw_format *self, lxw_color_t color)
 /// {
 ///   self->left_color = color;
 /// }
 
-/// void format_set_right(lxw_format *self, uint8_t style)
-/// {
-///   self->right = _check_border(style);
-/// }
+void format_t::set_right(format_borders_t style)
+{
+  right_ = check_border(style);
+}
 
 /// void format_set_right_color(lxw_format *self, lxw_color_t color)
 /// {
 ///   self->right_color = color;
 /// }
 
-/// void format_set_top(lxw_format *self, uint8_t style)
-/// {
-///   self->top = _check_border(style);
-/// }
+void format_t::set_top(format_borders_t style)
+{
+  top_ = check_border(style);
+}
 
 /// void format_set_top_color(lxw_format *self, lxw_color_t color)
 /// {

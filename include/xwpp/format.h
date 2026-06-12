@@ -544,6 +544,123 @@ public:
 
   void set_hyperlink();
 
+  /**
+   * @brief Set the cell border style.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  Border style index.
+   *
+   * Set the cell border style:
+   *
+   * @code
+   *     format_set_border(format, LXW_BORDER_THIN);
+   * @endcode
+   *
+   * Individual border elements can be configured using the following functions
+   * with the same parameters:
+   *
+   * - format_set_bottom()
+   * - format_set_top()
+   * - format_set_left()
+   * - format_set_right()
+   *
+   * A cell border is comprised of a border on the bottom, top, left and right.
+   * These can be set to the same value using format_set_border() or
+   * individually using the relevant method calls shown above.
+   *
+   * The following border styles are available:
+   *
+   * - #LXW_BORDER_THIN
+   * - #LXW_BORDER_MEDIUM
+   * - #LXW_BORDER_DASHED
+   * - #LXW_BORDER_DOTTED
+   * - #LXW_BORDER_THICK
+   * - #LXW_BORDER_DOUBLE
+   * - #LXW_BORDER_HAIR
+   * - #LXW_BORDER_MEDIUM_DASHED
+   * - #LXW_BORDER_DASH_DOT
+   * - #LXW_BORDER_MEDIUM_DASH_DOT
+   * - #LXW_BORDER_DASH_DOT_DOT
+   * - #LXW_BORDER_MEDIUM_DASH_DOT_DOT
+   * - #LXW_BORDER_SLANT_DASH_DOT
+   *
+   *  The most commonly used style is the `thin` style.
+   */
+  void set_border(format_borders_t style);
+
+  /**
+   * @brief Set the cell bottom border style.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  Border style index.
+   *
+   * Set the cell bottom border style. See format_set_border() for details on the
+   * border styles.
+   */
+  void set_bottom(format_borders_t style);
+
+  /**
+   * @brief Set the cell top border style.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  Border style index.
+   *
+   * Set the cell top border style. See format_set_border() for details on the
+   * border styles.
+   */
+  void set_top(format_borders_t style);
+
+  /**
+   * @brief Set the cell left border style.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  Border style index.
+   *
+   * Set the cell left border style. See format_set_border() for details on the
+   * border styles.
+   */
+  void set_left(format_borders_t style);
+
+  /**
+   * @brief Set the cell right border style.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  Border style index.
+   *
+   * Set the cell right border style. See format_set_border() for details on the
+   * border styles.
+   */
+  void set_right(format_borders_t style);
+
+  /**
+   * @brief Set the pattern background color for a cell.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell pattern background color.
+   *
+   * The format_set_bg_color() method can be used to set the background color of
+   * a pattern. Patterns are defined via the format_set_pattern() method. If a
+   * pattern hasn't been defined then a solid fill pattern is used as the
+   * default.
+   *
+   * Here is an example of how to set up a solid fill in a cell:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *
+   *     format_set_pattern (format, LXW_PATTERN_SOLID);
+   *     format_set_bg_color(format, LXW_COLOR_GREEN);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "Ray", format);
+   * @endcode
+   *
+   * @image html formats_set_bg_color.png
+   *
+   * The color should be an RGB integer value, see @ref working_with_colors.
+   *
+   */
+  void set_bg_color(color_t color);
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -552,6 +669,8 @@ private:
   friend class workbook_t;
   friend class worksheet_t; // TODO for debug
   friend class style_t;
+
+  [[nodiscard]] format_borders_t check_border(format_borders_t style) const;
 
   static const uint8_t DEFAULT_FONT_FAMILY = 2;
 
@@ -1020,35 +1139,6 @@ private:
 /// void format_set_pattern(lxw_format *format, uint8_t index);
 
 /**
- * @brief Set the pattern background color for a cell.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell pattern background color.
- *
- * The format_set_bg_color() method can be used to set the background color of
- * a pattern. Patterns are defined via the format_set_pattern() method. If a
- * pattern hasn't been defined then a solid fill pattern is used as the
- * default.
- *
- * Here is an example of how to set up a solid fill in a cell:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *
- *     format_set_pattern (format, LXW_PATTERN_SOLID);
- *     format_set_bg_color(format, LXW_COLOR_GREEN);
- *
- *     worksheet_write_string(worksheet, 0, 0, "Ray", format);
- * @endcode
- *
- * @image html formats_set_bg_color.png
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- *
- */
-/// void format_set_bg_color(lxw_format *format, lxw_color_t color);
-
-/**
  * @brief Set the pattern foreground color for a cell.
  *
  * @param format Pointer to a Format instance.
@@ -1061,94 +1151,6 @@ private:
  *
  */
 /// void format_set_fg_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Set the cell border style.
- *
- * @param format Pointer to a Format instance.
- * @param style  Border style index.
- *
- * Set the cell border style:
- *
- * @code
- *     format_set_border(format, LXW_BORDER_THIN);
- * @endcode
- *
- * Individual border elements can be configured using the following functions
- * with the same parameters:
- *
- * - format_set_bottom()
- * - format_set_top()
- * - format_set_left()
- * - format_set_right()
- *
- * A cell border is comprised of a border on the bottom, top, left and right.
- * These can be set to the same value using format_set_border() or
- * individually using the relevant method calls shown above.
- *
- * The following border styles are available:
- *
- * - #LXW_BORDER_THIN
- * - #LXW_BORDER_MEDIUM
- * - #LXW_BORDER_DASHED
- * - #LXW_BORDER_DOTTED
- * - #LXW_BORDER_THICK
- * - #LXW_BORDER_DOUBLE
- * - #LXW_BORDER_HAIR
- * - #LXW_BORDER_MEDIUM_DASHED
- * - #LXW_BORDER_DASH_DOT
- * - #LXW_BORDER_MEDIUM_DASH_DOT
- * - #LXW_BORDER_DASH_DOT_DOT
- * - #LXW_BORDER_MEDIUM_DASH_DOT_DOT
- * - #LXW_BORDER_SLANT_DASH_DOT
- *
- *  The most commonly used style is the `thin` style.
- */
-/// void format_set_border(lxw_format *format, uint8_t style);
-
-/**
- * @brief Set the cell bottom border style.
- *
- * @param format Pointer to a Format instance.
- * @param style  Border style index.
- *
- * Set the cell bottom border style. See format_set_border() for details on the
- * border styles.
- */
-/// void format_set_bottom(lxw_format *format, uint8_t style);
-
-/**
- * @brief Set the cell top border style.
- *
- * @param format Pointer to a Format instance.
- * @param style  Border style index.
- *
- * Set the cell top border style. See format_set_border() for details on the
- * border styles.
- */
-/// void format_set_top(lxw_format *format, uint8_t style);
-
-/**
- * @brief Set the cell left border style.
- *
- * @param format Pointer to a Format instance.
- * @param style  Border style index.
- *
- * Set the cell left border style. See format_set_border() for details on the
- * border styles.
- */
-/// void format_set_left(lxw_format *format, uint8_t style);
-
-/**
- * @brief Set the cell right border style.
- *
- * @param format Pointer to a Format instance.
- * @param style  Border style index.
- *
- * Set the cell right border style. See format_set_border() for details on the
- * border styles.
- */
-/// void format_set_right(lxw_format *format, uint8_t style);
 
 /**
  * @brief Set the color of the cell border.

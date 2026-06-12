@@ -17,8 +17,8 @@ int main()
   merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
   merge_format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
   merge_format->set_bold();
-///  format_set_bg_color(merge_format, LXW_COLOR_YELLOW);
-///  format_set_border(merge_format, LXW_BORDER_THIN);
+  merge_format->set_bg_color(xwpp::color_t::YELLOW);
+  merge_format->set_border(xwpp::format_borders_t::THIN);
 
   // Increase the cell size of the merged cells to highlight the formatting.
   worksheet.set_column(1, 3, 12);
