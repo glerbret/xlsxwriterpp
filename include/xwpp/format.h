@@ -487,6 +487,20 @@ public:
    */
   void set_font_color(color_t color);
 
+/**
+ * @brief Set the pattern foreground color for a cell.
+ *
+ * @param format Pointer to a Format instance.
+ * @param color  The cell pattern foreground  color.
+ *
+ * The format_set_fg_color() method can be used to set the foreground color of
+ * a pattern.
+ *
+ * The color should be an RGB integer value, see @ref working_with_colors.
+ *
+ */
+ void set_fg_color(color_t color);
+
   /**
    * @brief Turn on underline for the format:
    *
@@ -660,6 +674,49 @@ public:
    *
    */
   void set_bg_color(color_t color);
+
+/**
+ * @brief Set the background fill pattern for a cell
+ *
+ * @param format Pointer to a Format instance.
+ * @param index  Pattern index.
+ *
+ * Set the background pattern for a cell.
+ *
+ * The most common pattern is a solid fill of the background color:
+ *
+ * @code
+ *     format = workbook_add_format(workbook);
+ *
+ *     format_set_pattern (format, LXW_PATTERN_SOLID);
+ *     format_set_bg_color(format, LXW_COLOR_YELLOW);
+ * @endcode
+ *
+ * The available fill patterns are:
+ *
+ *    Fill Type                     | Define
+ *    ----------------------------- | -----------------------------
+ *    Solid                         | #LXW_PATTERN_SOLID
+ *    Medium gray                   | #LXW_PATTERN_MEDIUM_GRAY
+ *    Dark gray                     | #LXW_PATTERN_DARK_GRAY
+ *    Light gray                    | #LXW_PATTERN_LIGHT_GRAY
+ *    Dark horizontal line          | #LXW_PATTERN_DARK_HORIZONTAL
+ *    Dark vertical line            | #LXW_PATTERN_DARK_VERTICAL
+ *    Dark diagonal stripe          | #LXW_PATTERN_DARK_DOWN
+ *    Reverse dark diagonal stripe  | #LXW_PATTERN_DARK_UP
+ *    Dark grid                     | #LXW_PATTERN_DARK_GRID
+ *    Dark trellis                  | #LXW_PATTERN_DARK_TRELLIS
+ *    Light horizontal line         | #LXW_PATTERN_LIGHT_HORIZONTAL
+ *    Light vertical line           | #LXW_PATTERN_LIGHT_VERTICAL
+ *    Light diagonal stripe         | #LXW_PATTERN_LIGHT_DOWN
+ *    Reverse light diagonal stripe | #LXW_PATTERN_LIGHT_UP
+ *    Light grid                    | #LXW_PATTERN_LIGHT_GRID
+ *    Light trellis                 | #LXW_PATTERN_LIGHT_TRELLIS
+ *    12.5% gray                    | #LXW_PATTERN_GRAY_125
+ *    6.25% gray                    | #LXW_PATTERN_GRAY_0625
+ *
+ */
+void set_pattern(format_patterns_t pattern);
 
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
@@ -1094,49 +1151,6 @@ private:
  * @endcode
  */
 /// void format_set_shrink(lxw_format *format);
-
-/**
- * @brief Set the background fill pattern for a cell
- *
- * @param format Pointer to a Format instance.
- * @param index  Pattern index.
- *
- * Set the background pattern for a cell.
- *
- * The most common pattern is a solid fill of the background color:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *
- *     format_set_pattern (format, LXW_PATTERN_SOLID);
- *     format_set_bg_color(format, LXW_COLOR_YELLOW);
- * @endcode
- *
- * The available fill patterns are:
- *
- *    Fill Type                     | Define
- *    ----------------------------- | -----------------------------
- *    Solid                         | #LXW_PATTERN_SOLID
- *    Medium gray                   | #LXW_PATTERN_MEDIUM_GRAY
- *    Dark gray                     | #LXW_PATTERN_DARK_GRAY
- *    Light gray                    | #LXW_PATTERN_LIGHT_GRAY
- *    Dark horizontal line          | #LXW_PATTERN_DARK_HORIZONTAL
- *    Dark vertical line            | #LXW_PATTERN_DARK_VERTICAL
- *    Dark diagonal stripe          | #LXW_PATTERN_DARK_DOWN
- *    Reverse dark diagonal stripe  | #LXW_PATTERN_DARK_UP
- *    Dark grid                     | #LXW_PATTERN_DARK_GRID
- *    Dark trellis                  | #LXW_PATTERN_DARK_TRELLIS
- *    Light horizontal line         | #LXW_PATTERN_LIGHT_HORIZONTAL
- *    Light vertical line           | #LXW_PATTERN_LIGHT_VERTICAL
- *    Light diagonal stripe         | #LXW_PATTERN_LIGHT_DOWN
- *    Reverse light diagonal stripe | #LXW_PATTERN_LIGHT_UP
- *    Light grid                    | #LXW_PATTERN_LIGHT_GRID
- *    Light trellis                 | #LXW_PATTERN_LIGHT_TRELLIS
- *    12.5% gray                    | #LXW_PATTERN_GRAY_125
- *    6.25% gray                    | #LXW_PATTERN_GRAY_0625
- *
- */
-/// void format_set_pattern(lxw_format *format, uint8_t index);
 
 /**
  * @brief Set the pattern foreground color for a cell.

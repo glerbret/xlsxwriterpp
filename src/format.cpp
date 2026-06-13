@@ -283,25 +283,25 @@ void format_t::set_text_wrap()
 ///   self->text_justlast = LXW_TRUE;
 /// }
 
-/// void format_set_pattern(lxw_format *self, uint8_t value)
-/// {
+void format_t::set_pattern(format_patterns_t pattern)
+{
 ///   if (value > LXW_PATTERN_GRAY_0625) {
 ///     LXW_WARN_FORMAT1("format_set_pattern(): invalid pattern value: %d", value);
 ///     return;
 ///   }
 
-///   self->pattern = value;
-/// }
+  pattern_ = pattern;
+}
 
 void format_t::set_bg_color(color_t color)
 {
   bg_color_ = color;
 }
 
-/// void format_set_fg_color(lxw_format *self, lxw_color_t color)
-/// {
-///   self->fg_color = color;
-/// }
+void format_t::set_fg_color(color_t color)
+{
+  fg_color_ = color;
+}
 
 void format_t::set_border(format_borders_t style)
 {
