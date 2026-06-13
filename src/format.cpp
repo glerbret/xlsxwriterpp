@@ -376,10 +376,10 @@ void format_t::set_diag_border(format_borders_t style)
   diag_border_ = style;
 }
 
-/// void format_set_num_format_index(lxw_format *self, uint8_t value)
-/// {
-///   self->num_format_index = value;
-/// }
+void format_t::set_num_format_index(uint8_t value)
+{
+  num_format_index_ = value;
+}
 
 /// void format_set_valign(lxw_format *self, uint8_t value)
 /// {

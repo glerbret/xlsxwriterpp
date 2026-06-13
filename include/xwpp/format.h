@@ -851,6 +851,81 @@ public:
    */
   void set_diag_color(color_t color);
 
+/**
+ * @brief Set the Excel built-in number format for a cell.
+ *
+ * @param format Pointer to a Format instance.
+ * @param index  The built-in number format index for the cell.
+ *
+ * This function is similar to format_set_num_format() except that it takes an
+ * index to a limited number of Excel's built-in number formats instead of a
+ * user defined format string:
+ *
+ * @code
+ *     format = workbook_add_format(workbook);
+ *     format_set_num_format_index(format, 0x0F); // d-mmm-yy
+ * @endcode
+ *
+ * @note
+ * Unless you need to specifically access one of Excel's built-in number
+ * formats the format_set_num_format() function above is a better
+ * solution. The format_set_num_format_index() function is mainly included for
+ * backward compatibility and completeness.
+ *
+ * The Excel built-in number formats as shown in the table below:
+ *
+ *   | Index | Index | Format String                                        |
+ *   | ----- | ----- | ---------------------------------------------------- |
+ *   | 0     | 0x00  | `General`                                            |
+ *   | 1     | 0x01  | `0`                                                  |
+ *   | 2     | 0x02  | `0.00`                                               |
+ *   | 3     | 0x03  | `#,##0`                                              |
+ *   | 4     | 0x04  | `#,##0.00`                                           |
+ *   | 5     | 0x05  | `($#,##0_);($#,##0)`                                 |
+ *   | 6     | 0x06  | `($#,##0_);[Red]($#,##0)`                            |
+ *   | 7     | 0x07  | `($#,##0.00_);($#,##0.00)`                           |
+ *   | 8     | 0x08  | `($#,##0.00_);[Red]($#,##0.00)`                      |
+ *   | 9     | 0x09  | `0%`                                                 |
+ *   | 10    | 0x0a  | `0.00%`                                              |
+ *   | 11    | 0x0b  | `0.00E+00`                                           |
+ *   | 12    | 0x0c  | `# ?/?`                                              |
+ *   | 13    | 0x0d  | `# ??/??`                                            |
+ *   | 14    | 0x0e  | `m/d/yy`                                             |
+ *   | 15    | 0x0f  | `d-mmm-yy`                                           |
+ *   | 16    | 0x10  | `d-mmm`                                              |
+ *   | 17    | 0x11  | `mmm-yy`                                             |
+ *   | 18    | 0x12  | `h:mm AM/PM`                                         |
+ *   | 19    | 0x13  | `h:mm:ss AM/PM`                                      |
+ *   | 20    | 0x14  | `h:mm`                                               |
+ *   | 21    | 0x15  | `h:mm:ss`                                            |
+ *   | 22    | 0x16  | `m/d/yy h:mm`                                        |
+ *   | ...   | ...   | ...                                                  |
+ *   | 37    | 0x25  | `(#,##0_);(#,##0)`                                   |
+ *   | 38    | 0x26  | `(#,##0_);[Red](#,##0)`                              |
+ *   | 39    | 0x27  | `(#,##0.00_);(#,##0.00)`                             |
+ *   | 40    | 0x28  | `(#,##0.00_);[Red](#,##0.00)`                        |
+ *   | 41    | 0x29  | `_(* #,##0_);_(* (#,##0);_(* "-"_);_(@_)`            |
+ *   | 42    | 0x2a  | `_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)`         |
+ *   | 43    | 0x2b  | `_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)`    |
+ *   | 44    | 0x2c  | `_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)` |
+ *   | 45    | 0x2d  | `mm:ss`                                              |
+ *   | 46    | 0x2e  | `[h]:mm:ss`                                          |
+ *   | 47    | 0x2f  | `mm:ss.0`                                            |
+ *   | 48    | 0x30  | `##0.0E+0`                                           |
+ *   | 49    | 0x31  | `@`                                                  |
+ *
+ * @note
+ *  -  Numeric formats 23 to 36 are not documented by Microsoft and may differ
+ *     in international versions. The listed date and currency formats may also
+ *     vary depending on system settings.
+ *  - The dollar sign in the above format appears as the defined local currency
+ *    symbol.
+ *  - These formats can also be set via format_set_num_format().
+ *  - See also @ref ww_formats_categories.
+ */
+// TODO Use dedicated type ?
+void set_num_format_index(uint8_t index);
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -1090,80 +1165,6 @@ private:
  *
  */
 /// void format_set_font_charset(lxw_format *format, uint8_t value);
-
-/**
- * @brief Set the Excel built-in number format for a cell.
- *
- * @param format Pointer to a Format instance.
- * @param index  The built-in number format index for the cell.
- *
- * This function is similar to format_set_num_format() except that it takes an
- * index to a limited number of Excel's built-in number formats instead of a
- * user defined format string:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_num_format_index(format, 0x0F); // d-mmm-yy
- * @endcode
- *
- * @note
- * Unless you need to specifically access one of Excel's built-in number
- * formats the format_set_num_format() function above is a better
- * solution. The format_set_num_format_index() function is mainly included for
- * backward compatibility and completeness.
- *
- * The Excel built-in number formats as shown in the table below:
- *
- *   | Index | Index | Format String                                        |
- *   | ----- | ----- | ---------------------------------------------------- |
- *   | 0     | 0x00  | `General`                                            |
- *   | 1     | 0x01  | `0`                                                  |
- *   | 2     | 0x02  | `0.00`                                               |
- *   | 3     | 0x03  | `#,##0`                                              |
- *   | 4     | 0x04  | `#,##0.00`                                           |
- *   | 5     | 0x05  | `($#,##0_);($#,##0)`                                 |
- *   | 6     | 0x06  | `($#,##0_);[Red]($#,##0)`                            |
- *   | 7     | 0x07  | `($#,##0.00_);($#,##0.00)`                           |
- *   | 8     | 0x08  | `($#,##0.00_);[Red]($#,##0.00)`                      |
- *   | 9     | 0x09  | `0%`                                                 |
- *   | 10    | 0x0a  | `0.00%`                                              |
- *   | 11    | 0x0b  | `0.00E+00`                                           |
- *   | 12    | 0x0c  | `# ?/?`                                              |
- *   | 13    | 0x0d  | `# ??/??`                                            |
- *   | 14    | 0x0e  | `m/d/yy`                                             |
- *   | 15    | 0x0f  | `d-mmm-yy`                                           |
- *   | 16    | 0x10  | `d-mmm`                                              |
- *   | 17    | 0x11  | `mmm-yy`                                             |
- *   | 18    | 0x12  | `h:mm AM/PM`                                         |
- *   | 19    | 0x13  | `h:mm:ss AM/PM`                                      |
- *   | 20    | 0x14  | `h:mm`                                               |
- *   | 21    | 0x15  | `h:mm:ss`                                            |
- *   | 22    | 0x16  | `m/d/yy h:mm`                                        |
- *   | ...   | ...   | ...                                                  |
- *   | 37    | 0x25  | `(#,##0_);(#,##0)`                                   |
- *   | 38    | 0x26  | `(#,##0_);[Red](#,##0)`                              |
- *   | 39    | 0x27  | `(#,##0.00_);(#,##0.00)`                             |
- *   | 40    | 0x28  | `(#,##0.00_);[Red](#,##0.00)`                        |
- *   | 41    | 0x29  | `_(* #,##0_);_(* (#,##0);_(* "-"_);_(@_)`            |
- *   | 42    | 0x2a  | `_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)`         |
- *   | 43    | 0x2b  | `_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)`    |
- *   | 44    | 0x2c  | `_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)` |
- *   | 45    | 0x2d  | `mm:ss`                                              |
- *   | 46    | 0x2e  | `[h]:mm:ss`                                          |
- *   | 47    | 0x2f  | `mm:ss.0`                                            |
- *   | 48    | 0x30  | `##0.0E+0`                                           |
- *   | 49    | 0x31  | `@`                                                  |
- *
- * @note
- *  -  Numeric formats 23 to 36 are not documented by Microsoft and may differ
- *     in international versions. The listed date and currency formats may also
- *     vary depending on system settings.
- *  - The dollar sign in the above format appears as the defined local currency
- *    symbol.
- *  - These formats can also be set via format_set_num_format().
- *  - See also @ref ww_formats_categories.
- */
-/// void format_set_num_format_index(lxw_format *format, uint8_t index);
 
 /**
  * @brief Set the cell unlocked state.
