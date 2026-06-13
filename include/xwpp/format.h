@@ -718,6 +718,69 @@ public:
  */
 void set_pattern(format_patterns_t pattern);
 
+/**
+ * @brief Set the color of the cell border.
+ *
+ * @param format Pointer to a Format instance.
+ * @param color  The cell border color.
+ *
+ * Individual border elements can be configured using the following methods with
+ * the same parameters:
+ *
+ * - format_set_bottom_color()
+ * - format_set_top_color()
+ * - format_set_left_color()
+ * - format_set_right_color()
+ *
+ * Set the color of the cell borders. A cell border is comprised of a border
+ * on the bottom, top, left and right. These can be set to the same color
+ * using format_set_border_color() or individually using the relevant method
+ * calls shown above.
+ *
+ * The color should be an RGB integer value, see @ref working_with_colors.
+ */
+void set_border_color(color_t color);
+
+/**
+ * @brief Set the color of the bottom cell border.
+ *
+ * @param format Pointer to a Format instance.
+ * @param color  The cell border color.
+ *
+ * See format_set_border_color() for details on the border colors.
+ */
+void set_bottom_color(color_t color);
+
+/**
+ * @brief Set the color of the top cell border.
+ *
+ * @param format Pointer to a Format instance.
+ * @param color  The cell border color.
+ *
+ * See format_set_border_color() for details on the border colors.
+ */
+void set_top_color(color_t color);
+
+/**
+ * @brief Set the color of the left cell border.
+ *
+ * @param format Pointer to a Format instance.
+ * @param color  The cell border color.
+ *
+ * See format_set_border_color() for details on the border colors.
+ */
+void set_left_color(color_t color);
+
+/**
+ * @brief Set the color of the right cell border.
+ *
+ * @param format Pointer to a Format instance.
+ * @param color  The cell border color.
+ *
+ * See format_set_border_color() for details on the border colors.
+ */
+ void set_right_color(color_t color);
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -1151,83 +1214,6 @@ private:
  * @endcode
  */
 /// void format_set_shrink(lxw_format *format);
-
-/**
- * @brief Set the pattern foreground color for a cell.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell pattern foreground  color.
- *
- * The format_set_fg_color() method can be used to set the foreground color of
- * a pattern.
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- *
- */
-/// void format_set_fg_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Set the color of the cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * Individual border elements can be configured using the following methods with
- * the same parameters:
- *
- * - format_set_bottom_color()
- * - format_set_top_color()
- * - format_set_left_color()
- * - format_set_right_color()
- *
- * Set the color of the cell borders. A cell border is comprised of a border
- * on the bottom, top, left and right. These can be set to the same color
- * using format_set_border_color() or individually using the relevant method
- * calls shown above.
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- */
-/// void format_set_border_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Set the color of the bottom cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-/// void format_set_bottom_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Set the color of the top cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-/// void format_set_top_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Set the color of the left cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-/// void format_set_left_color(lxw_format *format, lxw_color_t color);
-
-/**
- * @brief Set the color of the right cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-/// void format_set_right_color(lxw_format *format, lxw_color_t color);
 
 /**
  * @brief Set the diagonal cell border type.
