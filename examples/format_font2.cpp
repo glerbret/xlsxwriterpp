@@ -46,7 +46,7 @@ int main()
   xwpp::format_t* format9 = workbook.add_format();
   format9->set_font_script(xwpp::format_scripts_t::SUPERSCRIPT);
 
-   xwpp::format_t* format10 = workbook.add_format();
+  xwpp::format_t* format10 = workbook.add_format();
   format10->set_font_script(xwpp::format_scripts_t::SUBSCRIPT);
 
   xwpp::format_t* format11 = workbook.add_format();
@@ -60,6 +60,27 @@ int main()
 
   xwpp::format_t* format14 = workbook.add_format();
   format14->set_font_extend();
+
+  xwpp::format_t* format15 = workbook.add_format();
+  format15->set_rotation(270);
+
+  xwpp::format_t* format16 = workbook.add_format();
+  format16->set_rotation(45);
+
+  xwpp::format_t* format17 = workbook.add_format();
+  format17->set_indent(1);
+
+  xwpp::format_t* format18 = workbook.add_format();
+  format18->set_indent(2);
+
+  xwpp::format_t* format19 = workbook.add_format();
+  format19->set_shrink();
+
+  xwpp::format_t* format20 = workbook.add_format();
+  format20->set_reading_order(1);
+
+  xwpp::format_t* format21 = workbook.add_format();
+  format21->set_reading_order(2);
 
   // Write some formatted strings.
   worksheet.write_string(0, 0, "This is bold", format1);
@@ -76,6 +97,13 @@ int main()
   worksheet.write_string(11, 0, "Shadow", format12);
   worksheet.write_string(12, 0, "Condensed", format13);
   worksheet.write_string(13, 0, "Extended", format14);
+  worksheet.write_string(14, 0, "Vertical text", format15);
+  worksheet.write_string(15, 0, "With 45°", format16);
+  worksheet.write_string(16, 0, "First level indent", format17);
+  worksheet.write_string(17, 0, "Second level indent", format18);
+  worksheet.write_string(18, 0, "Shrink long long long long long long long long long text", format19);
+  worksheet.write_string(19, 0, "Reading order 1", format20);
+  worksheet.write_string(20, 0, "Reading order 2", format21);
 
   workbook.save("format_font2.xlsx");
 }

@@ -850,188 +850,335 @@ public:
    */
   void set_diag_color(color_t color);
 
-/**
- * @brief Set the Excel built-in number format for a cell.
- *
- * @param format Pointer to a Format instance.
- * @param index  The built-in number format index for the cell.
- *
- * This function is similar to format_set_num_format() except that it takes an
- * index to a limited number of Excel's built-in number formats instead of a
- * user defined format string:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_num_format_index(format, 0x0F); // d-mmm-yy
- * @endcode
- *
- * @note
- * Unless you need to specifically access one of Excel's built-in number
- * formats the format_set_num_format() function above is a better
- * solution. The format_set_num_format_index() function is mainly included for
- * backward compatibility and completeness.
- *
- * The Excel built-in number formats as shown in the table below:
- *
- *   | Index | Index | Format String                                        |
- *   | ----- | ----- | ---------------------------------------------------- |
- *   | 0     | 0x00  | `General`                                            |
- *   | 1     | 0x01  | `0`                                                  |
- *   | 2     | 0x02  | `0.00`                                               |
- *   | 3     | 0x03  | `#,##0`                                              |
- *   | 4     | 0x04  | `#,##0.00`                                           |
- *   | 5     | 0x05  | `($#,##0_);($#,##0)`                                 |
- *   | 6     | 0x06  | `($#,##0_);[Red]($#,##0)`                            |
- *   | 7     | 0x07  | `($#,##0.00_);($#,##0.00)`                           |
- *   | 8     | 0x08  | `($#,##0.00_);[Red]($#,##0.00)`                      |
- *   | 9     | 0x09  | `0%`                                                 |
- *   | 10    | 0x0a  | `0.00%`                                              |
- *   | 11    | 0x0b  | `0.00E+00`                                           |
- *   | 12    | 0x0c  | `# ?/?`                                              |
- *   | 13    | 0x0d  | `# ??/??`                                            |
- *   | 14    | 0x0e  | `m/d/yy`                                             |
- *   | 15    | 0x0f  | `d-mmm-yy`                                           |
- *   | 16    | 0x10  | `d-mmm`                                              |
- *   | 17    | 0x11  | `mmm-yy`                                             |
- *   | 18    | 0x12  | `h:mm AM/PM`                                         |
- *   | 19    | 0x13  | `h:mm:ss AM/PM`                                      |
- *   | 20    | 0x14  | `h:mm`                                               |
- *   | 21    | 0x15  | `h:mm:ss`                                            |
- *   | 22    | 0x16  | `m/d/yy h:mm`                                        |
- *   | ...   | ...   | ...                                                  |
- *   | 37    | 0x25  | `(#,##0_);(#,##0)`                                   |
- *   | 38    | 0x26  | `(#,##0_);[Red](#,##0)`                              |
- *   | 39    | 0x27  | `(#,##0.00_);(#,##0.00)`                             |
- *   | 40    | 0x28  | `(#,##0.00_);[Red](#,##0.00)`                        |
- *   | 41    | 0x29  | `_(* #,##0_);_(* (#,##0);_(* "-"_);_(@_)`            |
- *   | 42    | 0x2a  | `_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)`         |
- *   | 43    | 0x2b  | `_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)`    |
- *   | 44    | 0x2c  | `_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)` |
- *   | 45    | 0x2d  | `mm:ss`                                              |
- *   | 46    | 0x2e  | `[h]:mm:ss`                                          |
- *   | 47    | 0x2f  | `mm:ss.0`                                            |
- *   | 48    | 0x30  | `##0.0E+0`                                           |
- *   | 49    | 0x31  | `@`                                                  |
- *
- * @note
- *  -  Numeric formats 23 to 36 are not documented by Microsoft and may differ
- *     in international versions. The listed date and currency formats may also
- *     vary depending on system settings.
- *  - The dollar sign in the above format appears as the defined local currency
- *    symbol.
- *  - These formats can also be set via format_set_num_format().
- *  - See also @ref ww_formats_categories.
- */
-// TODO Use dedicated type ?
-void set_num_format_index(uint8_t index);
+  /**
+   * @brief Set the Excel built-in number format for a cell.
+   *
+   * @param format Pointer to a Format instance.
+   * @param index  The built-in number format index for the cell.
+   *
+   * This function is similar to format_set_num_format() except that it takes an
+   * index to a limited number of Excel's built-in number formats instead of a
+   * user defined format string:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_num_format_index(format, 0x0F); // d-mmm-yy
+   * @endcode
+   *
+   * @note
+   * Unless you need to specifically access one of Excel's built-in number
+   * formats the format_set_num_format() function above is a better
+   * solution. The format_set_num_format_index() function is mainly included for
+   * backward compatibility and completeness.
+   *
+   * The Excel built-in number formats as shown in the table below:
+   *
+   *   | Index | Index | Format String                                        |
+   *   | ----- | ----- | ---------------------------------------------------- |
+   *   | 0     | 0x00  | `General`                                            |
+   *   | 1     | 0x01  | `0`                                                  |
+   *   | 2     | 0x02  | `0.00`                                               |
+   *   | 3     | 0x03  | `#,##0`                                              |
+   *   | 4     | 0x04  | `#,##0.00`                                           |
+   *   | 5     | 0x05  | `($#,##0_);($#,##0)`                                 |
+   *   | 6     | 0x06  | `($#,##0_);[Red]($#,##0)`                            |
+   *   | 7     | 0x07  | `($#,##0.00_);($#,##0.00)`                           |
+   *   | 8     | 0x08  | `($#,##0.00_);[Red]($#,##0.00)`                      |
+   *   | 9     | 0x09  | `0%`                                                 |
+   *   | 10    | 0x0a  | `0.00%`                                              |
+   *   | 11    | 0x0b  | `0.00E+00`                                           |
+   *   | 12    | 0x0c  | `# ?/?`                                              |
+   *   | 13    | 0x0d  | `# ??/??`                                            |
+   *   | 14    | 0x0e  | `m/d/yy`                                             |
+   *   | 15    | 0x0f  | `d-mmm-yy`                                           |
+   *   | 16    | 0x10  | `d-mmm`                                              |
+   *   | 17    | 0x11  | `mmm-yy`                                             |
+   *   | 18    | 0x12  | `h:mm AM/PM`                                         |
+   *   | 19    | 0x13  | `h:mm:ss AM/PM`                                      |
+   *   | 20    | 0x14  | `h:mm`                                               |
+   *   | 21    | 0x15  | `h:mm:ss`                                            |
+   *   | 22    | 0x16  | `m/d/yy h:mm`                                        |
+   *   | ...   | ...   | ...                                                  |
+   *   | 37    | 0x25  | `(#,##0_);(#,##0)`                                   |
+   *   | 38    | 0x26  | `(#,##0_);[Red](#,##0)`                              |
+   *   | 39    | 0x27  | `(#,##0.00_);(#,##0.00)`                             |
+   *   | 40    | 0x28  | `(#,##0.00_);[Red](#,##0.00)`                        |
+   *   | 41    | 0x29  | `_(* #,##0_);_(* (#,##0);_(* "-"_);_(@_)`            |
+   *   | 42    | 0x2a  | `_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)`         |
+   *   | 43    | 0x2b  | `_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)`    |
+   *   | 44    | 0x2c  | `_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)` |
+   *   | 45    | 0x2d  | `mm:ss`                                              |
+   *   | 46    | 0x2e  | `[h]:mm:ss`                                          |
+   *   | 47    | 0x2f  | `mm:ss.0`                                            |
+   *   | 48    | 0x30  | `##0.0E+0`                                           |
+   *   | 49    | 0x31  | `@`                                                  |
+   *
+   * @note
+   *  -  Numeric formats 23 to 36 are not documented by Microsoft and may differ
+   *     in international versions. The listed date and currency formats may also
+   *     vary depending on system settings.
+   *  - The dollar sign in the above format appears as the defined local currency
+   *    symbol.
+   *  - These formats can also be set via format_set_num_format().
+   *  - See also @ref ww_formats_categories.
+   */
+  // TODO Use dedicated type ?
+  void set_num_format_index(uint8_t index);
 
-/**
- * @brief Set the font used in the cell.
- *
- * @param format    Pointer to a Format instance.
- * @param font_name Cell font name.
- *
- * Specify the font used used in the cell format:
- *
- * @code
- *     format_set_font_name(format, "Avenir Black Oblique");
- * @endcode
- *
- * @image html format_set_font_name.png
- *
- * Excel can only display fonts that are installed on the system that it is
- * running on. Therefore it is generally best to use the fonts that come as
- * standard with Excel such as Calibri, Times New Roman and Courier New.
- *
- * The default font in Excel 2007, and later, is Calibri.
- */
-void set_font_name(const std::string& font_name);
+  /**
+   * @brief Set the font used in the cell.
+   *
+   * @param format    Pointer to a Format instance.
+   * @param font_name Cell font name.
+   *
+   * Specify the font used used in the cell format:
+   *
+   * @code
+   *     format_set_font_name(format, "Avenir Black Oblique");
+   * @endcode
+   *
+   * @image html format_set_font_name.png
+   *
+   * Excel can only display fonts that are installed on the system that it is
+   * running on. Therefore it is generally best to use the fonts that come as
+   * standard with Excel such as Calibri, Times New Roman and Courier New.
+   *
+   * The default font in Excel 2007, and later, is Calibri.
+   */
+  void set_font_name(const std::string& font_name);
 
-/**
- * @brief Set the size of the font used in the cell.
- *
- * @param format Pointer to a Format instance.
- * @param size   The cell font size.
- *
- * Set the font size of the cell format:
- *
- * @code
- *     format_set_font_size(format, 30);
- * @endcode
- *
- * @image html format_font_size.png
- *
- * Excel adjusts the height of a row to accommodate the largest font
- * size in the row. You can also explicitly specify the height of a
- * row using the worksheet_set_row() function.
- */
-void set_font_size(double size);
+  /**
+   * @brief Set the size of the font used in the cell.
+   *
+   * @param format Pointer to a Format instance.
+   * @param size   The cell font size.
+   *
+   * Set the font size of the cell format:
+   *
+   * @code
+   *     format_set_font_size(format, 30);
+   * @endcode
+   *
+   * @image html format_font_size.png
+   *
+   * Excel adjusts the height of a row to accommodate the largest font
+   * size in the row. You can also explicitly specify the height of a
+   * row using the worksheet_set_row() function.
+   */
+  void set_font_size(double size);
 
-/**
- * @brief Set the strikeout property of the font.
- *
- * @param format Pointer to a Format instance.
- *
- * @image html format_font_strikeout.png
- *
- */
-void set_font_strikeout();
+  /**
+   * @brief Set the strikeout property of the font.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * @image html format_font_strikeout.png
+   *
+   */
+  void set_font_strikeout();
 
-/**
- * @brief Set the superscript/subscript property of the font.
- *
- * @param format Pointer to a Format instance.
- * @param style  Superscript or subscript style.
- *
- * Set the superscript o subscript property of the font.
- *
- * @image html format_font_script.png
- *
- * The available script styles are:
- *
- * - #LXW_FONT_SUPERSCRIPT
- * - #LXW_FONT_SUBSCRIPT
- */
-void set_font_script(format_scripts_t style);
+  /**
+   * @brief Set the superscript/subscript property of the font.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  Superscript or subscript style.
+   *
+   * Set the superscript o subscript property of the font.
+   *
+   * @image html format_font_script.png
+   *
+   * The available script styles are:
+   *
+   * - #LXW_FONT_SUPERSCRIPT
+   * - #LXW_FONT_SUBSCRIPT
+   */
+  void set_font_script(format_scripts_t style);
 
-/**
- * @brief Set the Format font family property.
- *
- * @param format Pointer to a Format instance.
- * @param value  The font family index.
- *
- * Set the font family. This is usually an integer in the range 1-4. This
- * function is implemented for completeness but is rarely used in practice.
- *
- * @code
- *     format_set_font_family(format, 178);
- * @endcode
- *
- */
-void set_font_family(uint8_t value);
+  /**
+   * @brief Set the Format font family property.
+   *
+   * @param format Pointer to a Format instance.
+   * @param value  The font family index.
+   *
+   * Set the font family. This is usually an integer in the range 1-4. This
+   * function is implemented for completeness but is rarely used in practice.
+   *
+   * @code
+   *     format_set_font_family(format, 178);
+   * @endcode
+   *
+   */
+  void set_font_family(uint8_t value);
 
-/**
- * @brief Set the Format font character set property.
- *
- * @param format Pointer to a Format instance.
- * @param value  The font character set.
- *
- * Set the font character set property. This function is implemented for
- * completeness but is rarely used in practice.
- *
- * @code
- *     format_set_font_charset(format, 178);
- * @endcode
- *
- */
-void set_font_charset(uint8_t value);
+  /**
+   * @brief Set the Format font character set property.
+   *
+   * @param format Pointer to a Format instance.
+   * @param value  The font character set.
+   *
+   * Set the font character set property. This function is implemented for
+   * completeness but is rarely used in practice.
+   *
+   * @code
+   *     format_set_font_charset(format, 178);
+   * @endcode
+   *
+   */
+  void set_font_charset(uint8_t value);
 
-void set_font_outline();
-void set_font_shadow();
-void set_font_scheme(const std::string& font_scheme);
-void set_font_condense();
-void set_font_extend();
-void set_font_only();
+  void set_font_outline();
+  void set_font_shadow();
+  void set_font_scheme(const std::string& font_scheme);
+  void set_font_condense();
+  void set_font_extend();
+  void set_font_only();
+
+  /**
+   * @brief Set the cell unlocked state.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * This property can be used to allow modification of a cell in a protected
+   * worksheet. In Excel, cell locking is turned on by default for all
+   * cells. However, it only has an effect if the worksheet has been protected
+   * using the worksheet worksheet_protect() function:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_unlocked(format);
+   *
+   *     // Enable worksheet protection, without password or options.
+   *     worksheet_protect(worksheet, NULL, NULL);
+   *
+   *     // This cell cannot be edited.
+   *     worksheet_write_formula(worksheet, 0, 0, "=1+2", NULL);
+   *
+   *     // This cell can be edited.
+   *     worksheet_write_formula(worksheet, 1, 0, "=1+2", format);
+   * @endcode
+   */
+  void set_unlocked();
+
+  /**
+   * @brief Hide formulas in a cell.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * This property is used to hide a formula while still displaying its
+   * result. This is generally used to hide complex calculations from end users
+   * who are only interested in the result. It only has an effect if the
+   * worksheet has been protected using the worksheet worksheet_protect()
+   * function:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_hidden(format);
+   *
+   *     // Enable worksheet protection, without password or options.
+   *     worksheet_protect(worksheet, NULL, NULL);
+   *
+   *     // The formula in this cell isn't visible.
+   *     worksheet_write_formula(worksheet, 0, 0, "=1+2", format);
+   * @endcode
+   */
+  void set_hidden();
+
+  /**
+   * @brief Set the rotation of the text in a cell.
+   *
+   * @param format Pointer to a Format instance.
+   * @param angle  Rotation angle in the range -90 to 90 and 270.
+   *
+   * Set the rotation of the text in a cell. The rotation can be any angle in the
+   * range -90 to 90 degrees:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_rotation(format, 30);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "This text is rotated", format);
+   * @endcode
+   *
+   * @image html format_font_text_rotated.png
+   *
+   * The angle 270 is also supported. This indicates text where the letters run
+   * from top to bottom.
+   */
+  void set_rotation(int16_t angle);
+
+  /**
+   * @brief Set the cell text indentation level.
+   *
+   * @param format Pointer to a Format instance.
+   * @param level  Indentation level.
+   *
+   * This method can be used to indent text in a cell. The argument, which should
+   * be an integer, is taken as the level of indentation:
+   *
+   * @code
+   *     format1 = workbook_add_format(workbook);
+   *     format2 = workbook_add_format(workbook);
+   *
+   *     format_set_indent(format1, 1);
+   *     format_set_indent(format2, 2);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "This text is indented 1 level",
+   * format1); worksheet_write_string(worksheet, 1, 0, "This text is indented 2
+   * levels", format2);
+   * @endcode
+   *
+   * @image html text_indent.png
+   *
+   * @note
+   * Indentation is a horizontal alignment property. It will override any other
+   * horizontal properties but it can be used in conjunction with vertical
+   * properties.
+   */
+  void set_indent(uint8_t level);
+
+  /**
+   * @brief Turn on the text "shrink to fit" for a cell.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * This method can be used to shrink text so that it fits in a cell:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_shrink(format);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "Honey, I shrunk the text!",
+   * format);
+   * @endcode
+   */
+  void set_shrink();
+
+  void set_text_justlast();
+  void set_valign(format_alignments_t alignment);
+  void set_halign(format_alignments_t alignment);
+  void set_reading_order(uint8_t value);
+  void set_theme(uint8_t value);
+  void set_color_indexed(uint8_t value);
+
+  /**
+   * @brief Turn on quote prefix for the format.
+   *
+   * @param format Pointer to a Format instance.
+   *
+   * Set the quote prefix property of a format to ensure a string is treated
+   * as a string after editing. This is the same as prefixing the string with
+   * a single quote in Excel. You don't need to add the quote to the
+   * string but you do need to add the format.
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *     format_set_quote_prefix(format);
+   *
+   *     worksheet_write_string(worksheet, 0, 0, "=Foo", format);
+   * @endcode
+   *
+   */
+  void set_quote_prefix();
 
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
@@ -1171,151 +1318,6 @@ private:
 /// int32_t lxw_format_get_dxf_index(lxw_format *format);
 /// lxw_border *lxw_format_get_border_key(lxw_format *format);
 /// lxw_fill *lxw_format_get_fill_key(lxw_format *format);
-
-/**
- * @brief Set the cell unlocked state.
- *
- * @param format Pointer to a Format instance.
- *
- * This property can be used to allow modification of a cell in a protected
- * worksheet. In Excel, cell locking is turned on by default for all
- * cells. However, it only has an effect if the worksheet has been protected
- * using the worksheet worksheet_protect() function:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_unlocked(format);
- *
- *     // Enable worksheet protection, without password or options.
- *     worksheet_protect(worksheet, NULL, NULL);
- *
- *     // This cell cannot be edited.
- *     worksheet_write_formula(worksheet, 0, 0, "=1+2", NULL);
- *
- *     // This cell can be edited.
- *     worksheet_write_formula(worksheet, 1, 0, "=1+2", format);
- * @endcode
- */
-/// void format_set_unlocked(lxw_format *format);
-
-/**
- * @brief Hide formulas in a cell.
- *
- * @param format Pointer to a Format instance.
- *
- * This property is used to hide a formula while still displaying its
- * result. This is generally used to hide complex calculations from end users
- * who are only interested in the result. It only has an effect if the
- * worksheet has been protected using the worksheet worksheet_protect()
- * function:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_hidden(format);
- *
- *     // Enable worksheet protection, without password or options.
- *     worksheet_protect(worksheet, NULL, NULL);
- *
- *     // The formula in this cell isn't visible.
- *     worksheet_write_formula(worksheet, 0, 0, "=1+2", format);
- * @endcode
- */
-/// void format_set_hidden(lxw_format *format);
-
-/**
- * @brief Set the rotation of the text in a cell.
- *
- * @param format Pointer to a Format instance.
- * @param angle  Rotation angle in the range -90 to 90 and 270.
- *
- * Set the rotation of the text in a cell. The rotation can be any angle in the
- * range -90 to 90 degrees:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_rotation(format, 30);
- *
- *     worksheet_write_string(worksheet, 0, 0, "This text is rotated", format);
- * @endcode
- *
- * @image html format_font_text_rotated.png
- *
- * The angle 270 is also supported. This indicates text where the letters run
- * from top to bottom.
- */
-/// void format_set_rotation(lxw_format *format, int16_t angle);
-
-/**
- * @brief Set the cell text indentation level.
- *
- * @param format Pointer to a Format instance.
- * @param level  Indentation level.
- *
- * This method can be used to indent text in a cell. The argument, which should
- * be an integer, is taken as the level of indentation:
- *
- * @code
- *     format1 = workbook_add_format(workbook);
- *     format2 = workbook_add_format(workbook);
- *
- *     format_set_indent(format1, 1);
- *     format_set_indent(format2, 2);
- *
- *     worksheet_write_string(worksheet, 0, 0, "This text is indented 1 level",
- * format1); worksheet_write_string(worksheet, 1, 0, "This text is indented 2
- * levels", format2);
- * @endcode
- *
- * @image html text_indent.png
- *
- * @note
- * Indentation is a horizontal alignment property. It will override any other
- * horizontal properties but it can be used in conjunction with vertical
- * properties.
- */
-/// void format_set_indent(lxw_format *format, uint8_t level);
-
-/**
- * @brief Turn on the text "shrink to fit" for a cell.
- *
- * @param format Pointer to a Format instance.
- *
- * This method can be used to shrink text so that it fits in a cell:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_shrink(format);
- *
- *     worksheet_write_string(worksheet, 0, 0, "Honey, I shrunk the text!",
- * format);
- * @endcode
- */
-/// void format_set_shrink(lxw_format *format);
-
-/**
- * @brief Turn on quote prefix for the format.
- *
- * @param format Pointer to a Format instance.
- *
- * Set the quote prefix property of a format to ensure a string is treated
- * as a string after editing. This is the same as prefixing the string with
- * a single quote in Excel. You don't need to add the quote to the
- * string but you do need to add the format.
- *
- * @code
- *     format = workbook_add_format(workbook);
- *     format_set_quote_prefix(format);
- *
- *     worksheet_write_string(worksheet, 0, 0, "=Foo", format);
- * @endcode
- *
- */
-/// void format_set_quote_prefix(lxw_format *format);
-
-/// void format_set_reading_order(lxw_format *format, uint8_t value);
-/// void format_set_theme(lxw_format *format, uint8_t value);
-
-/// void format_set_color_indexed(lxw_format *format, uint8_t value);
 
 }
 

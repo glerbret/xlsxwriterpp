@@ -8,6 +8,8 @@
 
 #include "xwpp/format.h"
 
+#include "xwpp/exception.h"
+
 namespace xwpp
 {
 
@@ -140,13 +142,15 @@ format_borders_t format_t::check_border(format_borders_t style) const
 
 void format_t::set_font_name(const std::string& font_name)
 {
-  font_name_ =font_name;
+  font_name_ = font_name;
 }
 
 void format_t::set_font_size(double size)
 {
-  if (size >= MIN_FONT_SIZE && size <= MAX_FONT_SIZE)
+  if(size >= MIN_FONT_SIZE && size <= MAX_FONT_SIZE)
+  {
     font_size_ = size;
+  }
 }
 
 void format_t::set_font_color(color_t color)
@@ -209,16 +213,17 @@ void format_t::set_num_format(const std::string& num_format)
   num_format_ = num_format;
 }
 
-/// void format_set_unlocked(lxw_format *self)
-/// {
-///   self->locked = LXW_FALSE;
-/// }
+void format_t::set_unlocked()
+{
+  locked_ = false;
+}
 
-/// void format_set_hidden(lxw_format *self)
-/// {
-///   self->hidden = LXW_TRUE;
-/// }
+void format_t::set_hidden()
+{
+  hidden_ = true;
+}
 
+// TODO Add API that combine vertical  and horizontal alignment (maybe two types with overload)
 void format_t::set_align(format_alignments_t alignment)
 {
   switch(alignment)
@@ -252,38 +257,43 @@ void format_t::set_text_wrap()
   text_wrap_ = true;
 }
 
-/// void format_set_rotation(lxw_format *self, int16_t angle)
-/// {
-/* Convert user angle to Excel angle. */
-///   if (angle == 270) {
-///     self->rotation = 255;
-///   }
-///   else if (angle >= -90 && angle <= 90) {
-///     if (angle < 0)
-///       angle = -angle + 90;
+// TODO Add specific API for 270
+void format_t::set_rotation(int16_t angle)
+{
+  // Convert user angle to Excel angle.
+  if(angle == 270)
+  {
+    rotation_ = 255;
+  }
+  else if(angle >= -90 && angle <= 90)
+  {
+    if(angle < 0)
+    {
+      angle = -angle + 90;
+    }
 
-///     self->rotation = angle;
-///   }
-///   else {
-///     LXW_WARN("Rotation rotation outside range: -90 <= angle <= 90.");
-///     self->rotation = 0;
-///   }
-/// }
+    rotation_ = angle;
+  }
+  else
+  {
+    throw xwpp_out_of_range_t("Rotation rotation outside range: -90 <= angle <= 90");
+  }
+}
 
-/// void format_set_indent(lxw_format *self, uint8_t value)
-/// {
-///   self->indent = value;
-/// }
+void format_t::set_indent(uint8_t value)
+{
+  indent_ = value;
+}
 
-/// void format_set_shrink(lxw_format *self)
-/// {
-///   self->shrink = LXW_TRUE;
-/// }
+void format_t::set_shrink()
+{
+  shrink_ = true;
+}
 
-/// void format_set_text_justlast(lxw_format *self)
-/// {
-///   self->text_justlast = LXW_TRUE;
-/// }
+void format_t::set_text_justlast()
+{
+  text_justlast_ = true;
+}
 
 void format_t::set_pattern(format_patterns_t pattern)
 {
@@ -378,22 +388,41 @@ void format_t::set_num_format_index(uint8_t value)
   num_format_index_ = value;
 }
 
-/// void format_set_valign(lxw_format *self, uint8_t value)
-/// {
-///   if (value > LXW_ALIGN_VERTICAL_DISTRIBUTED) {
-///     LXW_WARN_FORMAT1
-///       ("format_set_valign(): invalid vertical alignment value: %d",
-///        value);
-///     return;
-///   }
+void format_t::set_valign(format_alignments_t alignment)
+{
+  if(alignment == format_alignments_t::VERTICAL_TOP && alignment == format_alignments_t::VERTICAL_BOTTOM &&
+     alignment == format_alignments_t::VERTICAL_CENTER && alignment == format_alignments_t::VERTICAL_JUSTIFY &&
+     alignment == format_alignments_t::VERTICAL_DISTRIBUTED)
+  {
+    text_v_align_ = alignment;
+  }
+  else
+  {
+    throw xwpp_exception_t("Not a vertical alignment");
+  }
+}
 
-///   self->text_v_align = value;
-/// }
+void format_t::set_halign(format_alignments_t alignment)
+{
+  if(alignment == format_alignments_t::HORIZONTAL_LEFT && alignment == format_alignments_t::HORIZONTAL_CENTER &&
+     alignment == format_alignments_t::HORIZONTAL_RIGHT && alignment == format_alignments_t::HORIZONTAL_FILL &&
+     alignment == format_alignments_t::HORIZONTAL_JUSTIFY &&
+     alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS &&
+     alignment == format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  {
+    text_h_align_ = alignment;
+  }
+  else
+  {
+    throw xwpp_exception_t("Not a horizontal alignment");
+  }
+}
 
-/// void format_set_reading_order(lxw_format *self, uint8_t value)
-/// {
-///   self->reading_order = value;
-/// }
+// TODO Add enum class for reading order
+void format_t::set_reading_order(uint8_t value)
+{
+  reading_order_ = value;
+}
 
 void format_t::set_font_family(uint8_t value)
 {
@@ -406,8 +435,8 @@ void format_t::set_font_charset(uint8_t value)
 }
 
 void format_t::set_font_scheme(const std::string& font_scheme)
- {
-    font_scheme_ = font_scheme;
+{
+  font_scheme_ = font_scheme;
 }
 
 void format_t::set_font_condense()
@@ -420,15 +449,15 @@ void format_t::set_font_extend()
   font_extend_ = true;
 }
 
-/// void format_set_theme(lxw_format *self, uint8_t value)
-/// {
-///   self->theme = value;
-/// }
+void format_t::set_theme(uint8_t value)
+{
+  theme_ = value;
+}
 
-/// void format_set_color_indexed(lxw_format *self, uint8_t value)
-/// {
-///   self->color_indexed = value;
-/// }
+void format_t::set_color_indexed(uint8_t value)
+{
+  color_indexed_ = value;
+}
 
 void format_t::set_font_only()
 {
@@ -443,10 +472,10 @@ void format_t::set_hyperlink()
   theme_     = 10;
 }
 
-/// void format_set_quote_prefix(lxw_format *self)
-/// {
-///   self->quote_prefix = LXW_TRUE;
-/// }
+void format_t::set_quote_prefix()
+{
+  quote_prefix_ = true;
+}
 
 const std::string format_t::DEFAULT_FONT_NAME = "Calibri";
 
