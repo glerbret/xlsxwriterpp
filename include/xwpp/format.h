@@ -99,10 +99,8 @@ enum class color_t : uint32_t
 const uint32_t COLOR_MASK = 0xFFFFFF;
 
 /// #define LXW_FORMAT_FIELD_LEN            128
-/// #define LXW_COLOR_UNSET                 0x000000
-/// #define LXW_COLOR_MASK                  0xFFFFFF
-/// #define LXW_MIN_FONT_SIZE               1.0
-/// #define LXW_MAX_FONT_SIZE               409.0
+const double MIN_FONT_SIZE = 1.0;
+const double MAX_FONT_SIZE = 409.0;
 
 /// #define LXW_FORMAT_FIELD_COPY(dst, src)             \
 ///     do{                                             \
@@ -110,6 +108,7 @@ const uint32_t COLOR_MASK = 0xFFFFFF;
 ///         dst[LXW_FORMAT_FIELD_LEN - 1] = '\0';       \
     /// } while (0)
 
+// TODO Complete the list
 // Format underline values for format_set_underline().
 enum class format_underlines_t
 {
@@ -926,6 +925,114 @@ public:
 // TODO Use dedicated type ?
 void set_num_format_index(uint8_t index);
 
+/**
+ * @brief Set the font used in the cell.
+ *
+ * @param format    Pointer to a Format instance.
+ * @param font_name Cell font name.
+ *
+ * Specify the font used used in the cell format:
+ *
+ * @code
+ *     format_set_font_name(format, "Avenir Black Oblique");
+ * @endcode
+ *
+ * @image html format_set_font_name.png
+ *
+ * Excel can only display fonts that are installed on the system that it is
+ * running on. Therefore it is generally best to use the fonts that come as
+ * standard with Excel such as Calibri, Times New Roman and Courier New.
+ *
+ * The default font in Excel 2007, and later, is Calibri.
+ */
+void set_font_name(const std::string& font_name);
+
+/**
+ * @brief Set the size of the font used in the cell.
+ *
+ * @param format Pointer to a Format instance.
+ * @param size   The cell font size.
+ *
+ * Set the font size of the cell format:
+ *
+ * @code
+ *     format_set_font_size(format, 30);
+ * @endcode
+ *
+ * @image html format_font_size.png
+ *
+ * Excel adjusts the height of a row to accommodate the largest font
+ * size in the row. You can also explicitly specify the height of a
+ * row using the worksheet_set_row() function.
+ */
+void set_font_size(double size);
+
+/**
+ * @brief Set the strikeout property of the font.
+ *
+ * @param format Pointer to a Format instance.
+ *
+ * @image html format_font_strikeout.png
+ *
+ */
+void set_font_strikeout();
+
+/**
+ * @brief Set the superscript/subscript property of the font.
+ *
+ * @param format Pointer to a Format instance.
+ * @param style  Superscript or subscript style.
+ *
+ * Set the superscript o subscript property of the font.
+ *
+ * @image html format_font_script.png
+ *
+ * The available script styles are:
+ *
+ * - #LXW_FONT_SUPERSCRIPT
+ * - #LXW_FONT_SUBSCRIPT
+ */
+void set_font_script(format_scripts_t style);
+
+/**
+ * @brief Set the Format font family property.
+ *
+ * @param format Pointer to a Format instance.
+ * @param value  The font family index.
+ *
+ * Set the font family. This is usually an integer in the range 1-4. This
+ * function is implemented for completeness but is rarely used in practice.
+ *
+ * @code
+ *     format_set_font_family(format, 178);
+ * @endcode
+ *
+ */
+void set_font_family(uint8_t value);
+
+/**
+ * @brief Set the Format font character set property.
+ *
+ * @param format Pointer to a Format instance.
+ * @param value  The font character set.
+ *
+ * Set the font character set property. This function is implemented for
+ * completeness but is rarely used in practice.
+ *
+ * @code
+ *     format_set_font_charset(format, 178);
+ * @endcode
+ *
+ */
+void set_font_charset(uint8_t value);
+
+void set_font_outline();
+void set_font_shadow();
+void set_font_scheme(const std::string& font_scheme);
+void set_font_condense();
+void set_font_extend();
+void set_font_only();
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
 
@@ -1064,107 +1171,6 @@ private:
 /// int32_t lxw_format_get_dxf_index(lxw_format *format);
 /// lxw_border *lxw_format_get_border_key(lxw_format *format);
 /// lxw_fill *lxw_format_get_fill_key(lxw_format *format);
-
-/**
- * @brief Set the font used in the cell.
- *
- * @param format    Pointer to a Format instance.
- * @param font_name Cell font name.
- *
- * Specify the font used used in the cell format:
- *
- * @code
- *     format_set_font_name(format, "Avenir Black Oblique");
- * @endcode
- *
- * @image html format_set_font_name.png
- *
- * Excel can only display fonts that are installed on the system that it is
- * running on. Therefore it is generally best to use the fonts that come as
- * standard with Excel such as Calibri, Times New Roman and Courier New.
- *
- * The default font in Excel 2007, and later, is Calibri.
- */
-/// void format_set_font_name(lxw_format *format, const char *font_name);
-
-/**
- * @brief Set the size of the font used in the cell.
- *
- * @param format Pointer to a Format instance.
- * @param size   The cell font size.
- *
- * Set the font size of the cell format:
- *
- * @code
- *     format_set_font_size(format, 30);
- * @endcode
- *
- * @image html format_font_size.png
- *
- * Excel adjusts the height of a row to accommodate the largest font
- * size in the row. You can also explicitly specify the height of a
- * row using the worksheet_set_row() function.
- */
-/// void format_set_font_size(lxw_format *format, double size);
-
-/**
- * @brief Set the strikeout property of the font.
- *
- * @param format Pointer to a Format instance.
- *
- * @image html format_font_strikeout.png
- *
- */
-/// void format_set_font_strikeout(lxw_format *format);
-
-/**
- * @brief Set the superscript/subscript property of the font.
- *
- * @param format Pointer to a Format instance.
- * @param style  Superscript or subscript style.
- *
- * Set the superscript o subscript property of the font.
- *
- * @image html format_font_script.png
- *
- * The available script styles are:
- *
- * - #LXW_FONT_SUPERSCRIPT
- * - #LXW_FONT_SUBSCRIPT
- */
-/// void format_set_font_script(lxw_format *format, uint8_t style);
-
-/**
- * @brief Set the Format font family property.
- *
- * @param format Pointer to a Format instance.
- * @param value  The font family index.
- *
- * Set the font family. This is usually an integer in the range 1-4. This
- * function is implemented for completeness but is rarely used in practice.
- *
- * @code
- *     format_set_font_family(format, 178);
- * @endcode
- *
- */
-/// void format_set_font_family(lxw_format *format, uint8_t value);
-
-/**
- * @brief Set the Format font character set property.
- *
- * @param format Pointer to a Format instance.
- * @param value  The font character set.
- *
- * Set the font character set property. This function is implemented for
- * completeness but is rarely used in practice.
- *
- * @code
- *     format_set_font_charset(format, 178);
- * @endcode
- *
- */
-/// void format_set_font_charset(lxw_format *format, uint8_t value);
 
 /**
  * @brief Set the cell unlocked state.
@@ -1306,16 +1312,10 @@ private:
  */
 /// void format_set_quote_prefix(lxw_format *format);
 
-/// void format_set_font_outline(lxw_format *format);
-/// void format_set_font_shadow(lxw_format *format);
-/// void format_set_font_scheme(lxw_format *format, const char *font_scheme);
-/// void format_set_font_condense(lxw_format *format);
-/// void format_set_font_extend(lxw_format *format);
 /// void format_set_reading_order(lxw_format *format, uint8_t value);
 /// void format_set_theme(lxw_format *format, uint8_t value);
 
 /// void format_set_color_indexed(lxw_format *format, uint8_t value);
-/// void format_set_font_only(lxw_format *format);
 
 }
 

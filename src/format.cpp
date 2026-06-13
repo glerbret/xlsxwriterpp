@@ -138,16 +138,16 @@ format_borders_t format_t::check_border(format_borders_t style) const
 ///   }
 /// }
 
-/// void format_set_font_name(lxw_format *self, const char *font_name)
-/// {
-///   LXW_FORMAT_FIELD_COPY(self->font_name, font_name);
-/// }
+void format_t::set_font_name(const std::string& font_name)
+{
+  font_name_ =font_name;
+}
 
-/// void format_set_font_size(lxw_format *self, double size)
-/// {
-///   if (size >= LXW_MIN_FONT_SIZE && size <= LXW_MAX_FONT_SIZE)
-///     self->font_size = size;
-/// }
+void format_t::set_font_size(double size)
+{
+  if (size >= MIN_FONT_SIZE && size <= MAX_FONT_SIZE)
+    font_size_ = size;
+}
 
 void format_t::set_font_color(color_t color)
 {
@@ -164,6 +164,7 @@ void format_t::set_italic()
   italic_ = true;
 }
 
+// TODO Add overline (Available on Excel ?)
 void format_t::set_underline(format_underlines_t style)
 {
   switch(style)
@@ -181,26 +182,27 @@ void format_t::set_underline(format_underlines_t style)
   }
 }
 
-/// void format_set_font_strikeout(lxw_format *self)
-/// {
-///   self->font_strikeout = LXW_TRUE;
-/// }
+// TODO Add API to unset (same for bold, italic, ...)
+// TODO Set the strike style (if any with Excel)
+void format_t::set_font_strikeout()
+{
+  font_strikeout_ = true;
+}
 
-/// void format_set_font_script(lxw_format *self, uint8_t style)
-/// {
-///   if (style >= LXW_FONT_SUPERSCRIPT && style <= LXW_FONT_SUBSCRIPT)
-///     self->font_script = style;
-/// }
+void format_t::set_font_script(format_scripts_t style)
+{
+  font_script_ = style;
+}
 
-/// void format_set_font_outline(lxw_format *self)
-/// {
-///   self->font_outline = LXW_TRUE;
-/// }
+void format_t::set_font_outline()
+{
+  font_outline_ = true;
+}
 
-/// void format_set_font_shadow(lxw_format *self)
-/// {
-///   self->font_shadow = LXW_TRUE;
-/// }
+void format_t::set_font_shadow()
+{
+  font_shadow_ = true;
+}
 
 void format_t::set_num_format(const std::string& num_format)
 {
@@ -285,11 +287,6 @@ void format_t::set_text_wrap()
 
 void format_t::set_pattern(format_patterns_t pattern)
 {
-  ///   if (value > LXW_PATTERN_GRAY_0625) {
-  ///     LXW_WARN_FORMAT1("format_set_pattern(): invalid pattern value: %d", value);
-  ///     return;
-  ///   }
-
   pattern_ = pattern;
 }
 
@@ -398,30 +395,30 @@ void format_t::set_num_format_index(uint8_t value)
 ///   self->reading_order = value;
 /// }
 
-/// void format_set_font_family(lxw_format *self, uint8_t value)
-/// {
-///   self->font_family = value;
-/// }
+void format_t::set_font_family(uint8_t value)
+{
+  font_family_ = value;
+}
 
-/// void format_set_font_charset(lxw_format *self, uint8_t value)
-/// {
-///   self->font_charset = value;
-/// }
+void format_t::set_font_charset(uint8_t value)
+{
+  font_charset_ = value;
+}
 
-/// void format_set_font_scheme(lxw_format *self, const char *font_scheme)
-/// {
-///   LXW_FORMAT_FIELD_COPY(self->font_scheme, font_scheme);
-/// }
+void format_t::set_font_scheme(const std::string& font_scheme)
+ {
+    font_scheme_ = font_scheme;
+}
 
-/// void format_set_font_condense(lxw_format *self)
-/// {
-///   self->font_condense = LXW_TRUE;
-/// }
+void format_t::set_font_condense()
+{
+  font_condense_ = true;
+}
 
-/// void format_set_font_extend(lxw_format *self)
-/// {
-///   self->font_extend = LXW_TRUE;
-/// }
+void format_t::set_font_extend()
+{
+  font_extend_ = true;
+}
 
 /// void format_set_theme(lxw_format *self, uint8_t value)
 /// {
@@ -433,10 +430,10 @@ void format_t::set_num_format_index(uint8_t value)
 ///   self->color_indexed = value;
 /// }
 
-/// void format_set_font_only(lxw_format *self)
-/// {
-///   self->font_only = LXW_TRUE;
-/// }
+void format_t::set_font_only()
+{
+  font_only_ = true;
+}
 
 void format_t::set_hyperlink()
 {
