@@ -162,124 +162,85 @@ void workbook_t::prepare_borders()
   border_count_ = static_cast<uint32_t>(borders.size());
 }
 
-/// STATIC void _prepare_fills(lxw_workbook *self)
-/// {
-///     lxw_hash_table *fills = lxw_hash_new(128, 1, 1);
-///     lxw_hash_element *hash_element;
-///     lxw_hash_element *used_format_element;
-///     uint16_t index = 2;
-///     lxw_fill *default_fill_1 = NULL;
-///     lxw_fill *default_fill_2 = NULL;
-///     uint16_t *fill_index1 = NULL;
-///     uint16_t *fill_index2 = NULL;
+void workbook_t::prepare_fills()
+{
+  std::vector<format_t*> fills;
 
-///     default_fill_1 = calloc(1, sizeof(lxw_fill));
-///     GOTO_LABEL_ON_MEM_ERROR(default_fill_1, mem_error);
+  // Add the default fills.
+  format_t default_fill_1;
+  default_fill_1.fg_color_   = color_t::UNSET;
+  default_fill_1.bg_color_   = color_t::UNSET;
+  default_fill_1.pattern_    = format_patterns_t::NONE;
+  default_fill_1.fill_index_ = 0;
+  fills.push_back(&default_fill_1);
+  format_t default_fill_2;
+  default_fill_2.fg_color_   = color_t::UNSET;
+  default_fill_2.bg_color_   = color_t::UNSET;
+  default_fill_2.pattern_    = format_patterns_t::GRAY_125;
+  default_fill_2.fill_index_ = 1;
+  fills.push_back(&default_fill_2);
 
-///     default_fill_2 = calloc(1, sizeof(lxw_fill));
-///     GOTO_LABEL_ON_MEM_ERROR(default_fill_2, mem_error);
+  /* For DXF formats we only need to check if the properties have changed. */
+  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
+  ///         lxw_format *format = (lxw_format *) used_format_element->value;
 
-///     fill_index1 = calloc(1, sizeof(uint16_t));
-///     GOTO_LABEL_ON_MEM_ERROR(fill_index1, mem_error);
+  ///         if (format->pattern || format->bg_color || format->fg_color) {
+  ///             format->has_dxf_fill = LXW_TRUE;
+  ///             format->dxf_bg_color = format->bg_color;
+  ///             format->dxf_fg_color = format->fg_color;
+  ///         }
+  ///     }
 
-///     fill_index2 = calloc(1, sizeof(uint16_t));
-///     GOTO_LABEL_ON_MEM_ERROR(fill_index2, mem_error);
+  // TODO Use unordered_set to optimise this search
+  for(auto format: used_xf_formats_)
+  {
+    /* The following logical statements jointly take care of special */
+    /* cases in relation to cell colors and patterns:                */
+    /* 1. For a solid fill (pattern == 1) Excel reverses the role of */
+    /*    foreground and background colors, and                      */
+    /* 2. If the user specifies a foreground or background color     */
+    /*    without a pattern they probably wanted a solid fill, so    */
+    /*    we fill in the defaults.
+     */
+    if(format->pattern_ == format_patterns_t::SOLID && format->bg_color_ != color_t::UNSET &&
+       format->fg_color_ != color_t::UNSET)
+    {
+      std::swap(format->bg_color_, format->fg_color_);
+    }
+    else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
+            format->bg_color_ != color_t::UNSET && format->fg_color_ == color_t::UNSET)
+    {
+      std::swap(format->bg_color_, format->fg_color_);
+      format->pattern_ = format_patterns_t::SOLID;
+    }
+    else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
+            format->bg_color_ == color_t::UNSET && format->fg_color_ != color_t::UNSET)
+    {
+      format->pattern_ = format_patterns_t::SOLID;
+    }
 
-/* Add the default fills. */
-///     default_fill_1->pattern = LXW_PATTERN_NONE;
-///     default_fill_1->fg_color = LXW_COLOR_UNSET;
-///     default_fill_1->bg_color = LXW_COLOR_UNSET;
-///     *fill_index1 = 0;
-///     lxw_insert_hash_element(fills, default_fill_1, fill_index1,
-///                             sizeof(lxw_fill));
+    for(const auto fill: fills)
+    {
+      if(format->bg_color_ == fill->bg_color_ && format->fg_color_ == fill->fg_color_ &&
+         format->pattern_ == fill->pattern_)
+      {
+        // Font has already been used.
+        format->fill_index_ = fill->fill_index_;
+        format->has_fill_   = false;
+      }
+    }
 
-///     default_fill_2->pattern = LXW_PATTERN_GRAY_125;
-///     default_fill_2->fg_color = LXW_COLOR_UNSET;
-///     default_fill_2->bg_color = LXW_COLOR_UNSET;
-///     *fill_index2 = 1;
-///     lxw_insert_hash_element(fills, default_fill_2, fill_index2,
-///                             sizeof(lxw_fill));
+    if(format->fill_index_ == format_t::PROPERTY_UNSET)
+    {
+      format->fill_index_ = static_cast<int32_t>(fills.size());
+      format->has_fill_   = true;
+      fills.push_back(format);
+    }
+  }
 
-/* For DXF formats we only need to check if the properties have changed. */
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
-
-///         if (format->pattern || format->bg_color || format->fg_color) {
-///             format->has_dxf_fill = LXW_TRUE;
-///             format->dxf_bg_color = format->bg_color;
-///             format->dxf_fg_color = format->fg_color;
-///         }
-///     }
-
-///     LXW_FOREACH_ORDERED(used_format_element, self->used_xf_formats) {
-///         lxw_format *format = (lxw_format *) used_format_element->value;
-///         lxw_fill *key = lxw_format_get_fill_key(format);
-
-/* The following logical statements jointly take care of special */
-/* cases in relation to cell colors and patterns:                */
-/* 1. For a solid fill (pattern == 1) Excel reverses the role of */
-/*    foreground and background colors, and                      */
-/* 2. If the user specifies a foreground or background color     */
-/*    without a pattern they probably wanted a solid fill, so    */
-/*    we fill in the defaults.                                   */
-///         if (format->pattern == LXW_PATTERN_SOLID
-///             && format->bg_color != LXW_COLOR_UNSET
-///             && format->fg_color != LXW_COLOR_UNSET) {
-///             lxw_color_t tmp = format->fg_color;
-///             format->fg_color = format->bg_color;
-///             format->bg_color = tmp;
-///         }
-
-///         if (format->pattern <= LXW_PATTERN_SOLID
-///             && format->bg_color != LXW_COLOR_UNSET
-///             && format->fg_color == LXW_COLOR_UNSET) {
-///             format->fg_color = format->bg_color;
-///             format->bg_color = LXW_COLOR_UNSET;
-///             format->pattern = LXW_PATTERN_SOLID;
-///         }
-
-///         if (format->pattern <= LXW_PATTERN_SOLID
-///             && format->bg_color == LXW_COLOR_UNSET
-///             && format->fg_color != LXW_COLOR_UNSET) {
-///             format->pattern = LXW_PATTERN_SOLID;
-///         }
-
-///         if (key) {
-/* Look up the format in the hash table. */
-///             hash_element = lxw_hash_key_exists(fills, key, sizeof(lxw_fill));
-
-///             if (hash_element) {
-/* Fill has already been used. */
-///                 format->fill_index = *(uint16_t *) hash_element->value;
-///                 format->has_fill = LXW_FALSE;
-///                 free(key);
-///             }
-///             else {
-/* This is a new fill. */
-///                 uint16_t *fill_index = calloc(1, sizeof(uint16_t));
-///                 *fill_index = index;
-///                 format->fill_index = index;
-///                 format->has_fill = 1;
-///                 lxw_insert_hash_element(fills, key, fill_index,
-///                                         sizeof(lxw_fill));
-///                 index++;
-///             }
-///         }
-///     }
-
-///     lxw_hash_free(fills);
-
-///     self->fill_count = index;
-
-///     return;
-
-/// mem_error:
-///     free(fill_index2);
-///     free(fill_index1);
-///     free(default_fill_2);
-///     free(default_fill_1);
-///     lxw_hash_free(fills);
-/// }
+  fill_count_ = static_cast<uint32_t>(fills.size());
+  ;
+}
 
 void workbook_t::prepare_num_formats()
 {
@@ -372,7 +333,7 @@ void workbook_t::prepare_workbook()
   prepare_borders();
 
   // Set the fill index for the format objects.
-  ///     _prepare_fills(self);
+  prepare_fills();
 }
 
 /// static int _compare_defined_names(lxw_defined_name *a, lxw_defined_name *b)

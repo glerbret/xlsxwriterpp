@@ -334,7 +334,6 @@ cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* form
   cell.col_num_ = col_num;
   cell.type_    = cell_types_t::BLANK_CELL;
   cell.format_  = const_cast<format_t*>(format);
-  ;
 
   return cell;
 }

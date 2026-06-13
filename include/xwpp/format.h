@@ -712,12 +712,12 @@ private:
   int16_t rotation_                  = 0;
   color_t fg_color_                  = color_t::UNSET;
   color_t bg_color_                  = color_t::UNSET;
-  ///  color_t dxf_fg_color_ = color_t::UNSET;
-  ///  color_t dxf_bg_color_ = color_t::UNSET;
+  color_t dxf_fg_color_              = color_t::UNSET;
+  color_t dxf_bg_color_              = color_t::UNSET;
   format_patterns_t pattern_         = format_patterns_t::NONE;
   bool has_fill_                     = false;
   bool has_dxf_fill_                 = false;
-  int32_t fill_index_                = 0;
+  int32_t fill_index_                = PROPERTY_UNSET;
   int32_t fill_count_                = 0;
   int32_t border_index_              = PROPERTY_UNSET;
   bool has_border_                   = false;

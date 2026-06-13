@@ -20,7 +20,7 @@ namespace xwpp
 class style_t
 {
 public:
-  style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
+  style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
           const std::vector<format_t*>& xf_formats);
 
   [[nodiscard]] std::string assemble_xml_file();
@@ -65,13 +65,16 @@ private:
   [[nodiscard]] std::string write_table_styles() const;
   [[nodiscard]] std::string write_hyperlink_alignment() const;
   [[nodiscard]] std::string write_hyperlink_protection() const;
+  [[nodiscard]] std::string write_fill(const format_t* format, bool is_dxf) const;
+  [[nodiscard]] std::string write_fg_color(color_t color) const;
+  [[nodiscard]] std::string write_bg_color(color_t color, format_patterns_t pattern) const;
 
   uint32_t font_count_;
   ///  uint32_t xf_count;
   ///  uint32_t dxf_count;
   uint32_t num_format_count_;
   uint32_t border_count_;
-  ///  uint32_t fill_count;
+  uint32_t fill_count_;
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
   bool has_hyperlink_         = false;

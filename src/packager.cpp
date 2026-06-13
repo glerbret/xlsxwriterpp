@@ -951,8 +951,8 @@ void packager_t::write_theme_file()
 void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
-  style_t styles(workbook.font_count_, workbook.border_count_, workbook.num_format_count_, workbook.has_comments_,
-                 workbook.used_xf_formats_);
+  style_t styles(workbook.font_count_, workbook.fill_count_, workbook.border_count_, workbook.num_format_count_,
+                 workbook.has_comments_, workbook.used_xf_formats_);
   ///     lxw_hash_element *hash_element;
   /* Copy the unique and in-use dxf formats from the workbook to the styles
    * dxf_format list. */

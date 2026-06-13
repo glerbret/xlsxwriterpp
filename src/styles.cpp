@@ -422,11 +422,12 @@ std::string style_t::write_comment_font() const
   return xml_data;
 }
 
-style_t::style_t(uint32_t font_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
-                 const std::vector<format_t*>& xf_formats)
+style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count,
+                 bool has_comments, const std::vector<format_t*>& xf_formats)
   : font_count_{font_count}
   , num_format_count_{num_format_count}
   , border_count_{border_count}
+  , fill_count_{fill_count}
   , xf_formats_{xf_formats}
   , has_comments_{has_comments}
 {
@@ -476,128 +477,101 @@ std::string style_t::write_default_fill(const std::string& pattern) const
   return xml_data;
 }
 
-/// STATIC void
-/// _write_fg_color(lxw_styles *self, lxw_color_t color)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb_str[LXW_ATTR_32];
+std::string style_t::write_fg_color(color_t color) const
+{
+  return xml_empty_tag("fgColor", {
+                                      {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  });
+}
 
-///     LXW_INIT_ATTRIBUTES();
+std::string style_t::write_bg_color(color_t color, format_patterns_t pattern) const
+{
+  if(color == color_t::UNSET)
+  {
+    if(pattern == format_patterns_t::SOLID || pattern == format_patterns_t::NONE)
+    {
+      return xml_empty_tag("bgColor", {
+                                          {"indexed", "64"}
+      });
+    }
+  }
+  else
+  {
+    return xml_empty_tag("bgColor", {
+                                        {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+    });
+  }
 
-///     lxw_snprintf(rgb_str, LXW_ATTR_32, "FF%06X", color & LXW_COLOR_MASK);
-///     LXW_PUSH_ATTRIBUTES_STR("rgb", rgb_str);
+  return "";
+}
 
-///     lxw_xml_empty_tag(self->file, "fgColor", &attributes);
+std::string style_t::write_fill(const format_t* format, bool is_dxf) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  format_patterns_t pattern = format->pattern_;
+  color_t bg_color          = format->bg_color_;
+  color_t fg_color          = format->fg_color_;
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  // TODO Add function of conversion
+  std::vector<std::string> patterns = {
+      "none",     "solid",     "mediumGray",   "darkGray",    "lightGray",       "darkHorizontal", "darkVertical",
+      "darkDown", "darkUp",    "darkGrid",     "darkTrellis", "lightHorizontal", "lightVertical",  "lightDown",
+      "lightUp",  "lightGrid", "lightTrellis", "gray125",     "gray0625",
+  };
 
-/// STATIC void
-/// _write_bg_color(lxw_styles *self, lxw_color_t color, uint8_t pattern)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb_str[LXW_ATTR_32];
+  if(is_dxf)
+  {
+    bg_color = format->dxf_bg_color_;
+    fg_color = format->dxf_fg_color_;
+  }
 
-///     LXW_INIT_ATTRIBUTES();
+  // Special handling for pattern only case.
+  if(bg_color == color_t::UNSET && fg_color == color_t::UNSET && pattern != format_patterns_t::NONE)
+  {
+    return write_default_fill(patterns[static_cast<uint32_t>(pattern)]);
+  }
 
-///     if (color == LXW_COLOR_UNSET) {
-///         if (pattern <= LXW_PATTERN_SOLID) {
-///             LXW_PUSH_ATTRIBUTES_STR("indexed", "64");
-///             lxw_xml_empty_tag(self->file, "bgColor", &attributes);
-///         }
-///     }
-///     else {
-///         lxw_snprintf(rgb_str, LXW_ATTR_32, "FF%06X", color & LXW_COLOR_MASK);
-///         LXW_PUSH_ATTRIBUTES_STR("rgb", rgb_str);
-///         lxw_xml_empty_tag(self->file, "bgColor", &attributes);
-///     }
+  std::string xml_data = xml_start_tag("fill");
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  // None/Solid patterns are handled differently for dxf formats.
+  if(pattern != format_patterns_t::NONE &&
+     !(is_dxf && static_cast<uint32_t>(pattern) <= static_cast<uint32_t>(format_patterns_t::SOLID)))
+  {
+    attributes.emplace_back("patternType", patterns[static_cast<uint32_t>(pattern)]);
+  }
 
-/// STATIC void
-/// _write_fill(lxw_styles *self, lxw_format *format, uint8_t is_dxf)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+  xml_data += xml_start_tag("patternFill", attributes);
 
-///     uint8_t pattern = format->pattern;
-///     lxw_color_t bg_color = format->bg_color;
-///     lxw_color_t fg_color = format->fg_color;
+  if(fg_color != color_t::UNSET)
+  {
+    xml_data += write_fg_color(fg_color);
+  }
 
-///     char *patterns[] = {
-///         "none",
-///         "solid",
-///         "mediumGray",
-///         "darkGray",
-///         "lightGray",
-///         "darkHorizontal",
-///         "darkVertical",
-///         "darkDown",
-///         "darkUp",
-///         "darkGrid",
-///         "darkTrellis",
-///         "lightHorizontal",
-///         "lightVertical",
-///         "lightDown",
-///         "lightUp",
-///         "lightGrid",
-///         "lightTrellis",
-///         "gray125",
-///         "gray0625",
-///     };
+  xml_data += write_bg_color(bg_color, pattern);
 
-///     if (is_dxf) {
-///         bg_color = format->dxf_bg_color;
-///         fg_color = format->dxf_fg_color;
-///     }
+  xml_data += xml_end_tag("patternFill");
+  xml_data += xml_end_tag("fill");
 
-///     LXW_INIT_ATTRIBUTES();
-
-/* Special handling for pattern only case. */
-///     if (!bg_color && !fg_color && pattern) {
-///         _write_default_fill(self, patterns[pattern]);
-///         LXW_FREE_ATTRIBUTES();
-///         return;
-///     }
-
-///     lxw_xml_start_tag(self->file, "fill", NULL);
-
-/* None/Solid patterns are handled differently for dxf formats. */
-///     if (pattern && !(is_dxf && pattern <= LXW_PATTERN_SOLID))
-///         LXW_PUSH_ATTRIBUTES_STR("patternType", patterns[pattern]);
-
-///     lxw_xml_start_tag(self->file, "patternFill", &attributes);
-
-///     if (fg_color != LXW_COLOR_UNSET)
-///         _write_fg_color(self, fg_color);
-
-///     _write_bg_color(self, bg_color, pattern);
-
-///     lxw_xml_end_tag(self->file, "patternFill");
-///     lxw_xml_end_tag(self->file, "fill");
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
 std::string style_t::write_fills() const
 {
-  ///     lxw_format *format;
-
   std::string xml_data = xml_start_tag("fills", {
-                                                    {"count", "2" /* TODO self->fill_count*/}
+                                                    {"count", std::to_string(fill_count_)}
   });
 
   // Write the default fills.
   xml_data += write_default_fill("none");
   xml_data += write_default_fill("gray125");
 
-  ///     STAILQ_FOREACH(format, self->xf_formats, list_pointers) {
-  ///         if (format->has_fill)
-  ///             _write_fill(self, format, LXW_FALSE);
-  ///     }
+  for(const auto* format: xf_formats_)
+  {
+    if(format->has_fill_)
+    {
+      xml_data += write_fill(format, false);
+    }
+  }
 
   xml_data += xml_end_tag("fills");
 

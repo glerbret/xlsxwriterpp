@@ -581,6 +581,8 @@ private:
   // Iterate through the worksheets and set up the table objects.
   void prepare_tables();
 
+  void prepare_fills();
+
   void store_image_type(image_types_t image_type);
 
   [[nodiscard]] std::string write_workbook() const;
@@ -639,7 +641,7 @@ private:
 
   uint16_t font_count_     = 0;
   uint16_t border_count_   = 0;
-  ///     uint16_t fill_count;
+  uint16_t fill_count_     = 0;
   ///     uint8_t optimize;
   uint16_t max_url_length_ = 2079;
   ///     uint8_t read_only;
