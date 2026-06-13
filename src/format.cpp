@@ -285,10 +285,10 @@ void format_t::set_text_wrap()
 
 void format_t::set_pattern(format_patterns_t pattern)
 {
-///   if (value > LXW_PATTERN_GRAY_0625) {
-///     LXW_WARN_FORMAT1("format_set_pattern(): invalid pattern value: %d", value);
-///     return;
-///   }
+  ///   if (value > LXW_PATTERN_GRAY_0625) {
+  ///     LXW_WARN_FORMAT1("format_set_pattern(): invalid pattern value: %d", value);
+  ///     return;
+  ///   }
 
   pattern_ = pattern;
 }
@@ -316,9 +316,9 @@ void format_t::set_border(format_borders_t style)
 void format_t::set_border_color(color_t color)
 {
   bottom_color_ = color;
-  top_color_ = color;
-  left_color_ = color;
-  right_color_ = color;
+  top_color_    = color;
+  left_color_   = color;
+  right_color_  = color;
 }
 
 void format_t::set_bottom(format_borders_t style)
@@ -337,9 +337,9 @@ void format_t::set_left(format_borders_t style)
 }
 
 void format_t::set_left_color(color_t color)
- {
-   left_color_ = color;
- }
+{
+  left_color_ = color;
+}
 
 void format_t::set_right(format_borders_t style)
 {
@@ -361,26 +361,20 @@ void format_t::set_top_color(color_t color)
   top_color_ = color;
 }
 
-/// void format_set_diag_type(lxw_format *self, uint8_t type)
-/// {
-///   if (type >= LXW_DIAGONAL_BORDER_UP && type <= LXW_DIAGONAL_BORDER_UP_DOWN)
-///     self->diag_type = type;
-/// }
+void format_t::set_diag_type(format_diagonal_types_t type)
+{
+  diag_type_ = type;
+}
 
-/// void format_set_diag_color(lxw_format *self, lxw_color_t color)
-/// {
-///   self->diag_color = color;
-/// }
+void format_t::set_diag_color(color_t color)
+{
+  diag_color_ = color;
+}
 
-/// void format_set_diag_border(lxw_format *self, uint8_t style)
-/// {
-///   if (style > LXW_BORDER_SLANT_DASH_DOT) {
-///     LXW_WARN_FORMAT1("format_set_diag_border(): invalid border style: %d", style);
-///     return;
-///   }
-
-///   self->diag_border = style;
-/// }
+void format_t::set_diag_border(format_borders_t style)
+{
+  diag_border_ = style;
+}
 
 /// void format_set_num_format_index(lxw_format *self, uint8_t value)
 /// {

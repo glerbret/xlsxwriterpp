@@ -487,19 +487,19 @@ public:
    */
   void set_font_color(color_t color);
 
-/**
- * @brief Set the pattern foreground color for a cell.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell pattern foreground  color.
- *
- * The format_set_fg_color() method can be used to set the foreground color of
- * a pattern.
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- *
- */
- void set_fg_color(color_t color);
+  /**
+   * @brief Set the pattern foreground color for a cell.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell pattern foreground  color.
+   *
+   * The format_set_fg_color() method can be used to set the foreground color of
+   * a pattern.
+   *
+   * The color should be an RGB integer value, see @ref working_with_colors.
+   *
+   */
+  void set_fg_color(color_t color);
 
   /**
    * @brief Turn on underline for the format:
@@ -675,111 +675,181 @@ public:
    */
   void set_bg_color(color_t color);
 
-/**
- * @brief Set the background fill pattern for a cell
- *
- * @param format Pointer to a Format instance.
- * @param index  Pattern index.
- *
- * Set the background pattern for a cell.
- *
- * The most common pattern is a solid fill of the background color:
- *
- * @code
- *     format = workbook_add_format(workbook);
- *
- *     format_set_pattern (format, LXW_PATTERN_SOLID);
- *     format_set_bg_color(format, LXW_COLOR_YELLOW);
- * @endcode
- *
- * The available fill patterns are:
- *
- *    Fill Type                     | Define
- *    ----------------------------- | -----------------------------
- *    Solid                         | #LXW_PATTERN_SOLID
- *    Medium gray                   | #LXW_PATTERN_MEDIUM_GRAY
- *    Dark gray                     | #LXW_PATTERN_DARK_GRAY
- *    Light gray                    | #LXW_PATTERN_LIGHT_GRAY
- *    Dark horizontal line          | #LXW_PATTERN_DARK_HORIZONTAL
- *    Dark vertical line            | #LXW_PATTERN_DARK_VERTICAL
- *    Dark diagonal stripe          | #LXW_PATTERN_DARK_DOWN
- *    Reverse dark diagonal stripe  | #LXW_PATTERN_DARK_UP
- *    Dark grid                     | #LXW_PATTERN_DARK_GRID
- *    Dark trellis                  | #LXW_PATTERN_DARK_TRELLIS
- *    Light horizontal line         | #LXW_PATTERN_LIGHT_HORIZONTAL
- *    Light vertical line           | #LXW_PATTERN_LIGHT_VERTICAL
- *    Light diagonal stripe         | #LXW_PATTERN_LIGHT_DOWN
- *    Reverse light diagonal stripe | #LXW_PATTERN_LIGHT_UP
- *    Light grid                    | #LXW_PATTERN_LIGHT_GRID
- *    Light trellis                 | #LXW_PATTERN_LIGHT_TRELLIS
- *    12.5% gray                    | #LXW_PATTERN_GRAY_125
- *    6.25% gray                    | #LXW_PATTERN_GRAY_0625
- *
- */
-void set_pattern(format_patterns_t pattern);
+  /**
+   * @brief Set the background fill pattern for a cell
+   *
+   * @param format Pointer to a Format instance.
+   * @param index  Pattern index.
+   *
+   * Set the background pattern for a cell.
+   *
+   * The most common pattern is a solid fill of the background color:
+   *
+   * @code
+   *     format = workbook_add_format(workbook);
+   *
+   *     format_set_pattern (format, LXW_PATTERN_SOLID);
+   *     format_set_bg_color(format, LXW_COLOR_YELLOW);
+   * @endcode
+   *
+   * The available fill patterns are:
+   *
+   *    Fill Type                     | Define
+   *    ----------------------------- | -----------------------------
+   *    Solid                         | #LXW_PATTERN_SOLID
+   *    Medium gray                   | #LXW_PATTERN_MEDIUM_GRAY
+   *    Dark gray                     | #LXW_PATTERN_DARK_GRAY
+   *    Light gray                    | #LXW_PATTERN_LIGHT_GRAY
+   *    Dark horizontal line          | #LXW_PATTERN_DARK_HORIZONTAL
+   *    Dark vertical line            | #LXW_PATTERN_DARK_VERTICAL
+   *    Dark diagonal stripe          | #LXW_PATTERN_DARK_DOWN
+   *    Reverse dark diagonal stripe  | #LXW_PATTERN_DARK_UP
+   *    Dark grid                     | #LXW_PATTERN_DARK_GRID
+   *    Dark trellis                  | #LXW_PATTERN_DARK_TRELLIS
+   *    Light horizontal line         | #LXW_PATTERN_LIGHT_HORIZONTAL
+   *    Light vertical line           | #LXW_PATTERN_LIGHT_VERTICAL
+   *    Light diagonal stripe         | #LXW_PATTERN_LIGHT_DOWN
+   *    Reverse light diagonal stripe | #LXW_PATTERN_LIGHT_UP
+   *    Light grid                    | #LXW_PATTERN_LIGHT_GRID
+   *    Light trellis                 | #LXW_PATTERN_LIGHT_TRELLIS
+   *    12.5% gray                    | #LXW_PATTERN_GRAY_125
+   *    6.25% gray                    | #LXW_PATTERN_GRAY_0625
+   *
+   */
+  void set_pattern(format_patterns_t pattern);
 
-/**
- * @brief Set the color of the cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * Individual border elements can be configured using the following methods with
- * the same parameters:
- *
- * - format_set_bottom_color()
- * - format_set_top_color()
- * - format_set_left_color()
- * - format_set_right_color()
- *
- * Set the color of the cell borders. A cell border is comprised of a border
- * on the bottom, top, left and right. These can be set to the same color
- * using format_set_border_color() or individually using the relevant method
- * calls shown above.
- *
- * The color should be an RGB integer value, see @ref working_with_colors.
- */
-void set_border_color(color_t color);
+  /**
+   * @brief Set the color of the cell border.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell border color.
+   *
+   * Individual border elements can be configured using the following methods with
+   * the same parameters:
+   *
+   * - format_set_bottom_color()
+   * - format_set_top_color()
+   * - format_set_left_color()
+   * - format_set_right_color()
+   *
+   * Set the color of the cell borders. A cell border is comprised of a border
+   * on the bottom, top, left and right. These can be set to the same color
+   * using format_set_border_color() or individually using the relevant method
+   * calls shown above.
+   *
+   * The color should be an RGB integer value, see @ref working_with_colors.
+   */
+  void set_border_color(color_t color);
 
-/**
- * @brief Set the color of the bottom cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-void set_bottom_color(color_t color);
+  /**
+   * @brief Set the color of the bottom cell border.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell border color.
+   *
+   * See format_set_border_color() for details on the border colors.
+   */
+  void set_bottom_color(color_t color);
 
-/**
- * @brief Set the color of the top cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-void set_top_color(color_t color);
+  /**
+   * @brief Set the color of the top cell border.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell border color.
+   *
+   * See format_set_border_color() for details on the border colors.
+   */
+  void set_top_color(color_t color);
 
-/**
- * @brief Set the color of the left cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
-void set_left_color(color_t color);
+  /**
+   * @brief Set the color of the left cell border.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell border color.
+   *
+   * See format_set_border_color() for details on the border colors.
+   */
+  void set_left_color(color_t color);
 
-/**
- * @brief Set the color of the right cell border.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell border color.
- *
- * See format_set_border_color() for details on the border colors.
- */
- void set_right_color(color_t color);
+  /**
+   * @brief Set the color of the right cell border.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell border color.
+   *
+   * See format_set_border_color() for details on the border colors.
+   */
+  void set_right_color(color_t color);
+
+  /**
+   * @brief Set the diagonal cell border type.
+   *
+   * @param format Pointer to a Format instance.
+   * @param type   The #lxw_format_diagonal_types diagonal border type.
+   *
+   * Set the diagonal cell border type:
+   *
+   * @code
+   *     lxw_format *format1 = workbook_add_format(workbook);
+   *     format_set_diag_type(  format1, LXW_DIAGONAL_BORDER_UP);
+   *
+   *     lxw_format *format2 = workbook_add_format(workbook);
+   *     format_set_diag_type(  format2, LXW_DIAGONAL_BORDER_DOWN);
+   *
+   *     lxw_format *format3 = workbook_add_format(workbook);
+   *     format_set_diag_type(  format3, LXW_DIAGONAL_BORDER_UP_DOWN);
+   *
+   *     lxw_format *format4 = workbook_add_format(workbook);
+   *     format_set_diag_type(  format4, LXW_DIAGONAL_BORDER_UP_DOWN);
+   *     format_set_diag_border(format4, LXW_BORDER_HAIR);
+   *     format_set_diag_color( format4, LXW_COLOR_RED);
+   *
+   *     worksheet_write_string(worksheet, CELL("B3"),  "Text", format1);
+   *     worksheet_write_string(worksheet, CELL("B6"),  "Text", format2);
+   *     worksheet_write_string(worksheet, CELL("B9"),  "Text", format3);
+   *     worksheet_write_string(worksheet, CELL("B12"), "Text", format4);
+   * @endcode
+   *
+   * @image html diagonal_border.png
+   *
+   * The allowable border types are defined in #lxw_format_diagonal_types:
+   *
+   * - #LXW_DIAGONAL_BORDER_UP: Cell diagonal border from bottom left to top
+   *   right.
+   *
+   * - #LXW_DIAGONAL_BORDER_DOWN: Cell diagonal border from top left to bottom
+   *   right.
+   *
+   * - #LXW_DIAGONAL_BORDER_UP_DOWN: Cell diagonal border from top left to
+   *   bottom right. A combination of the 2 previous types.
+   *
+   * If the border style isn't specified with `format_set_diag_border()` then it
+   * will default to #LXW_BORDER_THIN.
+   */
+  void set_diag_type(format_diagonal_types_t type);
+
+  /**
+   * @brief Set the diagonal cell border style.
+   *
+   * @param format Pointer to a Format instance.
+   * @param style  The #lxw_format_borders style.
+   *
+   * Set the diagonal border style. This should be a #lxw_format_borders value.
+   * See the example above.
+   *
+   */
+  void set_diag_border(format_borders_t style);
+
+  /**
+   * @brief Set the diagonal cell border color.
+   *
+   * @param format Pointer to a Format instance.
+   * @param color  The cell diagonal border color.
+   *
+   * Set the diagonal border color. The color should be an RGB integer value,
+   * see @ref working_with_colors and the above example.
+   */
+  void set_diag_color(color_t color);
 
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
@@ -1214,76 +1284,6 @@ private:
  * @endcode
  */
 /// void format_set_shrink(lxw_format *format);
-
-/**
- * @brief Set the diagonal cell border type.
- *
- * @param format Pointer to a Format instance.
- * @param type   The #lxw_format_diagonal_types diagonal border type.
- *
- * Set the diagonal cell border type:
- *
- * @code
- *     lxw_format *format1 = workbook_add_format(workbook);
- *     format_set_diag_type(  format1, LXW_DIAGONAL_BORDER_UP);
- *
- *     lxw_format *format2 = workbook_add_format(workbook);
- *     format_set_diag_type(  format2, LXW_DIAGONAL_BORDER_DOWN);
- *
- *     lxw_format *format3 = workbook_add_format(workbook);
- *     format_set_diag_type(  format3, LXW_DIAGONAL_BORDER_UP_DOWN);
- *
- *     lxw_format *format4 = workbook_add_format(workbook);
- *     format_set_diag_type(  format4, LXW_DIAGONAL_BORDER_UP_DOWN);
- *     format_set_diag_border(format4, LXW_BORDER_HAIR);
- *     format_set_diag_color( format4, LXW_COLOR_RED);
- *
- *     worksheet_write_string(worksheet, CELL("B3"),  "Text", format1);
- *     worksheet_write_string(worksheet, CELL("B6"),  "Text", format2);
- *     worksheet_write_string(worksheet, CELL("B9"),  "Text", format3);
- *     worksheet_write_string(worksheet, CELL("B12"), "Text", format4);
- * @endcode
- *
- * @image html diagonal_border.png
- *
- * The allowable border types are defined in #lxw_format_diagonal_types:
- *
- * - #LXW_DIAGONAL_BORDER_UP: Cell diagonal border from bottom left to top
- *   right.
- *
- * - #LXW_DIAGONAL_BORDER_DOWN: Cell diagonal border from top left to bottom
- *   right.
- *
- * - #LXW_DIAGONAL_BORDER_UP_DOWN: Cell diagonal border from top left to
- *   bottom right. A combination of the 2 previous types.
- *
- * If the border style isn't specified with `format_set_diag_border()` then it
- * will default to #LXW_BORDER_THIN.
- */
-/// void format_set_diag_type(lxw_format *format, uint8_t type);
-
-/**
- * @brief Set the diagonal cell border style.
- *
- * @param format Pointer to a Format instance.
- * @param style  The #lxw_format_borders style.
- *
- * Set the diagonal border style. This should be a #lxw_format_borders value.
- * See the example above.
- *
- */
-/// void format_set_diag_border(lxw_format *format, uint8_t style);
-
-/**
- * @brief Set the diagonal cell border color.
- *
- * @param format Pointer to a Format instance.
- * @param color  The cell diagonal border color.
- *
- * Set the diagonal border color. The color should be an RGB integer value,
- * see @ref working_with_colors and the above example.
- */
-/// void format_set_diag_color(lxw_format *format, lxw_color_t color);
 
 /**
  * @brief Turn on quote prefix for the format.
