@@ -4250,76 +4250,107 @@ std::string worksheet_t::write_hyperlinks()
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_sheet_protection(lxw_worksheet *self,
-///                                   lxw_protection_obj *protect)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     if (!protect->is_configured)
-///         return;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (*protect->hash)
-///         LXW_PUSH_ATTRIBUTES_STR("password", protect->hash);
-///
-///     if (!protect->no_sheet)
-///         LXW_PUSH_ATTRIBUTES_INT("sheet", 1);
-///
-///     if (!protect->no_content)
-///         LXW_PUSH_ATTRIBUTES_INT("content", 1);
-///
-///     if (!protect->objects)
-///         LXW_PUSH_ATTRIBUTES_INT("objects", 1);
-///
-///     if (!protect->scenarios)
-///         LXW_PUSH_ATTRIBUTES_INT("scenarios", 1);
-///
-///     if (protect->format_cells)
-///         LXW_PUSH_ATTRIBUTES_INT("formatCells", 0);
-///
-///     if (protect->format_columns)
-///         LXW_PUSH_ATTRIBUTES_INT("formatColumns", 0);
-///
-///     if (protect->format_rows)
-///         LXW_PUSH_ATTRIBUTES_INT("formatRows", 0);
-///
-///     if (protect->insert_columns)
-///         LXW_PUSH_ATTRIBUTES_INT("insertColumns", 0);
-///
-///     if (protect->insert_rows)
-///         LXW_PUSH_ATTRIBUTES_INT("insertRows", 0);
-///
-///     if (protect->insert_hyperlinks)
-///         LXW_PUSH_ATTRIBUTES_INT("insertHyperlinks", 0);
-///
-///     if (protect->delete_columns)
-///         LXW_PUSH_ATTRIBUTES_INT("deleteColumns", 0);
-///
-///     if (protect->delete_rows)
-///         LXW_PUSH_ATTRIBUTES_INT("deleteRows", 0);
-///
-///     if (protect->no_select_locked_cells)
-///         LXW_PUSH_ATTRIBUTES_INT("selectLockedCells", 1);
-///
-///     if (protect->sort)
-///         LXW_PUSH_ATTRIBUTES_INT("sort", 0);
-///
-///     if (protect->autofilter)
-///         LXW_PUSH_ATTRIBUTES_INT("autoFilter", 0);
-///
-///     if (protect->pivot_tables)
-///         LXW_PUSH_ATTRIBUTES_INT("pivotTables", 0);
-///
-///     if (protect->no_select_unlocked_cells)
-///         LXW_PUSH_ATTRIBUTES_INT("selectUnlockedCells", 1);
-///
-///     lxw_xml_empty_tag(self->file, "sheetProtection", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_sheet_protection() const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(!protection_.is_configured_)
+  {
+    return "";
+  }
+
+  if(!protection_.hash_.empty())
+  {
+    attributes.emplace_back("password", protection_.hash_);
+  }
+
+  if(!protection_.no_sheet_)
+  {
+    attributes.emplace_back("sheet", "1");
+  }
+
+  if(!protection_.no_content_)
+  {
+    attributes.emplace_back("content", "1");
+  }
+
+  if(!protection_.objects_)
+  {
+    attributes.emplace_back("objects", "1");
+  }
+
+  if(!protection_.scenarios_)
+  {
+    attributes.emplace_back("scenarios", "1");
+  }
+
+  if(protection_.format_cells_)
+  {
+    attributes.emplace_back("formatCells", "0");
+  }
+
+  if(protection_.format_columns_)
+  {
+    attributes.emplace_back("formatColumns", "0");
+  }
+
+  if(protection_.format_rows_)
+  {
+    attributes.emplace_back("formatRows", "0");
+  }
+
+  if(protection_.insert_columns_)
+  {
+    attributes.emplace_back("insertColumns", "0");
+  }
+
+  if(protection_.insert_rows_)
+  {
+    attributes.emplace_back("insertRows", "0");
+  }
+
+  if(protection_.insert_hyperlinks_)
+  {
+    attributes.emplace_back("insertHyperlinks", "0");
+  }
+
+  if(protection_.delete_columns_)
+  {
+    attributes.emplace_back("deleteColumns", "0");
+  }
+
+  if(protection_.delete_rows_)
+  {
+    attributes.emplace_back("deleteRows", "0");
+  }
+
+  if(protection_.no_select_locked_cells_)
+  {
+    attributes.emplace_back("selectLockedCells", "1");
+  }
+
+  if(protection_.sort_)
+  {
+    attributes.emplace_back("sort", "0");
+  }
+
+  if(protection_.autofilter_)
+  {
+    attributes.emplace_back("autoFilter", "0");
+  }
+
+  if(protection_.pivot_tables_)
+  {
+    attributes.emplace_back("pivotTables", "0");
+  }
+
+  if(protection_.no_select_unlocked_cells_)
+  {
+    attributes.emplace_back("selectUnlockedCells", "1");
+  }
+
+  return xml_empty_tag("sheetProtection", attributes);
+}
 
 std::string worksheet_t::write_legacy_drawing()
 {
@@ -6309,8 +6340,8 @@ std::string worksheet_t::assemble_xml_file()
   ///     else
   ///         _worksheet_write_optimized_sheet_data(self);
 
-  /* Write the sheetProtection element. */
-  /// xml_data += write_sheet_protection(self, &self->protection);
+  // Write the sheetProtection element.
+  xml_data += write_sheet_protection();
 
   xml_data += write_auto_filter();
   xml_data += write_merge_cells();
@@ -8311,40 +8342,53 @@ void worksheet_t::set_tab_color(color_t color)
   tab_color_ = color;
 }
 
-/// void
-/// worksheet_protect(lxw_worksheet *self, const char *password,
-///                   lxw_protection *options)
-/// {
-///     struct lxw_protection_obj *protect = &self->protection;
-///
-///     /* Copy any user parameters to the internal structure. */
-///     if (options) {
-///         protect->no_select_locked_cells = options->no_select_locked_cells;
-///         protect->no_select_unlocked_cells = options->no_select_unlocked_cells;
-///         protect->format_cells = options->format_cells;
-///         protect->format_columns = options->format_columns;
-///         protect->format_rows = options->format_rows;
-///         protect->insert_columns = options->insert_columns;
-///         protect->insert_rows = options->insert_rows;
-///         protect->insert_hyperlinks = options->insert_hyperlinks;
-///         protect->delete_columns = options->delete_columns;
-///         protect->delete_rows = options->delete_rows;
-///         protect->sort = options->sort;
-///         protect->autofilter = options->autofilter;
-///         protect->pivot_tables = options->pivot_tables;
-///         protect->scenarios = options->scenarios;
-///         protect->objects = options->objects;
-///     }
-///
-///     if (password) {
-///         uint16_t hash = lxw_hash_password(password);
-///         lxw_snprintf(protect->hash, 5, "%X", hash);
-///     }
-///
-///     protect->no_sheet = LXW_FALSE;
-///     protect->no_content = LXW_TRUE;
-///     protect->is_configured = LXW_TRUE;
-/// }
+void worksheet_t::protect(const std::string& password)
+{
+  protect(password, std::nullopt);
+}
+
+void worksheet_t::protect(std::optional<protection_t> options)
+{
+  protect("", options);
+}
+
+void worksheet_t::protect()
+{
+  protect("", std::nullopt);
+}
+
+void worksheet_t::protect(const std::string& password, std::optional<protection_t> options)
+{
+  // Copy any user parameters to the internal structure.
+  if(options)
+  {
+    protection_.no_select_locked_cells_   = options->no_select_locked_cells_;
+    protection_.no_select_unlocked_cells_ = options->no_select_unlocked_cells_;
+    protection_.format_cells_             = options->format_cells_;
+    protection_.format_columns_           = options->format_columns_;
+    protection_.format_rows_              = options->format_rows_;
+    protection_.insert_columns_           = options->insert_columns_;
+    protection_.insert_rows_              = options->insert_rows_;
+    protection_.insert_hyperlinks_        = options->insert_hyperlinks_;
+    protection_.delete_columns_           = options->delete_columns_;
+    protection_.delete_rows_              = options->delete_rows_;
+    protection_.sort_                     = options->sort_;
+    protection_.autofilter_               = options->autofilter_;
+    protection_.pivot_tables_             = options->pivot_tables_;
+    protection_.scenarios_                = options->scenarios_;
+    protection_.objects_                  = options->objects_;
+  }
+
+  if(!password.empty())
+  {
+    const uint16_t hash = hash_password(password);
+    protection_.hash_   = std::format("{:5X}", hash);
+  }
+
+  protection_.no_sheet_      = false;
+  protection_.no_content_    = true;
+  protection_.is_configured_ = true;
+}
 
 /// void
 /// worksheet_outline_settings(lxw_worksheet *self,

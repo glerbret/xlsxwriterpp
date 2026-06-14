@@ -2044,83 +2044,83 @@ struct header_footer_options_t
 /**
  * @brief Worksheet protection options.
  */
-/// typedef struct lxw_protection {
-/** Turn off selection of locked cells. This in on in Excel by default.*/
-///     uint8_t no_select_locked_cells;
+struct protection_t
+{
+  /** Turn off selection of locked cells. This in on in Excel by default.*/
+  bool no_select_locked_cells_ = false;
 
-/** Turn off selection of unlocked cells. This in on in Excel by default.*/
-///     uint8_t no_select_unlocked_cells;
+  /** Turn off selection of unlocked cells. This in on in Excel by default.*/
+  bool no_select_unlocked_cells_ = false;
 
-/** Prevent formatting of cells. */
-///     uint8_t format_cells;
+  /** Prevent formatting of cells. */
+  bool format_cells_ = false;
 
-/** Prevent formatting of columns. */
-///     uint8_t format_columns;
+  /** Prevent formatting of columns. */
+  bool format_columns_ = false;
 
-/** Prevent formatting of rows. */
-///     uint8_t format_rows;
+  /** Prevent formatting of rows. */
+  bool format_rows_ = false;
 
-/** Prevent insertion of columns. */
-///     uint8_t insert_columns;
+  /** Prevent insertion of columns. */
+  bool insert_columns_ = false;
 
-/** Prevent insertion of rows. */
-///     uint8_t insert_rows;
+  /** Prevent insertion of rows. */
+  bool insert_rows_ = false;
 
-/** Prevent insertion of hyperlinks. */
-///     uint8_t insert_hyperlinks;
+  /** Prevent insertion of hyperlinks. */
+  bool insert_hyperlinks_ = false;
 
-/** Prevent deletion of columns. */
-///     uint8_t delete_columns;
+  /** Prevent deletion of columns. */
+  bool delete_columns_ = false;
 
-/** Prevent deletion of rows. */
-///     uint8_t delete_rows;
+  /** Prevent deletion of rows. */
+  bool delete_rows_ = false;
 
-/** Prevent sorting data. */
-///     uint8_t sort;
+  /** Prevent sorting data. */
+  bool sort_ = false;
 
-/** Prevent filtering data. */
-///     uint8_t autofilter;
+  /** Prevent filtering data. */
+  bool autofilter_ = false;
 
-/** Prevent insertion of pivot tables. */
-///     uint8_t pivot_tables;
+  /** Prevent insertion of pivot tables. */
+  bool pivot_tables_ = false;
 
-/** Protect scenarios. */
-///     uint8_t scenarios;
+  /** Protect scenarios. */
+  bool scenarios_ = false;
 
-/** Protect drawing objects. Worksheets only. */
-///     uint8_t objects;
+  /** Protect drawing objects. Worksheets only. */
+  bool objects_ = false;
 
-/** Turn off chartsheet content protection. */
-///     uint8_t no_content;
+  /** Turn off chartsheet content protection. */
+  bool no_content_ = false;
 
-/** Turn off chartsheet objects. */
-///     uint8_t no_objects;
-
-/// } lxw_protection;
+  /** Turn off chartsheet objects. */
+  bool no_objects_ = false;
+};
 
 // Internal struct to copy protection options and internal metadata.
 struct protection_obj_t
 {
-  ///     uint8_t no_select_locked_cells;
-  ///     uint8_t no_select_unlocked_cells;
-  ///     uint8_t format_cells;
-  ///     uint8_t format_columns;
-  ///     uint8_t format_rows;
-  ///     uint8_t insert_columns;
-  ///     uint8_t insert_rows;
-  ///     uint8_t insert_hyperlinks;
-  ///     uint8_t delete_columns;
-  ///     uint8_t delete_rows;
-  ///     uint8_t sort;
-  ///     uint8_t autofilter;
-  ///     uint8_t pivot_tables;
-  ///     uint8_t scenarios;
-  ///     uint8_t objects;
-  ///     uint8_t no_content;
-  ///     uint8_t no_objects;
-  ///     uint8_t no_sheet;
-  ///     uint8_t is_configured;
-  ///     char hash[5];
+  bool no_select_locked_cells_   = false;
+  bool no_select_unlocked_cells_ = false;
+  bool format_cells_             = false;
+  bool format_columns_           = false;
+  bool format_rows_              = false;
+  bool insert_columns_           = false;
+  bool insert_rows_              = false;
+  bool insert_hyperlinks_        = false;
+  bool delete_columns_           = false;
+  bool delete_rows_              = false;
+  bool sort_                     = false;
+  bool autofilter_               = false;
+  bool pivot_tables_             = false;
+  bool scenarios_                = false;
+  bool objects_                  = false;
+  bool no_content_               = false;
+  bool no_objects_               = false;
+  bool no_sheet_                 = false;
+  bool is_configured_            = false;
+  std::string hash_;
 };
 
 /**
@@ -3558,6 +3558,88 @@ public:
   void write_formula(row_num_t row, col_num_t col, const std::string& formula, const format_t* format);
   void write_formula(row_num_t row, col_num_t col, const std::string& formula);
 
+  /**
+   * @brief Protect elements of a worksheet from modification.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param password  A worksheet password.
+   * @param options   Worksheet elements to protect.
+   *
+   * The `%worksheet_protect()` function protects worksheet elements from
+   * modification:
+   *
+   * @code
+   *     worksheet_protect(worksheet, "Some Password", options);
+   * @endcode
+   *
+   * The `password` and lxw_protection pointer are both optional:
+   *
+   * @code
+   *     worksheet_protect(worksheet1, NULL,       NULL);
+   *     worksheet_protect(worksheet2, NULL,       my_options);
+   *     worksheet_protect(worksheet3, "password", NULL);
+   *     worksheet_protect(worksheet4, "password", my_options);
+   * @endcode
+   *
+   * Passing a `NULL` password is the same as turning on protection without a
+   * password. Passing a `NULL` password and `NULL` options, or any other
+   * combination has the effect of enabling a cell's `locked` and `hidden`
+   * properties if they have been set.
+   *
+   * A *locked* cell cannot be edited and this property is on by default for all
+   * cells. A *hidden* cell will display the results of a formula but not the
+   * formula itself. These properties can be set using the format_set_unlocked()
+   * and format_set_hidden() format functions.
+   *
+   * You can specify which worksheet elements you wish to protect by passing a
+   * lxw_protection pointer in the `options` argument with any or all of the
+   * following members set:
+   *
+   *     no_select_locked_cells
+   *     no_select_unlocked_cells
+   *     format_cells
+   *     format_columns
+   *     format_rows
+   *     insert_columns
+   *     insert_rows
+   *     insert_hyperlinks
+   *     delete_columns
+   *     delete_rows
+   *     sort
+   *     autofilter
+   *     pivot_tables
+   *     scenarios
+   *     objects
+   *
+   * All parameters are off by default. Individual elements can be protected as
+   * follows:
+   *
+   * @code
+   *     lxw_protection options = {
+   *         .format_cells             = 1,
+   *         .insert_hyperlinks        = 1,
+   *         .insert_rows              = 1,
+   *         .delete_rows              = 1,
+   *         .insert_columns           = 1,
+   *         .delete_columns           = 1,
+   *     };
+   *
+   *     worksheet_protect(worksheet, NULL, &options);
+   *
+   * @endcode
+   *
+   * See also the format_set_unlocked() and format_set_hidden() format functions.
+   *
+   * **Note:** Sheet level passwords in Excel offer **very** weak
+   * protection. They don't encrypt your data and are very easy to
+   * deactivate. Full workbook encryption is not supported by `Xlsxwriter++`
+   * since it requires a completely different file format.
+   */
+  void protect(const std::string& password, std::optional<protection_t> options);
+  void protect(const std::string& password);
+  void protect(std::optional<protection_t> options);
+  void protect();
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -3618,6 +3700,7 @@ private:
   [[nodiscard]] std::string write_merge_cell(const merged_range_t& merged_range) const;
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
+  [[nodiscard]] std::string write_sheet_protection() const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -3774,7 +3857,7 @@ private:
   ///     struct lxw_panes panes;
   ///     char top_left_cell[LXW_MAX_CELL_NAME_LENGTH];
 
-  ///     struct lxw_protection_obj protection;
+  protection_obj_t protection_;
 
   std::optional<drawing_t> drawing_;
   format_t* default_url_format_;
@@ -5726,86 +5809,6 @@ private:
  * @endcode
  */
 /// void worksheet_hide_zero(lxw_worksheet *worksheet);
-
-/**
- * @brief Protect elements of a worksheet from modification.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param password  A worksheet password.
- * @param options   Worksheet elements to protect.
- *
- * The `%worksheet_protect()` function protects worksheet elements from
- * modification:
- *
- * @code
- *     worksheet_protect(worksheet, "Some Password", options);
- * @endcode
- *
- * The `password` and lxw_protection pointer are both optional:
- *
- * @code
- *     worksheet_protect(worksheet1, NULL,       NULL);
- *     worksheet_protect(worksheet2, NULL,       my_options);
- *     worksheet_protect(worksheet3, "password", NULL);
- *     worksheet_protect(worksheet4, "password", my_options);
- * @endcode
- *
- * Passing a `NULL` password is the same as turning on protection without a
- * password. Passing a `NULL` password and `NULL` options, or any other
- * combination has the effect of enabling a cell's `locked` and `hidden`
- * properties if they have been set.
- *
- * A *locked* cell cannot be edited and this property is on by default for all
- * cells. A *hidden* cell will display the results of a formula but not the
- * formula itself. These properties can be set using the format_set_unlocked()
- * and format_set_hidden() format functions.
- *
- * You can specify which worksheet elements you wish to protect by passing a
- * lxw_protection pointer in the `options` argument with any or all of the
- * following members set:
- *
- *     no_select_locked_cells
- *     no_select_unlocked_cells
- *     format_cells
- *     format_columns
- *     format_rows
- *     insert_columns
- *     insert_rows
- *     insert_hyperlinks
- *     delete_columns
- *     delete_rows
- *     sort
- *     autofilter
- *     pivot_tables
- *     scenarios
- *     objects
- *
- * All parameters are off by default. Individual elements can be protected as
- * follows:
- *
- * @code
- *     lxw_protection options = {
- *         .format_cells             = 1,
- *         .insert_hyperlinks        = 1,
- *         .insert_rows              = 1,
- *         .delete_rows              = 1,
- *         .insert_columns           = 1,
- *         .delete_columns           = 1,
- *     };
- *
- *     worksheet_protect(worksheet, NULL, &options);
- *
- * @endcode
- *
- * See also the format_set_unlocked() and format_set_hidden() format functions.
- *
- * **Note:** Sheet level passwords in Excel offer **very** weak
- * protection. They don't encrypt your data and are very easy to
- * deactivate. Full workbook encryption is not supported by `Xlsxwriter++`
- * since it requires a completely different file format.
- */
-/// void worksheet_protect(lxw_worksheet *worksheet, const char *password,
-///                        lxw_protection *options);
 
 /**
  * @brief Set the Outline and Grouping display properties.

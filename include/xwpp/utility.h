@@ -285,7 +285,7 @@ double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
 ///         lxw_snprintf(data, LXW_ATTR_32, "%.16G", number)
 /// #endif
 
-/// uint16_t lxw_hash_password(const char *password);
+uint16_t hash_password(const std::string& password);
 
 }
 

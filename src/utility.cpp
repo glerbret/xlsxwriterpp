@@ -628,27 +628,26 @@ std::string quote_sheetname(std::string_view sheetname)
  * Office Open XML File Formats - Transitional Migration Features,
  * Additional attributes for workbookProtection element (Part 1, §18.2.29).
  */
-/// uint16_t
-/// lxw_hash_password(const char *password)
-/// {
-///     uint16_t byte_count = (uint16_t) strlen(password);
-///     uint16_t hash = 0;
-///     const char *p = &password[byte_count];
+uint16_t hash_password(const std::string& password)
+{
+  if(password.empty())
+  {
+    return 0;
+  }
 
-///     if (!byte_count)
-///         return hash;
+  uint16_t hash = 0;
+  for(auto it = std::crbegin(password); it != std::crend(password); ++it)
+  {
+    hash = ((hash >> 14) & 0x01) | ((hash << 1) & 0x7fff);
+    hash ^= *it & 0xFF;
+  }
 
-///     while (p-- != password) {
-///         hash = ((hash >> 14) & 0x01) | ((hash << 1) & 0x7fff);
-///         hash ^= *p & 0xFF;
-///     }
+  hash = ((hash >> 14) & 0x01) | ((hash << 1) & 0x7fff);
+  hash ^= password.size();
+  hash ^= 0xCE4B;
 
-///     hash = ((hash >> 14) & 0x01) | ((hash << 1) & 0x7fff);
-///     hash ^= byte_count;
-///     hash ^= 0xCE4B;
-
-///     return hash;
-/// }
+  return hash;
+}
 
 /* Make a simple portable version of fopen() for Windows. */
 
