@@ -338,6 +338,36 @@ cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* form
   return cell;
 }
 
+cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
+                        double result)
+{
+  cell_t cell;
+
+  cell.row_num_        = row_num;
+  cell.col_num_        = col_num;
+  cell.type_           = cell_types_t::FORMULA_CELL;
+  cell.format_         = const_cast<format_t*>(format);
+  cell.data_           = formula;
+  cell.formula_result_ = result;
+
+  return cell;
+}
+
+cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
+                        const std::string& result)
+{
+  cell_t cell;
+
+  cell.row_num_    = row_num;
+  cell.col_num_    = col_num;
+  cell.type_       = cell_types_t::FORMULA_CELL;
+  cell.format_     = const_cast<format_t*>(format);
+  cell.data_       = formula;
+  cell.user_data2_ = result;
+
+  return cell;
+}
+
 /*
  * This function handles the additional optional parameters to
  * worksheet_write_comment_opt() as well as calculating the comment object
@@ -537,22 +567,6 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
 ///     cell->type = INLINE_RICH_STRING_CELL;
 ///     cell->format = format;
 ///     cell->u.string = string;
-
-///     return cell;
-/// }
-
-/// STATIC cell_t *
-/// _new_formula_cell(row_num_t row_num,
-///                   col_num_t col_num, char *formula, lxw_format *format)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = FORMULA_CELL;
-///     cell->format = format;
-///     cell->u.string = formula;
 
 ///     return cell;
 /// }
@@ -3342,25 +3356,24 @@ std::string worksheet_t::write_string_cell(std::string_view range, int32_t style
 /*
  * Write out a formula worksheet cell with a numeric result.
  */
-/// STATIC void
-/// _write_formula_num_cell(lxw_worksheet *self, cell_t *cell)
-/// {
-///     char data[LXW_ATTR_32];
+std::string worksheet_t::write_formula_num_cell(const cell_t& cell) const
+{
+  std::string xml_data = xml_data_element("f", std::get<std::string>(cell.data_));
+  xml_data += xml_data_element("v", std::format("{}", cell.formula_result_));
 
-///     lxw_sprintf_dbl(data, cell->formula_result);
-///     lxw_xml_data_element(self->file, "f", cell->u.string, NULL);
-///     lxw_xml_data_element(self->file, "v", data, NULL);
-/// }
+  return xml_data;
+}
 
 /*
  * Write out a formula worksheet cell with a numeric result.
  */
-/// STATIC void
-/// _write_formula_str_cell(lxw_worksheet *self, cell_t *cell)
-/// {
-///     lxw_xml_data_element(self->file, "f", cell->u.string, NULL);
-///     lxw_xml_data_element(self->file, "v", cell->user_data2, NULL);
-/// }
+std::string worksheet_t::write_formula_str_cell(const cell_t& cell) const
+{
+  std::string xml_data = xml_data_element("f", std::get<std::string>(cell.data_));
+  xml_data += xml_data_element("v", cell.user_data2_);
+
+  return xml_data;
+}
 
 /*
  * Write out an array formula worksheet cell with a numeric result.
@@ -3459,22 +3472,30 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
     attributes.emplace_back("s", std::to_string(style_index));
   }
 
-  ///     if (cell->type == FORMULA_CELL) {
-  /* If user_data2 is set then the formula has a string result. */
-  ///         if (cell->user_data2)
-  ///             LXW_PUSH_ATTRIBUTES_STR("t", "str");
+  if(cell.type_ == cell_types_t::FORMULA_CELL)
+  {
+    // If user_data2 is set then the formula has a string result.
+    if(!cell.user_data2_.empty())
+    {
+      attributes.emplace_back("t", "str");
+    }
 
-  ///         lxw_xml_start_tag(self->file, "c", &attributes);
+    std::string xml_data = xml_start_tag("c", attributes);
 
-  ///         if (cell->user_data2)
-  ///             _write_formula_str_cell(self, cell);
-  ///         else
-  ///             _write_formula_num_cell(self, cell);
+    if(!cell.user_data2_.empty())
+    {
+      xml_data += write_formula_str_cell(cell);
+    }
+    else
+    {
+      xml_data += write_formula_num_cell(cell);
+    }
 
-  ///         lxw_xml_end_tag(self->file, "c");
-  ///     }
-  ///     else
-  if(cell.type_ == cell_types_t::BLANK_CELL)
+    xml_data += xml_end_tag("c");
+
+    return xml_data;
+  }
+  else if(cell.type_ == cell_types_t::BLANK_CELL)
   {
     if(cell.format_)
     {
@@ -6384,85 +6405,81 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
   insert_cell(row_num, col_num, cell);
 }
 
-/// lxw_error
-/// worksheet_write_formula_num(lxw_worksheet *self,
-///                             row_num_t row_num,
-///                             col_num_t col_num,
-///                             const char *formula,
-///                             lxw_format *format, double result)
-/// {
-///     cell_t *cell;
-///     char *formula_copy;
-///     lxw_error err;
-///
-///     if (!formula)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     if (lxw_str_is_empty(formula))
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Strip leading "=" from formula. */
-///     if (formula[0] == '=')
-///         formula_copy = lxw_strdup(formula + 1);
-///     else
-///         formula_copy = lxw_strdup(formula);
-///
-///     cell = _new_formula_cell(row_num, col_num, formula_copy, format);
-///     cell->formula_result = result;
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula, double result)
+{
+  write_formula_num(row_num, col_num, formula, nullptr, result);
+}
 
-/// lxw_error
-/// worksheet_write_formula_str(lxw_worksheet *self,
-///                             row_num_t row_num,
-///                             col_num_t col_num,
-///                             const char *formula,
-///                             lxw_format *format, const char *result)
-/// {
-///     cell_t *cell;
-///     char *formula_copy;
-///     lxw_error err;
-///
-///     if (!formula)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     if (lxw_str_is_empty(formula))
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Strip leading "=" from formula. */
-///     if (formula[0] == '=')
-///         formula_copy = lxw_strdup(formula + 1);
-///     else
-///         formula_copy = lxw_strdup(formula);
-///
-///     cell = _new_formula_cell(row_num, col_num, formula_copy, format);
-///     cell->user_data2 = lxw_strdup(result);
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                                    const format_t* format, double result)
+{
+  std::string formula_copy;
 
-/// lxw_error
-/// worksheet_write_formula(lxw_worksheet *self,
-///                         row_num_t row_num,
-///                         col_num_t col_num, const char *formula,
-///                         lxw_format *format)
-/// {
-///     return worksheet_write_formula_num(self, row_num, col_num, formula,
-///                                        format, 0);
-/// }
+  if(formula.empty())
+  {
+    throw xwpp_exception_t("Formula is empty");
+  }
+
+  check_dimensions(row_num, col_num, false, false);
+
+  // Strip leading "=" from formula.
+  if(formula[0] == '=')
+  {
+    formula_copy = formula.substr(1);
+  }
+  else
+  {
+    formula_copy = formula;
+  }
+
+  cell_t cell = new_formula_cell(row_num, col_num, formula_copy, format, result);
+
+  insert_cell(row_num, col_num, cell);
+}
+
+void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                                    const std::string& result)
+{
+  return write_formula_str(row_num, col_num, formula, nullptr, result);
+}
+
+void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                                    const format_t* format, const std::string& result)
+{
+  std::string formula_copy;
+
+  if(formula.empty())
+  {
+    throw xwpp_exception_t("Formula is empty");
+  }
+
+  check_dimensions(row_num, col_num, false, false);
+
+  // Strip leading "=" from formula.
+  if(formula[0] == '=')
+  {
+    formula_copy = formula.substr(1);
+  }
+  else
+  {
+    formula_copy = formula;
+  }
+
+  cell_t cell = new_formula_cell(row_num, col_num, formula_copy, format, result);
+
+  insert_cell(row_num, col_num, cell);
+}
+
+void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                                const format_t* format)
+{
+  write_formula_num(row_num, col_num, formula, format, 0);
+}
+
+void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula)
+{
+  write_formula(row_num, col_num, formula, nullptr);
+}
 
 /// lxw_error
 /// _store_array_formula(lxw_worksheet *self,

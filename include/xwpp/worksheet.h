@@ -796,7 +796,7 @@ struct cell_t
 
   std::variant<uint32_t, double, std::string> data_;
 
-  ///     double formula_result;
+  double formula_result_;
   std::string user_data1_;
   std::string user_data2_;
   std::string sst_string_;
@@ -3413,6 +3413,151 @@ public:
   void insert_comment(row_num_t row_num, col_num_t col_num, const cell_t& link);
   void insert_cell_placeholder(row_num_t row_num, col_num_t col_num);
 
+  /**
+   * @brief Write a formula to a worksheet cell with a user defined numeric
+   *        result.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param formula   Formula string to write to cell.
+   * @param format    A pointer to a Format instance or NULL.
+   * @param result    A user defined numeric result for the formula.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_formula_num()` function writes a formula or Excel
+   * function to the cell specified by `row` and `column` with a user defined
+   * numeric result:
+   *
+   * @code
+   *     // Required as a workaround only.
+   *     worksheet_write_formula_num(worksheet, 0, 0, "=1 + 2", NULL, 3);
+   * @endcode
+   *
+   * Xlsxwriter++ doesn't calculate the value of a formula and instead stores
+   * the value `0` as the formula result. It then sets a global flag in the XLSX
+   * file to say that all formulas and functions should be recalculated when the
+   * file is opened.
+   *
+   * This is the method recommended in the Excel documentation and in general it
+   * works fine with spreadsheet applications.
+   *
+   * However, applications that don't have a facility to calculate formulas,
+   * such as Excel Viewer, or some mobile applications will only display the `0`
+   * results.
+   *
+   * If required, the `%worksheet_write_formula_num()` function can be used to
+   * specify a formula and its result.
+   *
+   * This function is rarely required and is only provided for compatibility
+   * with some third party applications. For most applications the
+   * worksheet_write_formula() function is the recommended way of writing
+   * formulas.
+   *
+   * See also @ref working_with_formulas.
+   */
+  void write_formula_num(row_num_t row, col_num_t col, const std::string& formula, const format_t* format,
+                         double result);
+  void write_formula_num(row_num_t row, col_num_t col, const std::string& formula, double result);
+
+  /**
+   * @brief Write a formula to a worksheet cell with a user defined string
+   *        result.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param formula   Formula string to write to cell.
+   * @param format    A pointer to a Format instance or NULL.
+   * @param result    A user defined string result for the formula.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_formula_str()` function writes a formula or Excel
+   * function to the cell specified by `row` and `column` with a user defined
+   * string result:
+   *
+   * @code
+   *     // The example formula is A & B -> AB.
+   *     worksheet_write_formula_str(worksheet, 0, 0, "=\"A\" & \"B\"", NULL,
+   * "AB");
+   * @endcode
+   *
+   * The `%worksheet_write_formula_str()` function is similar to the
+   * `%worksheet_write_formula_num()` function except it writes a string result
+   * instead or a numeric result. See `worksheet_write_formula_num()`  for more
+   * details on why/when these functions are required.
+   *
+   * One place where the `%worksheet_write_formula_str()` function may be required
+   * is to specify an empty result which will force a recalculation of the formula
+   * when loaded in LibreOffice.
+   *
+   * @code
+   *     worksheet_write_formula_str(worksheet, 0, 0, "=Sheet1!$A$1", NULL, "");
+   * @endcode
+   *
+   * See the FAQ @ref faq_formula_zero.
+   *
+   * See also @ref working_with_formulas.
+   */
+  void write_formula_str(row_num_t row, col_num_t col, const std::string& formula, const format_t* format,
+                         const std::string& result);
+  void write_formula_str(row_num_t row, col_num_t col, const std::string& formula, const std::string& result);
+
+  /**
+   * @brief Write a formula to a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param formula   Formula string to write to cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_formula()` function writes a formula or function to
+   * the cell specified by `row` and `column`:
+   *
+   * @code
+   *  worksheet_write_formula(worksheet, 0, 0, "=B3 + 6", NULL);
+   *  worksheet_write_formula(worksheet, 1, 0, "=SIN(PI()/4)", NULL);
+   *  worksheet_write_formula(worksheet, 2, 0, "=SUM(A1:A2)", NULL);
+   *  worksheet_write_formula(worksheet, 3, 0, "=IF(A3>1,\"Yes\", \"No\")", NULL);
+   *  worksheet_write_formula(worksheet, 4, 0, "=AVERAGE(1, 2, 3, 4)", NULL);
+   *  worksheet_write_formula(worksheet, 5, 0, "=DATEVALUE(\"1-Jan-2013\")",
+   * NULL);
+   * @endcode
+   *
+   * @image html write_formula01.png
+   *
+   * The `format` parameter is used to apply formatting to the cell. This
+   * parameter can be `NULL` to indicate no formatting or it can be a
+   * @ref format.h "Format" object.
+   *
+   * Xlsxwriter++ doesn't calculate the value of a formula and instead stores a
+   * default value of `0`. The correct formula result is displayed in Excel, as
+   * shown in the example above, since it recalculates the formulas when it loads
+   * the file. For cases where this is an issue see the
+   * `worksheet_write_formula_num()` function and the discussion in that section.
+   *
+   * Formulas must be written with the US style separator/range operator which
+   * is a comma (not semi-colon). Therefore a formula with multiple values
+   * should be written as follows:
+   *
+   * @code
+   *     // OK.
+   *     worksheet_write_formula(worksheet, 0, 0, "=SUM(1, 2, 3)", NULL);
+   *
+   *     // NO. Error on load.
+   *     worksheet_write_formula(worksheet, 1, 0, "=SUM(1; 2; 3)", NULL);
+   * @endcode
+   *
+   * See also @ref working_with_formulas.
+   */
+  void write_formula(row_num_t row, col_num_t col, const std::string& formula, const format_t* format);
+  void write_formula(row_num_t row, col_num_t col, const std::string& formula);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -3471,7 +3616,8 @@ private:
   [[nodiscard]] std::string write_brk(uint32_t id, uint32_t max) const;
   [[nodiscard]] std::string write_tab_color() const;
   [[nodiscard]] std::string write_merge_cell(const merged_range_t& merged_range) const;
-  ///  [[nodiscard]] std::string () const;
+  [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
+  [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -3691,60 +3837,6 @@ private:
 ///     RB_ENTRY (lxw_drawing_rel_id) tree_pointers;
 /// } lxw_drawing_rel_id;
 
-/**
- * @brief Write a formula to a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param formula   Formula string to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_formula()` function writes a formula or function to
- * the cell specified by `row` and `column`:
- *
- * @code
- *  worksheet_write_formula(worksheet, 0, 0, "=B3 + 6", NULL);
- *  worksheet_write_formula(worksheet, 1, 0, "=SIN(PI()/4)", NULL);
- *  worksheet_write_formula(worksheet, 2, 0, "=SUM(A1:A2)", NULL);
- *  worksheet_write_formula(worksheet, 3, 0, "=IF(A3>1,\"Yes\", \"No\")", NULL);
- *  worksheet_write_formula(worksheet, 4, 0, "=AVERAGE(1, 2, 3, 4)", NULL);
- *  worksheet_write_formula(worksheet, 5, 0, "=DATEVALUE(\"1-Jan-2013\")",
- * NULL);
- * @endcode
- *
- * @image html write_formula01.png
- *
- * The `format` parameter is used to apply formatting to the cell. This
- * parameter can be `NULL` to indicate no formatting or it can be a
- * @ref format.h "Format" object.
- *
- * Xlsxwriter++ doesn't calculate the value of a formula and instead stores a
- * default value of `0`. The correct formula result is displayed in Excel, as
- * shown in the example above, since it recalculates the formulas when it loads
- * the file. For cases where this is an issue see the
- * `worksheet_write_formula_num()` function and the discussion in that section.
- *
- * Formulas must be written with the US style separator/range operator which
- * is a comma (not semi-colon). Therefore a formula with multiple values
- * should be written as follows:
- *
- * @code
- *     // OK.
- *     worksheet_write_formula(worksheet, 0, 0, "=SUM(1, 2, 3)", NULL);
- *
- *     // NO. Error on load.
- *     worksheet_write_formula(worksheet, 1, 0, "=SUM(1; 2; 3)", NULL);
- * @endcode
- *
- * See also @ref working_with_formulas.
- */
-/// lxw_error worksheet_write_formula(lxw_worksheet *worksheet,
-///                                   row_num_t row,
-///                                   col_num_t col, const char *formula,
-///                                   lxw_format *format);
 /**
  * @brief Write an array formula to a worksheet cell.
  *
@@ -3976,103 +4068,6 @@ private:
 /// lxw_error worksheet_write_boolean(lxw_worksheet *worksheet,
 ///                                   row_num_t row, col_num_t col,
 ///                                   int value, lxw_format *format);
-
-/**
- * @brief Write a formula to a worksheet cell with a user defined numeric
- *        result.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param formula   Formula string to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- * @param result    A user defined numeric result for the formula.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_formula_num()` function writes a formula or Excel
- * function to the cell specified by `row` and `column` with a user defined
- * numeric result:
- *
- * @code
- *     // Required as a workaround only.
- *     worksheet_write_formula_num(worksheet, 0, 0, "=1 + 2", NULL, 3);
- * @endcode
- *
- * Xlsxwriter++ doesn't calculate the value of a formula and instead stores
- * the value `0` as the formula result. It then sets a global flag in the XLSX
- * file to say that all formulas and functions should be recalculated when the
- * file is opened.
- *
- * This is the method recommended in the Excel documentation and in general it
- * works fine with spreadsheet applications.
- *
- * However, applications that don't have a facility to calculate formulas,
- * such as Excel Viewer, or some mobile applications will only display the `0`
- * results.
- *
- * If required, the `%worksheet_write_formula_num()` function can be used to
- * specify a formula and its result.
- *
- * This function is rarely required and is only provided for compatibility
- * with some third party applications. For most applications the
- * worksheet_write_formula() function is the recommended way of writing
- * formulas.
- *
- * See also @ref working_with_formulas.
- */
-/// lxw_error worksheet_write_formula_num(lxw_worksheet *worksheet,
-///                                       row_num_t row,
-///                                       col_num_t col,
-///                                       const char *formula,
-///                                       lxw_format *format, double result);
-
-/**
- * @brief Write a formula to a worksheet cell with a user defined string
- *        result.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param formula   Formula string to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- * @param result    A user defined string result for the formula.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_formula_str()` function writes a formula or Excel
- * function to the cell specified by `row` and `column` with a user defined
- * string result:
- *
- * @code
- *     // The example formula is A & B -> AB.
- *     worksheet_write_formula_str(worksheet, 0, 0, "=\"A\" & \"B\"", NULL,
- * "AB");
- * @endcode
- *
- * The `%worksheet_write_formula_str()` function is similar to the
- * `%worksheet_write_formula_num()` function except it writes a string result
- * instead or a numeric result. See `worksheet_write_formula_num()`  for more
- * details on why/when these functions are required.
- *
- * One place where the `%worksheet_write_formula_str()` function may be required
- * is to specify an empty result which will force a recalculation of the formula
- * when loaded in LibreOffice.
- *
- * @code
- *     worksheet_write_formula_str(worksheet, 0, 0, "=Sheet1!$A$1", NULL, "");
- * @endcode
- *
- * See the FAQ @ref faq_formula_zero.
- *
- * See also @ref working_with_formulas.
- */
-/// lxw_error worksheet_write_formula_str(lxw_worksheet *worksheet,
-///                                       row_num_t row,
-///                                       col_num_t col,
-///                                       const char *formula,
-///                                       lxw_format *format, const char
-///                                       *result);
 
 /**
  * @brief Write a "Rich" multi-format string to a worksheet cell.
