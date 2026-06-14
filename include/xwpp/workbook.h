@@ -555,6 +555,7 @@ public:
 private:
   // TODO packager_t needs to access to workbook field.
   friend class packager_t;
+  friend class rich_value_t;
 
   // TODO Should be provided to worksheet as callback
   int32_t get_xf_index(format_t* format);
@@ -608,7 +609,7 @@ private:
   ///     struct lxw_worksheet_names *worksheet_names;
   ///     struct lxw_chartsheet_names *chartsheet_names;
   std::map<std::string, uint32_t> image_md5_;
-  ///     struct lxw_image_md5s *embedded_image_md5s;
+  std::map<std::string, uint32_t> embedded_image_md5_;
   std::map<std::string, uint32_t> header_image_md5_;
   ///     struct lxw_image_md5s *background_md5s;
   ///     struct lxw_charts *charts;
@@ -625,19 +626,19 @@ private:
   ///     char *filename;
   ///     lxw_workbook_options options;
 
-  uint16_t num_sheets_       = 0; // TODO Needed ?
-  uint16_t num_worksheets_   = 0;
+  uint16_t num_sheets_          = 0; // TODO Needed ?
+  uint16_t num_worksheets_      = 0;
   ///     uint16_t num_chartsheets;
   ///     uint16_t first_sheet;
-  uint16_t active_sheet_     = 0;
+  uint16_t active_sheet_        = 0;
   ///     uint16_t num_xf_formats;
   ///     uint16_t num_dxf_formats;
-  uint16_t num_format_count_ = 0;
-  uint16_t drawing_count_    = 0;
-  uint16_t comment_count_    = 0;
-  ///     uint32_t num_embedded_images;
-  uint16_t window_width_     = 16095;
-  uint16_t window_height_    = 9660;
+  uint16_t num_format_count_    = 0;
+  uint16_t drawing_count_       = 0;
+  uint16_t comment_count_       = 0;
+  uint32_t num_embedded_images_ = 0;
+  uint16_t window_width_        = 16095;
+  uint16_t window_height_       = 9660;
 
   uint16_t font_count_     = 0;
   uint16_t border_count_   = 0;
@@ -646,16 +647,16 @@ private:
   uint16_t max_url_length_ = 2079;
   ///     uint8_t read_only;
 
-  bool has_png_      = false;
-  bool has_jpeg_     = false;
-  bool has_bmp_      = false;
-  bool has_gif_      = false;
-  bool has_vml_      = false;
-  bool has_comments_ = false;
-  ///     uint8_t has_metadata;
-  ///     uint8_t has_embedded_images;
-  ///     uint8_t has_dynamic_functions;
-  ///     uint8_t has_embedded_image_descriptions;
+  bool has_png_                         = false;
+  bool has_jpeg_                        = false;
+  bool has_bmp_                         = false;
+  bool has_gif_                         = false;
+  bool has_vml_                         = false;
+  bool has_comments_                    = false;
+  bool has_metadata_                    = false;
+  bool has_embedded_images_             = false;
+  bool has_dynamic_functions_           = false;
+  bool has_embedded_image_descriptions_ = false;
 
   // TODO Combine with unordered_set to optimize search and assure uniqueness.
   // TODO And encapsule this combination and related functions in a dedicated types.

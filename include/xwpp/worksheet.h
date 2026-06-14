@@ -1884,8 +1884,8 @@ struct object_properties_t
   bool is_background_ = false;
   std::string md5_;
   std::string image_position_;
-  bool decorative_ = false;
-  ///     lxw_format *format;
+  bool decorative_  = false;
+  format_t* format_ = nullptr;
 };
 
 /**
@@ -3640,6 +3640,63 @@ public:
   void protect(std::optional<protection_t> options);
   void protect();
 
+  /**
+   * @brief Embed an image in a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param filename  The image filename, with path if required.
+   *
+   * @return A #lxw_error code.
+   *
+   * This function can be used to embed a image into a worksheet cell and have the
+   * image automatically scale to the width and height of the cell. The X/Y
+   * scaling of the image is preserved but the size of the image is adjusted to
+   * fit the largest possible width or height depending on the cell dimensions.
+   *
+   * This is the equivalent of Excel's menu option to insert an image using the
+   * option to "Place in Cell" which is only available in Excel 365 versions from
+   * 2023 onwards. For older versions of Excel a `#VALUE!` error is displayed.
+   *
+   * @dontinclude embed_images.c
+   * @skip Change
+   * @until B6
+   *
+   * @image html embed_image.png
+   *
+   * The `worksheet_embed_image_opt()` function takes additional optional
+   * parameters to add urls or format the cell background, see below.
+   *
+   */
+  void embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename);
+
+  /**
+   * @brief Embed an image in a worksheet cell, with options.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param filename  The image filename, with path if required.
+   * @param options   Optional image parameters.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_embed_image_opt()` function is like
+   * `worksheet_embed_image()` function except that it takes an optional
+   * #lxw_image_options struct with the following members/options:
+   *
+   * - `description`: Optional description or "Alt text" for the image.
+   * - `decorative`: Optional parameter to mark image as decorative.
+   * - `url`: Add an optional hyperlink to the image.
+   * - `cell_format`: Add a format for the cell behind the embedded image.
+   *
+   */
+  // TODO Doesn't work on LibreOffice, to investigate
+  void embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
+                   std::optional<image_options_t> options);
+  void set_error_cell(const object_properties_t& object_props, uint32_t ref_id);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -3650,6 +3707,7 @@ private:
   // TODO To be reworked
   friend class packager_t;
   friend class workbook_t;
+  friend class rich_value_t;
 
   void check_dimensions(row_num_t row_num, col_num_t col_num, bool ignore_row, bool ignore_col);
 
@@ -3701,6 +3759,7 @@ private:
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_sheet_protection() const;
+  [[nodiscard]] std::string write_error_cell() const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -3736,7 +3795,7 @@ private:
   ///     struct lxw_data_validations *data_validations;
   ///     struct lxw_cond_format_hash *conditional_formats;
   std::vector<object_properties_t> image_props_;
-  ///     struct lxw_image_props *embedded_image_props;
+  std::vector<object_properties_t> embedded_image_props_;
   ///     struct lxw_chart_props *chart_data;
 
   std::map<std::string, uint32_t> drawing_rel_ids_;
@@ -4494,65 +4553,6 @@ private:
 ///                                           uint32_t pixels,
 ///                                           lxw_format *format,
 ///                                           lxw_row_col_options *options);
-
-/**
- * @brief Embed an image in a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param filename  The image filename, with path if required.
- *
- * @return A #lxw_error code.
- *
- * This function can be used to embed a image into a worksheet cell and have the
- * image automatically scale to the width and height of the cell. The X/Y
- * scaling of the image is preserved but the size of the image is adjusted to
- * fit the largest possible width or height depending on the cell dimensions.
- *
- * This is the equivalent of Excel's menu option to insert an image using the
- * option to "Place in Cell" which is only available in Excel 365 versions from
- * 2023 onwards. For older versions of Excel a `#VALUE!` error is displayed.
- *
- * @dontinclude embed_images.c
- * @skip Change
- * @until B6
- *
- * @image html embed_image.png
- *
- * The `worksheet_embed_image_opt()` function takes additional optional
- * parameters to add urls or format the cell background, see below.
- *
- */
-/// lxw_error worksheet_embed_image(lxw_worksheet *worksheet,
-///                                 row_num_t row, col_num_t col,
-///                                 const char *filename);
-
-/**
- * @brief Embed an image in a worksheet cell, with options.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param filename  The image filename, with path if required.
- * @param options   Optional image parameters.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_embed_image_opt()` function is like
- * `worksheet_embed_image()` function except that it takes an optional
- * #lxw_image_options struct with the following members/options:
- *
- * - `description`: Optional description or "Alt text" for the image.
- * - `decorative`: Optional parameter to mark image as decorative.
- * - `url`: Add an optional hyperlink to the image.
- * - `cell_format`: Add a format for the cell behind the embedded image.
- *
- */
-/// lxw_error worksheet_embed_image_opt(lxw_worksheet *worksheet,
-///                                     row_num_t row, col_num_t col,
-///                                     const char *filename,
-///                                     lxw_image_options *options);
 
 /**
  * @brief Embed an image in a worksheet cell, from a memory buffer.
@@ -6073,10 +6073,6 @@ private:
 /// void lxw_worksheet_write_sheet_pr(lxw_worksheet *worksheet);
 /// void lxw_worksheet_write_page_setup(lxw_worksheet *worksheet);
 /// void lxw_worksheet_write_header_footer(lxw_worksheet *worksheet);
-
-/// void worksheet_set_error_cell(lxw_worksheet *worksheet,
-///                               lxw_object_properties *object_props,
-///                               uint32_t ref_id);
 
 /// STATIC void _worksheet_xml_declaration(lxw_worksheet *worksheet);
 /// STATIC void _worksheet_write_worksheet(lxw_worksheet *worksheet);

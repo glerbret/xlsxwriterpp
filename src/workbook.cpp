@@ -768,8 +768,7 @@ void workbook_t::prepare_drawings()
     is_chartsheet          = false;
     //      }
 
-    if(worksheet.image_props_.empty() &&
-       ///             && STAILQ_EMPTY(worksheet->embedded_image_props)
+    if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() &&
        ///             && STAILQ_EMPTY(worksheet->chart_data)
        !worksheet.has_header_vml_
        ///             !worksheet->has_background_image
@@ -780,47 +779,35 @@ void workbook_t::prepare_drawings()
 
     drawing_id++;
 
-    /* Prepare embedded worksheet images. */
-    ///         STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
-    ///                        list_pointers) {
+    // Prepare embedded worksheet images.
+    for(auto& object_props: worksheet.embedded_image_props_)
+    {
+      store_image_type(object_props.image_type_);
 
-    ///             _store_image_type(self, object_props->image_type);
+      // Check for images with alt-text.
+      if(!object_props.description_.empty())
+      {
+        has_embedded_image_descriptions_ = true;
+      }
 
-    /* Check for images with alt-text. */
-    ///             if (object_props->description)
-    ///                 self->has_embedded_image_descriptions = LXW_TRUE;
+      // Check for duplicate images and only store the first instance.
+      uint32_t ref_id;
+      const auto it = embedded_image_md5_.find(object_props.md5_);
+      if(it != std::end(embedded_image_md5_))
+      {
+        ref_id                     = it->second;
+        object_props.is_duplicate_ = true;
+      }
+      else
+      {
+        image_ref_id++;
+        ref_id = image_ref_id;
+        num_embedded_images_++;
+        embedded_image_md5_[object_props.md5_] = ref_id;
+      }
 
-    /* Check for duplicate images and only store the first instance. */
-    ///             if (object_props->md5) {
-    ///                 tmp_image_md5.md5 = object_props->md5;
-    ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-    ///                                                 self->embedded_image_md5s,
-    ///                                                 &tmp_image_md5);
-    ///             }
-
-    ///             if (found_duplicate_image) {
-    ///                 ref_id = found_duplicate_image->id;
-    ///                 object_props->is_duplicate = LXW_TRUE;
-    ///             }
-    ///             else {
-    ///                 image_ref_id++;
-    ///                 ref_id = image_ref_id;
-    ///                 self->num_embedded_images++;
-
-    /// #ifndef USE_NO_MD5
-    ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-    /// #endif
-    ///                 if (new_image_md5 && object_props->md5) {
-    ///                     new_image_md5->id = ref_id;
-    ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
-
-    ///                     RB_INSERT(lxw_image_md5s, self->embedded_image_md5s,
-    ///                               new_image_md5);
-    ///                 }
-    ///             }
-
-    ///             worksheet_set_error_cell(worksheet, object_props, ref_id);
-    ///         }
+      worksheet.set_error_cell(object_props, ref_id);
+    }
 
     /* Prepare background images. */
     ///         if (worksheet->has_background_image) {
@@ -1645,26 +1632,29 @@ void workbook_t::save(std::string_view filename)
     }
   }
 
-  /* Set the active sheet and check if a metadata file is needed. */
-  ////    STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-  ////        if (sheet->is_chartsheet)
-  ////            continue;
-  ////        else
-  ////            worksheet = sheet->u.worksheet;
+  // Set the active sheet and check if a metadata file is needed.
+  for(auto& sheet: sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& worksheet = std::get<0>(sheet);
+      if(worksheet.index_ == active_sheet_)
+      {
+        worksheet.active_ = true;
+      }
 
-  ////        if (worksheet->index == self->active_sheet)
-  ////            worksheet->active = LXW_TRUE;
+      ////        if (worksheet->has_dynamic_functions) {
+      ////            self->has_metadata = LXW_TRUE;
+      ////            self->has_dynamic_functions = LXW_TRUE;
+      ////        }
 
-  ////        if (worksheet->has_dynamic_functions) {
-  ////            self->has_metadata = LXW_TRUE;
-  ////            self->has_dynamic_functions = LXW_TRUE;
-  ////        }
-
-  ////        if (!STAILQ_EMPTY(worksheet->embedded_image_props)) {
-  ////            self->has_metadata = LXW_TRUE;
-  ////            self->has_embedded_images = LXW_TRUE;
-  ////        }
-  ////}
+      if(!worksheet.embedded_image_props_.empty())
+      {
+        has_metadata_        = true;
+        has_embedded_images_ = true;
+      }
+    }
+  }
 
   /* Set workbook and worksheet VBA codenames if a macro has been added. */
   ////    if (self->vba_project) {

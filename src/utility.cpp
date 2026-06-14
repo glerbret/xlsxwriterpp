@@ -234,21 +234,28 @@ row_num_t name_to_row(const char* row_str)
   return row_num;
 }
 
-/// uint32_t
-/// lxw_name_to_row_2(const char *row_str)
-/// {
-///     if (!row_str)
-///         return 0;
+uint32_t name_to_row_2(const char* row_str)
+{
+  if(!row_str)
+  {
+    return 0;
+  }
 
-/* Find the : separator in the range. */
-///     while (*row_str && *row_str != ':')
-///         row_str++;
+  // Find the : separator in the range.
+  while(*row_str && *row_str != ':')
+  {
+    row_str++;
+  }
 
-///     if (*row_str)
-///         return lxw_name_to_row(++row_str);
-///     else
-///         return 0;
-/// }
+  if(*row_str)
+  {
+    return name_to_row(++row_str);
+  }
+  else
+  {
+    return 0;
+  }
+}
 
 // TODO String
 col_num_t name_to_col(const char* col_str)
@@ -278,21 +285,28 @@ col_num_t name_to_col(const char* col_str)
   return col_num;
 }
 
-/// uint16_t
-/// lxw_name_to_col_2(const char *col_str)
-/// {
-///     if (!col_str)
-///         return 0;
+uint16_t name_to_col_2(const char* col_str)
+{
+  if(!col_str)
+  {
+    return 0;
+  }
 
-/* Find the : separator in the range. */
-///     while (*col_str && *col_str != ':')
-///         col_str++;
+  // Find the : separator in the range.
+  while(*col_str && *col_str != ':')
+  {
+    col_str++;
+  }
 
-///     if (*col_str)
-///         return lxw_name_to_col(++col_str);
-///     else
-///         return 0;
-/// }
+  if(*col_str)
+  {
+    return name_to_col(++col_str);
+  }
+  else
+  {
+    return 0;
+  }
+}
 
 /// lxw_error
 /// lxw_datetime_validate(lxw_datetime *datetime)

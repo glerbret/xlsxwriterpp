@@ -51,7 +51,12 @@
 #include "xwpp/core.h"
 #include "xwpp/custom.h"
 #include "xwpp/exception.h"
+#include "xwpp/metadata.h"
 #include "xwpp/relationships.h"
+#include "xwpp/rich_value.h"
+#include "xwpp/rich_value_rel.h"
+#include "xwpp/rich_value_structure.h"
+#include "xwpp/rich_value_types.h"
 #include "xwpp/shared_strings.h"
 #include "xwpp/styles.h"
 #include "xwpp/theme.h"
@@ -245,43 +250,27 @@ void packager_t::write_image_files(const workbook_t& workbook)
     {
       auto& worksheet = std::get<0>(sheet);
 
-      if(!worksheet.image_props_.empty()
-         ///         || !worksheet->embedded_image_props.empty()
-      )
+      if(!worksheet.image_props_.empty() || !worksheet.embedded_image_props_.empty())
       {
-
-        ///     STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
-        ///                    list_pointers) {
-
-        ///       if (object_props->is_duplicate)
-        ///        continue;
-
-        ///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-        ///                    "xl/media/image%d.%s", index++,
-        ///                     object_props->extension);
-
-        ///       if (!object_props->is_image_buffer) {
-        /* Check that the image file exists and can be opened. */
-        ///         image_stream = lxw_fopen(object_props->filename, "rb");
-        ///         if (!image_stream) {
-        ///           LXW_WARN_FORMAT1("Error adding image to xlsx file: file "
-        ///                            "doesn't exist or can't be opened: %s.",
-        ///                            object_props->filename);
-        ///           return LXW_ERROR_CREATING_TMPFILE;
-        ///         }
-
-        ///         err = _add_file_to_zip(self, image_stream, filename);
-        ///         fclose(image_stream);
-        ///       }
-        ///       else {
-        ///         err = _add_buffer_to_zip(self,
-        ///                                  object_props->image_buffer,
-        ///                                  object_props->image_buffer_size,
-        ///                                  filename);
-        ///       }
-
-        ///       RETURN_ON_ERROR(err);
-        ///     }
+        for(const auto& object_props: worksheet.embedded_image_props_)
+        {
+          if(!object_props.is_duplicate_)
+          {
+            if(object_props.image_buffer_.empty())
+            {
+              // Read image.
+              std::ifstream image_stream(object_props.filename_, std::ios::binary);
+              std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+              add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
+            }
+            else
+            {
+              add_buffer_to_zip(object_props.image_buffer_,
+                                std::format("xl/media/image{}.{}", index, object_props.extension_));
+            }
+            index++;
+          }
+        }
 
         for(const auto& object_props: worksheet.image_props_)
         {
@@ -300,13 +289,6 @@ void packager_t::write_image_files(const workbook_t& workbook)
                                 std::format("xl/media/image{}.{}", index, object_props.extension_));
             }
             index++;
-            ///       }
-            ///       else {
-            ///         err = _add_buffer_to_zip(self,
-            ///                                  object_props->image_buffer,
-            ///                                  object_props->image_buffer_size,
-            ///                                  filename);
-            ///       }
           }
         }
       }
@@ -726,206 +708,60 @@ void packager_t::write_core_file(const workbook_t& workbook)
   add_buffer_to_zip(xml_data, "docProps/core.xml");
 }
 
-/// STATIC lxw_error
-/// _write_metadata_file(lxw_packager *self)
-/// {
-///     lxw_error err = LXW_NO_ERROR;
-///     lxw_metadata *metadata;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
+void packager_t::write_metadata_file(const workbook_t& workbook)
+{
+  if(workbook.has_metadata_)
+  {
+    metadata_t metadata{workbook.has_dynamic_functions_, workbook.has_embedded_images_, workbook.num_embedded_images_};
 
-///     if (!self->workbook->has_metadata)
-///         return LXW_NO_ERROR;
+    const std::string xml_data = metadata.assemble_xml_file();
+    add_buffer_to_zip(xml_data, "xl/metadata.xml");
+  }
+}
 
-///     metadata = lxw_metadata_new();
+void packager_t::write_rich_value_file(const workbook_t& workbook)
+{
+  if(!workbook.has_embedded_images_)
+  {
+    return;
+  }
 
-///     if (!metadata) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
+  rich_value_t rich_value;
+  const std::string xml_data = rich_value.assemble_xml_file(workbook);
+  add_buffer_to_zip(xml_data, "xl/richData/rdrichvalue.xml");
+}
 
-///     metadata->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!metadata->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
+void packager_t::write_rich_value_rel_file(const workbook_t& workbook)
+{
+  if(workbook.has_embedded_images_)
+  {
+    rich_value_rel_t rich_value_rel{workbook.num_embedded_images_};
 
-///     metadata->has_embedded_images = self->workbook->has_embedded_images;
-///     metadata->num_embedded_images = self->workbook->num_embedded_images;
-///     metadata->has_dynamic_functions = self->workbook->has_dynamic_functions;
+    const std::string xml_data = rich_value_rel.assemble_xml_file();
+    add_buffer_to_zip(xml_data, "xl/richData/richValueRel.xml");
+  }
+}
 
-///     lxw_metadata_assemble_xml_file(metadata);
+void packager_t::write_rich_value_types_file(const workbook_t& workbook)
+{
+  if(workbook.has_embedded_images_)
+  {
+    rich_value_types_t rich_value_types;
 
-///     err = _add_to_zip(self, metadata->file, &buffer, &buffer_size,
-///                       "xl/metadata.xml");
+    const std::string xml_data = rich_value_types.assemble_xml_file();
+    add_buffer_to_zip(xml_data, "xl/richData/rdRichValueTypes.xml");
+  }
+}
 
-///     fclose(metadata->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_metadata_free(metadata);
-
-///     return err;
-/// }
-
-/// STATIC lxw_error
-/// _write_rich_value_file(lxw_packager *self)
-/// {
-///     lxw_error err = LXW_NO_ERROR;
-///     lxw_rich_value *rich_value;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-
-///     if (!self->workbook->has_embedded_images)
-///         return LXW_NO_ERROR;
-
-///     rich_value = lxw_rich_value_new();
-///     if (!rich_value) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
-
-///     rich_value->workbook = self->workbook;
-
-///     rich_value->file =
-///         lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rich_value->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
-
-///     lxw_rich_value_assemble_xml_file(rich_value);
-
-///     err = _add_to_zip(self, rich_value->file, &buffer, &buffer_size,
-///                       "xl/richData/rdrichvalue.xml");
-
-///     fclose(rich_value->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_rich_value_free(rich_value);
-
-///     return err;
-/// }
-
-/// STATIC lxw_error
-/// _write_rich_value_rel_file(lxw_packager *self)
-/// {
-///     lxw_error err = LXW_NO_ERROR;
-///     lxw_rich_value_rel *rich_value_rel;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-
-///     if (!self->workbook->has_embedded_images)
-///         return LXW_NO_ERROR;
-
-///     rich_value_rel = lxw_rich_value_rel_new();
-///     if (!rich_value_rel) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
-
-///     rich_value_rel->num_embedded_images = self->workbook->num_embedded_images;
-
-///     rich_value_rel->file =
-///         lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rich_value_rel->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
-
-///     lxw_rich_value_rel_assemble_xml_file(rich_value_rel);
-
-///     err = _add_to_zip(self, rich_value_rel->file, &buffer, &buffer_size,
-///                       "xl/richData/richValueRel.xml");
-
-///     fclose(rich_value_rel->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_rich_value_rel_free(rich_value_rel);
-
-///     return err;
-/// }
-
-/// STATIC lxw_error
-/// _write_rich_value_types_file(lxw_packager *self)
-/// {
-///     lxw_error err = LXW_NO_ERROR;
-///     lxw_rich_value_types *rich_value_types;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-
-///     if (!self->workbook->has_embedded_images)
-///         return LXW_NO_ERROR;
-
-///     rich_value_types = lxw_rich_value_types_new();
-///     if (!rich_value_types) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
-
-///     rich_value_types->file =
-///         lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rich_value_types->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
-
-///     lxw_rich_value_types_assemble_xml_file(rich_value_types);
-
-///     err = _add_to_zip(self, rich_value_types->file, &buffer, &buffer_size,
-///                       "xl/richData/rdRichValueTypes.xml");
-
-///     fclose(rich_value_types->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_rich_value_types_free(rich_value_types);
-
-///     return err;
-/// }
-
-/// STATIC lxw_error
-/// _write_rich_value_structure_file(lxw_packager *self)
-/// {
-///     lxw_error err = LXW_NO_ERROR;
-///     lxw_rich_value_structure *rich_value_structure;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-
-///     if (!self->workbook->has_embedded_images)
-///         return LXW_NO_ERROR;
-
-///     rich_value_structure = lxw_rich_value_structure_new();
-///     if (!rich_value_structure) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
-
-///     rich_value_structure->has_embedded_image_descriptions =
-///         self->workbook->has_embedded_image_descriptions;
-
-///     rich_value_structure->file =
-///         lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rich_value_structure->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
-
-///     lxw_rich_value_structure_assemble_xml_file(rich_value_structure);
-
-///     err = _add_to_zip(self, rich_value_structure->file, &buffer, &buffer_size,
-///                       "xl/richData/rdrichvaluestructure.xml");
-
-///     fclose(rich_value_structure->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_rich_value_structure_free(rich_value_structure);
-
-///     return err;
-/// }
+void packager_t::write_rich_value_structure_file(const workbook_t& workbook)
+{
+  if(workbook.has_embedded_images_)
+  {
+    rich_value_structure_t rich_value_structure{workbook.has_embedded_image_descriptions_};
+    const std::string xml_data = rich_value_structure.assemble_xml_file();
+    add_buffer_to_zip(xml_data, "xl/richData/rdrichvaluestructure.xml");
+  }
+}
 
 void packager_t::write_custom_file(const workbook_t& workbook)
 {
@@ -1103,11 +939,15 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_custom_properties();
   }
 
-  ///     if (workbook->has_metadata)
-  ///         lxw_ct_add_metadata(content_types);
+  if(workbook.has_metadata_)
+  {
+    content_types.add_metadata();
+  }
 
-  ///     if (workbook->has_embedded_images)
-  ///         lxw_ct_add_rich_value(content_types);
+  if(workbook.has_embedded_images_)
+  {
+    content_types.add_rich_value();
+  }
 
   const std::string xml_data = content_types.assemble_xml_file();
   add_buffer_to_zip(xml_data, "[Content_Types].xml");
@@ -1154,12 +994,16 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
   ///         lxw_add_ms_package_relationship(rels, "/vbaProject",
   ///                                         "vbaProject.bin");
 
-  ///     if (workbook->has_metadata)
-  ///         lxw_add_document_relationship(rels, "/sheetMetadata",
-  ///         "metadata.xml");
+  if(workbook.has_metadata_)
+  {
+    relationships.add_document("/sheetMetadata", "metadata.xml");
+  }
 
-  ///     if (workbook->has_embedded_images)
-  ///         lxw_add_rich_value_relationship(rels);
+  if(workbook.has_embedded_images_)
+  {
+    relationships.add_rich_value();
+  }
+
   const std::string xml_data = relationships.assemble_xml_file();
   add_buffer_to_zip(xml_data, "xl/_rels/workbook.xml.rels");
 }
@@ -1369,69 +1213,38 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 ///     return err;
 /// }
 
-/// STATIC lxw_error
-/// _write_rich_value_rels_file(lxw_packager *self)
-/// {
-///     lxw_workbook *workbook = self->workbook;
-///     lxw_sheet *sheet;
-///     lxw_worksheet *worksheet;
-///     lxw_object_properties *object_props;
+void packager_t::write_rich_value_rels_file(const workbook_t& workbook)
+{
+  if(!workbook.has_embedded_images_)
+  {
+    return;
+  }
 
-///     lxw_relationships *rels;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-///     char target[LXW_FILENAME_LENGTH] = { 0 };
-///     lxw_error err = LXW_NO_ERROR;
-///     uint32_t index = 1;
+  relationships_t relationships;
 
-///     if (!workbook->has_embedded_images)
-///         return LXW_NO_ERROR;
+  for(size_t index = 1; const auto& sheet: workbook.sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      const auto& worksheet = std::get<0>(sheet);
+      if(!worksheet.embedded_image_props_.empty())
+      {
+        for(const auto& object_props: worksheet.embedded_image_props_)
+        {
 
-///     rels = lxw_relationships_new();
+          if(!object_props.is_duplicate_)
+          {
+            relationships.add_document("/image", std::format("../media/image{}.{}", index, object_props.extension_));
+            index++;
+          }
+        }
+      }
+    }
+  }
 
-///     rels->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rels->file) {
-///         lxw_free_relationships(rels);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///     }
-
-///     STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///         if (sheet->is_chartsheet)
-///             continue;
-///         else
-///             worksheet = sheet->u.worksheet;
-
-///         if (STAILQ_EMPTY(worksheet->embedded_image_props))
-///             continue;
-
-///         STAILQ_FOREACH(object_props, worksheet->embedded_image_props,
-///                        list_pointers) {
-
-///             if (object_props->is_duplicate)
-///                 continue;
-
-///             lxw_snprintf(target, LXW_FILENAME_LENGTH,
-///                          "../media/image%d.%s", index++,
-///                          object_props->extension);
-
-///             lxw_add_document_relationship(rels, "/image", target);
-///         }
-///     }
-
-///     lxw_snprintf(sheetname, LXW_FILENAME_LENGTH,
-///                  "xl/richData/_rels/richValueRel.xml.rels");
-
-///     lxw_relationships_assemble_xml_file(rels);
-
-///     err = _add_to_zip(self, rels->file, &buffer, &buffer_size, sheetname);
-
-///     fclose(rels->file);
-///     free(buffer);
-///     lxw_free_relationships(rels);
-
-///     return err;
-/// }
+  const std::string xml_data = relationships.assemble_xml_file();
+  add_buffer_to_zip(xml_data, "xl/richData/_rels/richValueRel.xml.rels");
+}
 
 void packager_t::write_root_rels_file(const workbook_t& workbook)
 {
@@ -1584,12 +1397,12 @@ void packager_t::create_package(workbook_t& workbook)
   ///     error = _add_vba_project_signature(self);
   ///     error = _write_vba_project_rels_file(self);
   write_core_file(workbook);
-  ///     error = _write_metadata_file(self);
-  ///     error = _write_rich_value_file(self);
-  ///     error = _write_rich_value_rel_file(self);
-  ///     error = _write_rich_value_types_file(self);
-  ///     error = _write_rich_value_structure_file(self);
-  ///     error = _write_rich_value_rels_file(self);
+  write_metadata_file(workbook);
+  write_rich_value_file(workbook);
+  write_rich_value_rel_file(workbook);
+  write_rich_value_types_file(workbook);
+  write_rich_value_structure_file(workbook);
+  write_rich_value_rels_file(workbook);
   write_app_file(workbook);
 
   // TODO Manage errors (exception)

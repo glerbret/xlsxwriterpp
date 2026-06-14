@@ -164,15 +164,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///     lxw_merged_ranges)); GOTO_LABEL_ON_MEM_ERROR(worksheet->merged_ranges,
   ///     mem_error); STAILQ_INIT(worksheet->merged_ranges);
 
-  ///     worksheet->image_props = calloc(1, sizeof(struct lxw_image_props));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->image_props, mem_error);
-  ///     STAILQ_INIT(worksheet->image_props);
-
-  ///     worksheet->embedded_image_props =
-  ///         calloc(1, sizeof(struct lxw_embedded_image_props));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->embedded_image_props, mem_error);
-  ///     STAILQ_INIT(worksheet->embedded_image_props);
-
   ///     worksheet->chart_data = calloc(1, sizeof(struct lxw_chart_props));
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->chart_data, mem_error);
   ///     STAILQ_INIT(worksheet->chart_data);
@@ -334,6 +325,19 @@ cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* form
   cell.col_num_ = col_num;
   cell.type_    = cell_types_t::BLANK_CELL;
   cell.format_  = const_cast<format_t*>(format);
+
+  return cell;
+}
+
+cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, const format_t* format)
+{
+  cell_t cell;
+
+  cell.row_num_ = row_num;
+  cell.col_num_ = col_num;
+  cell.type_    = cell_types_t::ERROR_CELL;
+  cell.format_  = const_cast<format_t*>(format);
+  cell.data_    = value;
 
   return cell;
 }
@@ -602,22 +606,6 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
 ///     cell->row_num = row_num;
 ///     cell->col_num = col_num;
 ///     cell->type = BOOLEAN_CELL;
-///     cell->format = format;
-///     cell->u.number = value;
-
-///     return cell;
-/// }
-
-/// STATIC cell_t *
-/// _new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value,
-///                 lxw_format *format)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = ERROR_CELL;
 ///     cell->format = format;
 ///     cell->u.number = value;
 
@@ -3418,11 +3406,10 @@ std::string worksheet_t::write_formula_str_cell(const cell_t& cell) const
 /*
  * Write out a error worksheet cell.
  */
-/// STATIC void
-/// _write_error_cell(lxw_worksheet *self)
-/// {
-///     lxw_xml_data_element(self->file, "v", "#VALUE!", NULL);
-/// }
+std::string worksheet_t::write_error_cell() const
+{
+  return xml_data_element("v", "#VALUE!");
+}
 
 std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row_format*/) const
 {
@@ -3519,13 +3506,16 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
   ///         _write_array_formula_num_cell(self, cell);
   ///         lxw_xml_end_tag(self->file, "c");
   ///     }
-  ///     else if (cell->type == ERROR_CELL) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("t", "e");
-  ///         LXW_PUSH_ATTRIBUTES_DBL("vm", cell->u.number);
-  ///         lxw_xml_start_tag(self->file, "c", &attributes);
-  ///         _write_error_cell(self);
-  ///         lxw_xml_end_tag(self->file, "c");
-  ///     }
+  else if(cell.type_ == cell_types_t::ERROR_CELL)
+  {
+    attributes.emplace_back("t", "e");
+    attributes.emplace_back("vm", std::format("{}", std::get<uint32_t>(cell.data_)));
+    std::string xml_data = xml_start_tag("c", attributes);
+    xml_data += write_error_cell();
+    xml_data += xml_end_tag("c");
+
+    return xml_data;
+  }
 
   return "";
 }
@@ -8538,108 +8528,80 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
   insert_image_buffer(row_num, col_num, image_buffer, std::nullopt);
 }
 
-/// lxw_error
-/// worksheet_embed_image_opt(lxw_worksheet *self,
-///                           row_num_t row_num, col_num_t col_num,
-///                           const char *filename,
-///                           lxw_image_options *user_options)
-/// {
-///     FILE *image_stream;
-///     lxw_object_properties *object_props;
-///     lxw_error err;
-///
-///     if (!filename) {
-///         LXW_WARN("worksheet_embed_image()/_opt(): "
-///                  "filename must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Check that the image file exists and can be opened. */
-///     image_stream = lxw_fopen(filename, "rb");
-///     if (!image_stream) {
-///         LXW_WARN_FORMAT1("worksheet_embed_image()/_opt(): "
-///                          "file doesn't exist or can't be opened: %s.",
-///                          filename);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Check and store the cell dimensions. */
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err) {
-///         fclose(image_stream);
-///         return err;
-///     }
-///
-///     /* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///
-///     /* We only copy/use a limited number of options for embedded images. */
-///     if (user_options) {
-///         if (user_options->cell_format)
-///             object_props->format = user_options->cell_format;
-///
-///         /* The url for embedded images is written as a cell url. */
-///         if (user_options->url) {
-///             if (!user_options->cell_format)
-///                 object_props->format = self->default_url_format;
-///
-///             self->storing_embedded_image = LXW_TRUE;
-///             err = worksheet_write_url(self,
-///                                       row_num,
-///                                       col_num,
-///                                       user_options->url,
-///                                       object_props->format);
-///             if (err) {
-///                 _free_object_properties(object_props);
-///                 fclose(image_stream);
-///                 return err;
-///             }
-///
-///             self->storing_embedded_image = LXW_FALSE;
-///         }
-///
-///         object_props->decorative = user_options->decorative;
-///         if (user_options->description)
-///             object_props->description = lxw_strdup(user_options->description);
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup(filename);
-///     object_props->stream = image_stream;
-///     object_props->row = row_num;
-///     object_props->col = col_num;
-///
-///     if (object_props->x_scale == 0.0)
-///         object_props->x_scale = 1;
-///
-///     if (object_props->y_scale == 0.0)
-///         object_props->y_scale = 1;
-///
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         STAILQ_INSERT_TAIL(self->embedded_image_props, object_props,
-///                            list_pointers);
-///         fclose(image_stream);
-///
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
+                              std::optional<image_options_t> options)
+{
+  if(filename.empty())
+  {
+    throw xwpp_exception_t("Image filename is empty");
+  }
 
-/// lxw_error
-/// worksheet_embed_image(lxw_worksheet *self,
-///                       row_num_t row_num, col_num_t col_num,
-///                       const char *filename)
-/// {
-///     return worksheet_embed_image_opt(self, row_num, col_num, filename, NULL);
-/// }
+  // Check that the image file exists and can be opened.
+  {
+    std::ifstream image_stream(filename);
+    if(!image_stream)
+    {
+      throw xwpp_exception_t(std::format("Image file {} doesn't exist or cannot be opened", filename));
+    }
+  }
+
+  // Check and store the cell dimensions.
+  check_dimensions(row_num, col_num, false, false);
+
+  // Create a new object to hold the image properties.
+  object_properties_t object_props;
+
+  // We only copy/use a limited number of options for embedded images.
+  if(options)
+  {
+    if(options->cell_format_)
+    {
+      object_props.format_ = options->cell_format_;
+    }
+
+    // The url for embedded images is written as a cell url.
+    if(!options->url_.empty())
+    {
+      if(!options->cell_format_)
+      {
+        object_props.format_ = default_url_format_;
+      }
+
+      // TODO Don't use a member data but a local variable
+      storing_embedded_image_ = true;
+      write_url(row_num, col_num, options->url_, object_props.format_);
+      storing_embedded_image_ = false;
+    }
+
+    object_props.decorative_ = options->decorative_;
+    if(!options->description_.empty())
+    {
+      object_props.description_ = options->description_;
+    }
+  }
+  // Copy other options or set defaults.
+  object_props.filename_ = filename;
+  object_props.row_      = row_num;
+  object_props.col_      = col_num;
+
+  if(object_props.x_scale_ == 0.0)
+  {
+    object_props.x_scale_ = 1;
+  }
+
+  if(object_props.y_scale_ == 0.0)
+  {
+    object_props.y_scale_ = 1;
+  }
+
+  get_image_properties(object_props);
+  embedded_image_props_.push_back(object_props);
+}
+
+void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename)
+{
+  embed_image(row_num, col_num, filename, std::nullopt);
+}
 
 /// lxw_error
 /// worksheet_embed_image_buffer_opt(lxw_worksheet *self,
@@ -9563,16 +9525,13 @@ void worksheet_t::show_comments()
 ///     return LXW_NO_ERROR;
 /// }
 
-/// void
-/// worksheet_set_error_cell(lxw_worksheet *self,
-///                          lxw_object_properties *object_props, uint32_t ref_id)
-/// {
-///     row_num_t row_num = object_props->row;
-///     col_num_t col_num = object_props->col;
-///
-///     cell_t *cell =
-///         _new_error_cell(row_num, col_num, ref_id, object_props->format);
-///     _insert_cell(self, row_num, col_num, cell);
-///
-/// }
+void worksheet_t::set_error_cell(const object_properties_t& object_props, uint32_t ref_id)
+{
+  row_num_t row_num = object_props.row_;
+  col_num_t col_num = object_props.col_;
+
+  cell_t cell = new_error_cell(row_num, col_num, ref_id, object_props.format_);
+  insert_cell(row_num, col_num, cell);
+}
+
 }

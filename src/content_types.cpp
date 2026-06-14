@@ -137,18 +137,18 @@ void content_types_t::add_custom_properties()
   add_override("/docProps/custom.xml", APP_DOCUMENT + "custom-properties+xml");
 }
 
-/// void lxw_ct_add_metadata(lxw_content_types *self)
-/// {
-///   lxw_ct_add_override(self, "/xl/metadata.xml", LXW_APP_DOCUMENT "spreadsheetml.sheetMetadata+xml");
-/// }
+void content_types_t::add_metadata()
+{
+  add_override("/xl/metadata.xml", APP_DOCUMENT + "spreadsheetml.sheetMetadata+xml");
+}
 
-/// void lxw_ct_add_rich_value(lxw_content_types *self)
-/// {
-///   lxw_ct_add_override(self, "/xl/richData/rdRichValueTypes.xml", LXW_APP_MSEXCEL "rdrichvaluetypes+xml");
-///   lxw_ct_add_override(self, "/xl/richData/rdrichvalue.xml", LXW_APP_MSEXCEL "rdrichvalue+xml");
-///   lxw_ct_add_override(self, "/xl/richData/rdrichvaluestructure.xml", LXW_APP_MSEXCEL "rdrichvaluestructure+xml");
-///   lxw_ct_add_override(self, "/xl/richData/richValueRel.xml", LXW_APP_MSEXCEL "richvaluerel+xml");
-/// }
+void content_types_t::add_rich_value()
+{
+  add_override("/xl/richData/rdRichValueTypes.xml", APP_MSEXCEL + "rdrichvaluetypes+xml");
+  add_override("/xl/richData/rdrichvalue.xml", APP_MSEXCEL + "rdrichvalue+xml");
+  add_override("/xl/richData/rdrichvaluestructure.xml", APP_MSEXCEL + "rdrichvaluestructure+xml");
+  add_override("/xl/richData/richValueRel.xml", APP_MSEXCEL + "richvaluerel+xml");
+}
 
 const std::string content_types_t::APP_PACKAGE{"application/vnd.openxmlformats-package."};
 const std::string content_types_t::APP_DOCUMENT{"application/vnd.openxmlformats-officedocument."};

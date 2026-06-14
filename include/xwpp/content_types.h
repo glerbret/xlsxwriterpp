@@ -31,6 +31,8 @@ public:
   void add_vml_name();
   void add_comment_name(std::string_view name);
   void add_drawing_name(std::string_view name);
+  void add_metadata();
+  void add_rich_value();
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -51,11 +53,7 @@ private:
 ///                            const char *name);
 /// void lxw_ct_add_table_name(lxw_content_types *content_types,
 ///                            const char *name);
-
 /// void lxw_ct_add_calc_chain(lxw_content_types *content_types);
-
-/// void lxw_ct_add_metadata(lxw_content_types *content_types);
-/// void lxw_ct_add_rich_value(lxw_content_types *content_types);
 /// STATIC void _content_types_xml_declaration(lxw_content_types *self);
 /// STATIC void _write_default(lxw_content_types *self, const char *ext,
 ///                            const char *type);

@@ -1,0 +1,32 @@
+/*
+ * Copyright 2026, Grégory Lerbret
+ *
+ * rich_value_types - A Xlsxwriter++ library for creating Excel XLSX rich_value_types files.
+ *
+ */
+
+#ifndef XWPP_RICH_VALUE_TYPES_H
+#define XWPP_RICH_VALUE_TYPES_H
+
+#include "xwpp/common.h"
+
+#include <cstdint>
+
+namespace xwpp
+{
+
+class rich_value_types_t
+{
+public:
+  [[nodiscard]] std::string assemble_xml_file() const;
+
+private:
+  [[nodiscard]] std::string write_rv_types_info() const;
+  [[nodiscard]] std::string write_flag(const std::string& name) const;
+  [[nodiscard]] std::string write_key(const std::string& name) const;
+  [[nodiscard]] std::string write_key_flags() const;
+};
+
+}
+
+#endif

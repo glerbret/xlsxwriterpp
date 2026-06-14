@@ -73,6 +73,12 @@ private:
   void write_drawing_rels_file(const workbook_t& workbook);
   void write_image_files(const workbook_t& workbook);
   void write_vml_drawing_rels_file(const worksheet_t& worksheet, uint32_t index);
+  void write_rich_value_rels_file(const workbook_t& workbook);
+  void write_metadata_file(const workbook_t& workbook);
+  void write_rich_value_file(const workbook_t& workbook);
+  void write_rich_value_rel_file(const workbook_t& workbook);
+  void write_rich_value_structure_file(const workbook_t& workbook);
+  void write_rich_value_types_file(const workbook_t& workbook);
 
   void add_buffer_to_zip(std::string_view buffer, const std::string& filename);
   void add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename);

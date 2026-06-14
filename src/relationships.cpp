@@ -91,23 +91,14 @@ void relationships_t::add_worksheet_relationship(std::string_view type, std::str
   add(SCHEMA_DOCUMENT, type, target, target_mode);
 }
 
-/// void
-/// lxw_add_rich_value_relationship(lxw_relationships *self)
-/// {
-///     _add_relationship(self,
-///                       "http://schemas.microsoft.com/office/2022/10/relationships/",
-///                       "richValueRel", "richData/richValueRel.xml", NULL);
-///     _add_relationship(self,
-///                       "http://schemas.microsoft.com/office/2017/06/relationships/",
-///                       "rdRichValue", "richData/rdrichvalue.xml", NULL);
-///     _add_relationship(self,
-///                       "http://schemas.microsoft.com/office/2017/06/relationships/",
-///                       "rdRichValueStructure",
-///                       "richData/rdrichvaluestructure.xml", NULL);
-///     _add_relationship(self,
-///                       "http://schemas.microsoft.com/office/2017/06/relationships/",
-///                       "rdRichValueTypes", "richData/rdRichValueTypes.xml",
-///                       NULL);
-/// }
+void relationships_t::add_rich_value()
+{
+  add("http://schemas.microsoft.com/office/2022/10/relationships/", "richValueRel", "richData/richValueRel.xml");
+  add("http://schemas.microsoft.com/office/2017/06/relationships/", "rdRichValue", "richData/rdrichvalue.xml");
+  add("http://schemas.microsoft.com/office/2017/06/relationships/", "rdRichValueStructure",
+      "richData/rdrichvaluestructure.xml");
+  add("http://schemas.microsoft.com/office/2017/06/relationships/", "rdRichValueTypes",
+      "richData/rdRichValueTypes.xml");
+}
 
 }

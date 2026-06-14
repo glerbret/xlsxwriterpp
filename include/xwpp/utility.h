@@ -40,7 +40,7 @@ namespace xwpp
  * This macro shouldn't be used in performance critical situations since it
  * expands to two function calls.
  */
-// TODO Replace by overload
+// TODO Replace by overload (same for other macros)
 #define CELL(cell) xwpp::name_to_row(cell), xwpp::name_to_col(cell)
 
 /**
@@ -58,8 +58,7 @@ namespace xwpp
  * @endcode
  *
  */
-/// #define COLS(cols) \
-///     lxw_name_to_col(cols), lxw_name_to_col_2(cols)
+#define COLS(cols) xwpp::name_to_col(cols), xwpp::name_to_col_2(cols)
 
 /**
  * @brief Convert an Excel `A1:B2` range into a `(first_row, first_col,
@@ -162,8 +161,8 @@ namespace xwpp
 uint32_t name_to_row(const char* row_str);
 uint16_t name_to_col(const char* col_str);
 
-/// uint32_t lxw_name_to_row_2(const char *row_str);
-/// uint16_t lxw_name_to_col_2(const char *col_str);
+uint32_t name_to_row_2(const char* row_str);
+uint16_t name_to_col_2(const char* col_str);
 
 /**
  * @brief Converts a #lxw_datetime to an Excel datetime number.
