@@ -46,6 +46,5 @@ int main()
   worksheet.write_string(row, col, "Total");
   worksheet.write_formula(row, col + 1, "=SUM(B1:B4)");
 
-  // Save the workbook and free any allocated memory.
   workbook.save("tutorial01.xlsx");
 }
