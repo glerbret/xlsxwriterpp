@@ -8484,7 +8484,7 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
 {
   if(image_buffer.empty())
   {
-    throw xwpp_exception_t("Image id empty");
+    throw xwpp_exception_t("Image is empty");
   }
 
   object_properties_t object_props;
@@ -8603,137 +8603,69 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
   embed_image(row_num, col_num, filename, std::nullopt);
 }
 
-/// lxw_error
-/// worksheet_embed_image_buffer_opt(lxw_worksheet *self,
-///                                  row_num_t row_num,
-///                                  col_num_t col_num,
-///                                  const unsigned char *image_buffer,
-///                                  size_t image_size,
-///                                  lxw_image_options *user_options)
-/// {
-///     FILE *image_stream;
-///     lxw_object_properties *object_props;
-///     lxw_error err;
-///
-///     if (!image_size) {
-///         LXW_WARN("worksheet_embed_image_buffer()/_opt(): "
-///                  "size must be non-zero.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Write the image buffer to a file (preferably in memory) so we can read
-///      * the dimensions like an ordinary file. For embedded images we really only
-///      * need the image type. */
-/// #ifdef USE_FMEMOPEN
-///     image_stream = fmemopen((void *) image_buffer, image_size, "rb");
-///
-///     if (!image_stream)
-///         return LXW_ERROR_CREATING_TMPFILE;
-/// #else
-///     image_stream = lxw_tmpfile(self->tmpdir);
-///
-///     if (!image_stream)
-///         return LXW_ERROR_CREATING_TMPFILE;
-///
-///     if (fwrite(image_buffer, 1, image_size, image_stream) != image_size) {
-///         fclose(image_stream);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///     }
-///
-///     rewind(image_stream);
-/// #endif
-///
-///     /* Check and store the cell dimensions. */
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///
-///     /* Store the image data in the properties structure. */
-///     object_props->image_buffer = calloc(1, image_size);
-///     if (!object_props->image_buffer) {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///     else {
-///         memcpy(object_props->image_buffer, image_buffer, image_size);
-///         object_props->image_buffer_size = image_size;
-///         object_props->is_image_buffer = LXW_TRUE;
-///     }
-///
-///     /* We only copy/use a limited number of options for embedded images. */
-///     if (user_options) {
-///         if (user_options->cell_format)
-///             object_props->format = user_options->cell_format;
-///
-///         /* The url for embedded images is written as a cell url. */
-///         if (user_options->url) {
-///             if (!user_options->cell_format)
-///                 object_props->format = self->default_url_format;
-///
-///             self->storing_embedded_image = LXW_TRUE;
-///             err = worksheet_write_url(self,
-///                                       row_num,
-///                                       col_num,
-///                                       user_options->url,
-///                                       object_props->format);
-///             if (err) {
-///                 _free_object_properties(object_props);
-///                 fclose(image_stream);
-///                 return err;
-///             }
-///
-///             self->storing_embedded_image = LXW_FALSE;
-///         }
-///
-///         object_props->decorative = user_options->decorative;
-///         if (user_options->description)
-///             object_props->description = lxw_strdup(user_options->description);
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup("image_buffer");
-///     object_props->stream = image_stream;
-///     object_props->row = row_num;
-///     object_props->col = col_num;
-///
-///     if (object_props->x_scale == 0.0)
-///         object_props->x_scale = 1;
-///
-///     if (object_props->y_scale == 0.0)
-///         object_props->y_scale = 1;
-///
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         STAILQ_INSERT_TAIL(self->embedded_image_props, object_props,
-///                            list_pointers);
-///         fclose(image_stream);
-///
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,std::optional<image_options_t> options)
+{
+  if(image_buffer.empty())
+  {
+    throw xwpp_exception_t("Image is empty");
+  }
 
-/// lxw_error
-/// worksheet_embed_image_buffer(lxw_worksheet *self,
-///                              row_num_t row_num,
-///                              col_num_t col_num,
-///                              const unsigned char *image_buffer,
-///                              size_t image_size)
-/// {
-///     return worksheet_embed_image_buffer_opt(self, row_num, col_num,
-///                                             image_buffer, image_size, NULL);
-/// }
+  check_dimensions(row_num, col_num, false, false);
+
+  object_properties_t object_props;
+  object_props.image_buffer_ = image_buffer;
+
+  // We only copy/use a limited number of options for embedded images.
+  if(options)
+  {
+    if(options->cell_format_)
+    {
+      object_props.format_ = options->cell_format_;
+    }
+
+    // The url for embedded images is written as a cell url.
+    if(!options->url_.empty())
+    {
+      if(!options->cell_format_)
+      {
+        object_props.format_ = default_url_format_;
+      }
+
+      // TODO Don't use a member data but a local variable
+      storing_embedded_image_ = true;
+      write_url(row_num, col_num, options->url_, object_props.format_);
+      storing_embedded_image_ = false;
+    }
+
+    object_props.decorative_ = options->decorative_;
+    if(!options->description_.empty())
+    {
+      object_props.description_ = options->description_;
+    }
+  }
+  // Copy other options or set defaults.
+  object_props.filename_ = "image_buffer";
+  object_props.row_      = row_num;
+  object_props.col_      = col_num;
+
+  if(object_props.x_scale_ == 0.0)
+  {
+    object_props.x_scale_ = 1;
+  }
+
+  if(object_props.y_scale_ == 0.0)
+  {
+    object_props.y_scale_ = 1;
+  }
+
+  get_image_properties(object_props);
+  embedded_image_props_.push_back(object_props);
+}
+
+void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer)
+{
+  embed_image_buffer(row_num, col_num, image_buffer, std::nullopt);
+}
 
 /// lxw_error
 /// worksheet_set_background(lxw_worksheet *self, const char *filename)

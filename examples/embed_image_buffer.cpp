@@ -1,16 +1,19 @@
 /*
  * An example of embedding an image from a memory buffer into a worksheet
- * using the libxlsxwriter library.
+ * using the Xlsxwriter++ library.
  *
- * Copyright 2014-2026 John McNamara, jmcnamara@cpan.org
+ * Copyright 2026, Grégory Lerbret
  *
  */
 
-#include "xlsxwriter.h"
+#include "xlsxwriterpp.h"
 
+#include <vector>
 
-/* Simple array with some PNG data. */
-unsigned char image_buffer[] = {
+int main()
+{
+  // Simple array with some PNG data.
+  const std::vector<unsigned char> image_buffer = {
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
     0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20,
     0x08, 0x02, 0x00, 0x00, 0x00, 0xfc, 0x18, 0xed, 0xa3, 0x00, 0x00, 0x00,
@@ -29,20 +32,12 @@ unsigned char image_buffer[] = {
     0xaa, 0x35, 0xdd, 0x4e, 0xe6, 0xd5, 0xa1, 0x22, 0x00, 0x00, 0x00, 0x00,
     0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
 };
+  // Create a new workbook and add a worksheet.
+  xwpp::workbook_t workbook;
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-unsigned int image_size = 200;
+  // Embed the image from the buffer.
+  worksheet.embed_image_buffer(CELL("B3"), image_buffer);
 
-
-int main() {
-
-    /* Create a new workbook and add a worksheet. */
-    lxw_workbook  *workbook  = workbook_new("embed_image_buffer.xlsx");
-    lxw_worksheet *worksheet = workbook_add_worksheet(workbook, NULL);
-
-    /* Embed the image from the buffer. */
-    worksheet_embed_image_buffer(worksheet, CELL("B3"), image_buffer, image_size);
-
-    workbook_close(workbook);
-
-    return 0;
+  workbook.save("embed_image_buffer.xlsx");
 }

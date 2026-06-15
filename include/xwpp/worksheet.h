@@ -3695,6 +3695,60 @@ public:
   // TODO Doesn't work on LibreOffice, to investigate
   void embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
                    std::optional<image_options_t> options);
+
+/**
+ * @brief Embed an image in a worksheet cell, from a memory buffer.
+ *
+ * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+ * @param row          The zero indexed row number.
+ * @param col          The zero indexed column number.
+ * @param image_buffer Pointer to an array of bytes that holds the image data.
+ * @param image_size   The size of the array of bytes.
+ *
+ * @return A #lxw_error code.
+ *
+ * This function can be used to embed a image into a worksheet from a memory
+ * buffer:
+ *
+ * @dontinclude embed_image_buffer.c
+ * @skip Embed
+ * @until B3
+ *
+ * @image html embed_image_buffer.png
+ *
+ * The buffer should be a pointer to an array of unsigned char data with a
+ * specified size.
+ *
+ * See `worksheet_embed_image()` for details about the supported image
+ * formats, and other image features.
+ */
+void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer);
+
+/**
+ * @brief Embed an image in a worksheet cell, from a memory buffer.
+ *
+ * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+ * @param row          The zero indexed row number.
+ * @param col          The zero indexed column number.
+ * @param image_buffer Pointer to an array of bytes that holds the image data.
+ * @param image_size   The size of the array of bytes.
+ * @param options      Optional image parameters.
+ *
+ * @return A #lxw_error code.
+ *
+ * The `%worksheet_embed_image_buffer_opt()` function is like
+ * `worksheet_embed_image_buffer()` function except that it takes an optional
+ * #lxw_image_options struct with the following members/options:
+ *
+ * - `description`: Optional description or "Alt text" for the image.
+ * - `decorative`: Optional parameter to mark image as decorative.
+ * - `url`: Add an optional hyperlink to the image.
+ * - `cell_format`: Add a format for the cell behind the embedded image.
+ *
+ */
+void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,std::optional<image_options_t> options);
+
+
   void set_error_cell(const object_properties_t& object_props, uint32_t ref_id);
 
   static const size_t MAX_NUMBER_URLS = 65530;
@@ -4553,67 +4607,6 @@ private:
 ///                                           uint32_t pixels,
 ///                                           lxw_format *format,
 ///                                           lxw_row_col_options *options);
-
-/**
- * @brief Embed an image in a worksheet cell, from a memory buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- *
- * @return A #lxw_error code.
- *
- * This function can be used to embed a image into a worksheet from a memory
- * buffer:
- *
- * @dontinclude embed_image_buffer.c
- * @skip Embed
- * @until B3
- *
- * @image html embed_image_buffer.png
- *
- * The buffer should be a pointer to an array of unsigned char data with a
- * specified size.
- *
- * See `worksheet_embed_image()` for details about the supported image
- * formats, and other image features.
- */
-/// lxw_error worksheet_embed_image_buffer(lxw_worksheet *worksheet,
-///                                        row_num_t row,
-///                                        col_num_t col,
-///                                        const unsigned char *image_buffer,
-///                                        size_t image_size);
-
-/**
- * @brief Embed an image in a worksheet cell, from a memory buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- * @param options      Optional image parameters.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_embed_image_buffer_opt()` function is like
- * `worksheet_embed_image_buffer()` function except that it takes an optional
- * #lxw_image_options struct with the following members/options:
- *
- * - `description`: Optional description or "Alt text" for the image.
- * - `decorative`: Optional parameter to mark image as decorative.
- * - `url`: Add an optional hyperlink to the image.
- * - `cell_format`: Add a format for the cell behind the embedded image.
- *
- */
-/// lxw_error worksheet_embed_image_buffer_opt(lxw_worksheet *worksheet,
-///                                            row_num_t row,
-///                                            col_num_t col,
-///                                            const unsigned char
-///                                            *image_buffer, size_t image_size,
-///                                            lxw_image_options *options);
 
 /**
  * @brief Set the background image for a worksheet.
