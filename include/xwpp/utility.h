@@ -142,10 +142,7 @@ namespace xwpp
 [[nodiscard]] std::string col_to_name(col_num_t col_num, bool absolute);
 [[nodiscard]] std::string rowcol_to_cell(row_num_t row, col_num_t col);
 
-/// void lxw_rowcol_to_cell_abs(char *cell_name,
-///                             row_num_t row,
-///                             col_num_t col, uint8_t abs_row, uint8_t
-///                             abs_col);
+[[nodiscard]]std::string rowcol_to_cell_abs(row_num_t row, col_num_t col, bool abs_row, bool abs_col);
 
 [[nodiscard]] std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                           col_num_t last_col);
@@ -154,10 +151,9 @@ namespace xwpp
 ///                              row_num_t first_row, col_num_t first_col,
 ///                              row_num_t last_row, col_num_t last_col);
 
-/// void lxw_rowcol_to_formula_abs(char *formula, const char *sheetname,
-///                                row_num_t first_row, col_num_t first_col,
-///                                row_num_t last_row, col_num_t last_col);
+std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
+// TODO String
 uint32_t name_to_row(const char* row_str);
 uint16_t name_to_col(const char* col_str);
 

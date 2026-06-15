@@ -510,212 +510,192 @@ void workbook_t::prepare_workbook()
  * chart is embedded in another application such as PowerPoint and it also
  * helps with comparison testing.
  */
-/// STATIC void _populate_range_data_cache(lxw_workbook *self, lxw_series_range *range)
-/// {
-///     lxw_worksheet *worksheet;
-///     row_num_t row_num;
-///     col_num_t col_num;
-///     row_t *row_obj;
-///     cell_t *cell_obj;
-///     struct lxw_series_data_point *data_point;
-///     uint16_t num_data_points = 0;
+void workbook_t::populate_range_data_cache(series_range_t& range)
+{
+  ///     lxw_worksheet *worksheet;
+  ///     row_num_t row_num;
+  ///     col_num_t col_num;
+  ///     row_t *row_obj;
+  ///     cell_t *cell_obj;
+  ///     struct lxw_series_data_point *data_point;
+  uint16_t num_data_points = 0;
 
-/* If ignore_cache is set then don't try to populate the cache. This flag
- * may be set manually, for testing, or due to a case where the cache
- * can't be calculated.
- */
-///     if (range->ignore_cache)
-///         return;
+  // If ignore_cache is set then don't try to populate the cache. This flag
+  // may be set manually, for testing, or due to a case where the cache can't be calculated.
+  if(range.ignore_cache_)
+  {
+    return;
+  }
 
-/* Currently we only handle 2D ranges so ensure either the rows or cols
- * are the same.
- */
-///     if (range->first_row != range->last_row
-///         && range->first_col != range->last_col) {
-///         range->ignore_cache = LXW_TRUE;
-///         return;
-///     }
+  // Currently we only handle 2D ranges so ensure either the rows or cols are the same.
+  if(range.first_row_ != range.last_row_ && range.first_col_ != range.last_col_)
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
 
-/* Check that the sheetname exists. */
-///     worksheet = workbook_get_worksheet_by_name(self, range->sheetname);
-///     if (!worksheet) {
-///         LXW_WARN_FORMAT2("workbook_add_chart(): worksheet name '%s' "
-///                          "in chart formula '%s' doesn't exist.",
-///                          range->sheetname, range->formula);
-///         range->ignore_cache = LXW_TRUE;
-///         return;
-///     }
+  // Check that the sheetname exists.
+  const worksheet_t* worksheet = get_worksheet_by_name(range.sheetname_);
+  if(worksheet == nullptr)
+  {
+    range.ignore_cache_ = true;
+    throw xwpp_exception_t(
+        std::format("Sheetname {} in chart formula {} doesn't exist", range.sheetname_, range.formula_));
+  }
 
-/* We can't read the data when worksheet optimization is on. */
-///     if (worksheet->optimize) {
-///         range->ignore_cache = LXW_TRUE;
-///         return;
-///     }
+  /* We can't read the data when worksheet optimization is on. */
+  ///     if (worksheet->optimize) {
+  ///         range->ignore_cache = LXW_TRUE;
+  ///         return;
+  ///     }
 
-/* Iterate through the worksheet data and populate the range cache. */
-///     for (row_num = range->first_row; row_num <= range->last_row; row_num++) {
-///         row_obj = lxw_worksheet_find_row(worksheet, row_num);
+  // ICI
+  // Iterate through the worksheet data and populate the range cache.
+  for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
+  {
+    const row_t* row_obj = worksheet->find_row(row_num);
+    for(col_num_t col_num = range.first_col_; col_num <= range.last_col_; col_num++)
+    {
+      series_data_point_t data_point;
+      const cell_t* cell_obj = worksheet->find_cell_in_row(row_obj, col_num);
 
-///         for (col_num = range->first_col; col_num <= range->last_col;
-///              col_num++) {
+      if(cell_obj)
+      {
+        if(cell_obj->type_ == cell_types_t::NUMBER_CELL)
+        {
+          data_point.number_ = std::get<double>(cell_obj->data_);
+        }
 
-///             data_point = calloc(1, sizeof(struct lxw_series_data_point));
-///             if (!data_point) {
-///                 range->ignore_cache = LXW_TRUE;
-///                 return;
-///             }
+        if(cell_obj->type_ == cell_types_t::STRING_CELL)
+        {
+          data_point.str_         = cell_obj->sst_string_;
+          data_point.is_string_   = true;
+          range.has_string_cache_ = true;
+        }
+      }
+      else
+      {
+        data_point.no_data_ = true;
+      }
 
-///             cell_obj = lxw_worksheet_find_cell_in_row(row_obj, col_num);
-
-///             if (cell_obj) {
-///                 if (cell_obj->type == NUMBER_CELL) {
-///                     data_point->number = cell_obj->u.number;
-///                 }
-
-///                 if (cell_obj->type == STRING_CELL) {
-///                     data_point->string = lxw_strdup(cell_obj->sst_string);
-///                     data_point->is_string = LXW_TRUE;
-///                     range->has_string_cache = LXW_TRUE;
-///                 }
-///             }
-///             else {
-///                 data_point->no_data = LXW_TRUE;
-///             }
-
-///             STAILQ_INSERT_TAIL(range->data_cache, data_point, list_pointers);
-///             num_data_points++;
-///         }
-///     }
-
-///     range->num_data_points = num_data_points;
-/// }
+      range.data_cache_.push_back(data_point);
+      num_data_points++;
+    }
+  }
+  range.num_data_points_ = num_data_points;
+}
 
 /* Convert a chart range such as Sheet1!$A$1:$A$5 to a sheet name and row-col
  * dimensions, or vice-versa. This gives us the dimensions to read data back
  * from the worksheet.
  */
-/// STATIC void _populate_range_dimensions(lxw_workbook *self, lxw_series_range *range)
-/// {
-///     char formula[LXW_MAX_FORMULA_RANGE_LENGTH] = { 0 };
-///     char *tmp_str;
-///     char *sheetname;
+void workbook_t::populate_range_dimensions(series_range_t& range)
+{
+  // If neither the range formula or sheetname is defined then this probably
+  // isn't a valid range.
+  if(range.formula_.empty() && range.sheetname_.empty())
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
 
-/* If neither the range formula or sheetname is defined then this probably
- * isn't a valid range.
- */
-///     if (!range->formula && !range->sheetname) {
-///         range->ignore_cache = LXW_TRUE;
-///         return;
-///     }
+  // If the sheetname is already defined it was already set via
+  // chart_series_set_categories() or  chart_series_set_values().
+  if(!range.sheetname_.empty())
+  {
+    return;
+  }
 
-/* If the sheetname is already defined it was already set via
- * chart_series_set_categories() or  chart_series_set_values().
- */
-///     if (range->sheetname)
-///         return;
+  // Ignore non-contiguous range like (Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5)
+  if(range.formula_[0] == '(')
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
 
-/* Ignore non-contiguous range like (Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5) */
-///     if (range->formula[0] == '(') {
-///         range->ignore_cache = LXW_TRUE;
-///         return;
-///     }
+  // Create a copy of the formula to modify and parse into parts.
+  std::string formula = range.formula_;
 
-/* Create a copy of the formula to modify and parse into parts. */
-///     lxw_snprintf(formula, LXW_MAX_FORMULA_RANGE_LENGTH, "%s", range->formula);
+  // Check for valid formula. Note, This needs stronger validation.
+  size_t found_string = formula.find('!');
+  if(found_string == std::string::npos)
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
+  else
+  {
+    // Split the formulas into sheetname and row-col data.
+    std::string sheetname = formula.substr(0, found_string);
+    std::string tmp_str   = formula.substr(found_string + 1);
 
-/* Check for valid formula. Note, This needs stronger validation. */
-///     tmp_str = strchr(formula, '!');
+    if(tmp_str.empty() || sheetname.empty())
+    {
+      range.ignore_cache_ = true;
+      return;
+    }
 
-///     if (tmp_str == NULL) {
-///         range->ignore_cache = LXW_TRUE;
-///         return;
-///     }
-///     else {
-/* Check for empty string. */
-///         if (lxw_str_is_empty(tmp_str)) {
-///             range->ignore_cache = LXW_TRUE;
-///             return;
-///         }
+    // Remove any worksheet quoting.
+    if(sheetname.front() == '\'')
+    {
+      sheetname = sheetname.substr(1);
+    }
+    if(sheetname.back() == '\'')
+    {
+      sheetname.pop_back();
+    }
 
-/* Split the formulas into sheetname and row-col data. */
-///         *tmp_str = '\0';
-///         tmp_str++;
-///         sheetname = formula;
+    // Check that the sheetname exists.
+    if(get_worksheet_by_name(sheetname) == nullptr)
+    {
+      throw xwpp_exception_t(std::format("Sheetname {} in chart formula {} doesn't exist", sheetname, range.formula_));
+    }
 
-///         if (lxw_str_is_empty(tmp_str) || lxw_str_is_empty(sheetname)) {
-///             range->ignore_cache = LXW_TRUE;
-///             return;
-///         }
+    range.sheetname_ = sheetname;
+    range.first_row_ = name_to_row(tmp_str.c_str());
+    range.first_col_ = name_to_col(tmp_str.c_str());
 
-/* Remove any worksheet quoting. */
-///         if (sheetname[0] == '\'')
-///             sheetname++;
-///         if (strlen(sheetname) > 0 && sheetname[strlen(sheetname) - 1] == '\'') {
-///             sheetname[strlen(sheetname) - 1] = '\0';
-///         }
+    size_t found_string = formula.find(':');
+    if(found_string == std::string::npos)
+    {
+      // 1D range.
+      range.last_row_ = range.first_row_;
+      range.last_col_ = range.first_col_;
+    }
+    else
+    {
+      // 2D range.
+      range.last_row_ = name_to_row_2(tmp_str.c_str());
+      range.last_col_ = name_to_col_2(tmp_str.c_str());
+    }
+  }
+}
 
-/* Check that the sheetname exists. */
-///         if (!workbook_get_worksheet_by_name(self, sheetname)) {
-///             LXW_WARN_FORMAT2("workbook_add_chart(): worksheet name '%s' "
-///                              "in chart formula '%s' doesn't exist.",
-///                              sheetname, range->formula);
-///             range->ignore_cache = LXW_TRUE;
-///             return;
-///         }
-
-///         range->sheetname = lxw_strdup(sheetname);
-///         range->first_row = lxw_name_to_row(tmp_str);
-///         range->first_col = lxw_name_to_col(tmp_str);
-
-///         if (strchr(tmp_str, ':')) {
-/* 2D range. */
-///             range->last_row = lxw_name_to_row_2(tmp_str);
-///             range->last_col = lxw_name_to_col_2(tmp_str);
-///         }
-///         else {
-///             /* 1D range. */
-///             range->last_row = range->first_row;
-///             range->last_col = range->first_col;
-///         }
-///     }
-/// }
-
-/// STATIC void _populate_range(lxw_workbook *self, lxw_series_range *range)
-/// {
-///     if (!range)
-///         return;
-
-///     _populate_range_dimensions(self, range);
-///     _populate_range_data_cache(self, range);
-/// }
+void workbook_t::populate_range(series_range_t& range)
+{
+  populate_range_dimensions(range);
+  populate_range_data_cache(range);
+}
 
 void workbook_t::add_chart_cache_data()
 {
-  ///     lxw_chart *chart;
-  ///     lxw_chart_series *series;
-  ///     uint16_t i;
+  for(auto chart: ordered_charts_)
+  {
+    populate_range(chart->title_.range_);
+    populate_range(chart->x_axis_.title_.range_);
+    populate_range(chart->y_axis_.title_.range_);
 
-  ///     STAILQ_FOREACH(chart, self->ordered_charts, ordered_list_pointers) {
-
-  ///         _populate_range(self, chart->title.range);
-  ///         _populate_range(self, chart->x_axis->title.range);
-  ///         _populate_range(self, chart->y_axis->title.range);
-
-  ///         if (STAILQ_EMPTY(chart->series_list))
-  ///             continue;
-
-  ///         STAILQ_FOREACH(series, chart->series_list, list_pointers) {
-  ///             _populate_range(self, series->categories);
-  ///             _populate_range(self, series->values);
-  ///             _populate_range(self, series->title.range);
-
-  ///             for (i = 0; i < series->data_label_count; i++) {
-  ///                 lxw_chart_custom_label *data_label =
-  ///                 &series->data_labels[i]; _populate_range(self,
-  ///                 data_label->range);
-  ///             }
-  ///         }
-  ///     }
+    for(auto& series: chart->series_list_)
+    {
+      populate_range(series.categories_);
+      populate_range(series.values_);
+      populate_range(series.title_.range_);
+      for(auto& data_label: series.data_labels_)
+      {
+        populate_range(data_label.range_);
+      }
+    }
+  }
 }
 
 void workbook_t::store_image_type(image_types_t image_type)
@@ -745,7 +725,7 @@ void workbook_t::prepare_drawings()
 {
   ///     lxw_sheet *sheet;
   ///     lxw_object_properties *object_props;
-  ///     uint32_t chart_ref_id = 0;
+  uint32_t chart_ref_id = 0;
   uint32_t image_ref_id = 0;
   ///     uint32_t ref_id = 0;
   uint32_t drawing_id   = 0;
@@ -768,8 +748,7 @@ void workbook_t::prepare_drawings()
     is_chartsheet          = false;
     //      }
 
-    if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() &&
-       ///             && STAILQ_EMPTY(worksheet->chart_data)
+    if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() && worksheet.chart_data_.empty() &&
        !worksheet.has_header_vml_
        ///             !worksheet->has_background_image
     )
@@ -877,18 +856,16 @@ void workbook_t::prepare_drawings()
       worksheet.prepare_image(ref_id, drawing_id, object_props);
     }
 
-    /* Prepare worksheet charts. */
-    ///         STAILQ_FOREACH(object_props, worksheet->chart_data, list_pointers)
-    ///         {
-    ///             chart_ref_id++;
-    ///             lxw_worksheet_prepare_chart(worksheet, chart_ref_id,
-    ///             drawing_id,
-    ///                                         object_props, is_chartsheet);
-    ///             if (object_props->chart)
-    ///                 STAILQ_INSERT_TAIL(self->ordered_charts,
-    ///                 object_props->chart,
-    ///                                    ordered_list_pointers);
-    ///         }
+    // Prepare worksheet charts.
+    for(auto& object_props: worksheet.chart_data_)
+    {
+      chart_ref_id++;
+      worksheet.prepare_chart(chart_ref_id, drawing_id, object_props, is_chartsheet);
+      if(object_props.chart_)
+      {
+        ordered_charts_.push_back(object_props.chart_);
+      }
+    }
 
     // Prepare worksheet header/footer images.
     for(auto& object_props: worksheet.header_footer_objs_)
@@ -1338,89 +1315,6 @@ workbook_t::workbook_t(/*lxw_workbook_options *options*/)
   ///     lxw_format *format;
   ///     lxw_workbook *workbook;
 
-  /* Create the workbook object. */
-  ///     workbook = calloc(1, sizeof(lxw_workbook));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook, mem_error);
-  ///     workbook->filename = lxw_strdup(filename);
-
-  /* Add the sheets list. */
-  ///     workbook->sheets = calloc(1, sizeof(struct lxw_sheets));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->sheets, mem_error);
-  ///     STAILQ_INIT(workbook->sheets);
-
-  /* Add the worksheets list. */
-  ///     workbook->worksheets = calloc(1, sizeof(struct lxw_worksheets));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->worksheets, mem_error);
-  ///     STAILQ_INIT(workbook->worksheets);
-
-  /* Add the chartsheets list. */
-  ///     workbook->chartsheets = calloc(1, sizeof(struct lxw_chartsheets));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->chartsheets, mem_error);
-  ///     STAILQ_INIT(workbook->chartsheets);
-
-  /* Add the worksheet names tree. */
-  ///     workbook->worksheet_names = calloc(1, sizeof(struct lxw_worksheet_names));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->worksheet_names, mem_error);
-  ///     RB_INIT(workbook->worksheet_names);
-
-  /* Add the chartsheet names tree. */
-  ///     workbook->chartsheet_names = calloc(1,
-  ///                                         sizeof(struct lxw_chartsheet_names));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->chartsheet_names, mem_error);
-  ///     RB_INIT(workbook->chartsheet_names);
-
-  /* Add the image MD5 tree. */
-  ///     workbook->image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->image_md5s, mem_error);
-  ///     RB_INIT(workbook->image_md5s);
-
-  /* Add the embedded image MD5 tree. */
-  ///     workbook->embedded_image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->embedded_image_md5s, mem_error);
-  ///     RB_INIT(workbook->embedded_image_md5s);
-
-  /* Add the header image MD5 tree. */
-  ///     workbook->header_image_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->header_image_md5s, mem_error);
-  ///     RB_INIT(workbook->header_image_md5s);
-
-  /* Add the background image MD5 tree. */
-  ///     workbook->background_md5s = calloc(1, sizeof(struct lxw_image_md5s));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->background_md5s, mem_error);
-  ///     RB_INIT(workbook->background_md5s);
-
-  /* Add the charts list. */
-  ///     workbook->charts = calloc(1, sizeof(struct lxw_charts));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->charts, mem_error);
-  ///     STAILQ_INIT(workbook->charts);
-
-  /* Add the ordered charts list to track chart insertion order. */
-  ///     workbook->ordered_charts = calloc(1, sizeof(struct lxw_charts));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->ordered_charts, mem_error);
-  ///     STAILQ_INIT(workbook->ordered_charts);
-
-  /* Add the formats list. */
-  ///     workbook->formats = calloc(1, sizeof(struct lxw_formats));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->formats, mem_error);
-  ///     STAILQ_INIT(workbook->formats);
-
-  /* Add the defined_names list. */
-  ///     workbook->defined_names = calloc(1, sizeof(struct lxw_defined_names));
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->defined_names, mem_error);
-  ///     TAILQ_INIT(workbook->defined_names);
-
-  /* Add the shared strings table. */
-  ///     workbook->sst = lxw_sst_new();
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->sst, mem_error);
-
-  /* Add a hash table to track format indices. */
-  ///     workbook->used_xf_formats = lxw_hash_new(128, 1, 0);
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_xf_formats, mem_error);
-
-  /* Add a hash table to track format indices. */
-  ///     workbook->used_dxf_formats = lxw_hash_new(128, 1, 0);
-  ///     GOTO_LABEL_ON_MEM_ERROR(workbook->used_dxf_formats, mem_error);
-
   // Add the default cell format.
   auto format = add_format();
   // Initialize its index.
@@ -1472,14 +1366,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   num_worksheets_++;
   num_sheets_++;
 
-  /* Create a struct to find/store the worksheet name/pointer. */
-  ///     worksheet_name = calloc(1, sizeof(struct lxw_worksheet_name));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet_name, mem_error);
-
-  /* Store the worksheet so we can look it up by name. */
-  ///     worksheet_name->name = init_data.name;
-  ///     worksheet_name->worksheet = worksheet;
-  ///     RB_INSERT(lxw_worksheet_names, self->worksheet_names, worksheet_name);
+  worksheet_names_[init_data.name_] = &std::get<worksheet_t>(sheets_.back());
 
   return std::get<worksheet_t>(sheets_.back());
 }
@@ -1565,24 +1452,18 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
 ///     return NULL;
 /// }
 
-/// lxw_chart * workbook_add_chart(lxw_workbook *self, uint8_t type)
-/// {
-///     lxw_chart *chart;
+chart_t& workbook_t::add_chart(chart_type_t chart_type)
+{
+  if(chart_type == chart_type_t::NONE)
+  {
+    throw xwpp_exception_t("No chart type");
+  }
 
-///     if (type == LXW_CHART_NONE || type > LXW_CHART_RADAR_FILLED) {
-///         LXW_WARN_FORMAT1("workbook_add_chart(): invalid chart type: %d",
-///                          type);
-///         return NULL;
-///     }
+  chart_t chart(chart_type);
 
-/* Create a new chart object. */
-///     chart = lxw_chart_new(type);
-
-///     if (chart)
-///         STAILQ_INSERT_TAIL(self->charts, chart, list_pointers);
-
-///     return chart;
-/// }
+  charts_.emplace_back(chart);
+  return charts_.back();
+}
 
 // TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
 // TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship)
@@ -1864,23 +1745,21 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::y
   set_custom_property(name, std::chrono::sys_days{value} + 0h + 0min + 0s + 0ms);
 }
 
-/// lxw_worksheet * workbook_get_worksheet_by_name(lxw_workbook *self, const char *name)
-/// {
-///     lxw_worksheet_name worksheet_name;
-///     lxw_worksheet_name *found;
+const worksheet_t* workbook_t::get_worksheet_by_name(std::string_view name) const
+{
+  if(name.empty())
+  {
+    return nullptr;
+  }
 
-///     if (!name)
-///         return NULL;
+  const auto it = worksheet_names_.find(std::string{name});
+  if(it != std::end(worksheet_names_))
+  {
+    return it->second;
+  }
 
-///     worksheet_name.name = name;
-///     found = RB_FIND(lxw_worksheet_names,
-///                     self->worksheet_names, &worksheet_name);
-
-///     if (found)
-///         return found->worksheet;
-///     else
-///         return NULL;
-/// }
+  return nullptr;
+}
 
 /// lxw_chartsheet * workbook_get_chartsheet_by_name(lxw_workbook *self, const char *name)
 /// {
@@ -1940,8 +1819,10 @@ void workbook_t::validate_sheetname(std::string_view sheetname) const
   }
 
   // Check if the worksheet name is already in use.
-  ///     if (workbook_get_worksheet_by_name(self, sheetname))
-  ///         return LXW_ERROR_SHEETNAME_ALREADY_USED;
+  if(get_worksheet_by_name(sheetname) != nullptr)
+  {
+    throw xwpp_exception_t(std::format("Sheetname '{}' already used", sheetname));
+  }
 
   // Check if the chartsheet name is already in use.
   ///     if (workbook_get_chartsheet_by_name(self, sheetname))

@@ -41,6 +41,7 @@
 #ifndef XWPP_WORKBOOK_H
 #define XWPP_WORKBOOK_H
 
+#include "xwpp/chart.h"
 #include "xwpp/common.h"
 #include "xwpp/worksheet.h"
 
@@ -550,6 +551,65 @@ public:
   // TODO Add API with C++ filesystem (std::path)
   void save(std::string_view filename);
 
+  /**
+   * @brief Create a new chart to be added to a worksheet:
+   *
+   * @param workbook   Pointer to a lxw_workbook instance.
+   * @param chart_type The type of chart to be created. See #lxw_chart_type.
+   *
+   * @return A lxw_chart object.
+   *
+   * The `%workbook_add_chart()` function creates a new chart object that can
+   * be added to a worksheet:
+   *
+   * @code
+   *     // Create a chart object.
+   *     lxw_chart *chart = workbook_add_chart(workbook, LXW_CHART_COLUMN);
+   *
+   *     // Add data series to the chart.
+   *     chart_add_series(chart, NULL, "Sheet1!$A$1:$A$5");
+   *     chart_add_series(chart, NULL, "Sheet1!$B$1:$B$5");
+   *     chart_add_series(chart, NULL, "Sheet1!$C$1:$C$5");
+   *
+   *     // Insert the chart into the worksheet
+   *     worksheet_insert_chart(worksheet, CELL("B7"), chart);
+   * @endcode
+   *
+   * The available chart types are defined in #lxw_chart_type. The types of
+   * charts that are supported are:
+   *
+   * | Chart type                               | Description | |
+   * :--------------------------------------- |
+   * :------------------------------------  | | #LXW_CHART_AREA | Area chart. | |
+   * #LXW_CHART_AREA_STACKED                  | Area chart - stacked. | |
+   * #LXW_CHART_AREA_STACKED_PERCENT          | Area chart - percentage stacked. |
+   * | #LXW_CHART_BAR                           | Bar chart. | |
+   * #LXW_CHART_BAR_STACKED                   | Bar chart - stacked. | |
+   * #LXW_CHART_BAR_STACKED_PERCENT           | Bar chart - percentage stacked. |
+   * | #LXW_CHART_COLUMN                        | Column chart. | |
+   * #LXW_CHART_COLUMN_STACKED                | Column chart - stacked. | |
+   * #LXW_CHART_COLUMN_STACKED_PERCENT        | Column chart - percentage stacked.
+   * | | #LXW_CHART_DOUGHNUT                      | Doughnut chart. | |
+   * #LXW_CHART_LINE                          | Line chart. | |
+   * #LXW_CHART_LINE_STACKED                  | Line chart - stacked. | |
+   * #LXW_CHART_LINE_STACKED_PERCENT          | Line chart - percentage stacked. |
+   * | #LXW_CHART_PIE                           | Pie chart. | |
+   * #LXW_CHART_SCATTER                       | Scatter chart. | |
+   * #LXW_CHART_SCATTER_STRAIGHT              | Scatter chart - straight. | |
+   * #LXW_CHART_SCATTER_STRAIGHT_WITH_MARKERS | Scatter chart - straight with
+   * markers. | | #LXW_CHART_SCATTER_SMOOTH                | Scatter chart -
+   * smooth.                | | #LXW_CHART_SCATTER_SMOOTH_WITH_MARKERS   | Scatter
+   * chart - smooth with markers.   | | #LXW_CHART_RADAR                         |
+   * Radar chart.                           | | #LXW_CHART_RADAR_WITH_MARKERS |
+   * Radar chart - with markers.            | | #LXW_CHART_RADAR_FILLED | Radar
+   * chart - filled.                  |
+   *
+   *
+   *
+   * See @ref chart.h for details.
+   */
+  chart_t& add_chart(chart_type_t chart_type);
+
   void unset_default_url_format();
 
 private:
@@ -584,7 +644,28 @@ private:
 
   void prepare_fills();
 
+  void populate_range(series_range_t& range);
+  void populate_range_data_cache(series_range_t& range);
+  void populate_range_dimensions(series_range_t& range);
+
   void store_image_type(image_types_t image_type);
+
+  /**
+   * @brief Get a worksheet object from its name.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   * @param name     Worksheet name.
+   *
+   * @return A lxw_worksheet object.
+   *
+   * This function returns a lxw_worksheet object reference based on its name:
+   *
+   * @code
+   *     worksheet = workbook_get_worksheet_by_name(workbook, "Sheet1");
+   * @endcode
+   *
+   */
+  const worksheet_t* get_worksheet_by_name(std::string_view name) const;
 
   [[nodiscard]] std::string write_workbook() const;
   [[nodiscard]] std::string write_file_version() const;
@@ -606,14 +687,16 @@ private:
 
   ///     struct lxw_worksheets *worksheets;
   ///     struct lxw_chartsheets *chartsheets;
-  ///     struct lxw_worksheet_names *worksheet_names;
+  std::map<std::string, worksheet_t*> worksheet_names_;
   ///     struct lxw_chartsheet_names *chartsheet_names;
   std::map<std::string, uint32_t> image_md5_;
   std::map<std::string, uint32_t> embedded_image_md5_;
   std::map<std::string, uint32_t> header_image_md5_;
   ///     struct lxw_image_md5s *background_md5s;
-  ///     struct lxw_charts *charts;
-  ///     struct lxw_charts *ordered_charts;
+  // Use list to not invalidate referenced owned by caller in case of insertion
+  // of new format
+  std::list<chart_t> charts_;
+  std::vector<chart_t*> ordered_charts_;
   // Use list to not invalidate referenced owned by caller in case of insertion
   // of new format
   std::list<format_t> formats_;
@@ -788,65 +871,6 @@ Chart
 ///                                         const char *sheetname);
 
 /**
- * @brief Create a new chart to be added to a worksheet:
- *
- * @param workbook   Pointer to a lxw_workbook instance.
- * @param chart_type The type of chart to be created. See #lxw_chart_type.
- *
- * @return A lxw_chart object.
- *
- * The `%workbook_add_chart()` function creates a new chart object that can
- * be added to a worksheet:
- *
- * @code
- *     // Create a chart object.
- *     lxw_chart *chart = workbook_add_chart(workbook, LXW_CHART_COLUMN);
- *
- *     // Add data series to the chart.
- *     chart_add_series(chart, NULL, "Sheet1!$A$1:$A$5");
- *     chart_add_series(chart, NULL, "Sheet1!$B$1:$B$5");
- *     chart_add_series(chart, NULL, "Sheet1!$C$1:$C$5");
- *
- *     // Insert the chart into the worksheet
- *     worksheet_insert_chart(worksheet, CELL("B7"), chart);
- * @endcode
- *
- * The available chart types are defined in #lxw_chart_type. The types of
- * charts that are supported are:
- *
- * | Chart type                               | Description | |
- * :--------------------------------------- |
- * :------------------------------------  | | #LXW_CHART_AREA | Area chart. | |
- * #LXW_CHART_AREA_STACKED                  | Area chart - stacked. | |
- * #LXW_CHART_AREA_STACKED_PERCENT          | Area chart - percentage stacked. |
- * | #LXW_CHART_BAR                           | Bar chart. | |
- * #LXW_CHART_BAR_STACKED                   | Bar chart - stacked. | |
- * #LXW_CHART_BAR_STACKED_PERCENT           | Bar chart - percentage stacked. |
- * | #LXW_CHART_COLUMN                        | Column chart. | |
- * #LXW_CHART_COLUMN_STACKED                | Column chart - stacked. | |
- * #LXW_CHART_COLUMN_STACKED_PERCENT        | Column chart - percentage stacked.
- * | | #LXW_CHART_DOUGHNUT                      | Doughnut chart. | |
- * #LXW_CHART_LINE                          | Line chart. | |
- * #LXW_CHART_LINE_STACKED                  | Line chart - stacked. | |
- * #LXW_CHART_LINE_STACKED_PERCENT          | Line chart - percentage stacked. |
- * | #LXW_CHART_PIE                           | Pie chart. | |
- * #LXW_CHART_SCATTER                       | Scatter chart. | |
- * #LXW_CHART_SCATTER_STRAIGHT              | Scatter chart - straight. | |
- * #LXW_CHART_SCATTER_STRAIGHT_WITH_MARKERS | Scatter chart - straight with
- * markers. | | #LXW_CHART_SCATTER_SMOOTH                | Scatter chart -
- * smooth.                | | #LXW_CHART_SCATTER_SMOOTH_WITH_MARKERS   | Scatter
- * chart - smooth with markers.   | | #LXW_CHART_RADAR                         |
- * Radar chart.                           | | #LXW_CHART_RADAR_WITH_MARKERS |
- * Radar chart - with markers.            | | #LXW_CHART_RADAR_FILLED | Radar
- * chart - filled.                  |
- *
- *
- *
- * See @ref chart.h for details.
- */
-/// lxw_chart *workbook_add_chart(lxw_workbook *workbook, uint8_t chart_type);
-
-/**
  * @brief Set a custom document date or time property.
  *
  * @param workbook Pointer to a lxw_workbook instance.
@@ -920,24 +944,6 @@ Chart
  */
 /// lxw_error workbook_define_name(lxw_workbook *workbook, const char *name,
 ///                                const char *formula);
-
-/**
- * @brief Get a worksheet object from its name.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     Worksheet name.
- *
- * @return A lxw_worksheet object.
- *
- * This function returns a lxw_worksheet object reference based on its name:
- *
- * @code
- *     worksheet = workbook_get_worksheet_by_name(workbook, "Sheet1");
- * @endcode
- *
- */
-/// lxw_worksheet *workbook_get_worksheet_by_name(lxw_workbook *workbook,
-///                                               const char *name);
 
 /**
  * @brief Get a chartsheet object from its name.

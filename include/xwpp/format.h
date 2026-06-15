@@ -332,6 +332,7 @@ enum class format_borders_t
  *
  */
 // TODO After creation of higher level class, this should become a struct with all field public
+// TODO Or more simplen use std::shared_ptr to exchange with caller
 class format_t
 {
 public:

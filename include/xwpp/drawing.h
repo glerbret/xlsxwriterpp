@@ -69,6 +69,8 @@ public:
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
+  friend class worksheet_t;
+
   [[nodiscard]] std::string write_drawing_workspace() const;
   [[nodiscard]] std::string write_absolute_anchor(uint32_t frame_index) const;
   [[nodiscard]] std::string write_col(const std::string& data) const;

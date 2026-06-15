@@ -90,7 +90,7 @@ std::string calculate_spans(std::map<col_num_t, row_t>::const_iterator it,
 /// STATIC int _cond_format_hash_cmp(lxw_cond_format_hash_element *elem_1,
 ///                                  lxw_cond_format_hash_element *elem_2);
 
-row_t* worksheet_t::find_row(row_num_t row_num)
+const row_t* worksheet_t::find_row(row_num_t row_num) const
 {
   auto it = table_.rbh_root_.find(row_num);
   if(it != std::end(table_.rbh_root_))
@@ -103,7 +103,7 @@ row_t* worksheet_t::find_row(row_num_t row_num)
   }
 }
 
-cell_t* worksheet_t::find_cell_in_row(row_t* row, col_num_t col_num)
+const cell_t* worksheet_t::find_cell_in_row(const row_t* row, col_num_t col_num) const
 {
   if(!row)
   {
@@ -130,17 +130,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , default_url_format_{init_data.default_url_format_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
-  ///     worksheet->table = calloc(1, sizeof(struct table_rows_t));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->table, mem_error);
-  ///     RB_INIT(worksheet->table);
-
-  ///     worksheet->hyperlinks = calloc(1, sizeof(struct table_rows_t));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->hyperlinks, mem_error);
-  ///     RB_INIT(worksheet->hyperlinks);
-
-  ///     worksheet->comments = calloc(1, sizeof(struct table_rows_t));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->comments, mem_error);
-  ///     RB_INIT(worksheet->comments);
 
   /* Initialize the cached rows. */
   ///     worksheet->table->cached_row_num = LXW_ROW_MAX + 1;
@@ -152,66 +141,9 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         GOTO_LABEL_ON_MEM_ERROR(worksheet->array, mem_error);
   ///     }
 
-  ///     worksheet->col_formats = calloc(LXW_COL_META_MAX, sizeof(lxw_format
-  ///     *)); worksheet->col_formats_max = LXW_COL_META_MAX;
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->col_formats, mem_error);
-
   ///     worksheet->optimize_row = calloc(1, sizeof(struct row_t));
   ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->optimize_row, mem_error);
   ///     worksheet->optimize_row->height = LXW_DEF_ROW_HEIGHT;
-
-  ///     worksheet->merged_ranges = calloc(1, sizeof(struct
-  ///     lxw_merged_ranges)); GOTO_LABEL_ON_MEM_ERROR(worksheet->merged_ranges,
-  ///     mem_error); STAILQ_INIT(worksheet->merged_ranges);
-
-  ///     worksheet->chart_data = calloc(1, sizeof(struct lxw_chart_props));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->chart_data, mem_error);
-  ///     STAILQ_INIT(worksheet->chart_data);
-
-  ///     worksheet->comment_objs = calloc(1, sizeof(struct lxw_comment_objs));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->comment_objs, mem_error);
-  ///     STAILQ_INIT(worksheet->comment_objs);
-
-  ///     worksheet->header_image_objs = calloc(1, sizeof(struct
-  ///     lxw_comment_objs));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->header_image_objs, mem_error);
-  ///     STAILQ_INIT(worksheet->header_image_objs);
-
-  ///     worksheet->button_objs = calloc(1, sizeof(struct lxw_comment_objs));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->button_objs, mem_error);
-  ///     STAILQ_INIT(worksheet->button_objs);
-
-  ///     worksheet->selections = calloc(1, sizeof(struct lxw_selections));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->selections, mem_error);
-  ///     STAILQ_INIT(worksheet->selections);
-
-  ///     worksheet->data_validations =
-  ///         calloc(1, sizeof(struct lxw_data_validations));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->data_validations, mem_error);
-  ///     STAILQ_INIT(worksheet->data_validations);
-
-  ///     worksheet->table_objs = calloc(1, sizeof(struct lxw_table_objs));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->table_objs, mem_error);
-  ///     STAILQ_INIT(worksheet->table_objs);
-
-  ///     worksheet->external_drawing_links =
-  ///         calloc(1, sizeof(struct lxw_rel_tuples));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->external_drawing_links, mem_error);
-  ///     STAILQ_INIT(worksheet->external_drawing_links);
-
-  ///     worksheet->drawing_links = calloc(1, sizeof(struct lxw_rel_tuples));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->drawing_links, mem_error);
-  ///     STAILQ_INIT(worksheet->drawing_links);
-
-  ///     worksheet->vml_drawing_links = calloc(1, sizeof(struct
-  ///     lxw_rel_tuples));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->vml_drawing_links, mem_error);
-  ///     STAILQ_INIT(worksheet->vml_drawing_links);
-
-  ///     worksheet->external_table_links =
-  ///         calloc(1, sizeof(struct lxw_rel_tuples));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->external_table_links, mem_error);
-  ///     STAILQ_INIT(worksheet->external_table_links);
 
   ///     if (init_data && init_data->optimize) {
   ///         FILE *tmpfile;
@@ -231,21 +163,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         GOTO_LABEL_ON_MEM_ERROR(worksheet->optimize_tmpfile, mem_error);
   ///         worksheet->file = worksheet->optimize_tmpfile;
   ///     }
-
-  ///     worksheet->drawing_rel_ids =
-  ///         calloc(1, sizeof(struct lxw_drawing_rel_ids));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->drawing_rel_ids, mem_error);
-  ///     RB_INIT(worksheet->drawing_rel_ids);
-
-  ///     worksheet->vml_drawing_rel_ids =
-  ///         calloc(1, sizeof(struct lxw_vml_drawing_rel_ids));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->vml_drawing_rel_ids, mem_error);
-  ///     RB_INIT(worksheet->vml_drawing_rel_ids);
-
-  ///     worksheet->conditional_formats =
-  ///         calloc(1, sizeof(struct lxw_cond_format_hash));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->conditional_formats, mem_error);
-  ///     RB_INIT(worksheet->conditional_formats);
 
   ///     if (init_data) {
   ///         worksheet->tmpdir = init_data->tmpdir;
@@ -2125,7 +2042,7 @@ int32_t worksheet_t::size_row(row_num_t row_num, object_position_t anchor)
 {
   uint32_t pixels = 0;
 
-  row_t* row = find_row(row_num);
+  const row_t* row = find_row(row_num);
   /* Note, the 0.75 below is due to the difference between 72/96 DPI. */
   if(row)
   {
@@ -2638,100 +2555,55 @@ void worksheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_
 ///     }
 /// }
 
-/// void
-/// lxw_worksheet_prepare_chart(lxw_worksheet *self,
-///                             uint32_t chart_ref_id,
-///                             uint32_t drawing_id,
-///                             lxw_object_properties *object_props,
-///                             uint8_t is_chartsheet)
-/// {
-///     lxw_drawing_object *drawing_object;
-///     lxw_rel_tuple *relationship;
-///     double width;
-///     double height;
-///     char filename[LXW_FILENAME_LENGTH];
+void worksheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props,
+                                bool is_chartsheet)
+{
+  if(!drawing_)
+  {
+    drawing_ = drawing_t{};
+    if(is_chartsheet)
+    {
+      drawing_->embedded_    = false;
+      drawing_->orientation_ = orientation_;
+    }
+    else
+    {
+      drawing_->embedded_ = true;
+    }
+    external_drawing_links_.emplace_back("/drawing", std::format("../drawings/drawing{}.xml", drawing_id), "");
+  }
 
-///     if (!self->drawing) {
-///         self->drawing = lxw_drawing_new();
-///         RETURN_VOID_ON_MEM_ERROR(self->drawing);
+  drawing_object_t drawing_object;
+  drawing_object.anchor_ = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE);
+  if(object_props.object_position_ != object_position_t::DEFAULT)
+  {
+    drawing_object.anchor_ = static_cast<uint8_t>(object_props.object_position_);
+  }
 
-///         if (is_chartsheet) {
-///             self->drawing->embedded = LXW_FALSE;
-///             self->drawing->orientation = self->orientation;
-///         }
-///         else {
-///             self->drawing->embedded = LXW_TRUE;
-///         }
+  drawing_object.type_          = drawing_types_t::CHART;
+  drawing_object.description_   = object_props.description_;
+  drawing_object.tip_           = "";
+  drawing_object.rel_index_     = get_drawing_rel_index("");
+  drawing_object.url_rel_index_ = 0;
+  drawing_object.decorative_    = object_props.decorative_;
 
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
+  // Scale to user scale.
+  double width  = object_props.width_ * object_props.x_scale_;
+  double height = object_props.height_ * object_props.y_scale_;
 
-///         relationship->type = lxw_strdup("/drawing");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
+  // Convert to the nearest pixel.
+  object_props.width_  = width;
+  object_props.height_ = height;
 
-///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                      "../drawings/drawing%d.xml", drawing_id);
+  position_object_emus(object_props, drawing_object);
 
-///         relationship->target = lxw_strdup(filename);
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
+  // Convert from pixels to emus.
+  drawing_object.width_  = static_cast<uint32_t>(0.5 + width * 9525);
+  drawing_object.height_ = static_cast<uint32_t>(0.5 + height * 9525);
 
-///         STAILQ_INSERT_TAIL(self->external_drawing_links, relationship,
-///                            list_pointers);
-///     }
-
-///     drawing_object = calloc(1, sizeof(lxw_drawing_object));
-///     RETURN_VOID_ON_MEM_ERROR(drawing_object);
-
-///     drawing_object->anchor = LXW_OBJECT_MOVE_AND_SIZE;
-///     if (object_props->object_position)
-///         drawing_object->anchor = object_props->object_position;
-
-///     drawing_object->type = LXW_DRAWING_CHART;
-///     drawing_object->description = lxw_strdup(object_props->description);
-///     drawing_object->tip = NULL;
-///     drawing_object->rel_index = _get_drawing_rel_index(self, NULL);
-///     drawing_object->url_rel_index = 0;
-///     drawing_object->decorative = object_props->decorative;
-
-/* Scale to user scale. */
-///     width = object_props->width * object_props->x_scale;
-///     height = object_props->height * object_props->y_scale;
-
-/* Convert to the nearest pixel. */
-///     object_props->width = width;
-///     object_props->height = height;
-
-///     _worksheet_position_object_emus(self, object_props, drawing_object);
-
-/* Convert from pixels to emus. */
-///     drawing_object->width = (uint32_t) (0.5 + width * 9525);
-///     drawing_object->height = (uint32_t) (0.5 + height * 9525);
-
-///     lxw_add_drawing_object(self->drawing, drawing_object);
-
-///     relationship = calloc(1, sizeof(lxw_rel_tuple));
-///     GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-///     relationship->type = lxw_strdup("/chart");
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-///     lxw_snprintf(filename, 32, "../charts/chart%d.xml", chart_ref_id);
-
-///     relationship->target = lxw_strdup(filename);
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///     STAILQ_INSERT_TAIL(self->drawing_links, relationship, list_pointers);
-
-///     return;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-/// }
+  drawing_->add_drawing_object(drawing_object);
+  drawing_links_.emplace_back("/chart", std::format("../charts/chart{}.xml", chart_ref_id), "");
+}
 
 uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                           uint32_t comment_id)
@@ -8603,7 +8475,9 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
   embed_image(row_num, col_num, filename, std::nullopt);
 }
 
-void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,std::optional<image_options_t> options)
+void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
+                                     const std::vector<unsigned char>& image_buffer,
+                                     std::optional<image_options_t> options)
 {
   if(image_buffer.empty())
   {
@@ -8662,7 +8536,8 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num, const
   embedded_image_props_.push_back(object_props);
 }
 
-void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer)
+void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
+                                     const std::vector<unsigned char>& image_buffer)
 {
   embed_image_buffer(row_num, col_num, image_buffer, std::nullopt);
 }
@@ -8787,87 +8662,59 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num, const
 ///     }
 /// }
 
-/// lxw_error
-/// worksheet_insert_chart_opt(lxw_worksheet *self,
-///                            row_num_t row_num, col_num_t col_num,
-///                            lxw_chart *chart, lxw_chart_options *user_options)
-/// {
-///     lxw_object_properties *object_props;
-///     lxw_chart_series *series;
-///
-///     if (!chart) {
-///         LXW_WARN("worksheet_insert_chart()/_opt(): chart must be non-NULL.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Check that the chart isn't being used more than once. */
-///     if (chart->in_use) {
-///         LXW_WARN("worksheet_insert_chart()/_opt(): the same chart object "
-///                  "cannot be inserted in a worksheet more than once.");
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Check that the chart has a data series. */
-///     if (STAILQ_EMPTY(chart->series_list)) {
-///         LXW_WARN
-///             ("worksheet_insert_chart()/_opt(): chart must have a series.");
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Check that the chart has a 'values' series. */
-///     STAILQ_FOREACH(series, chart->series_list, list_pointers) {
-///         if (!series->values->formula && !series->values->sheetname) {
-///             LXW_WARN("worksheet_insert_chart()/_opt(): chart must have a "
-///                      "'values' series.");
-///
-///             return LXW_ERROR_PARAMETER_VALIDATION;
-///         }
-///     }
-///
-///     /* Create a new object to hold the chart image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     RETURN_ON_MEM_ERROR(object_props, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     if (user_options) {
-///         object_props->x_offset = user_options->x_offset;
-///         object_props->y_offset = user_options->y_offset;
-///         object_props->x_scale = user_options->x_scale;
-///         object_props->y_scale = user_options->y_scale;
-///         object_props->object_position = user_options->object_position;
-///         object_props->description = lxw_strdup(user_options->description);
-///         object_props->decorative = user_options->decorative;
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->row = row_num;
-///     object_props->col = col_num;
-///
-///     object_props->width = 480;
-///     object_props->height = 288;
-///
-///     if (object_props->x_scale == 0.0)
-///         object_props->x_scale = 1;
-///
-///     if (object_props->y_scale == 0.0)
-///         object_props->y_scale = 1;
-///
-///     /* Store chart references so they can be ordered in the workbook. */
-///     object_props->chart = chart;
-///
-///     STAILQ_INSERT_TAIL(self->chart_data, object_props, list_pointers);
-///
-///     chart->in_use = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num,
+                               chart_t* chart /* TODO, lxw_chart_options *user_options*/)
+{
+  if(chart->in_use_)
+  {
+    throw xwpp_exception_t("The same chart object cannot be inserted in a worksheet more than once");
+  }
 
-/// lxw_error
-/// worksheet_insert_chart(lxw_worksheet *self,
-///                        row_num_t row_num, col_num_t col_num, lxw_chart *chart)
+  if(chart->series_list_.empty())
+  {
+    throw xwpp_exception_t("Chart must have a series");
+  }
+
+  object_properties_t object_props;
+  ///     if (user_options) {
+  ///         object_props->x_offset = user_options->x_offset;
+  ///         object_props->y_offset = user_options->y_offset;
+  ///         object_props->x_scale = user_options->x_scale;
+  ///         object_props->y_scale = user_options->y_scale;
+  ///         object_props->object_position = user_options->object_position;
+  ///         object_props->description = lxw_strdup(user_options->description);
+  ///         object_props->decorative = user_options->decorative;
+  ///     }
+  ///
+  // Copy other options or set defaults.
+  object_props.row_ = row_num;
+  object_props.col_ = col_num;
+
+  object_props.width_  = 480;
+  object_props.height_ = 288;
+
+  if(object_props.x_scale_ == 0.0)
+  {
+    object_props.x_scale_ = 1;
+  }
+
+  if(object_props.y_scale_ == 0.0)
+  {
+    object_props.y_scale_ = 1;
+  }
+
+  // Store chart references so they can be ordered in the workbook.
+  object_props.chart_ = chart;
+
+  chart_data_.push_back(object_props);
+
+  chart->in_use_ = true;
+}
+
+/// void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart)
 /// {
-///     return worksheet_insert_chart_opt(self, row_num, col_num, chart, NULL);
+/// TODO
+///     return insert_chart_opt(self, row_num, col_num, chart, NULL);
 /// }
 
 /// lxw_error

@@ -107,24 +107,15 @@ std::string rowcol_to_cell(row_num_t row, col_num_t col)
   return col_to_name(col, false) + std::to_string(row + 1);
 }
 
-/// void
-/// lxw_rowcol_to_cell_abs(char *cell_name, row_num_t row, col_num_t col,
-///                        uint8_t abs_row, uint8_t abs_col)
-/// {
-///     size_t pos;
+std::string rowcol_to_cell_abs(row_num_t row, col_num_t col, bool abs_row, bool abs_col)
+{
+  std::string cell_name = col_to_name(col, abs_col);
+  if (abs_row)
+    cell_name += '$';
+  cell_name += std::to_string(row + 1);
 
-/* Add the column to the cell. */
-///     lxw_col_to_name(cell_name, col, abs_col);
-
-/* Get the end of the cell. */
-///     pos = strlen(cell_name);
-
-///     if (abs_row)
-///         cell_name[pos++] = '$';
-
-/* Add the row to the cell. */
-///     lxw_snprintf(&cell_name[pos], LXW_MAX_ROW_NAME_LENGTH, "%d", ++row);
-/// }
+  return cell_name;
+}
 
 std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
@@ -170,39 +161,28 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
 ///     lxw_rowcol_to_cell_abs(&range[pos], last_row, last_col, 1, 1);
 /// }
 
-/// void
-/// lxw_rowcol_to_formula_abs(char *formula, const char *sheetname,
-///                           row_num_t first_row, col_num_t first_col,
-///                           row_num_t last_row, col_num_t last_col)
-/// {
-///     size_t pos;
-///     char *quoted_name = lxw_quote_sheetname(sheetname);
+std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  std::string formula = quote_sheetname(sheetname);
 
-///     strncpy(formula, quoted_name, LXW_MAX_FORMULA_RANGE_LENGTH - 1);
-///     free(quoted_name);
+  // Add the range separator.
+  formula += '!';
 
-/* Get the end of the sheetname. */
-///     pos = strlen(formula);
+  // Add the first cell to the range.
+  formula += rowcol_to_cell_abs(first_row, first_col, true, true);
 
-/* Add the range separator. */
-///     formula[pos++] = '!';
+  // If the start and end cells are the same just return a single cell.
+  if (first_row == last_row && first_col == last_col)
+    return formula;
 
-/* Add the first cell to the range. */
-///     lxw_rowcol_to_cell_abs(&formula[pos], first_row, first_col, 1, 1);
+  // Add the range separator.
+  formula += ':';
 
-/* If the start and end cells are the same just return a single cell. */
-///     if (first_row == last_row && first_col == last_col)
-///         return;
+  // Add the first cell to the range.
+  formula += rowcol_to_cell_abs(last_row, last_col, true, true);
 
-/* Get the end of the cell. */
-///     pos = strlen(formula);
-
-/* Add the range separator. */
-///     formula[pos++] = ':';
-
-/* Add the first cell to the range. */
-///     lxw_rowcol_to_cell_abs(&formula[pos], last_row, last_col, 1, 1);
-/// }
+  return formula;
+}
 
 // TODO string
 row_num_t name_to_row(const char* row_str)

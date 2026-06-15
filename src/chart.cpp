@@ -1,0 +1,6272 @@
+/*
+ * chart - A library for creating Excel XLSX chart files.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ * Copyright 2026, Grégory Lerbret
+ *
+ */
+
+#include "xwpp/chart.h"
+
+#include "xwpp/exception.h"
+#include "xwpp/utility.h"
+#include "xwpp/xmlwriter.h"
+
+#include <optional>
+
+#include <iostream>
+
+namespace xwpp
+{
+
+chart_t::chart_t(chart_type_t type)
+  : type_{type}
+{
+  // Initialize the chart specific properties.
+  initialize(type);
+}
+
+/*
+ * Create a copy of a user supplied font.
+ */
+/// STATIC lxw_chart_font* _chart_convert_font_args(lxw_chart_font* user_font)
+/// {
+///   lxw_chart_font* font;
+///
+///   if(!user_font)
+///   {
+///     return NULL;
+///   }
+///
+///   font = calloc(1, sizeof(struct lxw_chart_font));
+///   RETURN_ON_MEM_ERROR(font, NULL);
+///
+///   /* Copy the user supplied properties. */
+///   font->name         = lxw_strdup(user_font->name);
+///   font->size         = user_font->size;
+///   font->bold         = user_font->bold;
+///   font->italic       = user_font->italic;
+///   font->underline    = user_font->underline;
+///   font->rotation     = user_font->rotation;
+///   font->color        = user_font->color;
+///   font->pitch_family = user_font->pitch_family;
+///   font->charset      = user_font->charset;
+///   font->baseline     = user_font->baseline;
+///
+///   /* Convert font size units. */
+///   if(font->size > 0.0)
+///   {
+///     font->size = font->size * 100.0;
+///   }
+///
+///   /* Convert rotation into 60,000ths of a degree. */
+///   if(font->rotation)
+///   {
+///     font->rotation = font->rotation * 60000;
+///   }
+///
+///   return font;
+/// }
+
+/*
+ * Create a copy of a user supplied line.
+ */
+/// STATIC lxw_chart_line* _chart_convert_line_args(lxw_chart_line* user_line)
+/// {
+///   lxw_chart_line* line;
+///
+///   if(!user_line)
+///   {
+///     return NULL;
+///   }
+///
+///   line = calloc(1, sizeof(struct lxw_chart_line));
+///   RETURN_ON_MEM_ERROR(line, NULL);
+///
+///   /* Copy the user supplied properties. */
+///   line->color        = user_line->color;
+///   line->none         = user_line->none;
+///   line->width        = user_line->width;
+///   line->dash_type    = user_line->dash_type;
+///   line->transparency = user_line->transparency;
+///
+///   if(line->transparency > 100)
+///   {
+///     line->transparency = 0;
+///   }
+///
+///   return line;
+/// }
+
+/*
+ * Create a copy of a user supplied fill.
+ */
+/// STATIC lxw_chart_fill* _chart_convert_fill_args(lxw_chart_fill* user_fill)
+/// {
+///   lxw_chart_fill* fill;
+///
+///   if(!user_fill)
+///   {
+///     return NULL;
+///   }
+///
+///   fill = calloc(1, sizeof(struct lxw_chart_fill));
+///   RETURN_ON_MEM_ERROR(fill, NULL);
+///
+///   /* Copy the user supplied properties. */
+///   fill->color        = user_fill->color;
+///   fill->none         = user_fill->none;
+///   fill->transparency = user_fill->transparency;
+///
+///   if(fill->transparency > 100)
+///   {
+///     fill->transparency = 0;
+///   }
+///
+///   return fill;
+/// }
+
+/*
+ * Create a copy of a user supplied pattern.
+ */
+/// STATIC lxw_chart_pattern* _chart_convert_pattern_args(lxw_chart_pattern* user_pattern)
+/// {
+///   lxw_chart_pattern* pattern;
+///
+///   if(!user_pattern)
+///   {
+///     return NULL;
+///   }
+///
+///   if(!user_pattern->type)
+///   {
+///     LXW_WARN("chart_xxx_set_pattern: 'type' must be specified");
+///     return NULL;
+///   }
+///
+///   if(!user_pattern->fg_color)
+///   {
+///     LXW_WARN("chart_xxx_set_pattern: 'fg_color' must be specified");
+///     return NULL;
+///   }
+///
+///   pattern = calloc(1, sizeof(struct lxw_chart_pattern));
+///   RETURN_ON_MEM_ERROR(pattern, NULL);
+///
+///   /* Copy the user supplied properties. */
+///   pattern->fg_color = user_pattern->fg_color;
+///   pattern->bg_color = user_pattern->bg_color;
+///   pattern->type     = user_pattern->type;
+///
+///   if(!pattern->bg_color)
+///   {
+///     /* Default background color in Excel is white, when unspecified. */
+///     pattern->bg_color = LXW_COLOR_WHITE;
+///   }
+///
+///   return pattern;
+/// }
+
+/*
+ * Create a copy of a user supplied layout.
+ */
+/// STATIC lxw_chart_layout* _chart_convert_layout_args(lxw_chart_layout* user_layout, enum lxw_chart_layout_type type)
+/// {
+///   lxw_chart_layout* layout = calloc(1, sizeof(struct lxw_chart_layout));
+///   RETURN_ON_MEM_ERROR(layout, NULL);
+///
+///   /* Copy the user supplied properties. */
+///   switch(type)
+///   {
+///     case LXW_CHART_LAYOUT_LEGEND:
+///       layout->x         = user_layout->x;
+///       layout->y         = user_layout->y;
+///       layout->width     = user_layout->width;
+///       layout->height    = user_layout->height;
+///       layout->has_inner = LXW_FALSE;
+///       break;
+///     case LXW_CHART_LAYOUT_PLOTAREA:
+///       layout->x         = user_layout->x;
+///       layout->y         = user_layout->y;
+///       layout->width     = user_layout->width;
+///       layout->height    = user_layout->height;
+///       layout->has_inner = LXW_TRUE;
+///       break;
+///     default:
+///       layout->x         = user_layout->x;
+///       layout->y         = user_layout->y;
+///       layout->width     = 0.0;
+///       layout->height    = 0.0;
+///       layout->has_inner = LXW_FALSE;
+///       break;
+///   }
+///
+///   return layout;
+/// }
+
+/*
+ * Set a marker type for a series.
+ */
+/// STATIC void _chart_set_default_marker_type(lxw_chart* self, uint8_t type)
+/// {
+///   if(!self->default_marker)
+///   {
+///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
+///     RETURN_VOID_ON_MEM_ERROR(marker);
+///     self->default_marker = marker;
+///   }
+///
+///   self->default_marker->type = type;
+/// }
+
+/*
+ * Set an axis number format.
+ */
+/// STATIC void _chart_axis_set_default_num_format(lxw_chart_axis* axis, char* num_format)
+/// {
+///   if(!num_format)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->default_num_format);
+///
+///   axis->default_num_format = lxw_strdup(num_format);
+/// }
+
+/*
+ * Verify that a X/Y error bar property is supported for the chart type.
+ * All chart types, except Bar have Y error bars. Only Bar and Scatter
+ * support X error bars.
+ */
+/// lxw_error _chart_check_error_bars(lxw_series_error_bars* error_bars, char* property)
+/// {
+///   /* Check that the error bar type has been set for all error bar
+///    * functions except the one that is used to set the type. */
+///   if(strlen(property) && !error_bars->is_set)
+///   {
+///     LXW_WARN_FORMAT1("chart_series_set_error_bars%s(): "
+///                      "error bar type must be set first using "
+///                      "chart_series_set_error_bars()",
+///                      property);
+///
+///     return LXW_ERROR_PARAMETER_VALIDATION;
+///   }
+///
+///   if(error_bars->is_x)
+///   {
+///     if(error_bars->chart_group != LXW_CHART_SCATTER && error_bars->chart_group != LXW_CHART_BAR)
+///     {
+///
+///       LXW_WARN_FORMAT1("chart_series_set_error_bars%s(): "
+///                        "'X error bar' properties only available for"
+///                        " Scatter and Bar charts in Excel",
+///                        property);
+///
+///       return LXW_ERROR_PARAMETER_VALIDATION;
+///     }
+///   }
+///   else
+///   {
+///     if(error_bars->chart_group == LXW_CHART_BAR)
+///     {
+///       LXW_WARN_FORMAT1("chart_series_set_error_bars%s(): "
+///                        "'Y error bar' properties not available for "
+///                        "Bar charts in Excel",
+///                        property);
+///
+///       return LXW_ERROR_PARAMETER_VALIDATION;
+///     }
+///   }
+///
+///   return LXW_NO_ERROR;
+/// }
+
+void chart_t::add_axis_ids(chart_t& chart)
+{
+  uint32_t chart_id   = 50010000 + chart.id_;
+  uint32_t axis_count = 1;
+
+  chart.axis_id_1_ = chart_id + axis_count;
+  chart.axis_id_2_ = chart.axis_id_1_ + 1;
+}
+
+// TODO series_range_t function
+void set_range(series_range_t& range, const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  range.sheetname_ = sheetname;
+  range.first_row_ = first_row;
+  range.first_col_ = first_col;
+  range.last_row_  = last_row;
+  range.last_col_  = last_col;
+  range.formula_ = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col);
+}
+
+std::string chart_t::write_protection() const
+{
+  return xml_empty_tag("c:protection");
+}
+
+std::string chart_t::write_chart_space() const
+{
+  return xml_start_tag("c:chartSpace", {
+                                           {"xmlns:c", SCHEMA_DRAWING + "/chart"          },
+                                           {"xmlns:a", SCHEMA_DRAWING + "/main"           },
+                                           {"xmlns:r", SCHEMA_OFFICEDOC + "/relationships"},
+  });
+}
+
+std::string chart_t::write_lang() const
+{
+  return xml_empty_tag("c:lang", {
+                                     {"val", "en-US"}
+  });
+}
+
+std::string chart_t::write_style() const
+{
+  // Don"t write an element for the default style, 2.
+  if(style_id_ == 2)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:style", {
+                                      {"val", std::to_string(style_id_)}
+  });
+}
+
+/*
+ * Write the <c:layoutTarget> element.
+ */
+/// STATIC void _chart_write_layout_target(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "inner");
+///
+///   lxw_xml_empty_tag(self->file, "c:layoutTarget", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:xMode> and <c:yMode> element.
+ */
+/// STATIC void _chart_write_layout_mode(lxw_chart* self, char* mode)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "edge");
+///
+///   lxw_xml_empty_tag(self->file, mode, &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the layout dimension elements.
+ */
+/// STATIC void _chart_write_layout_dimension(lxw_chart* self, char* dimension, double value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", value);
+///
+///   lxw_xml_empty_tag(self->file, dimension, &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_manual_layout(const chart_layout_t& layout)
+{
+  std::string xml_data = xml_start_tag("c:manualLayout");
+  ///
+  ///   /* Write the c:layoutTarget element. */
+  ///   if(layout->has_inner)
+  ///   {
+  ///     xml_data += _chart_write_layout_target(self);
+  ///   }
+  ///
+  ///   /* Write the c:xMode and c:yMode elements. */
+  ///   xml_data += _chart_write_layout_mode(self, "c:xMode");
+  ///   xml_data += _chart_write_layout_mode(self, "c:yMode");
+  ///
+  ///   /* Write the dimension elements. */
+  ///   xml_data += _chart_write_layout_dimension(self, "c:x", layout->x);
+  ///   xml_data += _chart_write_layout_dimension(self, "c:y", layout->y);
+  ///   if(layout->width > 0.0)
+  ///   {
+  ///     xml_data += _chart_write_layout_dimension(self, "c:w", layout->width);
+  ///   }
+  ///   if(layout->height > 0.0)
+  ///   {
+  ///     xml_data += _chart_write_layout_dimension(self, "c:h", layout->height);
+  ///   }
+  ///
+  xml_data += xml_end_tag("c:manualLayout");
+
+  return xml_data;
+}
+
+std::string chart_t::write_layout(const std::optional<chart_layout_t>& layout)
+{
+  if(!layout)
+  {
+    return xml_empty_tag("c:layout");
+  }
+  else
+  {
+    std::string xml_data = xml_start_tag("c:layout");
+    xml_data += write_manual_layout(*layout);
+    xml_data += xml_end_tag("c:layout");
+
+    return xml_data;
+  }
+}
+
+std::string chart_t::write_grouping(chart_grouping_t grouping)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(grouping == chart_grouping_t::STANDARD)
+  {
+    attributes.emplace_back("val", "standard");
+  }
+  else if(grouping == chart_grouping_t::PERCENTSTACKED)
+  {
+    attributes.emplace_back("val", "percentStacked");
+  }
+  else if(grouping == chart_grouping_t::STACKED)
+  {
+    attributes.emplace_back("val", "stacked");
+  }
+  else
+  {
+    attributes.emplace_back("val", "clustered");
+  }
+
+  return xml_empty_tag("c:grouping", attributes);
+}
+
+/*
+ * Write the <c:radarStyle> element.
+ */
+/// STATIC void _chart_write_radar_style(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(self->type == LXW_CHART_RADAR_FILLED)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "filled");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "marker");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:radarStyle", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:varyColors> element.
+ */
+/// STATIC void _chart_write_vary_colors(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:varyColors", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:firstSliceAng> element.
+ */
+/// STATIC void _chart_write_first_slice_ang(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_INT("val", self->rotation);
+///
+///   lxw_xml_empty_tag(self->file, "c:firstSliceAng", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:holeSize> element.
+ */
+/// STATIC void _chart_write_hole_size(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_INT("val", self->hole_size);
+///
+///   lxw_xml_empty_tag(self->file, "c:holeSize", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_a_alpha(uint8_t transparency)
+{
+  return xml_empty_tag("a:alpha", {
+                                      {"val", std::to_string((100 - transparency) * 1000)}
+  });
+}
+
+std::string chart_t::write_a_srgb_clr(color_t color, uint8_t transparency)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"val", std::format("{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  };
+
+  if(transparency != 0)
+  {
+    std::string xml_data = xml_start_tag("a:srgbClr", attributes);
+    xml_data += write_a_alpha(transparency);
+    xml_data += xml_end_tag("a:srgbClr");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("a:srgbClr", attributes);
+  }
+}
+
+std::string chart_t::write_a_solid_fill(color_t color, uint8_t transparency)
+{
+  std::string xml_data = xml_start_tag("a:solidFill");
+  xml_data += write_a_srgb_clr(color, transparency);
+  xml_data += xml_end_tag("a:solidFill");
+
+  return xml_data;
+}
+
+std::string chart_t::write_a_t(const std::string& name)
+{
+  return xml_data_element("a:t", name);
+}
+
+/*
+ * Write the <a:endParaRPr> element.
+ */
+/// STATIC void _chart_write_a_end_para_rpr(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("lang", "en-US");
+///
+///   lxw_xml_empty_tag(self->file, "a:endParaRPr", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  bool has_color = false;
+  bool has_latin = false;
+  bool use_font_default = false;
+
+  if(font)
+  {
+    has_color        = (font->color_ != color_t::UNSET);
+    has_latin        = font->name_.empty() || font->pitch_family_ || font->charset_;
+    use_font_default = !(has_color || has_latin || font->baseline_ == -1);
+
+    // Set the font attributes.
+    if(font->size_ > 0.0)
+    {
+      attributes.emplace_back("sz", std::format("{}", font->size_));
+    }
+
+    if(use_font_default || font->bold_)
+    {
+      attributes.emplace_back("b", std::format("{}", font->bold_));
+    }
+
+    if(use_font_default || font->italic_)
+    {
+      attributes.emplace_back("i", std::format("{}", font->italic_));
+    }
+
+    if(font->underline_)
+    {
+      attributes.emplace_back("u", "sng");
+    }
+
+    if(font->baseline_ != -1)
+    {
+      attributes.emplace_back("baseline", std::to_string(font->baseline_));
+    }
+  }
+
+  // There are sub-elements if the font name or color have changed.
+  if(has_latin || has_color)
+  {
+    std::string xml_data = xml_start_tag("a:defRPr", attributes);
+
+    if(has_color)
+    {
+      xml_data += write_a_solid_fill(font->color_, 0);
+    }
+
+    if(has_latin)
+    {
+      // Free and reuse the attribute list for the latin attributes.
+      attributes.clear();
+
+      if(font->name_.empty())
+      {
+        attributes.emplace_back("typeface", font->name_);
+      }
+
+      if(font->pitch_family_)
+      {
+        attributes.emplace_back("pitchFamily", std::to_string(font->pitch_family_));
+      }
+
+      if(font->pitch_family_ || font->charset_)
+      {
+        attributes.emplace_back("charset", std::to_string(font->charset_));
+      }
+
+      xml_data += xml_empty_tag("a:latin", attributes);
+    }
+
+    xml_data += xml_end_tag("a:defRPr");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("a:defRPr", attributes);
+  }
+}
+
+std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  bool has_color        = false;
+  bool has_latin        = false;
+  bool use_font_default = false;
+
+  attributes.emplace_back("lang", "en-US");
+
+  if(font)
+  {
+    has_color        = (font->color_ != color_t::UNSET);
+    has_latin        = !font->name_.empty() || font->pitch_family_ || font->charset_;
+    use_font_default = !(has_color || has_latin || font->baseline_ == -1);
+
+    // Set the font attributes.
+    if(font->size_ > 0.0)
+    {
+      attributes.emplace_back("sz", std::format("{}", font->size_));
+    }
+
+    if(use_font_default || font->bold_)
+    {
+      attributes.emplace_back("b", std::format("{}", font->bold_));
+    }
+
+    if(use_font_default || font->italic_)
+    {
+      attributes.emplace_back("i", std::format("{}", font->italic_));
+    }
+
+    if(font->underline_)
+    {
+      attributes.emplace_back("u", "sng");
+    }
+
+    if(font->baseline_ != -1)
+    {
+      attributes.emplace_back("baseline", std::to_string(font->baseline_));
+    }
+  }
+
+  // There are sub-elements if the font name or color have changed.
+  if(has_latin || has_color)
+  {
+    std::string xml_data = xml_start_tag("a:rPr", attributes);
+
+    if(has_color)
+    {
+      xml_data += write_a_solid_fill(font->color_, 0);
+    }
+
+    if(has_latin)
+    {
+      // Free and reuse the attribute list for the latin attributes.
+      attributes.clear();
+
+      if(!font->name_.empty())
+      {
+        attributes.emplace_back("typeface", font->name_);
+      }
+
+      if(font->pitch_family_)
+      {
+        attributes.emplace_back("pitchFamily", std::to_string(font->pitch_family_));
+      }
+
+      if(font->pitch_family_ || font->charset_)
+      {
+        attributes.emplace_back("charset", std::to_string(font->charset_));
+      }
+      xml_data += xml_empty_tag("a:latin", attributes);
+    }
+    xml_data += xml_end_tag("a:rPr");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("a:rPr", attributes);
+  }
+}
+
+std::string chart_t::write_a_r(const std::string& name, const std::optional<chart_font_t>& font)
+{
+  std::string xml_data = xml_start_tag("a:r");
+  xml_data += write_a_r_pr(font);
+  xml_data += write_a_t(name);
+  xml_data += xml_end_tag("a:r");
+
+  return xml_data;
+}
+
+std::string chart_t::write_a_p_pr_formula(const std::optional<chart_font_t>& font)
+{
+  std::string xml_data = xml_start_tag("a:pPr");
+  xml_data += write_a_def_rpr(font);
+  xml_data += xml_end_tag("a:pPr");
+
+  return xml_data;
+}
+
+/*
+ * Write the <a:pPr> element for pie chart legends.
+ */
+/// STATIC void _chart_write_a_p_pr_pie(lxw_chart* self, lxw_chart_font* font)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("rtl", "0");
+///
+///   lxw_xml_start_tag(self->file, "a:pPr", &attributes);
+///
+///   /* Write the a:defRPr element. */
+///   _chart_write_a_def_rpr(self, font);
+///
+///   lxw_xml_end_tag(self->file, "a:pPr");
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_a_p_pr_rich(const std::optional<chart_font_t>& font)
+{
+  std::string xml_data = xml_start_tag("a:pPr");
+  xml_data += write_a_def_rpr(font);
+  xml_data += xml_end_tag("a:pPr");
+
+  return xml_data;
+}
+
+std::string chart_t::write_a_p_formula(const std::optional<chart_font_t>& font)
+{
+  std::string xml_data = xml_start_tag("a:p");
+///   xml_data += _chart_write_a_p_pr_formula(self, font);
+///   xml_data += _chart_write_a_end_para_rpr(self);
+  xml_data += xml_end_tag("a:p");
+
+  return xml_data;
+}
+
+/*
+ * Write the <a:p> element for pie chart legends.
+ */
+/// STATIC void _chart_write_a_p_pie(lxw_chart* self, lxw_chart_font* font)
+/// {
+///   lxw_xml_start_tag(self->file, "a:p", NULL);
+///
+///   /* Write the a:pPr element. */
+///   _chart_write_a_p_pr_pie(self, font);
+///
+///   /* Write the a:endParaRPr element. */
+///   _chart_write_a_end_para_rpr(self);
+///
+///   lxw_xml_end_tag(self->file, "a:p");
+/// }
+
+std::string chart_t::write_a_p_rich(const std::string& name,const std::optional<chart_font_t>& font, bool ignore_rich_pr)
+{
+  std::string xml_data = xml_start_tag("a:p");
+  if(!ignore_rich_pr)
+  {
+    xml_data += write_a_p_pr_rich(font);
+  }
+  xml_data += write_a_r(name, font);
+  xml_data += xml_end_tag("a:p");
+
+  return xml_data;
+}
+
+std::string chart_t::write_a_lst_style()
+{
+  return xml_empty_tag("a:lstStyle");
+}
+
+std::string chart_t::write_a_body_pr(int32_t rotation, bool is_horizontal)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(rotation == 0 && is_horizontal)
+  {
+    rotation = -5400000;
+  }
+
+  if(rotation != 0)
+  {
+    if(rotation == 16200000)
+    {
+      // 270 deg/stacked angle.
+      attributes.emplace_back("rot", "0");
+      attributes.emplace_back("vert", "wordArtVert");
+    }
+    else if(rotation == 16260000)
+    {
+      // 271 deg/East Asian vertical.
+      attributes.emplace_back("rot", "0");
+      attributes.emplace_back("vert", "eaVert");
+    }
+    else if(rotation == 21600000)
+    {
+      // 360 deg = 0 for y axis.
+      attributes.emplace_back("rot", "0");
+      attributes.emplace_back("vert", "horz");
+    }
+    else
+    {
+      attributes.emplace_back("rot", std::to_string(rotation));
+      attributes.emplace_back("vert", "horz");
+    }
+  }
+
+  return xml_empty_tag("a:bodyPr", attributes);
+}
+
+std::string chart_t::write_pt_count(uint16_t num_data_points)
+{
+  return xml_empty_tag("c:ptCount", {
+                                        {"val", std::to_string(num_data_points)}
+  });
+}
+
+std::string chart_t::write_v_num(double number)
+{
+  return xml_data_element("c:v", std::format("{}", number));
+}
+
+std::string chart_t::write_v_str(const std::string& str)
+{
+  return xml_data_element("c:v", str);
+}
+
+std::string chart_t::write_f(const std::string& formula)
+{
+  return xml_data_element("c:f", formula);
+}
+
+std::string chart_t::write_pt(uint16_t index, const series_data_point_t& data_point)
+{
+  // Ignore chart points that have no data.
+  if(!data_point.no_data_)
+  {
+    std::string xml_data = xml_start_tag("c:pt", {
+                                                     {"idx", std::to_string(index)}
+    });
+    if(data_point.is_string_ && !data_point.str_.empty())
+    {
+      xml_data += write_v_str(data_point.str_);
+    }
+    else
+    {
+      xml_data += write_v_num(data_point.number_);
+    }
+    xml_data += xml_end_tag("c:pt");
+
+    return xml_data;
+  }
+
+  return "";
+}
+
+std::string chart_t::write_num_pt(uint16_t index, const series_data_point_t& data_point)
+{
+  // Ignore chart points that have no data.
+  if(data_point.no_data_)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("c:pt", {
+                                                   {"idx", std::to_string(index)}
+  });
+  xml_data += write_v_num(data_point.number_);
+  xml_data += xml_end_tag("c:pt");
+
+  return xml_data;
+}
+
+std::string chart_t::write_format_code()
+{
+  return xml_data_element("c:formatCode", "General");
+}
+
+std::string chart_t::write_num_cache(const series_range_t& range)
+{
+  std::string xml_data = xml_start_tag("c:numCache");
+  xml_data += write_format_code();
+  xml_data += write_pt_count(range.num_data_points_);
+  for(uint16_t index = 0; const auto& data_point: range.data_cache_)
+  {
+    xml_data += write_num_pt(index, data_point);
+    index++;
+  }
+  xml_data += xml_end_tag("c:numCache");
+
+  return xml_data;
+}
+
+std::string chart_t::write_str_cache(const series_range_t& range)
+{
+  std::string xml_data = xml_start_tag("c:strCache");
+  xml_data += write_pt_count(range.num_data_points_);
+  for(uint16_t index = 0; const auto& data_point: range.data_cache_)
+  {
+    xml_data += write_pt(index, data_point);
+    index++;
+  }
+  xml_data += xml_end_tag("c:strCache");
+
+  return xml_data;
+}
+
+std::string chart_t::write_num_ref(const series_range_t& range)
+{
+  std::string xml_data = xml_start_tag("c:numRef");
+  xml_data += write_f(range.formula_);
+  if(!range.data_cache_.empty())
+  {
+    xml_data += write_num_cache(range);
+  }
+  xml_data += xml_end_tag("c:numRef");
+
+  return xml_data;
+}
+
+std::string chart_t::write_str_ref(const series_range_t& range)
+{
+  std::string xml_data = xml_start_tag("c:strRef");
+  xml_data += write_f(range.formula_);
+  if(!range.data_cache_.empty())
+  {
+    xml_data += write_str_cache(range);
+  }
+  xml_data += xml_end_tag("c:strRef");
+
+  return xml_data;
+}
+
+std::string chart_t::write_data_cache(const series_range_t& range, bool has_string_cache)
+{
+  if(has_string_cache)
+  {
+    return write_str_ref(range);
+  }
+  else
+  {
+    return write_num_ref(range);
+  }
+}
+
+std::string chart_t::write_tx_value(const std::string& name)
+{
+  std::string xml_data = xml_start_tag("c:tx");
+  xml_data += write_v_str(name);
+  xml_data += xml_end_tag("c:tx");
+
+  return xml_data;
+}
+
+std::string chart_t::write_tx_formula(const chart_title_t& title)
+{
+  std::string xml_data = xml_start_tag("c:tx");
+  xml_data += write_str_ref(title.range_);
+  xml_data += xml_end_tag("c:tx");
+
+  return xml_data;
+}
+
+std::string chart_t::write_tx_pr(bool is_horizontal, const std::optional<chart_font_t>& font)
+{
+  int32_t rotation = 0;
+  if(font)
+  {
+    rotation = font->rotation_;
+  }
+
+  std::string xml_data = xml_start_tag("c:txPr");
+  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_lst_style();
+  xml_data += write_a_p_formula(font);
+  xml_data += xml_end_tag("c:txPr");
+
+  return xml_data;
+}
+
+/*
+ * Write the <c:txPr> element for pie chart legends.
+ */
+/// STATIC void _chart_write_tx_pr_pie(lxw_chart* self, uint8_t is_horizontal, lxw_chart_font* font)
+/// {
+///   int32_t rotation = 0;
+///
+///   if(font)
+///   {
+///     rotation = font->rotation;
+///   }
+///
+///   lxw_xml_start_tag(self->file, "c:txPr", NULL);
+///
+///   /* Write the a:bodyPr element. */
+///   _chart_write_a_body_pr(self, rotation, is_horizontal);
+///
+///   /* Write the a:lstStyle element. */
+///   _chart_write_a_lst_style(self);
+///
+///   /* Write the a:p element. */
+///   _chart_write_a_p_pie(self, font);
+///
+///   lxw_xml_end_tag(self->file, "c:txPr");
+/// }
+
+std::string chart_t::write_axis_font(const std::optional<chart_font_t>& font)
+{
+  if(!font)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("c:txPr");
+  xml_data += write_a_body_pr(font->rotation_, false);
+  xml_data += write_a_lst_style();
+  xml_data += xml_start_tag("a:p");
+  xml_data += write_a_p_pr_rich(font);
+///   xml_data += _chart_write_a_end_para_rpr(self);
+  xml_data += xml_end_tag("a:p");
+  xml_data += xml_end_tag("c:txPr");
+
+  return xml_data;
+}
+
+std::string chart_t::write_rich(const std::string& name, const std::optional<chart_font_t>& font, bool is_horizontal,
+                                bool ignore_rich_pr)
+{
+  int32_t rotation     = 0;
+  if(font)
+  {
+    rotation = font->rotation_;
+  }
+
+  std::string xml_data = xml_start_tag("c:rich");
+  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_lst_style();
+  xml_data += write_a_p_rich(name, font, ignore_rich_pr);
+  xml_data += xml_end_tag("c:rich");
+
+  return xml_data;
+}
+
+std::string chart_t::write_tx_rich(const std::string& name, bool is_horizontal,const std::optional<chart_font_t>& font)
+{
+  std::string xml_data = xml_start_tag("c:tx");
+  xml_data += write_rich(name, font, is_horizontal, false);
+  xml_data += xml_end_tag("c:tx");
+
+  return xml_data;
+}
+
+std::string chart_t::write_overlay()
+{
+  return xml_empty_tag("c:overlay", {
+                                        {"val", "1"}
+  });
+}
+
+std::string chart_t::write_title_rich(const chart_title_t& title)
+{
+  std::string xml_data = xml_start_tag("c:title");
+  xml_data += write_tx_rich(title.name_, title.is_horizontal_, title.font_);
+  xml_data += write_layout(title.layout_);
+  if(title.has_overlay_)
+  {
+    xml_data += write_overlay();
+  }
+  xml_data += xml_end_tag("c:title");
+
+  return xml_data;
+}
+
+std::string chart_t::write_title_formula(const chart_title_t& title)
+{
+  std::string xml_data = xml_start_tag("c:title");
+  xml_data += write_tx_formula(title);
+  xml_data += write_layout(title.layout_);
+  if(title.has_overlay_)
+  {
+    xml_data += write_overlay();
+  }
+  xml_data += write_tx_pr(title.is_horizontal_, title.font_);
+  xml_data += xml_end_tag("c:title");
+
+  return xml_data;
+}
+
+std::string chart_t::write_delete()
+{
+  return xml_empty_tag("c:delete", {{"val", "1"}});
+}
+
+std::string chart_t::write_auto_title_deleted() const
+{
+  return xml_empty_tag("c:autoTitleDeleted", {
+                                                 {"val", "1"}
+  });
+}
+
+std::string chart_t::write_idx(uint16_t index)
+{
+  return xml_empty_tag("c:idx", {
+                                    {"val", std::to_string(index)}
+  });
+}
+
+std::string chart_t::write_a_prst_dash(chart_line_dash_type_t dash_type)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(dash_type == chart_line_dash_type_t::DASH_ROUND_DOT)
+  {
+    attributes.emplace_back("val", "sysDot");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_SQUARE_DOT)
+  {
+    attributes.emplace_back("val", "sysDash");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_DOT)
+  {
+    attributes.emplace_back("val", "dashDot");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_LONG_DASH)
+  {
+    attributes.emplace_back("val", "lgDash");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_LONG_DASH_DOT)
+  {
+    attributes.emplace_back("val", "lgDashDot");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_LONG_DASH_DOT_DOT)
+  {
+    attributes.emplace_back("val", "lgDashDotDot");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_DOT)
+  {
+    attributes.emplace_back("val", "dot");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_SYSTEM_DASH_DOT)
+  {
+    attributes.emplace_back("val", "sysDashDot");
+  }
+  else if(dash_type == chart_line_dash_type_t::DASH_SYSTEM_DASH_DOT_DOT)
+  {
+    attributes.emplace_back("val", "sysDashDotDot");
+  }
+  else
+  {
+    attributes.emplace_back("val", "dash");
+  }
+
+  return xml_empty_tag("a:prstDash", attributes);
+}
+
+std::string chart_t::write_a_no_fill()
+{
+  return xml_empty_tag("a:noFill");
+}
+
+std::string chart_t::write_a_ln(const chart_line_t& line)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  // Round width to nearest 0.25, like Excel.
+  float width_flt = static_cast<float>(static_cast<uint32_t>((line.width_ + 0.125) * 4.0F) / 4.0F);
+
+  // Convert to internal units.
+  uint32_t width_int = static_cast<uint32_t>(0.5 + (12700.0 * width_flt));
+
+  if(line.width_ > 0.0)
+  {
+    attributes.emplace_back("w", std::to_string(width_int));
+  }
+
+  if(line.none_ || line.color_ != color_t::UNSET || line.dash_type_ != chart_line_dash_type_t::DASH_SOLID)
+  {
+    std::string xml_data = xml_start_tag("a:ln", attributes);
+    if(line.none_)
+    {
+      xml_data += write_a_no_fill();
+    }
+    else if(line.color_ != color_t::UNSET)
+    {
+      xml_data += write_a_solid_fill(line.color_, line.transparency_);
+    }
+
+    if(line.dash_type_ != chart_line_dash_type_t::DASH_SOLID)
+    {
+      xml_data += write_a_prst_dash(line.dash_type_);
+    }
+
+    xml_data += xml_end_tag("a:ln");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("a:ln", attributes);
+  }
+}
+
+std::string chart_t::write_a_fg_clr(color_t color)
+{
+  std::string xml_data = xml_start_tag("a:fgClr");
+  xml_data += write_a_srgb_clr(color, 0);
+  xml_data += xml_end_tag("a:fgClr");
+
+  return xml_data;
+}
+
+std::string chart_t::write_a_bg_clr(color_t color)
+{
+  std::string xml_data = xml_start_tag("a:bgClr");
+  xml_data += write_a_srgb_clr(color, 0);
+  xml_data += xml_end_tag("a:bgClr");
+
+  return xml_data;
+}
+
+std::string chart_t::write_a_patt_fill(const chart_pattern_t& pattern)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(pattern.type_ == chart_pattern_type_t::NONE)
+  {
+    attributes.emplace_back("prst", "none");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_5)
+  {
+    attributes.emplace_back("prst", "pct5");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_10)
+  {
+    attributes.emplace_back("prst", "pct10");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_20)
+  {
+    attributes.emplace_back("prst", "pct20");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_25)
+  {
+    attributes.emplace_back("prst", "pct25");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_30)
+  {
+    attributes.emplace_back("prst", "pct30");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_40)
+  {
+    attributes.emplace_back("prst", "pct40");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_50)
+  {
+    attributes.emplace_back("prst", "pct50");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_60)
+  {
+    attributes.emplace_back("prst", "pct60");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_70)
+  {
+    attributes.emplace_back("prst", "pct70");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_75)
+  {
+    attributes.emplace_back("prst", "pct75");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_80)
+  {
+    attributes.emplace_back("prst", "pct80");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PERCENT_90)
+  {
+    attributes.emplace_back("prst", "pct90");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LIGHT_DOWNWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "ltDnDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LIGHT_UPWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "ltUpDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DARK_DOWNWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "dkDnDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DARK_UPWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "dkUpDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::WIDE_DOWNWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "wdDnDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::WIDE_UPWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "wdUpDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LIGHT_VERTICAL)
+  {
+    attributes.emplace_back("prst", "ltVert");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LIGHT_HORIZONTAL)
+  {
+    attributes.emplace_back("prst", "ltHorz");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::NARROW_VERTICAL)
+  {
+    attributes.emplace_back("prst", "narVert");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::NARROW_HORIZONTAL)
+  {
+    attributes.emplace_back("prst", "narHorz");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DARK_VERTICAL)
+  {
+    attributes.emplace_back("prst", "dkVert");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DARK_HORIZONTAL)
+  {
+    attributes.emplace_back("prst", "dkHorz");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DASHED_DOWNWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "dashDnDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DASHED_UPWARD_DIAGONAL)
+  {
+    attributes.emplace_back("prst", "dashUpDiag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DASHED_HORIZONTAL)
+  {
+    attributes.emplace_back("prst", "dashHorz");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DASHED_VERTICAL)
+  {
+    attributes.emplace_back("prst", "dashVert");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::SMALL_CONFETTI)
+  {
+    attributes.emplace_back("prst", "smConfetti");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LARGE_CONFETTI)
+  {
+    attributes.emplace_back("prst", "lgConfetti");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::ZIGZAG)
+  {
+    attributes.emplace_back("prst", "zigZag");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::WAVE)
+  {
+    attributes.emplace_back("prst", "wave");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DIAGONAL_BRICK)
+  {
+    attributes.emplace_back("prst", "diagBrick");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::HORIZONTAL_BRICK)
+  {
+    attributes.emplace_back("prst", "horzBrick");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::WEAVE)
+  {
+    attributes.emplace_back("prst", "weave");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::PLAID)
+  {
+    attributes.emplace_back("prst", "plaid");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DIVOT)
+  {
+    attributes.emplace_back("prst", "divot");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DOTTED_GRID)
+  {
+    attributes.emplace_back("prst", "dotGrid");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::DOTTED_DIAMOND)
+  {
+    attributes.emplace_back("prst", "dotDmnd");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::SHINGLE)
+  {
+    attributes.emplace_back("prst", "shingle");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::TRELLIS)
+  {
+    attributes.emplace_back("prst", "trellis");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::SPHERE)
+  {
+    attributes.emplace_back("prst", "sphere");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::SMALL_GRID)
+  {
+    attributes.emplace_back("prst", "smGrid");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LARGE_GRID)
+  {
+    attributes.emplace_back("prst", "lgGrid");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::SMALL_CHECK)
+  {
+    attributes.emplace_back("prst", "smCheck");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::LARGE_CHECK)
+  {
+    attributes.emplace_back("prst", "lgCheck");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::OUTLINED_DIAMOND)
+  {
+    attributes.emplace_back("prst", "openDmnd");
+  }
+  else if(pattern.type_ == chart_pattern_type_t::SOLID_DIAMOND)
+  {
+    attributes.emplace_back("prst", "solidDmnd");
+  }
+  else
+  {
+    attributes.emplace_back("prst", "percent_50");
+  }
+
+  std::string xml_data = xml_start_tag("a:pattFill", attributes);
+
+  if(pattern.fg_color_ != color_t::UNSET)
+  {
+    xml_data += write_a_fg_clr(pattern.fg_color_);
+  }
+
+  if(pattern.bg_color_ != color_t::UNSET)
+  {
+    xml_data += write_a_bg_clr(pattern.bg_color_);
+  }
+
+  xml_data += xml_end_tag("a:pattFill");
+
+  return xml_data;
+}
+
+std::string chart_t::write_sp_pr(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill,
+                                 const std::optional<chart_pattern_t>& pattern)
+{
+  if(!line && !fill && !pattern)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("c:spPr");
+  if(fill && !pattern)
+  {
+    if(fill->none_)
+    {
+      xml_data += write_a_no_fill();
+    }
+    else
+    {
+      xml_data += write_a_solid_fill(fill->color_, fill->transparency_);
+    }
+  }
+
+  if(pattern)
+  {
+    xml_data += write_a_patt_fill(*pattern);
+  }
+
+  if(line)
+  {
+    xml_data += write_a_ln(*line);
+  }
+  xml_data += xml_end_tag("c:spPr");
+
+  return xml_data;
+}
+
+std::string chart_t::write_order(uint16_t index)
+{
+  return xml_empty_tag("c:order", {
+                                      {"val", std::to_string(index)}
+  });
+}
+
+std::string chart_t::write_axis_id(uint32_t axis_id)
+{
+  return xml_empty_tag("c:axId", {
+                                     {"val", std::to_string(axis_id)}
+  });
+}
+
+std::string chart_t::write_axis_ids(chart_t& chart)
+{
+  if(chart.axis_id_1_ == 0)
+  {
+    add_axis_ids(chart);
+  }
+
+  std::string xml_data = write_axis_id(chart.axis_id_1_);
+  xml_data += write_axis_id(chart.axis_id_2_);
+
+  return xml_data;
+}
+
+std::string chart_t::write_series_name(const chart_series_t& series)
+{
+  if(!series.title_.name_.empty())
+  {
+    return write_tx_value(series.title_.name_);
+  }
+  else if(!series.title_.range_.formula_.empty())
+  {
+    return write_tx_formula(series.title_);
+  }
+
+  return "";
+}
+
+/*
+ * Write the <c:majorTickMark> element.
+ */
+/// STATIC void _chart_write_major_tick_mark(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->major_tick_mark)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(axis->major_tick_mark == LXW_CHART_AXIS_TICK_MARK_NONE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "none");
+///   }
+///   else if(axis->major_tick_mark == LXW_CHART_AXIS_TICK_MARK_INSIDE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "in");
+///   }
+///   else if(axis->major_tick_mark == LXW_CHART_AXIS_TICK_MARK_CROSSING)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "cross");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "out");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:majorTickMark", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:minorTickMark> element.
+ */
+/// STATIC void _chart_write_minor_tick_mark(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->minor_tick_mark)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(axis->minor_tick_mark == LXW_CHART_AXIS_TICK_MARK_NONE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "none");
+///   }
+///   else if(axis->minor_tick_mark == LXW_CHART_AXIS_TICK_MARK_INSIDE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "in");
+///   }
+///   else if(axis->minor_tick_mark == LXW_CHART_AXIS_TICK_MARK_CROSSING)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "cross");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "out");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:minorTickMark", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:symbol> element.
+ */
+/// STATIC void _chart_write_symbol(lxw_chart* self, uint8_t type)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(type == LXW_CHART_MARKER_SQUARE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "square");
+///   }
+///   else if(type == LXW_CHART_MARKER_DIAMOND)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "diamond");
+///   }
+///   else if(type == LXW_CHART_MARKER_TRIANGLE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "triangle");
+///   }
+///   else if(type == LXW_CHART_MARKER_X)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "x");
+///   }
+///   else if(type == LXW_CHART_MARKER_STAR)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "star");
+///   }
+///   else if(type == LXW_CHART_MARKER_SHORT_DASH)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "short_dash");
+///   }
+///   else if(type == LXW_CHART_MARKER_LONG_DASH)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "long_dash");
+///   }
+///   else if(type == LXW_CHART_MARKER_CIRCLE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "circle");
+///   }
+///   else if(type == LXW_CHART_MARKER_PLUS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "plus");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "none");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:symbol", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:dPt> element.
+ */
+/// STATIC void _chart_write_d_pt(lxw_chart* self, lxw_chart_point* point, uint16_t index)
+/// {
+///   lxw_xml_start_tag(self->file, "c:dPt", NULL);
+///
+///   /* Write the c:idx element. */
+///   _chart_write_idx(self, index);
+///
+///   /* Scatter/Line charts have an additional marker for the point. */
+///   if(self->chart_group == LXW_CHART_SCATTER || self->chart_group == LXW_CHART_LINE)
+///   {
+///     lxw_xml_start_tag(self->file, "c:marker", NULL);
+///   }
+///
+///   /* Write the c:spPr element. */
+///   _chart_write_sp_pr(self, point->line, point->fill, point->pattern);
+///
+///   if(self->chart_group == LXW_CHART_SCATTER || self->chart_group == LXW_CHART_LINE)
+///   {
+///     lxw_xml_end_tag(self->file, "c:marker");
+///   }
+///
+///   lxw_xml_end_tag(self->file, "c:dPt");
+/// }
+
+/*
+ * Write the <c:dPt> element.
+ */
+/// STATIC void _chart_write_points(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   uint16_t index;
+///
+///   for(index = 0; index < series->point_count; index++)
+///   {
+///     lxw_chart_point* point = &series->points[index];
+///
+///     /* Ignore empty points. */
+///     if(!point->line && !point->fill && !point->pattern)
+///     {
+///       continue;
+///     }
+///
+///     /* Write the c:dPt element. */
+///     _chart_write_d_pt(self, &series->points[index], index);
+///   }
+/// }
+
+/*
+ * Write the <c:invertIfNegative> element.
+ */
+/// STATIC void _chart_write_invert_if_negative(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!series->invert_if_negative)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:invertIfNegative", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showVal> element.
+ */
+/// ATIC void _chart_write_show_val(lxw_chart* self)
+/// /// struct xml_attribute_list attributes;
+/// struct xml_attribute* attribute;
+///// LXW_INIT_ATTRIBUTES();
+/// LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///// lxw_xml_empty_tag(self->file, "c:showVal", &attributes);
+///// LXW_FREE_ATTRIBUTES();
+///
+/*
+ * Write the <c:showCatName> element.
+ */
+/// STATIC void _chart_write_show_cat_name(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showCatName", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showSerName> element.
+ */
+/// STATIC void _chart_write_show_ser_name(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showSerName", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showLeaderLines> element.
+ */
+/// STATIC void _chart_write_show_leader_lines(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showLeaderLines", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:dLblPos> element.
+ */
+/// STATIC void _chart_write_d_lbl_pos(lxw_chart* self, uint8_t position)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(position == LXW_CHART_LABEL_POSITION_RIGHT)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "r");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_LEFT)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "l");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_ABOVE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "t");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_BELOW)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "b");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_INSIDE_BASE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "inBase");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_INSIDE_END)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "inEnd");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_OUTSIDE_END)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "outEnd");
+///   }
+///   else if(position == LXW_CHART_LABEL_POSITION_BEST_FIT)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "bestFit");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "ctr");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:dLblPos", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:separator> element.
+ */
+/// STATIC void _chart_write_separator(lxw_chart* self, uint8_t separator)
+/// {
+///   if(separator == LXW_CHART_LABEL_SEPARATOR_SEMICOLON)
+///   {
+///     lxw_xml_data_element(self->file, "c:separator", "; ", NULL);
+///   }
+///   else if(separator == LXW_CHART_LABEL_SEPARATOR_PERIOD)
+///   {
+///     lxw_xml_data_element(self->file, "c:separator", ". ", NULL);
+///   }
+///   else if(separator == LXW_CHART_LABEL_SEPARATOR_NEWLINE)
+///   {
+///     lxw_xml_data_element(self->file, "c:separator", "\n", NULL);
+///   }
+///   else if(separator == LXW_CHART_LABEL_SEPARATOR_SPACE)
+///   {
+///     lxw_xml_data_element(self->file, "c:separator", " ", NULL);
+///   }
+///   else
+///   {
+///     lxw_xml_data_element(self->file, "c:separator", ", ", NULL);
+///   }
+/// }
+
+/*
+ * Write the <c:showLegendKey> element.
+ */
+/// STATIC void _chart_write_show_legend_key(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showLegendKey", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showPercent> element.
+ */
+/// STATIC void _chart_write_show_percent(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showPercent", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:numFmt> element.
+ */
+/// STATIC void _chart_write_label_num_fmt(lxw_chart* self, char* format)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("formatCode", format);
+///   LXW_PUSH_ATTRIBUTES_STR("sourceLinked", "0");
+///
+///   lxw_xml_empty_tag(self->file, "c:numFmt", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write parts of the <c:dLbl> elements where only formatting is changed.
+ */
+/// STATIC void _chart_write_custom_label_format_only(lxw_chart* self, lxw_chart_custom_label* data_label)
+/// {
+///   if(data_label->line || data_label->fill || data_label->pattern)
+///   {
+///     _chart_write_sp_pr(self, data_label->line, data_label->fill, data_label->pattern);
+///     _chart_write_tx_pr(self, LXW_FALSE, data_label->font);
+///   }
+///   else if(data_label->font)
+///   {
+///     lxw_xml_empty_tag(self->file, "c:spPr", NULL);
+///     _chart_write_tx_pr(self, LXW_FALSE, data_label->font);
+///   }
+/// }
+
+/*
+ * Write parts of the <c:dLbl> elements for formula custom labels.
+ */
+/// STATIC void _chart_write_custom_label_formula(lxw_chart* self, lxw_chart_series* series,
+///                                               lxw_chart_custom_label* data_label)
+/// {
+///   lxw_xml_empty_tag(self->file, "c:layout", NULL);
+///   lxw_xml_start_tag(self->file, "c:tx", NULL);
+///
+///   _chart_write_str_ref(self, data_label->range);
+///
+///   lxw_xml_end_tag(self->file, "c:tx");
+///
+///   _chart_write_custom_label_format_only(self, data_label);
+///
+///   /* Write the c:dLblPos element. */
+///   if(series->label_position)
+///   {
+///     _chart_write_d_lbl_pos(self, series->label_position);
+///   }
+///
+///   /* Write the c:showVal element. */
+///   if(series->show_labels_value)
+///   {
+///     _chart_write_show_val(self);
+///   }
+///
+///   /* Write the c:showCatName element. */
+///   if(series->show_labels_category)
+///   {
+///     _chart_write_show_cat_name(self);
+///   }
+///
+///   /* Write the c:showSerName element. */
+///   if(series->show_labels_name)
+///   {
+///     _chart_write_show_ser_name(self);
+///   }
+/// }
+
+/*
+ * Write parts of the <c:dLbl> elements for string custom labels.
+ */
+/// STATIC void _chart_write_custom_label_str(lxw_chart* self, lxw_chart_series* series, lxw_chart_custom_label*
+/// data_label)
+/// {
+///   uint8_t ignore_rich_pr = LXW_TRUE;
+///
+///   if(data_label->line || data_label->fill || data_label->pattern)
+///   {
+///     ignore_rich_pr = LXW_FALSE;
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:layout", NULL);
+///   lxw_xml_start_tag(self->file, "c:tx", NULL);
+///
+///   /* Write the c:rich element. */
+///   _chart_write_rich(self, data_label->value, data_label->font, LXW_FALSE, ignore_rich_pr);
+///
+///   lxw_xml_end_tag(self->file, "c:tx");
+///
+///   /* Write the c:spPr element. */
+///   _chart_write_sp_pr(self, data_label->line, data_label->fill, data_label->pattern);
+///
+///   /* Write the c:dLblPos element. */
+///   if(series->label_position)
+///   {
+///     _chart_write_d_lbl_pos(self, series->label_position);
+///   }
+///
+///   /* Write the c:showVal element. */
+///   if(series->show_labels_value)
+///   {
+///     _chart_write_show_val(self);
+///   }
+///
+///   /* Write the c:showCatName element. */
+///   if(series->show_labels_category)
+///   {
+///     _chart_write_show_cat_name(self);
+///   }
+///
+///   /* Write the c:showSerName element. */
+///   if(series->show_labels_name)
+///   {
+///     _chart_write_show_ser_name(self);
+///   }
+/// }
+
+/*
+ * Write the <c:dLbl> elements for custom labels.
+ */
+/// STATIC void _chart_write_custom_labels(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   uint16_t index = 0;
+///
+///   for(index = 0; index < series->data_label_count; index++)
+///   {
+///     lxw_chart_custom_label* data_label = &series->data_labels[index];
+///
+///     if(!data_label->value && !data_label->range && !data_label->hide && !data_label->font)
+///     {
+///
+///       continue;
+///     }
+///
+///     lxw_xml_start_tag(self->file, "c:dLbl", NULL);
+///
+///     /* Write the c:idx element. */
+///     _chart_write_idx(self, index);
+///
+///     if(data_label->hide)
+///     {
+///       /* Write the c:delete element. */
+///       _chart_write_delete(self);
+///     }
+///     else if(data_label->value)
+///     {
+///       _chart_write_custom_label_str(self, series, data_label);
+///     }
+///     else if(data_label->range)
+///     {
+///       _chart_write_custom_label_formula(self, series, data_label);
+///     }
+///     else if(data_label->font)
+///     {
+///       _chart_write_custom_label_format_only(self, data_label);
+///     }
+///
+///     lxw_xml_end_tag(self->file, "c:dLbl");
+///   }
+/// }
+
+/*
+ * Write the <c:dLbls> element.
+ */
+/// STATIC void _chart_write_d_lbls(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   if(!series->has_labels)
+///   {
+///     return;
+///   }
+///
+///   lxw_xml_start_tag(self->file, "c:dLbls", NULL);
+///
+///   if(series->data_labels)
+///   {
+///     _chart_write_custom_labels(self, series);
+///   }
+///
+///   /* Write the c:numFmt element. */
+///   if(series->label_num_format)
+///   {
+///     _chart_write_label_num_fmt(self, series->label_num_format);
+///   }
+///
+///   /* Write the c:spPr element. */
+///   _chart_write_sp_pr(self, series->label_line, series->label_fill, series->label_pattern);
+///
+///   if(series->label_font)
+///   {
+///     _chart_write_tx_pr(self, LXW_FALSE, series->label_font);
+///   }
+///
+///   /* Write the c:dLblPos element. */
+///   if(series->label_position)
+///   {
+///     _chart_write_d_lbl_pos(self, series->label_position);
+///   }
+///
+///   /* Write the c:showLegendKey element. */
+///   if(series->show_labels_legend)
+///   {
+///     _chart_write_show_legend_key(self);
+///   }
+///
+///   /* Write the c:showVal element. */
+///   if(series->show_labels_value)
+///   {
+///     _chart_write_show_val(self);
+///   }
+///
+///   /* Write the c:showCatName element. */
+///   if(series->show_labels_category)
+///   {
+///     _chart_write_show_cat_name(self);
+///   }
+///
+///   /* Write the c:showSerName element. */
+///   if(series->show_labels_name)
+///   {
+///     _chart_write_show_ser_name(self);
+///   }
+///
+///   /* Write the c:showPercent element. */
+///   if(series->show_labels_percent)
+///   {
+///     _chart_write_show_percent(self);
+///   }
+///
+///   /* Write the c:separator element. */
+///   if(series->label_separator)
+///   {
+///     _chart_write_separator(self, series->label_separator);
+///   }
+///
+///   /* Write the c:showLeaderLines element. */
+///   if(series->show_labels_leader)
+///   {
+///     _chart_write_show_leader_lines(self);
+///   }
+///
+///   lxw_xml_end_tag(self->file, "c:dLbls");
+/// }
+
+/*
+ * Write the <c:intercept> element.
+ */
+/// STATIC void _chart_write_intercept(lxw_chart* self, double value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", value);
+///
+///   lxw_xml_empty_tag(self->file, "c:intercept", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:dispRSqr> element.
+ */
+/// STATIC void _chart_write_disp_rsqr(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:dispRSqr", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:trendlineLbl> element.
+ */
+/// STATIC void _chart_write_trendline_lbl(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   lxw_xml_start_tag(self->file, "c:trendlineLbl", NULL);
+///
+///   lxw_xml_empty_tag(self->file, "c:layout", NULL);
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("formatCode", "General");
+///   LXW_PUSH_ATTRIBUTES_INT("sourceLinked", 0);
+///
+///   lxw_xml_empty_tag(self->file, "c:numFmt", &attributes);
+///
+///   lxw_xml_end_tag(self->file, "c:trendlineLbl");
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:dispEq> element.
+ */
+/// STATIC void _chart_write_disp_eq(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:dispEq", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:period> element.
+ */
+/// STATIC void _chart_write_period(lxw_chart* self, uint8_t value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_INT("val", value);
+///
+///   lxw_xml_empty_tag(self->file, "c:period", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:forward> element.
+ */
+/// STATIC void _chart_write_forward(lxw_chart* self, double value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", value);
+///
+///   lxw_xml_empty_tag(self->file, "c:forward", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:backward> element.
+ */
+/// STATIC void _chart_write_backward(lxw_chart* self, double value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", value);
+///
+///   lxw_xml_empty_tag(self->file, "c:backward", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:name> element.
+ */
+/// STATIC void _chart_write_name(lxw_chart* self, char* name)
+/// {
+///   lxw_xml_data_element(self->file, "c:name", name, NULL);
+/// }
+
+/*
+ * Write the <c:trendlineType> element.
+ */
+/// STATIC void _chart_write_trendline_type(lxw_chart* self, uint8_t type)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(type == LXW_CHART_TRENDLINE_TYPE_LOG)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "log");
+///   }
+///   else if(type == LXW_CHART_TRENDLINE_TYPE_POLY)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "poly");
+///   }
+///   else if(type == LXW_CHART_TRENDLINE_TYPE_POWER)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "power");
+///   }
+///   else if(type == LXW_CHART_TRENDLINE_TYPE_EXP)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "exp");
+///   }
+///   else if(type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "movingAvg");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "linear");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:trendlineType", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:trendline> element.
+ */
+/// STATIC void _chart_write_trendline(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   if(!series->has_trendline)
+///   {
+///     return;
+///   }
+///
+///   lxw_xml_start_tag(self->file, "c:trendline", NULL);
+///
+///   /* Write the c:name element. */
+///   if(series->trendline_name)
+///   {
+///     _chart_write_name(self, series->trendline_name);
+///   }
+///
+///   /* Write the c:spPr element. */
+///   _chart_write_sp_pr(self, series->trendline_line, NULL, NULL);
+///
+///   /* Write the c:trendlineType element. */
+///   _chart_write_trendline_type(self, series->trendline_type);
+///
+///   /* Write the c:order element. */
+///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_POLY && series->trendline_value >= 2)
+///   {
+///
+///     _chart_write_order(self, series->trendline_value);
+///   }
+///
+///   /* Write the c:period element. */
+///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE && series->trendline_value >= 2)
+///   {
+///
+///     _chart_write_period(self, series->trendline_value);
+///   }
+///
+///   if(series->has_trendline_forecast)
+///   {
+///     /* Write the c:forward element. */
+///     _chart_write_forward(self, series->trendline_forward);
+///
+///     /* Write the c:backward element. */
+///     _chart_write_backward(self, series->trendline_backward);
+///   }
+///
+///   /* Write the c:intercept element. */
+///   if(series->has_trendline_intercept)
+///   {
+///     _chart_write_intercept(self, series->trendline_intercept);
+///   }
+///
+///   /* Write the c:dispRSqr element. */
+///   if(series->has_trendline_r_squared)
+///   {
+///     _chart_write_disp_rsqr(self);
+///   }
+///
+///   if(series->has_trendline_equation)
+///   {
+///     /* Write the c:dispEq element. */
+///     _chart_write_disp_eq(self);
+///
+///     /* Write the c:trendlineLbl element. */
+///     _chart_write_trendline_lbl(self);
+///   }
+///
+///   lxw_xml_end_tag(self->file, "c:trendline");
+/// }
+
+/*
+ * Write the <c:val> element.
+ */
+/// STATIC void _chart_write_error_val(lxw_chart* self, double value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", value);
+///
+///   lxw_xml_empty_tag(self->file, "c:val", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:noEndCap> element.
+ */
+/// STATIC void _chart_write_no_end_cap(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:noEndCap", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:errValType> element.
+ */
+/// STATIC void _chart_write_err_val_type(lxw_chart* self, uint8_t type)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(type == LXW_CHART_ERROR_BAR_TYPE_FIXED)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "fixedVal");
+///   }
+///   else if(type == LXW_CHART_ERROR_BAR_TYPE_PERCENTAGE)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "percentage");
+///   }
+///   else if(type == LXW_CHART_ERROR_BAR_TYPE_STD_DEV)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "stdDev");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "stdErr");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:errValType", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:errBarType> element.
+ */
+/// STATIC void _chart_write_err_bar_type(lxw_chart* self, uint8_t direction)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(direction == LXW_CHART_ERROR_BAR_DIR_PLUS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "plus");
+///   }
+///   else if(direction == LXW_CHART_ERROR_BAR_DIR_MINUS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "minus");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "both");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:errBarType", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:errDir> element.
+ */
+/// STATIC void _chart_write_err_dir(lxw_chart* self, uint8_t is_x)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(is_x)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "x");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "y");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:errDir", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:errBars> element.
+ */
+/// STATIC void _chart_write_err_bars(lxw_chart* self, lxw_series_error_bars* error_bars)
+/// {
+///   if(!error_bars->is_set)
+///   {
+///     return;
+///   }
+///
+///   lxw_xml_start_tag(self->file, "c:errBars", NULL);
+///
+///   /* Write the c:errDir element, except for Column/Bar charts. */
+///   if(error_bars->chart_group != LXW_CHART_BAR && error_bars->chart_group != LXW_CHART_COLUMN)
+///   {
+///
+///     _chart_write_err_dir(self, error_bars->is_x);
+///   }
+///
+///   /* Write the c:errBarType element. */
+///   _chart_write_err_bar_type(self, error_bars->direction);
+///
+///   /* Write the c:errValType element. */
+///   _chart_write_err_val_type(self, error_bars->type);
+///
+///   /* Write the c:noEndCap element. */
+///   if(error_bars->endcap == LXW_CHART_ERROR_BAR_NO_CAP)
+///   {
+///     _chart_write_no_end_cap(self);
+///   }
+///
+///   /* Write the c:val element. */
+///   if(error_bars->has_value)
+///   {
+///     _chart_write_error_val(self, error_bars->value);
+///   }
+///
+///   /* Write the c:spPr element. */
+///   _chart_write_sp_pr(self, error_bars->line, NULL, NULL);
+///
+///   lxw_xml_end_tag(self->file, "c:errBars");
+/// }
+
+/*
+ * Write the <c:errBars> element.
+ */
+/// STATIC void _chart_write_error_bars(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   _chart_write_err_bars(self, series->x_error_bars);
+///   _chart_write_err_bars(self, series->y_error_bars);
+/// }
+
+/*
+ * Write the <c:size> element.
+ */
+/// STATIC void _chart_write_marker_size(lxw_chart* self, uint8_t size)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_INT("val", size);
+///
+///   lxw_xml_empty_tag(self->file, "c:size", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_marker(chart_t& chart, std::optional<chart_marker_t>& marker)
+{
+  // If there isn't a user defined marker use the default, if this chart
+  //  type one. The default usually turns the marker off. */
+  if(!marker)
+  {
+    marker = chart.default_marker_;
+  }
+
+  if(!marker)
+  {
+    return "";
+  }
+
+///   if(marker->type == LXW_CHART_MARKER_AUTOMATIC)
+///   {
+///     return;
+///   }
+///
+std::string xml_data = xml_start_tag("c:marker");
+///  xml_data +=  _chart_write_symbol(self, marker->type);
+///   if(marker->size)
+///   {
+///     xml_data += _chart_write_marker_size(self, marker->size);
+///   }
+///   _chart_write_sp_pr(self, marker->line, marker->fill, marker->pattern);
+  xml_data += xml_end_tag("c:marker");
+
+  return xml_data;
+}
+
+/*
+ * Write the <c:marker> element.
+ */
+/// STATIC void _chart_write_marker_value(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:marker", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:smooth> element.
+ */
+/// STATIC void _chart_write_smooth(lxw_chart* self, uint8_t smooth)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!smooth)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:smooth", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:scatterStyle> element.
+ */
+/// STATIC void _chart_write_scatter_style(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(self->type == LXW_CHART_SCATTER_SMOOTH || self->type == LXW_CHART_SCATTER_SMOOTH_WITH_MARKERS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "smoothMarker");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "lineMarker");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:scatterStyle", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_cat(chart_t& chart, const chart_series_t& series)
+{
+  bool has_string_cache = series.categories_.has_string_cache_;
+
+  // Ignore <c:cat> elements for charts without category values.
+  if(series.categories_.formula_.empty())
+  {
+    return "";
+  }
+
+  chart.cat_has_num_fmt_ = !has_string_cache;
+
+  std::string xml_data = xml_start_tag("c:cat");
+  xml_data += write_data_cache(series.categories_, has_string_cache);
+  xml_data += xml_end_tag("c:cat");
+
+  return xml_data;
+}
+
+/*
+ * Write the <c:xVal> element.
+ */
+/// STATIC void _chart_write_x_val(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   uint8_t has_string_cache = series->categories->has_string_cache;
+///
+///   lxw_xml_start_tag(self->file, "c:xVal", NULL);
+///
+///   /* Write the data cache elements. */
+///   _chart_write_data_cache(self, series->categories, has_string_cache);
+///
+///   lxw_xml_end_tag(self->file, "c:xVal");
+/// }
+
+std::string chart_t::write_val(const chart_series_t& series)
+{
+  std::string xml_data = xml_start_tag("c:val");
+  // Write the data cache elements. The string_cache is set to false since
+  // this should always be a number series. */
+  xml_data += write_data_cache(series.values_, false);
+  xml_data += xml_end_tag("c:val");
+
+  return xml_data;
+}
+
+/*
+ * Write the <c:yVal> element.
+ */
+/// STATIC void _chart_write_y_val(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   lxw_xml_start_tag(self->file, "c:yVal", NULL);
+///
+///   /* Write the data cache elements. The string_cache is set to false since
+///    * this should always be a number series. */
+///   _chart_write_data_cache(self, series->values, LXW_FALSE);
+///
+///   lxw_xml_end_tag(self->file, "c:yVal");
+/// }
+
+std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
+{ // ICI
+  uint16_t index = chart.series_index_++;
+
+  std::string xml_data = xml_start_tag("c:ser");
+  xml_data += write_idx(index);
+  xml_data += write_order(index);
+  xml_data += write_series_name(series);
+  xml_data += write_sp_pr(series.line_, series.fill_, series.pattern_);
+  xml_data += write_marker(chart, series.marker_);
+  ///   xml_data += _chart_write_invert_if_negative(self, series);
+  ///   xml_data += _chart_write_points(self, series);
+  ///   xml_data += _chart_write_d_lbls(self, series);
+  ///   xml_data += _chart_write_trendline(self, series);
+  ///   xml_data += _chart_write_error_bars(self, series);
+  xml_data += write_cat(chart, series);
+  xml_data += write_val(series);
+  ///   if(self->chart_group == LXW_CHART_SCATTER || self->chart_group == LXW_CHART_LINE)
+  ///   {
+  ///     xml_data += _chart_write_smooth(self, series->smooth);
+  ///   }
+  xml_data += xml_end_tag("c:ser");
+
+  return xml_data;
+}
+
+/*
+ * Write the <c:ser> element but with c:xVal/c:yVal instead of c:cat/c:val
+ * elements.
+ */
+/// STATIC void _chart_write_xval_ser(lxw_chart* self, lxw_chart_series* series)
+/// {
+///   uint16_t index = self->series_index++;
+///
+///   lxw_xml_start_tag(self->file, "c:ser", NULL);
+///
+///   /* Write the c:idx element. */
+///   _chart_write_idx(self, index);
+///
+///   /* Write the c:order element. */
+///   _chart_write_order(self, index);
+///
+///   /* Write the series name. */
+///   _chart_write_series_name(self, series);
+///
+///   /* Write the c:spPr element. */
+///   _chart_write_sp_pr(self, series->line, series->fill, series->pattern);
+///
+///   /* Write the c:marker element. */
+///   _chart_write_marker(self, series->marker);
+///
+///   /* Write the char points. */
+///   _chart_write_points(self, series);
+///
+///   /* Write the c:dLbls element. */
+///   _chart_write_d_lbls(self, series);
+///
+///   /* Write the c:trendline element. */
+///   _chart_write_trendline(self, series);
+///
+///   /* Write the c:errBars element. */
+///   _chart_write_error_bars(self, series);
+///
+///   /* Write the c:xVal element. */
+///   _chart_write_x_val(self, series);
+///
+///   /* Write the yVal element. */
+///   _chart_write_y_val(self, series);
+///
+///   /* Write the c:smooth element. */
+///   _chart_write_smooth(self, series->smooth);
+///
+///   lxw_xml_end_tag(self->file, "c:ser");
+/// }
+
+std::string chart_t::write_orientation(bool reverse)
+{
+  if(reverse)
+  {
+    return xml_empty_tag("c:orientation", {{"val", "maxMin"}});
+  }
+  else
+  {
+    return xml_empty_tag("c:orientation", {{"val", "minMax"}});
+  }
+}
+
+std::string chart_t::write_max(double max)
+{
+  return xml_empty_tag("c:max", {{"val", std::format("{}", max) }});
+}
+
+std::string chart_t::write_min(double min)
+{
+  return xml_empty_tag("c:min", {{"val", std::format("{}", min) }});
+}
+
+std::string chart_t::write_log_base(uint16_t log_base)
+{
+  if(log_base == 0)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:logBase", {{"val", std::to_string(log_base)}});
+}
+
+std::string chart_t::write_scaling(bool reverse, bool has_min, double min, bool has_max, double max, uint16_t log_base)
+{
+  std::string xml_data = xml_start_tag("c:scaling");
+  xml_data += write_log_base(log_base);
+  xml_data +=write_orientation(reverse);
+
+  if(has_max)
+  {
+    xml_data += write_max(max);
+  }
+
+  if(has_min)
+  {
+    xml_data += write_min(min);
+  }
+
+  xml_data += xml_end_tag("c:scaling");
+
+  return xml_data;
+ }
+
+std::string chart_t::write_axis_pos(chart_position_t position, bool reverse)
+{
+  std::vector<std::tuple<std::string,std::string>> attributes;
+
+  switch(position)
+  {
+    case chart_position_t::RIGHT:
+      if(reverse)
+        attributes.emplace_back("val", "l");
+      else
+        attributes.emplace_back("val", "r");
+      break;
+    case chart_position_t::LEFT:
+      if(reverse)
+        attributes.emplace_back("val", "r");
+      else
+        attributes.emplace_back("val", "l");
+      break;
+
+    case chart_position_t::TOP:
+      if(reverse)
+        attributes.emplace_back("val", "b");
+      else
+        attributes.emplace_back("val", "t");
+      break;
+    case chart_position_t::BOTTOM:
+      if(reverse)
+        attributes.emplace_back("val", "t");
+      else
+        attributes.emplace_back("val", "b");
+      break;
+  }
+
+return xml_empty_tag("c:axPos", attributes);
+}
+
+std::string chart_t::write_tick_label_pos(const chart_axis_t& axis)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(axis.label_position_ == chart_axis_label_position_t::HIGH)
+  {
+    attributes.emplace_back("val", "high");
+  }
+  else if(axis.label_position_ == chart_axis_label_position_t::LOW)
+  {
+    attributes.emplace_back("val", "low");
+  }
+  else if(axis.label_position_ == chart_axis_label_position_t::NONE)
+  {
+    attributes.emplace_back("val", "none");
+  }
+  else
+  {
+    attributes.emplace_back("val", "nextTo");
+  }
+
+  return xml_empty_tag("c:tickLblPos", attributes);
+}
+
+std::string chart_t::write_cross_axis(uint32_t axis_id)
+{
+  return xml_empty_tag("c:crossAx", {{"val", std::to_string(axis_id)}});
+}
+
+std::string chart_t::write_crosses(const chart_axis_t& axis)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(axis.crossing_min_ != 0)
+  {
+    attributes.emplace_back("val", "min");
+  }
+  else if(axis.crossing_max_ != 0)
+  {
+    attributes.emplace_back("val", "max");
+  }
+  else
+  {
+    attributes.emplace_back("val", "autoZero");
+  }
+
+  return xml_empty_tag("c:crosses", attributes);
+}
+
+std::string chart_t::write_crosses_at(const chart_axis_t& axis)
+{
+  return xml_empty_tag("c:crossesAt", {{"val", std::format("{}", axis.crossing_)}});
+}
+
+std::string chart_t::write_auto()
+{
+  return xml_empty_tag("c:auto", {{"val", "1"}});
+}
+
+std::string chart_t::write_label_align(const chart_axis_t& axis)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(axis.label_align_ == chart_axis_label_alignment_t::LEFT)
+  {
+    attributes.emplace_back("val", "l");
+  }
+  else if(axis.label_align_ == chart_axis_label_alignment_t::RIGHT)
+  {
+    attributes.emplace_back("val", "r");
+  }
+  else
+  {
+    attributes.emplace_back("val", "ctr");
+  }
+
+  return xml_empty_tag("c:lblAlgn", attributes);
+}
+
+/*
+ * Write the <c:tickLblSkip> element.
+ */
+/// STATIC void _chart_write_tick_label_skip(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->interval_unit)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_INT("val", axis->interval_unit);
+///
+///   lxw_xml_empty_tag(self->file, "c:tickLblSkip", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:tickMarkSkip> element.
+ */
+/// STATIC void _chart_write_tick_mark_skip(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->interval_tick)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_INT("val", axis->interval_tick);
+///
+///   lxw_xml_empty_tag(self->file, "c:tickMarkSkip", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:majorUnit> element.
+ */
+/// STATIC void _chart_write_major_unit(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->has_major_unit)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", axis->major_unit);
+///
+///   lxw_xml_empty_tag(self->file, "c:majorUnit", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:minorUnit> element.
+ */
+/// STATIC void _chart_write_minor_unit(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->has_minor_unit)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///   LXW_PUSH_ATTRIBUTES_DBL("val", axis->minor_unit);
+///
+///   lxw_xml_empty_tag(self->file, "c:minorUnit", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:dispUnits> element.
+ */
+/// STATIC void _chart_write_disp_units(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!axis->display_units)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   lxw_xml_start_tag(self->file, "c:dispUnits", NULL);
+///
+///   if(axis->display_units == LXW_CHART_AXIS_UNITS_HUNDREDS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "hundreds");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_THOUSANDS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "thousands");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_TEN_THOUSANDS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "tenThousands");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_HUNDRED_THOUSANDS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "hundredThousands");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_MILLIONS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "millions");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_TEN_MILLIONS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "tenMillions");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_HUNDRED_MILLIONS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "hundredMillions");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_BILLIONS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "billions");
+///   }
+///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_TRILLIONS)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "trillions");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "hundreds");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:builtInUnit", &attributes);
+///
+///   if(axis->display_units_visible)
+///   {
+///     lxw_xml_start_tag(self->file, "c:dispUnitsLbl", NULL);
+///     lxw_xml_empty_tag(self->file, "c:layout", NULL);
+///     lxw_xml_end_tag(self->file, "c:dispUnitsLbl");
+///   }
+///
+///   lxw_xml_end_tag(self->file, "c:dispUnits");
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+std::string chart_t::write_label_offset()
+{
+  return xml_empty_tag("c:lblOffset", {{"val", "100"}});
+}
+
+std::string chart_t::write_major_gridlines(const chart_axis_t& axis)
+{
+  if(!axis.major_gridlines_.visible_)
+  {
+    return "";
+  }
+
+  if(axis.major_gridlines_.line_)
+  {
+    std::string xml_data = xml_start_tag("c:majorGridlines");
+    xml_data += write_sp_pr(axis.major_gridlines_.line_, std::nullopt, std::nullopt);
+    xml_data += xml_end_tag("c:majorGridlines");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("c:majorGridlines");
+  }
+}
+
+/*
+ * Write the <c:minorGridlines> element.
+ */
+/// STATIC void _chart_write_minor_gridlines(lxw_chart* self, lxw_chart_axis* axis)
+/// {
+///   if(!axis->minor_gridlines.visible)
+///   {
+///     return;
+///   }
+///
+///   if(axis->minor_gridlines.line)
+///   {
+///     lxw_xml_start_tag(self->file, "c:minorGridlines", NULL);
+///
+///     /* Write the c:spPr element for the axis line. */
+///     _chart_write_sp_pr(self, axis->minor_gridlines.line, NULL, NULL);
+///
+///     lxw_xml_end_tag(self->file, "c:minorGridlines");
+///   }
+///   else
+///   {
+///     lxw_xml_empty_tag(self->file, "c:minorGridlines", NULL);
+///   }
+/// }
+
+/*
+ * Write the <c:numberFormat> element. Note: It is assumed that if a user
+ * defined number format is supplied (i.e., non-default) then the sourceLinked
+ * attribute is 0. The user can override this if required.
+ */
+std::string chart_t::write_number_format(const chart_axis_t& axis)
+{
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+  std::string num_format;
+  uint8_t source_linked = 1;
+
+  // Set the number format to the axis default if not set.
+  if(!axis.num_format_.empty())
+  {
+    num_format = axis.num_format_;
+  }
+  else
+  {
+    num_format = axis.default_num_format_;
+  }
+
+  // Check if a user defined number format has been set.
+  if(num_format != axis.default_num_format_)
+  {
+    source_linked = 0;
+  }
+
+  // Allow override of sourceLinked.
+  if(axis.source_linked_)
+  {
+    source_linked = 1;
+  }
+
+  return xml_empty_tag("c:numFmt", {
+    {"formatCode", num_format},
+    {"sourceLinked", std::to_string(source_linked)},
+  });
+}
+
+std::string chart_t::write_cat_number_format(const chart_t& chart, const chart_axis_t& axis)
+{
+  std::string num_format;
+  uint8_t source_linked  = 1;
+  bool default_format = true;
+
+  // Set the number format to the axis default if not set.
+  if(!axis.num_format_.empty())
+  {
+    num_format = axis.num_format_;
+  }
+  else
+  {
+    num_format = axis.default_num_format_;
+  }
+
+  // Check if a user defined number format has been set.
+  if(num_format != axis.default_num_format_)
+  {
+    source_linked  = 0;
+    default_format = false;
+  }
+
+  // Allow override of sourceLinked.
+  if(axis.source_linked_ != 0)
+  {
+    source_linked = 1;
+  }
+
+  // Skip if cat doesn't have a num format (unless it is non-default).
+  if(!chart.cat_has_num_fmt_ && default_format)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:numFmt", {{"formatCode", num_format}, {"sourceLinked", std::to_string(source_linked)}});
+}
+
+std::string chart_t::write_cross_between(const chart_t& chart, chart_axis_tick_position_t position)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(position != chart_axis_tick_position_t::DEFAULT)
+  {
+    position = chart.default_cross_between_;
+  }
+
+  if(position == chart_axis_tick_position_t::ON_TICK)
+  {
+    attributes.emplace_back("val", "midCat");
+  }
+  else
+  {
+    attributes.emplace_back("val", "between");
+  }
+
+  return xml_empty_tag("c:crossBetween", attributes);
+}
+
+std::string chart_t::write_legend_pos(const std::string& position)
+{
+  return xml_empty_tag("c:legendPos", {{"val", position}});
+}
+
+std::string chart_t::write_legend_entry(uint16_t index)
+{
+  std::string xml_data = xml_start_tag("c:legendEntry");
+  xml_data += write_idx(delete_series_[index]);
+  xml_data += write_delete();
+  xml_data += xml_end_tag("c:legendEntry");
+
+  return xml_data;
+}
+
+std::string chart_t::write_legend()
+{
+  bool has_overlay = false;
+
+  if(legend_.position_ == chart_legend_position_t::NONE)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("c:legend");
+  switch(legend_.position_)
+   {
+     case chart_legend_position_t::LEFT:
+       xml_data += write_legend_pos("l");
+       break;
+     case chart_legend_position_t::TOP:
+       xml_data += write_legend_pos( "t");
+       break;
+     case chart_legend_position_t::BOTTOM:
+       xml_data += write_legend_pos( "b");
+       break;
+     case chart_legend_position_t::TOP_RIGHT:
+       xml_data += write_legend_pos( "tr");
+       break;
+     case chart_legend_position_t::OVERLAY_RIGHT:
+       xml_data += write_legend_pos( "r");
+       has_overlay = true;
+       break;
+     case chart_legend_position_t::OVERLAY_LEFT:
+       xml_data += write_legend_pos( "l");
+       has_overlay = true;
+       break;
+     case chart_legend_position_t::OVERLAY_TOP_RIGHT:
+       xml_data += write_legend_pos("tr");
+       has_overlay = true;
+       break;
+     default:
+       xml_data += write_legend_pos("r");
+   }
+
+  for(size_t index = 0; index < delete_series_.size(); index++)
+  {
+    xml_data += write_legend_entry(index);
+  }
+
+  xml_data += write_layout(legend_.layout_);
+
+///   if(self->chart_group == LXW_CHART_PIE || self->chart_group == LXW_CHART_DOUGHNUT)
+///   {
+///     if(has_overlay)
+///     {
+///       xml_data += _chart_write_overlay(self);
+///     }
+///
+///     xml_data += _chart_write_tx_pr_pie(self, LXW_FALSE, self->legend.font);
+///   }
+///   else
+///   {
+        if(legend_.font_)
+       {
+       xml_data += write_tx_pr(false, legend_.font_);
+     }
+     if(has_overlay)
+     {
+       xml_data += write_overlay();
+     }
+///   }
+
+  xml_data += xml_end_tag("c:legend");
+
+  return xml_data;
+}
+
+std::string chart_t::write_plot_vis_only()
+{
+  if(show_hidden_data_)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:plotVisOnly", {{"val", "1"}});
+}
+
+std::string chart_t::write_header_footer() const
+{
+  return xml_empty_tag("c:headerFooter");
+}
+
+std::string chart_t::write_page_margins() const
+{
+  return xml_empty_tag("c:pageMargins", {
+                                            {"b",      "0.75"},
+                                            {"l",      "0.7" },
+                                            {"r",      "0.7" },
+                                            {"t",      "0.75"},
+                                            {"header", "0.3" },
+                                            {"footer", "0.3" },
+  });
+}
+
+std::string chart_t::write_page_setup() const
+{
+  return xml_empty_tag("c:pageSetup");
+}
+
+std::string chart_t::write_print_settings() const
+{
+  std::string xml_data = xml_start_tag("c:printSettings");
+  xml_data += write_header_footer();
+  xml_data += write_page_margins();
+  xml_data += write_page_setup();
+  xml_data += xml_end_tag("c:printSettings");
+
+  return xml_data;
+}
+
+std::string chart_t::write_overlap(int8_t overlap)
+{
+  if(overlap == 0)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:overlap", {
+                                        {"val", std::to_string(overlap)}
+  });
+}
+
+std::string chart_t::write_gap_width(uint16_t gap)
+{
+  if(gap == DEFAULT_GAP)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:gapWidth", {
+                                         {"val", std::to_string(gap)}
+  });
+}
+
+/*
+ * Write the <c:dispBlanksAs> element.
+ */
+/// STATIC void _chart_write_disp_blanks_as(lxw_chart* self)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(self->show_blanks_as != LXW_CHART_BLANKS_AS_ZERO && self->show_blanks_as != LXW_CHART_BLANKS_AS_CONNECTED)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   if(self->show_blanks_as == LXW_CHART_BLANKS_AS_ZERO)
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "zero");
+///   }
+///   else
+///   {
+///     LXW_PUSH_ATTRIBUTES_STR("val", "span");
+///   }
+///
+///   lxw_xml_empty_tag(self->file, "c:dispBlanksAs", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showHorzBorder> element.
+ */
+/// STATIC void _chart_write_show_horz_border(lxw_chart* self, uint8_t value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!value)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showHorzBorder", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showVertBorder> element.
+ */
+/// STATIC void _chart_write_show_vert_border(lxw_chart* self, uint8_t value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!value)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showVertBorder", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showOutline> element.
+ */
+/// STATIC void _chart_write_show_outline(lxw_chart* self, uint8_t value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!value)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showOutline", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:showKeys> element.
+ */
+/// STATIC void _chart_write_show_keys(lxw_chart* self, uint8_t value)
+/// {
+///   struct xml_attribute_list attributes;
+///   struct xml_attribute* attribute;
+///
+///   if(!value)
+///   {
+///     return;
+///   }
+///
+///   LXW_INIT_ATTRIBUTES();
+///
+///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
+///
+///   lxw_xml_empty_tag(self->file, "c:showKeys", &attributes);
+///
+///   LXW_FREE_ATTRIBUTES();
+/// }
+
+/*
+ * Write the <c:dTable> element.
+ */
+/// STATIC void _chart_write_d_table(lxw_chart* self)
+/// {
+///   if(!self->has_table)
+///   {
+///     return;
+///   }
+///
+///   lxw_xml_start_tag(self->file, "c:dTable", NULL);
+///
+///   /* Write the c:showHorzBorder element. */
+///   _chart_write_show_horz_border(self, self->has_table_horizontal);
+///
+///   /* Write the c:showVertBorder element. */
+///   _chart_write_show_vert_border(self, self->has_table_vertical);
+///
+///   /* Write the c:showOutline element. */
+///   _chart_write_show_outline(self, self->has_table_outline);
+///
+///   /* Write the c:showKeys element. */
+///   _chart_write_show_keys(self, self->has_table_legend_keys);
+///
+///   /* Write the c:txPr element. */
+///   if(self->table_font)
+///   {
+///     _chart_write_tx_pr(self, LXW_FALSE, self->table_font);
+///   }
+///
+///   lxw_xml_end_tag(self->file, "c:dTable");
+/// }
+
+/*
+ * Write the <c:upBars> element.
+ */
+/// STATIC void _chart_write_up_bars(lxw_chart* self, lxw_chart_line* line, lxw_chart_fill* fill)
+/// {
+///   if(line || fill)
+///   {
+///     lxw_xml_start_tag(self->file, "c:upBars", NULL);
+///
+///     /* Write the c:spPr element. */
+///     _chart_write_sp_pr(self, line, fill, NULL);
+///
+///     lxw_xml_end_tag(self->file, "c:upBars");
+///   }
+///   else
+///   {
+///     lxw_xml_empty_tag(self->file, "c:upBars", NULL);
+///   }
+/// }
+
+/*
+ * Write the <c:downBars> element.
+ */
+/// STATIC void _chart_write_down_bars(lxw_chart* self, lxw_chart_line* line, lxw_chart_fill* fill)
+/// {
+///   if(line || fill)
+///   {
+///     lxw_xml_start_tag(self->file, "c:downBars", NULL);
+///
+///     /* Write the c:spPr element. */
+///     _chart_write_sp_pr(self, line, fill, NULL);
+///
+///     lxw_xml_end_tag(self->file, "c:downBars");
+///   }
+///   else
+///   {
+///     lxw_xml_empty_tag(self->file, "c:downBars", NULL);
+///   }
+/// }
+
+/*
+ * Write the <c:upDownBars> element.
+ */
+/// STATIC void _chart_write_up_down_bars(lxw_chart* self)
+/// {
+///   if(!self->has_up_down_bars)
+///   {
+///     return;
+///   }
+///
+///   lxw_xml_start_tag(self->file, "c:upDownBars", NULL);
+///
+///   /* Write the c:gapWidth element. */
+///   _chart_write_gap_width(self, 150);
+///
+///   /* Write the c:upBars element. */
+///   _chart_write_up_bars(self, self->up_bar_line, self->up_bar_fill);
+///
+///   /* Write the c:downBars element. */
+///   _chart_write_down_bars(self, self->down_bar_line, self->down_bar_fill);
+///
+///   lxw_xml_end_tag(self->file, "c:upDownBars");
+/// }
+
+/*
+ * Write the <c:dropLines> element.
+ */
+/// STATIC void _chart_write_drop_lines(lxw_chart* self)
+/// {
+///   if(!self->has_drop_lines)
+///   {
+///     return;
+///   }
+///
+///   if(self->drop_lines_line)
+///   {
+///     lxw_xml_start_tag(self->file, "c:dropLines", NULL);
+///
+///     _chart_write_sp_pr(self, self->drop_lines_line, NULL, NULL);
+///
+///     lxw_xml_end_tag(self->file, "c:dropLines");
+///   }
+///   else
+///   {
+///     lxw_xml_empty_tag(self->file, "c:dropLines", NULL);
+///   }
+/// }
+
+/*
+ * Write the <c:hiLowLines> element.
+ */
+/// STATIC void _chart_write_hi_low_lines(lxw_chart* self)
+/// {
+///   if(!self->has_high_low_lines)
+///   {
+///     return;
+///   }
+///
+///   if(self->high_low_lines_line)
+///   {
+///     lxw_xml_start_tag(self->file, "c:hiLowLines", NULL);
+///
+///     _chart_write_sp_pr(self, self->high_low_lines_line, NULL, NULL);
+///
+///     lxw_xml_end_tag(self->file, "c:hiLowLines");
+///   }
+///   else
+///   {
+///     lxw_xml_empty_tag(self->file, "c:hiLowLines", NULL);
+///   }
+/// }
+
+std::string chart_t::write_title(const chart_title_t& title)
+{
+  if(!title.name_.empty())
+  {
+    return write_title_rich(title);
+  }
+  else if(!title.range_.formula_.empty())
+  {
+    return write_title_formula(title);
+  }
+
+  return "";
+}
+
+std::string chart_t::write_chart_title() const
+{
+  if(title_.off_)
+  {
+    return write_auto_title_deleted();
+  }
+  else
+  {
+    return write_title(title_);
+  }
+}
+
+std::string chart_t::write_cat_axis(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:catAx");
+  xml_data += write_axis_id(chart.axis_id_1_);
+  // Write the c:scaling element. Note we can't set max, min, or log base
+  // for a Category axis in Excel.
+  xml_data += write_scaling(chart.x_axis_.reverse_, false, 0.0, false, 0.0, 0);
+  if(chart.x_axis_.hidden_)
+  {
+    xml_data += write_delete();
+  }
+  xml_data += write_axis_pos(chart.x_axis_.axis_position_, chart.y_axis_.reverse_);
+  // ICI
+  xml_data += write_major_gridlines(chart.x_axis_);
+///   xml_data += _chart_write_minor_gridlines(self, self->x_axis);
+  chart.x_axis_.title_.is_horizontal_ = chart.has_horiz_cat_axis_;
+  xml_data += write_title(chart.x_axis_.title_);
+  xml_data += write_cat_number_format(chart, chart.x_axis_);
+///   xml_data += _chart_write_major_tick_mark(self, self->x_axis);
+///   xml_data += _chart_write_minor_tick_mark(self, self->x_axis);
+  xml_data += write_tick_label_pos(chart.x_axis_);
+///   xml_data += _chart_write_sp_pr(self, self->x_axis->line, self->x_axis->fill, self->x_axis->pattern);
+  xml_data += write_axis_font(chart.x_axis_.num_font_);
+  xml_data += write_cross_axis(chart.axis_id_2_);
+  if(!chart.y_axis_.has_crossing_ || chart.y_axis_.crossing_min_ != 0 || chart.y_axis_.crossing_max_ != 0)
+  {
+    xml_data += write_crosses(chart.y_axis_);
+  }
+  else
+  {
+    xml_data += write_crosses_at(chart.y_axis_);
+  }
+  xml_data += write_auto();
+  xml_data += write_label_align(chart.x_axis_);
+  xml_data += write_label_offset();
+///   xml_data += _chart_write_tick_label_skip(self, self->x_axis);
+///   xml_data += _chart_write_tick_mark_skip(self, self->x_axis);
+  xml_data += xml_end_tag("c:catAx");
+
+  return xml_data;
+}
+
+std::string chart_t::write_val_axis(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:valAx");
+  xml_data += write_axis_id(chart.axis_id_2_);
+  xml_data += write_scaling(chart.y_axis_.reverse_, chart.y_axis_.has_min_, chart.y_axis_.min_, chart.y_axis_.has_max_, chart.y_axis_.max_, chart.y_axis_.log_base_);
+    if(chart.y_axis_.hidden_)
+    {
+      xml_data += write_delete();
+    }
+    xml_data += write_axis_pos(chart.y_axis_.axis_position_, chart.x_axis_.reverse_);
+    xml_data += write_major_gridlines(chart.y_axis_);
+  ///   xml_data += _chart_write_minor_gridlines(self, self->y_axis);
+  ///   self->y_axis->title.is_horizontal = self->has_horiz_val_axis;
+    xml_data += write_title(chart.y_axis_.title_);
+    xml_data += write_number_format(chart.y_axis_);
+  ///   xml_data += _chart_write_major_tick_mark(self, self->y_axis);
+  ///   xml_data += _chart_write_minor_tick_mark(self, self->y_axis);
+    xml_data += write_tick_label_pos(chart.y_axis_);
+  ///   xml_data += _chart_write_sp_pr(self, self->y_axis->line, self->y_axis->fill, self->y_axis->pattern);
+    xml_data += write_axis_font(chart.y_axis_.num_font_);
+    xml_data += write_cross_axis(chart.axis_id_1_);
+    if(!chart.x_axis_.has_crossing_ || chart.x_axis_.crossing_min_ != 0 || chart.x_axis_.crossing_max_ != 0)
+    {
+      xml_data += write_crosses(chart.x_axis_);
+    }
+    else
+    {
+      xml_data += write_crosses_at(chart.x_axis_);
+    }
+    xml_data += write_cross_between(chart, chart.x_axis_.position_axis_);
+  ///   xml_data += _chart_write_major_unit(self, self->y_axis);
+  ///   xml_data += _chart_write_minor_unit(self, self->y_axis);
+  ///   xml_data += _chart_write_disp_units(self, self->y_axis);
+  xml_data += xml_end_tag("c:valAx");
+
+  return xml_data;
+}
+
+/*
+ * Write the <c:valAx> element. This is for the second valAx in scatter plots.
+ */
+/// STATIC void _chart_write_cat_val_axis(lxw_chart* self)
+/// {
+///   lxw_xml_start_tag(self->file, "c:valAx", NULL);
+///
+///   _chart_write_axis_id(self, self->axis_id_1);
+///
+///   /* Write the c:scaling element. */
+///   _chart_write_scaling(self, self->x_axis->reverse, self->x_axis->has_min, self->x_axis->min, self->x_axis->has_max,
+///                        self->x_axis->max, self->x_axis->log_base);
+///
+///   /* Write the c:delete element to hide axis. */
+///   if(self->x_axis->hidden)
+///   {
+///     _chart_write_delete(self);
+///   }
+///
+///   /* Write the c:axPos element. */
+///   _chart_write_axis_pos(self, self->x_axis->axis_position, self->y_axis->reverse);
+///
+///   /* Write the c:majorGridlines element. */
+///   _chart_write_major_gridlines(self, self->x_axis);
+///
+///   /* Write the c:minorGridlines element. */
+///   _chart_write_minor_gridlines(self, self->x_axis);
+///
+///   /* Write the axis title elements. */
+///   self->x_axis->title.is_horizontal = self->has_horiz_val_axis;
+///   _chart_write_title(self, &self->x_axis->title);
+///
+///   /* Write the c:numFmt element. */
+///   _chart_write_number_format(self, self->x_axis);
+///
+///   /* Write the c:majorTickMark element. */
+///   _chart_write_major_tick_mark(self, self->x_axis);
+///
+///   /* Write the c:minorTickMark element. */
+///   _chart_write_minor_tick_mark(self, self->x_axis);
+///
+///   /* Write the c:tickLblPos element. */
+///   _chart_write_tick_label_pos(self, self->x_axis);
+///
+///   /* Write the c:spPr element for the axis line. */
+///   _chart_write_sp_pr(self, self->x_axis->line, self->x_axis->fill, self->x_axis->pattern);
+///
+///   /* Write the axis font elements. */
+///   _chart_write_axis_font(self, self->x_axis->num_font);
+///
+///   /* Write the c:crossAx element. */
+///   _chart_write_cross_axis(self, self->axis_id_2);
+///
+///   /* Write the c:crosses element. */
+///   if(!self->y_axis->has_crossing || self->y_axis->crossing_min || self->y_axis->crossing_max)
+///   {
+///     _chart_write_crosses(self, self->y_axis);
+///   }
+///   else
+///   {
+///     _chart_write_crosses_at(self, self->y_axis);
+///   }
+///
+///   /* Write the c:crossBetween element. */
+///   _chart_write_cross_between(self, self->y_axis->position_axis);
+///
+///   /* Write the c:majorUnit element. */
+///   _chart_write_major_unit(self, self->x_axis);
+///
+///   /* Write the c:minorUnit element. */
+///   _chart_write_minor_unit(self, self->x_axis);
+///
+///   /* Write the c:dispUnits element. */
+///   _chart_write_disp_units(self, self->x_axis);
+///
+///   lxw_xml_end_tag(self->file, "c:valAx");
+/// }
+
+std::string chart_t::write_bar_dir(const std::string& type)
+{
+  return xml_empty_tag("c:barDir", {
+                                       {"val", type}
+  });
+}
+
+/*
+ * Write a area chart.
+ */
+/// STATIC void _chart_write_area_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:areaChart", NULL);
+///
+///   /* Write the c:grouping element. */
+///   _chart_write_grouping(self, self->grouping);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///     /* Write the c:ser element. */
+///     _chart_write_ser(self, series);
+///   }
+///
+///   /* Write the c:dropLines element. */
+///   _chart_write_drop_lines(self);
+///
+///   /* Write the c:axId elements. */
+///   _chart_write_axis_ids(self);
+///
+///   lxw_xml_end_tag(self->file, "c:areaChart");
+/// }
+
+std::string chart_t::write_bar_chart(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:barChart");
+  xml_data += write_bar_dir("bar");
+  xml_data += write_grouping(chart.grouping_);
+  for(auto& series: chart.series_list_)
+  {
+    xml_data += write_ser(chart, series);
+  }
+  xml_data += write_gap_width(chart.gap_y1_);
+  xml_data += write_overlap(chart.overlap_y1_);
+  xml_data += write_axis_ids(chart);
+  xml_data += xml_end_tag("c:barChart");
+
+  return xml_data;
+}
+
+/*
+ * Write a column chart.
+ */
+/// STATIC void _chart_write_column_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:barChart", NULL);
+///
+///   /* Write the c:barDir element. */
+///   _chart_write_bar_dir(self, "col");
+///
+///   /* Write the c:grouping element. */
+///   _chart_write_grouping(self, self->grouping);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///     /* Write the c:ser element. */
+///     _chart_write_ser(self, series);
+///   }
+///
+///   /* Write the c:gapWidth element. */
+///   _chart_write_gap_width(self, self->gap_y1);
+///
+///   /* Write the c:overlap element. */
+///   _chart_write_overlap(self, self->overlap_y1);
+///
+///   /* Write the c:axId elements. */
+///   _chart_write_axis_ids(self);
+///
+///   lxw_xml_end_tag(self->file, "c:barChart");
+/// }
+
+/*
+ * Write a doughnut chart.
+ */
+/// STATIC void _chart_write_doughnut_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:doughnutChart", NULL);
+///
+///   /* Write the c:varyColors element. */
+///   _chart_write_vary_colors(self);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///     /* Write the c:ser element. */
+///     _chart_write_ser(self, series);
+///   }
+///
+///   /* Write the c:firstSliceAng element. */
+///   _chart_write_first_slice_ang(self);
+///
+///   /* Write the c:holeSize element. */
+///   _chart_write_hole_size(self);
+///
+///   lxw_xml_end_tag(self->file, "c:doughnutChart");
+/// }
+
+/*
+ * Write a line chart.
+ */
+/// STATIC void _chart_write_line_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:lineChart", NULL);
+///
+///   /* Write the c:grouping element. */
+///   _chart_write_grouping(self, self->grouping);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///     /* Write the c:ser element. */
+///     _chart_write_ser(self, series);
+///   }
+///
+///   /* Write the c:dropLines element. */
+///   _chart_write_drop_lines(self);
+///
+///   /* Write the c:hiLowLines element. */
+///   _chart_write_hi_low_lines(self);
+///
+///   /* Write the c:upDownBars element. */
+///   _chart_write_up_down_bars(self);
+///
+///   /* Write the c:marker element. */
+///   _chart_write_marker_value(self);
+///
+///   /* Write the c:axId elements. */
+///   _chart_write_axis_ids(self);
+///
+///   lxw_xml_end_tag(self->file, "c:lineChart");
+/// }
+
+/*
+ * Write a pie chart.
+ */
+/// STATIC void _chart_write_pie_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:pieChart", NULL);
+///
+///   /* Write the c:varyColors element. */
+///   _chart_write_vary_colors(self);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///     /* Write the c:ser element. */
+///     _chart_write_ser(self, series);
+///   }
+///
+///   /* Write the c:firstSliceAng element. */
+///   _chart_write_first_slice_ang(self);
+///
+///   lxw_xml_end_tag(self->file, "c:pieChart");
+/// }
+
+/*
+ * Write a scatter chart.
+ */
+/// STATIC void _chart_write_scatter_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:scatterChart", NULL);
+///
+///   /* Write the c:scatterStyle element. */
+///   _chart_write_scatter_style(self);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///
+///     /* Add default scatter chart formatting to the series data unless
+///      * it has already been specified by the user.*/
+///     if(self->type == LXW_CHART_SCATTER && !series->line)
+///     {
+///       lxw_chart_line line = {0x000000, LXW_TRUE, 2.25, LXW_CHART_LINE_DASH_SOLID, 0};
+///       series->line        = _chart_convert_line_args(&line);
+///     }
+///
+///     /* Write the c:ser element. */
+///     _chart_write_xval_ser(self, series);
+///   }
+///
+///   /* Write the c:axId elements. */
+///   _chart_write_axis_ids(self);
+///
+///   lxw_xml_end_tag(self->file, "c:scatterChart");
+/// }
+
+/*
+ * Write a radar chart.
+ */
+/// STATIC void _chart_write_radar_chart(lxw_chart* self)
+/// {
+///   lxw_chart_series* series;
+///
+///   lxw_xml_start_tag(self->file, "c:radarChart", NULL);
+///
+///   /* Write the c:radarStyle element. */
+///   _chart_write_radar_style(self);
+///
+///   STAILQ_FOREACH(series, self->series_list, list_pointers)
+///   {
+///     /* Write the c:ser element. */
+///     _chart_write_ser(self, series);
+///   }
+///
+///   /* Write the c:axId elements. */
+///   _chart_write_axis_ids(self);
+///
+///   lxw_xml_end_tag(self->file, "c:radarChart");
+/// }
+
+/*
+ * Reverse the opposite axis position if crossing position is "max".
+ */
+/// STATIC void _chart_adjust_max_crossing(lxw_chart* self)
+/// {
+///   if(self->x_axis->crossing_max)
+///   {
+///     self->y_axis->axis_position ^= 1;
+///   }
+///
+///   if(self->y_axis->crossing_max)
+///   {
+///     self->x_axis->axis_position ^= 1;
+///   }
+/// }
+
+/*
+ * Write the <c:plotArea> element.
+ */
+/// STATIC void _chart_write_scatter_plot_area(lxw_chart* self)
+/// {
+///   lxw_xml_start_tag(self->file, "c:plotArea", NULL);
+///
+///   /* Write the c:layout element. */
+///   _chart_write_layout(self, self->plotarea_layout);
+///
+///   /* Write subclass chart type elements for primary and secondary axes. */
+///   self->write_chart_type(self);
+///
+///   /* Reverse the opposite axis position if crossing position is "max". */
+///   _chart_adjust_max_crossing(self);
+///
+///   /* Write the c:catAx element. */
+///   _chart_write_cat_val_axis(self);
+///
+///   self->has_horiz_val_axis = LXW_TRUE;
+///
+///   /* Write the c:valAx element. */
+///   _chart_write_val_axis(self);
+///
+///   /* Write the c:spPr element for the plotarea formatting. */
+///   _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
+///
+///   lxw_xml_end_tag(self->file, "c:plotArea");
+/// }
+
+/*
+ * Write the <c:plotArea> element. Special handling for pie/doughnut.
+ */
+/// STATIC void _chart_write_pie_plot_area(lxw_chart* self)
+/// {
+///   lxw_xml_start_tag(self->file, "c:plotArea", NULL);
+///
+///   /* Write the c:layout element. */
+///   _chart_write_layout(self, self->plotarea_layout);
+///
+///   /* Write subclass chart type elements for primary and secondary axes. */
+///   self->write_chart_type(self);
+///
+///   /* Write the c:spPr element for the plotarea formatting. */
+///   _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
+///
+///   lxw_xml_end_tag(self->file, "c:plotArea");
+/// }
+
+std::string chart_t::write_plot_area(chart_t& chart)
+{
+  // ICI
+  std::string xml_data = xml_start_tag("c:plotArea");
+  xml_data += write_layout(chart.plotarea_layout_);
+  xml_data += chart.write_chart_type_(chart);
+  ///   xml_data += _chart_adjust_max_crossing(self);
+  xml_data += write_cat_axis(chart);
+  xml_data += write_val_axis(chart);
+  ///   xml_data += _chart_write_d_table(self);
+  ///   xml_data += _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
+  xml_data += xml_end_tag("c:plotArea");
+
+  return xml_data;
+}
+
+std::string chart_t::write_chart()
+{
+  std::string xml_data = xml_start_tag("c:chart");
+  xml_data += write_chart_title();
+  xml_data += write_plot_area_(*this);
+  xml_data += write_legend();
+  xml_data += write_plot_vis_only();
+  ///   xml_data +=_chart_write_disp_blanks_as(self);
+  xml_data += xml_end_tag("c:chart");
+
+  return xml_data;
+}
+
+/*
+ * Initialize a area chart.
+ */
+/// STATIC void _chart_initialize_area_chart(lxw_chart* self, uint8_t type)
+/// {
+///   self->chart_group            = LXW_CHART_AREA;
+///   self->grouping               = LXW_GROUPING_STANDARD;
+///   self->default_cross_between  = LXW_CHART_AXIS_POSITION_ON_TICK;
+///   self->x_axis->is_category    = LXW_TRUE;
+///   self->default_label_position = LXW_CHART_LABEL_POSITION_CENTER;
+///
+///   if(type == LXW_CHART_AREA_STACKED)
+///   {
+///     self->grouping = LXW_GROUPING_STACKED;
+///     self->subtype  = LXW_CHART_SUBTYPE_STACKED;
+///   }
+///
+///   if(type == LXW_CHART_AREA_STACKED_PERCENT)
+///   {
+///     self->grouping = LXW_GROUPING_PERCENTSTACKED;
+///     _chart_axis_set_default_num_format(self->y_axis, "0%");
+///     self->subtype = LXW_CHART_SUBTYPE_STACKED;
+///   }
+///
+///   /* Initialize the function pointers for this chart type. */
+///   self->write_chart_type = _chart_write_area_chart;
+///   self->write_plot_area  = _chart_write_plot_area;
+/// }
+
+/*
+ * Initialize a bar chart.
+ */
+void chart_t::initialize_bar_chart(chart_type_t type)
+{
+  // Note: Bar chart category/value axis are reversed in comparison to
+  //       other charts. Some of the defaults reflect this.
+  chart_group_                      = chart_type_t::BAR;
+  x_axis_.major_gridlines_.visible_ = true;
+  y_axis_.major_gridlines_.visible_ = false;
+  y_axis_.is_category_              = true;
+  x_axis_.is_value_                 = true;
+  has_horiz_cat_axis_               = true;
+  has_horiz_val_axis_               = false;
+  default_label_position_           = chart_label_position_t::OUTSIDE_END;
+
+  if(type == chart_type_t::BAR_STACKED)
+  {
+    grouping_    = chart_grouping_t::STACKED;
+    has_overlap_ = true;
+    subtype_     = chart_subtype_t::STACKED;
+    overlap_y1_  = 100;
+  }
+
+  if(type == chart_type_t::BAR_STACKED_PERCENT)
+  {
+    grouping_                   = chart_grouping_t::PERCENTSTACKED;
+    x_axis_.default_num_format_ = "0%";
+    has_overlap_                = true;
+    subtype_                    = chart_subtype_t::STACKED;
+    overlap_y1_                 = 100;
+  }
+
+  // Initialize the function pointers for this chart type.
+  write_chart_type_ = write_bar_chart;
+  write_plot_area_  = write_plot_area;
+}
+
+/*
+ * Initialize a column chart.
+ */
+/// STATIC void _chart_initialize_column_chart(lxw_chart* self, uint8_t type)
+/// {
+///   self->chart_group            = LXW_CHART_COLUMN;
+///   self->has_horiz_val_axis     = LXW_FALSE;
+///   self->x_axis->is_category    = LXW_TRUE;
+///   self->y_axis->is_value       = LXW_TRUE;
+///   self->default_label_position = LXW_CHART_LABEL_POSITION_OUTSIDE_END;
+///
+///   if(type == LXW_CHART_COLUMN_STACKED)
+///   {
+///     self->grouping    = LXW_GROUPING_STACKED;
+///     self->has_overlap = LXW_TRUE;
+///     self->subtype     = LXW_CHART_SUBTYPE_STACKED;
+///     self->overlap_y1  = 100;
+///   }
+///
+///   if(type == LXW_CHART_COLUMN_STACKED_PERCENT)
+///   {
+///     self->grouping = LXW_GROUPING_PERCENTSTACKED;
+///     _chart_axis_set_default_num_format(self->y_axis, "0%");
+///     self->has_overlap = LXW_TRUE;
+///     self->subtype     = LXW_CHART_SUBTYPE_STACKED;
+///     self->overlap_y1  = 100;
+///   }
+///
+///   /* Initialize the function pointers for this chart type. */
+///   self->write_chart_type = _chart_write_column_chart;
+///   self->write_plot_area  = _chart_write_plot_area;
+/// }
+
+/*
+ * Initialize a doughnut chart.
+ */
+/// STATIC void _chart_initialize_doughnut_chart(lxw_chart* self)
+/// {
+///   /* Initialize the function pointers for this chart type. */
+///   self->chart_group            = LXW_CHART_DOUGHNUT;
+///   self->write_chart_type       = _chart_write_doughnut_chart;
+///   self->write_plot_area        = _chart_write_pie_plot_area;
+///   self->default_label_position = LXW_CHART_LABEL_POSITION_BEST_FIT;
+/// }
+
+/*
+ * Initialize a line chart.
+ */
+/// STATIC void _chart_initialize_line_chart(lxw_chart* self, uint8_t type)
+/// {
+///   self->chart_group = LXW_CHART_LINE;
+///   _chart_set_default_marker_type(self, LXW_CHART_MARKER_NONE);
+///   self->grouping               = LXW_GROUPING_STANDARD;
+///   self->x_axis->is_category    = LXW_TRUE;
+///   self->y_axis->is_value       = LXW_TRUE;
+///   self->default_label_position = LXW_CHART_LABEL_POSITION_RIGHT;
+///
+///   if(type == LXW_CHART_LINE_STACKED)
+///   {
+///     self->grouping = LXW_GROUPING_STACKED;
+///     self->subtype  = LXW_CHART_SUBTYPE_STACKED;
+///   }
+///
+///   if(type == LXW_CHART_LINE_STACKED_PERCENT)
+///   {
+///     self->grouping = LXW_GROUPING_PERCENTSTACKED;
+///     _chart_axis_set_default_num_format(self->y_axis, "0%");
+///     self->subtype = LXW_CHART_SUBTYPE_STACKED;
+///   }
+///
+///   /* Initialize the function pointers for this chart type. */
+///   self->write_chart_type = _chart_write_line_chart;
+///   self->write_plot_area  = _chart_write_plot_area;
+/// }
+
+/*
+ * Initialize a pie chart.
+ */
+/// STATIC void _chart_initialize_pie_chart(lxw_chart* self)
+/// {
+///   /* Initialize the function pointers for this chart type. */
+///   self->chart_group            = LXW_CHART_PIE;
+///   self->write_chart_type       = _chart_write_pie_chart;
+///   self->write_plot_area        = _chart_write_pie_plot_area;
+///   self->default_label_position = LXW_CHART_LABEL_POSITION_BEST_FIT;
+/// }
+
+/*
+ * Initialize a scatter chart.
+ */
+/// STATIC void _chart_initialize_scatter_chart(lxw_chart* self)
+/// {
+///   self->chart_group            = LXW_CHART_SCATTER;
+///   self->has_horiz_val_axis     = LXW_FALSE;
+///   self->default_cross_between  = LXW_CHART_AXIS_POSITION_ON_TICK;
+///   self->x_axis->is_value       = LXW_TRUE;
+///   self->y_axis->is_value       = LXW_TRUE;
+///   self->default_label_position = LXW_CHART_LABEL_POSITION_RIGHT;
+///
+///   if(self->type == LXW_CHART_SCATTER_STRAIGHT || self->type == LXW_CHART_SCATTER_SMOOTH)
+///   {
+///
+///     _chart_set_default_marker_type(self, LXW_CHART_MARKER_NONE);
+///   }
+///
+///   /* Initialize the function pointers for this chart type. */
+///   self->write_chart_type = _chart_write_scatter_chart;
+///   self->write_plot_area  = _chart_write_scatter_plot_area;
+/// }
+
+/*
+ * Initialize a radar chart.
+ */
+/// STATIC void _chart_initialize_radar_chart(lxw_chart* self, uint8_t type)
+/// {
+///   if(type == LXW_CHART_RADAR)
+///   {
+///     _chart_set_default_marker_type(self, LXW_CHART_MARKER_NONE);
+///   }
+///
+///   self->chart_group                     = LXW_CHART_RADAR;
+///   self->x_axis->major_gridlines.visible = LXW_TRUE;
+///   self->x_axis->is_category             = LXW_TRUE;
+///   self->y_axis->is_value                = LXW_TRUE;
+///   self->y_axis->major_tick_mark         = LXW_CHART_AXIS_TICK_MARK_CROSSING;
+///   self->default_label_position          = LXW_CHART_LABEL_POSITION_CENTER;
+///
+///   /* Initialize the function pointers for this chart type. */
+///   self->write_chart_type = _chart_write_radar_chart;
+///   self->write_plot_area  = _chart_write_plot_area;
+/// }
+
+void chart_t::initialize(chart_type_t type)
+{
+  switch(type)
+  {
+      ///
+      ///     case chart_type_t::AREA:
+      ///     case chart_type_t::AREA_STACKED:
+      ///     case chart_type_t::AREA_STACKED_PERCENT:
+      ///       _chart_initialize_area_chart(self, type);
+      ///       break;
+      ///
+    case chart_type_t::BAR:
+    case chart_type_t::BAR_STACKED:
+    case chart_type_t::BAR_STACKED_PERCENT:
+      initialize_bar_chart(type);
+      break;
+      ///
+      ///     case chart_type_t::COLUMN:
+      ///     case chart_type_t::COLUMN_STACKED:
+      ///     case chart_type_t::COLUMN_STACKED_PERCENT:
+      ///       _chart_initialize_column_chart(self, type);
+      ///       break;
+      ///
+      ///     case chart_type_t::DOUGHNUT:
+      ///       _chart_initialize_doughnut_chart(self);
+      ///       break;
+      ///
+      ///     case chart_type_t::LINE:
+      ///     case chart_type_t::LINE_STACKED:
+      ///     case chart_type_t::LINE_STACKED_PERCENT:
+      ///       _chart_initialize_line_chart(self, type);
+      ///       break;
+      ///
+      ///     case chart_type_t::PIE:
+      ///       _chart_initialize_pie_chart(self);
+      ///       break;
+      ///
+      ///     case chart_type_t::SCATTER:
+      ///     case chart_type_t::SCATTER_STRAIGHT:
+      ///     case chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS:
+      ///     case chart_type_t::SCATTER_SMOOTH:
+      ///     case chart_type_t::SCATTER_SMOOTH_WITH_MARKERS:
+      ///       _chart_initialize_scatter_chart(self);
+      ///       break;
+      ///
+      ///     case chart_type_t::RADAR:
+      ///     case chart_type_t::RADAR_WITH_MARKERS:
+      ///     case chart_type_t::RADAR_FILLED:
+      ///       _chart_initialize_radar_chart(self, type);
+      ///       break;
+      ///
+    default:
+      throw xwpp_exception_t(std::format("unhandled chart type '{}'", static_cast<uint16_t>(type)));
+  }
+}
+
+std::string chart_t::assemble_xml_file()
+{
+  // Reverse the X and Y axes for Bar charts.
+  if(type_ == chart_type_t::BAR || type_ == chart_type_t::BAR_STACKED || type_ == chart_type_t::BAR_STACKED_PERCENT)
+  {
+    std::swap(x_axis_, y_axis_);
+  }
+
+  std::string xml_data = xml_declaration();
+  xml_data += write_chart_space();
+  xml_data += write_lang();
+  xml_data += write_style();
+  if(is_protected_)
+  {
+    xml_data += write_protection();
+  }
+  xml_data += write_chart();
+  ///  xml_data +=  _chart_write_sp_pr(self->chartarea_line, self->chartarea_fill, self->chartarea_pattern);
+  if(!is_chartsheet_)
+  {
+    xml_data += write_print_settings();
+  }
+  xml_data += xml_end_tag("c:chartSpace");
+
+  return xml_data;
+}
+
+/*
+ * Add data to a data cache in a range object, for testing only.
+ */
+/// lxw_error lxw_chart_add_data_cache(lxw_series_range* range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
+/// {
+///   struct lxw_series_data_point* data_point;
+///   uint16_t i;
+///
+///   range->ignore_cache    = LXW_TRUE;
+///   range->num_data_points = rows;
+///
+///   /* Initialize the series range data cache. */
+///   for(i = 0; i < rows; i++)
+///   {
+///     data_point = calloc(1, sizeof(struct lxw_series_data_point));
+///     RETURN_ON_MEM_ERROR(data_point, LXW_ERROR_MEMORY_MALLOC_FAILED);
+///     STAILQ_INSERT_TAIL(range->data_cache, data_point, list_pointers);
+///     data_point->number = data[i * cols + col];
+///   }
+///
+///   return LXW_NO_ERROR;
+/// }
+
+chart_series_t& chart_t::add_series(const std::string& categories, const std::string& values)
+{
+  // Scatter charts require categories and values.
+  if(chart_group_ == chart_type_t::SCATTER && !values.empty() && categories.empty())
+  {
+    throw xwpp_exception_t("scatter charts must have 'categories' and 'values'");
+  }
+
+  chart_series_t series;
+
+  if(!categories.empty())
+  {
+    if(categories[0] == '=')
+    {
+      series.categories_.formula_ = categories.substr(1);
+    }
+    else
+    {
+      series.categories_.formula_ = categories;
+    }
+  }
+
+  if(!values.empty())
+  {
+    if(categories[0] == '=')
+    {
+      series.values_.formula_ = values.substr(1);
+    }
+    else
+    {
+      series.values_.formula_ = values;
+    }
+  }
+
+  if(type_ == chart_type_t::SCATTER_SMOOTH)
+  {
+    series.smooth_ = true;
+  }
+  if(type_ == chart_type_t::SCATTER_SMOOTH_WITH_MARKERS)
+  {
+    series.smooth_ = true;
+  }
+
+  series.y_error_bars_.chart_group_ = chart_group_;
+  series.x_error_bars_.chart_group_ = chart_group_;
+  series.x_error_bars_.is_x_        = true;
+
+  series.default_label_position_ = default_label_position_;
+
+  series_list_.push_back(series);
+
+  return series_list_.back();
+}
+
+void chart_t::set_style(uint8_t style_id)
+{
+  // The default style is 2. The range is 1 - 48
+  if(style_id < 1 || style_id > 48)
+  {
+    style_id = 2;
+  }
+
+  style_id_ = style_id;
+}
+
+void chart_t::series_set_name(chart_series_t& series, const std::string& name)
+{
+  if(!name.empty())
+  {
+    if(name[0] == '=')
+    {
+      series.title_.range_.formula_ = name.substr(1);
+    }
+    else
+    {
+      series.title_.name_ = name;
+    }
+  }
+}
+
+void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row, col_num_t col)
+{
+  if(sheetname.empty())
+  {
+    throw xwpp_exception_t("Sheetname must be specified");
+  }
+
+  set_range(series.title_.range_, sheetname, row, col, row, col);
+}
+
+void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  if(sheetname.empty())
+  {
+    throw xwpp_exception_t("Sheetname must be specified");
+  }
+
+  set_range(series.categories_, sheetname, first_row, first_col, last_row, last_col);
+}
+
+void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  if(sheetname.empty())
+  {
+    throw xwpp_exception_t("Sheetname must be specified");
+  }
+
+  set_range(series.values_, sheetname, first_row, first_col, last_row, last_col);
+}
+
+/*
+ * Set a line type for a series.
+ */
+/// void chart_series_set_line(lxw_chart_series* series, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->line);
+///
+///   series->line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set a fill type for a series.
+ */
+/// void chart_series_set_fill(lxw_chart_series* series, lxw_chart_fill* fill)
+/// {
+///   if(!fill)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->fill);
+///
+///   series->fill = _chart_convert_fill_args(fill);
+/// }
+
+/*
+ * Invert the colors of a fill for a series.
+ */
+/// void chart_series_set_invert_if_negative(lxw_chart_series* series)
+/// {
+///   series->invert_if_negative = LXW_TRUE;
+/// }
+
+/*
+ * Set a pattern type for a series.
+ */
+/// void chart_series_set_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern)
+/// {
+///   if(!pattern)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->pattern);
+///
+///   series->pattern = _chart_convert_pattern_args(pattern);
+/// }
+
+/*
+ * Set a marker type for a series.
+ */
+/// void chart_series_set_marker_type(lxw_chart_series* series, uint8_t type)
+/// {
+///   if(type > LXW_CHART_MARKER_PLUS)
+///   {
+///     LXW_WARN_FORMAT1("chart_series_set_marker_type(): invalid marker type: %d", type);
+///     return;
+///   }
+///
+///   if(!series->marker)
+///   {
+///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
+///     RETURN_VOID_ON_MEM_ERROR(marker);
+///     series->marker = marker;
+///   }
+///
+///   series->marker->type = type;
+/// }
+
+/*
+ * Set a marker size for a series.
+ */
+/// void chart_series_set_marker_size(lxw_chart_series* series, uint8_t size)
+/// {
+///   if(size < 2 || size > 72)
+///   {
+///     LXW_WARN_FORMAT1("chart_series_set_marker_size(): marker size '%d' outside Excel range: 2 <= size <= 72", size);
+///     return;
+///   }
+///
+///   if(!series->marker)
+///   {
+///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
+///     RETURN_VOID_ON_MEM_ERROR(marker);
+///     series->marker = marker;
+///   }
+///
+///   series->marker->size = size;
+/// }
+
+/*
+ * Set a line type for a series marker.
+ */
+/// void chart_series_set_marker_line(lxw_chart_series* series, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   if(!series->marker)
+///   {
+///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
+///     RETURN_VOID_ON_MEM_ERROR(marker);
+///     series->marker = marker;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->marker->line);
+///
+///   series->marker->line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set a fill type for a series marker.
+ */
+/// void chart_series_set_marker_fill(lxw_chart_series* series, lxw_chart_fill* fill)
+/// {
+///   if(!fill)
+///   {
+///     return;
+///   }
+///
+///   if(!series->marker)
+///   {
+///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
+///     RETURN_VOID_ON_MEM_ERROR(marker);
+///     series->marker = marker;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->marker->fill);
+///
+///   series->marker->fill = _chart_convert_fill_args(fill);
+/// }
+
+/*
+ * Set a pattern type for a series.
+ */
+/// void chart_series_set_marker_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern)
+/// {
+///   if(!pattern)
+///   {
+///     return;
+///   }
+///
+///   if(!series->marker)
+///   {
+///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
+///     RETURN_VOID_ON_MEM_ERROR(marker);
+///     series->marker = marker;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->marker->pattern);
+///
+///   series->marker->pattern = _chart_convert_pattern_args(pattern);
+/// }
+
+/*
+ * Store the points for a chart.
+ */
+/// lxw_error chart_series_set_points(lxw_chart_series* series, lxw_chart_point* points[])
+/// {
+///   uint16_t i           = 0;
+///   uint16_t point_count = 0;
+///
+///   if(points == NULL)
+///   {
+///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
+///   }
+///
+///   while(points[point_count])
+///   {
+///     point_count++;
+///   }
+///
+///   if(point_count == 0)
+///   {
+///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
+///   }
+///
+///   /* Free any existing resource. */
+///   _chart_free_points(series);
+///
+///   series->points = calloc(point_count, sizeof(lxw_chart_point));
+///   RETURN_ON_MEM_ERROR(series->points, LXW_ERROR_MEMORY_MALLOC_FAILED);
+///
+///   for(i = 0; i < point_count; i++)
+///   {
+///     lxw_chart_point* src_point = points[i];
+///     lxw_chart_point* dst_point = &series->points[i];
+///
+///     dst_point->line    = _chart_convert_line_args(src_point->line);
+///     dst_point->fill    = _chart_convert_fill_args(src_point->fill);
+///     dst_point->pattern = _chart_convert_pattern_args(src_point->pattern);
+///   }
+///
+///   series->point_count = point_count;
+///
+///   return LXW_NO_ERROR;
+/// }
+
+/*
+ * Set the smooth property for a line or scatter series.
+ */
+/// void chart_series_set_smooth(lxw_chart_series* series, uint8_t smooth)
+/// {
+///   series->smooth = smooth;
+/// }
+
+/*
+ * Turn on default data labels for a series.
+ */
+/// void chart_series_set_labels(lxw_chart_series* series)
+/// {
+///   series->has_labels        = LXW_TRUE;
+///   series->show_labels_value = LXW_TRUE;
+/// }
+
+/*
+ * Set the data labels options for a series.
+ */
+/// void chart_series_set_labels_options(lxw_chart_series* series, uint8_t show_name, uint8_t show_category,
+///                                      uint8_t show_value)
+/// {
+///   series->has_labels           = LXW_TRUE;
+///   series->show_labels_name     = show_name;
+///   series->show_labels_category = show_category;
+///   series->show_labels_value    = show_value;
+/// }
+
+/*
+ * Store the custom data_labels for a chart.
+ */
+/// lxw_error chart_series_set_labels_custom(lxw_chart_series* series, lxw_chart_data_label* data_labels[])
+/// {
+///   uint16_t i                = 0;
+///   uint16_t data_label_count = 0;
+///
+///   if(data_labels == NULL)
+///   {
+///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
+///   }
+///
+///   while(data_labels[data_label_count])
+///   {
+///     data_label_count++;
+///   }
+///
+///   if(data_label_count == 0)
+///   {
+///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
+///   }
+///
+///   series->has_labels = LXW_TRUE;
+///
+///   /* Set the Value label type if no other type is set. */
+///   if(!series->show_labels_name && !series->show_labels_category && !series->show_labels_value)
+///   {
+///     series->show_labels_value = LXW_TRUE;
+///   }
+///
+///   /* Free any existing resource. */
+///   _chart_free_data_labels(series);
+///
+///   series->data_labels = calloc(data_label_count, sizeof(lxw_chart_custom_label));
+///   RETURN_ON_MEM_ERROR(series->data_labels, LXW_ERROR_MEMORY_MALLOC_FAILED);
+///
+///   /* Copy the user data into the array of new structs. The struct types
+///    * are different since the internal version has more fields. */
+///   for(i = 0; i < data_label_count; i++)
+///   {
+///     lxw_chart_data_label* user_label   = data_labels[i];
+///     lxw_chart_custom_label* data_label = &series->data_labels[i];
+///     const char* src_value              = user_label->value;
+///
+///     data_label->hide    = user_label->hide;
+///     data_label->font    = _chart_convert_font_args(user_label->font);
+///     data_label->line    = _chart_convert_line_args(user_label->line);
+///     data_label->fill    = _chart_convert_fill_args(user_label->fill);
+///     data_label->pattern = _chart_convert_pattern_args(user_label->pattern);
+///
+///     if(src_value)
+///     {
+///       if(*src_value == '=')
+///       {
+///         /* The value is a formula. Handle like other chart ranges. */
+///         data_label->range = calloc(1, sizeof(lxw_series_range));
+///         GOTO_LABEL_ON_MEM_ERROR(data_label->range, mem_error);
+///
+///         data_label->range->formula = lxw_strdup(src_value + 1);
+///       }
+///       else
+///       {
+///         /* The value is a simple string. */
+///         data_label->value = lxw_strdup(src_value);
+///       }
+///     }
+///   }
+///
+///   series->data_label_count = data_label_count;
+///
+///   return LXW_NO_ERROR;
+///
+/// mem_error:
+///   _chart_free_data_labels(series);
+///   return LXW_ERROR_MEMORY_MALLOC_FAILED;
+/// }
+
+/*
+ * Set the data labels separator for a series.
+ */
+/// void chart_series_set_labels_separator(lxw_chart_series* series, uint8_t separator)
+/// {
+///   if(separator > LXW_CHART_LABEL_SEPARATOR_SPACE)
+///   {
+///     LXW_WARN_FORMAT1("chart_series_set_labels_separator(): invalid label separator: %d", separator);
+///     return;
+///   }
+///
+///   series->has_labels      = LXW_TRUE;
+///   series->label_separator = separator;
+/// }
+
+/*
+ * Set the data labels position for a series.
+ */
+/// void chart_series_set_labels_position(lxw_chart_series* series, uint8_t position)
+/// {
+///   if(position > LXW_CHART_LABEL_POSITION_BEST_FIT)
+///   {
+///     LXW_WARN_FORMAT1("chart_series_set_labels_position(): invalid label position: %d", position);
+///     return;
+///   }
+///
+///   series->has_labels        = LXW_TRUE;
+///   series->show_labels_value = LXW_TRUE;
+///
+///   if(position != series->default_label_position)
+///   {
+///     series->label_position = position;
+///   }
+/// }
+
+/*
+ * Set the data labels position for a series.
+ */
+/// void chart_series_set_labels_leader_line(lxw_chart_series* series)
+/// {
+///   series->has_labels         = LXW_TRUE;
+///   series->show_labels_leader = LXW_TRUE;
+/// }
+
+/*
+ * Turn on the data labels legend for a series.
+ */
+/// void chart_series_set_labels_legend(lxw_chart_series* series)
+/// {
+///   series->has_labels         = LXW_TRUE;
+///   series->show_labels_legend = LXW_TRUE;
+/// }
+
+/*
+ * Turn on the data labels percentage for a series.
+ */
+/// void chart_series_set_labels_percentage(lxw_chart_series* series)
+/// {
+///   series->has_labels          = LXW_TRUE;
+///   series->show_labels_percent = LXW_TRUE;
+/// }
+
+/*
+ * Set an data labels number format.
+ */
+/// void chart_series_set_labels_num_format(lxw_chart_series* series, const char* num_format)
+/// {
+///   if(!num_format)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->label_num_format);
+///
+///   series->label_num_format = lxw_strdup(num_format);
+/// }
+
+/*
+ * Set an data labels font.
+ */
+/// void chart_series_set_labels_font(lxw_chart_series* series, lxw_chart_font* font)
+/// {
+///   if(!font)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   _chart_free_font(series->label_font);
+///
+///   series->label_font = _chart_convert_font_args(font);
+/// }
+
+/*
+ * Set a line type for a series data labels.
+ */
+/// void chart_series_set_labels_line(lxw_chart_series* series, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->label_line);
+///
+///   series->label_line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set a fill type for a series data labels.
+ */
+/// void chart_series_set_labels_fill(lxw_chart_series* series, lxw_chart_fill* fill)
+/// {
+///   if(!fill)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->label_fill);
+///
+///   series->label_fill = _chart_convert_fill_args(fill);
+/// }
+
+/*
+ * Set a pattern type for a series data labels.
+ */
+/// void chart_series_set_labels_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern)
+/// {
+///   if(!pattern)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->label_pattern);
+///
+///   series->label_pattern = _chart_convert_pattern_args(pattern);
+/// }
+
+/*
+ * Set the trendline for a chart series.
+ */
+/// void chart_series_set_trendline(lxw_chart_series* series, uint8_t type, uint8_t value)
+/// {
+///   if(type > LXW_CHART_TRENDLINE_TYPE_AVERAGE)
+///   {
+///     LXW_WARN_FORMAT1("chart_series_set_trendline(): invalid trendline type: %d", type);
+///     return;
+///   }
+///
+///   if(type == LXW_CHART_TRENDLINE_TYPE_POLY || type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
+///   {
+///
+///     if(value < 2)
+///     {
+///       LXW_WARN("chart_series_set_trendline(): order/period value must "
+///                "be >= 2 for Polynomial and Moving Average types");
+///       return;
+///     }
+///
+///     series->trendline_value_type = type;
+///   }
+///
+///   series->has_trendline   = LXW_TRUE;
+///   series->trendline_type  = type;
+///   series->trendline_value = value;
+/// }
+
+/*
+ * Set the trendline forecast for a chart series.
+ */
+/// void chart_series_set_trendline_forecast(lxw_chart_series* series, double forward, double backward)
+/// {
+///   if(!series->has_trendline)
+///   {
+///     LXW_WARN("chart_series_set_trendline_forecast(): trendline type "
+///              "must be set first using chart_series_set_trendline()");
+///     return;
+///   }
+///
+///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
+///   {
+///     LXW_WARN("chart_series_set_trendline(): forecast isn't available "
+///              "in Excel for a Moving Average trendline");
+///     return;
+///   }
+///
+///   series->has_trendline_forecast = LXW_TRUE;
+///   series->trendline_forward      = forward;
+///   series->trendline_backward     = backward;
+/// }
+
+/*
+ * Display the equation for a series trendline.
+ */
+/// void chart_series_set_trendline_equation(lxw_chart_series* series)
+/// {
+///   if(!series->has_trendline)
+///   {
+///     LXW_WARN("chart_series_set_trendline_equation(): trendline type "
+///              "must be set first using chart_series_set_trendline()");
+///     return;
+///   }
+///
+///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
+///   {
+///     LXW_WARN("chart_series_set_trendline_equation(): equation isn't "
+///              "available in Excel for a Moving Average trendline");
+///     return;
+///   }
+///
+///   series->has_trendline_equation = LXW_TRUE;
+/// }
+
+/*
+ * Display the R squared value for a series trendline.
+ */
+/// void chart_series_set_trendline_r_squared(lxw_chart_series* series)
+/// {
+///   if(!series->has_trendline)
+///   {
+///     LXW_WARN("chart_series_set_trendline_r_squared(): trendline type "
+///              "must be set first using chart_series_set_trendline()");
+///     return;
+///   }
+///
+///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
+///   {
+///     LXW_WARN("chart_series_set_trendline_r_squared(): R squared isn't "
+///              "available in Excel for a Moving Average trendline");
+///     return;
+///   }
+///
+///   series->has_trendline_r_squared = LXW_TRUE;
+/// }
+
+/*
+ * Set the trendline intercept for a chart series.
+ */
+/// void chart_series_set_trendline_intercept(lxw_chart_series* series, double intercept)
+/// {
+///   if(!series->has_trendline)
+///   {
+///     LXW_WARN("chart_series_set_trendline_intercept(): trendline type "
+///              "must be set first using chart_series_set_trendline()");
+///     return;
+///   }
+///
+///   if(series->trendline_type != LXW_CHART_TRENDLINE_TYPE_EXP &&
+///      series->trendline_type != LXW_CHART_TRENDLINE_TYPE_LINEAR &&
+///      series->trendline_type != LXW_CHART_TRENDLINE_TYPE_POLY)
+///   {
+///
+///     LXW_WARN("chart_series_set_trendline_intercept(): intercept is only "
+///              "available in Excel for Exponential, Linear and Polynomial "
+///              "trendline types");
+///     return;
+///   }
+///
+///   series->has_trendline_intercept = LXW_TRUE;
+///   series->trendline_intercept     = intercept;
+/// }
+
+/*
+ * Set a line type for a series trendline.
+ */
+/// void chart_series_set_trendline_name(lxw_chart_series* series, const char* name)
+/// {
+///   if(!name)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->trendline_name);
+///
+///   series->trendline_name = lxw_strdup(name);
+/// }
+
+/*
+ * Set a line type for a series trendline.
+ */
+/// void chart_series_set_trendline_line(lxw_chart_series* series, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(series->trendline_line);
+///
+///   series->trendline_line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set the X or Y error bars from a chart series.
+ */
+/// lxw_series_error_bars* chart_series_get_error_bars(lxw_chart_series* series, lxw_chart_error_bar_axis axis_type)
+/// {
+///   if(!series)
+///   {
+///     return NULL;
+///   }
+///
+///   if(axis_type == LXW_CHART_ERROR_BAR_AXIS_X)
+///   {
+///     return series->x_error_bars;
+///   }
+///   else if(axis_type == LXW_CHART_ERROR_BAR_AXIS_Y)
+///   {
+///     return series->y_error_bars;
+///   }
+///   else
+///   {
+///     return NULL;
+///   }
+/// }
+
+/*
+ * Set the error bars and type for a chart series.
+ */
+/// void chart_series_set_error_bars(lxw_series_error_bars* error_bars, uint8_t type, double value)
+/// {
+///   if(_chart_check_error_bars(error_bars, ""))
+///   {
+///     return;
+///   }
+///
+///   error_bars->type      = type;
+///   error_bars->value     = value;
+///   error_bars->has_value = LXW_TRUE;
+///   error_bars->is_set    = LXW_TRUE;
+///
+///   if(type == LXW_CHART_ERROR_BAR_TYPE_STD_ERROR)
+///   {
+///     error_bars->has_value = LXW_FALSE;
+///   }
+/// }
+
+/*
+ * Set the error bars direction for a chart series.
+ */
+/// void chart_series_set_error_bars_direction(lxw_series_error_bars* error_bars, uint8_t direction)
+/// {
+///   if(_chart_check_error_bars(error_bars, "_direction"))
+///   {
+///     return;
+///   }
+///
+///   error_bars->direction = direction;
+/// }
+
+/*
+ * Set the error bars end cap type for a chart series.
+ */
+/// void chart_series_set_error_bars_endcap(lxw_series_error_bars* error_bars, uint8_t endcap)
+/// {
+///   if(_chart_check_error_bars(error_bars, "_endcap"))
+///   {
+///     return;
+///   }
+///
+///   error_bars->endcap = endcap;
+/// }
+
+/*
+ * Set a line type for a series error bars.
+ */
+/// void chart_series_set_error_bars_line(lxw_series_error_bars* error_bars, lxw_chart_line* line)
+/// {
+///   if(_chart_check_error_bars(error_bars, "_line"))
+///   {
+///     return;
+///   }
+///
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(error_bars->line);
+///
+///   error_bars->line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Get an axis pointer from a chart.
+ */
+/// lxw_chart_axis* chart_axis_get(lxw_chart* self, lxw_chart_axis_type axis_type)
+/// {
+///   if(!self)
+///   {
+///     return NULL;
+///   }
+///
+///   if(axis_type == LXW_CHART_AXIS_TYPE_X)
+///   {
+///     return self->x_axis;
+///   }
+///   else if(axis_type == LXW_CHART_AXIS_TYPE_Y)
+///   {
+///     return self->y_axis;
+///   }
+///   else
+///   {
+///     return NULL;
+///   }
+/// }
+
+void chart_axis_set_name(chart_axis_t& axis, const std::string& name)
+{
+  if(name.empty())
+  {
+    return;
+  }
+
+  if(name[0] == '=')
+  {
+    axis.title_.range_.formula_ = name.substr(1);
+  }
+  else
+  {
+    axis.title_.name_ = name;
+  }
+}
+
+/*
+ * Set an axis caption, with a range instead or a formula.
+ */
+/// void chart_axis_set_name_range(lxw_chart_axis* axis, const char* sheetname, lxw_row_t row, lxw_col_t col)
+/// {
+///   if(!sheetname)
+///   {
+///     LXW_WARN("chart_axis_set_name_range(): sheetname must be specified");
+///     return;
+///   }
+///
+///   /* Start and end row, col are the same for single cell range. */
+///   _chart_set_range(axis->title.range, sheetname, row, col, row, col);
+/// }
+
+/*
+ * Set a layout for the chart axis name.
+ */
+/// void chart_axis_set_name_layout(lxw_chart_axis* axis, lxw_chart_layout* layout)
+/// {
+///   if(!layout)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->title.layout);
+///
+///   axis->title.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_AXIS_NAME);
+/// }
+
+/*
+ * Set an axis title/name font.
+ */
+/// void chart_axis_set_name_font(lxw_chart_axis* axis, lxw_chart_font* font)
+/// {
+///   if(!font)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   _chart_free_font(axis->title.font);
+///
+///   axis->title.font = _chart_convert_font_args(font);
+/// }
+
+/*
+ * Set an axis number font.
+ */
+/// void chart_axis_set_num_font(lxw_chart_axis* axis, lxw_chart_font* font)
+/// {
+///   if(!font)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   _chart_free_font(axis->num_font);
+///
+///   axis->num_font = _chart_convert_font_args(font);
+/// }
+
+/*
+ * Set an axis number format.
+ */
+/// void chart_axis_set_num_format(lxw_chart_axis* axis, const char* num_format)
+/// {
+///   if(!num_format)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->num_format);
+///
+///   axis->num_format = lxw_strdup(num_format);
+/// }
+
+/*
+ * Set a line type for an axis.
+ */
+/// void chart_axis_set_line(lxw_chart_axis* axis, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->line);
+///
+///   axis->line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set a fill type for an axis.
+ */
+/// void chart_axis_set_fill(lxw_chart_axis* axis, lxw_chart_fill* fill)
+/// {
+///   if(!fill)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->fill);
+///
+///   axis->fill = _chart_convert_fill_args(fill);
+/// }
+
+/*
+ * Set a pattern type for an axis.
+ */
+/// void chart_axis_set_pattern(lxw_chart_axis* axis, lxw_chart_pattern* pattern)
+/// {
+///   if(!pattern)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->pattern);
+///
+///   axis->pattern = _chart_convert_pattern_args(pattern);
+/// }
+
+/*
+ * Reverse the direction of an axis.
+ */
+/// void chart_axis_set_reverse(lxw_chart_axis* axis)
+/// {
+///   axis->reverse = LXW_TRUE;
+/// }
+
+/*
+ * Set the axis crossing position.
+ */
+/// void chart_axis_set_crossing(lxw_chart_axis* axis, double value)
+/// {
+///   axis->has_crossing = LXW_TRUE;
+///   axis->crossing     = value;
+/// }
+
+/*
+ * Set the axis crossing position as the minimum possible value.
+ */
+/// void chart_axis_set_crossing_min(lxw_chart_axis* axis)
+/// {
+///   axis->has_crossing = LXW_TRUE;
+///   axis->crossing_min = LXW_TRUE;
+/// }
+
+/*
+ * Set the axis crossing position as the maximum possible value.
+ */
+/// void chart_axis_set_crossing_max(lxw_chart_axis* axis)
+/// {
+///   axis->has_crossing = LXW_TRUE;
+///   axis->crossing_max = LXW_TRUE;
+/// }
+
+/*
+ * Turn off/hide the axis.
+ */
+/// void chart_axis_off(lxw_chart_axis* axis)
+/// {
+///   axis->hidden = LXW_TRUE;
+/// }
+
+/*
+ * Set the category axis position.
+ */
+/// void chart_axis_set_position(lxw_chart_axis* axis, uint8_t position)
+/// {
+///   if(position > LXW_CHART_AXIS_POSITION_BETWEEN)
+///   {
+///     LXW_WARN_FORMAT1("chart_axis_set_position(): invalid position: %d", position);
+///     return;
+///   }
+///
+///   LXW_WARN_CAT_AND_DATE_AXIS_ONLY("chart_axis_set_position");
+///
+///   axis->position_axis = position;
+/// }
+
+/*
+ * Set the axis label position.
+ */
+/// void chart_axis_set_label_position(lxw_chart_axis* axis, uint8_t position)
+/// {
+///   if(position > LXW_CHART_AXIS_LABEL_POSITION_NONE)
+///   {
+///     LXW_WARN_FORMAT1("chart_axis_set_label_position(): invalid label position: %d", position);
+///     return;
+///   }
+///
+///   axis->label_position = position;
+/// }
+
+/*
+ * Set the minimum value for an axis.
+ */
+/// void chart_axis_set_min(lxw_chart_axis* axis, double min)
+/// {
+///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_min");
+///
+///   axis->min     = min;
+///   axis->has_min = LXW_TRUE;
+/// }
+
+/*
+ * Set the maximum value for an axis.
+ */
+/// void chart_axis_set_max(lxw_chart_axis* axis, double max)
+/// {
+///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_max");
+///
+///   axis->max     = max;
+///   axis->has_max = LXW_TRUE;
+/// }
+
+/*
+ * Set the log base for an axis.
+ */
+/// void chart_axis_set_log_base(lxw_chart_axis* axis, uint16_t log_base)
+/// {
+///   LXW_WARN_VALUE_AXIS_ONLY("chart_axis_set_log_base");
+///
+///   /* Excel log range is 2-1000. */
+///   if(log_base >= 2 && log_base <= 1000)
+///   {
+///     axis->log_base = log_base;
+///   }
+/// }
+
+/*
+ * Set the major mark for an axis.
+ */
+/// void chart_axis_set_major_tick_mark(lxw_chart_axis* axis, uint8_t type)
+/// {
+///   if(type > LXW_CHART_AXIS_TICK_MARK_CROSSING)
+///   {
+///     LXW_WARN_FORMAT1("chart_axis_set_major_tick_mark(): invalid tick mark type: %d", type);
+///     return;
+///   }
+///
+///   axis->major_tick_mark = type;
+/// }
+
+/*
+ * Set the minor mark for an axis.
+ */
+/// void chart_axis_set_minor_tick_mark(lxw_chart_axis* axis, uint8_t type)
+/// {
+///   if(type > LXW_CHART_AXIS_TICK_MARK_CROSSING)
+///   {
+///     LXW_WARN_FORMAT1("chart_axis_set_minor_tick_mark(): invalid tick mark type: %d", type);
+///     return;
+///   }
+///
+///   axis->minor_tick_mark = type;
+/// }
+
+/*
+ * Set interval unit for a category axis.
+ */
+/// void chart_axis_set_interval_unit(lxw_chart_axis* axis, uint16_t unit)
+/// {
+///   LXW_WARN_CAT_AND_DATE_AXIS_ONLY("chart_axis_set_major_unit");
+///
+///   axis->interval_unit = unit;
+/// }
+
+/*
+ * Set tick interval for a category axis.
+ */
+/// void chart_axis_set_interval_tick(lxw_chart_axis* axis, uint16_t unit)
+/// {
+///   LXW_WARN_CAT_AND_DATE_AXIS_ONLY("chart_axis_set_major_tick");
+///
+///   axis->interval_tick = unit;
+/// }
+
+/*
+ * Set major unit for a value axis.
+ */
+/// void chart_axis_set_major_unit(lxw_chart_axis* axis, double unit)
+/// {
+///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_major_unit");
+///
+///   axis->has_major_unit = LXW_TRUE;
+///   axis->major_unit     = unit;
+/// }
+
+/*
+ * Set minor unit for a value axis.
+ */
+/// void chart_axis_set_minor_unit(lxw_chart_axis* axis, double unit)
+/// {
+///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_minor_unit");
+///
+///   axis->has_minor_unit = LXW_TRUE;
+///   axis->minor_unit     = unit;
+/// }
+
+/*
+ * Set the display units for a value axis.
+ */
+/// void chart_axis_set_display_units(lxw_chart_axis* axis, uint8_t units)
+/// {
+///   if(units > LXW_CHART_AXIS_UNITS_TRILLIONS)
+///   {
+///     LXW_WARN_FORMAT1("chart_axis_set_display_units(): invalid display units: %d", units);
+///     return;
+///   }
+///
+///   LXW_WARN_VALUE_AXIS_ONLY("chart_axis_set_display_units");
+///
+///   axis->display_units         = units;
+///   axis->display_units_visible = LXW_TRUE;
+/// }
+
+/*
+ * Turn on/off the display units for a value axis.
+ */
+/// void chart_axis_set_display_units_visible(lxw_chart_axis* axis, uint8_t visible)
+/// {
+///   LXW_WARN_VALUE_AXIS_ONLY("chart_axis_set_display_units");
+///
+///   axis->display_units_visible = visible;
+/// }
+
+/*
+ * Set the axis major gridlines on/off.
+ */
+/// void chart_axis_major_gridlines_set_visible(lxw_chart_axis* axis, uint8_t visible)
+/// {
+///   axis->major_gridlines.visible = visible;
+/// }
+
+/*
+ * Set a line type for the major gridlines.
+ */
+/// void chart_axis_major_gridlines_set_line(lxw_chart_axis* axis, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->major_gridlines.line);
+///
+///   axis->major_gridlines.line = _chart_convert_line_args(line);
+///
+///   /* If the gridline has a format it should also be visible. */
+///   if(axis->major_gridlines.line)
+///   {
+///     axis->major_gridlines.visible = LXW_TRUE;
+///   }
+/// }
+
+/*
+ * Set the axis minor gridlines on/off.
+ */
+/// void chart_axis_minor_gridlines_set_visible(lxw_chart_axis* axis, uint8_t visible)
+/// {
+///   axis->minor_gridlines.visible = visible;
+/// }
+
+/*
+ * Set a line type for the minor gridlines.
+ */
+/// void chart_axis_minor_gridlines_set_line(lxw_chart_axis* axis, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(axis->minor_gridlines.line);
+///
+///   axis->minor_gridlines.line = _chart_convert_line_args(line);
+///
+///   /* If the gridline has a format it should also be visible. */
+///   if(axis->minor_gridlines.line)
+///   {
+///     axis->minor_gridlines.visible = LXW_TRUE;
+///   }
+/// }
+
+/*
+ * Set the chart axis label alignment.
+ */
+/// void chart_axis_set_label_align(lxw_chart_axis* axis, uint8_t align)
+/// {
+///   if(align > LXW_CHART_AXIS_LABEL_ALIGN_RIGHT)
+///   {
+///     LXW_WARN_FORMAT1("chart_axis_set_label_align(): invalid label alignment: %d", align);
+///     return;
+///   }
+///
+///   axis->label_align = align;
+/// }
+
+void chart_t::title_set_name(const std::string& name)
+{
+  if(!name.empty())
+  {
+    if(name[0] == '=')
+    {
+      title_.range_.formula_ = name.substr(1);
+    }
+    else
+    {
+      title_.name_ = name;
+    }
+  }
+}
+
+/*
+ * Set the chart title, with a range instead or a formula.
+ */
+/// void chart_title_set_name_range(lxw_chart* self, const char* sheetname, lxw_row_t row, lxw_col_t col)
+/// {
+///   if(!sheetname)
+///   {
+///     LXW_WARN("chart_title_set_name_range(): sheetname must be specified");
+///     return;
+///   }
+///
+///   /* Start and end row, col are the same for single cell range. */
+///   _chart_set_range(self->title.range, sheetname, row, col, row, col);
+/// }
+
+/*
+ * Set the chart title font.
+ */
+/// void chart_title_set_name_font(lxw_chart* self, lxw_chart_font* font)
+/// {
+///   /* Free any previously allocated resource. */
+///   _chart_free_font(self->title.font);
+///
+///   self->title.font = _chart_convert_font_args(font);
+/// }
+
+/*
+ * Turn off the chart title.
+ */
+/// void chart_title_off(lxw_chart* self)
+/// {
+///   self->title.off = LXW_TRUE;
+/// }
+
+/*
+ * Set a layout for the chart title.
+ */
+/// void chart_title_set_layout(lxw_chart* self, lxw_chart_layout* layout)
+/// {
+///   if(!layout)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->title.layout);
+///
+///   self->title.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_TITLE);
+/// }
+
+/*
+ * Overlay the chart title on the chart.
+ */
+/// void chart_title_set_overlay(lxw_chart* self, uint8_t overlay)
+/// {
+///   self->title.has_overlay = overlay;
+/// }
+
+/*
+ * Set the chart legend position.
+ */
+/// void chart_legend_set_position(lxw_chart* self, uint8_t position)
+/// {
+///   if(position > LXW_CHART_LEGEND_OVERLAY_TOP_RIGHT)
+///   {
+///     LXW_WARN_FORMAT1("chart_legend_set_position(): invalid legend position: %d", position);
+///     return;
+///   }
+///
+///   self->legend.position = position;
+/// }
+
+/*
+ * Set a layout for the chart legend.
+ */
+/// void chart_legend_set_layout(lxw_chart* self, lxw_chart_layout* layout)
+/// {
+///   if(!layout)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->legend.layout);
+///
+///   self->legend.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_LEGEND);
+/// }
+
+/*
+ * Set the legend font.
+ */
+/// void chart_legend_set_font(lxw_chart* self, lxw_chart_font* font)
+/// {
+///   /* Free any previously allocated resource. */
+///   _chart_free_font(self->legend.font);
+///
+///   self->legend.font = _chart_convert_font_args(font);
+/// }
+
+/*
+ * Remove one or more series from the the legend.
+ */
+/// lxw_error chart_legend_delete_series(lxw_chart* self, int16_t delete_series[])
+/// {
+///   uint16_t count = 0;
+///
+///   if(delete_series == NULL)
+///   {
+///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
+///   }
+///
+///   while(delete_series[count] >= 0)
+///   {
+///     count++;
+///   }
+///
+///   if(count == 0)
+///   {
+///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
+///   }
+///
+///   /* The maximum number of series in a chart is 255. */
+///   if(count > 255)
+///   {
+///     count = 255;
+///   }
+///
+///   self->delete_series = calloc(count, sizeof(int16_t));
+///   RETURN_ON_MEM_ERROR(self->delete_series, LXW_ERROR_MEMORY_MALLOC_FAILED);
+///   memcpy(self->delete_series, delete_series, count * sizeof(int16_t));
+///   self->delete_series_count = count;
+///
+///   return LXW_NO_ERROR;
+/// }
+
+/*
+ * Set a line type for the chartarea.
+ */
+/// void chart_chartarea_set_line(lxw_chart* self, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->chartarea_line);
+///
+///   self->chartarea_line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set a fill type for the chartarea.
+ */
+/// void chart_chartarea_set_fill(lxw_chart* self, lxw_chart_fill* fill)
+/// {
+///   if(!fill)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->chartarea_fill);
+///
+///   self->chartarea_fill = _chart_convert_fill_args(fill);
+/// }
+
+/*
+ * Set a pattern type for the chartarea.
+ */
+/// void chart_chartarea_set_pattern(lxw_chart* self, lxw_chart_pattern* pattern)
+/// {
+///   if(!pattern)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->chartarea_pattern);
+///
+///   self->chartarea_pattern = _chart_convert_pattern_args(pattern);
+/// }
+
+/*
+ * Set a line type for the plotarea.
+ */
+/// void chart_plotarea_set_line(lxw_chart* self, lxw_chart_line* line)
+/// {
+///   if(!line)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->plotarea_line);
+///
+///   self->plotarea_line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set a fill type for the plotarea.
+ */
+/// void chart_plotarea_set_fill(lxw_chart* self, lxw_chart_fill* fill)
+/// {
+///   if(!fill)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->plotarea_fill);
+///
+///   self->plotarea_fill = _chart_convert_fill_args(fill);
+/// }
+
+/*
+ * Set a pattern type for the plotarea.
+ */
+/// void chart_plotarea_set_pattern(lxw_chart* self, lxw_chart_pattern* pattern)
+/// {
+///   if(!pattern)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->plotarea_pattern);
+///
+///   self->plotarea_pattern = _chart_convert_pattern_args(pattern);
+/// }
+
+/*
+ * Set a layout for the plotarea.
+ */
+/// void chart_plotarea_set_layout(lxw_chart* self, lxw_chart_layout* layout)
+/// {
+///   if(!layout)
+///   {
+///     return;
+///   }
+///
+///   /* Free any previously allocated resource. */
+///   free(self->plotarea_layout);
+///
+///   self->plotarea_layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_PLOTAREA);
+/// }
+
+/*
+ * Turn on the chart data table.
+ */
+/// void chart_set_table(lxw_chart* self)
+/// {
+///   self->has_table             = LXW_TRUE;
+///   self->has_table_horizontal  = LXW_TRUE;
+///   self->has_table_vertical    = LXW_TRUE;
+///   self->has_table_outline     = LXW_TRUE;
+///   self->has_table_legend_keys = LXW_FALSE;
+/// }
+
+/*
+ * Set the options for the chart data table grid.
+ */
+/// void chart_set_table_grid(lxw_chart* self, uint8_t horizontal, uint8_t vertical, uint8_t outline, uint8_t
+/// legend_keys)
+/// {
+///   self->has_table             = LXW_TRUE;
+///   self->has_table_horizontal  = horizontal;
+///   self->has_table_vertical    = vertical;
+///   self->has_table_outline     = outline;
+///   self->has_table_legend_keys = legend_keys;
+/// }
+
+/*
+ * Set the font for the chart data table grid.
+ */
+/// void chart_set_table_font(lxw_chart* self, lxw_chart_font* font)
+/// {
+///   self->has_table = LXW_TRUE;
+///
+///   /* Free any previously allocated resource. */
+///   _chart_free_font(self->table_font);
+///
+///   self->table_font = _chart_convert_font_args(font);
+/// }
+
+/*
+ * Turn on up-down bars for the chart.
+ */
+/// void chart_set_up_down_bars(lxw_chart* self)
+/// {
+///   self->has_up_down_bars = LXW_TRUE;
+/// }
+
+/*
+ * Turn on up-down bars for the chart, with formatting.
+ */
+/// void chart_set_up_down_bars_format(lxw_chart* self, lxw_chart_line* up_bar_line, lxw_chart_fill* up_bar_fill,
+///                                    lxw_chart_line* down_bar_line, lxw_chart_fill* down_bar_fill)
+/// {
+///   self->has_up_down_bars = LXW_TRUE;
+///
+///   /* Free any previously allocated resource. */
+///   free(self->up_bar_line);
+///   free(self->up_bar_fill);
+///   free(self->down_bar_line);
+///   free(self->down_bar_fill);
+///
+///   self->up_bar_line   = _chart_convert_line_args(up_bar_line);
+///   self->up_bar_fill   = _chart_convert_fill_args(up_bar_fill);
+///   self->down_bar_line = _chart_convert_line_args(down_bar_line);
+///   self->down_bar_fill = _chart_convert_fill_args(down_bar_fill);
+/// }
+
+/*
+ * Turn on drop lines for the chart.
+ */
+/// void chart_set_drop_lines(lxw_chart* self, lxw_chart_line* line)
+/// {
+///   /* Free any previously allocated resource. */
+///   free(self->drop_lines_line);
+///
+///   self->has_drop_lines  = LXW_TRUE;
+///   self->drop_lines_line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Turn on high_low lines for the chart.
+ */
+/// void chart_set_high_low_lines(lxw_chart* self, lxw_chart_line* line)
+/// {
+///   /* Free any previously allocated resource. */
+///   free(self->high_low_lines_line);
+///
+///   self->has_high_low_lines  = LXW_TRUE;
+///   self->high_low_lines_line = _chart_convert_line_args(line);
+/// }
+
+/*
+ * Set the Bar/Column overlap for all data series.
+ */
+/// void chart_set_series_overlap(lxw_chart* self, int8_t overlap)
+/// {
+///   if(overlap >= -100 && overlap <= 100)
+///   {
+///     self->overlap_y1 = overlap;
+///   }
+///   else
+///   {
+///     LXW_WARN_FORMAT1("chart_set_series_overlap(): Chart series overlap "
+///                      "'%d' outside Excel range: -100 <= overlap <= 100",
+///                      overlap);
+///   }
+/// }
+
+/*
+ * Set the option for displaying blank data in a chart.
+ */
+/// void chart_show_blanks_as(lxw_chart* self, uint8_t option)
+/// {
+///   if(option > LXW_CHART_BLANKS_AS_CONNECTED)
+///   {
+///     LXW_WARN_FORMAT1("chart_show_blanks_as(): invalid blank display option: %d", option);
+///     return;
+///   }
+///
+///   self->show_blanks_as = option;
+/// }
+
+/*
+ * Display data on charts from hidden rows or columns.
+ */
+/// void chart_show_hidden_data(lxw_chart* self)
+/// {
+///   self->show_hidden_data = LXW_TRUE;
+/// }
+
+/*
+ * Set the Bar/Column gap for all data series.
+ */
+/// void chart_set_series_gap(lxw_chart* self, uint16_t gap)
+/// {
+///   if(gap <= 500)
+///   {
+///     self->gap_y1 = gap;
+///   }
+///   else
+///   {
+///     LXW_WARN_FORMAT1("chart_set_series_gap(): Chart series gap '%d' "
+///                      "outside Excel range: 0 <= gap <= 500",
+///                      gap);
+///   }
+/// }
+
+/*
+ * Set the Pie/Doughnut chart rotation: the angle of the first slice.
+ */
+/// void chart_set_rotation(lxw_chart* self, uint16_t rotation)
+/// {
+///   if(rotation <= 360)
+///   {
+///     self->rotation = rotation;
+///   }
+///   else
+///   {
+///     LXW_WARN_FORMAT1("chart_set_rotation(): Chart rotation '%d' outside "
+///                      "Excel range: 0 <= rotation <= 360",
+///                      rotation);
+///   }
+/// }
+
+/*
+ * Set the Doughnut chart hole size.
+ */
+/// void chart_set_hole_size(lxw_chart* self, uint8_t size)
+/// {
+///   if(size >= 10 && size <= 90)
+///   {
+///     self->hole_size = size;
+///   }
+///   else
+///   {
+///     LXW_WARN_FORMAT1("chart_set_hole_size(): Hole size '%d' outside "
+///                      "Excel range: 10 <= size <= 90",
+///                      size);
+///   }
+/// }
+
+}

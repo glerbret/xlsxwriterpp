@@ -44,6 +44,7 @@ NULL);
 #ifndef XWPP_WORKSHEET_H
 #define XWPP_WORKSHEET_H
 
+#include "xwpp/chart.h"
 #include "xwpp/common.h"
 #include "xwpp/drawing.h"
 #include "xwpp/format.h"
@@ -1879,7 +1880,7 @@ struct object_properties_t
   std::string extension_;
   double x_dpi_;
   double y_dpi_;
-  ///     lxw_chart *chart;
+  chart_t* chart_     = nullptr;
   bool is_duplicate_  = false;
   bool is_background_ = false;
   std::string md5_;
@@ -3696,60 +3697,125 @@ public:
   void embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
                    std::optional<image_options_t> options);
 
-/**
- * @brief Embed an image in a worksheet cell, from a memory buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- *
- * @return A #lxw_error code.
- *
- * This function can be used to embed a image into a worksheet from a memory
- * buffer:
- *
- * @dontinclude embed_image_buffer.c
- * @skip Embed
- * @until B3
- *
- * @image html embed_image_buffer.png
- *
- * The buffer should be a pointer to an array of unsigned char data with a
- * specified size.
- *
- * See `worksheet_embed_image()` for details about the supported image
- * formats, and other image features.
- */
-void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer);
+  /**
+   * @brief Embed an image in a worksheet cell, from a memory buffer.
+   *
+   * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+   * @param row          The zero indexed row number.
+   * @param col          The zero indexed column number.
+   * @param image_buffer Pointer to an array of bytes that holds the image data.
+   * @param image_size   The size of the array of bytes.
+   *
+   * @return A #lxw_error code.
+   *
+   * This function can be used to embed a image into a worksheet from a memory
+   * buffer:
+   *
+   * @dontinclude embed_image_buffer.c
+   * @skip Embed
+   * @until B3
+   *
+   * @image html embed_image_buffer.png
+   *
+   * The buffer should be a pointer to an array of unsigned char data with a
+   * specified size.
+   *
+   * See `worksheet_embed_image()` for details about the supported image
+   * formats, and other image features.
+   */
+  void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer);
 
-/**
- * @brief Embed an image in a worksheet cell, from a memory buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- * @param options      Optional image parameters.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_embed_image_buffer_opt()` function is like
- * `worksheet_embed_image_buffer()` function except that it takes an optional
- * #lxw_image_options struct with the following members/options:
- *
- * - `description`: Optional description or "Alt text" for the image.
- * - `decorative`: Optional parameter to mark image as decorative.
- * - `url`: Add an optional hyperlink to the image.
- * - `cell_format`: Add a format for the cell behind the embedded image.
- *
- */
-void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,std::optional<image_options_t> options);
-
+  /**
+   * @brief Embed an image in a worksheet cell, from a memory buffer.
+   *
+   * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+   * @param row          The zero indexed row number.
+   * @param col          The zero indexed column number.
+   * @param image_buffer Pointer to an array of bytes that holds the image data.
+   * @param image_size   The size of the array of bytes.
+   * @param options      Optional image parameters.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_embed_image_buffer_opt()` function is like
+   * `worksheet_embed_image_buffer()` function except that it takes an optional
+   * #lxw_image_options struct with the following members/options:
+   *
+   * - `description`: Optional description or "Alt text" for the image.
+   * - `decorative`: Optional parameter to mark image as decorative.
+   * - `url`: Add an optional hyperlink to the image.
+   * - `cell_format`: Add a format for the cell behind the embedded image.
+   *
+   */
+  void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,
+                          std::optional<image_options_t> options);
 
   void set_error_cell(const object_properties_t& object_props, uint32_t ref_id);
+
+  /**
+   * @brief Insert a chart object into a worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param chart     A #lxw_chart object created via workbook_add_chart().
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_insert_chart()` function can be used to insert a chart into
+   * a worksheet. The chart object must be created first using the
+   * `workbook_add_chart()` function and configured using the @ref chart.h
+   * functions.
+   *
+   * @code
+   *     // Create a chart object.
+   *     lxw_chart *chart = workbook_add_chart(workbook, LXW_CHART_LINE);
+   *
+   *     // Add a data series to the chart.
+   *     chart_add_series(chart, NULL, "=Sheet1!$A$1:$A$6");
+   *
+   *     // Insert the chart into the worksheet.
+   *     worksheet_insert_chart(worksheet, 0, 2, chart);
+   * @endcode
+   *
+   * @image html chart_working.png
+   *
+   * **Note:**
+   *
+   * A chart may only be inserted into a worksheet once. If several similar
+   * charts are required then each one must be created separately with
+   * `%worksheet_insert_chart()`.
+   *
+   */
+  void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart); // TODO Ptr or ref
+
+  /**
+   * @brief Insert a chart object into a worksheet, with options.
+   *
+   * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+   * @param row          The zero indexed row number.
+   * @param col          The zero indexed column number.
+   * @param chart        A #lxw_chart object created via workbook_add_chart().
+   * @param user_options Optional chart parameters.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_insert_chart_opt()` function is like
+   * `worksheet_insert_chart()` function except that it takes an optional
+   * #lxw_chart_options struct to scale and position the chart:
+   *
+   * @code
+   *    lxw_chart_options options = {.x_offset = 30,  .y_offset = 10,
+   *                                 .x_scale  = 0.5, .y_scale  = 0.75};
+   *
+   *    worksheet_insert_chart_opt(worksheet, 0, 2, chart, &options);
+   *
+   * @endcode
+   *
+   * @image html chart_line_opt.png
+   *
+   */
+  // TODO void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart, lxw_chart_options *user_options);
 
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
@@ -3820,8 +3886,8 @@ private:
                                              uint32_t comment_id);
   [[nodiscard]] int32_t size_col(col_num_t col_num, object_position_t anchor);
   [[nodiscard]] int32_t size_row(row_num_t row_num, object_position_t anchor);
-  [[nodiscard]] row_t* find_row(row_num_t row_num);
-  [[nodiscard]] cell_t* find_cell_in_row(row_t* row, col_num_t col_num);
+  [[nodiscard]] const row_t* find_row(row_num_t row_num) const;
+  [[nodiscard]] const cell_t* find_cell_in_row(const row_t* row, col_num_t col_num) const;
   void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object);
   void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object);
   void position_vml_object(vml_obj_t& vml_obj);
@@ -3834,6 +3900,7 @@ private:
   void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
   void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
+  void prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props, bool is_chartsheet);
 
   std::function<int32_t(format_t*)> get_xf_index_;
   ///     FILE *file;
@@ -3850,7 +3917,7 @@ private:
   ///     struct lxw_cond_format_hash *conditional_formats;
   std::vector<object_properties_t> image_props_;
   std::vector<object_properties_t> embedded_image_props_;
-  ///     struct lxw_chart_props *chart_data;
+  std::vector<object_properties_t> chart_data_;
 
   std::map<std::string, uint32_t> drawing_rel_ids_;
   std::map<std::string, uint32_t> vml_drawing_rel_ids_;
@@ -3892,36 +3959,36 @@ private:
   ///     uint8_t optimize;
   ///     struct row_t *optimize_row;
 
-  uint16_t fit_height_        = 0;
-  uint16_t fit_width_         = 0;
-  uint16_t horizontal_dpi_    = 0;
-  uint16_t hlink_count_       = 0;
-  uint16_t page_start_        = 0;
-  uint16_t print_scale_       = 100;
-  uint16_t rel_count_         = 0;
-  uint16_t vertical_dpi_      = 0;
-  uint16_t zoom_              = 100;
-  bool filter_on_             = false;
-  bool fit_page_              = false;
+  uint16_t fit_height_               = 0;
+  uint16_t fit_width_                = 0;
+  uint16_t horizontal_dpi_           = 0;
+  uint16_t hlink_count_              = 0;
+  uint16_t page_start_               = 0;
+  uint16_t print_scale_              = 100;
+  uint16_t rel_count_                = 0;
+  uint16_t vertical_dpi_             = 0;
+  uint16_t zoom_                     = 100;
+  bool filter_on_                    = false;
+  bool fit_page_                     = false;
   ///     uint8_t hcenter;
-  bool orientation_           = true;
-  bool outline_changed_       = false;
-  bool outline_on_            = true;
-  bool outline_style_         = true;
-  bool outline_below_         = true;
-  bool outline_right_         = false;
-  uint8_t page_order_         = 0;
-  bool page_setup_changed_    = false;
-  bool page_view_             = false;
-  uint8_t paper_size_         = 0;
-  bool print_gridlines_       = false;
+  drawing_orientation_t orientation_ = drawing_orientation_t::PORTRAIT;
+  bool outline_changed_              = false;
+  bool outline_on_                   = true;
+  bool outline_style_                = true;
+  bool outline_below_                = true;
+  bool outline_right_                = false;
+  uint8_t page_order_                = 0;
+  bool page_setup_changed_           = false;
+  bool page_view_                    = false;
+  uint8_t paper_size_                = 0;
+  bool print_gridlines_              = false;
   ///     uint8_t print_headers;
-  bool print_options_changed_ = false;
+  bool print_options_changed_        = false;
   ///     uint8_t right_to_left;
-  bool screen_gridlines_      = true;
-  bool show_zeros_            = true;
+  bool screen_gridlines_             = true;
+  bool show_zeros_                   = true;
   ///     uint8_t vcenter;
-  bool zoom_scale_normal_     = true;
+  bool zoom_scale_normal_            = true;
   ///     uint8_t black_white;
   ///     uint8_t num_validations;
   ///     uint8_t has_dynamic_functions;
@@ -4672,76 +4739,6 @@ private:
 /// lxw_error worksheet_set_background_buffer(lxw_worksheet *worksheet,
 ///                                           const unsigned char *image_buffer,
 ///                                           size_t image_size);
-
-/**
- * @brief Insert a chart object into a worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param chart     A #lxw_chart object created via workbook_add_chart().
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_insert_chart()` function can be used to insert a chart into
- * a worksheet. The chart object must be created first using the
- * `workbook_add_chart()` function and configured using the @ref chart.h
- * functions.
- *
- * @code
- *     // Create a chart object.
- *     lxw_chart *chart = workbook_add_chart(workbook, LXW_CHART_LINE);
- *
- *     // Add a data series to the chart.
- *     chart_add_series(chart, NULL, "=Sheet1!$A$1:$A$6");
- *
- *     // Insert the chart into the worksheet.
- *     worksheet_insert_chart(worksheet, 0, 2, chart);
- * @endcode
- *
- * @image html chart_working.png
- *
- * **Note:**
- *
- * A chart may only be inserted into a worksheet once. If several similar
- * charts are required then each one must be created separately with
- * `%worksheet_insert_chart()`.
- *
- */
-/// lxw_error worksheet_insert_chart(lxw_worksheet *worksheet,
-///                                  row_num_t row, col_num_t col,
-///                                  lxw_chart *chart);
-
-/**
- * @brief Insert a chart object into a worksheet, with options.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param row          The zero indexed row number.
- * @param col          The zero indexed column number.
- * @param chart        A #lxw_chart object created via workbook_add_chart().
- * @param user_options Optional chart parameters.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_insert_chart_opt()` function is like
- * `worksheet_insert_chart()` function except that it takes an optional
- * #lxw_chart_options struct to scale and position the chart:
- *
- * @code
- *    lxw_chart_options options = {.x_offset = 30,  .y_offset = 10,
- *                                 .x_scale  = 0.5, .y_scale  = 0.75};
- *
- *    worksheet_insert_chart_opt(worksheet, 0, 2, chart, &options);
- *
- * @endcode
- *
- * @image html chart_line_opt.png
- *
- */
-/// lxw_error worksheet_insert_chart_opt(lxw_worksheet *worksheet,
-///                                      row_num_t row, col_num_t col,
-///                                      lxw_chart *chart,
-///                                      lxw_chart_options *user_options);
 
 /**
  * @brief Set the autofilter area in the worksheet.
@@ -6044,16 +6041,10 @@ private:
 ///                                       uint32_t image_ref_id,
 ///                                       lxw_object_properties *object_props);
 
-/// void lxw_worksheet_prepare_chart(lxw_worksheet *worksheet,
-///                                  uint32_t chart_ref_id, uint32_t drawing_id,
-///                                  lxw_object_properties *object_props,
-///                                  uint8_t is_chartsheet);
-
 /// void lxw_worksheet_prepare_tables(lxw_worksheet *worksheet,
 ///                                   uint32_t table_id);
 
-/// row_t *lxw_worksheet_find_row(lxw_worksheet *worksheet, row_num_t
-/// row_num); cell_t *lxw_worksheet_find_cell_in_row(row_t *row, col_num_t
+/// cell_t *lxw_worksheet_find_cell_in_row(row_t *row, col_num_t
 /// col_num);
 /*
  * External functions to call intern XML functions shared with chartsheet.

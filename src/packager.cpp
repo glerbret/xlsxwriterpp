@@ -346,47 +346,15 @@ void packager_t::write_image_files(const workbook_t& workbook)
 ///   return LXW_NO_ERROR;
 /// }
 
-/// STATIC lxw_error _write_chart_files(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_chart *chart;
-///   char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-///   char *buffer = NULL;
-///   size_t buffer_size = 0;
-///   uint32_t index = 1;
-///   lxw_error err;
-
-///   STAILQ_FOREACH(chart, workbook->ordered_charts, ordered_list_pointers) {
-///     lxw_snprintf(sheetname, LXW_FILENAME_LENGTH,
-///                  "xl/charts/chart%d.xml", index++);
-
-///     chart->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!chart->file)
-///       return LXW_ERROR_CREATING_TMPFILE;
-
-///     lxw_chart_assemble_xml_file(chart);
-
-///     err = _add_to_zip(self, chart->file, &buffer, &buffer_size, sheetname);
-///     fclose(chart->file);
-///     free(buffer);
-///     RETURN_ON_ERROR(err);
-///   }
-
-///   return LXW_NO_ERROR;
-/// }
-
-/// uint32_t _get_chart_count(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_chart *chart;
-///   uint32_t chart_count = 0;
-
-///   STAILQ_FOREACH(chart, workbook->ordered_charts, ordered_list_pointers) {
-///     chart_count++;
-///   }
-
-///   return chart_count;
-/// }
+void packager_t::write_chart_files(const workbook_t& workbook)
+{
+  for(uint32_t index = 1; const auto& chart: workbook.ordered_charts_)
+  {
+    const std::string xml_data = chart->assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/charts/chart{}.xml", index));
+    index++;
+  }
+}
 
 void packager_t::write_drawing_files(const workbook_t& workbook)
 {
@@ -832,7 +800,6 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   uint32_t worksheet_index = 1;
   ///     uint32_t chartsheet_index = 1;
   uint32_t drawing_count   = get_drawing_count(workbook);
-  ///     uint32_t chart_count = _get_chart_count(self);
   ///     uint32_t table_count = _get_table_count(self);
   ///     lxw_error err = LXW_NO_ERROR;
 
@@ -901,12 +868,10 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     ///         }
   }
 
-  ///     for (index = 1; index <= chart_count; index++) {
-  ///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-  ///         "/xl/charts/chart%d.xml",
-  ///                      index);
-  ///         lxw_ct_add_chart_name(content_types, filename);
-  ///     }
+  for(size_t index = 1; index <= workbook.ordered_charts_.size(); index++)
+  {
+    content_types.add_chart_name(std::format("/xl/charts/chart{}.xml", index));
+  }
 
   for(uint32_t index = 1; index <= drawing_count; index++)
   {
@@ -1380,7 +1345,7 @@ void packager_t::create_package(workbook_t& workbook)
   write_worksheet_files(workbook);
   ///     error = _write_chartsheet_files(self);
   write_workbook_file(workbook);
-  ///     error = _write_chart_files(self);
+  write_chart_files(workbook);
   write_drawing_files(workbook);
   write_vml_files(workbook);
   write_comment_files(workbook);

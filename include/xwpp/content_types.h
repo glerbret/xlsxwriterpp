@@ -33,6 +33,7 @@ public:
   void add_drawing_name(std::string_view name);
   void add_metadata();
   void add_rich_value();
+  void add_chart_name(std::string_view name);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -49,8 +50,6 @@ private:
 /// void lxw_content_types_free(lxw_content_types *content_types);
 /// void lxw_ct_add_chartsheet_name(lxw_content_types *content_types,
 ///                                 const char *name);
-/// void lxw_ct_add_chart_name(lxw_content_types *content_types,
-///                            const char *name);
 /// void lxw_ct_add_table_name(lxw_content_types *content_types,
 ///                            const char *name);
 /// void lxw_ct_add_calc_chain(lxw_content_types *content_types);
