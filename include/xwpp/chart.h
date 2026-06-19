@@ -713,7 +713,7 @@ struct chart_font_t
   double size_ = 0.;
 
   /** The chart font bold property. Set to 0 or 1. */
-  bool bold_= false;
+  bool bold_ = false;
 
   /** The chart font italic property. Set to 0 or 1. */
   bool italic_ = false;
@@ -741,6 +741,9 @@ struct chart_font_t
 
   /** The chart font baseline property. Rarely required, set to 0. */
   int8_t baseline_ = 0;
+
+  // Use to distinguish title font (bold by default and we should set b="0" if bold_ is false) from others one
+  bool title_font_ = false;
 };
 
 /**
@@ -1129,18 +1132,18 @@ struct chart_axis_t
   ///   uint8_t is_date;
   bool is_value_    = false;
 
-  chart_position_t axis_position_ = chart_position_t::RIGHT;
-  chart_axis_tick_position_t position_axis_ = chart_axis_tick_position_t::DEFAULT;
+  chart_position_t axis_position_             = chart_position_t::RIGHT;
+  chart_axis_tick_position_t position_axis_   = chart_axis_tick_position_t::DEFAULT;
   chart_axis_label_position_t label_position_ = chart_axis_label_position_t::NEXT_TO;
-  chart_axis_label_alignment_t label_align_ = chart_axis_label_alignment_t::CENTER;
-  bool hidden_    = false;
-  bool reverse_    = false;
+  chart_axis_label_alignment_t label_align_   = chart_axis_label_alignment_t::CENTER;
+  bool hidden_                                = false;
+  bool reverse_                               = false;
 
   ///
-  bool has_min_    = false;
-  double min_ = 0;
-  bool has_max_    = false;
-  double max_ = 0;
+  bool has_min_         = false;
+  double min_           = 0;
+  bool has_max_         = false;
+  double max_           = 0;
   ///
   ///   uint8_t has_major_unit;
   ///   double major_unit;
@@ -1150,15 +1153,15 @@ struct chart_axis_t
   ///   uint16_t interval_unit;
   ///   uint16_t interval_tick;
   ///
-    uint16_t log_base_ = 0;
+  uint16_t log_base_    = 0;
   ///
   ///   uint8_t display_units;
   ///   uint8_t display_units_visible;
   ///
-    bool has_crossing_ = false;
-    uint8_t crossing_min_ = 0;
-    uint8_t crossing_max_ = 0;
-    double crossing_ = 0.;
+  bool has_crossing_    = false;
+  uint8_t crossing_min_ = 0;
+  uint8_t crossing_max_ = 0;
+  double crossing_      = 0.;
 };
 
 /**
@@ -1344,10 +1347,46 @@ public:
    */
   void series_set_name(chart_series_t& series, const std::string& name);
 
+  /**
+   * @brief  Set the font properties for a chart title.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param font  A pointer to a chart #lxw_chart_font font struct.
+   *
+   * The `%chart_title_set_name_font()` function is used to set the font of a
+   * chart title:
+   *
+   * @code
+   *     lxw_chart_font font = {.color = LXW_COLOR_BLUE};
+   *
+   *     chart_title_set_name(chart, "Year End Results");
+   *     chart_title_set_name_font(chart, &font);
+   * @endcode
+   *
+   * @image html chart_title_set_name_font.png
+   *
+   * In Excel a chart title font is bold by default (as shown in the image
+   * above). To turn off bold in the font you cannot use #LXW_FALSE (0) since
+   * that is indistinguishable from an uninitialized value. Instead you should
+   * use #LXW_EXPLICIT_FALSE:
+   *
+   * @code
+   *     lxw_chart_font font = {.bold = LXW_EXPLICIT_FALSE, .color = LXW_COLOR_BLUE};
+   *
+   *     chart_title_set_name(chart, "Year End Results");
+   *     chart_title_set_name_font(chart, &font);
+   * @endcode
+   *
+   * @image html chart_title_set_name_font2.png
+   *
+   * For more information see @ref chart_fonts.
+   */
+  void title_set_name_font(const chart_font_t& font);
+
   std::string assemble_xml_file();
 
-// TODO Set to public as chart_axis_set_name access to it.
-// To be set private again, and chart_axis_set_name reworked
+  // TODO Set to public as chart_axis_set_name access to it.
+  // To be set private again, and chart_axis_set_name reworked
   chart_axis_t x_axis_{.default_num_format_ = "General",
                        .major_gridlines_    = {.visible_ = false},
                        .axis_position_      = chart_position_t::BOTTOM};
@@ -1355,15 +1394,16 @@ public:
                        .major_gridlines_    = {.visible_ = true},
                        .axis_position_      = chart_position_t::LEFT};
 
-
 private:
   friend class worksheet_t; // TODO
   friend class workbook_t;
 
+  void initialize_column_chart(chart_type_t type);
   void initialize_bar_chart(chart_type_t type);
   void initialize(chart_type_t type);
 
   [[nodiscard]] static std::string write_bar_chart(chart_t& chart);
+  [[nodiscard]] static std::string write_column_chart(chart_t& chart);
   [[nodiscard]] static std::string write_plot_area(chart_t& chart);
   [[nodiscard]] std::string write_chart_space() const;
   [[nodiscard]] std::string write_lang() const;
@@ -1378,13 +1418,14 @@ private:
   [[nodiscard]] std::string write_auto_title_deleted() const;
   [[nodiscard]] static std::string write_title(const chart_title_t& title);
   [[nodiscard]] static std::string write_title_rich(const chart_title_t& title);
-  [[nodiscard]] static std::string write_tx_rich(const std::string& name,
-                                          bool is_horizontal, const std::optional<chart_font_t>& font);
-  [[nodiscard]] static std::string write_rich(const std::string& name, const std::optional<chart_font_t>& font, bool is_horizontal,
-                                       bool ignore_rich_pr);
+  [[nodiscard]] static std::string write_tx_rich(const std::string& name, bool is_horizontal,
+                                                 const std::optional<chart_font_t>& font);
+  [[nodiscard]] static std::string write_rich(const std::string& name, const std::optional<chart_font_t>& font,
+                                              bool is_horizontal, bool ignore_rich_pr);
   [[nodiscard]] static std::string write_a_body_pr(int32_t rotation, bool is_horizontal);
   [[nodiscard]] static std::string write_a_lst_style();
-  [[nodiscard]] static std::string write_a_p_rich(const std::string& name, const std::optional<chart_font_t>& font, bool ignore_rich_pr);
+  [[nodiscard]] static std::string write_a_p_rich(const std::string& name, const std::optional<chart_font_t>& font,
+                                                  bool ignore_rich_pr);
   [[nodiscard]] static std::string write_a_p_pr_rich(const std::optional<chart_font_t>& font);
   [[nodiscard]] static std::string write_a_def_rpr(const std::optional<chart_font_t>& font);
   [[nodiscard]] static std::string write_a_r(const std::string& name, const std::optional<chart_font_t>& font);
@@ -1431,7 +1472,8 @@ private:
   [[nodiscard]] static std::string write_format_code();
   [[nodiscard]] static std::string write_num_pt(uint16_t index, const series_data_point_t& data_point);
   [[nodiscard]] static std::string write_val_axis(chart_t& chart);
-  [[nodiscard]] static std::string write_scaling(bool reverse, bool has_min, double min, bool has_max, double max, uint16_t log_base);
+  [[nodiscard]] static std::string write_scaling(bool reverse, bool has_min, double min, bool has_max, double max,
+                                                 uint16_t log_base);
   [[nodiscard]] static std::string write_max(double max);
   [[nodiscard]] static std::string write_min(double min);
   [[nodiscard]] static std::string write_log_base(uint16_t log_base);
@@ -1456,7 +1498,7 @@ private:
   [[nodiscard]] static std::string write_label_align(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_label_offset();
   [[nodiscard]] static std::string write_number_format(const chart_axis_t& axis);
-  [[nodiscard]] static std::string write_cross_between(const chart_t& chart,  chart_axis_tick_position_t position);
+  [[nodiscard]] static std::string write_cross_between(const chart_t& chart, chart_axis_tick_position_t position);
   [[nodiscard]] std::string write_legend();
   [[nodiscard]] std::string write_legend_pos(const std::string& position);
   [[nodiscard]] std::string write_legend_entry(uint16_t index);
@@ -1474,30 +1516,30 @@ private:
 
   chart_title_t title_;
   ///
-  uint32_t id_              = 0;
-  uint32_t axis_id_1_       = 0;
-  uint32_t axis_id_2_       = 0;
+  uint32_t id_                                      = 0;
+  uint32_t axis_id_1_                               = 0;
+  uint32_t axis_id_2_                               = 0;
   ///   uint32_t axis_id_3;
   ///   uint32_t axis_id_4;
   ///
-  bool in_use_              = false;
-  chart_type_t chart_group_ = chart_type_t::NONE;
-  bool cat_has_num_fmt_     = false;
-  bool is_chartsheet_       = false;
-  bool has_horiz_cat_axis_  = false;
-  bool has_horiz_val_axis_  = true;
-  uint8_t style_id_         = 2; // TODO Constant for default style
+  bool in_use_                                      = false;
+  chart_type_t chart_group_                         = chart_type_t::NONE;
+  bool cat_has_num_fmt_                             = false;
+  bool is_chartsheet_                               = false;
+  bool has_horiz_cat_axis_                          = false;
+  bool has_horiz_val_axis_                          = true;
+  uint8_t style_id_                                 = 2; // TODO Constant for default style
   ///   uint16_t rotation;
-  uint16_t hole_size_       = 50;
+  uint16_t hole_size_                               = 50;
   ///
   ///   uint8_t no_title;
-  bool has_overlap_         = false;
-  int8_t overlap_y1_ = 0;
+  bool has_overlap_                                 = false;
+  int8_t overlap_y1_                                = 0;
   ///   int8_t overlap_y2;
-  uint16_t gap_y1_           = DEFAULT_GAP;
-  uint16_t gap_y2_           = DEFAULT_GAP;
+  uint16_t gap_y1_                                  = DEFAULT_GAP;
+  uint16_t gap_y2_                                  = DEFAULT_GAP;
   ///
-  chart_grouping_t grouping_ = chart_grouping_t::CLUSTERED;
+  chart_grouping_t grouping_                        = chart_grouping_t::CLUSTERED;
   chart_axis_tick_position_t default_cross_between_ = chart_axis_tick_position_t::DEFAULT;
   chart_legend_t legend_{.position_ = chart_legend_position_t::RIGHT};
   std::vector<int16_t> delete_series_;
@@ -1529,7 +1571,7 @@ private:
   ///   lxw_chart_font* table_font;
   ///
   ///   uint8_t show_blanks_as;
-    bool show_hidden_data_ = false;
+  bool show_hidden_data_                         = false;
   ///
   ///   uint8_t has_up_down_bars;
   ///   lxw_chart_line* up_bar_line;
@@ -1574,7 +1616,8 @@ private:
  * @endcode
  *
  */
-void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
+                                 col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
 /**
  * @brief Set a series "values" range using row and column values.
@@ -1594,10 +1637,11 @@ void chart_series_set_categories(chart_series_t& series, const std::string& shee
  * easier to generate programmatically. See the documentation for
  * `chart_series_set_categories()` above.
  */
-void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
+                             col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
-void set_range(series_range_t& range, const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
-
+void set_range(series_range_t& range, const std::string& sheetname, row_num_t first_row, col_num_t first_col,
+               row_num_t last_row, col_num_t last_col);
 
 // TODO To move out chart_t
 /**
@@ -3406,42 +3450,6 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * @endcode
  */
 /// void chart_title_set_name_range(lxw_chart* chart, const char* sheetname, lxw_row_t row, lxw_col_t col);
-
-/**
- * @brief  Set the font properties for a chart title.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param font  A pointer to a chart #lxw_chart_font font struct.
- *
- * The `%chart_title_set_name_font()` function is used to set the font of a
- * chart title:
- *
- * @code
- *     lxw_chart_font font = {.color = LXW_COLOR_BLUE};
- *
- *     chart_title_set_name(chart, "Year End Results");
- *     chart_title_set_name_font(chart, &font);
- * @endcode
- *
- * @image html chart_title_set_name_font.png
- *
- * In Excel a chart title font is bold by default (as shown in the image
- * above). To turn off bold in the font you cannot use #LXW_FALSE (0) since
- * that is indistinguishable from an uninitialized value. Instead you should
- * use #LXW_EXPLICIT_FALSE:
- *
- * @code
- *     lxw_chart_font font = {.bold = LXW_EXPLICIT_FALSE, .color = LXW_COLOR_BLUE};
- *
- *     chart_title_set_name(chart, "Year End Results");
- *     chart_title_set_name_font(chart, &font);
- * @endcode
- *
- * @image html chart_title_set_name_font2.png
- *
- * For more information see @ref chart_fonts.
- */
-/// void chart_title_set_name_font(lxw_chart* chart, lxw_chart_font* font);
 
 /**
  * @brief Turn off an automatic chart title.

@@ -110,8 +110,10 @@ std::string rowcol_to_cell(row_num_t row, col_num_t col)
 std::string rowcol_to_cell_abs(row_num_t row, col_num_t col, bool abs_row, bool abs_col)
 {
   std::string cell_name = col_to_name(col, abs_col);
-  if (abs_row)
+  if(abs_row)
+  {
     cell_name += '$';
+  }
   cell_name += std::to_string(row + 1);
 
   return cell_name;
@@ -161,7 +163,8 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
 ///     lxw_rowcol_to_cell_abs(&range[pos], last_row, last_col, 1, 1);
 /// }
 
-std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
+                                  row_num_t last_row, col_num_t last_col)
 {
   std::string formula = quote_sheetname(sheetname);
 
@@ -172,8 +175,10 @@ std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_
   formula += rowcol_to_cell_abs(first_row, first_col, true, true);
 
   // If the start and end cells are the same just return a single cell.
-  if (first_row == last_row && first_col == last_col)
+  if(first_row == last_row && first_col == last_col)
+  {
     return formula;
+  }
 
   // Add the range separator.
   formula += ':';
