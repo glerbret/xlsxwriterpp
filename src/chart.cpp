@@ -853,6 +853,8 @@ std::string chart_t::write_a_body_pr(int32_t rotation, bool is_horizontal)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
+std::cout << rotation << " "<< is_horizontal << "\n";
+
   if(rotation == 0 && is_horizontal)
   {
     rotation = -5400000;
@@ -3359,7 +3361,7 @@ std::string chart_t::write_cross_between(const chart_t& chart, chart_axis_tick_p
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  if(position != chart_axis_tick_position_t::DEFAULT)
+  if(position == chart_axis_tick_position_t::DEFAULT)
   {
     position = chart.default_cross_between_;
   }
@@ -3749,29 +3751,26 @@ std::string chart_t::write_gap_width(uint16_t gap)
 ///   lxw_xml_end_tag(self->file, "c:upDownBars");
 /// }
 
-/*
- * Write the <c:dropLines> element.
- */
-/// STATIC void _chart_write_drop_lines(lxw_chart* self)
-/// {
-///   if(!self->has_drop_lines)
-///   {
-///     return;
-///   }
-///
-///   if(self->drop_lines_line)
-///   {
-///     lxw_xml_start_tag(self->file, "c:dropLines", NULL);
-///
-///     _chart_write_sp_pr(self, self->drop_lines_line, NULL, NULL);
-///
-///     lxw_xml_end_tag(self->file, "c:dropLines");
-///   }
-///   else
-///   {
-///     lxw_xml_empty_tag(self->file, "c:dropLines", NULL);
-///   }
-/// }
+std::string chart_t::write_drop_lines(const chart_t& chart)
+{
+  if(!chart.has_drop_lines_)
+  {
+    return "";
+  }
+
+  if(chart.drop_lines_line_)
+  {
+    std::string xml_data = xml_start_tag("c:dropLines");
+    xml_data += write_sp_pr(chart.drop_lines_line_, std::nullopt, std::nullopt);
+    xml_data += xml_end_tag("c:dropLines");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("c:dropLines");
+  }
+}
 
 /*
  * Write the <c:hiLowLines> element.
@@ -3878,7 +3877,7 @@ std::string chart_t::write_val_axis(chart_t& chart)
   xml_data += write_axis_pos(chart.y_axis_.axis_position_, chart.x_axis_.reverse_);
   xml_data += write_major_gridlines(chart.y_axis_);
   ///   xml_data += _chart_write_minor_gridlines(self, self->y_axis);
-  ///   self->y_axis->title.is_horizontal = self->has_horiz_val_axis;
+  chart.y_axis_.title_.is_horizontal_ = chart.has_horiz_val_axis_;
   xml_data += write_title(chart.y_axis_.title_);
   xml_data += write_number_format(chart.y_axis_);
   ///   xml_data += _chart_write_major_tick_mark(self, self->y_axis);
@@ -3989,32 +3988,19 @@ std::string chart_t::write_bar_dir(const std::string& type)
   });
 }
 
-/*
- * Write a area chart.
- */
-/// STATIC void _chart_write_area_chart(lxw_chart* self)
-/// {
-///   lxw_chart_series* series;
-///
-///   lxw_xml_start_tag(self->file, "c:areaChart", NULL);
-///
-///   /* Write the c:grouping element. */
-///   _chart_write_grouping(self, self->grouping);
-///
-///   STAILQ_FOREACH(series, self->series_list, list_pointers)
-///   {
-///     /* Write the c:ser element. */
-///     _chart_write_ser(self, series);
-///   }
-///
-///   /* Write the c:dropLines element. */
-///   _chart_write_drop_lines(self);
-///
-///   /* Write the c:axId elements. */
-///   _chart_write_axis_ids(self);
-///
-///   lxw_xml_end_tag(self->file, "c:areaChart");
-/// }
+std::string chart_t::write_area_chart(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:areaChart");
+  xml_data += write_grouping(chart.grouping_);
+  for(auto& series: chart.series_list_)
+  {
+    xml_data += write_ser(chart, series);
+  }
+  xml_data += write_drop_lines(chart);
+  xml_data += write_axis_ids(chart);
+  xml_data += xml_end_tag("c:areaChart");
+
+  return xml_data;}
 
 std::string chart_t::write_bar_chart(chart_t& chart)
 {
@@ -4288,38 +4274,34 @@ std::string chart_t::write_chart()
   return xml_data;
 }
 
-/*
- * Initialize a area chart.
- */
-/// STATIC void _chart_initialize_area_chart(lxw_chart* self, uint8_t type)
-/// {
-///   self->chart_group            = LXW_CHART_AREA;
-///   self->grouping               = LXW_GROUPING_STANDARD;
-///   self->default_cross_between  = LXW_CHART_AXIS_POSITION_ON_TICK;
-///   self->x_axis->is_category    = LXW_TRUE;
-///   self->default_label_position = LXW_CHART_LABEL_POSITION_CENTER;
-///
-///   if(type == LXW_CHART_AREA_STACKED)
-///   {
-///     self->grouping = LXW_GROUPING_STACKED;
-///     self->subtype  = LXW_CHART_SUBTYPE_STACKED;
-///   }
-///
-///   if(type == LXW_CHART_AREA_STACKED_PERCENT)
-///   {
-///     self->grouping = LXW_GROUPING_PERCENTSTACKED;
-///     _chart_axis_set_default_num_format(self->y_axis, "0%");
-///     self->subtype = LXW_CHART_SUBTYPE_STACKED;
-///   }
-///
-///   /* Initialize the function pointers for this chart type. */
-///   self->write_chart_type = _chart_write_area_chart;
-///   self->write_plot_area  = _chart_write_plot_area;
-/// }
+void chart_t::initialize_area_chart(chart_type_t type)
+{
+  chart_group_                      = chart_type_t::AREA;
+  grouping_    = chart_grouping_t::STANDARD;
+  default_cross_between_ = chart_axis_tick_position_t::ON_TICK;
+  x_axis_.is_category_              = true;
+  default_label_position_           = chart_label_position_t::CENTER;
 
-/*
- * Initialize a bar chart.
- */
+  if(type == chart_type_t::AREA_STACKED)
+  {
+    grouping_    = chart_grouping_t::STACKED;
+    subtype_     = chart_subtype_t::STACKED;
+  }
+
+  if(type == chart_type_t::AREA_STACKED_PERCENT)
+  {
+    grouping_                   = chart_grouping_t::PERCENTSTACKED;
+    y_axis_.default_num_format_ = "0%";
+    has_overlap_                = true;
+    subtype_                    = chart_subtype_t::STACKED;
+    overlap_y1_                 = 100;
+  }
+
+  // Initialize the function pointers for this chart type.
+  write_chart_type_ = write_area_chart;
+  write_plot_area_  = write_plot_area;
+}
+
 void chart_t::initialize_bar_chart(chart_type_t type)
 {
   // Note: Bar chart category/value axis are reversed in comparison to
@@ -4488,12 +4470,11 @@ void chart_t::initialize(chart_type_t type)
 {
   switch(type)
   {
-      ///
-      ///     case chart_type_t::AREA:
-      ///     case chart_type_t::AREA_STACKED:
-      ///     case chart_type_t::AREA_STACKED_PERCENT:
-      ///       _chart_initialize_area_chart(self, type);
-      ///       break;
+    case chart_type_t::AREA:
+    case chart_type_t::AREA_STACKED:
+    case chart_type_t::AREA_STACKED_PERCENT:
+      initialize_area_chart(type);
+      break;
 
     case chart_type_t::BAR:
     case chart_type_t::BAR_STACKED:

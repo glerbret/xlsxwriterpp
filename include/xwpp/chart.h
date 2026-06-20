@@ -1400,11 +1400,13 @@ private:
 
   void initialize_column_chart(chart_type_t type);
   void initialize_bar_chart(chart_type_t type);
+  void initialize_area_chart(chart_type_t type);
   void initialize(chart_type_t type);
 
   [[nodiscard]] static std::string write_bar_chart(chart_t& chart);
   [[nodiscard]] static std::string write_column_chart(chart_t& chart);
   [[nodiscard]] static std::string write_plot_area(chart_t& chart);
+  [[nodiscard]] static std::string write_area_chart(chart_t& chart);
   [[nodiscard]] std::string write_chart_space() const;
   [[nodiscard]] std::string write_lang() const;
   [[nodiscard]] std::string write_style() const;
@@ -1503,6 +1505,12 @@ private:
   [[nodiscard]] std::string write_legend_pos(const std::string& position);
   [[nodiscard]] std::string write_legend_entry(uint16_t index);
   [[nodiscard]] std::string write_plot_vis_only();
+  [[nodiscard]] static std::string write_drop_lines(const chart_t& chart);
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
 
   static void add_axis_ids(chart_t& chart);
@@ -1555,8 +1563,8 @@ private:
   std::optional<chart_layout_t> plotarea_layout_;
   ///   lxw_chart_pattern* plotarea_pattern;
   ///
-  ///   uint8_t has_drop_lines;
-  ///   lxw_chart_line* drop_lines_line;
+  bool has_drop_lines_ = false;
+  std::optional<chart_line_t> drop_lines_line_;
   ///
   ///   uint8_t has_high_low_lines;
   ///   lxw_chart_line* high_low_lines_line;
