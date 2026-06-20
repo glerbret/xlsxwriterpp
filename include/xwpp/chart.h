@@ -1383,6 +1383,44 @@ public:
    */
   void title_set_name_font(const chart_font_t& font);
 
+/**
+ * @brief Set the position of the chart legend.
+ *
+ * @param chart    Pointer to a lxw_chart instance to be configured.
+ * @param position The #lxw_chart_legend_position value for the legend.
+ *
+ * The `%chart_legend_set_position()` function is used to set the chart
+ * legend to one of the #lxw_chart_legend_position values:
+ *
+ *     LXW_CHART_LEGEND_NONE
+ *     LXW_CHART_LEGEND_RIGHT
+ *     LXW_CHART_LEGEND_LEFT
+ *     LXW_CHART_LEGEND_TOP
+ *     LXW_CHART_LEGEND_BOTTOM
+ *     LXW_CHART_LEGEND_TOP_RIGHT
+ *     LXW_CHART_LEGEND_OVERLAY_RIGHT
+ *     LXW_CHART_LEGEND_OVERLAY_LEFT
+ *     LXW_CHART_LEGEND_OVERLAY_TOP_RIGHT
+ *
+ * For example:
+ *
+ * @code
+ *     chart_legend_set_position(chart, LXW_CHART_LEGEND_BOTTOM);
+ * @endcode
+ *
+ * @image html chart_legend_bottom.png
+ *
+ * This function can also be used to turn off a chart legend:
+ *
+ * @code
+ *     chart_legend_set_position(chart, LXW_CHART_LEGEND_NONE);
+ * @endcode
+ *
+ * @image html chart_legend_none.png
+ *
+ */
+void legend_set_position(chart_legend_position_t position);
+
   std::string assemble_xml_file();
 
   // TODO Set to public as chart_axis_set_name access to it.
@@ -3497,44 +3535,6 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * `chart_title_set_layout()` function.
  */
 /// void chart_title_set_overlay(lxw_chart* chart, uint8_t overlay);
-
-/**
- * @brief Set the position of the chart legend.
- *
- * @param chart    Pointer to a lxw_chart instance to be configured.
- * @param position The #lxw_chart_legend_position value for the legend.
- *
- * The `%chart_legend_set_position()` function is used to set the chart
- * legend to one of the #lxw_chart_legend_position values:
- *
- *     LXW_CHART_LEGEND_NONE
- *     LXW_CHART_LEGEND_RIGHT
- *     LXW_CHART_LEGEND_LEFT
- *     LXW_CHART_LEGEND_TOP
- *     LXW_CHART_LEGEND_BOTTOM
- *     LXW_CHART_LEGEND_TOP_RIGHT
- *     LXW_CHART_LEGEND_OVERLAY_RIGHT
- *     LXW_CHART_LEGEND_OVERLAY_LEFT
- *     LXW_CHART_LEGEND_OVERLAY_TOP_RIGHT
- *
- * For example:
- *
- * @code
- *     chart_legend_set_position(chart, LXW_CHART_LEGEND_BOTTOM);
- * @endcode
- *
- * @image html chart_legend_bottom.png
- *
- * This function can also be used to turn off a chart legend:
- *
- * @code
- *     chart_legend_set_position(chart, LXW_CHART_LEGEND_NONE);
- * @endcode
- *
- * @image html chart_legend_none.png
- *
- */
-/// void chart_legend_set_position(lxw_chart* chart, uint8_t position);
 
 /**
  * @brief Set the manual layout of the chart legend.

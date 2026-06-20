@@ -5905,19 +5905,10 @@ void chart_t::title_set_name_font(const chart_font_t& font)
 ///   self->title.has_overlay = overlay;
 /// }
 
-/*
- * Set the chart legend position.
- */
-/// void chart_legend_set_position(lxw_chart* self, uint8_t position)
-/// {
-///   if(position > LXW_CHART_LEGEND_OVERLAY_TOP_RIGHT)
-///   {
-///     LXW_WARN_FORMAT1("chart_legend_set_position(): invalid legend position: %d", position);
-///     return;
-///   }
-///
-///   self->legend.position = position;
-/// }
+void chart_t::legend_set_position(chart_legend_position_t position)
+{
+  legend_.position_ = position;
+}
 
 /*
  * Set a layout for the chart legend.
