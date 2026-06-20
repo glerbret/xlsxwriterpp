@@ -1421,6 +1421,70 @@ public:
    */
   void legend_set_position(chart_legend_position_t position);
 
+/**
+ * @brief Turn on a data table below the horizontal axis.
+ *
+ * @param chart Pointer to a lxw_chart instance to be configured.
+ *
+ * The `%chart_set_table()` function adds a data table below the horizontal
+ * axis with the data used to plot the chart:
+ *
+ * @code
+ *     // Turn on the data table with default options.
+ *     chart_set_table(chart);
+ * @endcode
+ *
+ * @image html chart_data_table1.png
+ *
+ * The data table can only be shown with Bar, Column, Line and Area charts.
+ *
+ */
+ void set_table();
+
+/**
+ * @brief Turn on/off grid options for a chart data table.
+ *
+ * @param chart       Pointer to a lxw_chart instance to be configured.
+ * @param horizontal  Turn on/off the horizontal grid lines in the table.
+ * @param vertical    Turn on/off the vertical grid lines in the table.
+ * @param outline     Turn on/off the outline lines in the table.
+ * @param legend_keys Turn on/off the legend keys in the table.
+ *
+ * The `%chart_set_table_grid()` function turns on/off grid options for a
+ * chart data table. The data table grid options in Excel are shown in the
+ * dialog below:
+ *
+ * @image html chart_data_table3.png
+ *
+ * These options can be passed to the `%chart_set_table_grid()` function.
+ * The values for a default chart are:
+ *
+ * - `horizontal`: On.
+ * - `vertical`: On.
+ * - `outline`:  On.
+ * - `legend_keys`: Off.
+ *
+ * Example:
+ *
+ * @code
+ *     // Turn on the data table with default options.
+ *     chart_set_table(chart);
+ *
+ *     // Turn on all grid lines and the grid legend.
+ *     chart_set_table_grid(chart, LXW_TRUE, LXW_TRUE, LXW_TRUE, LXW_TRUE);
+ *
+ *     // Turn off the legend since it is show in the table.
+ *     chart_legend_set_position(chart, LXW_CHART_LEGEND_NONE);
+ *
+ * @endcode
+ *
+ * @image html chart_data_table2.png
+ *
+ * The data table can only be shown with Bar, Column, Line and Area charts.
+ *
+ */
+void set_table_grid(bool horizontal, bool vertical, bool outline, bool legend_keys);
+
   std::string assemble_xml_file();
 
   // TODO Set to public as chart_axis_set_name access to it.
@@ -1561,8 +1625,11 @@ private:
   [[nodiscard]] static std::string write_show_percent();
   [[nodiscard]] static std::string write_show_leader_lines();
   [[nodiscard]] static std::string write_a_end_para_rpr();
-  //  [[nodiscard]] static std::string ();
-  //  [[nodiscard]] static std::string ();
+  [[nodiscard]] static std::string write_d_table(const chart_t& chart);
+  [[nodiscard]] static std::string write_show_horz_border(bool value);
+  [[nodiscard]] static std::string write_show_vert_border(bool value);
+  [[nodiscard]] static std::string write_show_outline(bool value);
+  [[nodiscard]] static std::string write_show_keys(bool value);
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
@@ -1628,12 +1695,12 @@ private:
   ///
   std::list<chart_series_t> series_list_;
   ///
-  ///   uint8_t has_table;
-  ///   uint8_t has_table_vertical;
-  ///   uint8_t has_table_horizontal;
-  ///   uint8_t has_table_outline;
-  ///   uint8_t has_table_legend_keys;
-  ///   lxw_chart_font* table_font;
+  bool has_table_ = false;
+  bool has_table_vertical_ = false;
+  bool has_table_horizontal_ = false;
+  bool has_table_outline_ = false;
+  bool has_table_legend_keys_ = false;
+  std::optional<chart_font_t> table_font_;
   ///
   ///   uint8_t show_blanks_as;
   bool show_hidden_data_                         = false;
@@ -3741,71 +3808,6 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * plotarea. See @ref chart_layout for more information.
  */
 /// void chart_plotarea_set_layout(lxw_chart* chart, lxw_chart_layout* layout);
-
-/**
- * @brief Turn on a data table below the horizontal axis.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- *
- * The `%chart_set_table()` function adds a data table below the horizontal
- * axis with the data used to plot the chart:
- *
- * @code
- *     // Turn on the data table with default options.
- *     chart_set_table(chart);
- * @endcode
- *
- * @image html chart_data_table1.png
- *
- * The data table can only be shown with Bar, Column, Line and Area charts.
- *
- */
-/// void chart_set_table(lxw_chart* chart);
-
-/**
- * @brief Turn on/off grid options for a chart data table.
- *
- * @param chart       Pointer to a lxw_chart instance to be configured.
- * @param horizontal  Turn on/off the horizontal grid lines in the table.
- * @param vertical    Turn on/off the vertical grid lines in the table.
- * @param outline     Turn on/off the outline lines in the table.
- * @param legend_keys Turn on/off the legend keys in the table.
- *
- * The `%chart_set_table_grid()` function turns on/off grid options for a
- * chart data table. The data table grid options in Excel are shown in the
- * dialog below:
- *
- * @image html chart_data_table3.png
- *
- * These options can be passed to the `%chart_set_table_grid()` function.
- * The values for a default chart are:
- *
- * - `horizontal`: On.
- * - `vertical`: On.
- * - `outline`:  On.
- * - `legend_keys`: Off.
- *
- * Example:
- *
- * @code
- *     // Turn on the data table with default options.
- *     chart_set_table(chart);
- *
- *     // Turn on all grid lines and the grid legend.
- *     chart_set_table_grid(chart, LXW_TRUE, LXW_TRUE, LXW_TRUE, LXW_TRUE);
- *
- *     // Turn off the legend since it is show in the table.
- *     chart_legend_set_position(chart, LXW_CHART_LEGEND_NONE);
- *
- * @endcode
- *
- * @image html chart_data_table2.png
- *
- * The data table can only be shown with Bar, Column, Line and Area charts.
- *
- */
-/// void chart_set_table_grid(lxw_chart* chart, uint8_t horizontal, uint8_t vertical, uint8_t outline, uint8_t
-/// legend_keys);
 
 /// void chart_set_table_font(lxw_chart* chart, lxw_chart_font* font);
 

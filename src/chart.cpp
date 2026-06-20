@@ -3407,126 +3407,66 @@ std::string chart_t::write_gap_width(uint16_t gap)
 ///   LXW_FREE_ATTRIBUTES();
 /// }
 
-/*
- * Write the <c:showHorzBorder> element.
- */
-/// STATIC void _chart_write_show_horz_border(lxw_chart* self, uint8_t value)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!value)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showHorzBorder", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_show_horz_border(bool value)
+{
+  if(!value)
+  {
+    return "";
+  }
 
-/*
- * Write the <c:showVertBorder> element.
- */
-/// STATIC void _chart_write_show_vert_border(lxw_chart* self, uint8_t value)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!value)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showVertBorder", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("c:showHorzBorder", {{"val", "1"}});
+}
 
-/*
- * Write the <c:showOutline> element.
- */
-/// STATIC void _chart_write_show_outline(lxw_chart* self, uint8_t value)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!value)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showOutline", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_show_vert_border(bool value)
+{
+  if(!value)
+  {
+    return "";
+  }
 
-/*
- * Write the <c:showKeys> element.
- */
-/// STATIC void _chart_write_show_keys(lxw_chart* self, uint8_t value)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!value)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showKeys", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("c:showVertBorder", {{"val", "1"}});
+}
 
-/*
- * Write the <c:dTable> element.
- */
-/// STATIC void _chart_write_d_table(lxw_chart* self)
-/// {
-///   if(!self->has_table)
-///   {
-///     return;
-///   }
-///
-///   lxw_xml_start_tag(self->file, "c:dTable", NULL);
-///
-///   /* Write the c:showHorzBorder element. */
-///   _chart_write_show_horz_border(self, self->has_table_horizontal);
-///
-///   /* Write the c:showVertBorder element. */
-///   _chart_write_show_vert_border(self, self->has_table_vertical);
-///
-///   /* Write the c:showOutline element. */
-///   _chart_write_show_outline(self, self->has_table_outline);
-///
-///   /* Write the c:showKeys element. */
-///   _chart_write_show_keys(self, self->has_table_legend_keys);
-///
-///   /* Write the c:txPr element. */
-///   if(self->table_font)
-///   {
-///     _chart_write_tx_pr(self, LXW_FALSE, self->table_font);
-///   }
-///
-///   lxw_xml_end_tag(self->file, "c:dTable");
-/// }
+std::string chart_t::write_show_outline(bool value)
+{
+  if(!value)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:showOutline", {{"val", "1"}});
+}
+
+std::string chart_t::write_show_keys(bool value)
+{
+  if(!value)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:showKeys", {{"val", "1"}});
+}
+
+std::string chart_t::write_d_table(const chart_t& chart)
+{
+  if(!chart.has_table_)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("c:dTable");
+  xml_data += write_show_horz_border(chart.has_table_horizontal_);
+  xml_data += write_show_vert_border(chart.has_table_vertical_);
+  xml_data += write_show_outline(chart.has_table_outline_);
+  xml_data += write_show_keys(chart.has_table_legend_keys_);
+  if(chart.table_font_)
+  {
+    xml_data += write_tx_pr(false, chart.table_font_);
+  }
+  xml_data += xml_end_tag("c:dTable");
+
+  return xml_data;
+}
 
 /*
  * Write the <c:upBars> element.
@@ -4095,7 +4035,7 @@ std::string chart_t::write_plot_area(chart_t& chart)
   ///   xml_data += _chart_adjust_max_crossing(self);
   xml_data += write_cat_axis(chart);
   xml_data += write_val_axis(chart);
-  ///   xml_data += _chart_write_d_table(self);
+  xml_data += write_d_table(chart);
   ///   xml_data += _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
   xml_data += xml_end_tag("c:plotArea");
 
@@ -5879,30 +5819,23 @@ void chart_t::legend_set_position(chart_legend_position_t position)
 ///   self->plotarea_layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_PLOTAREA);
 /// }
 
-/*
- * Turn on the chart data table.
- */
-/// void chart_set_table(lxw_chart* self)
-/// {
-///   self->has_table             = LXW_TRUE;
-///   self->has_table_horizontal  = LXW_TRUE;
-///   self->has_table_vertical    = LXW_TRUE;
-///   self->has_table_outline     = LXW_TRUE;
-///   self->has_table_legend_keys = LXW_FALSE;
-/// }
+void chart_t::set_table()
+{
+  has_table_             = true;
+  has_table_horizontal_  = true;
+  has_table_vertical_    = true;
+  has_table_outline_     = true;
+  has_table_legend_keys_ = false;
+}
 
-/*
- * Set the options for the chart data table grid.
- */
-/// void chart_set_table_grid(lxw_chart* self, uint8_t horizontal, uint8_t vertical, uint8_t outline, uint8_t
-/// legend_keys)
-/// {
-///   self->has_table             = LXW_TRUE;
-///   self->has_table_horizontal  = horizontal;
-///   self->has_table_vertical    = vertical;
-///   self->has_table_outline     = outline;
-///   self->has_table_legend_keys = legend_keys;
-/// }
+void chart_t::set_table_grid(bool horizontal, bool vertical, bool outline, bool legend_keys)
+{
+  has_table_             = true;
+  has_table_horizontal_  = horizontal;
+  has_table_vertical_    = vertical;
+  has_table_outline_     = outline;
+  has_table_legend_keys_ = legend_keys;
+}
 
 /*
  * Set the font for the chart data table grid.
