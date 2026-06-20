@@ -1,5 +1,5 @@
 /*
- * An example of creating Excel area charts using the Xlsxwriter++ library.
+ * An example of creating Excel column charts using the Xlsxwriter++ library.
  *
  * Copyright 2026, Grégory Lerbret
  *
@@ -15,12 +15,12 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   int row, col;
   uint8_t data[6][3] = {
       /* Three columns of data. */
-      {2, 40, 30},
-      {3, 40, 25},
-      {4, 50, 30},
-      {5, 30, 10},
-      {6, 25, 5 },
-      {7, 50, 10}
+      {2, 10, 30},
+      {3, 40, 60},
+      {4, 50, 70},
+      {5, 20, 50},
+      {6, 10, 40},
+      {7, 50, 30}
   };
 
   worksheet.write_string(CELL("A1"), "Number", bold);
@@ -31,14 +31,11 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   {
     for(col = 0; col < 3; col++)
     {
-      worksheet.write_number(row + 1, col, data[row][col], NULL);
+      worksheet.write_number(row + 1, col, data[row][col], nullptr);
     }
   }
 }
 
-/*
- * Create a worksheet with examples charts.
- */
 int main()
 {
   // Create a new workbook and add a worksheet.
@@ -53,7 +50,7 @@ int main()
   write_worksheet_data(worksheet, bold);
 
   // Chart 1. Create a area chart.
-  xwpp::chart_t& chart1 = workbook.add_chart(xwpp::chart_type_t::AREA);
+  xwpp::chart_t& chart1 = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
   // Add the first series to the chart.
   xwpp::chart_series_t& series1 = chart1.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -82,7 +79,7 @@ int main()
   worksheet.insert_chart(CELL("E2"), &chart1);
 
   // Chart 2. Create a stacked bar chart.
-  xwpp::chart_t& chart2 = workbook.add_chart(xwpp::chart_type_t::AREA_STACKED);
+  xwpp::chart_t& chart2 = workbook.add_chart(xwpp::chart_type_t::COLUMN_STACKED);
 
   // Add the first series to the chart.
   xwpp::chart_series_t& series3 = chart2.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -108,7 +105,7 @@ int main()
   worksheet.insert_chart(CELL("E18"), &chart2);
 
   // Chart 3. Create a percent stacked bar chart.
-  xwpp::chart_t& chart3 = workbook.add_chart(xwpp::chart_type_t::AREA_STACKED_PERCENT);
+  xwpp::chart_t& chart3 = workbook.add_chart(xwpp::chart_type_t::COLUMN_STACKED_PERCENT);
 
   // Add the first series to the chart.
   xwpp::chart_series_t& series5 = chart3.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -133,5 +130,5 @@ int main()
   // Insert the chart into the worksheet.
   worksheet.insert_chart(CELL("E34"), &chart3);
 
-  workbook.save("chart_area.xlsx");
+  workbook.save("chart_column.xlsx");
 }

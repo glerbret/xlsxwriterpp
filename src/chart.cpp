@@ -853,8 +853,6 @@ std::string chart_t::write_a_body_pr(int32_t rotation, bool is_horizontal)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-std::cout << rotation << " "<< is_horizontal << "\n";
-
   if(rotation == 0 && is_horizontal)
   {
     rotation = -5400000;
@@ -4000,7 +3998,8 @@ std::string chart_t::write_area_chart(chart_t& chart)
   xml_data += write_axis_ids(chart);
   xml_data += xml_end_tag("c:areaChart");
 
-  return xml_data;}
+  return xml_data;
+}
 
 std::string chart_t::write_bar_chart(chart_t& chart)
 {
@@ -4276,16 +4275,16 @@ std::string chart_t::write_chart()
 
 void chart_t::initialize_area_chart(chart_type_t type)
 {
-  chart_group_                      = chart_type_t::AREA;
-  grouping_    = chart_grouping_t::STANDARD;
-  default_cross_between_ = chart_axis_tick_position_t::ON_TICK;
-  x_axis_.is_category_              = true;
-  default_label_position_           = chart_label_position_t::CENTER;
+  chart_group_            = chart_type_t::AREA;
+  grouping_               = chart_grouping_t::STANDARD;
+  default_cross_between_  = chart_axis_tick_position_t::ON_TICK;
+  x_axis_.is_category_    = true;
+  default_label_position_ = chart_label_position_t::CENTER;
 
   if(type == chart_type_t::AREA_STACKED)
   {
-    grouping_    = chart_grouping_t::STACKED;
-    subtype_     = chart_subtype_t::STACKED;
+    grouping_ = chart_grouping_t::STACKED;
+    subtype_  = chart_subtype_t::STACKED;
   }
 
   if(type == chart_type_t::AREA_STACKED_PERCENT)
@@ -4356,7 +4355,7 @@ void chart_t::initialize_column_chart(chart_type_t type)
   if(type == chart_type_t::COLUMN_STACKED_PERCENT)
   {
     grouping_                   = chart_grouping_t::PERCENTSTACKED;
-    x_axis_.default_num_format_ = "0%";
+    y_axis_.default_num_format_ = "0%";
     has_overlap_                = true;
     subtype_                    = chart_subtype_t::STACKED;
     overlap_y1_                 = 100;
