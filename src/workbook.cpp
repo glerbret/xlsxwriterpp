@@ -692,7 +692,10 @@ void workbook_t::add_chart_cache_data()
       populate_range(series.title_.range_);
       for(auto& data_label: series.data_labels_)
       {
-        populate_range(data_label.range_);
+        if(data_label.range_)
+        {
+          populate_range(*data_label.range_);
+        }
       }
     }
   }

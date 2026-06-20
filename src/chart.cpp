@@ -33,11 +33,6 @@ chart_font_t convert_font_args(const chart_font_t& user_font, bool title_font = 
 {
   chart_font_t font;
 
-  ///   if(!user_font)
-  ///   {
-  ///     return NULL;
-  ///   }
-
   // Copy the user supplied properties.
   font.name_         = user_font.name_;
   font.size_         = user_font.size_;
@@ -66,106 +61,71 @@ chart_font_t convert_font_args(const chart_font_t& user_font, bool title_font = 
   return font;
 }
 
+chart_line_t convert_line_args(const chart_line_t& user_line)
+{
+  chart_line_t line;
+
+  // Copy the user supplied properties.
+  line.color_        = user_line.color_;
+  line.none_         = user_line.none_;
+  line.width_        = user_line.width_;
+  line.dash_type_    = user_line.dash_type_;
+  line.transparency_ = user_line.transparency_;
+
+  if(line.transparency_ > 100)
+  {
+    line.transparency_ = 0;
+  }
+
+  return line;
 }
 
-/*
- * Create a copy of a user supplied line.
- */
-/// STATIC lxw_chart_line* _chart_convert_line_args(lxw_chart_line* user_line)
-/// {
-///   lxw_chart_line* line;
-///
-///   if(!user_line)
-///   {
-///     return NULL;
-///   }
-///
-///   line = calloc(1, sizeof(struct lxw_chart_line));
-///   RETURN_ON_MEM_ERROR(line, NULL);
-///
-///   /* Copy the user supplied properties. */
-///   line->color        = user_line->color;
-///   line->none         = user_line->none;
-///   line->width        = user_line->width;
-///   line->dash_type    = user_line->dash_type;
-///   line->transparency = user_line->transparency;
-///
-///   if(line->transparency > 100)
-///   {
-///     line->transparency = 0;
-///   }
-///
-///   return line;
-/// }
+chart_fill_t convert_fill_args(const chart_fill_t& user_fill)
+{
+  chart_fill_t fill;
 
-/*
- * Create a copy of a user supplied fill.
- */
-/// STATIC lxw_chart_fill* _chart_convert_fill_args(lxw_chart_fill* user_fill)
-/// {
-///   lxw_chart_fill* fill;
-///
-///   if(!user_fill)
-///   {
-///     return NULL;
-///   }
-///
-///   fill = calloc(1, sizeof(struct lxw_chart_fill));
-///   RETURN_ON_MEM_ERROR(fill, NULL);
-///
-///   /* Copy the user supplied properties. */
-///   fill->color        = user_fill->color;
-///   fill->none         = user_fill->none;
-///   fill->transparency = user_fill->transparency;
-///
-///   if(fill->transparency > 100)
-///   {
-///     fill->transparency = 0;
-///   }
-///
-///   return fill;
-/// }
+  // Copy the user supplied properties.
+  fill.color_        = user_fill.color_;
+  fill.none_         = user_fill.none_;
+  fill.transparency_ = user_fill.transparency_;
 
-/*
- * Create a copy of a user supplied pattern.
- */
-/// STATIC lxw_chart_pattern* _chart_convert_pattern_args(lxw_chart_pattern* user_pattern)
-/// {
-///   lxw_chart_pattern* pattern;
-///
-///   if(!user_pattern)
-///   {
-///     return NULL;
-///   }
-///
-///   if(!user_pattern->type)
-///   {
-///     LXW_WARN("chart_xxx_set_pattern: 'type' must be specified");
-///     return NULL;
-///   }
-///
-///   if(!user_pattern->fg_color)
-///   {
-///     LXW_WARN("chart_xxx_set_pattern: 'fg_color' must be specified");
-///     return NULL;
-///   }
-///
-///   pattern = calloc(1, sizeof(struct lxw_chart_pattern));
-///   RETURN_ON_MEM_ERROR(pattern, NULL);
-///
-///   /* Copy the user supplied properties. */
-///   pattern->fg_color = user_pattern->fg_color;
-///   pattern->bg_color = user_pattern->bg_color;
-///   pattern->type     = user_pattern->type;
-///
-///   if(!pattern->bg_color)
-///   {
-///     /* Default background color in Excel is white, when unspecified. */
-///     pattern->bg_color = LXW_COLOR_WHITE;
-///   }
-///
-///   return pattern;
-/// }
+  if(fill.transparency_ > 100)
+  {
+    fill.transparency_ = 0;
+  }
+
+  return fill;
+}
+
+chart_pattern_t convert_pattern_args(const chart_pattern_t& user_pattern)
+{
+  chart_pattern_t pattern;
+
+  if(user_pattern.type_ == chart_pattern_type_t::NONE)
+  {
+    return chart_pattern_t{};
+  }
+
+  if(user_pattern.fg_color_ == color_t::UNSET)
+  {
+    return chart_pattern_t{};
+  }
+
+  // Copy the user supplied properties.
+  pattern.fg_color_ = user_pattern.fg_color_;
+  pattern.bg_color_ = user_pattern.bg_color_;
+  pattern.type_     = user_pattern.type_;
+
+  if(pattern.bg_color_ == color_t::UNSET)
+  {
+    // Default background color in Excel is white, when unspecified.
+    pattern.bg_color_ = color_t::WHITE;
+  }
+
+  return pattern;
+}
+
+}
 
 /*
  * Create a copy of a user supplied layout.
@@ -570,21 +530,12 @@ std::string chart_t::write_a_t(const std::string& name)
   return xml_data_element("a:t", name);
 }
 
-/*
- * Write the <a:endParaRPr> element.
- */
-/// STATIC void _chart_write_a_end_para_rpr(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("lang", "en-US");
-///
-///   lxw_xml_empty_tag(self->file, "a:endParaRPr", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_a_end_para_rpr()
+{
+  return xml_empty_tag("a:endParaRPr", {
+                                           {"lang", "en-US"}
+  });
+}
 
 std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
 {
@@ -807,8 +758,8 @@ std::string chart_t::write_a_p_pr_rich(const std::optional<chart_font_t>& font)
 std::string chart_t::write_a_p_formula(const std::optional<chart_font_t>& font)
 {
   std::string xml_data = xml_start_tag("a:p");
-  ///   xml_data += _chart_write_a_p_pr_formula(self, font);
-  ///   xml_data += _chart_write_a_end_para_rpr(self);
+  xml_data += write_a_p_pr_formula(font);
+  xml_data += write_a_end_para_rpr();
   xml_data += xml_end_tag("a:p");
 
   return xml_data;
@@ -1096,7 +1047,7 @@ std::string chart_t::write_axis_font(const std::optional<chart_font_t>& font)
   xml_data += write_a_lst_style();
   xml_data += xml_start_tag("a:p");
   xml_data += write_a_p_pr_rich(font);
-  ///   xml_data += _chart_write_a_end_para_rpr(self);
+  xml_data += write_a_end_para_rpr();
   xml_data += xml_end_tag("a:p");
   xml_data += xml_end_tag("c:txPr");
 
@@ -1798,424 +1749,316 @@ std::string chart_t::write_series_name(const chart_series_t& series)
 ///   LXW_FREE_ATTRIBUTES();
 /// }
 
-/*
- * Write the <c:showVal> element.
- */
-/// ATIC void _chart_write_show_val(lxw_chart* self)
-/// /// struct xml_attribute_list attributes;
-/// struct xml_attribute* attribute;
-///// LXW_INIT_ATTRIBUTES();
-/// LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///// lxw_xml_empty_tag(self->file, "c:showVal", &attributes);
-///// LXW_FREE_ATTRIBUTES();
-///
-/*
- * Write the <c:showCatName> element.
- */
-/// STATIC void _chart_write_show_cat_name(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showCatName", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_show_val()
+{
+  return xml_empty_tag("c:showVal", {
+                                        {"val", "1"}
+  });
+}
 
-/*
- * Write the <c:showSerName> element.
- */
-/// STATIC void _chart_write_show_ser_name(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showSerName", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_show_cat_name()
+{
+  return xml_empty_tag("c:showCatName", {
+                                            {"val", "1"}
+  });
+}
 
-/*
- * Write the <c:showLeaderLines> element.
- */
-/// STATIC void _chart_write_show_leader_lines(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showLeaderLines", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_show_ser_name()
+{
+  return xml_empty_tag("c:showSerName", {
+                                            {"val", "1"}
+  });
+}
 
-/*
- * Write the <c:dLblPos> element.
- */
-/// STATIC void _chart_write_d_lbl_pos(lxw_chart* self, uint8_t position)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   if(position == LXW_CHART_LABEL_POSITION_RIGHT)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "r");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_LEFT)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "l");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_ABOVE)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "t");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_BELOW)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "b");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_INSIDE_BASE)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "inBase");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_INSIDE_END)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "inEnd");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_OUTSIDE_END)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "outEnd");
-///   }
-///   else if(position == LXW_CHART_LABEL_POSITION_BEST_FIT)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "bestFit");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "ctr");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:dLblPos", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_show_leader_lines()
+{
+  return xml_empty_tag("c:showLeaderLines", {
+                                                {"val", "1"}
+  });
+}
 
-/*
- * Write the <c:separator> element.
- */
-/// STATIC void _chart_write_separator(lxw_chart* self, uint8_t separator)
-/// {
-///   if(separator == LXW_CHART_LABEL_SEPARATOR_SEMICOLON)
-///   {
-///     lxw_xml_data_element(self->file, "c:separator", "; ", NULL);
-///   }
-///   else if(separator == LXW_CHART_LABEL_SEPARATOR_PERIOD)
-///   {
-///     lxw_xml_data_element(self->file, "c:separator", ". ", NULL);
-///   }
-///   else if(separator == LXW_CHART_LABEL_SEPARATOR_NEWLINE)
-///   {
-///     lxw_xml_data_element(self->file, "c:separator", "\n", NULL);
-///   }
-///   else if(separator == LXW_CHART_LABEL_SEPARATOR_SPACE)
-///   {
-///     lxw_xml_data_element(self->file, "c:separator", " ", NULL);
-///   }
-///   else
-///   {
-///     lxw_xml_data_element(self->file, "c:separator", ", ", NULL);
-///   }
-/// }
+std::string chart_t::write_d_lbl_pos(chart_label_position_t position)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-/*
- * Write the <c:showLegendKey> element.
- */
-/// STATIC void _chart_write_show_legend_key(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showLegendKey", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  if(position == chart_label_position_t::RIGHT)
+  {
+    attributes.emplace_back("val", "r");
+  }
+  else if(position == chart_label_position_t::LEFT)
+  {
+    attributes.emplace_back("val", "l");
+  }
+  else if(position == chart_label_position_t::ABOVE)
+  {
+    attributes.emplace_back("val", "t");
+  }
+  else if(position == chart_label_position_t::BELOW)
+  {
+    attributes.emplace_back("val", "b");
+  }
+  else if(position == chart_label_position_t::INSIDE_BASE)
+  {
+    attributes.emplace_back("val", "inBase");
+  }
+  else if(position == chart_label_position_t::INSIDE_END)
+  {
+    attributes.emplace_back("val", "inEnd");
+  }
+  else if(position == chart_label_position_t::OUTSIDE_END)
+  {
+    attributes.emplace_back("val", "outEnd");
+  }
+  else if(position == chart_label_position_t::BEST_FIT)
+  {
+    attributes.emplace_back("val", "bestFit");
+  }
+  else
+  {
+    attributes.emplace_back("val", "ctr");
+  }
 
-/*
- * Write the <c:showPercent> element.
- */
-/// STATIC void _chart_write_show_percent(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:showPercent", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("c:dLblPos", attributes);
+}
 
-/*
- * Write the <c:numFmt> element.
- */
-/// STATIC void _chart_write_label_num_fmt(lxw_chart* self, char* format)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("formatCode", format);
-///   LXW_PUSH_ATTRIBUTES_STR("sourceLinked", "0");
-///
-///   lxw_xml_empty_tag(self->file, "c:numFmt", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_separator(chart_label_separator_t separator)
+{
+  if(separator == chart_label_separator_t::SEMICOLON)
+  {
+    return xml_data_element("c:separator", "; ");
+  }
+  else if(separator == chart_label_separator_t::PERIOD)
+  {
+    return xml_data_element("c:separator", ". ");
+  }
+  else if(separator == chart_label_separator_t::NEWLINE)
+  {
+    return xml_data_element("c:separator", "\n");
+  }
+  else if(separator == chart_label_separator_t::SPACE)
+  {
+    return xml_data_element("c:separator", " ");
+  }
+  else
+  {
+    return xml_data_element("c:separator", ", ");
+  }
+}
 
-/*
- * Write parts of the <c:dLbl> elements where only formatting is changed.
- */
-/// STATIC void _chart_write_custom_label_format_only(lxw_chart* self, lxw_chart_custom_label* data_label)
-/// {
-///   if(data_label->line || data_label->fill || data_label->pattern)
-///   {
-///     _chart_write_sp_pr(self, data_label->line, data_label->fill, data_label->pattern);
-///     _chart_write_tx_pr(self, LXW_FALSE, data_label->font);
-///   }
-///   else if(data_label->font)
-///   {
-///     lxw_xml_empty_tag(self->file, "c:spPr", NULL);
-///     _chart_write_tx_pr(self, LXW_FALSE, data_label->font);
-///   }
-/// }
+std::string chart_t::write_show_legend_key()
+{
+  return xml_empty_tag("c:showLegendKey", {
+                                              {"val", "1"}
+  });
+}
 
-/*
- * Write parts of the <c:dLbl> elements for formula custom labels.
- */
-/// STATIC void _chart_write_custom_label_formula(lxw_chart* self, lxw_chart_series* series,
-///                                               lxw_chart_custom_label* data_label)
-/// {
-///   lxw_xml_empty_tag(self->file, "c:layout", NULL);
-///   lxw_xml_start_tag(self->file, "c:tx", NULL);
-///
-///   _chart_write_str_ref(self, data_label->range);
-///
-///   lxw_xml_end_tag(self->file, "c:tx");
-///
-///   _chart_write_custom_label_format_only(self, data_label);
-///
-///   /* Write the c:dLblPos element. */
-///   if(series->label_position)
-///   {
-///     _chart_write_d_lbl_pos(self, series->label_position);
-///   }
-///
-///   /* Write the c:showVal element. */
-///   if(series->show_labels_value)
-///   {
-///     _chart_write_show_val(self);
-///   }
-///
-///   /* Write the c:showCatName element. */
-///   if(series->show_labels_category)
-///   {
-///     _chart_write_show_cat_name(self);
-///   }
-///
-///   /* Write the c:showSerName element. */
-///   if(series->show_labels_name)
-///   {
-///     _chart_write_show_ser_name(self);
-///   }
-/// }
+std::string chart_t::write_show_percent()
+{
+  return xml_empty_tag("c:showPercent", {
+                                            {"val", "1"}
+  });
+}
 
-/*
- * Write parts of the <c:dLbl> elements for string custom labels.
- */
-/// STATIC void _chart_write_custom_label_str(lxw_chart* self, lxw_chart_series* series, lxw_chart_custom_label*
-/// data_label)
-/// {
-///   uint8_t ignore_rich_pr = LXW_TRUE;
-///
-///   if(data_label->line || data_label->fill || data_label->pattern)
-///   {
-///     ignore_rich_pr = LXW_FALSE;
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:layout", NULL);
-///   lxw_xml_start_tag(self->file, "c:tx", NULL);
-///
-///   /* Write the c:rich element. */
-///   _chart_write_rich(self, data_label->value, data_label->font, LXW_FALSE, ignore_rich_pr);
-///
-///   lxw_xml_end_tag(self->file, "c:tx");
-///
-///   /* Write the c:spPr element. */
-///   _chart_write_sp_pr(self, data_label->line, data_label->fill, data_label->pattern);
-///
-///   /* Write the c:dLblPos element. */
-///   if(series->label_position)
-///   {
-///     _chart_write_d_lbl_pos(self, series->label_position);
-///   }
-///
-///   /* Write the c:showVal element. */
-///   if(series->show_labels_value)
-///   {
-///     _chart_write_show_val(self);
-///   }
-///
-///   /* Write the c:showCatName element. */
-///   if(series->show_labels_category)
-///   {
-///     _chart_write_show_cat_name(self);
-///   }
-///
-///   /* Write the c:showSerName element. */
-///   if(series->show_labels_name)
-///   {
-///     _chart_write_show_ser_name(self);
-///   }
-/// }
+std::string chart_t::write_label_num_fmt(const std::string& format)
+{
+  return xml_empty_tag("c:numFmt", {
+                                       {"formatCode",   format},
+                                       {"sourceLinked", "0"   },
+  });
+}
 
-/*
- * Write the <c:dLbl> elements for custom labels.
- */
-/// STATIC void _chart_write_custom_labels(lxw_chart* self, lxw_chart_series* series)
-/// {
-///   uint16_t index = 0;
-///
-///   for(index = 0; index < series->data_label_count; index++)
-///   {
-///     lxw_chart_custom_label* data_label = &series->data_labels[index];
-///
-///     if(!data_label->value && !data_label->range && !data_label->hide && !data_label->font)
-///     {
-///
-///       continue;
-///     }
-///
-///     lxw_xml_start_tag(self->file, "c:dLbl", NULL);
-///
-///     /* Write the c:idx element. */
-///     _chart_write_idx(self, index);
-///
-///     if(data_label->hide)
-///     {
-///       /* Write the c:delete element. */
-///       _chart_write_delete(self);
-///     }
-///     else if(data_label->value)
-///     {
-///       _chart_write_custom_label_str(self, series, data_label);
-///     }
-///     else if(data_label->range)
-///     {
-///       _chart_write_custom_label_formula(self, series, data_label);
-///     }
-///     else if(data_label->font)
-///     {
-///       _chart_write_custom_label_format_only(self, data_label);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "c:dLbl");
-///   }
-/// }
+std::string chart_t::write_custom_label_format_only(const chart_custom_label_t& data_label)
+{
+  std::string xml_data;
 
-/*
- * Write the <c:dLbls> element.
- */
-/// STATIC void _chart_write_d_lbls(lxw_chart* self, lxw_chart_series* series)
-/// {
-///   if(!series->has_labels)
-///   {
-///     return;
-///   }
-///
-///   lxw_xml_start_tag(self->file, "c:dLbls", NULL);
-///
-///   if(series->data_labels)
-///   {
-///     _chart_write_custom_labels(self, series);
-///   }
-///
-///   /* Write the c:numFmt element. */
-///   if(series->label_num_format)
-///   {
-///     _chart_write_label_num_fmt(self, series->label_num_format);
-///   }
-///
-///   /* Write the c:spPr element. */
-///   _chart_write_sp_pr(self, series->label_line, series->label_fill, series->label_pattern);
-///
-///   if(series->label_font)
-///   {
-///     _chart_write_tx_pr(self, LXW_FALSE, series->label_font);
-///   }
-///
-///   /* Write the c:dLblPos element. */
-///   if(series->label_position)
-///   {
-///     _chart_write_d_lbl_pos(self, series->label_position);
-///   }
-///
-///   /* Write the c:showLegendKey element. */
-///   if(series->show_labels_legend)
-///   {
-///     _chart_write_show_legend_key(self);
-///   }
-///
-///   /* Write the c:showVal element. */
-///   if(series->show_labels_value)
-///   {
-///     _chart_write_show_val(self);
-///   }
-///
-///   /* Write the c:showCatName element. */
-///   if(series->show_labels_category)
-///   {
-///     _chart_write_show_cat_name(self);
-///   }
-///
-///   /* Write the c:showSerName element. */
-///   if(series->show_labels_name)
-///   {
-///     _chart_write_show_ser_name(self);
-///   }
-///
-///   /* Write the c:showPercent element. */
-///   if(series->show_labels_percent)
-///   {
-///     _chart_write_show_percent(self);
-///   }
-///
-///   /* Write the c:separator element. */
-///   if(series->label_separator)
-///   {
-///     _chart_write_separator(self, series->label_separator);
-///   }
-///
-///   /* Write the c:showLeaderLines element. */
-///   if(series->show_labels_leader)
-///   {
-///     _chart_write_show_leader_lines(self);
-///   }
-///
-///   lxw_xml_end_tag(self->file, "c:dLbls");
-/// }
+  if(data_label.line_ || data_label.fill_ || data_label.pattern_)
+  {
+    xml_data += write_sp_pr(data_label.line_, data_label.fill_, data_label.pattern_);
+    xml_data += write_tx_pr(false, data_label.font_);
+  }
+  else if(data_label.font_)
+  {
+    xml_data += xml_empty_tag("c:spPr");
+    xml_data += write_tx_pr(false, data_label.font_);
+  }
+
+  return xml_data;
+}
+
+std::string chart_t::write_custom_label_formula(const chart_series_t& series, const chart_custom_label_t& data_label)
+{
+  std::string xml_data = xml_empty_tag("c:layout");
+  xml_data += xml_start_tag("c:tx");
+  xml_data += write_str_ref(*data_label.range_);
+  xml_data += xml_end_tag("c:tx");
+  xml_data += write_custom_label_format_only(data_label);
+
+  if(series.label_position_ != chart_label_position_t::DEFAULT)
+  {
+    xml_data += write_d_lbl_pos(series.label_position_);
+  }
+
+  if(series.show_labels_value_)
+  {
+    xml_data += write_show_val();
+  }
+
+  if(series.show_labels_category_)
+  {
+    xml_data += write_show_cat_name();
+  }
+
+  if(series.show_labels_name_)
+  {
+    xml_data += write_show_ser_name();
+  }
+
+  return xml_data;
+}
+
+std::string chart_t::write_custom_label_str(const chart_series_t series, const chart_custom_label_t& data_label)
+{
+  bool ignore_rich_pr = true;
+
+  if(data_label.line_ || data_label.fill_ || data_label.pattern_)
+  {
+    ignore_rich_pr = false;
+  }
+
+  std::string xml_data = xml_empty_tag("c:layout");
+  xml_data += xml_start_tag("c:tx");
+  xml_data += write_rich(data_label.value_, data_label.font_, false, ignore_rich_pr);
+  xml_data += xml_end_tag("c:tx");
+  xml_data += write_sp_pr(data_label.line_, data_label.fill_, data_label.pattern_);
+
+  if(series.label_position_ != chart_label_position_t::DEFAULT)
+  {
+    xml_data += write_d_lbl_pos(series.label_position_);
+  }
+
+  if(series.show_labels_value_)
+  {
+    xml_data += write_show_val();
+  }
+
+  if(series.show_labels_category_)
+  {
+    xml_data += write_show_cat_name();
+  }
+
+  if(series.show_labels_name_)
+  {
+    xml_data += write_show_ser_name();
+  }
+
+  return xml_data;
+}
+
+std::string chart_t::write_custom_labels(const chart_series_t& series)
+{
+  std::string xml_data;
+
+  for(uint16_t index = 0; const auto& data_label: series.data_labels_)
+  {
+    if(!data_label.value_.empty() || data_label.range_ || data_label.hide_ || data_label.font_)
+    {
+      xml_data += xml_start_tag("c:dLbl");
+      xml_data += write_idx(index);
+      if(data_label.hide_)
+      {
+        xml_data += write_delete();
+      }
+      else if(!data_label.value_.empty())
+      {
+        xml_data += write_custom_label_str(series, data_label);
+      }
+      else if(data_label.range_)
+      {
+        xml_data += write_custom_label_formula(series, data_label);
+      }
+      else if(data_label.font_)
+      {
+        xml_data += write_custom_label_format_only(data_label);
+      }
+      xml_data += xml_end_tag("c:dLbl");
+    }
+
+    index++;
+  }
+
+  return xml_data;
+}
+
+std::string chart_t::write_d_lbls(const chart_series_t& series)
+{
+  if(!series.has_labels_)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("c:dLbls");
+
+  if(!series.data_labels_.empty())
+  {
+    xml_data += write_custom_labels(series);
+  }
+
+  if(!series.label_num_format_.empty())
+  {
+    xml_data += write_label_num_fmt(series.label_num_format_);
+  }
+
+  xml_data += write_sp_pr(series.label_line_, series.label_fill_, series.label_pattern_);
+
+  if(series.label_font_)
+  {
+    xml_data += write_tx_pr(false, series.label_font_);
+  }
+
+  if(series.label_position_ != chart_label_position_t::DEFAULT)
+  {
+    xml_data += write_d_lbl_pos(series.label_position_);
+  }
+
+  if(series.show_labels_legend_)
+  {
+    xml_data += write_show_legend_key();
+  }
+
+  if(series.show_labels_value_)
+  {
+    xml_data += write_show_val();
+  }
+
+  if(series.show_labels_category_)
+  {
+    xml_data += write_show_cat_name();
+  }
+
+  if(series.show_labels_name_)
+  {
+    xml_data += write_show_ser_name();
+  }
+
+  if(series.show_labels_percent_)
+  {
+    xml_data += write_show_percent();
+  }
+
+  if(series.label_separator_ != chart_label_separator_t::COMMA)
+  {
+    xml_data += write_separator(series.label_separator_);
+  }
+
+  if(series.show_labels_leader_)
+  {
+    xml_data += write_show_leader_lines();
+  }
+
+  xml_data += xml_end_tag("c:dLbls");
+
+  return xml_data;
+}
 
 /*
  * Write the <c:intercept> element.
@@ -2791,7 +2634,7 @@ std::string chart_t::write_val(const chart_series_t& series)
 /// }
 
 std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
-{ // ICI
+{
   uint16_t index = chart.series_index_++;
 
   std::string xml_data = xml_start_tag("c:ser");
@@ -2802,7 +2645,7 @@ std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
   xml_data += write_marker(chart, series.marker_);
   ///   xml_data += _chart_write_invert_if_negative(self, series);
   ///   xml_data += _chart_write_points(self, series);
-  ///   xml_data += _chart_write_d_lbls(self, series);
+  xml_data += write_d_lbls(series);
   ///   xml_data += _chart_write_trendline(self, series);
   ///   xml_data += _chart_write_error_bars(self, series);
   xml_data += write_cat(chart, series);
@@ -3832,7 +3675,6 @@ std::string chart_t::write_cat_axis(chart_t& chart)
     xml_data += write_delete();
   }
   xml_data += write_axis_pos(chart.x_axis_.axis_position_, chart.y_axis_.reverse_);
-  // ICI
   xml_data += write_major_gridlines(chart.x_axis_);
   ///   xml_data += _chart_write_minor_gridlines(self, self->x_axis);
   chart.x_axis_.title_.is_horizontal_ = chart.has_horiz_cat_axis_;
@@ -4901,104 +4743,74 @@ void chart_series_set_values(chart_series_t& series, const std::string& sheetnam
 ///   series->smooth = smooth;
 /// }
 
-/*
- * Turn on default data labels for a series.
- */
-/// void chart_series_set_labels(lxw_chart_series* series)
-/// {
-///   series->has_labels        = LXW_TRUE;
-///   series->show_labels_value = LXW_TRUE;
-/// }
+void chart_series_set_labels(chart_series_t& series)
+{
+  series.has_labels_        = true;
+  series.show_labels_value_ = true;
+}
 
-/*
- * Set the data labels options for a series.
- */
-/// void chart_series_set_labels_options(lxw_chart_series* series, uint8_t show_name, uint8_t show_category,
-///                                      uint8_t show_value)
-/// {
-///   series->has_labels           = LXW_TRUE;
-///   series->show_labels_name     = show_name;
-///   series->show_labels_category = show_category;
-///   series->show_labels_value    = show_value;
-/// }
+void chart_series_set_labels_options(chart_series_t& series, bool show_name, bool show_category, bool show_value)
+{
+  series.has_labels_           = true;
+  series.show_labels_name_     = show_name;
+  series.show_labels_category_ = show_category;
+  series.show_labels_value_    = show_value;
+}
 
-/*
- * Store the custom data_labels for a chart.
- */
-/// lxw_error chart_series_set_labels_custom(lxw_chart_series* series, lxw_chart_data_label* data_labels[])
-/// {
-///   uint16_t i                = 0;
-///   uint16_t data_label_count = 0;
-///
-///   if(data_labels == NULL)
-///   {
-///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///   }
-///
-///   while(data_labels[data_label_count])
-///   {
-///     data_label_count++;
-///   }
-///
-///   if(data_label_count == 0)
-///   {
-///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///   }
-///
-///   series->has_labels = LXW_TRUE;
-///
-///   /* Set the Value label type if no other type is set. */
-///   if(!series->show_labels_name && !series->show_labels_category && !series->show_labels_value)
-///   {
-///     series->show_labels_value = LXW_TRUE;
-///   }
-///
-///   /* Free any existing resource. */
-///   _chart_free_data_labels(series);
-///
-///   series->data_labels = calloc(data_label_count, sizeof(lxw_chart_custom_label));
-///   RETURN_ON_MEM_ERROR(series->data_labels, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///   /* Copy the user data into the array of new structs. The struct types
-///    * are different since the internal version has more fields. */
-///   for(i = 0; i < data_label_count; i++)
-///   {
-///     lxw_chart_data_label* user_label   = data_labels[i];
-///     lxw_chart_custom_label* data_label = &series->data_labels[i];
-///     const char* src_value              = user_label->value;
-///
-///     data_label->hide    = user_label->hide;
-///     data_label->font    = _chart_convert_font_args(user_label->font);
-///     data_label->line    = _chart_convert_line_args(user_label->line);
-///     data_label->fill    = _chart_convert_fill_args(user_label->fill);
-///     data_label->pattern = _chart_convert_pattern_args(user_label->pattern);
-///
-///     if(src_value)
-///     {
-///       if(*src_value == '=')
-///       {
-///         /* The value is a formula. Handle like other chart ranges. */
-///         data_label->range = calloc(1, sizeof(lxw_series_range));
-///         GOTO_LABEL_ON_MEM_ERROR(data_label->range, mem_error);
-///
-///         data_label->range->formula = lxw_strdup(src_value + 1);
-///       }
-///       else
-///       {
-///         /* The value is a simple string. */
-///         data_label->value = lxw_strdup(src_value);
-///       }
-///     }
-///   }
-///
-///   series->data_label_count = data_label_count;
-///
-///   return LXW_NO_ERROR;
-///
-/// mem_error:
-///   _chart_free_data_labels(series);
-///   return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+void chart_series_set_labels_custom(chart_series_t& series, const std::vector<chart_data_label_t>& data_labels)
+{
+  if(data_labels.empty())
+  {
+    throw xwpp_exception_t("Empty labels list");
+  }
+
+  series.has_labels_ = true;
+
+  // Set the Value label type if no other type is set.
+  if(!series.show_labels_name_ && !series.show_labels_category_ && !series.show_labels_value_)
+  {
+    series.show_labels_value_ = true;
+  }
+
+  for(const auto& user_label: data_labels)
+  {
+    chart_custom_label_t data_label;
+    data_label.hide_ = user_label.hide_;
+    if(user_label.font_)
+    {
+      data_label.font_ = convert_font_args(*(user_label.font_));
+    }
+    if(user_label.line_)
+    {
+      data_label.line_ = convert_line_args(*(user_label.line_));
+    }
+    if(user_label.fill_)
+    {
+      data_label.fill_ = convert_fill_args(*(user_label.fill_));
+    }
+    if(user_label.pattern_)
+    {
+      data_label.pattern_ = convert_pattern_args(*(user_label.pattern_));
+    }
+
+    if(!user_label.value_.empty())
+    {
+      if(user_label.value_[0] == '=')
+      {
+        // The value is a formula. Handle like other chart ranges.
+        series_range_t range{.formula_ = user_label.value_.substr(1)};
+        data_label.range_ = range;
+      }
+      else
+      {
+        // The value is a simple string.
+        data_label.value_ = user_label.value_;
+      }
+    }
+
+    series.data_labels_.push_back(data_label);
+  }
+}
 
 /*
  * Set the data labels separator for a series.
@@ -5078,53 +4890,35 @@ void chart_series_set_values(chart_series_t& series, const std::string& sheetnam
 ///   series->label_num_format = lxw_strdup(num_format);
 /// }
 
-/*
- * Set an data labels font.
- */
-/// void chart_series_set_labels_font(lxw_chart_series* series, lxw_chart_font* font)
-/// {
-///   if(!font)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   _chart_free_font(series->label_font);
-///
-///   series->label_font = _chart_convert_font_args(font);
-/// }
+void chart_series_set_labels_font(chart_series_t& series, const std::optional<chart_font_t>& font)
+{
+  if(!font)
+  {
+    return;
+  }
 
-/*
- * Set a line type for a series data labels.
- */
-/// void chart_series_set_labels_line(lxw_chart_series* series, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->label_line);
-///
-///   series->label_line = _chart_convert_line_args(line);
-/// }
+  series.label_font_ = convert_font_args(*font);
+}
 
-/*
- * Set a fill type for a series data labels.
- */
-/// void chart_series_set_labels_fill(lxw_chart_series* series, lxw_chart_fill* fill)
-/// {
-///   if(!fill)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->label_fill);
-///
-///   series->label_fill = _chart_convert_fill_args(fill);
-/// }
+void chart_series_set_labels_line(chart_series_t& series, const std::optional<chart_line_t>& line)
+{
+  if(!line)
+  {
+    return;
+  }
+
+  series.label_line_ = convert_line_args(*line);
+}
+
+void chart_series_set_labels_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
+{
+  if(!fill)
+  {
+    return;
+  }
+
+  series.label_fill_ = convert_fill_args(*fill);
+}
 
 /*
  * Set a pattern type for a series data labels.

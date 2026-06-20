@@ -656,7 +656,7 @@ struct chart_line_t
   bool none_ = false;
 
   /** Width of the line in increments of 0.25. Default is 2.25. */
-  float width_ = 2.25;
+  float width_ = 0.;
 
   /** The line dash type. See #lxw_chart_line_dash_type. */
   chart_line_dash_type_t dash_type_ = chart_line_dash_type_t::DASH_SOLID;
@@ -873,38 +873,38 @@ struct chart_data_label_t
 {
   /** The string or formula value for the data label. See
    *  @ref chart_custom_labels. */
-  ///   const char* value;
+  std::string value_;
 
   /** Option to hide/delete the data label from the chart series.
    *  See @ref chart_custom_labels. */
-  ///   uint8_t hide;
+  bool hide_ = false;
 
   /** The font properties for the chart data label. @ref chart_fonts. */
-  ///   lxw_chart_font* font;
+  std::optional<chart_font_t> font_;
 
   /** The line/border for the chart data label. See @ref chart_lines. */
-  ///   lxw_chart_line* line;
+  std::optional<chart_line_t> line_;
 
   /** The fill for the chart data label. See @ref chart_fills. */
-  ///   lxw_chart_fill* fill;
+  std::optional<chart_fill_t> fill_;
 
   /** The pattern for the chart data label. See @ref chart_patterns.*/
-  ///   lxw_chart_pattern* pattern;
+  std::optional<chart_pattern_t> pattern_;
 };
 
 /* Internal version of lxw_chart_data_label with more metadata. */
 struct chart_custom_label_t
 {
-  ///   char* value;
-  ///   uint8_t hide;
-  ///   lxw_chart_font* font;
-  ///   lxw_chart_line* line;
-  ///   lxw_chart_fill* fill;
-  ///   lxw_chart_pattern* pattern;
+  std::string value_;
+  bool hide_ = false;
+  std::optional<chart_font_t> font_;
+  std::optional<chart_line_t> line_;
+  std::optional<chart_fill_t> fill_;
+  std::optional<chart_pattern_t> pattern_;
 
   // We use a range to hold the label formula properties even though it
   // will only have 1 point in order to re-use similar functions.
-  series_range_t range_;
+  std::optional<series_range_t> range_;
 
   ///   struct lxw_series_data_point data_point;
 };
@@ -1060,21 +1060,21 @@ struct chart_series_t
   ///   uint8_t invert_if_negative;
 
   /* Data label parameters. */
-  ///   uint8_t has_labels;
-  ///   uint8_t show_labels_value;
-  ///   uint8_t show_labels_category;
-  ///   uint8_t show_labels_name;
-  ///   uint8_t show_labels_leader;
-  ///   uint8_t show_labels_legend;
-  ///   uint8_t show_labels_percent;
-  ///   uint8_t label_position;
-  ///   uint8_t label_separator;
+  bool has_labels_                               = false;
+  bool show_labels_value_                        = false;
+  bool show_labels_category_                     = false;
+  bool show_labels_name_                         = false;
+  bool show_labels_leader_                       = false;
+  bool show_labels_legend_                       = false;
+  bool show_labels_percent_                      = false;
+  chart_label_position_t label_position_         = chart_label_position_t::DEFAULT;
+  chart_label_separator_t label_separator_       = chart_label_separator_t::COMMA;
   chart_label_position_t default_label_position_ = chart_label_position_t::DEFAULT;
-  ///   char* label_num_format;
-  ///   lxw_chart_font* label_font;
-  ///   lxw_chart_line* label_line;
-  ///   lxw_chart_fill* label_fill;
-  ///   lxw_chart_pattern* label_pattern;
+  std::string label_num_format_;
+  std::optional<chart_font_t> label_font_;
+  std::optional<chart_line_t> label_line_;
+  std::optional<chart_fill_t> label_fill_;
+  std::optional<chart_pattern_t> label_pattern_;
 
   series_error_bars_t x_error_bars_;
   series_error_bars_t y_error_bars_;
@@ -1383,43 +1383,43 @@ public:
    */
   void title_set_name_font(const chart_font_t& font);
 
-/**
- * @brief Set the position of the chart legend.
- *
- * @param chart    Pointer to a lxw_chart instance to be configured.
- * @param position The #lxw_chart_legend_position value for the legend.
- *
- * The `%chart_legend_set_position()` function is used to set the chart
- * legend to one of the #lxw_chart_legend_position values:
- *
- *     LXW_CHART_LEGEND_NONE
- *     LXW_CHART_LEGEND_RIGHT
- *     LXW_CHART_LEGEND_LEFT
- *     LXW_CHART_LEGEND_TOP
- *     LXW_CHART_LEGEND_BOTTOM
- *     LXW_CHART_LEGEND_TOP_RIGHT
- *     LXW_CHART_LEGEND_OVERLAY_RIGHT
- *     LXW_CHART_LEGEND_OVERLAY_LEFT
- *     LXW_CHART_LEGEND_OVERLAY_TOP_RIGHT
- *
- * For example:
- *
- * @code
- *     chart_legend_set_position(chart, LXW_CHART_LEGEND_BOTTOM);
- * @endcode
- *
- * @image html chart_legend_bottom.png
- *
- * This function can also be used to turn off a chart legend:
- *
- * @code
- *     chart_legend_set_position(chart, LXW_CHART_LEGEND_NONE);
- * @endcode
- *
- * @image html chart_legend_none.png
- *
- */
-void legend_set_position(chart_legend_position_t position);
+  /**
+   * @brief Set the position of the chart legend.
+   *
+   * @param chart    Pointer to a lxw_chart instance to be configured.
+   * @param position The #lxw_chart_legend_position value for the legend.
+   *
+   * The `%chart_legend_set_position()` function is used to set the chart
+   * legend to one of the #lxw_chart_legend_position values:
+   *
+   *     LXW_CHART_LEGEND_NONE
+   *     LXW_CHART_LEGEND_RIGHT
+   *     LXW_CHART_LEGEND_LEFT
+   *     LXW_CHART_LEGEND_TOP
+   *     LXW_CHART_LEGEND_BOTTOM
+   *     LXW_CHART_LEGEND_TOP_RIGHT
+   *     LXW_CHART_LEGEND_OVERLAY_RIGHT
+   *     LXW_CHART_LEGEND_OVERLAY_LEFT
+   *     LXW_CHART_LEGEND_OVERLAY_TOP_RIGHT
+   *
+   * For example:
+   *
+   * @code
+   *     chart_legend_set_position(chart, LXW_CHART_LEGEND_BOTTOM);
+   * @endcode
+   *
+   * @image html chart_legend_bottom.png
+   *
+   * This function can also be used to turn off a chart legend:
+   *
+   * @code
+   *     chart_legend_set_position(chart, LXW_CHART_LEGEND_NONE);
+   * @endcode
+   *
+   * @image html chart_legend_none.png
+   *
+   */
+  void legend_set_position(chart_legend_position_t position);
 
   std::string assemble_xml_file();
 
@@ -1544,6 +1544,25 @@ private:
   [[nodiscard]] std::string write_legend_entry(uint16_t index);
   [[nodiscard]] std::string write_plot_vis_only();
   [[nodiscard]] static std::string write_drop_lines(const chart_t& chart);
+  [[nodiscard]] static std::string write_d_lbls(const chart_series_t& series);
+  [[nodiscard]] static std::string write_custom_labels(const chart_series_t& series);
+  [[nodiscard]] static std::string write_custom_label_str(const chart_series_t series,
+                                                          const chart_custom_label_t& data_label);
+  [[nodiscard]] static std::string write_d_lbl_pos(chart_label_position_t position);
+  [[nodiscard]] static std::string write_show_val();
+  [[nodiscard]] static std::string write_show_cat_name();
+  [[nodiscard]] static std::string write_show_ser_name();
+  [[nodiscard]] static std::string write_custom_label_formula(const chart_series_t& series,
+                                                              const chart_custom_label_t& data_label);
+  [[nodiscard]] static std::string write_custom_label_format_only(const chart_custom_label_t& data_label);
+  [[nodiscard]] static std::string write_label_num_fmt(const std::string& format);
+  [[nodiscard]] static std::string write_show_legend_key();
+  [[nodiscard]] static std::string write_separator(chart_label_separator_t separator);
+  [[nodiscard]] static std::string write_show_percent();
+  [[nodiscard]] static std::string write_show_leader_lines();
+  [[nodiscard]] static std::string write_a_end_para_rpr();
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
@@ -1983,6 +2002,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  */
 /// void chart_series_set_smooth(lxw_chart_series* series, uint8_t smooth);
 
+// TODO Member function of series
 /**
  * @brief Add data labels to a chart series.
  *
@@ -2007,7 +2027,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels(lxw_chart_series* series);
+void chart_series_set_labels(chart_series_t& series);
 
 /**
  * @brief Set the display options for the labels of a data series.
@@ -2029,8 +2049,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_options(lxw_chart_series* series, uint8_t show_name, uint8_t show_category,
-///                                      uint8_t show_value);
+void chart_series_set_labels_options(chart_series_t& series, bool show_name, bool show_category, bool show_value);
 
 /** @brief Set the properties for data labels in a series.
  *
@@ -2086,7 +2105,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  *
  * For more details see @ref chart_custom_labels.
  */
-/// lxw_error chart_series_set_labels_custom(lxw_chart_series* series, lxw_chart_data_label* data_labels[]);
+void chart_series_set_labels_custom(chart_series_t& series, const std::vector<chart_data_label_t>& data_labels);
 
 /**
  * @brief Set the separator for the data label captions.
@@ -2265,7 +2284,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  * For more information see @ref chart_fonts and @ref chart_labels.
  *
  */
-/// void chart_series_set_labels_font(lxw_chart_series* series, lxw_chart_font* font);
+void chart_series_set_labels_font(chart_series_t& series, const std::optional<chart_font_t>& font);
 
 /**
  * @brief Set the line properties for the data labels in a chart series.
@@ -2288,7 +2307,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  *
  * For more information see @ref chart_lines and @ref chart_labels.
  */
-/// void chart_series_set_labels_line(lxw_chart_series* series, lxw_chart_line* line);
+void chart_series_set_labels_line(chart_series_t& series, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the fill properties for the data labels in a chart series.
@@ -2307,7 +2326,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  * See the example and image above and also see @ref chart_fills and
  * @ref chart_labels.
  */
-/// void chart_series_set_labels_fill(lxw_chart_series* series, lxw_chart_fill* fill);
+void chart_series_set_labels_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill);
 
 /**
  * @brief Set the pattern properties for the data labels in a chart series.

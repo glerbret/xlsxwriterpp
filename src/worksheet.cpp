@@ -8662,8 +8662,8 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
 ///     }
 /// }
 
-void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num,
-                               chart_t* chart /* TODO, lxw_chart_options *user_options*/)
+void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
+                               const std::optional<chart_options_t>& user_options)
 {
   if(chart->in_use_)
   {
@@ -8676,16 +8676,17 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num,
   }
 
   object_properties_t object_props;
-  ///     if (user_options) {
-  ///         object_props->x_offset = user_options->x_offset;
-  ///         object_props->y_offset = user_options->y_offset;
-  ///         object_props->x_scale = user_options->x_scale;
-  ///         object_props->y_scale = user_options->y_scale;
-  ///         object_props->object_position = user_options->object_position;
-  ///         object_props->description = lxw_strdup(user_options->description);
-  ///         object_props->decorative = user_options->decorative;
-  ///     }
-  ///
+  if(user_options)
+  {
+    object_props.x_offset_        = user_options->x_offset_;
+    object_props.y_offset_        = user_options->y_offset_;
+    object_props.x_scale_         = user_options->x_scale_;
+    object_props.y_scale_         = user_options->y_scale_;
+    object_props.object_position_ = user_options->object_position_;
+    object_props.description_     = user_options->description_;
+    object_props.decorative_      = user_options->decorative_;
+  }
+
   // Copy other options or set defaults.
   object_props.row_ = row_num;
   object_props.col_ = col_num;
@@ -8711,11 +8712,10 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num,
   chart->in_use_ = true;
 }
 
-/// void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart)
-/// {
-/// TODO
-///     return insert_chart_opt(self, row_num, col_num, chart, NULL);
-/// }
+void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart)
+{
+  return insert_chart(row_num, col_num, chart, std::nullopt);
+}
 
 /// lxw_error
 /// worksheet_data_validation_range(lxw_worksheet *self, row_num_t first_row,

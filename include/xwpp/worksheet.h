@@ -1824,37 +1824,36 @@ struct image_options_t
  * Options for modifying charts inserted via `worksheet_insert_chart_opt()`.
  *
  */
-/// typedef struct lxw_chart_options {
+struct chart_options_t
+{
+  /** Offset from the left of the cell in pixels. */
+  int32_t x_offset_ = 0;
 
-/** Offset from the left of the cell in pixels. */
-///     int32_t x_offset;
+  /** Offset from the top of the cell in pixels. */
+  int32_t y_offset_ = 0;
 
-/** Offset from the top of the cell in pixels. */
-///     int32_t y_offset;
+  /** X scale of the chart as a decimal. */
+  double x_scale_ = 0.;
 
-/** X scale of the chart as a decimal. */
-///     double x_scale;
+  /** Y scale of the chart as a decimal. */
+  double y_scale_ = 0.;
 
-/** Y scale of the chart as a decimal. */
-///     double y_scale;
+  /** Object position - use one of the values of #lxw_object_position.
+   *  See @ref working_with_object_positioning.*/
+  object_position_t object_position_ = object_position_t::DEFAULT;
 
-/** Object position - use one of the values of #lxw_object_position.
- *  See @ref working_with_object_positioning.*/
-///     uint8_t object_position;
+  /** Optional description or "Alt text" for the chart. This field can be
+   *  used to provide a text description of the chart to help
+   *  accessibility. Defaults to the image filename as in Excel. Set to NULL
+   *  to ignore the description field. */
+  std::string description_;
 
-/** Optional description or "Alt text" for the chart. This field can be
- *  used to provide a text description of the chart to help
- *  accessibility. Defaults to the image filename as in Excel. Set to NULL
- *  to ignore the description field. */
-///     const char *description;
-
-/** Optional parameter to help accessibility. It is used to mark the chart
- *  as decorative, and thus uninformative, for automated screen
- *  readers. As in Excel, if this parameter is in use the `description`
- *  field isn't written. */
-///     uint8_t decorative;
-
-/// } lxw_chart_options;
+  /** Optional parameter to help accessibility. It is used to mark the chart
+   *  as decorative, and thus uninformative, for automated screen
+   *  readers. As in Excel, if this parameter is in use the `description`
+   *  field isn't written. */
+  bool decorative_ = false;
+};
 
 /* Internal struct to represent lxw_image_options and lxw_chart_options
  * values as well as internal metadata.
@@ -3815,7 +3814,8 @@ public:
    * @image html chart_line_opt.png
    *
    */
-  // TODO void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart, lxw_chart_options *user_options);
+  void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
+                    const std::optional<chart_options_t>& user_options);
 
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;

@@ -9,37 +9,37 @@
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-    worksheet.write_string(0, 0, "Types",      bold);
-    worksheet.write_string(1, 0, "Type 1",     nullptr);
-    worksheet.write_string(4, 0, "Type 2",     nullptr);
+  worksheet.write_string(0, 0, "Types", bold);
+  worksheet.write_string(1, 0, "Type 1", nullptr);
+  worksheet.write_string(4, 0, "Type 2", nullptr);
 
-    worksheet.write_string(0, 1, "Sub Type",   bold);
-    worksheet.write_string(1, 1, "Sub Type A", nullptr);
-    worksheet.write_string(2, 1, "Sub Type B", nullptr);
-    worksheet.write_string(3, 1, "Sub Type C", nullptr);
-    worksheet.write_string(4, 1, "Sub Type D", nullptr);
-    worksheet.write_string(5, 1, "Sub Type E", nullptr);
+  worksheet.write_string(0, 1, "Sub Type", bold);
+  worksheet.write_string(1, 1, "Sub Type A", nullptr);
+  worksheet.write_string(2, 1, "Sub Type B", nullptr);
+  worksheet.write_string(3, 1, "Sub Type C", nullptr);
+  worksheet.write_string(4, 1, "Sub Type D", nullptr);
+  worksheet.write_string(5, 1, "Sub Type E", nullptr);
 
-    worksheet.write_string(0, 2, "Value 1",    bold);
-    worksheet.write_number(1, 2, 5000,         nullptr);
-    worksheet.write_number(2, 2, 2000,         nullptr);
-    worksheet.write_number(3, 2, 250,          nullptr);
-    worksheet.write_number(4, 2, 6000,         nullptr);
-    worksheet.write_number(5, 2, 500,          nullptr);
+  worksheet.write_string(0, 2, "Value 1", bold);
+  worksheet.write_number(1, 2, 5000, nullptr);
+  worksheet.write_number(2, 2, 2000, nullptr);
+  worksheet.write_number(3, 2, 250, nullptr);
+  worksheet.write_number(4, 2, 6000, nullptr);
+  worksheet.write_number(5, 2, 500, nullptr);
 
-    worksheet.write_string(0, 3, "Value 2",    bold);
-    worksheet.write_number(1, 3, 8000,         nullptr);
-    worksheet.write_number(2, 3, 3000,         nullptr);
-    worksheet.write_number(3, 3, 1000,         nullptr);
-    worksheet.write_number(4, 3, 6000,         nullptr);
-    worksheet.write_number(5, 3, 300,          nullptr);
+  worksheet.write_string(0, 3, "Value 2", bold);
+  worksheet.write_number(1, 3, 8000, nullptr);
+  worksheet.write_number(2, 3, 3000, nullptr);
+  worksheet.write_number(3, 3, 1000, nullptr);
+  worksheet.write_number(4, 3, 6000, nullptr);
+  worksheet.write_number(5, 3, 300, nullptr);
 
-    worksheet.write_string(0, 4, "Value 3",    bold);
-    worksheet.write_number(1, 4, 6000,         nullptr);
-    worksheet.write_number(2, 4, 4000,         nullptr);
-    worksheet.write_number(3, 4, 2000,         nullptr);
-    worksheet.write_number(4, 4, 6500,         nullptr);
-    worksheet.write_number(5, 4, 200,          nullptr);
+  worksheet.write_string(0, 4, "Value 3", bold);
+  worksheet.write_number(1, 4, 6000, nullptr);
+  worksheet.write_number(2, 4, 4000, nullptr);
+  worksheet.write_number(3, 4, 2000, nullptr);
+  worksheet.write_number(4, 4, 6500, nullptr);
+  worksheet.write_number(5, 4, 200, nullptr);
 }
 
 int main()
@@ -47,7 +47,7 @@ int main()
   // Create a new workbook and add a worksheet.
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
   // Add a bold format to use to highlight the header cells.
   xwpp::format_t* bold = workbook.add_format();
