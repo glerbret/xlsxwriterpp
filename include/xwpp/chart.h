@@ -241,7 +241,7 @@ enum class chart_marker_type_t
   AUTOMATIC,
 
   /** No marker type. */
-  ONE,
+  NONE,
 
   /** Square marker type. */
   SQUARE,
@@ -811,11 +811,11 @@ struct chart_layout_t
 
 struct chart_marker_t
 {
-  ///   uint8_t type;
-  ///   uint8_t size;
-  ///   lxw_chart_line* line;
-  ///   lxw_chart_fill* fill;
-  ///   lxw_chart_pattern* pattern;
+  chart_marker_type_t type_ = chart_marker_type_t::AUTOMATIC;
+  uint8_t size_ = 0;
+  std::optional<chart_line_t> line_;
+  std::optional<chart_fill_t> fill_;
+  std::optional<chart_pattern_t> pattern_;
 };
 
 struct chart_legend_t
@@ -854,13 +854,13 @@ struct chart_title_t
 struct chart_point_t
 {
   /** The line/border for the chart point. See @ref chart_lines. */
-  ///   lxw_chart_line* line;
+  std::optional<chart_line_t> line_;
 
   /** The fill for the chart point. See @ref chart_fills. */
-  ///   lxw_chart_fill* fill;
+  std::optional<chart_fill_t> fill_;
 
   /** The pattern for the chart point. See @ref chart_patterns.*/
-  ///   lxw_chart_pattern* pattern;
+  std::optional<chart_pattern_t> pattern_;
 };
 
 /**
@@ -1000,15 +1000,15 @@ enum class chart_error_bar_cap_t
 
 struct series_error_bars_t
 {
-  ///   uint8_t type;
-  ///   uint8_t direction;
-  ///   uint8_t endcap;
-  ///   uint8_t has_value;
-  ///   uint8_t is_set;
+  chart_error_bar_type_t type_ = chart_error_bar_type_t::STD_ERROR;
+  chart_error_bar_direction_t direction_ = chart_error_bar_direction_t::BOTH;
+  chart_error_bar_cap_t endcap_ = chart_error_bar_cap_t::END_CAP;
+  bool has_value_ = false;
+  bool is_set_ = false;
   bool is_x_                = false;
   chart_type_t chart_group_ = chart_type_t::NONE;
-  ///   double value;
-  ///   lxw_chart_line* line;
+  double value_ = 0.;
+  std::optional<chart_line_t> line_;
 };
 
 /**
@@ -1051,13 +1051,11 @@ struct chart_series_t
   std::optional<chart_fill_t> fill_;
   std::optional<chart_pattern_t> pattern_;
   std::optional<chart_marker_t> marker_;
-  ///   lxw_chart_point* points;
+  std::vector<chart_point_t> points_;
   std::vector<chart_custom_label_t> data_labels_;
-  ///   uint16_t point_count;
-  // TODO useless ?  uint16_t data_label_count_ = 0;
 
   bool smooth_ = false;
-  ///   uint8_t invert_if_negative;
+  bool invert_if_negative_ = false;
 
   /* Data label parameters. */
   bool has_labels_                               = false;
@@ -1079,21 +1077,19 @@ struct chart_series_t
   series_error_bars_t x_error_bars_;
   series_error_bars_t y_error_bars_;
 
-  ///   uint8_t has_trendline;
-  ///   uint8_t has_trendline_forecast;
-  ///   uint8_t has_trendline_equation;
-  ///   uint8_t has_trendline_r_squared;
-  ///   uint8_t has_trendline_intercept;
-  ///   uint8_t trendline_type;
-  ///   uint8_t trendline_value;
-  ///   double trendline_forward;
-  ///   double trendline_backward;
-  ///   uint8_t trendline_value_type;
-  ///   char* trendline_name;
-  ///   lxw_chart_line* trendline_line;
-  ///   double trendline_intercept;
-  ///
-  ///   STAILQ_ENTRY(lxw_chart_series) list_pointers;
+  bool has_trendline_ = false;
+  bool has_trendline_forecast_ = false;
+  bool has_trendline_equation_ = false;
+  bool has_trendline_r_squared_ = false;
+  bool has_trendline_intercept_ = false;
+  chart_trendline_type_t trendline_type_ = chart_trendline_type_t::LINEAR;
+  uint8_t trendline_value_ = 0;
+  double trendline_forward_ = 0.;
+  double trendline_backward_ = 0.;
+  chart_trendline_type_t trendline_value_type_= chart_trendline_type_t::LINEAR;
+  std::string trendline_name_;
+  std::optional<chart_line_t> trendline_line_;
+  double trendline_intercept_ = 0.;
 };
 
 /* Struct for major/minor axis gridlines. */
@@ -1485,6 +1481,231 @@ public:
  */
 void set_table_grid(bool horizontal, bool vertical, bool outline, bool legend_keys);
 
+/**
+ * @brief Turn on and format Drop Lines for a chart.
+ *
+ * @param chart Pointer to a lxw_chart instance to be configured.
+ * @param line  A #lxw_chart_line struct.
+ *
+ * The `%chart_set_drop_lines()` function adds Drop Lines to charts to
+ * show the Category value of points in the data:
+ *
+ * @code
+ *     chart_set_drop_lines(chart, NULL);
+ * @endcode
+ *
+ * @image html chart_data_tools6.png
+ *
+ * It is possible to format the Drop Line line properties if required:
+ *
+ * @code
+ *     lxw_chart_line line = {.color     = LXW_COLOR_RED,
+ *                            .dash_type = LXW_CHART_LINE_DASH_SQUARE_DOT};
+ *
+ *     chart_set_drop_lines(chart, &line);
+ * @endcode
+ *
+ * Drop Lines are only available in Line and Area charts.
+ * For more format information see @ref chart_lines.
+ */
+void set_drop_lines(const std::optional<chart_line_t>& line);
+
+/**
+ * @brief Turn on and format high-low Lines for a chart.
+ *
+ * @param chart Pointer to a lxw_chart instance to be configured.
+ * @param line  A #lxw_chart_line struct.
+ *
+ * The `%chart_set_high_low_lines()` function adds High-Low Lines to charts
+ * to show the Category value of points in the data:
+ *
+ * @code
+ *     chart_set_high_low_lines(chart, NULL);
+ * @endcode
+ *
+ * @image html chart_data_tools5.png
+ *
+ * It is possible to format the High-Low Line line properties if required:
+ *
+ * @code
+ *     lxw_chart_line line = {.color     = LXW_COLOR_RED,
+ *                            .dash_type = LXW_CHART_LINE_DASH_SQUARE_DOT};
+ *
+ *     chart_set_high_low_lines(chart, &line);
+ * @endcode
+ *
+ * High-Low Lines are only available in Line charts.
+ * For more format information see @ref chart_lines.
+ */
+void set_high_low_lines(const std::optional<chart_line_t>& line);
+
+/**
+ * @brief Turn on up-down bars for the chart.
+ *
+ * @param chart Pointer to a lxw_chart instance to be configured.
+ *
+ * The `%chart_set_up_down_bars()` function adds Up-Down bars to Line charts
+ * to indicate the difference between the first and last data series:
+ *
+ * @code
+ *     chart_set_up_down_bars(chart);
+ * @endcode
+ *
+ * @image html chart_data_tools4.png
+ *
+ * Up-Down bars are only available in Line charts. By default Up-Down bars are
+ * black and white like in the above example. To format the border or fill
+ * of the bars see the `chart_set_up_down_bars_format()` function below.
+ */
+void set_up_down_bars();
+
+/**
+ * @brief Turn on up-down bars for the chart, with formatting.
+ *
+ * @param chart         Pointer to a lxw_chart instance to be configured.
+ * @param up_bar_line   A #lxw_chart_line struct for the up-bar border.
+ * @param up_bar_fill   A #lxw_chart_fill struct for the up-bar fill.
+ * @param down_bar_line A #lxw_chart_line struct for the down-bar border.
+ * @param down_bar_fill A #lxw_chart_fill struct for the down-bar fill.
+ *
+ * The `%chart_set_up_down_bars_format()` function adds Up-Down bars to Line
+ * charts to indicate the difference between the first and last data series.
+ * It also allows the up and down bars to be formatted:
+ *
+ * @code
+ *     lxw_chart_line line      = {.color = LXW_COLOR_BLACK};
+ *     lxw_chart_fill up_fill   = {.color = 0x00B050};
+ *     lxw_chart_fill down_fill = {.color = LXW_COLOR_RED};
+ *
+ *     chart_set_up_down_bars_format(chart, &line, &up_fill, &line, &down_fill);
+ * @endcode
+ *
+ * @image html chart_up_down_bars.png
+ *
+ * Up-Down bars are only available in Line charts.
+ * For more format information  see @ref chart_lines and @ref chart_fills.
+ */
+void set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_line, const std::optional<chart_fill_t>& up_bar_fill,
+                             const std::optional<chart_line_t>& down_bar_line, const std::optional<chart_fill_t>& down_bar_fill);
+
+/**
+ * @brief Set the data marker type for a series.
+ *
+ * @param series A series object created via `chart_add_series()`.
+ * @param type   The marker type, see #lxw_chart_marker_type.
+ *
+ * In Excel a chart marker is used to distinguish data points in a plotted
+ * series. In general only Line and Scatter and Radar chart types use
+ * markers. The libxlsxwriter chart types that can have markers are:
+ *
+ * - #LXW_CHART_LINE
+ * - #LXW_CHART_SCATTER
+ * - #LXW_CHART_SCATTER_STRAIGHT
+ * - #LXW_CHART_SCATTER_STRAIGHT_WITH_MARKERS
+ * - #LXW_CHART_SCATTER_SMOOTH
+ * - #LXW_CHART_SCATTER_SMOOTH_WITH_MARKERS
+ * - #LXW_CHART_RADAR
+ * - #LXW_CHART_RADAR_WITH_MARKERS
+ *
+ * The chart types with `MARKERS` in the name have markers with default colors
+ * and shapes turned on by default but it is possible using the various
+ * `chart_series_set_marker_xxx()` functions below to change these defaults. It
+ * is also possible to turn on an off markers.
+ *
+ * The `%chart_series_set_marker_type()` function is used to specify the
+ * type of the series marker:
+ *
+ * @code
+ *     chart_series_set_marker_type(series, LXW_CHART_MARKER_DIAMOND);
+ * @endcode
+ *
+ * @image html chart_marker1.png
+ *
+ * The available marker types defined by #lxw_chart_marker_type are:
+ *
+ * - #LXW_CHART_MARKER_AUTOMATIC
+ * - #LXW_CHART_MARKER_NONE
+ * - #LXW_CHART_MARKER_SQUARE
+ * - #LXW_CHART_MARKER_DIAMOND
+ * - #LXW_CHART_MARKER_TRIANGLE
+ * - #LXW_CHART_MARKER_X
+ * - #LXW_CHART_MARKER_STAR
+ * - #LXW_CHART_MARKER_SHORT_DASH
+ * - #LXW_CHART_MARKER_LONG_DASH
+ * - #LXW_CHART_MARKER_CIRCLE
+ * - #LXW_CHART_MARKER_PLUS
+ *
+ * The `#LXW_CHART_MARKER_NONE` type can be used to turn off default markers:
+ *
+ * @code
+ *     chart_series_set_marker_type(series, LXW_CHART_MARKER_NONE);
+ * @endcode
+ *
+ * @image html chart_series_set_marker_none.png
+ *
+ * The `#LXW_CHART_MARKER_AUTOMATIC` type is a special case which turns on a
+ * marker using the default marker style for the particular series. If
+ * automatic is on then other marker properties such as size, line or fill
+ * cannot be set.
+ */
+void series_set_marker_type(chart_series_t& series, chart_marker_type_t type);
+
+/**
+ * Set the X or Y error bars for a chart series.
+ *
+ * @param error_bars A pointer to the series X or Y error bars.
+ * @param type       The type of error bar: #lxw_chart_error_bar_type.
+ * @param value      The error value.
+ *
+ * Error bars can be added to a chart series to indicate error bounds in the
+ * data. The error bars can be vertical `y_error_bars` (the most common type)
+ * or horizontal `x_error_bars` (for Bar and Scatter charts only).
+ *
+ * @image html chart_error_bars0.png
+ *
+ * The `%chart_series_set_error_bars()` function sets the error bar type
+ * and value associated with the type:
+ *
+ * @code
+ *     lxw_chart_series *series = chart_add_series(chart,
+ *                                                 "=Sheet1!$A$1:$A$5",
+ *                                                 "=Sheet1!$B$1:$B$5");
+ *
+ *     chart_series_set_error_bars(series->y_error_bars,
+ *                                 LXW_CHART_ERROR_BAR_TYPE_STD_ERROR, 0);
+ * @endcode
+ *
+ * @image html chart_error_bars1.png
+ *
+ * The error bar types that be used are:
+ *
+ * - #LXW_CHART_ERROR_BAR_TYPE_STD_ERROR: Standard error.
+ * - #LXW_CHART_ERROR_BAR_TYPE_FIXED: Fixed value.
+ * - #LXW_CHART_ERROR_BAR_TYPE_PERCENTAGE: Percentage.
+ * - #LXW_CHART_ERROR_BAR_TYPE_STD_DEV: Standard deviation(s).
+ *
+ * @note Custom error bars are not currently supported.
+ *
+ * All error bar types, apart from Standard error, should have a valid
+ * value to set the error range:
+ *
+ * @code
+ *     chart_series_set_error_bars(series1->y_error_bars,
+ *                                 LXW_CHART_ERROR_BAR_TYPE_FIXED, 2);
+ *
+ *     chart_series_set_error_bars(series2->y_error_bars,
+ *                                 LXW_CHART_ERROR_BAR_TYPE_PERCENTAGE, 5);
+ *
+ *     chart_series_set_error_bars(series3->y_error_bars,
+ *                                 LXW_CHART_ERROR_BAR_TYPE_STD_DEV, 1);
+ * @endcode
+ *
+ * For the Standard error type the value is ignored.
+ *
+ * For more information see @ref chart_error_bars.
+ */
+void series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value);
+
   std::string assemble_xml_file();
 
   // TODO Set to public as chart_axis_set_name access to it.
@@ -1503,12 +1724,14 @@ private:
   void initialize_column_chart(chart_type_t type);
   void initialize_bar_chart(chart_type_t type);
   void initialize_area_chart(chart_type_t type);
+  void initialize_line_chart(chart_type_t type);
   void initialize(chart_type_t type);
 
   [[nodiscard]] static std::string write_bar_chart(chart_t& chart);
   [[nodiscard]] static std::string write_column_chart(chart_t& chart);
   [[nodiscard]] static std::string write_plot_area(chart_t& chart);
   [[nodiscard]] static std::string write_area_chart(chart_t& chart);
+  [[nodiscard]] static std::string write_line_chart(chart_t& chart);
   [[nodiscard]] std::string write_chart_space() const;
   [[nodiscard]] std::string write_lang() const;
   [[nodiscard]] std::string write_style() const;
@@ -1630,10 +1853,33 @@ private:
   [[nodiscard]] static std::string write_show_vert_border(bool value);
   [[nodiscard]] static std::string write_show_outline(bool value);
   [[nodiscard]] static std::string write_show_keys(bool value);
-  //  [[nodiscard]] static std::string ();
-  //  [[nodiscard]] static std::string ();
-  //  [[nodiscard]] static std::string ();
-  //  [[nodiscard]] static std::string ();
+  [[nodiscard]] static std::string write_hi_low_lines(const chart_t& chart);
+  [[nodiscard]] static std::string write_up_down_bars(const chart_t& chart);
+  [[nodiscard]] static std::string write_marker_value(const chart_t& chart);
+  [[nodiscard]] static std::string write_up_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t> fill);
+  [[nodiscard]] static std::string write_down_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t> fill);
+  [[nodiscard]] static std::string write_symbol(chart_marker_type_t type);
+  [[nodiscard]] static std::string write_marker_size(uint8_t size);
+  [[nodiscard]] static std::string write_error_bars(const chart_series_t& series);
+  [[nodiscard]] static std::string write_err_bars(const series_error_bars_t& error_bars);
+  [[nodiscard]] static std::string write_err_dir(bool is_x);
+  [[nodiscard]] static std::string write_err_bar_type(chart_error_bar_direction_t direction);
+  [[nodiscard]] static std::string write_err_val_type(chart_error_bar_type_t type);
+  [[nodiscard]] static std::string write_no_end_cap();
+  [[nodiscard]] static std::string write_error_val(double value);
+  [[nodiscard]] static std::string write_trendline(const chart_series_t& series);
+  [[nodiscard]] static std::string write_name(const std::string& name);
+  [[nodiscard]] static std::string write_trendline_type(chart_trendline_type_t type);
+  [[nodiscard]] static std::string write_period(uint8_t value);
+  [[nodiscard]] static std::string write_forward(double value);
+  [[nodiscard]] static std::string write_backward(double value);
+  [[nodiscard]] static std::string write_intercept(double value);
+  [[nodiscard]] static std::string write_disp_rsqr();
+  [[nodiscard]] static std::string write_disp_eq();
+  [[nodiscard]] static std::string write_trendline_lbl();
+  [[nodiscard]] static std::string write_invert_if_negative(const chart_series_t& series);
+  [[nodiscard]] static std::string write_points(const chart_t& chart, const chart_series_t& series);
+  [[nodiscard]] static std::string write_d_pt(const chart_t& chart, const chart_point_t& point, uint16_t index);
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
 
@@ -1690,8 +1936,8 @@ private:
   bool has_drop_lines_ = false;
   std::optional<chart_line_t> drop_lines_line_;
   ///
-  ///   uint8_t has_high_low_lines;
-  ///   lxw_chart_line* high_low_lines_line;
+  bool has_high_low_lines_ = false;
+  std::optional<chart_line_t> high_low_lines_line_;
   ///
   std::list<chart_series_t> series_list_;
   ///
@@ -1705,11 +1951,11 @@ private:
   ///   uint8_t show_blanks_as;
   bool show_hidden_data_                         = false;
   ///
-  ///   uint8_t has_up_down_bars;
-  ///   lxw_chart_line* up_bar_line;
-  ///   lxw_chart_line* down_bar_line;
-  ///   lxw_chart_fill* up_bar_fill;
-  ///   lxw_chart_fill* down_bar_fill;
+  bool has_up_down_bars_ = false;
+  std::optional<chart_line_t> up_bar_line_;
+  std::optional<chart_line_t> down_bar_line_;
+  std::optional<chart_fill_t> up_bar_fill_;
+  std::optional<chart_fill_t> down_bar_fill_;
   ///
   chart_label_position_t default_label_position_ = chart_label_position_t::DEFAULT;
   bool is_protected_                             = false;
@@ -1884,68 +2130,6 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
  */
 /// void chart_series_set_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern);
-
-/**
- * @brief Set the data marker type for a series.
- *
- * @param series A series object created via `chart_add_series()`.
- * @param type   The marker type, see #lxw_chart_marker_type.
- *
- * In Excel a chart marker is used to distinguish data points in a plotted
- * series. In general only Line and Scatter and Radar chart types use
- * markers. The libxlsxwriter chart types that can have markers are:
- *
- * - #LXW_CHART_LINE
- * - #LXW_CHART_SCATTER
- * - #LXW_CHART_SCATTER_STRAIGHT
- * - #LXW_CHART_SCATTER_STRAIGHT_WITH_MARKERS
- * - #LXW_CHART_SCATTER_SMOOTH
- * - #LXW_CHART_SCATTER_SMOOTH_WITH_MARKERS
- * - #LXW_CHART_RADAR
- * - #LXW_CHART_RADAR_WITH_MARKERS
- *
- * The chart types with `MARKERS` in the name have markers with default colors
- * and shapes turned on by default but it is possible using the various
- * `chart_series_set_marker_xxx()` functions below to change these defaults. It
- * is also possible to turn on an off markers.
- *
- * The `%chart_series_set_marker_type()` function is used to specify the
- * type of the series marker:
- *
- * @code
- *     chart_series_set_marker_type(series, LXW_CHART_MARKER_DIAMOND);
- * @endcode
- *
- * @image html chart_marker1.png
- *
- * The available marker types defined by #lxw_chart_marker_type are:
- *
- * - #LXW_CHART_MARKER_AUTOMATIC
- * - #LXW_CHART_MARKER_NONE
- * - #LXW_CHART_MARKER_SQUARE
- * - #LXW_CHART_MARKER_DIAMOND
- * - #LXW_CHART_MARKER_TRIANGLE
- * - #LXW_CHART_MARKER_X
- * - #LXW_CHART_MARKER_STAR
- * - #LXW_CHART_MARKER_SHORT_DASH
- * - #LXW_CHART_MARKER_LONG_DASH
- * - #LXW_CHART_MARKER_CIRCLE
- * - #LXW_CHART_MARKER_PLUS
- *
- * The `#LXW_CHART_MARKER_NONE` type can be used to turn off default markers:
- *
- * @code
- *     chart_series_set_marker_type(series, LXW_CHART_MARKER_NONE);
- * @endcode
- *
- * @image html chart_series_set_marker_none.png
- *
- * The `#LXW_CHART_MARKER_AUTOMATIC` type is a special case which turns on a
- * marker using the default marker style for the particular series. If
- * automatic is on then other marker properties such as size, line or fill
- * cannot be set.
- */
-/// void chart_series_set_marker_type(lxw_chart_series* series, uint8_t type);
 
 /**
  * @brief Set the size of a data marker for a series.
@@ -2465,7 +2649,7 @@ void chart_series_set_labels_fill(chart_series_t& series, const std::optional<ch
  *
  * For more information see @ref chart_trendlines.
  */
-/// void chart_series_set_trendline(lxw_chart_series* series, uint8_t type, uint8_t value);
+void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, uint8_t value);
 
 /**
  * @brief Set the trendline forecast for a chart data series.
@@ -2619,7 +2803,8 @@ void chart_series_set_labels_fill(chart_series_t& series, const std::optional<ch
  *
  * For more information see @ref chart_trendlines and @ref chart_lines.
  */
-/// void chart_series_set_trendline_line(lxw_chart_series* series, lxw_chart_line* line);
+void series_set_trendline_line(chart_series_t& series, const std::optional<chart_line_t>& line);
+
 /**
  * @brief           Get a pointer to X or Y error bars from a chart series.
  *
@@ -2659,62 +2844,6 @@ void chart_series_set_labels_fill(chart_series_t& series, const std::optional<ch
  */
 
 /// lxw_series_error_bars* chart_series_get_error_bars(lxw_chart_series* series, lxw_chart_error_bar_axis axis_type);
-
-/**
- * Set the X or Y error bars for a chart series.
- *
- * @param error_bars A pointer to the series X or Y error bars.
- * @param type       The type of error bar: #lxw_chart_error_bar_type.
- * @param value      The error value.
- *
- * Error bars can be added to a chart series to indicate error bounds in the
- * data. The error bars can be vertical `y_error_bars` (the most common type)
- * or horizontal `x_error_bars` (for Bar and Scatter charts only).
- *
- * @image html chart_error_bars0.png
- *
- * The `%chart_series_set_error_bars()` function sets the error bar type
- * and value associated with the type:
- *
- * @code
- *     lxw_chart_series *series = chart_add_series(chart,
- *                                                 "=Sheet1!$A$1:$A$5",
- *                                                 "=Sheet1!$B$1:$B$5");
- *
- *     chart_series_set_error_bars(series->y_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_STD_ERROR, 0);
- * @endcode
- *
- * @image html chart_error_bars1.png
- *
- * The error bar types that be used are:
- *
- * - #LXW_CHART_ERROR_BAR_TYPE_STD_ERROR: Standard error.
- * - #LXW_CHART_ERROR_BAR_TYPE_FIXED: Fixed value.
- * - #LXW_CHART_ERROR_BAR_TYPE_PERCENTAGE: Percentage.
- * - #LXW_CHART_ERROR_BAR_TYPE_STD_DEV: Standard deviation(s).
- *
- * @note Custom error bars are not currently supported.
- *
- * All error bar types, apart from Standard error, should have a valid
- * value to set the error range:
- *
- * @code
- *     chart_series_set_error_bars(series1->y_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_FIXED, 2);
- *
- *     chart_series_set_error_bars(series2->y_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_PERCENTAGE, 5);
- *
- *     chart_series_set_error_bars(series3->y_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_STD_DEV, 1);
- * @endcode
- *
- * For the Standard error type the value is ignored.
- *
- * For more information see @ref chart_error_bars.
- */
-/// void chart_series_set_error_bars(lxw_series_error_bars* error_bars, uint8_t type, double value);
 
 /**
  * @brief Set the direction (up, down or both) of the error bars for a chart
@@ -3810,113 +3939,6 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
 /// void chart_plotarea_set_layout(lxw_chart* chart, lxw_chart_layout* layout);
 
 /// void chart_set_table_font(lxw_chart* chart, lxw_chart_font* font);
-
-/**
- * @brief Turn on up-down bars for the chart.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- *
- * The `%chart_set_up_down_bars()` function adds Up-Down bars to Line charts
- * to indicate the difference between the first and last data series:
- *
- * @code
- *     chart_set_up_down_bars(chart);
- * @endcode
- *
- * @image html chart_data_tools4.png
- *
- * Up-Down bars are only available in Line charts. By default Up-Down bars are
- * black and white like in the above example. To format the border or fill
- * of the bars see the `chart_set_up_down_bars_format()` function below.
- */
-/// void chart_set_up_down_bars(lxw_chart* chart);
-
-/**
- * @brief Turn on up-down bars for the chart, with formatting.
- *
- * @param chart         Pointer to a lxw_chart instance to be configured.
- * @param up_bar_line   A #lxw_chart_line struct for the up-bar border.
- * @param up_bar_fill   A #lxw_chart_fill struct for the up-bar fill.
- * @param down_bar_line A #lxw_chart_line struct for the down-bar border.
- * @param down_bar_fill A #lxw_chart_fill struct for the down-bar fill.
- *
- * The `%chart_set_up_down_bars_format()` function adds Up-Down bars to Line
- * charts to indicate the difference between the first and last data series.
- * It also allows the up and down bars to be formatted:
- *
- * @code
- *     lxw_chart_line line      = {.color = LXW_COLOR_BLACK};
- *     lxw_chart_fill up_fill   = {.color = 0x00B050};
- *     lxw_chart_fill down_fill = {.color = LXW_COLOR_RED};
- *
- *     chart_set_up_down_bars_format(chart, &line, &up_fill, &line, &down_fill);
- * @endcode
- *
- * @image html chart_up_down_bars.png
- *
- * Up-Down bars are only available in Line charts.
- * For more format information  see @ref chart_lines and @ref chart_fills.
- */
-/// void chart_set_up_down_bars_format(lxw_chart* chart, lxw_chart_line* up_bar_line, lxw_chart_fill* up_bar_fill,
-///                                    lxw_chart_line* down_bar_line, lxw_chart_fill* down_bar_fill);
-
-/**
- * @brief Turn on and format Drop Lines for a chart.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param line  A #lxw_chart_line struct.
- *
- * The `%chart_set_drop_lines()` function adds Drop Lines to charts to
- * show the Category value of points in the data:
- *
- * @code
- *     chart_set_drop_lines(chart, NULL);
- * @endcode
- *
- * @image html chart_data_tools6.png
- *
- * It is possible to format the Drop Line line properties if required:
- *
- * @code
- *     lxw_chart_line line = {.color     = LXW_COLOR_RED,
- *                            .dash_type = LXW_CHART_LINE_DASH_SQUARE_DOT};
- *
- *     chart_set_drop_lines(chart, &line);
- * @endcode
- *
- * Drop Lines are only available in Line and Area charts.
- * For more format information see @ref chart_lines.
- */
-/// void chart_set_drop_lines(lxw_chart* chart, lxw_chart_line* line);
-
-/**
- * @brief Turn on and format high-low Lines for a chart.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param line  A #lxw_chart_line struct.
- *
- * The `%chart_set_high_low_lines()` function adds High-Low Lines to charts
- * to show the Category value of points in the data:
- *
- * @code
- *     chart_set_high_low_lines(chart, NULL);
- * @endcode
- *
- * @image html chart_data_tools5.png
- *
- * It is possible to format the High-Low Line line properties if required:
- *
- * @code
- *     lxw_chart_line line = {.color     = LXW_COLOR_RED,
- *                            .dash_type = LXW_CHART_LINE_DASH_SQUARE_DOT};
- *
- *     chart_set_high_low_lines(chart, &line);
- * @endcode
- *
- * High-Low Lines are only available in Line charts.
- * For more format information see @ref chart_lines.
- */
-/// void chart_set_high_low_lines(lxw_chart* chart, lxw_chart_line* line);
 
 /**
  * @brief Set the overlap between series in a Bar/Column chart.
