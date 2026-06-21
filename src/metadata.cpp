@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * metadata - A library for creating Excel XLSX metadata files.
  *
  * Used in conjunction with the Xlsxwriter++ library.
@@ -96,7 +96,7 @@ std::string metadata_t::write_metadata_types() const
   std::string xml_data = xml_start_tag("metadataTypes", {
                                                             {"count", std::to_string(count)}
   });
-  // Write the metadataType element.
+
   if(has_dynamic_functions_)
   {
     xml_data += write_cell_metadata_type();
@@ -123,7 +123,7 @@ std::string metadata_t::write_cell_ext() const
   std::string xml_data = xml_start_tag("ext", {
                                                   {"uri", "{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}"}
   });
-  // Write the xda:dynamicArrayProperties element.
+
   xml_data += write_xda_dynamic_array_properties();
   xml_data += xml_end_tag("ext");
 
@@ -142,7 +142,7 @@ std::string metadata_t::write_value_ext(uint32_t index) const
   std::string xml_data = xml_start_tag("ext", {
                                                   {"uri", "{3e2802c4-a4d2-4d8b-9148-e3be6c30e623}"}
   });
-  // Write the xlrd:rvb element.
+
   xml_data += write_xlrd_rvb(index);
   xml_data += xml_end_tag("ext");
 
@@ -158,7 +158,6 @@ std::string metadata_t::write_cell_future_metadata() const
 
   xml_data += xml_start_tag("bk");
   xml_data += xml_start_tag("extLst");
-  // Write the ext element.
   xml_data += write_cell_ext();
   xml_data += xml_end_tag("extLst");
   xml_data += xml_end_tag("bk");
@@ -178,7 +177,6 @@ std::string metadata_t::write_value_future_metadata() const
   {
     xml_data += xml_start_tag("bk");
     xml_data += xml_start_tag("extLst");
-    // Write the ext element.
     xml_data += write_value_ext(i);
     xml_data += xml_end_tag("extLst");
     xml_data += xml_end_tag("bk");
@@ -203,7 +201,6 @@ std::string metadata_t::write_cell_metadata() const
                                                            {"count", "1"}
   });
   xml_data += xml_start_tag("bk");
-  // Write the rc element.
   xml_data += write_rc(1, 0);
   xml_data += xml_end_tag("bk");
   xml_data += xml_end_tag("cellMetadata");
@@ -226,8 +223,6 @@ std::string metadata_t::write_value_metadata() const
   for(uint32_t i = 0; i < num_embedded_images_; i++)
   {
     xml_data += xml_start_tag("bk");
-
-    // Write the rc element.
     xml_data += write_rc(type, i);
     xml_data += xml_end_tag("bk");
   }

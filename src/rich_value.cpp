@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * rich_value - A library for creating Excel XLSX rich_value files.
  *
  * Used in conjunction with the Xlsxwriter++ library.
@@ -28,11 +28,6 @@ std::string rich_value_t::write_rv() const
 
 std::string rich_value_t::write_images(const workbook_t& workbook) const
 {
-  ///    lxw_workbook *workbook = self->workbook;
-  ///    lxw_sheet *sheet;
-  ///    lxw_worksheet *worksheet;
-  ///    lxw_object_properties *object_props;
-  ///    char value[LXW_UINT32_T_LENGTH];
   uint32_t index = 0;
   uint8_t type   = 5;
 
@@ -81,9 +76,7 @@ std::string rich_value_t::write_rv_data(const workbook_t& workbook) const
 
 std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
 {
-  // Write the XML declaration.
   std::string xml_data = xml_declaration();
-  // Write the rvData element.
   xml_data += write_rv_data(workbook);
   xml_data += write_images(workbook);
   xml_data += xml_end_tag("rvData");

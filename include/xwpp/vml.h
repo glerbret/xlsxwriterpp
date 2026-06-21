@@ -5,6 +5,7 @@
  * vml - A Xlsxwriter++ library for creating Excel XLSX vml files.
  *
  */
+
 #ifndef XWPP_VML_H
 #define XWPP_VML_H
 
@@ -55,19 +56,6 @@ private:
                                               const vml_obj_t& image_obj) const;
   [[nodiscard]] std::string write_imagedata(uint32_t rel_index, const std::string& name) const;
   [[nodiscard]] std::string write_rotation_lock() const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
-  // [[nodiscard]] std::string () const;
 
   ///     uint8_t type;
   ///     struct lxw_comment_objs *button_objs;

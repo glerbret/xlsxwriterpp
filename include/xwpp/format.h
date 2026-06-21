@@ -24,33 +24,33 @@
  *
  * @image html formats_intro.png
  *
-///  * Formats in `Xlsxwriter++` are accessed via the lxw_format
+ * Formats in `Xlsxwriter++` are accessed via the lxw_format
  * struct. Throughout this document these will be referred to simply as
  * *Formats*.
  *
  * Formats are created by calling the workbook_add_format() method as
  * follows:
  *
-///  * @code
-///  *     lxw_format *format = workbook_add_format(workbook);
-///  * @endcode
+ * @code
+ *     lxw_format *format = workbook_add_format(workbook);
+ * @endcode
  *
  * The members of the lxw_format struct aren't modified directly. Instead the
  * format properties are set by calling the functions shown in this section.
  * For example:
  *
-///  * @code
-///  *    // Create the Format.
-///  *    lxw_format *format = workbook_add_format(workbook);
+ * @code
+ *    // Create the Format.
+ *    lxw_format *format = workbook_add_format(workbook);
  *
-///  *    // Set some of the format properties.
-///  *    format_set_bold(format);
-///  *    format_set_font_color(format, LXW_COLOR_RED);
+ *    // Set some of the format properties.
+ *    format_set_bold(format);
+ *    format_set_font_color(format, LXW_COLOR_RED);
  *
-///  *    // Use the format to change the text format in a cell.
-///  *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
+ *    // Use the format to change the text format in a cell.
+ *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
  *
-///  * @endcode
+ * @endcode
  *
  * The full range of formatting options that can be applied using
  * `Xlsxwriter++` are shown below.
@@ -101,12 +101,6 @@ const uint32_t COLOR_MASK = 0xFFFFFF;
 /// #define LXW_FORMAT_FIELD_LEN            128
 const double MIN_FONT_SIZE = 1.0;
 const double MAX_FONT_SIZE = 409.0;
-
-/// #define LXW_FORMAT_FIELD_COPY(dst, src)             \
-///     do{                                             \
-///         strncpy(dst, src, LXW_FORMAT_FIELD_LEN -1); \
-///         dst[LXW_FORMAT_FIELD_LEN - 1] = '\0';       \
-    /// } while (0)
 
 // TODO Complete the list
 // Format underline values for format_set_underline().
@@ -319,14 +313,14 @@ enum class format_borders_t
  *
  * @code
  *    // Create the Format.
-/// *    format_t *format = workbook_add_format(workbook);
-/// *
-/// *    // Set some of the format properties.
-/// *    format_set_bold(format);
-/// *    format_set_font_color(format, LXW_COLOR_RED);
+ *    format_t *format = workbook_add_format(workbook);
  *
-/// *    // Use the format to change the text format in a cell.
-/// *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
+ *    // Set some of the format properties.
+ *    format_set_bold(format);
+ *    format_set_font_color(format, LXW_COLOR_RED);
+ *
+ *    // Use the format to change the text format in a cell.
+ *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
  *
  * @endcode
  *

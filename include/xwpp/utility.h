@@ -253,33 +253,9 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
  */
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
 
-/// char *lxw_strdup(const char *str);
-/// char *lxw_strdup_formula(const char *formula);
-/// size_t lxw_utf8_strlen(const char *str);
-/// void lxw_str_tolower(char *str);
-/// uint8_t lxw_str_is_empty(const char *str);
-
-/* Define a portable version of strcasecmp(). */
-/// #ifdef _MSC_VER
-/// #define lxw_strcasecmp _stricmp
-/// #else
-/// #define lxw_strcasecmp strcasecmp
-/// #endif
-
 /// FILE *lxw_tmpfile(const char *tmpdir);
 /// FILE *lxw_get_filehandle(char **buf, size_t *size, const char *tmpdir);
 /// FILE *lxw_fopen(const char *filename, const char *mode);
-
-/* Use the third party dtoa function to avoid locale issues with sprintf
- * double formatting. Otherwise we use a simple macro that falls back to the
- * default c-lib sprintf.
- */
-/// #ifdef USE_DTOA_LIBRARY
-/// int lxw_sprintf_dbl(char *data, double number);
-/// #else
-/// #define lxw_sprintf_dbl(data, number) \
-///         lxw_snprintf(data, LXW_ATTR_32, "%.16G", number)
-/// #endif
 
 uint16_t hash_password(const std::string& password);
 

@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * custom - A library for creating Excel custom property files.
  *
  * SPDX-License-Identifier: BSD-2-Clause
@@ -68,27 +68,22 @@ std::string custom_t::write_custom_property(size_t pid, const custom_property_t&
 
   if(property.type_ == custom_property_types_t::STRING)
   {
-    // Write the vt:lpwstr element.
     xml_data += write(std::get<std::string>(property.value_));
   }
   else if(property.type_ == custom_property_types_t::DOUBLE)
   {
-    // Write the vt:r8 element.
     xml_data += write(std::get<double>(property.value_));
   }
   else if(property.type_ == custom_property_types_t::INTEGER)
   {
-    // Write the vt:i4 element.
     xml_data += write(std::get<int32_t>(property.value_));
   }
   else if(property.type_ == custom_property_types_t::BOOLEAN)
   {
-    // Write the vt:bool element.
     xml_data += write(std::get<bool>(property.value_));
   }
   else if(property.type_ == custom_property_types_t::DATETIME)
   {
-    // Write the vt:filetime element.
     xml_data += write(std::get<std::chrono::system_clock::time_point>(property.value_));
   }
 

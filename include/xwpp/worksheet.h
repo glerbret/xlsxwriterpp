@@ -24,20 +24,14 @@
  * created by calling the workbook_add_worksheet() function from a
  * Workbook object:
  *
-/// * @code
-///  *     #include "xlsxwriter.h"
-///  *
-///  *     int main() {
-///  *
-///  *         lxw_workbook  *workbook  = workbook_new("filename.xlsx");
-///  *         lxw_worksheet *worksheet = workbook_add_worksheet(workbook,
+ * @code
+ *     #include "xlsxwriter.h"
+ *
+ *     int main() {
+ *
+ *         lxw_workbook  *workbook  = workbook_new("filename.xlsx");
+ *         lxw_worksheet *worksheet = workbook_add_worksheet(workbook,
 NULL);
-///  *
-///  *         worksheet_write_string(worksheet, 0, 0, "Hello Excel", NULL);
-///  *
-///  *         return workbook_close(workbook);
-///  *     }
-///  * @endcode
  *
  */
 

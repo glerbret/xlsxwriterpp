@@ -29,22 +29,26 @@ chart_t::chart_t(chart_type_t type)
 namespace
 {
 
-chart_font_t convert_font_args(const chart_font_t& user_font, bool title_font = false)
+std::optional<chart_font_t> convert_font_args(const std::optional<chart_font_t>& user_font, bool title_font = false)
 {
-  chart_font_t font;
+  if(!user_font)
+  {
+    return std::nullopt;
+  }
 
-  // Copy the user supplied properties.
-  font.name_         = user_font.name_;
-  font.size_         = user_font.size_;
-  font.bold_         = user_font.bold_;
-  font.italic_       = user_font.italic_;
-  font.underline_    = user_font.underline_;
-  font.rotation_     = user_font.rotation_;
-  font.color_        = user_font.color_;
-  font.pitch_family_ = user_font.pitch_family_;
-  font.charset_      = user_font.charset_;
-  font.baseline_     = user_font.baseline_;
-  font.title_font_   = title_font;
+  chart_font_t font{
+      .name_         = user_font->name_,
+      .size_         = user_font->size_,
+      .bold_         = user_font->bold_,
+      .italic_       = user_font->italic_,
+      .underline_    = user_font->underline_,
+      .rotation_     = user_font->rotation_,
+      .color_        = user_font->color_,
+      .pitch_family_ = user_font->pitch_family_,
+      .charset_      = user_font->charset_,
+      .baseline_     = user_font->baseline_,
+      .title_font_   = title_font,
+  };
 
   // Convert font size units.
   if(font.size_ > 0.0)
@@ -61,17 +65,20 @@ chart_font_t convert_font_args(const chart_font_t& user_font, bool title_font = 
   return font;
 }
 
-// TODO For this function and all similar ones, pass std::optional and check presence in the function
-chart_line_t convert_line_args(const chart_line_t& user_line)
+std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>& user_line)
 {
-  chart_line_t line;
+  if(!user_line)
+  {
+    return std::nullopt;
+  }
 
-  // Copy the user supplied properties.
-  line.color_        = user_line.color_;
-  line.none_         = user_line.none_;
-  line.width_        = user_line.width_;
-  line.dash_type_    = user_line.dash_type_;
-  line.transparency_ = user_line.transparency_;
+  chart_line_t line{
+      .color_        = user_line->color_,
+      .none_         = user_line->none_,
+      .width_        = user_line->width_,
+      .dash_type_    = user_line->dash_type_,
+      .transparency_ = user_line->transparency_,
+  };
 
   if(line.transparency_ > 100)
   {
@@ -81,14 +88,18 @@ chart_line_t convert_line_args(const chart_line_t& user_line)
   return line;
 }
 
-chart_fill_t convert_fill_args(const chart_fill_t& user_fill)
+std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> user_fill)
 {
-  chart_fill_t fill;
+  if(!user_fill)
+  {
+    return std::nullopt;
+  }
 
-  // Copy the user supplied properties.
-  fill.color_        = user_fill.color_;
-  fill.none_         = user_fill.none_;
-  fill.transparency_ = user_fill.transparency_;
+  chart_fill_t fill{
+      .color_        = user_fill->color_,
+      .none_         = user_fill->none_,
+      .transparency_ = user_fill->transparency_,
+  };
 
   if(fill.transparency_ > 100)
   {
@@ -98,24 +109,28 @@ chart_fill_t convert_fill_args(const chart_fill_t& user_fill)
   return fill;
 }
 
-chart_pattern_t convert_pattern_args(const chart_pattern_t& user_pattern)
+std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pattern_t>& user_pattern)
 {
-  chart_pattern_t pattern;
+  if(!user_pattern)
+  {
+    return std::nullopt;
+  }
 
-  if(user_pattern.type_ == chart_pattern_type_t::NONE)
+  if(user_pattern->type_ == chart_pattern_type_t::NONE)
   {
     return chart_pattern_t{};
   }
 
-  if(user_pattern.fg_color_ == color_t::UNSET)
+  if(user_pattern->fg_color_ == color_t::UNSET)
   {
     return chart_pattern_t{};
   }
 
-  // Copy the user supplied properties.
-  pattern.fg_color_ = user_pattern.fg_color_;
-  pattern.bg_color_ = user_pattern.bg_color_;
-  pattern.type_     = user_pattern.type_;
+  chart_pattern_t pattern{
+      .fg_color_ = user_pattern->fg_color_,
+      .bg_color_ = user_pattern->bg_color_,
+      .type_     = user_pattern->type_,
+  };
 
   if(pattern.bg_color_ == color_t::UNSET)
   {
@@ -4312,21 +4327,11 @@ void series_set_points(chart_series_t& series, const std::vector<chart_point_t> 
 
   for(const auto src_point: points)
   {
-    chart_point_t dst_point;
-
-    if(src_point.line_)
-    {
-      dst_point.line_ = convert_line_args(*(src_point.line_));
-    }
-    if(src_point.fill_)
-    {
-      dst_point.fill_ = convert_fill_args(*(src_point.fill_));
-    }
-    if(src_point.pattern_)
-    {
-      dst_point.pattern_ = convert_pattern_args(*(src_point.pattern_));
-    }
-
+    const chart_point_t dst_point{
+        .line_    = convert_line_args(src_point.line_),
+        .fill_    = convert_fill_args(src_point.fill_),
+        .pattern_ = convert_pattern_args(src_point.pattern_),
+    };
     series.points_.push_back(dst_point);
   }
 }
@@ -4370,24 +4375,12 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
 
   for(const auto& user_label: data_labels)
   {
-    chart_custom_label_t data_label;
-    data_label.hide_ = user_label.hide_;
-    if(user_label.font_)
+    chart_custom_label_t data_label
     {
-      data_label.font_ = convert_font_args(*(user_label.font_));
-    }
-    if(user_label.line_)
-    {
-      data_label.line_ = convert_line_args(*(user_label.line_));
-    }
-    if(user_label.fill_)
-    {
-      data_label.fill_ = convert_fill_args(*(user_label.fill_));
-    }
-    if(user_label.pattern_)
-    {
-      data_label.pattern_ = convert_pattern_args(*(user_label.pattern_));
-    }
+      .hide_ = user_label.hide_, .font_ = convert_font_args(user_label.font_),
+      .line_ = convert_line_args(user_label.line_), .fill_ = convert_fill_args(user_label.fill_),
+      .pattern_ = convert_pattern_args(user_label.pattern_),
+    };
 
     if(!user_label.value_.empty())
     {
@@ -4488,32 +4481,17 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
 
 void chart_series_set_labels_font(chart_series_t& series, const std::optional<chart_font_t>& font)
 {
-  if(!font)
-  {
-    return;
-  }
-
-  series.label_font_ = convert_font_args(*font);
+  series.label_font_ = convert_font_args(font);
 }
 
 void chart_series_set_labels_line(chart_series_t& series, const std::optional<chart_line_t>& line)
 {
-  if(!line)
-  {
-    return;
-  }
-
-  series.label_line_ = convert_line_args(*line);
+  series.label_line_ = convert_line_args(line);
 }
 
 void chart_series_set_labels_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
 {
-  if(!fill)
-  {
-    return;
-  }
-
-  series.label_fill_ = convert_fill_args(*fill);
+  series.label_fill_ = convert_fill_args(fill);
 }
 
 /*
@@ -4661,10 +4639,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
 
 void series_set_trendline_line(chart_series_t& series, const std::optional<chart_line_t>& line)
 {
-  if(line)
-  {
-    series.trendline_line_ = convert_line_args(*line);
-  }
+  series.trendline_line_ = convert_line_args(line);
 }
 
 /*
@@ -5490,41 +5465,22 @@ void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_
                                       const std::optional<chart_fill_t>& down_bar_fill)
 {
   has_up_down_bars_ = true;
-
-  if(up_bar_line)
-  {
-    up_bar_line_ = convert_line_args(*up_bar_line);
-  }
-  if(up_bar_fill)
-  {
-    up_bar_fill_ = convert_fill_args(*up_bar_fill);
-  }
-  if(down_bar_line)
-  {
-    down_bar_line_ = convert_line_args(*down_bar_line);
-  }
-  if(down_bar_fill)
-  {
-    down_bar_fill_ = convert_fill_args(*down_bar_fill);
-  }
+  up_bar_line_      = convert_line_args(up_bar_line);
+  up_bar_fill_      = convert_fill_args(up_bar_fill);
+  down_bar_line_    = convert_line_args(down_bar_line);
+  down_bar_fill_    = convert_fill_args(down_bar_fill);
 }
 
 void chart_t::set_drop_lines(const std::optional<chart_line_t>& line)
 {
-  has_drop_lines_ = true;
-  if(line)
-  {
-    drop_lines_line_ = convert_line_args(*line);
-  }
+  has_drop_lines_  = true;
+  drop_lines_line_ = convert_line_args(line);
 }
 
 void chart_t::set_high_low_lines(const std::optional<chart_line_t>& line)
 {
-  has_high_low_lines_ = true;
-  if(line)
-  {
-    high_low_lines_line_ = convert_line_args(*line);
-  }
+  has_high_low_lines_  = true;
+  high_low_lines_line_ = convert_line_args(line);
 }
 
 /*

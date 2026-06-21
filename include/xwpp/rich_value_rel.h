@@ -4,6 +4,7 @@
  * rich_value_rel - A Xlsxwriter++ library for creating Excel XLSX rich_value_rel files.
  *
  */
+
 #ifndef XWPP_RICH_VALUE_REL_H
 #define XWPP_RICH_VALUE_REL_H
 

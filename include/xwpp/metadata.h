@@ -16,9 +16,6 @@
 namespace xwpp
 {
 
-/*
- * Struct to represent a metadata object.
- */
 class metadata_t
 {
 public:

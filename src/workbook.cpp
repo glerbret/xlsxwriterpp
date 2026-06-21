@@ -323,16 +323,9 @@ void workbook_t::prepare_num_formats()
 
 void workbook_t::prepare_workbook()
 {
-  // Set the font index for the format objects.
   prepare_fonts();
-
-  // Set the number format index for the format objects.
   prepare_num_formats();
-
-  // Set the border index for the format objects.
   prepare_borders();
-
-  // Set the fill index for the format objects.
   prepare_fills();
 }
 
@@ -549,7 +542,6 @@ void workbook_t::populate_range_data_cache(series_range_t& range)
   ///         return;
   ///     }
 
-  // ICI
   // Iterate through the worksheet data and populate the range cache.
   for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
   {

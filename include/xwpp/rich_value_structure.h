@@ -5,6 +5,7 @@
  * rich_value_structure - A Xlsxwriter++ library for creating Excel XLSX rich_value_structure files.
  *
  */
+
 #ifndef XWPP_RICH_VALUE_STRUCTURE_H
 #define XWPP_RICH_VALUE_STRUCTURE_H
 

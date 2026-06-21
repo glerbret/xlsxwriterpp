@@ -31,67 +31,6 @@ namespace xwpp
 
 const size_t MAX_ATTRIBUTE_LENGTH = 2080;
 
-/// #define LXW_ATTR_32              32
-
-/// #define LXW_ATTRIBUTE_COPY(dst, src)                    \
-///     do{                                                 \
-///         strncpy(dst, src, LXW_MAX_ATTRIBUTE_LENGTH -1); \
-///         dst[LXW_MAX_ATTRIBUTE_LENGTH - 1] = '\0';       \
-///     } while (0)
-
-/* Attribute used in XML elements. */
-/// struct xml_attribute {
-///     char key[LXW_MAX_ATTRIBUTE_LENGTH];
-///     char value[LXW_MAX_ATTRIBUTE_LENGTH];
-
-/* Make the struct a queue.h list element. */
-///     STAILQ_ENTRY (xml_attribute) list_entries;
-/// };
-
-/* Use queue.h macros to define the xml_attribute_list type. */
-/// STAILQ_HEAD(xml_attribute_list, xml_attribute);
-
-/* Create a new attribute struct to add to a xml_attribute_list. */
-/// struct xml_attribute *lxw_new_attribute_str(const char *key,
-///                                             const char *value);
-/// struct xml_attribute *lxw_new_attribute_int(const char *key, int32_t value);
-/// struct xml_attribute *lxw_new_attribute_dbl(const char *key, double value);
-
-/* Macro to initialize the xml_attribute_list pointers. */
-/// #define LXW_INIT_ATTRIBUTES()                                 \
-///     STAILQ_INIT(&attributes)
-
-/* Macro to add attribute string elements to xml_attribute_list. */
-/// #define LXW_PUSH_ATTRIBUTES_STR(key, value)                   \
-///     do {                                                      \
-///     attribute = lxw_new_attribute_str((key), (value));        \
-///     STAILQ_INSERT_TAIL(&attributes, attribute, list_entries); \
-///     } while (0)
-
-/* Macro to add attribute int values to xml_attribute_list. */
-/// #define LXW_PUSH_ATTRIBUTES_INT(key, value)                   \
-///     do {                                                      \
-///     attribute = lxw_new_attribute_int((key), (value));        \
-///     STAILQ_INSERT_TAIL(&attributes, attribute, list_entries); \
-///     } while (0)
-
-/* Macro to add attribute double values to xml_attribute_list. */
-/// #define LXW_PUSH_ATTRIBUTES_DBL(key, value)                   \
-///     do {                                                      \
-///     attribute = lxw_new_attribute_dbl((key), (value));        \
-///     STAILQ_INSERT_TAIL(&attributes, attribute, list_entries); \
-///     } while (0)
-
-/* Macro to free xml_attribute_list and attribute. */
-/// #define LXW_FREE_ATTRIBUTES()                                 \
-///     do {                                                      \
-///         while (!STAILQ_EMPTY(&attributes)) {                  \
-///             attribute = STAILQ_FIRST(&attributes);            \
-///             STAILQ_REMOVE_HEAD(&attributes, list_entries);    \
-///             free(attribute);                                  \
-///         }                                                     \
-///     } while (0)
-
 /**
  * Create the XML declaration in an XML file.
  *

@@ -20,21 +20,21 @@
  * represents the entire spreadsheet as you see it in Excel and internally it
  * represents the Excel file as it is written on disk.
  *
-/// * @code
-/// *     #include "xlsxwriterpp.h"
-/// *
-/// *     int main() {
-/// *
-/// *         lxw_workbook  *workbook  = workbook_new("filename.xlsx");
-/// *         lxw_worksheet *worksheet = workbook_add_worksheet(workbook, NULL);
-/// *
-/// *         worksheet_write_string(worksheet, 0, 0, "Hello Excel", NULL);
-/// *
-/// *         return workbook_close(workbook);
-/// *     }
-/// * @endcode
+ * @code
+ *     #include "xlsxwriterpp.h"
  *
-/// * @image html workbook01.png
+ *     int main() {
+ *
+ *         lxw_workbook  *workbook  = workbook_new("filename.xlsx");
+ *         lxw_worksheet *worksheet = workbook_add_worksheet(workbook, NULL);
+ *
+ *         worksheet_write_string(worksheet, 0, 0, "Hello Excel", NULL);
+ *
+ *         return workbook_close(workbook);
+ *     }
+ * @endcode
+ *
+ * @image html workbook01.png
  *
  */
 
@@ -56,18 +56,6 @@ namespace xwpp
 {
 
 /// #define LXW_DEFINED_NAME_LENGTH 128
-
-/* Define the tree.h RB structs for the red-black head types. */
-/// RB_HEAD(lxw_worksheet_names, lxw_worksheet_name);
-/// RB_HEAD(lxw_chartsheet_names, lxw_chartsheet_name);
-/// RB_HEAD(lxw_image_md5s, lxw_image_md5);
-
-/* Define the queue.h structs for the workbook lists. */
-/// STAILQ_HEAD(lxw_sheets, lxw_sheet);
-/// STAILQ_HEAD(lxw_worksheets, lxw_worksheet);
-/// STAILQ_HEAD(lxw_chartsheets, lxw_chartsheet);
-/// STAILQ_HEAD(lxw_charts, lxw_chart);
-/// TAILQ_HEAD(lxw_defined_names, lxw_defined_name);
 
 /* Struct to hold the 2 sheet types. */
 /// typedef struct lxw_sheet {
@@ -97,76 +85,6 @@ namespace xwpp
 ///     RB_ENTRY (lxw_chartsheet_name) tree_pointers;
 /// } lxw_chartsheet_name;
 
-/* Struct to represent an image MD5/ID pair. */
-/// typedef struct lxw_image_md5 {
-///     uint32_t id;
-///     char *md5;
-
-///     RB_ENTRY (lxw_image_md5) tree_pointers;
-/// } lxw_image_md5;
-
-/* Wrapper around RB_GENERATE_STATIC from tree.h to avoid unused function
- * warnings and to avoid portability issues with the _unused attribute. */
-/// #define LXW_RB_GENERATE_WORKSHEET_NAMES(name, type, field, cmp)  \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)          \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)          \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)           \
-///     RB_GENERATE_REMOVE(name, type, field, static)                \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)             \
-///     RB_GENERATE_NEXT(name, type, field, static)                  \
-///     RB_GENERATE_MINMAX(name, type, field, static)                \
-///     /* Add unused struct to allow adding a semicolon */          \
-///     struct lxw_rb_generate_worksheet_names{int unused;}
-
-/// #define LXW_RB_GENERATE_CHARTSHEET_NAMES(name, type, field, cmp) \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)          \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)          \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)           \
-///     RB_GENERATE_REMOVE(name, type, field, static)                \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)             \
-///     RB_GENERATE_NEXT(name, type, field, static)                  \
-///     RB_GENERATE_MINMAX(name, type, field, static)                \
-///     /* Add unused struct to allow adding a semicolon */          \
-///     struct lxw_rb_generate_charsheet_names{int unused;}
-
-/// #define LXW_RB_GENERATE_IMAGE_MD5S(name, type, field, cmp) \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)          \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)          \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)           \
-///     RB_GENERATE_REMOVE(name, type, field, static)                \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)             \
-///     RB_GENERATE_NEXT(name, type, field, static)                  \
-///     RB_GENERATE_MINMAX(name, type, field, static)                \
-///     /* Add unused struct to allow adding a semicolon */          \
-///     struct lxw_rb_generate_image_md5s{int unused;}
-
-/**
- * @brief Macro to loop over all the worksheets in a workbook.
- *
- * This macro allows you to loop over all the worksheets that have been
- * added to a workbook. You must provide a lxw_worksheet pointer and
- * a pointer to the lxw_workbook:
- *
-///  * @code
-///  *    lxw_workbook  *workbook = workbook_new("test.xlsx");
-///  *
-///  *    lxw_worksheet *worksheet; // Generic worksheet pointer.
- *
-///  *    // Worksheet objects used in the program.
-///  *    lxw_worksheet *worksheet1 = workbook_add_worksheet(workbook, NULL);
-///  *    lxw_worksheet *worksheet2 = workbook_add_worksheet(workbook, NULL);
-///  *    lxw_worksheet *worksheet3 = workbook_add_worksheet(workbook, NULL);
- *
-///  *    // Iterate over the 3 worksheets and perform the same operation on
-each.
-///  *    LXW_FOREACH_WORKSHEET(worksheet, workbook) {
-///  *        worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
-///  *    }
-///  * @endcode
- */
-/// #define LXW_FOREACH_WORKSHEET(worksheet, workbook) \
-///     STAILQ_FOREACH((worksheet), (workbook)->worksheets, list_pointers)
-
 /* Struct to represent a defined name. */
 /// typedef struct lxw_defined_name {
 ///     int16_t index;
@@ -176,9 +94,6 @@ each.
 ///     char formula[LXW_DEFINED_NAME_LENGTH];
 ///     char normalised_name[LXW_DEFINED_NAME_LENGTH];
 ///     char normalised_sheetname[LXW_DEFINED_NAME_LENGTH];
-
-/* List pointers for queue.h. */
-///     TAILQ_ENTRY (lxw_defined_name) list_pointers;
 /// } lxw_defined_name;
 
 struct doc_properties_t
@@ -352,14 +267,14 @@ public:
    * The `sheetname` parameter is optional. If it is not provided the default
    * Excel convention will be followed, i.e. Sheet1, Sheet2, etc.:
    *
-  ///  * @code
-  ///  *     worksheet = workbook_add_worksheet(workbook, NULL  );     // Sheet1
-  ///  *     worksheet = workbook_add_worksheet(workbook, "Foglio2");  //
+   * @code
+   *     worksheet = workbook_add_worksheet(workbook, NULL  );     // Sheet1
+   *     worksheet = workbook_add_worksheet(workbook, "Foglio2");  //
   Foglio2
-  ///  *     worksheet = workbook_add_worksheet(workbook, "Data");     // Data
-  ///  *     worksheet = workbook_add_worksheet(workbook, NULL  );     // Sheet4
-  ///  *
-  ///  * @endcode
+   *     worksheet = workbook_add_worksheet(workbook, "Data");     // Data
+   *     worksheet = workbook_add_worksheet(workbook, NULL  );     // Sheet4
+   *
+   * @endcode
    *
    * @image html workbook02.png
    *
@@ -767,16 +682,16 @@ private:
  * This function is the same as the `workbook_new()` constructor but allows
  * additional options to be set.
  *
-///  * @code
-///  *    lxw_workbook_options options = {.constant_memory = LXW_TRUE,
-///  *                                    .tmpdir = "C:\\Temp",
-///  *                                    .use_zip64 = LXW_FALSE,
-///  *                                    .output_buffer = NULL,
-///  *                                    .output_buffer_size = NULL};
-///  *
-///  *    lxw_workbook  *workbook  = workbook_new_opt("filename.xlsx",
+ * @code
+ *    lxw_workbook_options options = {.constant_memory = LXW_TRUE,
+ *                                    .tmpdir = "C:\\Temp",
+ *                                    .use_zip64 = LXW_FALSE,
+ *                                    .output_buffer = NULL,
+ *                                    .output_buffer_size = NULL};
+ *
+ *    lxw_workbook  *workbook  = workbook_new_opt("filename.xlsx",
 &options);
-///  * @endcode
+ * @endcode
  *
  * The options that can be set via #lxw_workbook_options are:
  *
@@ -838,11 +753,11 @@ private:
  * The `sheetname` parameter is optional. If it is `NULL` the default
  * Excel convention will be followed, i.e. Chart1, Chart2, etc.:
  *
-///  * @code
-///  *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart1
-///  *     chartsheet = workbook_add_chartsheet(workbook, "My Chart"); // My
+ * @code
+ *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart1
+ *     chartsheet = workbook_add_chartsheet(workbook, "My Chart"); // My
 Chart
-///  *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart3
+ *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart3
  *
  * @endcode
  *
@@ -937,7 +852,6 @@ Chart
  *     workbook_define_name(workbook, "'New Data'!Sales", "=Sheet2!$G$1:$G$10");
  * @endcode
  *
- * The rules for names in Excel are explained in the
  * [Microsoft Office
  * documentation](https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64).
  *

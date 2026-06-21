@@ -26,48 +26,6 @@
 namespace xwpp
 {
 
-/// char *error_strings[LXW_MAX_ERRNO + 1] = {
-///     "No error.",
-///     "Memory error, failed to malloc() required memory.",
-///     "Error creating output xlsx file. Usually a permissions error.",
-///     "Error encountered when creating a tmpfile during file assembly.",
-///     "Error reading a tmpfile.",
-///     "Zip generic error ZIP_ERRNO while creating the xlsx file.",
-///     "Zip error ZIP_PARAMERROR while creating the xlsx file.",
-///     "Zip error ZIP_BADZIPFILE (use_zip64 option may be required).",
-///     "Zip error ZIP_INTERNALERROR while creating the xlsx file.",
-///     "File error or unknown zip error when adding sub file to xlsx file.",
-///     "Unknown zip error when closing xlsx file.",
-///     "Feature is not currently supported in this configuration.",
-///     "NULL function parameter ignored.",
-///     "Function parameter validation error.",
-///     "Function string parameter is empty.",
-///     "Datetime struct parameter has an invalid field value.",
-///     "Worksheet name exceeds Excel's limit of 31 characters.",
-///     "Worksheet name cannot contain invalid characters: '[ ] : * ? / \\'",
-///     "Worksheet name cannot start or end with an apostrophe.",
-///     "Worksheet name is already in use.",
-///     "Parameter exceeds Excel's limit of 32 characters.",
-///     "Parameter exceeds Excel's limit of 128 characters.",
-///     "Parameter exceeds Excel's limit of 255 characters.",
-///     "String exceeds Excel's limit of 32,767 characters.",
-///     "Error finding internal string index.",
-///     "Worksheet row or column index out of range.",
-///     "Maximum hyperlink length (2079) exceeded.",
-///     "Maximum number of worksheet URLs (65530) exceeded.",
-///     "Couldn't read image dimensions or DPI.",
-///     "Unknown error number."
-/// };
-
-/// char *
-/// lxw_strerror(lxw_error error_num)
-/// {
-///     if (error_num > LXW_MAX_ERRNO)
-///         error_num = LXW_MAX_ERRNO;
-
-///     return error_strings[error_num];
-/// }
-
 std::string col_to_name(col_num_t col_num, bool absolute)
 {
   std::string col_name;
@@ -199,13 +157,13 @@ row_num_t name_to_row(const char* row_str)
     return row_num;
   }
 
-  /* Skip the column letters and absolute symbol of the A1 cell. */
+  // Skip the column letters and absolute symbol of the A1 cell.
   while(*row_str && !isdigit((unsigned char)*row_str))
   {
     row_str++;
   }
 
-  /* Convert the row part of the A1 cell to a number. */
+  // Convert the row part of the A1 cell to a number.
   if(*row_str)
   {
     row_num = atoi(row_str);
@@ -252,7 +210,7 @@ col_num_t name_to_col(const char* col_str)
     return col_num;
   }
 
-  /* Convert leading column letters of A1 cell. Ignore absolute $ marker. */
+  // Convert leading column letters of A1 cell. Ignore absolute $ marker.
   while(*col_str && (isupper((unsigned char)*col_str) || *col_str == '$'))
   {
     if(*col_str != '$')
@@ -460,10 +418,8 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
 ///     return lxw_unixtime_to_excel_date_with_epoch(unixtime, LXW_FALSE);
 /// }
 
-/*
- * Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
- * 1900 or 1904 epoch.
- */
+// Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
+// 1900 or 1904 epoch.
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 {
   double excel_datetime = 0.0;
@@ -478,71 +434,6 @@ double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 
   return excel_datetime;
 }
-
-/// char *
-/// lxw_strdup(const char *str)
-/// {
-///     size_t len;
-///     char *copy;
-
-///     if (!str)
-///         return NULL;
-
-///     len = strlen(str) + 1;
-///     copy = malloc(len);
-
-///     if (copy)
-///         memcpy(copy, str, len);
-
-///     return copy;
-/// }
-
-/// char *
-/// lxw_strdup_formula(const char *formula)
-/// {
-///     if (!formula)
-///         return NULL;
-
-///     if (formula[0] == '=')
-///         return lxw_strdup(formula + 1);
-///     else
-///         return lxw_strdup(formula);
-/// }
-
-/// size_t
-/// lxw_utf8_strlen(const char *str)
-/// {
-///     size_t byte_count = 0;
-///     size_t char_count = 0;
-
-///     while (str[byte_count]) {
-///         if ((str[byte_count] & 0xc0) != 0x80)
-///             char_count++;
-
-///         byte_count++;
-///     }
-
-///     return char_count;
-/// }
-
-/// void
-/// lxw_str_tolower(char *str)
-/// {
-///     int i;
-
-///     for (i = 0; str[i]; i++)
-///         str[i] = tolower(str[i]);
-/// }
-
-/// uint8_t
-/// lxw_str_is_empty(const char *str)
-/// {
-///     if (str[0] == '\0')
-///         return 1;
-///     else
-///         return 0;
-/// }
-
 // Create a quoted version of the worksheet name, or return an unmodified
 // copy if it doesn't required quoting.
 std::string quote_sheetname(std::string_view sheetname)

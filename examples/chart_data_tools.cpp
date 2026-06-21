@@ -10,14 +10,10 @@
 
 #include "xlsxwriterpp.h"
 
-/*
- * Write some data to the worksheet.
- */
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   int row, col;
   uint8_t data[6][3] = {
-      /* Three columns of data. */
       {2, 10, 30},
       {3, 40, 60},
       {4, 50, 70},

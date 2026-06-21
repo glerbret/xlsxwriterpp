@@ -52,59 +52,6 @@ std::string style_t::write_style_sheet() const
 
 std::string style_t::write_num_fmt(uint16_t num_fmt_id, const std::string& format_code) const
 {
-  ///     char *format_codes[] = {
-  ///         "General",
-  ///         "0",
-  ///         "0.00",
-  ///         "#,##0",
-  ///         "#,##0.00",
-  ///         "($#,##0_);($#,##0)",
-  ///         "($#,##0_);[Red]($#,##0)",
-  ///         "($#,##0.00_);($#,##0.00)",
-  ///         "($#,##0.00_);[Red]($#,##0.00)",
-  ///         "0%",
-  ///         "0.00%",
-  ///         "0.00E+00",
-  ///         "# ?/?",
-  ///         "# ?" "?/?" "?",        /* Split string to avoid unintentional trigraph. */
-  ///         "m/d/yy",
-  ///         "d-mmm-yy",
-  ///         "d-mmm",
-  ///         "mmm-yy",
-  ///         "h:mm AM/PM",
-  ///         "h:mm:ss AM/PM",
-  ///         "h:mm",
-  ///         "h:mm:ss",
-  ///         "m/d/yy h:mm",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "General",
-  ///         "(#,##0_);(#,##0)",
-  ///         "(#,##0_);[Red](#,##0)",
-  ///         "(#,##0.00_);(#,##0.00)",
-  ///         "(#,##0.00_);[Red](#,##0.00)",
-  ///         "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)",
-  ///         "_($* #,##0_);_($* (#,##0);_($* \"-\"_);_(@_)",
-  ///         "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)",
-  ///         "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
-  ///         "mm:ss",
-  ///         "[h]:mm:ss",
-  ///         "mm:ss.0",
-  ///         "##0.0E+0",
-  ///         "@"
-  ///     };
-
   std::vector<std::tuple<std::string, std::string>> attributes{
       {"numFmtId", std::to_string(num_fmt_id)}
   };
@@ -130,7 +77,6 @@ std::string style_t::write_num_fmts() const
                                                       {"count", std::to_string(num_format_count_)}
   });
 
-  // Write the numFmts elements.
   for(const auto format: xf_formats_)
   {
     // Ignore built-in number formats, i.e., < 0xA4.
@@ -435,9 +381,6 @@ style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count
 
 std::string style_t::write_fonts()
 {
-  ///    struct xml_attribute_list attributes;
-  ///    struct xml_attribute *attribute;
-  ///    lxw_format *format;
   uint16_t count = font_count_;
   if(has_comments_)
   {
@@ -686,10 +629,7 @@ std::string style_t::write_border(const format_t* format, bool is_dxf) const
     diag_border = format_borders_t::THIN;
   }
 
-  // Write the start border tag.
   std::string xml_data = xml_start_tag("border", attributes);
-
-  // Write the <border> sub elements.
   xml_data += write_sub_border("left", format->left_, format->left_color_);
   xml_data += write_sub_border("right", format->right_, format->right_color_);
   xml_data += write_sub_border("top", format->top_, format->top_color_);
@@ -824,9 +764,9 @@ std::string style_t::write_alignment(const format_t* format) const
   bool shrink                      = format->shrink_;
   bool just_distrib                = format->just_distrib_;
 
-  /* Indent is only allowed for some alignment properties. */
-  /* If it is defined for any other alignment or no alignment has been  */
-  /* set then default to left alignment. */
+  // Indent is only allowed for some alignment properties.
+  // If it is defined for any other alignment or no alignment has been
+  // set then default to left alignment.
   if(format->indent_ && text_h_align != format_alignments_t::HORIZONTAL_LEFT &&
      text_h_align != format_alignments_t::HORIZONTAL_RIGHT &&
      text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED &&
@@ -1016,25 +956,21 @@ std::string style_t::write_xf(const format_t* format) const
     attributes.emplace_back("applyNumberFormat", "1");
   }
 
-  // Add applyFont attribute if XF format uses a font element.
   if(format->font_index_ > 0 && !format->hyperlink_)
   {
     attributes.emplace_back("applyFont", "1");
   }
 
-  // Add applyFill attribute if XF format uses a fill element.
   if(format->fill_index_ > 0)
   {
     attributes.emplace_back("applyFill", "1");
   }
 
-  // Add applyBorder attribute if XF format uses a border element.
   if(format->border_index_ > 0)
   {
     attributes.emplace_back("applyBorder", "1");
   }
 
-  // We can also have applyAlignment without a sub-element.
   if(apply_alignment(format) || format->hyperlink_)
   {
     attributes.emplace_back("applyAlignment", "1");
@@ -1045,7 +981,6 @@ std::string style_t::write_xf(const format_t* format) const
     attributes.emplace_back("applyProtection", "1");
   }
 
-  // Write XF with sub-elements if required.
   if(has_alignment(format) || has_protection)
   {
     std::string xml_data = xml_start_tag("xf", attributes);

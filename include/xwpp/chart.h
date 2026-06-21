@@ -81,9 +81,6 @@
 namespace xwpp
 {
 
-/// STAILQ_HEAD(lxw_chart_series_list, lxw_chart_series);
-/// STAILQ_HEAD(lxw_series_data_points, lxw_series_data_point);
-///
 /// #define LXW_CHART_NUM_FORMAT_LEN 128
 
 /**
@@ -835,12 +832,12 @@ struct chart_title_t
   bool is_horizontal_ = false;
   ///   uint8_t ignore_cache;
   bool has_overlay_   = false;
-  ///
+
   // TODO ?
   /* We use a range to hold the title formula properties even though it
    * will only have 1 point in order to re-use similar functions.*/
   series_range_t range_;
-  ///
+
   ///   struct lxw_series_data_point data_point;
   std::optional<chart_layout_t> layout_;
 };
@@ -1111,19 +1108,19 @@ struct chart_axis_t
   std::string num_format_;
   std::string default_num_format_;
   uint8_t source_linked_ = 0;
-  ///
+
   ///   uint8_t major_tick_mark;
   ///   uint8_t minor_tick_mark;
   ///   uint8_t is_horizontal;
-  ///
+
   chart_gridline_t major_gridlines_;
   ///   lxw_chart_gridline minor_gridlines;
-  ///
+
   std::optional<chart_font_t> num_font_;
   ///   lxw_chart_line* line;
   ///   lxw_chart_fill* fill;
   ///   lxw_chart_pattern* pattern;
-  ///
+
   bool is_category_ = false;
   ///   uint8_t is_date;
   bool is_value_    = false;
@@ -1135,25 +1132,24 @@ struct chart_axis_t
   bool hidden_                                = false;
   bool reverse_                               = false;
 
-  ///
   bool has_min_         = false;
   double min_           = 0;
   bool has_max_         = false;
   double max_           = 0;
-  ///
+
   ///   uint8_t has_major_unit;
   ///   double major_unit;
   ///   uint8_t has_minor_unit;
   ///   double minor_unit;
-  ///
+
   ///   uint16_t interval_unit;
   ///   uint16_t interval_tick;
-  ///
+
   uint16_t log_base_    = 0;
-  ///
+
   ///   uint8_t display_units;
   ///   uint8_t display_units_visible;
-  ///
+
   bool has_crossing_    = false;
   uint8_t crossing_min_ = 0;
   uint8_t crossing_max_ = 0;
@@ -2004,19 +2000,19 @@ private:
   bool has_table_outline_     = false;
   bool has_table_legend_keys_ = false;
   std::optional<chart_font_t> table_font_;
-  ///
+
   ///   uint8_t show_blanks_as;
   bool show_hidden_data_ = false;
-  ///
+
   bool has_up_down_bars_ = false;
   std::optional<chart_line_t> up_bar_line_;
   std::optional<chart_line_t> down_bar_line_;
   std::optional<chart_fill_t> up_bar_fill_;
   std::optional<chart_fill_t> down_bar_fill_;
-  ///
+
   chart_label_position_t default_label_position_ = chart_label_position_t::DEFAULT;
   bool is_protected_                             = false;
-  ///
+
   ///   STAILQ_ENTRY(lxw_chart) ordered_list_pointers;
   ///   STAILQ_ENTRY(lxw_chart) list_pointers;
   static const uint16_t DEFAULT_GAP              = 501;

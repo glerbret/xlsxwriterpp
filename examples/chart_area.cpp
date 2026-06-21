@@ -7,14 +7,10 @@
 
 #include "xlsxwriterpp.h"
 
-/*
- * Write some data to the worksheet.
- */
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   int row, col;
   uint8_t data[6][3] = {
-      /* Three columns of data. */
       {2, 40, 30},
       {3, 40, 25},
       {4, 50, 30},
@@ -31,14 +27,11 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   {
     for(col = 0; col < 3; col++)
     {
-      worksheet.write_number(row + 1, col, data[row][col], NULL);
+      worksheet.write_number(row + 1, col, data[row][col]);
     }
   }
 }
 
-/*
- * Create a worksheet with examples charts.
- */
 int main()
 {
   // Create a new workbook and add a worksheet.

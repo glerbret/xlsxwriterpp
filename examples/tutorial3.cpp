@@ -15,7 +15,6 @@
 
 using namespace std::literals::chrono_literals;
 
-/* Some data we want to write to the worksheet. */
 struct expense
 {
   char item[32];

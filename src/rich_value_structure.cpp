@@ -1,4 +1,4 @@
-/**
+/*
  * rich_value_structure - A library for creating Excel XLSX rich_value_structure files.
  *
  * Copyright 2026, Grégory Lerbret

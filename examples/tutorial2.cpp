@@ -11,7 +11,6 @@
 
 #include "xlsxwriterpp.h"
 
-/* Some data we want to write to the worksheet. */
 struct expense
 {
   char item[32];
@@ -50,7 +49,7 @@ int main()
   // Iterate over the data and write it out element by element.
   for(i = 0; i < 4; i++)
   {
-    /* Write from the first cell below the headers. */
+    // Write from the first cell below the headers.
     row = i + 1;
     worksheet.write_string(row, col, expenses[i].item);
     worksheet.write_number(row, col + 1, expenses[i].cost, money);

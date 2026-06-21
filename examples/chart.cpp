@@ -7,11 +7,9 @@
 
 #include "xlsxwriterpp.h"
 
-/* Write some data to the worksheet. */
 void write_worksheet_data(xwpp::worksheet_t& worksheet)
 {
   uint8_t data[5][3] = {
-      /* Three columns of data. */
       {1, 2,  3 },
       {2, 4,  6 },
       {3, 6,  9 },
@@ -24,12 +22,11 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet)
   {
     for(col = 0; col < 3; col++)
     {
-      worksheet.write_number(row, col, data[row][col], nullptr);
+      worksheet.write_number(row, col, data[row][col]);
     }
   }
 }
 
-/* Create a worksheet with a chart. */
 int main()
 {
   // Create a new workbook and add a worksheet.

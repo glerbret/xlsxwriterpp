@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * core - A library for creating Excel XLSX core files.
  *
  * SPDX-License-Identifier: BSD-2-Clause

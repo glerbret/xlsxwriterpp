@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * vml - A library for creating Excel XLSX vml files.
  *
  *
@@ -223,14 +223,6 @@ std::string vml_t::write_image_path() const
 
 std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& image_obj) const
 {
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     char width_str[LXW_ATTR_32];
-  ///     char height_str[LXW_ATTR_32];
-  ///     char style[LXW_MAX_ATTRIBUTE_LENGTH];
-  ///     char o_spid[LXW_ATTR_32];
-  ///     char type[] = ;
-
   // Scale the height/width by the resolution, relative to 72dpi.
   double width  = image_obj.width_ * (72.0 / image_obj.x_dpi_);
   double height = image_obj.height_ * (72.0 / image_obj.y_dpi_);
