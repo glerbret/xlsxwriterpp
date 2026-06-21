@@ -1768,6 +1768,28 @@ public:
  */
 void legend_set_font(const std::optional<chart_font_t>& font);
 
+/**
+ * @brief Set the gap between series in a Bar/Column chart.
+ *
+ * @param chart Pointer to a lxw_chart instance to be configured.
+ * @param gap   The gap between the series.  0 to 500.
+ *
+ * The `%chart_set_series_gap()` function sets the gap between series in
+ * Bar and Column charts.
+ *
+ * @code
+ *     chart_set_series_gap(chart, 400);
+ * @endcode
+ *
+ * @image html chart_gap.png
+ *
+ * The gap value must be in the range `0 <= gap <= 500`. The default value
+ * is 150.
+ *
+ * This option is only available for Bar/Column charts.
+ */
+void set_series_gap(uint16_t gap);
+
   std::string assemble_xml_file();
 
   // TODO Set to public as chart_axis_set_name access to it.
@@ -2138,7 +2160,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  *
  * For more information see @ref chart_lines.
  */
-/// void chart_series_set_line(lxw_chart_series* series, lxw_chart_line* line);
+void chart_series_set_line(chart_series_t& series, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the fill properties for a chart series.
@@ -2205,7 +2227,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  *
  * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
  */
-/// void chart_series_set_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern);
+void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
 
 /**
  * @brief Set the size of a data marker for a series.
@@ -4016,28 +4038,6 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * This option is only available for Bar/Column charts.
  */
 /// void chart_set_series_overlap(lxw_chart* chart, int8_t overlap);
-
-/**
- * @brief Set the gap between series in a Bar/Column chart.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param gap   The gap between the series.  0 to 500.
- *
- * The `%chart_set_series_gap()` function sets the gap between series in
- * Bar and Column charts.
- *
- * @code
- *     chart_set_series_gap(chart, 400);
- * @endcode
- *
- * @image html chart_gap.png
- *
- * The gap value must be in the range `0 <= gap <= 500`. The default value
- * is 150.
- *
- * This option is only available for Bar/Column charts.
- */
-/// void chart_set_series_gap(lxw_chart* chart, uint16_t gap);
 
 /**
  * @brief Set the option for displaying blank data in a chart.

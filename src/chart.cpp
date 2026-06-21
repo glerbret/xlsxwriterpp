@@ -4170,21 +4170,10 @@ void chart_series_set_values(chart_series_t& series, const std::string& sheetnam
   set_range(series.values_, sheetname, first_row, first_col, last_row, last_col);
 }
 
-/*
- * Set a line type for a series.
- */
-/// void chart_series_set_line(lxw_chart_series* series, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->line);
-///
-///   series->line = _chart_convert_line_args(line);
-/// }
+void chart_series_set_line(chart_series_t& series, const std::optional<chart_line_t>& line)
+{
+  series.line_ = convert_line_args(line);
+}
 
 /*
  * Set a fill type for a series.
@@ -4210,21 +4199,10 @@ void chart_series_set_values(chart_series_t& series, const std::string& sheetnam
 ///   series->invert_if_negative = LXW_TRUE;
 /// }
 
-/*
- * Set a pattern type for a series.
- */
-/// void chart_series_set_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern)
-/// {
-///   if(!pattern)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->pattern);
-///
-///   series->pattern = _chart_convert_pattern_args(pattern);
-/// }
+void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
+{
+  series.pattern_ = convert_pattern_args(pattern);
+}
 
 void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t type)
 {
@@ -5510,22 +5488,17 @@ void chart_t::set_high_low_lines(const std::optional<chart_line_t>& line)
 ///   self->show_hidden_data = LXW_TRUE;
 /// }
 
-/*
- * Set the Bar/Column gap for all data series.
- */
-/// void chart_set_series_gap(lxw_chart* self, uint16_t gap)
-/// {
-///   if(gap <= 500)
-///   {
-///     self->gap_y1 = gap;
-///   }
-///   else
-///   {
-///     LXW_WARN_FORMAT1("chart_set_series_gap(): Chart series gap '%d' "
-///                      "outside Excel range: 0 <= gap <= 500",
-///                      gap);
-///   }
-/// }
+void chart_t::set_series_gap(uint16_t gap)
+{
+  if(gap <= 500)
+  {
+    gap_y1_ = gap;
+  }
+  else
+  {
+    throw xwpp_out_of_range_t(std::format("Chart series gap '{}' outside Excel range: 0 <= gap <= 500", gap));
+  }
+}
 
 void chart_t::set_rotation(uint16_t rotation)
 {
