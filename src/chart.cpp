@@ -528,10 +528,14 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
       attributes.emplace_back("sz", std::format("{}", font->size_));
     }
 
-    // For title, font is bold per default and so "b" attribute must be set if bold_ is false.
-    if(use_font_default || font->bold_ || (font->title_font_ && !font->bold_))
+    // To manage defautl value for tile
+    if(use_font_default)
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_));
+      attributes.emplace_back("b", std::format("{:d}", font->bold_ ? font->bold_.value() : false));
+    }
+    else if(font->bold_)
+    {
+      attributes.emplace_back("b", std::format("{:d}", font->bold_.value()));
     }
 
     if(use_font_default || font->italic_)
@@ -614,10 +618,14 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
       attributes.emplace_back("sz", std::format("{}", font->size_));
     }
 
-    // For title, font is bold per default and so "b" attribute must be set if bold_ is false.
-    if(use_font_default || font->bold_ || (font->title_font_ && !font->bold_))
+    // To manage defautl value for tile
+    if(use_font_default)
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_));
+      attributes.emplace_back("b", std::format("{:d}", font->bold_ ? font->bold_.value() : false));
+    }
+    else if(font->bold_)
+    {
+      attributes.emplace_back("b", std::format("{:d}", font->bold_.value()));
     }
 
     if(use_font_default || font->italic_)
@@ -4800,37 +4808,23 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name)
 ///   axis->title.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_AXIS_NAME);
 /// }
 
-/*
- * Set an axis title/name font.
- */
-/// void chart_axis_set_name_font(lxw_chart_axis* axis, lxw_chart_font* font)
-/// {
-///   if(!font)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   _chart_free_font(axis->title.font);
-///
-///   axis->title.font = _chart_convert_font_args(font);
-/// }
+void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
+{
+  if(!font)
+  {
+    return;
+  }
+  axis.title_.font_ = convert_font_args(font);
+}
 
-/*
- * Set an axis number font.
- */
-/// void chart_axis_set_num_font(lxw_chart_axis* axis, lxw_chart_font* font)
-/// {
-///   if(!font)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   _chart_free_font(axis->num_font);
-///
-///   axis->num_font = _chart_convert_font_args(font);
-/// }
+void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
+{
+  if(!font)
+  {
+    return;
+  }
+  axis.num_font_ = convert_font_args(font);
+}
 
 /*
  * Set an axis number format.
@@ -5264,16 +5258,10 @@ void chart_t::legend_set_position(chart_legend_position_t position)
 ///   self->legend.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_LEGEND);
 /// }
 
-/*
- * Set the legend font.
- */
-/// void chart_legend_set_font(lxw_chart* self, lxw_chart_font* font)
-/// {
-///   /* Free any previously allocated resource. */
-///   _chart_free_font(self->legend.font);
-///
-///   self->legend.font = _chart_convert_font_args(font);
-/// }
+void chart_t::legend_set_font(const std::optional<chart_font_t>& font)
+{
+  legend_.font_ = convert_font_args(font);
+}
 
 /*
  * Remove one or more series from the the legend.

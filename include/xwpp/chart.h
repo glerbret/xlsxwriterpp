@@ -710,7 +710,9 @@ struct chart_font_t
   double size_ = 0.;
 
   /** The chart font bold property. Set to 0 or 1. */
-  bool bold_ = false;
+  // By default, bold_ may be set to true (title) or false.
+  // So with use optional to indicate unset value and get default behaviour.
+  std::optional<bool> bold_;
 
   /** The chart font italic property. Set to 0 or 1. */
   bool italic_ = false;
@@ -1744,6 +1746,27 @@ public:
    *
    */
   void set_hole_size(uint8_t size);
+
+/**
+ * @brief Set the font properties for a chart legend.
+ *
+ * @param chart Pointer to a lxw_chart instance to be configured.
+ * @param font  A pointer to a chart #lxw_chart_font font struct.
+ *
+ * The `%chart_legend_set_font()` function is used to set the font of a
+ * chart legend:
+ *
+ * @code
+ *     lxw_chart_font font = {.bold = LXW_TRUE, .color = LXW_COLOR_BLUE};
+ *
+ *     chart_legend_set_font(chart, &font);
+ * @endcode
+ *
+ * @image html chart_legend_set_font.png
+ *
+ * For more information see @ref chart_fonts.
+ */
+void legend_set_font(const std::optional<chart_font_t>& font);
 
   std::string assemble_xml_file();
 
@@ -3100,7 +3123,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_name_font(lxw_chart_axis* axis, lxw_chart_font* font);
+void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font_t>& font);
 
 /**
  * @brief Set the font properties for the numbers of a chart axis.
@@ -3124,7 +3147,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_num_font(lxw_chart_axis* axis, lxw_chart_font* font);
+void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_t>& font);
 
 /**
  * @brief Set the number format for a chart axis.
@@ -3814,27 +3837,6 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * legend. See @ref chart_layout for more information.
  */
 /// void chart_legend_set_layout(lxw_chart* chart, lxw_chart_layout* layout);
-
-/**
- * @brief Set the font properties for a chart legend.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param font  A pointer to a chart #lxw_chart_font font struct.
- *
- * The `%chart_legend_set_font()` function is used to set the font of a
- * chart legend:
- *
- * @code
- *     lxw_chart_font font = {.bold = LXW_TRUE, .color = LXW_COLOR_BLUE};
- *
- *     chart_legend_set_font(chart, &font);
- * @endcode
- *
- * @image html chart_legend_set_font.png
- *
- * For more information see @ref chart_fonts.
- */
-/// void chart_legend_set_font(lxw_chart* chart, lxw_chart_font* font);
 
 /**
  * @brief Remove one or more series from the the legend.
