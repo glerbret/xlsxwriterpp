@@ -1810,6 +1810,7 @@ private:
   void initialize_area_chart(chart_type_t type);
   void initialize_line_chart(chart_type_t type);
   void initialize_doughnut_chart();
+  void initialize_pie_chart();
   void initialize(chart_type_t type);
 
   [[nodiscard]] static std::string write_bar_chart(chart_t& chart);
@@ -1819,6 +1820,7 @@ private:
   [[nodiscard]] static std::string write_line_chart(chart_t& chart);
   [[nodiscard]] static std::string write_doughnut_chart(chart_t& chart);
   [[nodiscard]] static std::string write_pie_plot_area(chart_t& chart);
+  [[nodiscard]] static std::string write_pie_chart(chart_t& chart);
 
   [[nodiscard]] std::string write_chart_space() const;
   [[nodiscard]] std::string write_lang() const;

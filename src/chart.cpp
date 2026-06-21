@@ -3602,29 +3602,19 @@ std::string chart_t::write_line_chart(chart_t& chart)
   return xml_data;
 }
 
-/*
- * Write a pie chart.
- */
-/// STATIC void _chart_write_pie_chart(lxw_chart* self)
-/// {
-///   lxw_chart_series* series;
-///
-///   lxw_xml_start_tag(self->file, "c:pieChart", NULL);
-///
-///   /* Write the c:varyColors element. */
-///   _chart_write_vary_colors(self);
-///
-///   STAILQ_FOREACH(series, self->series_list, list_pointers)
-///   {
-///     /* Write the c:ser element. */
-///     _chart_write_ser(self, series);
-///   }
-///
-///   /* Write the c:firstSliceAng element. */
-///   _chart_write_first_slice_ang(self);
-///
-///   lxw_xml_end_tag(self->file, "c:pieChart");
-/// }
+std::string chart_t::write_pie_chart(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:pieChart");
+  xml_data += write_vary_colors();
+  for(auto& series: chart.series_list_)
+  {
+    xml_data += write_ser(chart, series);
+  }
+  xml_data += write_first_slice_ang(chart);
+  xml_data += xml_end_tag("c:pieChart");
+
+  return xml_data;
+}
 
 /*
  * Write a scatter chart.
@@ -3896,17 +3886,13 @@ void chart_t::initialize_line_chart(chart_type_t type)
   write_plot_area_  = write_plot_area;
 }
 
-/*
- * Initialize a pie chart.
- */
-/// STATIC void _chart_initialize_pie_chart(lxw_chart* self)
-/// {
-///   /* Initialize the function pointers for this chart type. */
-///   self->chart_group            = LXW_CHART_PIE;
-///   self->write_chart_type       = _chart_write_pie_chart;
-///   self->write_plot_area        = _chart_write_pie_plot_area;
-///   self->default_label_position = LXW_CHART_LABEL_POSITION_BEST_FIT;
-/// }
+void chart_t::initialize_pie_chart()
+{
+  chart_group_            = chart_type_t::PIE;
+  write_chart_type_       = write_pie_chart;
+  write_plot_area_        = write_pie_plot_area;
+  default_label_position_ = chart_label_position_t::BEST_FIT;
+}
 
 /*
  * Initialize a scatter chart.
@@ -3985,9 +3971,9 @@ void chart_t::initialize(chart_type_t type)
       initialize_line_chart(type);
       break;
 
-      ///     case chart_type_t::PIE:
-      ///       _chart_initialize_pie_chart(self);
-      ///       break;
+    case chart_type_t::PIE:
+      initialize_pie_chart();
+      break;
 
       ///     case chart_type_t::SCATTER:
       ///     case chart_type_t::SCATTER_STRAIGHT:
