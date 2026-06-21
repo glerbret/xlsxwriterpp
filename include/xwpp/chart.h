@@ -1116,12 +1116,12 @@ struct chart_axis_t
   ///   uint8_t is_horizontal;
 
   chart_gridline_t major_gridlines_;
-  ///   lxw_chart_gridline minor_gridlines;
+  chart_gridline_t minor_gridlines_;
 
   std::optional<chart_font_t> num_font_;
-  ///   lxw_chart_line* line;
-  ///   lxw_chart_fill* fill;
-  ///   lxw_chart_pattern* pattern;
+  std::optional<chart_line_t> line_;
+  std::optional<chart_fill_t> fill_;
+  std::optional<chart_pattern_t> pattern_;
 
   bool is_category_ = false;
   ///   uint8_t is_date;
@@ -1139,18 +1139,18 @@ struct chart_axis_t
   bool has_max_ = false;
   double max_   = 0;
 
-  ///   uint8_t has_major_unit;
-  ///   double major_unit;
-  ///   uint8_t has_minor_unit;
-  ///   double minor_unit;
+  bool has_major_unit_ = false;
+  double major_unit_ = 0.;
+  bool has_minor_unit_ = false;
+  double minor_unit_ = 0.;
 
   ///   uint16_t interval_unit;
   ///   uint16_t interval_tick;
 
   uint16_t log_base_ = 0;
 
-  ///   uint8_t display_units;
-  ///   uint8_t display_units_visible;
+  chart_axis_display_unit_t display_units_ = chart_axis_display_unit_t::NONE;
+  bool display_units_visible_ = false;
 
   bool has_crossing_    = false;
   uint8_t crossing_min_ = 0;
@@ -1812,6 +1812,7 @@ private:
   void initialize_doughnut_chart();
   void initialize_pie_chart();
   void initialize_radar_chart(chart_type_t type);
+  void initialize_scatter_chart(chart_type_t type);
   void initialize(chart_type_t type);
 
   [[nodiscard]] static std::string write_bar_chart(chart_t& chart);
@@ -1823,6 +1824,8 @@ private:
   [[nodiscard]] static std::string write_pie_plot_area(chart_t& chart);
   [[nodiscard]] static std::string write_pie_chart(chart_t& chart);
   [[nodiscard]] static std::string write_radar_chart(chart_t& chart);
+  [[nodiscard]] static std::string write_scatter_plot_area(chart_t& chart);
+  [[nodiscard]] static std::string write_scatter_chart(chart_t& chart);
 
   [[nodiscard]] std::string write_chart_space() const;
   [[nodiscard]] std::string write_lang() const;
@@ -1911,6 +1914,7 @@ private:
   [[nodiscard]] static std::string write_a_p_pr_formula(const std::optional<chart_font_t>& font);
   [[nodiscard]] static std::string write_axis_font(const std::optional<chart_font_t>& font);
   [[nodiscard]] static std::string write_major_gridlines(const chart_axis_t& axis);
+  [[nodiscard]] static std::string write_minor_gridlines(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_cat_number_format(const chart_t& chart, const chart_axis_t& axis);
   [[nodiscard]] static std::string write_tick_label_pos(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_cross_axis(uint32_t axis_id);
@@ -1983,14 +1987,21 @@ private:
   [[nodiscard]] static std::string write_radar_style(const chart_t& chart);
   [[nodiscard]] static std::string write_major_tick_mark(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_minor_tick_mark(const chart_axis_t& axis);
-  //  [[nodiscard]] static std::string ();
-  //  [[nodiscard]] static std::string ();
-  //  [[nodiscard]] static std::string ();
+  [[nodiscard]] static std::string write_cat_val_axis(chart_t& chart);
+  [[nodiscard]] static std::string write_xval_ser(chart_t& chart, chart_series_t& series);
+  [[nodiscard]] static std::string write_x_val(const chart_series_t& series);
+  [[nodiscard]] static std::string write_y_val(const chart_series_t& series);
+  [[nodiscard]] static std::string write_smooth(bool smooth);
+  [[nodiscard]] static std::string write_major_unit(const chart_axis_t& axis);
+  [[nodiscard]] static std::string write_minor_unit(const chart_axis_t& axis);
+  [[nodiscard]] static std::string write_disp_units(const chart_axis_t& axis);
+  [[nodiscard]] static std::string write_scatter_style(const chart_t& chart);
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
 
   static void add_axis_ids(chart_t& chart);
+  static void adjust_max_crossing(chart_t& chart);
 
   chart_type_t type_;
   chart_subtype_t subtype_ = chart_subtype_t::NONE;
@@ -2031,9 +2042,9 @@ private:
   ///   uint16_t delete_series_count;
   std::optional<chart_marker_t> default_marker_;
 
-  ///   lxw_chart_line* chartarea_line;
-  ///   lxw_chart_fill* chartarea_fill;
-  ///   lxw_chart_pattern* chartarea_pattern;
+  std::optional<chart_line_t> chartarea_line_;
+  std::optional<chart_fill_t> chartarea_fill_;
+  std::optional<chart_pattern_t> chartarea_pattern_;
 
   std::optional<chart_line_t> plotarea_line_;
   std::optional<chart_fill_t> plotarea_fill_;

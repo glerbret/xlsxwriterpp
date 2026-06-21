@@ -2270,50 +2270,31 @@ std::string chart_t::write_marker_value(const chart_t& chart)
   });
 }
 
-/*
- * Write the <c:smooth> element.
- */
-/// STATIC void _chart_write_smooth(lxw_chart* self, uint8_t smooth)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!smooth)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:smooth", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_smooth(bool smooth)
+{
+  if(!smooth)
+  {
+    return "";
+  }
 
-/*
- * Write the <c:scatterStyle> element.
- */
-/// STATIC void _chart_write_scatter_style(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   if(self->type == LXW_CHART_SCATTER_SMOOTH || self->type == LXW_CHART_SCATTER_SMOOTH_WITH_MARKERS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "smoothMarker");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "lineMarker");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:scatterStyle", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("c:smooth", {{"val", "1"}});
+}
+
+std::string chart_t::write_scatter_style(const chart_t& chart)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(chart.type_ == chart_type_t::SCATTER_SMOOTH || chart.type_ == chart_type_t::SCATTER_SMOOTH_WITH_MARKERS)
+  {
+    attributes.emplace_back("val", "smoothMarker");
+  }
+  else
+  {
+    attributes.emplace_back("val", "lineMarker");
+  }
+
+  return xml_empty_tag("c:scatterStyle", attributes);
+}
 
 std::string chart_t::write_cat(chart_t& chart, const chart_series_t& series)
 {
@@ -2334,20 +2315,27 @@ std::string chart_t::write_cat(chart_t& chart, const chart_series_t& series)
   return xml_data;
 }
 
-/*
- * Write the <c:xVal> element.
- */
-/// STATIC void _chart_write_x_val(lxw_chart* self, lxw_chart_series* series)
-/// {
-///   uint8_t has_string_cache = series->categories->has_string_cache;
-///
-///   lxw_xml_start_tag(self->file, "c:xVal", NULL);
-///
-///   /* Write the data cache elements. */
-///   _chart_write_data_cache(self, series->categories, has_string_cache);
-///
-///   lxw_xml_end_tag(self->file, "c:xVal");
-/// }
+std::string chart_t::write_x_val(const chart_series_t& series)
+{
+  bool has_string_cache = series.categories_.has_string_cache_;
+
+  std::string xml_data = xml_start_tag("c:xVal");
+  xml_data += write_data_cache(series.categories_, has_string_cache);
+  xml_data += xml_end_tag("c:xVal");
+
+  return xml_data;
+}
+
+std::string chart_t::write_y_val(const chart_series_t& series)
+{
+  std::string xml_data = xml_start_tag("c:yVal");
+  // Write the data cache elements. The string_cache is set to false since
+  // this should always be a number series.
+  xml_data += write_data_cache(series.values_, false);
+  xml_data += xml_end_tag("c:yVal");
+
+  return xml_data;
+}
 
 std::string chart_t::write_val(const chart_series_t& series)
 {
@@ -2359,20 +2347,6 @@ std::string chart_t::write_val(const chart_series_t& series)
 
   return xml_data;
 }
-
-/*
- * Write the <c:yVal> element.
- */
-/// STATIC void _chart_write_y_val(lxw_chart* self, lxw_chart_series* series)
-/// {
-///   lxw_xml_start_tag(self->file, "c:yVal", NULL);
-///
-///   /* Write the data cache elements. The string_cache is set to false since
-///    * this should always be a number series. */
-///   _chart_write_data_cache(self, series->values, LXW_FALSE);
-///
-///   lxw_xml_end_tag(self->file, "c:yVal");
-/// }
 
 std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
 {
@@ -2391,63 +2365,36 @@ std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
   xml_data += write_error_bars(series);
   xml_data += write_cat(chart, series);
   xml_data += write_val(series);
-  ///   if(self->chart_group == LXW_CHART_SCATTER || self->chart_group == LXW_CHART_LINE)
-  ///   {
-  ///     xml_data += _chart_write_smooth(self, series->smooth);
-  ///   }
+  if(chart.chart_group_ == chart_type_t::SCATTER || chart.chart_group_ == chart_type_t::LINE)
+  {
+    xml_data += write_smooth(series.smooth_);
+  }
   xml_data += xml_end_tag("c:ser");
 
   return xml_data;
 }
 
-/*
- * Write the <c:ser> element but with c:xVal/c:yVal instead of c:cat/c:val
- * elements.
- */
-/// STATIC void _chart_write_xval_ser(lxw_chart* self, lxw_chart_series* series)
-/// {
-///   uint16_t index = self->series_index++;
-///
-///   lxw_xml_start_tag(self->file, "c:ser", NULL);
-///
-///   /* Write the c:idx element. */
-///   _chart_write_idx(self, index);
-///
-///   /* Write the c:order element. */
-///   _chart_write_order(self, index);
-///
-///   /* Write the series name. */
-///   _chart_write_series_name(self, series);
-///
-///   /* Write the c:spPr element. */
-///   _chart_write_sp_pr(self, series->line, series->fill, series->pattern);
-///
-///   /* Write the c:marker element. */
-///   _chart_write_marker(self, series->marker);
-///
-///   /* Write the char points. */
-///   _chart_write_points(self, series);
-///
-///   /* Write the c:dLbls element. */
-///   _chart_write_d_lbls(self, series);
-///
-///   /* Write the c:trendline element. */
-///   _chart_write_trendline(self, series);
-///
-///   /* Write the c:errBars element. */
-///   _chart_write_error_bars(self, series);
-///
-///   /* Write the c:xVal element. */
-///   _chart_write_x_val(self, series);
-///
-///   /* Write the yVal element. */
-///   _chart_write_y_val(self, series);
-///
-///   /* Write the c:smooth element. */
-///   _chart_write_smooth(self, series->smooth);
-///
-///   lxw_xml_end_tag(self->file, "c:ser");
-/// }
+std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
+{
+  uint16_t index = chart.series_index_++;
+
+  std::string xml_data = xml_start_tag("c:ser");
+  xml_data += write_idx(index);
+  xml_data += write_order(index);
+  xml_data += write_series_name(series);
+  xml_data += write_sp_pr(series.line_, series.fill_, series.pattern_);
+  xml_data += write_marker(chart, series.marker_);
+  xml_data += write_points(chart, series);
+  xml_data += write_d_lbls(series);
+  xml_data += write_trendline(series);
+  xml_data += write_error_bars(series);
+  xml_data += write_x_val(series);
+  xml_data += write_y_val(series);
+  xml_data += write_smooth(series.smooth_);
+  xml_data += xml_end_tag("c:ser");
+
+  return xml_data;
+}
 
 std::string chart_t::write_orientation(bool reverse)
 {
@@ -2691,119 +2638,89 @@ std::string chart_t::write_label_align(const chart_axis_t& axis)
 ///   LXW_FREE_ATTRIBUTES();
 /// }
 
-/*
- * Write the <c:majorUnit> element.
- */
-/// STATIC void _chart_write_major_unit(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->has_major_unit)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_DBL("val", axis->major_unit);
-///
-///   lxw_xml_empty_tag(self->file, "c:majorUnit", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_major_unit(const chart_axis_t& axis)
+{
+  if(!axis.has_major_unit_)
+  {
+    return "";
+  }
 
-/*
- * Write the <c:minorUnit> element.
- */
-/// STATIC void _chart_write_minor_unit(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->has_minor_unit)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_DBL("val", axis->minor_unit);
-///
-///   lxw_xml_empty_tag(self->file, "c:minorUnit", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("c:majorUnit", {{"val", std::format("{}", axis.major_unit_)}});
+}
 
-/*
- * Write the <c:dispUnits> element.
- */
-/// STATIC void _chart_write_disp_units(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->display_units)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   lxw_xml_start_tag(self->file, "c:dispUnits", NULL);
-///
-///   if(axis->display_units == LXW_CHART_AXIS_UNITS_HUNDREDS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "hundreds");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_THOUSANDS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "thousands");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_TEN_THOUSANDS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "tenThousands");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_HUNDRED_THOUSANDS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "hundredThousands");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_MILLIONS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "millions");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_TEN_MILLIONS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "tenMillions");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_HUNDRED_MILLIONS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "hundredMillions");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_BILLIONS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "billions");
-///   }
-///   else if(axis->display_units == LXW_CHART_AXIS_UNITS_TRILLIONS)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "trillions");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "hundreds");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:builtInUnit", &attributes);
-///
-///   if(axis->display_units_visible)
-///   {
-///     lxw_xml_start_tag(self->file, "c:dispUnitsLbl", NULL);
-///     lxw_xml_empty_tag(self->file, "c:layout", NULL);
-///     lxw_xml_end_tag(self->file, "c:dispUnitsLbl");
-///   }
-///
-///   lxw_xml_end_tag(self->file, "c:dispUnits");
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_minor_unit(const chart_axis_t& axis)
+{
+  if(!axis.has_minor_unit_)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:minorUnit", {{"val", std::format("{}", axis.minor_unit_)}});
+}
+
+std::string chart_t::write_disp_units(const chart_axis_t& axis)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(axis.display_units_ == chart_axis_display_unit_t::NONE)
+  {
+    return "";
+ }
+
+  std::string xml_data = xml_start_tag("c:dispUnits");
+  if(axis.display_units_ == chart_axis_display_unit_t::HUNDREDS)
+  {
+    attributes.emplace_back("val", "hundreds");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::THOUSANDS)
+  {
+    attributes.emplace_back("val", "thousands");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::TEN_THOUSANDS)
+  {
+    attributes.emplace_back("val", "tenThousands");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::HUNDRED_THOUSANDS)
+  {
+    attributes.emplace_back("val", "hundredThousands");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::MILLIONS)
+  {
+    attributes.emplace_back("val", "millions");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::TEN_MILLIONS)
+  {
+    attributes.emplace_back("val", "tenMillions");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::HUNDRED_MILLIONS)
+  {
+    attributes.emplace_back("val", "hundredMillions");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::BILLIONS)
+  {
+    attributes.emplace_back("val", "billions");
+  }
+  else if(axis.display_units_ == chart_axis_display_unit_t::TRILLIONS)
+  {
+    attributes.emplace_back("val", "trillions");
+  }
+  else
+  {
+    attributes.emplace_back("val", "hundreds");
+  }
+  xml_data += xml_empty_tag("c:builtInUnit", attributes);
+
+  if(axis.display_units_visible_)
+  {
+    xml_data += xml_start_tag("c:dispUnitsLbl");
+    xml_data += xml_empty_tag("c:layout");
+    xml_data += xml_end_tag("c:dispUnitsLbl");
+  }
+
+  xml_data += xml_end_tag("c:dispUnits");
+
+ return xml_data;
+}
 
 std::string chart_t::write_label_offset()
 {
@@ -2833,30 +2750,26 @@ std::string chart_t::write_major_gridlines(const chart_axis_t& axis)
   }
 }
 
-/*
- * Write the <c:minorGridlines> element.
- */
-/// STATIC void _chart_write_minor_gridlines(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   if(!axis->minor_gridlines.visible)
-///   {
-///     return;
-///   }
-///
-///   if(axis->minor_gridlines.line)
-///   {
-///     lxw_xml_start_tag(self->file, "c:minorGridlines", NULL);
-///
-///     /* Write the c:spPr element for the axis line. */
-///     _chart_write_sp_pr(self, axis->minor_gridlines.line, NULL, NULL);
-///
-///     lxw_xml_end_tag(self->file, "c:minorGridlines");
-///   }
-///   else
-///   {
-///     lxw_xml_empty_tag(self->file, "c:minorGridlines", NULL);
-///   }
-/// }
+std::string chart_t::write_minor_gridlines(const chart_axis_t& axis)
+{
+  if(!axis.minor_gridlines_.visible_)
+  {
+    return "";
+  }
+
+  if(axis.minor_gridlines_.line_)
+  {
+    std::string xml_data = xml_start_tag("c:minorGridlines");
+    xml_data += write_sp_pr(axis.minor_gridlines_.line_, std::nullopt, std::nullopt);
+    xml_data += xml_end_tag("c:minorGridlines");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("c:minorGridlines");
+  }
+}
 
 /*
  * Write the <c:numberFormat> element. Note: It is assumed that if a user
@@ -3345,14 +3258,14 @@ std::string chart_t::write_cat_axis(chart_t& chart)
   }
   xml_data += write_axis_pos(chart.x_axis_.axis_position_, chart.y_axis_.reverse_);
   xml_data += write_major_gridlines(chart.x_axis_);
-  ///   xml_data += _chart_write_minor_gridlines(self, self->x_axis);
+  xml_data += write_minor_gridlines(chart.x_axis_);
   chart.x_axis_.title_.is_horizontal_ = chart.has_horiz_cat_axis_;
   xml_data += write_title(chart.x_axis_.title_);
   xml_data += write_cat_number_format(chart, chart.x_axis_);
   xml_data += write_major_tick_mark(chart.x_axis_);
   xml_data += write_minor_tick_mark(chart.x_axis_);
   xml_data += write_tick_label_pos(chart.x_axis_);
-  ///   xml_data += _chart_write_sp_pr(self, self->x_axis->line, self->x_axis->fill, self->x_axis->pattern);
+  xml_data += write_sp_pr(chart.x_axis_.line_, chart.x_axis_.fill_, chart.x_axis_.pattern_);
   xml_data += write_axis_font(chart.x_axis_.num_font_);
   xml_data += write_cross_axis(chart.axis_id_2_);
   if(!chart.y_axis_.has_crossing_ || chart.y_axis_.crossing_min_ != 0 || chart.y_axis_.crossing_max_ != 0)
@@ -3385,14 +3298,14 @@ std::string chart_t::write_val_axis(chart_t& chart)
   }
   xml_data += write_axis_pos(chart.y_axis_.axis_position_, chart.x_axis_.reverse_);
   xml_data += write_major_gridlines(chart.y_axis_);
-  ///   xml_data += _chart_write_minor_gridlines(self, self->y_axis);
+  xml_data += write_minor_gridlines(chart.y_axis_);
   chart.y_axis_.title_.is_horizontal_ = chart.has_horiz_val_axis_;
   xml_data += write_title(chart.y_axis_.title_);
   xml_data += write_number_format(chart.y_axis_);
   xml_data += write_major_tick_mark(chart.y_axis_);
   xml_data += write_minor_tick_mark(chart.y_axis_);
   xml_data += write_tick_label_pos(chart.y_axis_);
-  ///   xml_data += _chart_write_sp_pr(self, self->y_axis->line, self->y_axis->fill, self->y_axis->pattern);
+  xml_data += write_sp_pr(chart.y_axis_.line_, chart.y_axis_.fill_, chart.y_axis_.pattern_);
   xml_data += write_axis_font(chart.y_axis_.num_font_);
   xml_data += write_cross_axis(chart.axis_id_1_);
   if(!chart.x_axis_.has_crossing_ || chart.x_axis_.crossing_min_ != 0 || chart.x_axis_.crossing_max_ != 0)
@@ -3404,91 +3317,56 @@ std::string chart_t::write_val_axis(chart_t& chart)
     xml_data += write_crosses_at(chart.x_axis_);
   }
   xml_data += write_cross_between(chart, chart.x_axis_.position_axis_);
-  ///   xml_data += _chart_write_major_unit(self, self->y_axis);
-  ///   xml_data += _chart_write_minor_unit(self, self->y_axis);
-  ///   xml_data += _chart_write_disp_units(self, self->y_axis);
+  xml_data += write_major_unit(chart.y_axis_);
+  xml_data += write_minor_unit(chart.y_axis_);
+  xml_data += write_disp_units(chart.y_axis_);
   xml_data += xml_end_tag("c:valAx");
 
   return xml_data;
 }
 
-/*
- * Write the <c:valAx> element. This is for the second valAx in scatter plots.
- */
-/// STATIC void _chart_write_cat_val_axis(lxw_chart* self)
-/// {
-///   lxw_xml_start_tag(self->file, "c:valAx", NULL);
-///
-///   _chart_write_axis_id(self, self->axis_id_1);
-///
-///   /* Write the c:scaling element. */
-///   _chart_write_scaling(self, self->x_axis->reverse, self->x_axis->has_min, self->x_axis->min, self->x_axis->has_max,
-///                        self->x_axis->max, self->x_axis->log_base);
-///
-///   /* Write the c:delete element to hide axis. */
-///   if(self->x_axis->hidden)
-///   {
-///     _chart_write_delete(self);
-///   }
-///
-///   /* Write the c:axPos element. */
-///   _chart_write_axis_pos(self, self->x_axis->axis_position, self->y_axis->reverse);
-///
-///   /* Write the c:majorGridlines element. */
-///   _chart_write_major_gridlines(self, self->x_axis);
-///
-///   /* Write the c:minorGridlines element. */
-///   _chart_write_minor_gridlines(self, self->x_axis);
-///
-///   /* Write the axis title elements. */
-///   self->x_axis->title.is_horizontal = self->has_horiz_val_axis;
-///   _chart_write_title(self, &self->x_axis->title);
-///
-///   /* Write the c:numFmt element. */
-///   _chart_write_number_format(self, self->x_axis);
-///
-///   /* Write the c:majorTickMark element. */
-///   _chart_write_major_tick_mark(self, self->x_axis);
-///
-///   /* Write the c:minorTickMark element. */
-///   _chart_write_minor_tick_mark(self, self->x_axis);
-///
-///   /* Write the c:tickLblPos element. */
-///   _chart_write_tick_label_pos(self, self->x_axis);
-///
-///   /* Write the c:spPr element for the axis line. */
-///   _chart_write_sp_pr(self, self->x_axis->line, self->x_axis->fill, self->x_axis->pattern);
-///
-///   /* Write the axis font elements. */
-///   _chart_write_axis_font(self, self->x_axis->num_font);
-///
-///   /* Write the c:crossAx element. */
-///   _chart_write_cross_axis(self, self->axis_id_2);
-///
-///   /* Write the c:crosses element. */
-///   if(!self->y_axis->has_crossing || self->y_axis->crossing_min || self->y_axis->crossing_max)
-///   {
-///     _chart_write_crosses(self, self->y_axis);
-///   }
-///   else
-///   {
-///     _chart_write_crosses_at(self, self->y_axis);
-///   }
-///
-///   /* Write the c:crossBetween element. */
-///   _chart_write_cross_between(self, self->y_axis->position_axis);
-///
-///   /* Write the c:majorUnit element. */
-///   _chart_write_major_unit(self, self->x_axis);
-///
-///   /* Write the c:minorUnit element. */
-///   _chart_write_minor_unit(self, self->x_axis);
-///
-///   /* Write the c:dispUnits element. */
-///   _chart_write_disp_units(self, self->x_axis);
-///
-///   lxw_xml_end_tag(self->file, "c:valAx");
-/// }
+std::string chart_t::write_cat_val_axis(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:valAx");
+  xml_data += write_axis_id(chart.axis_id_1_);
+  xml_data += write_scaling(chart.x_axis_.reverse_, chart.x_axis_.has_min_, chart.x_axis_.min_, chart.x_axis_.has_max_,
+                        chart.x_axis_.max_, chart.x_axis_.log_base_);
+
+  if(chart.x_axis_.hidden_)
+  {
+    xml_data += write_delete();
+  }
+
+  xml_data += write_axis_pos(chart.x_axis_.axis_position_, chart.y_axis_.reverse_);
+  xml_data += write_major_gridlines(chart.x_axis_);
+  xml_data += write_minor_gridlines(chart.x_axis_);
+  chart.x_axis_.title_.is_horizontal_ = chart.has_horiz_val_axis_;
+  xml_data += write_title(chart.x_axis_.title_);
+  xml_data += write_number_format(chart.x_axis_);
+  xml_data += write_major_tick_mark(chart.x_axis_);
+  xml_data += write_minor_tick_mark(chart.x_axis_);
+  xml_data += write_tick_label_pos(chart.x_axis_);
+  xml_data += write_sp_pr(chart.x_axis_.line_, chart.x_axis_.fill_, chart.x_axis_.pattern_);
+  xml_data += write_axis_font(chart.x_axis_.num_font_);
+  xml_data += write_cross_axis(chart.axis_id_2_);
+
+  if(!chart.y_axis_.has_crossing_ || chart.y_axis_.crossing_min_ || chart.y_axis_.crossing_max_)
+  {
+    xml_data += write_crosses(chart.y_axis_);
+  }
+  else
+  {
+    xml_data += write_crosses_at(chart.y_axis_);
+  }
+
+  xml_data += write_cross_between(chart, chart.y_axis_.position_axis_);
+  xml_data += write_major_unit(chart.x_axis_);
+  xml_data += write_minor_unit(chart.x_axis_);
+  xml_data += write_disp_units(chart.x_axis_);
+  xml_data += xml_end_tag("c:valAx");
+
+  return xml_data;
+}
 
 std::string chart_t::write_bar_dir(const std::string& type)
 {
@@ -3593,38 +3471,26 @@ std::string chart_t::write_pie_chart(chart_t& chart)
   return xml_data;
 }
 
-/*
- * Write a scatter chart.
- */
-/// STATIC void _chart_write_scatter_chart(lxw_chart* self)
-/// {
-///   lxw_chart_series* series;
-///
-///   lxw_xml_start_tag(self->file, "c:scatterChart", NULL);
-///
-///   /* Write the c:scatterStyle element. */
-///   _chart_write_scatter_style(self);
-///
-///   STAILQ_FOREACH(series, self->series_list, list_pointers)
-///   {
-///
-///     /* Add default scatter chart formatting to the series data unless
-///      * it has already been specified by the user.*/
-///     if(self->type == LXW_CHART_SCATTER && !series->line)
-///     {
-///       lxw_chart_line line = {0x000000, LXW_TRUE, 2.25, LXW_CHART_LINE_DASH_SOLID, 0};
-///       series->line        = _chart_convert_line_args(&line);
-///     }
-///
-///     /* Write the c:ser element. */
-///     _chart_write_xval_ser(self, series);
-///   }
-///
-///   /* Write the c:axId elements. */
-///   _chart_write_axis_ids(self);
-///
-///   lxw_xml_end_tag(self->file, "c:scatterChart");
-/// }
+std::string chart_t::write_scatter_chart(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:scatterChart");
+  xml_data += write_scatter_style(chart);
+  for(auto& series: chart.series_list_)
+  {
+    // Add default scatter chart formatting to the series data unless
+    // it has already been specified by the user
+    if(chart.type_ == chart_type_t::SCATTER && !series.line_)
+    {
+      chart_line_t line = {static_cast<color_t>(0x000000), true, 2.25, chart_line_dash_type_t::DASH_SOLID, 0};
+      series.line_        = convert_line_args(line);
+    }
+  xml_data += write_xval_ser(chart, series);
+  }
+  xml_data += write_axis_ids(chart);
+  xml_data += xml_end_tag("c:scatterChart");
+
+  return xml_data;
+}
 
 std::string chart_t::write_radar_chart(chart_t& chart)
 {
@@ -3640,51 +3506,39 @@ std::string chart_t::write_radar_chart(chart_t& chart)
   return xml_data;
 }
 
-/*
- * Reverse the opposite axis position if crossing position is "max".
- */
-/// STATIC void _chart_adjust_max_crossing(lxw_chart* self)
-/// {
-///   if(self->x_axis->crossing_max)
-///   {
-///     self->y_axis->axis_position ^= 1;
-///   }
-///
-///   if(self->y_axis->crossing_max)
-///   {
-///     self->x_axis->axis_position ^= 1;
-///   }
-/// }
+void chart_t::adjust_max_crossing(chart_t& chart)
+{
+  if(chart.x_axis_.crossing_max_)
+   {
+      if(chart.y_axis_.axis_position_ == chart_position_t::RIGHT) chart.y_axis_.axis_position_ = chart_position_t::LEFT;
+      if(chart.y_axis_.axis_position_ == chart_position_t::LEFT) chart.y_axis_.axis_position_ = chart_position_t::RIGHT;
+      if(chart.y_axis_.axis_position_ == chart_position_t::TOP) chart.y_axis_.axis_position_ = chart_position_t::BOTTOM;
+      if(chart.y_axis_.axis_position_ == chart_position_t::BOTTOM) chart.y_axis_.axis_position_ = chart_position_t::TOP;
+   }
 
-/*
- * Write the <c:plotArea> element.
- */
-/// STATIC void _chart_write_scatter_plot_area(lxw_chart* self)
-/// {
-///   lxw_xml_start_tag(self->file, "c:plotArea", NULL);
-///
-///   /* Write the c:layout element. */
-///   _chart_write_layout(self, self->plotarea_layout);
-///
-///   /* Write subclass chart type elements for primary and secondary axes. */
-///   self->write_chart_type(self);
-///
-///   /* Reverse the opposite axis position if crossing position is "max". */
-///   _chart_adjust_max_crossing(self);
-///
-///   /* Write the c:catAx element. */
-///   _chart_write_cat_val_axis(self);
-///
-///   self->has_horiz_val_axis = LXW_TRUE;
-///
-///   /* Write the c:valAx element. */
-///   _chart_write_val_axis(self);
-///
-///   /* Write the c:spPr element for the plotarea formatting. */
-///   _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
-///
-///   lxw_xml_end_tag(self->file, "c:plotArea");
-/// }
+   if(chart.y_axis_.crossing_max_)
+   {
+      if(chart.x_axis_.axis_position_ == chart_position_t::RIGHT) chart.x_axis_.axis_position_ = chart_position_t::LEFT;
+      if(chart.x_axis_.axis_position_ == chart_position_t::LEFT) chart.x_axis_.axis_position_ = chart_position_t::RIGHT;
+      if(chart.x_axis_.axis_position_ == chart_position_t::TOP) chart.x_axis_.axis_position_ = chart_position_t::BOTTOM;
+      if(chart.x_axis_.axis_position_ == chart_position_t::BOTTOM) chart.x_axis_.axis_position_ = chart_position_t::TOP;
+   }
+ }
+
+std::string chart_t::write_scatter_plot_area(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:plotArea");
+  xml_data += write_layout(chart.plotarea_layout_);
+  xml_data += chart.write_chart_type_(chart);
+  adjust_max_crossing(chart);
+  xml_data += write_cat_val_axis(chart);
+  chart.has_horiz_val_axis_ = true;
+  xml_data += write_val_axis(chart);
+  xml_data += write_sp_pr(chart.plotarea_line_, chart.plotarea_fill_, chart.plotarea_pattern_);
+  xml_data += xml_end_tag("c:plotArea");
+
+  return xml_data;
+}
 
 std::string chart_t::write_pie_plot_area(chart_t& chart)
 {
@@ -3702,7 +3556,7 @@ std::string chart_t::write_plot_area(chart_t& chart)
   std::string xml_data = xml_start_tag("c:plotArea");
   xml_data += write_layout(chart.plotarea_layout_);
   xml_data += chart.write_chart_type_(chart);
-  ///   xml_data += _chart_adjust_max_crossing(self);
+  adjust_max_crossing(chart);
   xml_data += write_cat_axis(chart);
   xml_data += write_val_axis(chart);
   xml_data += write_d_table(chart);
@@ -3861,28 +3715,24 @@ void chart_t::initialize_pie_chart()
   default_label_position_ = chart_label_position_t::BEST_FIT;
 }
 
-/*
- * Initialize a scatter chart.
- */
-/// STATIC void _chart_initialize_scatter_chart(lxw_chart* self)
-/// {
-///   self->chart_group            = LXW_CHART_SCATTER;
-///   self->has_horiz_val_axis     = LXW_FALSE;
-///   self->default_cross_between  = LXW_CHART_AXIS_POSITION_ON_TICK;
-///   self->x_axis->is_value       = LXW_TRUE;
-///   self->y_axis->is_value       = LXW_TRUE;
-///   self->default_label_position = LXW_CHART_LABEL_POSITION_RIGHT;
-///
-///   if(self->type == LXW_CHART_SCATTER_STRAIGHT || self->type == LXW_CHART_SCATTER_SMOOTH)
-///   {
-///
-///     _chart_set_default_marker_type(self, LXW_CHART_MARKER_NONE);
-///   }
-///
-///   /* Initialize the function pointers for this chart type. */
-///   self->write_chart_type = _chart_write_scatter_chart;
-///   self->write_plot_area  = _chart_write_scatter_plot_area;
-/// }
+void chart_t::initialize_scatter_chart(chart_type_t type)
+{
+  chart_group_            = chart_type_t::SCATTER;
+  has_horiz_val_axis_     = false;
+  default_cross_between_  = chart_axis_tick_position_t::ON_TICK;
+  x_axis_.is_value_       = true;
+  y_axis_.is_value_       = true;
+  default_label_position_ = chart_label_position_t::RIGHT;
+
+  if(type == chart_type_t::SCATTER_STRAIGHT || type == chart_type_t::SCATTER_SMOOTH)
+  {
+    default_marker_         = chart_marker_t{.type_ = chart_marker_type_t::NONE};
+  }
+
+  // Initialize the function pointers for this chart type.
+  write_chart_type_ = write_scatter_chart;
+  write_plot_area_  = write_scatter_plot_area;
+}
 
 void chart_t::initialize_radar_chart(chart_type_t type)
 {
@@ -3939,13 +3789,13 @@ void chart_t::initialize(chart_type_t type)
       initialize_pie_chart();
       break;
 
-      ///     case chart_type_t::SCATTER:
-      ///     case chart_type_t::SCATTER_STRAIGHT:
-      ///     case chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS:
-      ///     case chart_type_t::SCATTER_SMOOTH:
-      ///     case chart_type_t::SCATTER_SMOOTH_WITH_MARKERS:
-      ///       _chart_initialize_scatter_chart(self);
-      ///       break;
+    case chart_type_t::SCATTER:
+    case chart_type_t::SCATTER_STRAIGHT:
+    case chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS:
+    case chart_type_t::SCATTER_SMOOTH:
+    case chart_type_t::SCATTER_SMOOTH_WITH_MARKERS:
+      initialize_scatter_chart(type);
+      break;
 
     case chart_type_t::RADAR:
     case chart_type_t::RADAR_WITH_MARKERS:
@@ -3976,7 +3826,7 @@ std::string chart_t::assemble_xml_file()
     xml_data += write_protection();
   }
   xml_data += write_chart();
-  ///  xml_data +=  _chart_write_sp_pr(self->chartarea_line, self->chartarea_fill, self->chartarea_pattern);
+  xml_data += write_sp_pr(chartarea_line_, chartarea_fill_, chartarea_pattern_);
   if(!is_chartsheet_)
   {
     xml_data += write_print_settings();
