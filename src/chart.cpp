@@ -61,6 +61,7 @@ chart_font_t convert_font_args(const chart_font_t& user_font, bool title_font = 
   return font;
 }
 
+// TODO For this function and all similar ones, pass std::optional and check presence in the function
 chart_line_t convert_line_args(const chart_line_t& user_line)
 {
   chart_line_t line;
@@ -423,53 +424,26 @@ std::string chart_t::write_grouping(chart_grouping_t grouping)
 ///   LXW_FREE_ATTRIBUTES();
 /// }
 
-/*
- * Write the <c:varyColors> element.
- */
-/// STATIC void _chart_write_vary_colors(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "1");
-///
-///   lxw_xml_empty_tag(self->file, "c:varyColors", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_vary_colors()
+{
+  return xml_empty_tag("c:varyColors", {
+                                           {"val", "1"}
+  });
+}
 
-/*
- * Write the <c:firstSliceAng> element.
- */
-/// STATIC void _chart_write_first_slice_ang(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_INT("val", self->rotation);
-///
-///   lxw_xml_empty_tag(self->file, "c:firstSliceAng", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_first_slice_ang(const chart_t& chart)
+{
+  return xml_empty_tag("c:firstSliceAng", {
+                                              {"val", std::to_string(chart.rotation_)}
+  });
+}
 
-/*
- * Write the <c:holeSize> element.
- */
-/// STATIC void _chart_write_hole_size(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_INT("val", self->hole_size);
-///
-///   lxw_xml_empty_tag(self->file, "c:holeSize", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_hole_size(const chart_t& chart)
+{
+  return xml_empty_tag("c:holeSize", {
+                                         {"val", std::to_string(chart.hole_size_)}
+  });
+}
 
 std::string chart_t::write_a_alpha(uint8_t transparency)
 {
@@ -707,26 +681,16 @@ std::string chart_t::write_a_p_pr_formula(const std::optional<chart_font_t>& fon
   return xml_data;
 }
 
-/*
- * Write the <a:pPr> element for pie chart legends.
- */
-/// STATIC void _chart_write_a_p_pr_pie(lxw_chart* self, lxw_chart_font* font)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("rtl", "0");
-///
-///   lxw_xml_start_tag(self->file, "a:pPr", &attributes);
-///
-///   /* Write the a:defRPr element. */
-///   _chart_write_a_def_rpr(self, font);
-///
-///   lxw_xml_end_tag(self->file, "a:pPr");
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_a_p_pr_pie(const std::optional<chart_font_t>& font) const
+{
+  std::string xml_data = xml_start_tag("a:pPr", {
+                                                    {"rtl", "0"}
+  });
+  xml_data += write_a_def_rpr(font);
+  xml_data += xml_end_tag("a:pPr");
+
+  return xml_data;
+}
 
 std::string chart_t::write_a_p_pr_rich(const std::optional<chart_font_t>& font)
 {
@@ -747,21 +711,15 @@ std::string chart_t::write_a_p_formula(const std::optional<chart_font_t>& font)
   return xml_data;
 }
 
-/*
- * Write the <a:p> element for pie chart legends.
- */
-/// STATIC void _chart_write_a_p_pie(lxw_chart* self, lxw_chart_font* font)
-/// {
-///   lxw_xml_start_tag(self->file, "a:p", NULL);
-///
-///   /* Write the a:pPr element. */
-///   _chart_write_a_p_pr_pie(self, font);
-///
-///   /* Write the a:endParaRPr element. */
-///   _chart_write_a_end_para_rpr(self);
-///
-///   lxw_xml_end_tag(self->file, "a:p");
-/// }
+std::string chart_t::write_a_p_pie(const std::optional<chart_font_t>& font) const
+{
+  std::string xml_data = xml_start_tag("a:p");
+  xml_data += write_a_p_pr_pie(font);
+  xml_data += write_a_end_para_rpr();
+  xml_data += xml_end_tag("a:p");
+
+  return xml_data;
+}
 
 std::string chart_t::write_a_p_rich(const std::string& name, const std::optional<chart_font_t>& font,
                                     bool ignore_rich_pr)
@@ -991,31 +949,23 @@ std::string chart_t::write_tx_pr(bool is_horizontal, const std::optional<chart_f
   return xml_data;
 }
 
-/*
- * Write the <c:txPr> element for pie chart legends.
- */
-/// STATIC void _chart_write_tx_pr_pie(lxw_chart* self, uint8_t is_horizontal, lxw_chart_font* font)
-/// {
-///   int32_t rotation = 0;
-///
-///   if(font)
-///   {
-///     rotation = font->rotation;
-///   }
-///
-///   lxw_xml_start_tag(self->file, "c:txPr", NULL);
-///
-///   /* Write the a:bodyPr element. */
-///   _chart_write_a_body_pr(self, rotation, is_horizontal);
-///
-///   /* Write the a:lstStyle element. */
-///   _chart_write_a_lst_style(self);
-///
-///   /* Write the a:p element. */
-///   _chart_write_a_p_pie(self, font);
-///
-///   lxw_xml_end_tag(self->file, "c:txPr");
-/// }
+std::string chart_t::write_tx_pr_pie(bool is_horizontal, const std::optional<chart_font_t>& font) const
+{
+  int32_t rotation = 0;
+
+  if(font)
+  {
+    rotation = font->rotation_;
+  }
+
+  std::string xml_data = xml_start_tag("c:txPr");
+  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_lst_style();
+  xml_data += write_a_p_pie(font);
+  xml_data += xml_end_tag("c:txPr");
+
+  return xml_data;
+}
 
 std::string chart_t::write_axis_font(const std::optional<chart_font_t>& font)
 {
@@ -1607,7 +1557,7 @@ std::string chart_t::write_series_name(const chart_series_t& series)
 
 std::string chart_t::write_symbol(chart_marker_type_t type)
 {
-std::vector< std::tuple<std::string, std::string>> attributes;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
   if(type == chart_marker_type_t::SQUARE)
   {
@@ -1699,7 +1649,9 @@ std::string chart_t::write_invert_if_negative(const chart_series_t& series)
     return "";
   }
 
-  return xml_empty_tag("c:invertIfNegative", {{"val", "1"}});
+  return xml_empty_tag("c:invertIfNegative", {
+                                                 {"val", "1"}
+  });
 }
 
 std::string chart_t::write_show_val()
@@ -2015,12 +1967,16 @@ std::string chart_t::write_d_lbls(const chart_series_t& series)
 
 std::string chart_t::write_intercept(double value)
 {
-  return xml_empty_tag("c:intercept", {{"val", std::format("{}", value)}});
+  return xml_empty_tag("c:intercept", {
+                                          {"val", std::format("{}", value)}
+  });
 }
 
 std::string chart_t::write_disp_rsqr()
 {
-  return xml_empty_tag("c:dispRSqr", {{"val", "1"}});
+  return xml_empty_tag("c:dispRSqr", {
+                                         {"val", "1"}
+  });
 }
 
 std::string chart_t::write_trendline_lbl()
@@ -2028,8 +1984,8 @@ std::string chart_t::write_trendline_lbl()
   std::string xml_data = xml_start_tag("c:trendlineLbl");
   xml_data += xml_empty_tag("c:layout");
   xml_data += xml_empty_tag("c:numFmt", {
-    {"formatCode", "General"},
-    {"sourceLinked", "0"},
+                                            {"formatCode",   "General"},
+                                            {"sourceLinked", "0"      },
   });
   xml_data += xml_end_tag("c:trendlineLbl");
 
@@ -2038,22 +1994,30 @@ std::string chart_t::write_trendline_lbl()
 
 std::string chart_t::write_disp_eq()
 {
-  return xml_empty_tag("c:dispEq", {{"val", "1"}});
+  return xml_empty_tag("c:dispEq", {
+                                       {"val", "1"}
+  });
 }
 
 std::string chart_t::write_period(uint8_t value)
 {
-  return xml_empty_tag("c:period", {{"val", std::to_string(value)}});
+  return xml_empty_tag("c:period", {
+                                       {"val", std::to_string(value)}
+  });
 }
 
 std::string chart_t::write_forward(double value)
 {
-  return xml_empty_tag("c:forward", {{"val", std::format("{}", value)}});
+  return xml_empty_tag("c:forward", {
+                                        {"val", std::format("{}", value)}
+  });
 }
 
 std::string chart_t::write_backward(double value)
 {
-  return xml_empty_tag("c:backward", {{"val", std::format("{}", value)}});
+  return xml_empty_tag("c:backward", {
+                                         {"val", std::format("{}", value)}
+  });
 }
 
 std::string chart_t::write_name(const std::string& name)
@@ -2149,17 +2113,21 @@ std::string chart_t::write_trendline(const chart_series_t& series)
 
 std::string chart_t::write_error_val(double value)
 {
-  return xml_empty_tag("c:val", {{"val", std::format("{}", value)}});
+  return xml_empty_tag("c:val", {
+                                    {"val", std::format("{}", value)}
+  });
 }
 
 std::string chart_t::write_no_end_cap()
 {
-  return xml_empty_tag("c:noEndCap", {{"val", "1"}});
+  return xml_empty_tag("c:noEndCap", {
+                                         {"val", "1"}
+  });
 }
 
 std::string chart_t::write_err_val_type(chart_error_bar_type_t type)
 {
-  std::vector<std::tuple<std::string,std::string>> attributes;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
   if(type == chart_error_bar_type_t::FIXED)
   {
@@ -2183,7 +2151,7 @@ std::string chart_t::write_err_val_type(chart_error_bar_type_t type)
 
 std::string chart_t::write_err_bar_type(chart_error_bar_direction_t direction)
 {
-  std::vector<std::tuple<std::string,std::string>> attributes;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
   if(direction == chart_error_bar_direction_t::PLUS)
   {
@@ -2203,7 +2171,7 @@ std::string chart_t::write_err_bar_type(chart_error_bar_direction_t direction)
 
 std::string chart_t::write_err_dir(bool is_x)
 {
-  std::vector<std::tuple<std::string,std::string>> attributes;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
   if(is_x)
   {
@@ -2259,7 +2227,9 @@ std::string chart_t::write_error_bars(const chart_series_t& series)
 
 std::string chart_t::write_marker_size(uint8_t size)
 {
-  return xml_empty_tag("c:size", {{"val", std::to_string(size)}});
+  return xml_empty_tag("c:size", {
+                                     {"val", std::to_string(size)}
+  });
 }
 
 std::string chart_t::write_marker(chart_t& chart, std::optional<chart_marker_t>& marker)
@@ -2276,7 +2246,7 @@ std::string chart_t::write_marker(chart_t& chart, std::optional<chart_marker_t>&
     return "";
   }
 
-  if(marker->type_  == chart_marker_type_t::AUTOMATIC)
+  if(marker->type_ == chart_marker_type_t::AUTOMATIC)
   {
     return "";
   }
@@ -2295,7 +2265,9 @@ std::string chart_t::write_marker(chart_t& chart, std::optional<chart_marker_t>&
 
 std::string chart_t::write_marker_value(const chart_t& chart)
 {
-  return xml_empty_tag("c:marker", {{"val", "1"}});
+  return xml_empty_tag("c:marker", {
+                                       {"val", "1"}
+  });
 }
 
 /*
@@ -3052,26 +3024,25 @@ std::string chart_t::write_legend()
 
   xml_data += write_layout(legend_.layout_);
 
-  ///   if(self->chart_group == LXW_CHART_PIE || self->chart_group == LXW_CHART_DOUGHNUT)
-  ///   {
-  ///     if(has_overlay)
-  ///     {
-  ///       xml_data += _chart_write_overlay(self);
-  ///     }
-  ///
-  ///     xml_data += _chart_write_tx_pr_pie(self, LXW_FALSE, self->legend.font);
-  ///   }
-  ///   else
-  ///   {
-  if(legend_.font_)
+  if(chart_group_ == chart_type_t::PIE || chart_group_ == chart_type_t::DOUGHNUT)
   {
-    xml_data += write_tx_pr(false, legend_.font_);
+    if(has_overlay)
+    {
+      xml_data += write_overlay();
+    }
+    xml_data += write_tx_pr_pie(false, legend_.font_);
   }
-  if(has_overlay)
+  else
   {
-    xml_data += write_overlay();
+    if(legend_.font_)
+    {
+      xml_data += write_tx_pr(false, legend_.font_);
+    }
+    if(has_overlay)
+    {
+      xml_data += write_overlay();
+    }
   }
-  ///   }
 
   xml_data += xml_end_tag("c:legend");
 
@@ -3183,7 +3154,9 @@ std::string chart_t::write_show_horz_border(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showHorzBorder", {{"val", "1"}});
+  return xml_empty_tag("c:showHorzBorder", {
+                                               {"val", "1"}
+  });
 }
 
 std::string chart_t::write_show_vert_border(bool value)
@@ -3193,7 +3166,9 @@ std::string chart_t::write_show_vert_border(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showVertBorder", {{"val", "1"}});
+  return xml_empty_tag("c:showVertBorder", {
+                                               {"val", "1"}
+  });
 }
 
 std::string chart_t::write_show_outline(bool value)
@@ -3203,7 +3178,9 @@ std::string chart_t::write_show_outline(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showOutline", {{"val", "1"}});
+  return xml_empty_tag("c:showOutline", {
+                                            {"val", "1"}
+  });
 }
 
 std::string chart_t::write_show_keys(bool value)
@@ -3213,7 +3190,9 @@ std::string chart_t::write_show_keys(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showKeys", {{"val", "1"}});
+  return xml_empty_tag("c:showKeys", {
+                                         {"val", "1"}
+  });
 }
 
 std::string chart_t::write_d_table(const chart_t& chart)
@@ -3567,32 +3546,20 @@ std::string chart_t::write_column_chart(chart_t& chart)
   return xml_data;
 }
 
-/*
- * Write a doughnut chart.
- */
-/// STATIC void _chart_write_doughnut_chart(lxw_chart* self)
-/// {
-///   lxw_chart_series* series;
-///
-///   lxw_xml_start_tag(self->file, "c:doughnutChart", NULL);
-///
-///   /* Write the c:varyColors element. */
-///   _chart_write_vary_colors(self);
-///
-///   STAILQ_FOREACH(series, self->series_list, list_pointers)
-///   {
-///     /* Write the c:ser element. */
-///     _chart_write_ser(self, series);
-///   }
-///
-///   /* Write the c:firstSliceAng element. */
-///   _chart_write_first_slice_ang(self);
-///
-///   /* Write the c:holeSize element. */
-///   _chart_write_hole_size(self);
-///
-///   lxw_xml_end_tag(self->file, "c:doughnutChart");
-/// }
+std::string chart_t::write_doughnut_chart(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:doughnutChart");
+  xml_data += write_vary_colors();
+  for(auto& series: chart.series_list_)
+  {
+    xml_data += write_ser(chart, series);
+  }
+  xml_data += write_first_slice_ang(chart);
+  xml_data += write_hole_size(chart);
+  xml_data += xml_end_tag("c:doughnutChart");
+
+  return xml_data;
+}
 
 std::string chart_t::write_line_chart(chart_t& chart)
 {
@@ -3739,28 +3706,19 @@ std::string chart_t::write_line_chart(chart_t& chart)
 ///   lxw_xml_end_tag(self->file, "c:plotArea");
 /// }
 
-/*
- * Write the <c:plotArea> element. Special handling for pie/doughnut.
- */
-/// STATIC void _chart_write_pie_plot_area(lxw_chart* self)
-/// {
-///   lxw_xml_start_tag(self->file, "c:plotArea", NULL);
-///
-///   /* Write the c:layout element. */
-///   _chart_write_layout(self, self->plotarea_layout);
-///
-///   /* Write subclass chart type elements for primary and secondary axes. */
-///   self->write_chart_type(self);
-///
-///   /* Write the c:spPr element for the plotarea formatting. */
-///   _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
-///
-///   lxw_xml_end_tag(self->file, "c:plotArea");
-/// }
+std::string chart_t::write_pie_plot_area(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:plotArea");
+  xml_data += write_layout(chart.plotarea_layout_);
+  xml_data += chart.write_chart_type_(chart);
+  xml_data += write_sp_pr(chart.plotarea_line_, chart.plotarea_fill_, chart.plotarea_pattern_);
+  xml_data += xml_end_tag("c:plotArea");
+
+  return xml_data;
+}
 
 std::string chart_t::write_plot_area(chart_t& chart)
 {
-  // ICI
   std::string xml_data = xml_start_tag("c:plotArea");
   xml_data += write_layout(chart.plotarea_layout_);
   xml_data += chart.write_chart_type_(chart);
@@ -3768,7 +3726,7 @@ std::string chart_t::write_plot_area(chart_t& chart)
   xml_data += write_cat_axis(chart);
   xml_data += write_val_axis(chart);
   xml_data += write_d_table(chart);
-  ///   xml_data += _chart_write_sp_pr(self, self->plotarea_line, self->plotarea_fill, self->plotarea_pattern);
+  xml_data += write_sp_pr(chart.plotarea_line_, chart.plotarea_fill_, chart.plotarea_pattern_);
   xml_data += xml_end_tag("c:plotArea");
 
   return xml_data;
@@ -3880,32 +3838,27 @@ void chart_t::initialize_column_chart(chart_type_t type)
   write_plot_area_  = write_plot_area;
 }
 
-/*
- * Initialize a doughnut chart.
- */
-/// STATIC void _chart_initialize_doughnut_chart(lxw_chart* self)
-/// {
-///   /* Initialize the function pointers for this chart type. */
-///   self->chart_group            = LXW_CHART_DOUGHNUT;
-///   self->write_chart_type       = _chart_write_doughnut_chart;
-///   self->write_plot_area        = _chart_write_pie_plot_area;
-///   self->default_label_position = LXW_CHART_LABEL_POSITION_BEST_FIT;
-/// }
+void chart_t::initialize_doughnut_chart()
+{
+  chart_group_            = chart_type_t::DOUGHNUT;
+  write_chart_type_       = write_doughnut_chart;
+  write_plot_area_        = write_pie_plot_area;
+  default_label_position_ = chart_label_position_t::BEST_FIT;
+}
 
 void chart_t::initialize_line_chart(chart_type_t type)
 {
   chart_group_            = chart_type_t::LINE;
-  default_marker_     = chart_marker_t{.type_ = chart_marker_type_t::NONE};
-  grouping_                   = chart_grouping_t::STANDARD;
+  default_marker_         = chart_marker_t{.type_ = chart_marker_type_t::NONE};
+  grouping_               = chart_grouping_t::STANDARD;
   x_axis_.is_category_    = true;
   y_axis_.is_value_       = true;
   default_label_position_ = chart_label_position_t::RIGHT;
 
-
   if(type == chart_type_t::LINE_STACKED)
   {
-    grouping_    = chart_grouping_t::STACKED;
-    subtype_     = chart_subtype_t::STACKED;
+    grouping_ = chart_grouping_t::STACKED;
+    subtype_  = chart_subtype_t::STACKED;
   }
 
   if(type == chart_type_t::LINE_STACKED_PERCENT)
@@ -3999,15 +3952,15 @@ void chart_t::initialize(chart_type_t type)
       initialize_column_chart(type);
       break;
 
-      ///     case chart_type_t::DOUGHNUT:
-      ///       _chart_initialize_doughnut_chart(self);
-      ///       break;
+    case chart_type_t::DOUGHNUT:
+      initialize_doughnut_chart();
+      break;
 
-      case chart_type_t::LINE:
-      case chart_type_t::LINE_STACKED:
-      case chart_type_t::LINE_STACKED_PERCENT:
-        initialize_line_chart(type);
-        break;
+    case chart_type_t::LINE:
+    case chart_type_t::LINE_STACKED:
+    case chart_type_t::LINE_STACKED_PERCENT:
+      initialize_line_chart(type);
+      break;
 
       ///     case chart_type_t::PIE:
       ///       _chart_initialize_pie_chart(self);
@@ -4350,49 +4303,33 @@ void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t
 ///   series->marker->pattern = _chart_convert_pattern_args(pattern);
 /// }
 
-/*
- * Store the points for a chart.
- */
-/// lxw_error chart_series_set_points(lxw_chart_series* series, lxw_chart_point* points[])
-/// {
-///   uint16_t i           = 0;
-///   uint16_t point_count = 0;
-///
-///   if(points == NULL)
-///   {
-///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///   }
-///
-///   while(points[point_count])
-///   {
-///     point_count++;
-///   }
-///
-///   if(point_count == 0)
-///   {
-///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///   }
-///
-///   /* Free any existing resource. */
-///   _chart_free_points(series);
-///
-///   series->points = calloc(point_count, sizeof(lxw_chart_point));
-///   RETURN_ON_MEM_ERROR(series->points, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///   for(i = 0; i < point_count; i++)
-///   {
-///     lxw_chart_point* src_point = points[i];
-///     lxw_chart_point* dst_point = &series->points[i];
-///
-///     dst_point->line    = _chart_convert_line_args(src_point->line);
-///     dst_point->fill    = _chart_convert_fill_args(src_point->fill);
-///     dst_point->pattern = _chart_convert_pattern_args(src_point->pattern);
-///   }
-///
-///   series->point_count = point_count;
-///
-///   return LXW_NO_ERROR;
-/// }
+void series_set_points(chart_series_t& series, const std::vector<chart_point_t> points)
+{
+  if(points.empty())
+  {
+    throw xwpp_exception_t("No points");
+  }
+
+  for(const auto src_point: points)
+  {
+    chart_point_t dst_point;
+
+    if(src_point.line_)
+    {
+      dst_point.line_ = convert_line_args(*(src_point.line_));
+    }
+    if(src_point.fill_)
+    {
+      dst_point.fill_ = convert_fill_args(*(src_point.fill_));
+    }
+    if(src_point.pattern_)
+    {
+      dst_point.pattern_ = convert_pattern_args(*(src_point.pattern_));
+    }
+
+    series.points_.push_back(dst_point);
+  }
+}
 
 /*
  * Set the smooth property for a line or scatter series.
@@ -4603,8 +4540,8 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
     {
       throw xwpp_exception_t("order/period value must be >= 2 for Polynomial and Moving Average types");
     }
-      series.trendline_value_type_ = type;
-   }
+    series.trendline_value_type_ = type;
+  }
 
   series.has_trendline_   = true;
   series.trendline_type_  = type;
@@ -5547,33 +5484,47 @@ void chart_t::set_up_down_bars()
   has_up_down_bars_ = true;
 }
 
-void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_line, const std::optional<chart_fill_t>& up_bar_fill,
-                             const std::optional<chart_line_t>& down_bar_line, const std::optional<chart_fill_t>& down_bar_fill)
+void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_line,
+                                      const std::optional<chart_fill_t>& up_bar_fill,
+                                      const std::optional<chart_line_t>& down_bar_line,
+                                      const std::optional<chart_fill_t>& down_bar_fill)
 {
   has_up_down_bars_ = true;
 
   if(up_bar_line)
-  up_bar_line_   = convert_line_args(*up_bar_line);
+  {
+    up_bar_line_ = convert_line_args(*up_bar_line);
+  }
   if(up_bar_fill)
-  up_bar_fill_   = convert_fill_args(*up_bar_fill);
+  {
+    up_bar_fill_ = convert_fill_args(*up_bar_fill);
+  }
   if(down_bar_line)
-  down_bar_line_ = convert_line_args(*down_bar_line);
+  {
+    down_bar_line_ = convert_line_args(*down_bar_line);
+  }
   if(down_bar_fill)
-  down_bar_fill_ = convert_fill_args(*down_bar_fill);
+  {
+    down_bar_fill_ = convert_fill_args(*down_bar_fill);
+  }
 }
 
 void chart_t::set_drop_lines(const std::optional<chart_line_t>& line)
 {
   has_drop_lines_ = true;
   if(line)
+  {
     drop_lines_line_ = convert_line_args(*line);
+  }
 }
 
 void chart_t::set_high_low_lines(const std::optional<chart_line_t>& line)
 {
   has_high_low_lines_ = true;
   if(line)
+  {
     high_low_lines_line_ = convert_line_args(*line);
+  }
 }
 
 /*
@@ -5632,38 +5583,28 @@ void chart_t::set_high_low_lines(const std::optional<chart_line_t>& line)
 ///   }
 /// }
 
-/*
- * Set the Pie/Doughnut chart rotation: the angle of the first slice.
- */
-/// void chart_set_rotation(lxw_chart* self, uint16_t rotation)
-/// {
-///   if(rotation <= 360)
-///   {
-///     self->rotation = rotation;
-///   }
-///   else
-///   {
-///     LXW_WARN_FORMAT1("chart_set_rotation(): Chart rotation '%d' outside "
-///                      "Excel range: 0 <= rotation <= 360",
-///                      rotation);
-///   }
-/// }
+void chart_t::set_rotation(uint16_t rotation)
+{
+  if(rotation <= 360)
+  {
+    rotation_ = rotation;
+  }
+  else
+  {
+    throw xwpp_out_of_range_t(std::format("Chart rotation '{}' outside Excel range: 0 <= rotation <= 360", rotation));
+  }
+}
 
-/*
- * Set the Doughnut chart hole size.
- */
-/// void chart_set_hole_size(lxw_chart* self, uint8_t size)
-/// {
-///   if(size >= 10 && size <= 90)
-///   {
-///     self->hole_size = size;
-///   }
-///   else
-///   {
-///     LXW_WARN_FORMAT1("chart_set_hole_size(): Hole size '%d' outside "
-///                      "Excel range: 10 <= size <= 90",
-///                      size);
-///   }
-/// }
+void chart_t::set_hole_size(uint8_t size)
+{
+  if(size >= 10 && size <= 90)
+  {
+    hole_size_ = size;
+  }
+  else
+  {
+    throw xwpp_out_of_range_t(std::format("Hole size '{}' outside Excel range: 10 <= size <= 90", size));
+  }
+}
 
 }

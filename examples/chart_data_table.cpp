@@ -10,24 +10,28 @@
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-    int row, col;
-    uint8_t data[6][3] = {
-        /* Three columns of data. */
-        {2, 10, 30},
-        {3, 40, 60},
-        {4, 50, 70},
-        {5, 20, 50},
-        {6, 10, 40},
-        {7, 50, 30}
-    };
+  int row, col;
+  uint8_t data[6][3] = {
+      /* Three columns of data. */
+      {2, 10, 30},
+      {3, 40, 60},
+      {4, 50, 70},
+      {5, 20, 50},
+      {6, 10, 40},
+      {7, 50, 30}
+  };
 
-    worksheet.write_string(CELL("A1"), "Number",  bold);
-    worksheet.write_string(CELL("B1"), "Batch 1", bold);
-    worksheet.write_string(CELL("C1"), "Batch 2", bold);
+  worksheet.write_string(CELL("A1"), "Number", bold);
+  worksheet.write_string(CELL("B1"), "Batch 1", bold);
+  worksheet.write_string(CELL("C1"), "Batch 2", bold);
 
-    for (row = 0; row < 6; row++)
-        for (col = 0; col < 3; col++)
-            worksheet.write_number(row + 1, col, data[row][col]);
+  for(row = 0; row < 6; row++)
+  {
+    for(col = 0; col < 3; col++)
+    {
+      worksheet.write_number(row + 1, col, data[row][col]);
+    }
+  }
 }
 
 int main()
