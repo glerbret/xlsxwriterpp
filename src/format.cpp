@@ -10,6 +10,8 @@
 
 #include "xwpp/exception.h"
 
+#include <format>
+
 namespace xwpp
 {
 
@@ -276,7 +278,8 @@ void format_t::set_rotation(int16_t angle)
   }
   else
   {
-    throw xwpp_out_of_range_t("Rotation rotation outside range: -90 <= angle <= 90");
+    throw xwpp_out_of_range_t(std::format(
+        "format_t::set_rotation(): format rotation '{}' outside Excel range: -90 <= rotation <= 90", angle));
   }
 }
 
@@ -398,7 +401,7 @@ void format_t::set_valign(format_alignments_t alignment)
   }
   else
   {
-    throw xwpp_exception_t("Not a vertical alignment");
+    throw xwpp_exception_t(std::format("format_t::set_valign(): alignment '{}' is not a vertical alignement", static_cast<int>(alignment)));
   }
 }
 
@@ -414,7 +417,7 @@ void format_t::set_halign(format_alignments_t alignment)
   }
   else
   {
-    throw xwpp_exception_t("Not a horizontal alignment");
+    throw xwpp_exception_t(std::format("format_t::set_halign(): alignment '{}' is not a horizontal alignement", static_cast<int>(alignment)));
   }
 }
 

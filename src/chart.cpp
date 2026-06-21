@@ -152,21 +152,22 @@ void check_error_bars(const series_error_bars_t& error_bars, const std::string& 
    * functions except the one that is used to set the type. */
   if(!property.empty() && !error_bars.is_set_)
   {
-    throw xwpp_exception_t("error bar type must be set first using chart_series_set_error_bars()");
+    throw xwpp_exception_t("check_error_bars(): error bar type must be set first using chart_series_set_error_bars()");
   }
 
   if(error_bars.is_x_)
   {
     if(error_bars.chart_group_ != chart_type_t::SCATTER && error_bars.chart_group_ != chart_type_t::BAR)
     {
-      throw xwpp_exception_t("'X error bar' properties only available for Scatter and Bar charts in Excel");
+      throw xwpp_exception_t(
+          "check_error_bars(): 'X error bar' properties only available for Scatter and Bar charts in Excel");
     }
   }
   else
   {
     if(error_bars.chart_group_ == chart_type_t::BAR)
     {
-      throw xwpp_exception_t("'Y error bar' properties not available for Bar charts in Excel");
+      throw xwpp_exception_t("check_error_bars(): 'Y error bar' properties not available for Bar charts in Excel");
     }
   }
 }
@@ -3954,7 +3955,7 @@ void chart_t::initialize(chart_type_t type)
 
     default:
       throw xwpp_exception_t(
-          std::format("chart_t::initialize() - unhandled chart type '{}'", static_cast<uint16_t>(type)));
+          std::format("chart_t::initialize(): unhandled chart type '{}'", static_cast<uint16_t>(type)));
   }
 }
 
@@ -4013,7 +4014,7 @@ chart_series_t& chart_t::add_series(const std::string& categories, const std::st
   // Scatter charts require categories and values.
   if(chart_group_ == chart_type_t::SCATTER && !values.empty() && categories.empty())
   {
-    throw xwpp_exception_t("scatter charts must have 'categories' and 'values'");
+    throw xwpp_exception_t("chart_t::add_series(): scatter charts must have 'categories' and 'values'");
   }
 
   chart_series_t series;
@@ -4092,7 +4093,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
 {
   if(sheetname.empty())
   {
-    throw xwpp_exception_t("Sheetname must be specified");
+    throw xwpp_exception_t("chart_series_set_name_range(): sheetname must be specified");
   }
 
   set_range(series.title_.range_, sheetname, row, col, row, col);
@@ -4103,7 +4104,7 @@ void chart_series_set_categories(chart_series_t& series, const std::string& shee
 {
   if(sheetname.empty())
   {
-    throw xwpp_exception_t("Sheetname must be specified");
+    throw xwpp_exception_t("chart_series_set_categories(): sheetname must be specified");
   }
 
   set_range(series.categories_, sheetname, first_row, first_col, last_row, last_col);
@@ -4114,7 +4115,7 @@ void chart_series_set_values(chart_series_t& series, const std::string& sheetnam
 {
   if(sheetname.empty())
   {
-    throw xwpp_exception_t("Sheetname must be specified");
+    throw xwpp_exception_t("chart_series_set_values(): sheetname must be specified");
   }
 
   set_range(series.values_, sheetname, first_row, first_col, last_row, last_col);
@@ -4258,7 +4259,7 @@ void series_set_points(chart_series_t& series, const std::vector<chart_point_t> 
 {
   if(points.empty())
   {
-    throw xwpp_exception_t("No points");
+    throw xwpp_exception_t("series_set_points(): list of points shall not be empty");
   }
 
   for(const auto src_point: points)
@@ -4298,7 +4299,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
 {
   if(data_labels.empty())
   {
-    throw xwpp_exception_t("Empty labels list");
+    throw xwpp_exception_t("chart_series_set_labels_custom(): list of labels shall not be empty");
   }
 
   series.has_labels_ = true;
@@ -4453,7 +4454,8 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
   {
     if(value < 2)
     {
-      throw xwpp_exception_t("order/period value must be >= 2 for Polynomial and Moving Average types");
+      throw xwpp_exception_t(
+          "series_set_trendline(): order/period value must be >= 2 for Polynomial and Moving Average types");
     }
     series.trendline_value_type_ = type;
   }
@@ -5447,7 +5449,8 @@ void chart_t::set_series_gap(uint16_t gap)
   }
   else
   {
-    throw xwpp_out_of_range_t(std::format("Chart series gap '{}' outside Excel range: 0 <= gap <= 500", gap));
+    throw xwpp_out_of_range_t(
+        std::format("chart_t::set_series_gap(): chart series gap '{}' outside Excel range: 0 <= gap <= 500", gap));
   }
 }
 
@@ -5459,7 +5462,8 @@ void chart_t::set_rotation(uint16_t rotation)
   }
   else
   {
-    throw xwpp_out_of_range_t(std::format("Chart rotation '{}' outside Excel range: 0 <= rotation <= 360", rotation));
+    throw xwpp_out_of_range_t(std::format(
+        "chart_t::set_rotation(): chart rotation '{}' outside Excel range: 0 <= rotation <= 360", rotation));
   }
 }
 
@@ -5471,7 +5475,8 @@ void chart_t::set_hole_size(uint8_t size)
   }
   else
   {
-    throw xwpp_out_of_range_t(std::format("Hole size '{}' outside Excel range: 10 <= size <= 90", size));
+    throw xwpp_out_of_range_t(
+        std::format("chart_t::set_hole_size(): hole size '{}' outside Excel range: 10 <= size <= 90", size));
   }
 }
 

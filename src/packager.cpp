@@ -1285,17 +1285,19 @@ void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& f
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
                              0 /*self->use_zip64*/) != ZIP_OK)
   {
-    throw xwpp_exception_t(std::format("Error adding member {} to zipfile", filename));
+    throw xwpp_exception_t(std::format("packager_t::add_buffer_to_zip(): error adding '{}' to zipfile", filename));
   }
 
   if(zipWriteInFileInZip(zipfile_, buffer.data(), buffer.size()) < 0)
   {
-    throw xwpp_exception_t(std::format("Error in writing member {} to zipfile", filename));
+    throw xwpp_exception_t(
+        std::format("packager_t::add_buffer_to_zip(): error in writing member '{}' to zipfile", filename));
   }
 
   if(zipCloseFileInZip(zipfile_) != ZIP_OK)
   {
-    throw xwpp_exception_t(std::format("Error in closing member {} to zipfile", filename));
+    throw xwpp_exception_t(
+        std::format("packager_t::add_buffer_to_zip(): error in closing member '{}' to zipfile", filename));
   }
 }
 
@@ -1305,17 +1307,20 @@ void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std:
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
                              0 /*self->use_zip64*/) != ZIP_OK)
   {
-    throw xwpp_exception_t(std::format("Error adding member {} to zipfile", filename));
+    throw xwpp_exception_t(
+        std::format("packager_t::add_buffer_to_zip(): error adding member '{}' to zipfile", filename));
   }
 
   if(zipWriteInFileInZip(zipfile_, buffer.data(), buffer.size()) < 0)
   {
-    throw xwpp_exception_t(std::format("Error in writing member {} to zipfile", filename));
+    throw xwpp_exception_t(
+        std::format("packager_t::add_buffer_to_zip(): error in writing member '{}' to zipfile", filename));
   }
 
   if(zipCloseFileInZip(zipfile_) != ZIP_OK)
   {
-    throw xwpp_exception_t(std::format("Error in closing member {} to zipfile", filename));
+    throw xwpp_exception_t(
+        std::format("packager_t::add_buffer_to_zip(): error in closing member '{}' to zipfile", filename));
   }
 }
 

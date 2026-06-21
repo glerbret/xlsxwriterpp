@@ -533,7 +533,8 @@ void workbook_t::populate_range_data_cache(series_range_t& range)
   {
     range.ignore_cache_ = true;
     throw xwpp_exception_t(
-        std::format("Sheetname {} in chart formula {} doesn't exist", range.sheetname_, range.formula_));
+        std::format("workbook_t::populate_range_data_cache(): sheetname '{}' in chart formula '{}' doesn't exist",
+                    range.sheetname_, range.formula_));
   }
 
   /* We can't read the data when worksheet optimization is on. */
@@ -640,7 +641,9 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
     // Check that the sheetname exists.
     if(get_worksheet_by_name(sheetname) == nullptr)
     {
-      throw xwpp_exception_t(std::format("Sheetname {} in chart formula {} doesn't exist", sheetname, range.formula_));
+      throw xwpp_exception_t(
+          std::format("workbook_t::populate_range_dimensions(): sheetname '{}' in chart formula '{}' doesn't exist",
+                      sheetname, range.formula_));
     }
 
     range.sheetname_ = sheetname;
@@ -1451,7 +1454,7 @@ chart_t& workbook_t::add_chart(chart_type_t chart_type)
 {
   if(chart_type == chart_type_t::NONE)
   {
-    throw xwpp_exception_t("No chart type");
+    throw xwpp_exception_t("workbook_t::add_chart: chart type set to 'none'");
   }
 
   chart_t chart(chart_type);
@@ -1649,17 +1652,19 @@ void workbook_t::set_custom_property(std::string_view name, const std::string& v
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+    throw xwpp_out_of_range_t(
+        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
   }
 
   if(value.size() > 255)
   {
-    throw xwpp_out_of_range_t(std::format("Value of custom property ({}) is too long", value));
+    throw xwpp_out_of_range_t(
+        std::format("workbook_t::set_custom_property(): value of custom property '{}' is too long", value));
   }
 
   custom_properties_.emplace_back(custom_property_types_t::STRING, std::string(name), std::string(value));
@@ -1674,12 +1679,13 @@ void workbook_t::set_custom_property(std::string_view name, int32_t value)
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+    throw xwpp_out_of_range_t(
+        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
   }
 
   custom_properties_.emplace_back(custom_property_types_t::INTEGER, std::string(name), value);
@@ -1689,12 +1695,13 @@ void workbook_t::set_custom_property(std::string_view name, double value)
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+    throw xwpp_out_of_range_t(
+        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
   }
 
   custom_properties_.emplace_back(custom_property_types_t::DOUBLE, std::string(name), value);
@@ -1704,12 +1711,13 @@ void workbook_t::set_custom_property(std::string_view name, bool value)
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+    throw xwpp_out_of_range_t(
+        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
   }
 
   custom_properties_.emplace_back(custom_property_types_t::BOOLEAN, std::string(name), value);
@@ -1719,17 +1727,18 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::s
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("Name of custom property cannot be empty");
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(std::format("Name of custom property ({}) is too long", name));
+    throw xwpp_out_of_range_t(
+        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
   }
 
   if(value.time_since_epoch().count() == 0)
   {
-    throw xwpp_exception_t("No date set");
+    throw xwpp_exception_t("workbook_t::set_custom_property(): date is not set");
   }
 
   custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
@@ -1792,31 +1801,33 @@ void workbook_t::validate_sheetname(std::string_view sheetname) const
   // Check for empty worksheet name.
   if(sheetname.empty())
   {
-    throw xwpp_exception_t("Sheetname is empty");
+    throw xwpp_exception_t("workbook_t::validate_sheetname(): sheetname is empty");
   }
 
   // Check the length of the worksheet name.
   if(sheetname.size() > XWPP_SHEETNAME_MAX)
   {
-    throw xwpp_exception_t(std::format("Sheetname '{}' is too long", sheetname));
+    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' is too long", sheetname));
   }
 
   // Check that the worksheet name doesn't contain invalid characters.
   if(sheetname.find_first_of("[]:*?/\\") != std::string::npos)
   {
-    throw xwpp_exception_t(std::format("Sheetname '{}' contains invalid characters", sheetname));
+    throw xwpp_exception_t(
+        std::format("workbook_t::validate_sheetname(): sheetname '{}' contains invalid characters", sheetname));
   }
 
   // Check that the worksheet doesn't start or end with an apostrophe.
   if(sheetname[0] == '\'' || sheetname[sheetname.size() - 1] == '\'')
   {
-    throw xwpp_exception_t(std::format("Sheetname '{}' contains unbalanced single quote", sheetname));
+    throw xwpp_exception_t(
+        std::format("workbook_t::validate_sheetname(): sheetname '{}' contains unbalanced single quote", sheetname));
   }
 
   // Check if the worksheet name is already in use.
   if(get_worksheet_by_name(sheetname) != nullptr)
   {
-    throw xwpp_exception_t(std::format("Sheetname '{}' already used", sheetname));
+    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used", sheetname));
   }
 
   // Check if the chartsheet name is already in use.

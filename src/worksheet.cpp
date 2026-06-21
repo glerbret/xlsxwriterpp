@@ -646,12 +646,14 @@ void worksheet_t::check_dimensions(row_num_t row_num, col_num_t col_num, bool ig
 {
   if(row_num >= ROW_MAX)
   {
-    throw xwpp_out_of_range_t(std::format("Row {} out of range (max {})", row_num, ROW_MAX));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::check_dimensions(): row_num '{}' out of range: row_num < '{}'", row_num, ROW_MAX));
   }
 
   if(col_num >= COL_MAX)
   {
-    throw xwpp_out_of_range_t(std::format("Col {} out of range (max {})", col_num, COL_MAX));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::check_dimensions(): col_num '{}' out of range: col_num < '{}'", col_num, COL_MAX));
   }
 
   /* In optimization mode we don't change dimensions for rows that are */
@@ -3525,7 +3527,8 @@ void worksheet_t::set_header_footer_image(const std::string& filename, image_pos
     std::ifstream image_stream(filename);
     if(!image_stream)
     {
-      throw xwpp_exception_t(std::format("Image file {} doesn't exist or cannot be opened", filename));
+      throw xwpp_exception_t(std::format(
+          "worksheet_t::set_header_footer_image(): image file '{}' doesn't exist or cannot be opened", filename));
     }
   }
 
@@ -6275,7 +6278,8 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 
   if(str.size() > STR_MAX)
   {
-    throw xwpp_out_of_range_t(std::format("String size {} too large (max {})", str.size(), STR_MAX));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::write_string(): string size '{}' too large (max '{}')", str.size(), STR_MAX));
   }
 
   ///     if (!self->optimize) {
@@ -6310,7 +6314,7 @@ void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const 
 
   if(formula.empty())
   {
-    throw xwpp_exception_t("Formula is empty");
+    throw xwpp_exception_t("worksheet_t::write_formula_num(): formula must not be empty");
   }
 
   check_dimensions(row_num, col_num, false, false);
@@ -6343,7 +6347,7 @@ void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const 
 
   if(formula.empty())
   {
-    throw xwpp_exception_t("Formula is empty");
+    throw xwpp_exception_t("worksheet_t::write_formula_str(): formula must not be empty");
   }
 
   check_dimensions(row_num, col_num, false, false);
@@ -6631,13 +6635,14 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
 
   if(url.empty())
   {
-    throw xwpp_exception_t("URL is empty");
+    throw xwpp_exception_t("worksheet_t::write_url(): URL must not be empty");
   }
 
   // Check the Excel limit of URLS per worksheet.
   if(hlink_count_ > MAX_NUMBER_URLS)
   {
-    throw xwpp_out_of_range_t(std::format("Max number of URL exceeded ({} / {})", hlink_count_, MAX_NUMBER_URLS));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::write_url(): max number of URL '{}' exceeded", MAX_NUMBER_URLS));
   }
 
   check_dimensions(row_num, col_num, false, false);
@@ -6757,7 +6762,8 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
   // Check if URL exceeds Excel's length limit.
   if(url_copy.size() > max_url_length_)
   {
-    throw xwpp_out_of_range_t(std::format("URL too long ({} / {})", url_copy.size(), max_url_length_));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::write_url(): URL '{}' is too long (max: '{}')", url_copy, max_url_length_));
   }
 
   // Use the default URL format if none is specified.
@@ -6929,12 +6935,13 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
 
   if(text.empty())
   {
-    throw xwpp_exception_t("Comment is empty");
+    throw xwpp_exception_t("worksheet_t::write_comment(): comment must not be empty");
   }
 
   if(text.size() > STR_MAX)
   {
-    throw xwpp_out_of_range_t(std::format("Comment {} is too long ({} / {})", text, text.size(), STR_MAX));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::write_comment(): comment '{}' is too long (max: {})", text, STR_MAX));
   }
 
   vml_obj_t comment;
@@ -7150,7 +7157,7 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
   // Excel doesn't allow a single cell to be merged
   if(first_row == last_row && first_col == last_col)
   {
-    throw xwpp_exception_t("Cannot merge one single cell");
+    throw xwpp_exception_t("worksheet_t::merge_range(): cannot merge one single cell");
   }
 
   // Swap last row/col with first row/col as necessary
@@ -7830,19 +7837,15 @@ void worksheet_t::set_margins(double left, double right, double top, double bott
 
 void worksheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
-  ///     lxw_error err;
-  ///     char *tmp_header;
-  ///     char *found_string;
-  ///     char *offset_string;
-
   if(str.empty())
   {
-    throw xwpp_exception_t("Header is empty");
+    throw xwpp_exception_t("worksheet_t::set_header(): header must not be empty");
   }
 
   if(str.size() > HEADER_FOOTER_MAX)
   {
-    throw xwpp_out_of_range_t(std::format("Header {} is empty too long ({}/{})", str, str.size(), HEADER_FOOTER_MAX));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::set_header(): header '{}' is empty too long (max: '{}')", str, HEADER_FOOTER_MAX));
   }
 
   std::string tmp_header = str;
@@ -7859,7 +7862,7 @@ void worksheet_t::set_header(const std::string& str, const std::optional<header_
 
   if(placeholder_count > 0 && !options)
   {
-    throw xwpp_exception_t("&G placeholders present but no image supplied");
+    throw xwpp_exception_t("worksheet_t::set_header(): '&G' placeholders present but no image supplied");
   }
 
   if(options)
@@ -7884,7 +7887,8 @@ void worksheet_t::set_header(const std::string& str, const std::optional<header_
 
     if(placeholder_count != image_count)
     {
-      throw xwpp_exception_t("Number of &G placeholders does not match number of supplied images");
+      throw xwpp_exception_t(
+          "worksheet_t::set_header(): number of '&G' placeholders does not match number of supplied images");
     }
 
     if(options->margin_ > 0.0)
@@ -7904,21 +7908,15 @@ void worksheet_t::set_header(const std::string& str, const std::optional<header_
 // TODO Quite similar to set_header. Maybe merged in one generic function
 void worksheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
-  ///     lxw_error err;
-  ///     char *tmp_footer;
-  ///     char *found_string;
-  ///     char *offset_string;
-  ///     uint8_t placeholder_count = 0;
-  ///     uint8_t image_count = 0;
-  ///
   if(str.empty())
   {
-    throw xwpp_exception_t("Footer is empty");
+    throw xwpp_exception_t("worksheet_t::set_footer(): footer must not be empty");
   }
 
   if(str.size() > HEADER_FOOTER_MAX)
   {
-    throw xwpp_out_of_range_t(std::format("Footer {} is empty too long ({}/{})", str, str.size(), HEADER_FOOTER_MAX));
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::set_footer(): footer '{}' is empty too long (max: '{}')", str, HEADER_FOOTER_MAX));
   }
 
   std::string tmp_footer = str;
@@ -7935,7 +7933,7 @@ void worksheet_t::set_footer(const std::string& str, const std::optional<header_
 
   if(placeholder_count > 0 && !options)
   {
-    throw xwpp_exception_t("&G placeholders present but no image provided");
+    throw xwpp_exception_t("worksheet_t::set_footer(): '&G' placeholders present but no image provided");
   }
 
   if(options)
@@ -7960,7 +7958,8 @@ void worksheet_t::set_footer(const std::string& str, const std::optional<header_
 
     if(placeholder_count != image_count)
     {
-      throw xwpp_exception_t("Number of &G placeholders does not match number of supplied images");
+      throw xwpp_exception_t(
+          "worksheet_t::set_footer(): number of '&G' placeholders does not match number of supplied images");
     }
 
     if(options->margin_ > 0.0)
@@ -8289,7 +8288,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
 {
   if(filename.empty())
   {
-    throw xwpp_exception_t("Image filename is empty");
+    throw xwpp_exception_t("worksheet_t::insert_image(): image filename must not be empty");
   }
 
   // Check that the image file exists and can be opened.
@@ -8297,7 +8296,8 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
     std::ifstream image_stream(filename);
     if(!image_stream)
     {
-      throw xwpp_exception_t(std::format("Image file {} doesn't exist or cannot be opened", filename));
+      throw xwpp_exception_t(
+          std::format("worksheet_t::insert_image(): image file '{}' doesn't exist or cannot be opened", filename));
     }
   }
 
@@ -8356,7 +8356,7 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
 {
   if(image_buffer.empty())
   {
-    throw xwpp_exception_t("Image is empty");
+    throw xwpp_exception_t("worksheet_t::insert_image_buffer(): image must not be empty");
   }
 
   object_properties_t object_props;
@@ -8405,7 +8405,7 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
 {
   if(filename.empty())
   {
-    throw xwpp_exception_t("Image filename is empty");
+    throw xwpp_exception_t("worksheet_t::embed_image(): image filename must not be empty");
   }
 
   // Check that the image file exists and can be opened.
@@ -8413,7 +8413,8 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
     std::ifstream image_stream(filename);
     if(!image_stream)
     {
-      throw xwpp_exception_t(std::format("Image file {} doesn't exist or cannot be opened", filename));
+      throw xwpp_exception_t(
+          std::format("worksheet_t::embed_image(): image file '{}' doesn't exist or cannot be opened", filename));
     }
   }
 
@@ -8481,7 +8482,7 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
 {
   if(image_buffer.empty())
   {
-    throw xwpp_exception_t("Image is empty");
+    throw xwpp_exception_t("worksheet_t::embed_image_buffer(): image must not be empty");
   }
 
   check_dimensions(row_num, col_num, false, false);
@@ -8667,12 +8668,13 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
 {
   if(chart->in_use_)
   {
-    throw xwpp_exception_t("The same chart object cannot be inserted in a worksheet more than once");
+    throw xwpp_exception_t(
+        "worksheet_t::insert_chart(): the same chart object cannot be inserted in a worksheet more than once");
   }
 
   if(chart->series_list_.empty())
   {
-    throw xwpp_exception_t("Chart must have a series");
+    throw xwpp_exception_t("worksheet_t::insert_chart(): chart must have a series");
   }
 
   object_properties_t object_props;
