@@ -415,29 +415,21 @@ std::string chart_t::write_grouping(chart_grouping_t grouping)
   return xml_empty_tag("c:grouping", attributes);
 }
 
-/*
- * Write the <c:radarStyle> element.
- */
-/// STATIC void _chart_write_radar_style(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   if(self->type == LXW_CHART_RADAR_FILLED)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "filled");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "marker");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:radarStyle", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_radar_style(const chart_t& chart)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(chart.type_ == chart_type_t::RADAR_FILLED)
+  {
+    attributes.emplace_back("val", "filled");
+  }
+  else
+  {
+    attributes.emplace_back("val", "marker");
+  }
+
+  return xml_empty_tag("c:radarStyle", attributes);
+}
 
 std::string chart_t::write_vary_colors()
 {
@@ -1504,79 +1496,63 @@ std::string chart_t::write_series_name(const chart_series_t& series)
   return "";
 }
 
-/*
- * Write the <c:majorTickMark> element.
- */
-/// STATIC void _chart_write_major_tick_mark(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->major_tick_mark)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   if(axis->major_tick_mark == LXW_CHART_AXIS_TICK_MARK_NONE)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "none");
-///   }
-///   else if(axis->major_tick_mark == LXW_CHART_AXIS_TICK_MARK_INSIDE)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "in");
-///   }
-///   else if(axis->major_tick_mark == LXW_CHART_AXIS_TICK_MARK_CROSSING)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "cross");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "out");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:majorTickMark", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_major_tick_mark(const chart_axis_t& axis)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-/*
- * Write the <c:minorTickMark> element.
- */
-/// STATIC void _chart_write_minor_tick_mark(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->minor_tick_mark)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   if(axis->minor_tick_mark == LXW_CHART_AXIS_TICK_MARK_NONE)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "none");
-///   }
-///   else if(axis->minor_tick_mark == LXW_CHART_AXIS_TICK_MARK_INSIDE)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "in");
-///   }
-///   else if(axis->minor_tick_mark == LXW_CHART_AXIS_TICK_MARK_CROSSING)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "cross");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "out");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:minorTickMark", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  if(axis.major_tick_mark_ == chart_axis_tick_mark_t::DEFAULT)
+  {
+    return "";
+  }
+
+  if(axis.major_tick_mark_ == chart_axis_tick_mark_t::NONE)
+  {
+    attributes.emplace_back("val", "none");
+  }
+  else if(axis.major_tick_mark_ == chart_axis_tick_mark_t::INSIDE)
+  {
+    attributes.emplace_back("val", "in");
+  }
+  else if(axis.major_tick_mark_ == chart_axis_tick_mark_t::CROSSING)
+  {
+    attributes.emplace_back("val", "cross");
+  }
+  else
+  {
+    attributes.emplace_back("val", "out");
+  }
+
+  return xml_empty_tag("c:majorTickMark", attributes);
+}
+
+std::string chart_t::write_minor_tick_mark(const chart_axis_t& axis)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::DEFAULT)
+  {
+    return "";
+  }
+
+  if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::NONE)
+  {
+    attributes.emplace_back("val", "none");
+  }
+  else if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::INSIDE)
+  {
+    attributes.emplace_back("val", "in");
+  }
+  else if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::CROSSING)
+  {
+    attributes.emplace_back("val", "cross");
+  }
+  else
+  {
+    attributes.emplace_back("val", "out");
+  }
+
+  return xml_empty_tag("c:minorTickMark", attributes);
+}
 
 std::string chart_t::write_symbol(chart_marker_type_t type)
 {
@@ -3372,8 +3348,8 @@ std::string chart_t::write_cat_axis(chart_t& chart)
   chart.x_axis_.title_.is_horizontal_ = chart.has_horiz_cat_axis_;
   xml_data += write_title(chart.x_axis_.title_);
   xml_data += write_cat_number_format(chart, chart.x_axis_);
-  ///   xml_data += _chart_write_major_tick_mark(self, self->x_axis);
-  ///   xml_data += _chart_write_minor_tick_mark(self, self->x_axis);
+  xml_data += write_major_tick_mark(chart.x_axis_);
+  xml_data += write_minor_tick_mark(chart.x_axis_);
   xml_data += write_tick_label_pos(chart.x_axis_);
   ///   xml_data += _chart_write_sp_pr(self, self->x_axis->line, self->x_axis->fill, self->x_axis->pattern);
   xml_data += write_axis_font(chart.x_axis_.num_font_);
@@ -3412,8 +3388,8 @@ std::string chart_t::write_val_axis(chart_t& chart)
   chart.y_axis_.title_.is_horizontal_ = chart.has_horiz_val_axis_;
   xml_data += write_title(chart.y_axis_.title_);
   xml_data += write_number_format(chart.y_axis_);
-  ///   xml_data += _chart_write_major_tick_mark(self, self->y_axis);
-  ///   xml_data += _chart_write_minor_tick_mark(self, self->y_axis);
+  xml_data += write_major_tick_mark(chart.y_axis_);
+  xml_data += write_minor_tick_mark(chart.y_axis_);
   xml_data += write_tick_label_pos(chart.y_axis_);
   ///   xml_data += _chart_write_sp_pr(self, self->y_axis->line, self->y_axis->fill, self->y_axis->pattern);
   xml_data += write_axis_font(chart.y_axis_.num_font_);
@@ -3649,29 +3625,19 @@ std::string chart_t::write_pie_chart(chart_t& chart)
 ///   lxw_xml_end_tag(self->file, "c:scatterChart");
 /// }
 
-/*
- * Write a radar chart.
- */
-/// STATIC void _chart_write_radar_chart(lxw_chart* self)
-/// {
-///   lxw_chart_series* series;
-///
-///   lxw_xml_start_tag(self->file, "c:radarChart", NULL);
-///
-///   /* Write the c:radarStyle element. */
-///   _chart_write_radar_style(self);
-///
-///   STAILQ_FOREACH(series, self->series_list, list_pointers)
-///   {
-///     /* Write the c:ser element. */
-///     _chart_write_ser(self, series);
-///   }
-///
-///   /* Write the c:axId elements. */
-///   _chart_write_axis_ids(self);
-///
-///   lxw_xml_end_tag(self->file, "c:radarChart");
-/// }
+std::string chart_t::write_radar_chart(chart_t& chart)
+{
+  std::string xml_data = xml_start_tag("c:radarChart");
+  xml_data += write_radar_style(chart);
+  for(auto& series: chart.series_list_)
+  {
+    xml_data += write_ser(chart, series);
+  }
+  xml_data += write_axis_ids(chart);
+  xml_data += xml_end_tag("c:radarChart");
+
+  return xml_data;
+}
 
 /*
  * Reverse the opposite axis position if crossing position is "max".
@@ -3917,27 +3883,24 @@ void chart_t::initialize_pie_chart()
 ///   self->write_plot_area  = _chart_write_scatter_plot_area;
 /// }
 
-/*
- * Initialize a radar chart.
- */
-/// STATIC void _chart_initialize_radar_chart(lxw_chart* self, uint8_t type)
-/// {
-///   if(type == LXW_CHART_RADAR)
-///   {
-///     _chart_set_default_marker_type(self, LXW_CHART_MARKER_NONE);
-///   }
-///
-///   self->chart_group                     = LXW_CHART_RADAR;
-///   self->x_axis->major_gridlines.visible = LXW_TRUE;
-///   self->x_axis->is_category             = LXW_TRUE;
-///   self->y_axis->is_value                = LXW_TRUE;
-///   self->y_axis->major_tick_mark         = LXW_CHART_AXIS_TICK_MARK_CROSSING;
-///   self->default_label_position          = LXW_CHART_LABEL_POSITION_CENTER;
-///
-///   /* Initialize the function pointers for this chart type. */
-///   self->write_chart_type = _chart_write_radar_chart;
-///   self->write_plot_area  = _chart_write_plot_area;
-/// }
+void chart_t::initialize_radar_chart(chart_type_t type)
+{
+  if(type == chart_type_t::RADAR)
+  {
+    default_marker_ = chart_marker_t{.type_ = chart_marker_type_t::NONE};
+  }
+
+  chart_group_                      = chart_type_t::RADAR;
+  x_axis_.major_gridlines_.visible_ = true;
+  x_axis_.is_category_              = true;
+  y_axis_.is_value_                 = true;
+  y_axis_.major_tick_mark_          = chart_axis_tick_mark_t::CROSSING;
+  default_label_position_           = chart_label_position_t::CENTER;
+
+  // Initialize the function pointers for this chart type.
+  write_chart_type_ = write_radar_chart;
+  write_plot_area_  = write_plot_area;
+}
 
 void chart_t::initialize(chart_type_t type)
 {
@@ -3983,14 +3946,15 @@ void chart_t::initialize(chart_type_t type)
       ///       _chart_initialize_scatter_chart(self);
       ///       break;
 
-      ///     case chart_type_t::RADAR:
-      ///     case chart_type_t::RADAR_WITH_MARKERS:
-      ///     case chart_type_t::RADAR_FILLED:
-      ///       _chart_initialize_radar_chart(self, type);
-      ///       break;
+    case chart_type_t::RADAR:
+    case chart_type_t::RADAR_WITH_MARKERS:
+    case chart_type_t::RADAR_FILLED:
+      initialize_radar_chart(type);
+      break;
 
     default:
-      throw xwpp_exception_t(std::format("unhandled chart type '{}'", static_cast<uint16_t>(type)));
+      throw xwpp_exception_t(
+          std::format("chart_t::initialize() - unhandled chart type '{}'", static_cast<uint16_t>(type)));
   }
 }
 
@@ -4347,11 +4311,12 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
 
   for(const auto& user_label: data_labels)
   {
-    chart_custom_label_t data_label
-    {
-      .hide_ = user_label.hide_, .font_ = convert_font_args(user_label.font_),
-      .line_ = convert_line_args(user_label.line_), .fill_ = convert_fill_args(user_label.fill_),
-      .pattern_ = convert_pattern_args(user_label.pattern_),
+    chart_custom_label_t data_label{
+        .hide_    = user_label.hide_,
+        .font_    = convert_font_args(user_label.font_),
+        .line_    = convert_line_args(user_label.line_),
+        .fill_    = convert_fill_args(user_label.fill_),
+        .pattern_ = convert_pattern_args(user_label.pattern_),
     };
 
     if(!user_label.value_.empty())

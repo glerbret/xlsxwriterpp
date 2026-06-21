@@ -1111,8 +1111,8 @@ struct chart_axis_t
   std::string default_num_format_;
   uint8_t source_linked_ = 0;
 
-  ///   uint8_t major_tick_mark;
-  ///   uint8_t minor_tick_mark;
+  chart_axis_tick_mark_t major_tick_mark_ = chart_axis_tick_mark_t::DEFAULT;
+  chart_axis_tick_mark_t minor_tick_mark_ = chart_axis_tick_mark_t::DEFAULT;
   ///   uint8_t is_horizontal;
 
   chart_gridline_t major_gridlines_;
@@ -1134,10 +1134,10 @@ struct chart_axis_t
   bool hidden_                                = false;
   bool reverse_                               = false;
 
-  bool has_min_         = false;
-  double min_           = 0;
-  bool has_max_         = false;
-  double max_           = 0;
+  bool has_min_ = false;
+  double min_   = 0;
+  bool has_max_ = false;
+  double max_   = 0;
 
   ///   uint8_t has_major_unit;
   ///   double major_unit;
@@ -1147,7 +1147,7 @@ struct chart_axis_t
   ///   uint16_t interval_unit;
   ///   uint16_t interval_tick;
 
-  uint16_t log_base_    = 0;
+  uint16_t log_base_ = 0;
 
   ///   uint8_t display_units;
   ///   uint8_t display_units_visible;
@@ -1747,48 +1747,48 @@ public:
    */
   void set_hole_size(uint8_t size);
 
-/**
- * @brief Set the font properties for a chart legend.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param font  A pointer to a chart #lxw_chart_font font struct.
- *
- * The `%chart_legend_set_font()` function is used to set the font of a
- * chart legend:
- *
- * @code
- *     lxw_chart_font font = {.bold = LXW_TRUE, .color = LXW_COLOR_BLUE};
- *
- *     chart_legend_set_font(chart, &font);
- * @endcode
- *
- * @image html chart_legend_set_font.png
- *
- * For more information see @ref chart_fonts.
- */
-void legend_set_font(const std::optional<chart_font_t>& font);
+  /**
+   * @brief Set the font properties for a chart legend.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param font  A pointer to a chart #lxw_chart_font font struct.
+   *
+   * The `%chart_legend_set_font()` function is used to set the font of a
+   * chart legend:
+   *
+   * @code
+   *     lxw_chart_font font = {.bold = LXW_TRUE, .color = LXW_COLOR_BLUE};
+   *
+   *     chart_legend_set_font(chart, &font);
+   * @endcode
+   *
+   * @image html chart_legend_set_font.png
+   *
+   * For more information see @ref chart_fonts.
+   */
+  void legend_set_font(const std::optional<chart_font_t>& font);
 
-/**
- * @brief Set the gap between series in a Bar/Column chart.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param gap   The gap between the series.  0 to 500.
- *
- * The `%chart_set_series_gap()` function sets the gap between series in
- * Bar and Column charts.
- *
- * @code
- *     chart_set_series_gap(chart, 400);
- * @endcode
- *
- * @image html chart_gap.png
- *
- * The gap value must be in the range `0 <= gap <= 500`. The default value
- * is 150.
- *
- * This option is only available for Bar/Column charts.
- */
-void set_series_gap(uint16_t gap);
+  /**
+   * @brief Set the gap between series in a Bar/Column chart.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param gap   The gap between the series.  0 to 500.
+   *
+   * The `%chart_set_series_gap()` function sets the gap between series in
+   * Bar and Column charts.
+   *
+   * @code
+   *     chart_set_series_gap(chart, 400);
+   * @endcode
+   *
+   * @image html chart_gap.png
+   *
+   * The gap value must be in the range `0 <= gap <= 500`. The default value
+   * is 150.
+   *
+   * This option is only available for Bar/Column charts.
+   */
+  void set_series_gap(uint16_t gap);
 
   std::string assemble_xml_file();
 
@@ -1811,6 +1811,7 @@ private:
   void initialize_line_chart(chart_type_t type);
   void initialize_doughnut_chart();
   void initialize_pie_chart();
+  void initialize_radar_chart(chart_type_t type);
   void initialize(chart_type_t type);
 
   [[nodiscard]] static std::string write_bar_chart(chart_t& chart);
@@ -1821,6 +1822,7 @@ private:
   [[nodiscard]] static std::string write_doughnut_chart(chart_t& chart);
   [[nodiscard]] static std::string write_pie_plot_area(chart_t& chart);
   [[nodiscard]] static std::string write_pie_chart(chart_t& chart);
+  [[nodiscard]] static std::string write_radar_chart(chart_t& chart);
 
   [[nodiscard]] std::string write_chart_space() const;
   [[nodiscard]] std::string write_lang() const;
@@ -1978,6 +1980,11 @@ private:
   [[nodiscard]] static std::string write_vary_colors();
   [[nodiscard]] static std::string write_first_slice_ang(const chart_t& chart);
   [[nodiscard]] static std::string write_hole_size(const chart_t& chart);
+  [[nodiscard]] static std::string write_radar_style(const chart_t& chart);
+  [[nodiscard]] static std::string write_major_tick_mark(const chart_axis_t& axis);
+  [[nodiscard]] static std::string write_minor_tick_mark(const chart_axis_t& axis);
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
@@ -2062,7 +2069,7 @@ private:
 
   ///   STAILQ_ENTRY(lxw_chart) ordered_list_pointers;
   ///   STAILQ_ENTRY(lxw_chart) list_pointers;
-  static const uint16_t DEFAULT_GAP              = 501;
+  static const uint16_t DEFAULT_GAP = 501;
 };
 
 /**

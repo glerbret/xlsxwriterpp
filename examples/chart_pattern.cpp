@@ -24,7 +24,7 @@ int main()
   worksheet.write_number(2, 0, 150);
   worksheet.write_number(3, 0, 130);
   worksheet.write_number(4, 0, 90);
-  worksheet.write_string(0, 1, "Brick",   bold);
+  worksheet.write_string(0, 1, "Brick", bold);
   worksheet.write_number(1, 1, 50);
   worksheet.write_number(2, 1, 120);
   worksheet.write_number(3, 1, 100);
@@ -46,13 +46,16 @@ int main()
 
   // Configure an add the chart series patterns.
   xwpp::chart_pattern_t pattern1 = {
-                                  .fg_color_ = static_cast<xwpp::color_t>(0x804000),
-                                  .bg_color_ = static_cast<xwpp::color_t>(0XC68C53),
-                                .type_ = xwpp::chart_pattern_type_t::SHINGLE,};
+      .fg_color_ = static_cast<xwpp::color_t>(0x804000),
+      .bg_color_ = static_cast<xwpp::color_t>(0XC68C53),
+      .type_     = xwpp::chart_pattern_type_t::SHINGLE,
+  };
 
-  xwpp::chart_pattern_t pattern2 = {.fg_color_ = static_cast<xwpp::color_t>(0XB30000),
-                                    .bg_color_ = static_cast<xwpp::color_t>(0XFF6666),
-                                  .type_ = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,};
+  xwpp::chart_pattern_t pattern2 = {
+      .fg_color_ = static_cast<xwpp::color_t>(0XB30000),
+      .bg_color_ = static_cast<xwpp::color_t>(0XFF6666),
+      .type_     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
+  };
 
   xwpp::chart_series_set_pattern(series1, pattern1);
   xwpp::chart_series_set_pattern(series2, pattern2);

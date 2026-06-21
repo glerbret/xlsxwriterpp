@@ -20,7 +20,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write_string(CELL("A3"), "Cherry");
   worksheet.write_string(CELL("A4"), "Pecan");
 
-  worksheet.write_string(CELL("B1"), "Values",   bold);
+  worksheet.write_string(CELL("B1"), "Values", bold);
   worksheet.write_number(CELL("B2"), 60);
   worksheet.write_number(CELL("B3"), 30);
   worksheet.write_number(CELL("B4"), 10);
@@ -76,9 +76,9 @@ int main()
 
   // Add some points with the above fills.
   const std::vector<xwpp::chart_point_t> points{
-    {.fill_ = fill1},
-    {.fill_ = fill2},
-    {.fill_ = fill3},
+      {.fill_ = fill1},
+      {.fill_ = fill2},
+      {.fill_ = fill3},
   };
 
   // Add/override the points/segments of the chart.
