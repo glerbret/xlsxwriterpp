@@ -175,6 +175,7 @@ void check_error_bars(const series_error_bars_t& error_bars, const std::string& 
 
 }
 
+// TODO Add chart layout example
 /*
  * Create a copy of a user supplied layout.
  */
