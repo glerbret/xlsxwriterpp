@@ -9,23 +9,27 @@
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-    int row, col;
-    uint8_t data[6][3] = {
-        {2, 10, 30},
-        {3, 40, 60},
-        {4, 50, 70},
-        {5, 20, 50},
-        {6, 10, 40},
-        {7, 50, 30}
-    };
+  int row, col;
+  uint8_t data[6][3] = {
+      {2, 10, 30},
+      {3, 40, 60},
+      {4, 50, 70},
+      {5, 20, 50},
+      {6, 10, 40},
+      {7, 50, 30}
+  };
 
-    worksheet.write_string(CELL("A1"), "Number",  bold);
-    worksheet.write_string(CELL("B1"), "Batch 1", bold);
-    worksheet.write_string(CELL("C1"), "Batch 2", bold);
+  worksheet.write_string(CELL("A1"), "Number", bold);
+  worksheet.write_string(CELL("B1"), "Batch 1", bold);
+  worksheet.write_string(CELL("C1"), "Batch 2", bold);
 
-    for (row = 0; row < 6; row++)
-        for (col = 0; col < 3; col++)
-            worksheet.write_number(row + 1, col, data[row][col] );
+  for(row = 0; row < 6; row++)
+  {
+    for(col = 0; col < 3; col++)
+    {
+      worksheet.write_number(row + 1, col, data[row][col]);
+    }
+  }
 }
 
 int main()
@@ -70,7 +74,6 @@ int main()
   // Insert the chart into the worksheet.
   worksheet.insert_chart(CELL("E2"), &chart1);
 
-
   // Chart 2. Create a scatter chart with straight lines and markers connecting the points.
   xwpp::chart_t& chart2 = workbook.add_chart(xwpp::chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS);
 
@@ -86,7 +89,7 @@ int main()
   // Set the name for the series instead of the default "Series 2".
   chart2.series_set_name(series4, "=Sheet1!$C$1");
 
-    /* Add a chart title and some axis labels. */
+  /* Add a chart title and some axis labels. */
   chart2.title_set_name("Results of sample analysis");
   xwpp::chart_axis_set_name(chart2.x_axis_, "Test number");
   xwpp::chart_axis_set_name(chart2.y_axis_, "Sample length (mm)");
@@ -138,7 +141,7 @@ int main()
   // Set the name for the series instead of the default "Series 2".
   chart4.series_set_name(series8, "=Sheet1!$C$1");
 
-   // Add a chart title and some axis labels.
+  // Add a chart title and some axis labels.
   chart4.title_set_name("Results of sample analysis");
   xwpp::chart_axis_set_name(chart4.x_axis_, "Test number");
   xwpp::chart_axis_set_name(chart4.y_axis_, "Sample length (mm)");

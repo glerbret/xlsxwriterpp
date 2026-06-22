@@ -66,6 +66,7 @@
 namespace xwpp
 {
 
+// TODO Add rgb function to build color_t
 /**
  * @brief The type for RGB colors in Xlsxwriter++.
  *

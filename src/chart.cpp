@@ -16,6 +16,7 @@
 
 #include <iostream>
 
+// TODO add gradient
 namespace xwpp
 {
 
@@ -209,37 +210,6 @@ void check_error_bars(const series_error_bars_t& error_bars, const std::string& 
 ///   }
 ///
 ///   return layout;
-/// }
-
-/*
- * Set a marker type for a series.
- */
-/// STATIC void _chart_set_default_marker_type(lxw_chart* self, uint8_t type)
-/// {
-///   if(!self->default_marker)
-///   {
-///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
-///     RETURN_VOID_ON_MEM_ERROR(marker);
-///     self->default_marker = marker;
-///   }
-///
-///   self->default_marker->type = type;
-/// }
-
-/*
- * Set an axis number format.
- */
-/// STATIC void _chart_axis_set_default_num_format(lxw_chart_axis* axis, char* num_format)
-/// {
-///   if(!num_format)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->default_num_format);
-///
-///   axis->default_num_format = lxw_strdup(num_format);
 /// }
 
 void chart_t::add_axis_ids(chart_t& chart)
@@ -2277,7 +2247,9 @@ std::string chart_t::write_smooth(bool smooth)
     return "";
   }
 
-  return xml_empty_tag("c:smooth", {{"val", "1"}});
+  return xml_empty_tag("c:smooth", {
+                                       {"val", "1"}
+  });
 }
 
 std::string chart_t::write_scatter_style(const chart_t& chart)
@@ -2645,7 +2617,9 @@ std::string chart_t::write_major_unit(const chart_axis_t& axis)
     return "";
   }
 
-  return xml_empty_tag("c:majorUnit", {{"val", std::format("{}", axis.major_unit_)}});
+  return xml_empty_tag("c:majorUnit", {
+                                          {"val", std::format("{}", axis.major_unit_)}
+  });
 }
 
 std::string chart_t::write_minor_unit(const chart_axis_t& axis)
@@ -2655,7 +2629,9 @@ std::string chart_t::write_minor_unit(const chart_axis_t& axis)
     return "";
   }
 
-  return xml_empty_tag("c:minorUnit", {{"val", std::format("{}", axis.minor_unit_)}});
+  return xml_empty_tag("c:minorUnit", {
+                                          {"val", std::format("{}", axis.minor_unit_)}
+  });
 }
 
 std::string chart_t::write_disp_units(const chart_axis_t& axis)
@@ -2665,7 +2641,7 @@ std::string chart_t::write_disp_units(const chart_axis_t& axis)
   if(axis.display_units_ == chart_axis_display_unit_t::NONE)
   {
     return "";
- }
+  }
 
   std::string xml_data = xml_start_tag("c:dispUnits");
   if(axis.display_units_ == chart_axis_display_unit_t::HUNDREDS)
@@ -2719,7 +2695,7 @@ std::string chart_t::write_disp_units(const chart_axis_t& axis)
 
   xml_data += xml_end_tag("c:dispUnits");
 
- return xml_data;
+  return xml_data;
 }
 
 std::string chart_t::write_label_offset()
@@ -3330,7 +3306,7 @@ std::string chart_t::write_cat_val_axis(chart_t& chart)
   std::string xml_data = xml_start_tag("c:valAx");
   xml_data += write_axis_id(chart.axis_id_1_);
   xml_data += write_scaling(chart.x_axis_.reverse_, chart.x_axis_.has_min_, chart.x_axis_.min_, chart.x_axis_.has_max_,
-                        chart.x_axis_.max_, chart.x_axis_.log_base_);
+                            chart.x_axis_.max_, chart.x_axis_.log_base_);
 
   if(chart.x_axis_.hidden_)
   {
@@ -3482,9 +3458,9 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
     if(chart.type_ == chart_type_t::SCATTER && !series.line_)
     {
       chart_line_t line = {static_cast<color_t>(0x000000), true, 2.25, chart_line_dash_type_t::DASH_SOLID, 0};
-      series.line_        = convert_line_args(line);
+      series.line_      = convert_line_args(line);
     }
-  xml_data += write_xval_ser(chart, series);
+    xml_data += write_xval_ser(chart, series);
   }
   xml_data += write_axis_ids(chart);
   xml_data += xml_end_tag("c:scatterChart");
@@ -3509,21 +3485,45 @@ std::string chart_t::write_radar_chart(chart_t& chart)
 void chart_t::adjust_max_crossing(chart_t& chart)
 {
   if(chart.x_axis_.crossing_max_)
-   {
-      if(chart.y_axis_.axis_position_ == chart_position_t::RIGHT) chart.y_axis_.axis_position_ = chart_position_t::LEFT;
-      if(chart.y_axis_.axis_position_ == chart_position_t::LEFT) chart.y_axis_.axis_position_ = chart_position_t::RIGHT;
-      if(chart.y_axis_.axis_position_ == chart_position_t::TOP) chart.y_axis_.axis_position_ = chart_position_t::BOTTOM;
-      if(chart.y_axis_.axis_position_ == chart_position_t::BOTTOM) chart.y_axis_.axis_position_ = chart_position_t::TOP;
-   }
+  {
+    if(chart.y_axis_.axis_position_ == chart_position_t::RIGHT)
+    {
+      chart.y_axis_.axis_position_ = chart_position_t::LEFT;
+    }
+    if(chart.y_axis_.axis_position_ == chart_position_t::LEFT)
+    {
+      chart.y_axis_.axis_position_ = chart_position_t::RIGHT;
+    }
+    if(chart.y_axis_.axis_position_ == chart_position_t::TOP)
+    {
+      chart.y_axis_.axis_position_ = chart_position_t::BOTTOM;
+    }
+    if(chart.y_axis_.axis_position_ == chart_position_t::BOTTOM)
+    {
+      chart.y_axis_.axis_position_ = chart_position_t::TOP;
+    }
+  }
 
-   if(chart.y_axis_.crossing_max_)
-   {
-      if(chart.x_axis_.axis_position_ == chart_position_t::RIGHT) chart.x_axis_.axis_position_ = chart_position_t::LEFT;
-      if(chart.x_axis_.axis_position_ == chart_position_t::LEFT) chart.x_axis_.axis_position_ = chart_position_t::RIGHT;
-      if(chart.x_axis_.axis_position_ == chart_position_t::TOP) chart.x_axis_.axis_position_ = chart_position_t::BOTTOM;
-      if(chart.x_axis_.axis_position_ == chart_position_t::BOTTOM) chart.x_axis_.axis_position_ = chart_position_t::TOP;
-   }
- }
+  if(chart.y_axis_.crossing_max_)
+  {
+    if(chart.x_axis_.axis_position_ == chart_position_t::RIGHT)
+    {
+      chart.x_axis_.axis_position_ = chart_position_t::LEFT;
+    }
+    if(chart.x_axis_.axis_position_ == chart_position_t::LEFT)
+    {
+      chart.x_axis_.axis_position_ = chart_position_t::RIGHT;
+    }
+    if(chart.x_axis_.axis_position_ == chart_position_t::TOP)
+    {
+      chart.x_axis_.axis_position_ = chart_position_t::BOTTOM;
+    }
+    if(chart.x_axis_.axis_position_ == chart_position_t::BOTTOM)
+    {
+      chart.x_axis_.axis_position_ = chart_position_t::TOP;
+    }
+  }
+}
 
 std::string chart_t::write_scatter_plot_area(chart_t& chart)
 {
@@ -3726,7 +3726,7 @@ void chart_t::initialize_scatter_chart(chart_type_t type)
 
   if(type == chart_type_t::SCATTER_STRAIGHT || type == chart_type_t::SCATTER_SMOOTH)
   {
-    default_marker_         = chart_marker_t{.type_ = chart_marker_type_t::NONE};
+    default_marker_ = chart_marker_t{.type_ = chart_marker_type_t::NONE};
   }
 
   // Initialize the function pointers for this chart type.
@@ -3753,6 +3753,7 @@ void chart_t::initialize_radar_chart(chart_type_t type)
   write_plot_area_  = write_plot_area;
 }
 
+// TODO Add stock chart
 void chart_t::initialize(chart_type_t type)
 {
   switch(type)
@@ -3836,29 +3837,6 @@ std::string chart_t::assemble_xml_file()
   return xml_data;
 }
 
-/*
- * Add data to a data cache in a range object, for testing only.
- */
-/// lxw_error lxw_chart_add_data_cache(lxw_series_range* range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
-/// {
-///   struct lxw_series_data_point* data_point;
-///   uint16_t i;
-///
-///   range->ignore_cache    = LXW_TRUE;
-///   range->num_data_points = rows;
-///
-///   /* Initialize the series range data cache. */
-///   for(i = 0; i < rows; i++)
-///   {
-///     data_point = calloc(1, sizeof(struct lxw_series_data_point));
-///     RETURN_ON_MEM_ERROR(data_point, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///     STAILQ_INSERT_TAIL(range->data_cache, data_point, list_pointers);
-///     data_point->number = data[i * cols + col];
-///   }
-///
-///   return LXW_NO_ERROR;
-/// }
-
 chart_series_t& chart_t::add_series(const std::string& categories, const std::string& values)
 {
   // Scatter charts require categories and values.
@@ -3883,7 +3861,7 @@ chart_series_t& chart_t::add_series(const std::string& categories, const std::st
 
   if(!values.empty())
   {
-    if(categories[0] == '=')
+    if(values[0] == '=')
     {
       series.values_.formula_ = values.substr(1);
     }

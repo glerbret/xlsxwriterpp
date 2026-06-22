@@ -1140,9 +1140,9 @@ struct chart_axis_t
   double max_   = 0;
 
   bool has_major_unit_ = false;
-  double major_unit_ = 0.;
+  double major_unit_   = 0.;
   bool has_minor_unit_ = false;
-  double minor_unit_ = 0.;
+  double minor_unit_   = 0.;
 
   ///   uint16_t interval_unit;
   ///   uint16_t interval_tick;
@@ -1150,7 +1150,7 @@ struct chart_axis_t
   uint16_t log_base_ = 0;
 
   chart_axis_display_unit_t display_units_ = chart_axis_display_unit_t::NONE;
-  bool display_units_visible_ = false;
+  bool display_units_visible_              = false;
 
   bool has_crossing_    = false;
   uint8_t crossing_min_ = 0;
@@ -4094,9 +4094,6 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * @endcode
  */
 /// void chart_show_hidden_data(lxw_chart* chart);
-
-/// lxw_error lxw_chart_add_data_cache(lxw_series_range* range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t
-/// col);
 
 }
 

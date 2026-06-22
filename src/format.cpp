@@ -401,7 +401,8 @@ void format_t::set_valign(format_alignments_t alignment)
   }
   else
   {
-    throw xwpp_exception_t(std::format("format_t::set_valign(): alignment '{}' is not a vertical alignement", static_cast<int>(alignment)));
+    throw xwpp_exception_t(std::format("format_t::set_valign(): alignment '{}' is not a vertical alignement",
+                                       static_cast<int>(alignment)));
   }
 }
 
@@ -417,7 +418,8 @@ void format_t::set_halign(format_alignments_t alignment)
   }
   else
   {
-    throw xwpp_exception_t(std::format("format_t::set_halign(): alignment '{}' is not a horizontal alignement", static_cast<int>(alignment)));
+    throw xwpp_exception_t(std::format("format_t::set_halign(): alignment '{}' is not a horizontal alignement",
+                                       static_cast<int>(alignment)));
   }
 }
 

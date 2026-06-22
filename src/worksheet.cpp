@@ -1692,13 +1692,16 @@ std::string worksheet_t::write_sheet_view() const
   ///     if (self->top_left_cell[0])
   ///         LXW_PUSH_ATTRIBUTES_STR("topLeftCell", self->top_left_cell);
 
-  /* Set the zoom level. */
-  ///     if (self->zoom != 100 && !self->page_view) {
-  ///         LXW_PUSH_ATTRIBUTES_INT("zoomScale", self->zoom);
+  // Set the zoom level.
+  if(zoom_ != 100 && !page_view_)
+  {
+    attributes.emplace_back("zoomScale", std::to_string(zoom_));
 
-  ///         if (self->zoom_scale_normal)
-  ///             LXW_PUSH_ATTRIBUTES_INT("zoomScaleNormal", self->zoom);
-  ///     }
+    if(zoom_scale_normal_)
+    {
+      attributes.emplace_back("zoomScaleNormal", std::to_string(zoom_));
+    }
+  }
 
   attributes.emplace_back("workbookViewId", "0");
 
@@ -8173,18 +8176,17 @@ void worksheet_t::set_v_pagebreaks(const std::vector<col_num_t>& breaks)
   }
 }
 
-/// void
-/// worksheet_set_zoom(lxw_worksheet *self, uint16_t scale)
-/// {
-///     /* Confine the scale to Excel"s range */
-///     if (scale < 10 || scale > 400) {
-///         LXW_WARN("worksheet_set_zoom(): "
-///                  "Zoom factor scale outside range: 10 <= zoom <= 400.");
-///         return;
-///     }
-///
-///     self->zoom = scale;
-/// }
+void worksheet_t::set_zoom(uint16_t scale)
+{
+  // Confine the scale to Excel"s range
+  if(scale < 10 || scale > 400)
+  {
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::set_footer(): zoom factor {} scale outside range: 10 <= zoom <= 400.", scale));
+  }
+
+  zoom_ = scale;
+}
 
 /// void
 /// worksheet_hide_zero(lxw_worksheet *self)

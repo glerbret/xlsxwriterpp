@@ -3811,6 +3811,29 @@ public:
   void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
                     const std::optional<chart_options_t>& user_options);
 
+  /**
+   * @brief Set the worksheet zoom factor.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param scale     Worksheet zoom factor.
+   *
+   * Set the worksheet zoom factor in the range `10 <= zoom <= 400`:
+   *
+   * @code
+   *     worksheet_set_zoom(worksheet1, 50);
+   *     worksheet_set_zoom(worksheet2, 75);
+   *     worksheet_set_zoom(worksheet3, 300);
+   *     worksheet_set_zoom(worksheet4, 400);
+   * @endcode
+   *
+   * The default zoom factor is 100. It isn't possible to set the zoom to
+   * "Selection" because it is calculated by Excel at run-time.
+   *
+   * Note, `%worksheet_zoom()` does not affect the scale of the printed
+   * page. For that you should use `worksheet_set_print_scale()`.
+   */
+  void set_zoom(uint16_t scale);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -5482,29 +5505,6 @@ private:
  *
  */
 /// void worksheet_print_across(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the worksheet zoom factor.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param scale     Worksheet zoom factor.
- *
- * Set the worksheet zoom factor in the range `10 <= zoom <= 400`:
- *
- * @code
- *     worksheet_set_zoom(worksheet1, 50);
- *     worksheet_set_zoom(worksheet2, 75);
- *     worksheet_set_zoom(worksheet3, 300);
- *     worksheet_set_zoom(worksheet4, 400);
- * @endcode
- *
- * The default zoom factor is 100. It isn't possible to set the zoom to
- * "Selection" because it is calculated by Excel at run-time.
- *
- * Note, `%worksheet_zoom()` does not affect the scale of the printed
- * page. For that you should use `worksheet_set_print_scale()`.
- */
-/// void worksheet_set_zoom(lxw_worksheet *worksheet, uint16_t scale);
 
 /**
  * @brief Set the option to display or hide gridlines on the screen and
