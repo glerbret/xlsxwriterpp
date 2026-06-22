@@ -3834,6 +3834,45 @@ public:
    */
   void set_zoom(uint16_t scale);
 
+  /**
+   * @brief Set the background image for a worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param filename  The image filename, with path if required.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_background()` function can be used to set the
+   * background image for a worksheet:
+   *
+   * @code
+   *      worksheet_set_background(worksheet, "logo.png");
+   * @endcode
+   *
+   * @image html background.png
+   *
+   * The ``set_background()`` method supports all the image formats supported by
+   * `worksheet_insert_image()`.
+   *
+   * Some people use this method to add a watermark background to their
+   * document. However, Microsoft recommends using a header image [to set a
+   * watermark][watermark]. The choice of method depends on whether you want the
+   * watermark to be visible in normal viewing mode or just when the file is
+   * printed. In Xlsxwriter++ you can get the header watermark effect using
+   * `worksheet_set_header()`:
+   *
+   * @code
+   *     lxw_header_footer_options header_options = {.image_center =
+   * "watermark.png"}; worksheet_set_header_opt(worksheet, "&C&G",
+   * &header_options);
+   * @endcode
+   *
+   * [watermark]:https://support.microsoft.com/en-us/office/add-a-watermark-in-excel-a372182a-d733-484e-825c-18ddf3edf009
+   *
+   */
+  // TODO API with path
+  void set_background(const std::string& filename);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -3874,7 +3913,7 @@ private:
   [[nodiscard]] std::string write_drawings();
   [[nodiscard]] std::string write_legacy_drawing();
   [[nodiscard]] std::string write_legacy_drawing_hf();
-  [[nodiscard]] std::string write_picture() const;
+  [[nodiscard]] std::string write_picture();
   [[nodiscard]] std::string write_table_parts() const;
   [[nodiscard]] std::string write_ext_list() const;
   [[nodiscard]] std::string write_rows() const;
@@ -3918,6 +3957,7 @@ private:
   void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
   void prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props, bool is_chartsheet);
+  void prepare_background(uint32_t image_ref_id, object_properties_t& object_props);
 
   std::function<int32_t(format_t*)> get_xf_index_;
   ///     FILE *file;
@@ -4062,13 +4102,13 @@ private:
   bool has_vml_                = false;
   bool has_comments_           = false;
   bool has_header_vml_         = false;
-  ///     uint8_t has_background_image;
+  bool has_background_image_   = false;
   ///     uint8_t has_buttons;
   bool storing_embedded_image_ = false;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
-  ///     lxw_rel_tuple *external_background_link;
+  std::optional<std::tuple<std::string, std::string, std::string>> external_background_link_;
   std::string comment_author_;
   std::string vml_data_id_str_;
   std::string vml_header_id_str_;
@@ -4101,7 +4141,8 @@ private:
   ///     lxw_object_properties *footer_left_object_props;
   ///     lxw_object_properties *footer_center_object_props;
   ///     lxw_object_properties *footer_right_object_props;
-  ///     lxw_object_properties *background_image;
+  std::optional<object_properties_t> background_image_;
+  ///     lxw_object_properties *;
 
   ///     lxw_filter_rule_obj **filter_rules;
   ///     col_num_t num_filter_rules;
@@ -4691,45 +4732,6 @@ private:
 ///                                           uint32_t pixels,
 ///                                           lxw_format *format,
 ///                                           lxw_row_col_options *options);
-
-/**
- * @brief Set the background image for a worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param filename  The image filename, with path if required.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_background()` function can be used to set the
- * background image for a worksheet:
- *
- * @code
- *      worksheet_set_background(worksheet, "logo.png");
- * @endcode
- *
- * @image html background.png
- *
- * The ``set_background()`` method supports all the image formats supported by
- * `worksheet_insert_image()`.
- *
- * Some people use this method to add a watermark background to their
- * document. However, Microsoft recommends using a header image [to set a
- * watermark][watermark]. The choice of method depends on whether you want the
- * watermark to be visible in normal viewing mode or just when the file is
- * printed. In Xlsxwriter++ you can get the header watermark effect using
- * `worksheet_set_header()`:
- *
- * @code
- *     lxw_header_footer_options header_options = {.image_center =
- * "watermark.png"}; worksheet_set_header_opt(worksheet, "&C&G",
- * &header_options);
- * @endcode
- *
- * [watermark]:https://support.microsoft.com/en-us/office/add-a-watermark-in-excel-a372182a-d733-484e-825c-18ddf3edf009
- *
- */
-/// lxw_error worksheet_set_background(lxw_worksheet *worksheet,
-///                                    const char *filename);
 
 /**
  * @brief Set the background image for a worksheet, from a buffer.
@@ -6030,10 +6032,6 @@ private:
 /// void lxw_worksheet_free(lxw_worksheet *worksheet);
 
 /// void lxw_worksheet_write_single_row(lxw_worksheet *worksheet);
-
-/// void lxw_worksheet_prepare_background(lxw_worksheet *worksheet,
-///                                       uint32_t image_ref_id,
-///                                       lxw_object_properties *object_props);
 
 /// void lxw_worksheet_prepare_tables(lxw_worksheet *worksheet,
 ///                                   uint32_t table_id);

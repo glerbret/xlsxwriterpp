@@ -1000,8 +1000,7 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
       if(ws.external_hyperlinks_.empty() && ws.external_drawing_links_.empty() &&
          ///             STAILQ_EMPTY(ws.external_table_links) &&
          !ws.external_vml_header_link_.has_value() && !ws.external_vml_comment_link_.has_value() &&
-         ///             !ws.external_background_link &&
-         !ws.external_comment_link_.has_value())
+         !ws.external_background_link_.has_value() && !ws.external_comment_link_.has_value())
       {
         continue;
       }
@@ -1028,15 +1027,16 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
         relationships.add_worksheet_relationship(std::get<0>(header), std::get<1>(header), std::get<2>(header));
       }
 
-      ///         rel = worksheet->external_background_link;
-      ///         if (rel)
-      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-      ///                                            rel->target_mode);
+      if(ws.external_background_link_.has_value())
+      {
+        auto rel = ws.external_background_link_.value();
+        relationships.add_worksheet_relationship(std::get<0>(rel), std::get<1>(rel), std::get<2>(rel));
+      }
 
       ///         STAILQ_FOREACH(rel, worksheet->external_table_links, list_pointers) {
       ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
       ///                                            rel->target_mode);
-      ///         }
+      ///}
 
       if(ws.external_comment_link_.has_value())
       {

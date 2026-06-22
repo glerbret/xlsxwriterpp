@@ -2492,11 +2492,6 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
 
 void worksheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props)
 {
-  ///     lxw_rel_tuple *relationship = NULL;
-  ///     char filename[LXW_FILENAME_LENGTH];
-  ///     lxw_vml_obj *header_image_vml;
-  ///     char *extension;
-
   image_props_.push_back(object_props);
 
   if(find_vml_drawing_rel_index(object_props.md5_) == 0)
@@ -2525,40 +2520,12 @@ void worksheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_
   header_image_objs_.push_back(header_image_vml);
 }
 
-/// void
-/// lxw_worksheet_prepare_background(lxw_worksheet *self,
-///                                  uint32_t image_ref_id,
-///                                  lxw_object_properties *object_props)
-/// {
-///     lxw_rel_tuple *relationship = NULL;
-///     char filename[LXW_FILENAME_LENGTH];
-
-///     STAILQ_INSERT_TAIL(self->image_props, object_props, list_pointers);
-
-///     relationship = calloc(1, sizeof(lxw_rel_tuple));
-///     RETURN_VOID_ON_MEM_ERROR(relationship);
-
-///     relationship->type = lxw_strdup("/image");
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-///     lxw_snprintf(filename, 32, "../media/image%d.%s", image_ref_id,
-///                  object_props->extension);
-
-///     relationship->target = lxw_strdup(filename);
-///     GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///     self->external_background_link = relationship;
-
-///     return;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-/// }
+void worksheet_t::prepare_background(uint32_t image_ref_id, object_properties_t& object_props)
+{
+  image_props_.push_back(object_props);
+  external_background_link_ =
+      std::make_tuple("/image"s, std::format("../media/image{}.{}", image_ref_id, object_props.extension_), ""s);
+}
 
 void worksheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props,
                                 bool is_chartsheet)
@@ -4250,25 +4217,20 @@ std::string worksheet_t::write_legacy_drawing_hf()
   });
 }
 
-std::string worksheet_t::write_picture() const
+std::string worksheet_t::write_picture()
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
+  if(!has_background_image_)
+  {
+    return "";
+  }
+  else
+  {
+    rel_count_++;
+  }
 
-  ///     if (!self->has_background_image)
-  ///         return;
-  ///     else
-  ///         self->rel_count++;
-
-  ///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", self->rel_count);
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-
-  ///     lxw_xml_empty_tag(self->file, "picture", &attributes);
-
-  return xml_data;
+  return xml_empty_tag("picture", {
+                                      {"r:id", std::format("rId{}", rel_count_)}
+  });
 }
 
 std::string worksheet_t::write_drawing(uint16_t id) const
@@ -8545,52 +8507,32 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
   embed_image_buffer(row_num, col_num, image_buffer, std::nullopt);
 }
 
-/// lxw_error
-/// worksheet_set_background(lxw_worksheet *self, const char *filename)
-/// {
-///     FILE *image_stream;
-///     lxw_object_properties *object_props;
-///
-///     if (!filename) {
-///         LXW_WARN("worksheet_set_background(): "
-///                  "filename must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Check that the image file exists and can be opened. */
-///     image_stream = lxw_fopen(filename, "rb");
-///     if (!image_stream) {
-///         LXW_WARN_FORMAT1("worksheet_set_background(): "
-///                          "file doesn't exist or can't be opened: %s.",
-///                          filename);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup(filename);
-///     object_props->stream = image_stream;
-///     object_props->is_background = LXW_TRUE;
-///
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         _free_object_properties(self->background_image);
-///         self->background_image = object_props;
-///         self->has_background_image = LXW_TRUE;
-///         fclose(image_stream);
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+void worksheet_t::set_background(const std::string& filename)
+{
+  if(filename.empty())
+  {
+    throw xwpp_exception_t("worksheet.set_background(): filename must be specified.");
+  }
+
+  // Check that the image file exists and can be opened.
+  {
+    std::ifstream image_stream(filename);
+    if(!image_stream)
+    {
+      throw xwpp_exception_t(
+          std::format("worksheet_t::set_background(): image file '{}' doesn't exist or cannot be opened", filename));
+    }
+  }
+
+  // Create a new object to hold the image properties.
+  object_properties_t object_props;
+  object_props.filename_      = filename;
+  object_props.is_background_ = true;
+
+  get_image_properties(object_props);
+  background_image_     = object_props;
+  has_background_image_ = true;
+}
 
 /// lxw_error
 /// worksheet_set_background_buffer(lxw_worksheet *self,

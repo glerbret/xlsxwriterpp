@@ -747,9 +747,7 @@ void workbook_t::prepare_drawings()
     //      }
 
     if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() && worksheet.chart_data_.empty() &&
-       !worksheet.has_header_vml_
-       ///             !worksheet->has_background_image
-    )
+       !worksheet.has_header_vml_ && !worksheet.has_background_image_)
     {
       continue;
     }
@@ -786,44 +784,28 @@ void workbook_t::prepare_drawings()
       worksheet.set_error_cell(object_props, ref_id);
     }
 
-    /* Prepare background images. */
-    ///         if (worksheet->has_background_image) {
+    // Prepare background images.
+    if(worksheet.has_background_image_)
+    {
+      object_properties_t object_props = worksheet.background_image_.value();
+      store_image_type(object_props.image_type_);
 
-    ///             object_props = worksheet->background_image;
+      uint32_t ref_id;
+      const auto it = background_md5_.find(object_props.md5_);
+      if(it != std::end(background_md5_))
+      {
+        ref_id                     = it->second;
+        object_props.is_duplicate_ = true;
+      }
+      else
+      {
+        image_ref_id++;
+        ref_id                             = image_ref_id;
+        background_md5_[object_props.md5_] = ref_id;
+      }
 
-    ///             _store_image_type(self, object_props->image_type);
-
-    /* Check for duplicate images and only store the first instance. */
-    ///             if (object_props->md5) {
-    ///                 tmp_image_md5.md5 = object_props->md5;
-    ///                 found_duplicate_image = RB_FIND(lxw_image_md5s,
-    ///                                                 self->background_md5s,
-    ///                                                 &tmp_image_md5);
-    ///             }
-
-    ///             if (found_duplicate_image) {
-    ///                 ref_id = found_duplicate_image->id;
-    ///                 object_props->is_duplicate = LXW_TRUE;
-    ///             }
-    ///             else {
-    ///                 image_ref_id++;
-    ///                 ref_id = image_ref_id;
-
-    /// #ifndef USE_NO_MD5
-    ///                 new_image_md5 = calloc(1, sizeof(lxw_image_md5));
-    /// #endif
-    ///                 if (new_image_md5 && object_props->md5) {
-    ///                     new_image_md5->id = ref_id;
-    ///                     new_image_md5->md5 = lxw_strdup(object_props->md5);
-
-    ///                     RB_INSERT(lxw_image_md5s, self->background_md5s,
-    ///                               new_image_md5);
-    ///                 }
-    ///             }
-
-    ///             lxw_worksheet_prepare_background(worksheet, ref_id,
-    ///             object_props);
-    ///         }
+      worksheet.prepare_background(ref_id, object_props);
+    }
 
     // Prepare worksheet images.
     for(auto& object_props: worksheet.image_props_)

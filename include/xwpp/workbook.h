@@ -607,7 +607,7 @@ private:
   std::map<std::string, uint32_t> image_md5_;
   std::map<std::string, uint32_t> embedded_image_md5_;
   std::map<std::string, uint32_t> header_image_md5_;
-  ///     struct lxw_image_md5s *background_md5s;
+  std::map<std::string, uint32_t> background_md5_;
   // Use list to not invalidate referenced owned by caller in case of insertion
   // of new format
   std::list<chart_t> charts_;
