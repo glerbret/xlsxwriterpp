@@ -97,29 +97,23 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
   return range;
 }
 
-/// void
-/// lxw_rowcol_to_range_abs(char *range,
-///                         row_num_t first_row, col_num_t first_col,
-///                         row_num_t last_row, col_num_t last_col)
-/// {
-///     size_t pos;
+std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  // Add the first cell to the range.
+  std::string range = rowcol_to_cell_abs(first_row, first_col, 1, 1);
 
-/* Add the first cell to the range. */
-///     lxw_rowcol_to_cell_abs(range, first_row, first_col, 1, 1);
+  // If the start and end cells are the same just return a single cell.
+  if (first_row == last_row && first_col == last_col)
+    return range;
 
-/* If the start and end cells are the same just return a single cell. */
-///     if (first_row == last_row && first_col == last_col)
-///         return;
+  // Add the range separator.
+  range += ':';
 
-/* Get the end of the cell. */
-///     pos = strlen(range);
+  // Add the first cell to the range.
+  range += rowcol_to_cell_abs(last_row, last_col, 1, 1);
 
-/* Add the range separator. */
-///     range[pos++] = ':';
-
-/* Add the first cell to the range. */
-///     lxw_rowcol_to_cell_abs(&range[pos], last_row, last_col, 1, 1);
-/// }
+  return range;
+}
 
 std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
                                   row_num_t last_row, col_num_t last_col)

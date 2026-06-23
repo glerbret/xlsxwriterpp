@@ -12,6 +12,8 @@
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
+#include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <format>
 #include <functional>
@@ -329,20 +331,6 @@ void workbook_t::prepare_workbook()
   prepare_fills();
 }
 
-/// static int _compare_defined_names(lxw_defined_name *a, lxw_defined_name *b)
-/// {
-///     int res = strcmp(a->normalised_name, b->normalised_name);
-
-/* Primary comparison based on defined name. */
-///     if (res)
-///         return res;
-
-/* Secondary comparison based on worksheet name. */
-///     res = strcmp(a->normalised_sheetname, b->normalised_sheetname);
-
-///     return res;
-/// }
-
 /*
  * Process and store the defined names. The defined names are stored with
  * the Workbook.xml but also with the App.xml if they refer to a sheet
@@ -350,10 +338,12 @@ void workbook_t::prepare_workbook()
  * order for consistency with Excel. The names need to be normalized before
  * sorting.
  */
+void workbook_t::store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
+                              int16_t index, bool hidden)
 ///  STATIC lxw_error _store_defined_name(lxw_workbook *self, const char *name,
 ///                     const char *app_name, const char *formula, int16_t index,
 ///                     uint8_t hidden)
-/// {
+{
 ///     lxw_sheet *sheet;
 ///     lxw_worksheet *worksheet;
 ///     lxw_defined_name *defined_name;
@@ -362,137 +352,127 @@ void workbook_t::prepare_workbook()
 ///     char *tmp_str;
 ///     char *worksheet_name;
 
-/* Do some checks on the input data */
-///     if (!name || !formula)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
+  // Do some checks on the input data
+  if (name.empty() || formula.empty())
+    throw xwpp_exception_t("workbook_t::store_defined_name(): 'name' and 'formula' cannot be empty");
 
-///     if (lxw_str_is_empty(name) || lxw_str_is_empty(formula))
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-
-///     if (lxw_utf8_strlen(name) > LXW_DEFINED_NAME_LENGTH ||
-///         lxw_utf8_strlen(formula) > LXW_DEFINED_NAME_LENGTH) {
-///         return LXW_ERROR_128_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Allocate a new defined_name to be added to the linked list of names. */
-///     defined_name = calloc(1, sizeof(struct lxw_defined_name));
-///     RETURN_ON_MEM_ERROR(defined_name, LXW_ERROR_MEMORY_MALLOC_FAILED);
+  defined_name_t defined_name;
 
 /* Copy the user input string. */
 ///     lxw_strcpy(name_copy, name);
 
-/* Set the worksheet index or -1 for a global defined name. */
-///     defined_name->index = index;
-///     defined_name->hidden = hidden;
+  // Set the worksheet index or -1 for a global defined name.
+  defined_name.index_ = index;
+  defined_name.hidden_ = hidden;
 
-/* Check for local defined names like like "Sheet1!name". */
-///     tmp_str = strchr(name_copy, '!');
+  // Check for local defined names like like "Sheet1!name".
+  size_t found_string = name.find('!');
+  if(found_string == std::string::npos)
+  {
+    // The name is global. We just store the defined name string.
+    defined_name.name_ = name;
+  }
+  else
+  {
+    // The name is worksheet local. We need to extract the sheet name
+    // and map it to a sheet index.
+    std::string worksheet_name = name.substr(0, found_string);
+    std::string tmp_str   = name.substr(found_string + 1);
 
-///     if (tmp_str == NULL) {
-/* The name is global. We just store the defined name string. */
-///         lxw_strcpy(defined_name->name, name_copy);
-///     }
-///     else {
-/* The name is worksheet local. We need to extract the sheet name
- * and map it to a sheet index. */
 
-/* Split the into the worksheet name and defined name. */
-///         *tmp_str = '\0';
-///         tmp_str++;
-///         worksheet_name = name_copy;
+    if(tmp_str.empty() || worksheet_name.empty())
+    {
+      throw xwpp_exception_t("workbook_t::store_defined_name(): nor sheetname neither area can be empty.");
+    }
 
-///         if (lxw_str_is_empty(tmp_str) || lxw_str_is_empty(worksheet_name))
-///             goto mem_error;
+    // Remove any worksheet quoting.
+    if(worksheet_name.front() == '\'')
+    {
+      worksheet_name = worksheet_name.substr(1);
+    }
+    if(worksheet_name.back() == '\'')
+    {
+      worksheet_name.pop_back();
+    }
 
-/* Remove any worksheet quoting. */
-///         if (worksheet_name[0] == '\'')
-///             worksheet_name++;
-///         if (strlen(worksheet_name) > 0
-///             && worksheet_name[strlen(worksheet_name) - 1] == '\'') {
-///             worksheet_name[strlen(worksheet_name) - 1] = '\0';
-///         }
+    // Search for worksheet name to get the equivalent worksheet index.
+    for(auto& sheet: sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& ws = std::get<0>(sheet);
 
-/* Search for worksheet name to get the equivalent worksheet index. */
-///         STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-///             if (sheet->is_chartsheet)
-///                 continue;
-///             else
-///                 worksheet = sheet->u.worksheet;
+      if(worksheet_name == ws.name_)
+      {
+        defined_name.index_ = ws.index_;
+        defined_name.normalised_sheetname_ =worksheet_name;
+      }
 
-///             if (strcmp(worksheet_name, worksheet->name) == 0) {
-///                 defined_name->index = worksheet->index;
-///                 lxw_strcpy(defined_name->normalised_sheetname,
-///                            worksheet_name);
-///             }
-///         }
+    }
+    }
 
-/* If we didn't find the worksheet name we exit. */
-///         if (defined_name->index == -1)
-///             goto mem_error;
+    // If we didn't find the worksheet name we exit.
+     if (defined_name.index_ == -1)
+        throw xwpp_exception_t(std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
 
-///         lxw_strcpy(defined_name->name, tmp_str);
-///     }
+    defined_name.name_ = tmp_str;
+  }
 
-/* Print titles and repeat title pass in the name used for App.xml. */
-///     if (app_name) {
-///         lxw_strcpy(defined_name->app_name, app_name);
-///         lxw_strcpy(defined_name->normalised_sheetname, app_name);
-///     }
-///     else {
-///         lxw_strcpy(defined_name->app_name, name);
-///     }
+  // Print titles and repeat title pass in the name used for App.xml.
+  if (!app_name.empty())
+  {
+    defined_name.app_name_ = app_name;
+    defined_name.normalised_sheetname_ = app_name;
+  }
+  else
+  {
+    defined_name.app_name_ = name;
+  }
 
-/* We need to normalize the defined names for sorting. This involves
- * removing any _xlnm namespace  and converting it to lowercase. */
-///     tmp_str = strstr(name_copy, "_xlnm.");
-///     if (tmp_str)
-///         lxw_strcpy(defined_name->normalised_name, defined_name->name + 6);
-///     else
-///         lxw_strcpy(defined_name->normalised_name, defined_name->name);
+  // We need to normalize the defined names for sorting. This involves
+  // removing any _xlnm namespace  and converting it to lowercase.
+  found_string = defined_name.name_.find("_xlnm.");
+  if(found_string == std::string::npos)
+  {
+    defined_name.normalised_name_ = defined_name.name_;
+  }
+  else
+  {
+    defined_name.normalised_name_ = defined_name.name_.substr(found_string+ 6);
+  }
 
-///     lxw_str_tolower(defined_name->normalised_name);
-///     lxw_str_tolower(defined_name->normalised_sheetname);
+  std::transform(std::begin(defined_name.normalised_name_), std::end(defined_name.normalised_name_),
+                 std::begin(defined_name.normalised_name_), [] (char c) { return std::tolower(c);});
+  std::transform(std::begin(defined_name.normalised_sheetname_), std::end(defined_name.normalised_sheetname_),
+                 std::begin(defined_name.normalised_sheetname_), [] (char c) { return std::tolower(c);});
 
-/* Strip leading "=" from the formula. */
-///     if (formula[0] == '=')
-///         lxw_strcpy(defined_name->formula, formula + 1);
-///     else
-///         lxw_strcpy(defined_name->formula, formula);
+  // Strip leading "=" from the formula.
+  if (formula[0] == '=')
+    defined_name.formula_ = formula.substr(1);
+  else
+    defined_name.formula_ = formula;
 
-/* We add the defined name to the list in sorted order. */
-///     list_defined_name = TAILQ_FIRST(self->defined_names);
+  // We add the defined name to the list in sorted order.
+  for(auto it = std::cbegin(defined_names_); it != std::cend(defined_names_); ++it)
+  {
+    if(defined_name.normalised_name_ == it->normalised_name_ && defined_name.normalised_sheetname_ == it->normalised_sheetname_)
+    {
+      // The entry already exists. We exit and don't overwrite.
+      return;
+    }
+    else if(defined_name.normalised_name_ < it->normalised_name_  ||
+      (defined_name.normalised_name_ == it->normalised_name_ && defined_name.normalised_sheetname_ < it->normalised_sheetname_)
+    )
+    {
+      // New defined name is inserted in sorted order before other entries.
+      defined_names_.insert(it, defined_name);
+      return;
+    }
+  }
 
-///     if (list_defined_name == NULL ||
-///         _compare_defined_names(defined_name, list_defined_name) < 1) {
-/* List is empty or defined name goes to the head. */
-///         TAILQ_INSERT_HEAD(self->defined_names, defined_name, list_pointers);
-///         return LXW_NO_ERROR;
-///     }
-
-///     TAILQ_FOREACH(list_defined_name, self->defined_names, list_pointers) {
-///         int res = _compare_defined_names(defined_name, list_defined_name);
-
-/* The entry already exists. We exit and don't overwrite. */
-///         if (res == 0)
-///             goto mem_error;
-
-/* New defined name is inserted in sorted order before other entries. */
-///         if (res < 0) {
-///             TAILQ_INSERT_BEFORE(list_defined_name, defined_name,
-///                                 list_pointers);
-///             return LXW_NO_ERROR;
-///         }
-/// }
-
-/* If the entry wasn't less than any of the entries in the list we add it
- * to the end. */
-///     TAILQ_INSERT_TAIL(self->defined_names, defined_name, list_pointers);
-///     return LXW_NO_ERROR;
-
-/// mem_error:
-///     free(defined_name);
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+  // Insert at the end otherwise
+  defined_names_.push_back(defined_name);
+}
 
 /*
  * Populate the data cache of a chart data series by reading the data from the
@@ -937,32 +917,24 @@ void workbook_t::prepare_defined_names()
   ///     char first_col[8];
   ///     char last_col[8];
 
-  ///     STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-  ///         if (sheet->is_chartsheet)
-  ///             continue;
-  ///         else
-  ///             worksheet = sheet->u.worksheet;
-  /*
-   * Check for autofilter settings and store them.
-   */
-  ///         if (worksheet->autofilter.in_use) {
+  for(auto& sheet: sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& ws = std::get<worksheet_t>(sheet);
 
-  ///             lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-  ///                          "%s!_FilterDatabase", worksheet->quoted_name);
+      // Check for autofilter settings and store them.
+      if(ws.autofilter_.in_use_)
+      {
+        std::string area = rowcol_to_range_abs(ws.autofilter_.first_row_,
+                                               ws.autofilter_.first_col_,
+                                               ws.autofilter_.last_row_,
+                                               ws.autofilter_.last_col_);
 
-  ///             lxw_rowcol_to_range_abs(area,
-  ///                                     worksheet->autofilter.first_row,
-  ///                                     worksheet->autofilter.first_col,
-  ///                                     worksheet->autofilter.last_row,
-  ///                                     worksheet->autofilter.last_col);
-
-  ///             lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH, "%s!%s",
-  ///                          worksheet->quoted_name, area);
-
-  /* Autofilters are the only defined name to set the hidden flag. */
-  ///             _store_defined_name(self, "_xlnm._FilterDatabase", app_name,
-  ///                                 range, worksheet->index, LXW_TRUE);
-  ///         }
+        // Autofilters are the only defined name to set the hidden flag.
+        store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", ws.quoted_name_),
+                          std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
+      }
 
   /*
    * Check for Print Area settings and store them.
@@ -1076,7 +1048,8 @@ void workbook_t::prepare_defined_names()
   ///                                     range, worksheet->index, LXW_FALSE);
   ///             }
   ///         }
-  ///     }
+    }
+  }
 }
 
 void workbook_t::prepare_tables()
@@ -1234,41 +1207,35 @@ std::string workbook_t::write_calc_pr() const
   });
 }
 
-/// STATIC void _write_defined_name(lxw_workbook *self, lxw_defined_name *defined_name)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+std::string workbook_t::write_defined_name(const defined_name_t& defined_name) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes
+  {
+    {"name", defined_name.name_}
+  };
 
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("name", defined_name->name);
+  if (defined_name.index_ != -1)
+    attributes.emplace_back("localSheetId", std::to_string(defined_name.index_));
 
-///     if (defined_name->index != -1)
-///         LXW_PUSH_ATTRIBUTES_INT("localSheetId", defined_name->index);
+  if (defined_name.hidden_)
+        attributes.emplace_back("hidden", "1");
 
-///     if (defined_name->hidden)
-///         LXW_PUSH_ATTRIBUTES_INT("hidden", 1);
-
-///     lxw_xml_data_element(self->file, "definedName", defined_name->formula,
-///                          &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data_element("definedName", defined_name.formula_, attributes);
+}
 
 std::string workbook_t::write_defined_names() const
 {
-  ///     lxw_defined_name *defined_name;
+  if(defined_names_.empty())
+          return "";
 
-  ///     if (TAILQ_EMPTY(self->defined_names))
-  ///         return;
+  std::string xml_data = xml_start_tag("definedNames");
+  for(const auto& defined_name: defined_names_)
+  {
+    xml_data += write_defined_name(defined_name);
+  }
+  xml_data += xml_end_tag("definedNames");
 
-  ///     lxw_xml_start_tag(self->file, "definedNames", NULL);
-
-  ///     TAILQ_FOREACH(defined_name, self->defined_names, list_pointers) {
-  ///         _write_defined_name(self, defined_name);
-  ///     }
-
-  ///     lxw_xml_end_tag(self->file, "definedNames");
-  return "";
+  return xml_data;
 }
 
 std::string workbook_t::assemble_xml_file()

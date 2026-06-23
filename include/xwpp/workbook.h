@@ -85,16 +85,16 @@ namespace xwpp
 ///     RB_ENTRY (lxw_chartsheet_name) tree_pointers;
 /// } lxw_chartsheet_name;
 
-/* Struct to represent a defined name. */
-/// typedef struct lxw_defined_name {
-///     int16_t index;
-///     uint8_t hidden;
-///     char name[LXW_DEFINED_NAME_LENGTH];
-///     char app_name[LXW_DEFINED_NAME_LENGTH];
-///     char formula[LXW_DEFINED_NAME_LENGTH];
-///     char normalised_name[LXW_DEFINED_NAME_LENGTH];
-///     char normalised_sheetname[LXW_DEFINED_NAME_LENGTH];
-/// } lxw_defined_name;
+struct defined_name_t
+{
+  int16_t index_ = 0;
+  bool hidden_ = false;
+  std::string name_;
+  std::string app_name_;
+  std::string formula_;
+  std::string normalised_name_;
+  std::string normalised_sheetname_;
+};
 
 struct doc_properties_t
 {
@@ -565,6 +565,8 @@ private:
 
   void store_image_type(image_types_t image_type);
 
+  void store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
+                              int16_t index, bool hidden);
   /**
    * @brief Get a worksheet object from its name.
    *
@@ -593,6 +595,7 @@ private:
   [[nodiscard]] std::string write_sheets() const;
   [[nodiscard]] std::string write_defined_names() const;
   [[nodiscard]] std::string write_calc_pr() const;
+  [[nodiscard]] std::string write_defined_name(const defined_name_t& defined_name) const;
 
   static const size_t XWPP_SHEETNAME_MAX = 31;
 
@@ -616,7 +619,7 @@ private:
   // of new format
   std::list<format_t> formats_;
 
-  ///     struct lxw_defined_names *defined_names;
+  std::list<defined_name_t> defined_names_;
   shared_strings_t sst_;
   doc_properties_t properties_;
   std::vector<custom_property_t> custom_properties_;
@@ -1029,13 +1032,6 @@ Chart
 /// void lxw_workbook_free(lxw_workbook *workbook);
 /// void lxw_workbook_set_default_xf_indices(lxw_workbook *workbook);
 
-/// STATIC void _write_defined_name(lxw_workbook *self,
-///                                 lxw_defined_name *define_name);
-
-/// STATIC lxw_error _store_defined_name(lxw_workbook *self, const char *name,
-///                                      const char *app_name,
-///                                      const char *formula, int16_t index,
-///                                      uint8_t hidden);
 
 }
 

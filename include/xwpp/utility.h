@@ -147,9 +147,8 @@ namespace xwpp
 [[nodiscard]] std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                           col_num_t last_col);
 
-/// void lxw_rowcol_to_range_abs(char *range,
-///                              row_num_t first_row, col_num_t first_col,
-///                              row_num_t last_row, col_num_t last_col);
+[[nodiscard]] std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col,
+                                              row_num_t last_row, col_num_t last_col);
 
 std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
                                   row_num_t last_row, col_num_t last_col);
