@@ -1432,6 +1432,8 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
 ///     return NULL;
 /// }
 
+// TODO No need to create chart through workbook. Can be autonomous object and be added
+// to worksheet with insert_chart API (without duplication check)
 chart_t& workbook_t::add_chart(chart_type_t chart_type)
 {
   if(chart_type == chart_type_t::NONE)
@@ -1462,7 +1464,7 @@ int32_t workbook_t::get_xf_index(format_t* format)
     return format->xf_index_;
   }
 
-  // TODO Add search two be sure there is no duplication.
+  // TODO Add search to be sure there is no duplication.
   format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
   used_xf_formats_.push_back(format);
 

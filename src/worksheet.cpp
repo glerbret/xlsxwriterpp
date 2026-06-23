@@ -882,33 +882,48 @@ uint32_t worksheet_t::find_vml_drawing_rel_index(const std::string& target)
 ///         return pixels * 0.75;
 /// }
 
-/// void _set_custom_filter(lxw_filter_rule_obj *rule_obj)
-/// {
-///     rule_obj->is_custom = LXW_TRUE;
+void set_custom_filter(filter_rule_obj_t& rule_obj)
+{
+  rule_obj.is_custom_ = true;
 
-///     if (rule_obj->criteria1 == LXW_FILTER_CRITERIA_EQUAL_TO)
-///         rule_obj->is_custom = LXW_FALSE;
+  if(rule_obj.criteria1_ == filter_criteria_t::EQUAL_TO)
+  {
+    rule_obj.is_custom_ = false;
+  }
 
-///     if (rule_obj->criteria1 == LXW_FILTER_CRITERIA_BLANKS)
-///         rule_obj->is_custom = LXW_FALSE;
+  if(rule_obj.criteria1_ == filter_criteria_t::BLANKS)
+  {
+    rule_obj.is_custom_ = false;
+  }
 
-///     if (rule_obj->criteria2 != LXW_FILTER_CRITERIA_NONE) {
-///         if (rule_obj->criteria1 == LXW_FILTER_CRITERIA_EQUAL_TO)
-///             rule_obj->is_custom = LXW_FALSE;
+  if(rule_obj.criteria2_ != filter_criteria_t::NONE)
+  {
+    if(rule_obj.criteria1_ == filter_criteria_t::EQUAL_TO)
+    {
+      rule_obj.is_custom_ = false;
+    }
 
-///         if (rule_obj->criteria1 == LXW_FILTER_CRITERIA_BLANKS)
-///             rule_obj->is_custom = LXW_FALSE;
+    if(rule_obj.criteria1_ == filter_criteria_t::BLANKS)
+    {
+      rule_obj.is_custom_ = false;
+    }
 
-///         if (rule_obj->type == LXW_FILTER_TYPE_AND)
-///             rule_obj->is_custom = LXW_TRUE;
-///     }
+    if(rule_obj.type_ == filter_type_t::AND)
+    {
+      rule_obj.is_custom_ = true;
+    }
+  }
 
-///     if (rule_obj->value1_string && strpbrk(rule_obj->value1_string, "*?"))
-///         rule_obj->is_custom = LXW_TRUE;
+  if(!rule_obj.value1_string_.empty() && rule_obj.value1_string_.find("*?") != std::string::npos)
+  {
+    rule_obj.is_custom_ = true;
+  }
 
-///     if (rule_obj->value2_string && strpbrk(rule_obj->value2_string, "*?"))
-///         rule_obj->is_custom = LXW_TRUE;
-/// }
+  if(!rule_obj.value2_string_.empty() && rule_obj.value2_string_.find("*?") != std::string::npos)
+  {
+    rule_obj.is_custom_ = true;
+  }
+}
 
 /// void _check_and_copy_table_style(lxw_table_obj *table_obj,
 ///                             lxw_table_options *user_options)
@@ -1935,12 +1950,13 @@ std::string worksheet_t::write_row(const row_t& row) const
 std::string worksheet_t::write_row(const row_t& row, const std::string& spans) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
-  ///     int32_t xf_index = 0;
+  int32_t xf_index    = 0;
   const double height = (row.height_changed_ ? row.height_ : default_row_height_);
 
-  ///     if (row->format) {
-  ///         xf_index = lxw_format_get_xf_index(row->format);
-  ///     }
+  if(row.format_)
+  {
+    xf_index = get_xf_index_(row.format_);
+  }
 
   attributes.emplace_back("r", std::to_string(row.row_num_ + 1));
 
@@ -1949,30 +1965,34 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
     attributes.emplace_back("spans", spans);
   }
 
-  ///     if (xf_index)
-  ///         LXW_PUSH_ATTRIBUTES_INT("s", xf_index);
+  if(xf_index)
+  {
+    attributes.emplace_back("s", std::to_string(xf_index));
+  }
 
-  ///     if (row->format)
-  ///         LXW_PUSH_ATTRIBUTES_STR("customFormat", "1");
+  if(row.format_)
+  {
+    attributes.emplace_back("customFormat", "1");
+  }
 
   if(height != DEF_ROW_HEIGHT)
   {
     attributes.emplace_back("ht", std::format("{}", height));
   }
 
-  ///     if (row->hidden)
-  ///         LXW_PUSH_ATTRIBUTES_STR("hidden", "1");
+  if (row.hidden_)
+    attributes.emplace_back("hidden", "1");
 
   if(height != DEF_ROW_HEIGHT)
   {
     attributes.emplace_back("customHeight", "1");
   }
 
-  ///     if (row->level)
-  ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevel", row->level);
+  if (row.level_ != 0)
+    attributes.emplace_back("outlineLevel", std::to_string(row.level_));
 
-  ///     if (row->collapsed)
-  ///         LXW_PUSH_ATTRIBUTES_STR("collapsed", "1");
+  if (row.collapsed_)
+    attributes.emplace_back("collapsed", "1");
 
   ///     if (self->excel_version == 2010)
   ///         LXW_PUSH_ATTRIBUTES_STR("x14ac:dyDescent", "0.25");
@@ -3255,7 +3275,7 @@ std::string worksheet_t::write_error_cell() const
   return xml_data_element("v", "#VALUE!");
 }
 
-std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row_format*/) const
+std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) const
 {
   ///     struct xml_attribute_list attributes;
   ///     struct xml_attribute *attribute;
@@ -3266,9 +3286,10 @@ std::string worksheet_t::write_cell(const cell_t& cell /* TODO , lxw_format *row
   {
     style_index = get_xf_index_(cell.format_);
   }
-  ///     else if (row_format) {
-  ///         style_index = lxw_format_get_xf_index(row_format);
-  ///     }
+  else if(row_format)
+  {
+    style_index = get_xf_index_(row_format);
+  }
   ///     else if (col_num < self->col_formats_max && self->col_formats[col_num]) {
   ///         style_index = lxw_format_get_xf_index(self->col_formats[col_num]);
   ///     }
@@ -3400,7 +3421,7 @@ std::string worksheet_t::write_rows() const
       {
         for(const auto& [index, cell]: row.cells_)
         {
-          xml_data += write_cell(cell /*TODO , row->format*/);
+          xml_data += write_cell(cell, row.format_);
         }
       }
 
@@ -3529,7 +3550,7 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   bool has_custom_width = true;
   ///     int32_t xf_index = 0;
 
-  /* Get the format index. */
+  // Get the format index. */
   ///     if (options->format) {
   ///         xf_index = lxw_format_get_xf_index(options->format);
   ///     }
@@ -3724,8 +3745,10 @@ std::string worksheet_t::write_sheet_pr() const
   ///     if (self->vba_codename)
   ///         LXW_PUSH_ATTRIBUTES_STR("codeName", self->vba_codename);
 
-  ///     if (self->filter_on)
-  ///         LXW_PUSH_ATTRIBUTES_STR("filterMode", "1");
+  if(filter_on_)
+  {
+    attributes.emplace_back("filterMode", "1");
+  }
 
   if(fit_page_ || tab_color_ != color_t::UNSET || outline_changed_)
   {
@@ -3794,208 +3817,198 @@ std::string worksheet_t::write_col_breaks() const
   return xml_data;
 }
 
-/// STATIC void _worksheet_write_filter(lxw_worksheet *self, const char *str, double num,
-///                         uint8_t criteria)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+std::string worksheet_t::write_filter(const std::string& str, double num, filter_criteria_t criteria) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     if (criteria == LXW_FILTER_CRITERIA_BLANKS)
-///         return;
+  if(criteria == filter_criteria_t::BLANKS)
+  {
+    return "";
+  }
 
-///     LXW_INIT_ATTRIBUTES();
+  if(!str.empty())
+  {
+    attributes.emplace_back("val", str);
+  }
+  else
+  {
+    attributes.emplace_back("val", std::format("{}", num));
+  }
 
-///     if (str)
-///         LXW_PUSH_ATTRIBUTES_STR("val", str);
-///     else
-///         LXW_PUSH_ATTRIBUTES_DBL("val", num);
+  return xml_empty_tag("filter", attributes);
+}
 
-///     lxw_xml_empty_tag(self->file, "filter", &attributes);
+std::string worksheet_t::write_filter_standard(const filter_rule_obj_t& filter) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  if(filter.has_blanks_)
+  {
+    attributes.emplace_back("blank", "1");
+  }
 
-/// STATIC void _worksheet_write_filter_standard(lxw_worksheet *self,
-///                                  lxw_filter_rule_obj *filter)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+  if(filter.type_ == filter_type_t::SINGLE && filter.has_blanks_)
+  {
+    return xml_empty_tag("filters", attributes);
+  }
+  else
+  {
+    std::string xml_data = xml_start_tag("filters", attributes);
+    if(filter.type_ == filter_type_t::SINGLE)
+    {
+      xml_data += write_filter(filter.value1_string_, filter.value1_, filter.criteria1_);
+    }
+    else if(filter.type_ == filter_type_t::AND || filter.type_ == filter_type_t::OR)
+    {
+      xml_data += write_filter(filter.value1_string_, filter.value1_, filter.criteria1_);
+      xml_data += write_filter(filter.value2_string_, filter.value2_, filter.criteria2_);
+    }
+    xml_data += xml_end_tag("filters");
 
-///     LXW_INIT_ATTRIBUTES();
+    return xml_data;
+  }
+}
 
-///     if (filter->has_blanks) {
-///         LXW_PUSH_ATTRIBUTES_STR("blank", "1");
-///     }
+std::string worksheet_t::write_custom_filter(const std::string& str, double num, filter_criteria_t criteria) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     if (filter->type == LXW_FILTER_TYPE_SINGLE && filter->has_blanks) {
-///         lxw_xml_empty_tag(self->file, "filters", &attributes);
-///     }
-///     else {
-///         lxw_xml_start_tag(self->file, "filters", &attributes);
+  if(criteria == filter_criteria_t::NOT_EQUAL_TO)
+  {
+    attributes.emplace_back("operator", "notEqual");
+  }
+  else if(criteria == filter_criteria_t::GREATER_THAN)
+  {
+    attributes.emplace_back("operator", "greaterThan");
+  }
+  else if(criteria == filter_criteria_t::GREATER_THAN_OR_EQUAL_TO)
+  {
+    attributes.emplace_back("operator", "greaterThanOrEqual");
+  }
+  else if(criteria == filter_criteria_t::LESS_THAN)
+  {
+    attributes.emplace_back("operator", "lessThan");
+  }
+  else if(criteria == filter_criteria_t::LESS_THAN_OR_EQUAL_TO)
+  {
+    attributes.emplace_back("operator", "lessThanOrEqual");
+  }
 
-/* Write the filter element. */
-///         if (filter->type == LXW_FILTER_TYPE_SINGLE) {
-///             _worksheet_write_filter(self, filter->value1_string,
-///                                     filter->value1, filter->criteria1);
-///         }
-///         else if (filter->type == LXW_FILTER_TYPE_AND
-///                  || filter->type == LXW_FILTER_TYPE_OR) {
-///             _worksheet_write_filter(self, filter->value1_string,
-///                                     filter->value1, filter->criteria1);
-///             _worksheet_write_filter(self, filter->value2_string,
-///                                     filter->value2, filter->criteria2);
-///         }
+  if(!str.empty())
+  {
+    attributes.emplace_back("val", str);
+  }
+  else
+  {
+    attributes.emplace_back("val", std::format("{}", num));
+  }
 
-///         lxw_xml_end_tag(self->file, "filters");
-///     }
+  return xml_empty_tag("customFilter", attributes);
+}
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_filter_list(const filter_rule_obj_t& filter) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-/// STATIC void _worksheet_write_custom_filter(lxw_worksheet *self, const char *str,
-///                                double num, uint8_t criteria)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+  if(filter.has_blanks_)
+  {
+    attributes.emplace_back("blank", "1");
+  }
 
-///     LXW_INIT_ATTRIBUTES();
+  std::string xml_data = xml_start_tag("filters", attributes);
 
-///     if (criteria == LXW_FILTER_CRITERIA_NOT_EQUAL_TO)
-///         LXW_PUSH_ATTRIBUTES_STR("operator", "notEqual");
-///     if (criteria == LXW_FILTER_CRITERIA_GREATER_THAN)
-///         LXW_PUSH_ATTRIBUTES_STR("operator", "greaterThan");
-///     else if (criteria == LXW_FILTER_CRITERIA_GREATER_THAN_OR_EQUAL_TO)
-///         LXW_PUSH_ATTRIBUTES_STR("operator", "greaterThanOrEqual");
-///     else if (criteria == LXW_FILTER_CRITERIA_LESS_THAN)
-///         LXW_PUSH_ATTRIBUTES_STR("operator", "lessThan");
-///     else if (criteria == LXW_FILTER_CRITERIA_LESS_THAN_OR_EQUAL_TO)
-///         LXW_PUSH_ATTRIBUTES_STR("operator", "lessThanOrEqual");
+  for(const auto& str: filter.list_)
+  {
+    xml_data += write_filter(str, 0, filter_criteria_t::NONE);
+  }
 
-///     if (str)
-///         LXW_PUSH_ATTRIBUTES_STR("val", str);
-///     else
-///         LXW_PUSH_ATTRIBUTES_DBL("val", num);
+  xml_data += xml_end_tag("filters");
 
-///     lxw_xml_empty_tag(self->file, "customFilter", &attributes);
+  return xml_data;
+}
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_filter_custom(const filter_rule_obj_t& filter) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-/// STATIC void _worksheet_write_filter_list(lxw_worksheet *self, lxw_filter_rule_obj *filter)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     uint16_t i;
+  if(filter.type_ == filter_type_t::AND)
+  {
+    attributes.emplace_back("and", "1");
+  }
 
-///     LXW_INIT_ATTRIBUTES();
+  std::string xml_data = xml_start_tag("customFilters", attributes);
 
-///     if (filter->has_blanks) {
-///         LXW_PUSH_ATTRIBUTES_STR("blank", "1");
-///     }
+  if(filter.type_ == filter_type_t::SINGLE)
+  {
+    xml_data += write_custom_filter(filter.value1_string_, filter.value1_, filter.criteria1_);
+  }
+  else if(filter.type_ == filter_type_t::AND || filter.type_ == filter_type_t::OR)
+  {
+    xml_data += write_custom_filter(filter.value1_string_, filter.value1_, filter.criteria1_);
+    xml_data += write_custom_filter(filter.value2_string_, filter.value2_, filter.criteria2_);
+  }
 
-///     lxw_xml_start_tag(self->file, "filters", &attributes);
+  xml_data += xml_end_tag("customFilters");
 
-///     for (i = 0; i < filter->num_list_filters; i++) {
-///         _worksheet_write_filter(self, filter->list[i], 0, 0);
-///     }
+  return xml_data;
+}
 
-///     lxw_xml_end_tag(self->file, "filters");
+std::string worksheet_t::write_filter_column(const std::optional<filter_rule_obj_t>& filter) const
+{
+  if(!filter)
+  {
+    return "";
+  }
 
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  std::string xml_data = xml_start_tag("filterColumn", {
+                                                           {"colId", std::to_string(filter->col_num_)}
+  });
+  if(!filter->list_.empty())
+  {
+    xml_data += write_filter_list(*filter);
+  }
+  else if(filter->is_custom_)
+  {
+    xml_data += write_filter_custom(*filter);
+  }
+  else
+  {
+    xml_data += write_filter_standard(*filter);
+  }
+  xml_data += xml_end_tag("filterColumn");
 
-/// STATIC void
-/// _worksheet_write_filter_custom(lxw_worksheet *self,
-///                                lxw_filter_rule_obj *filter)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-
-///     if (filter->type == LXW_FILTER_TYPE_AND)
-///         LXW_PUSH_ATTRIBUTES_STR("and", "1");
-
-///     lxw_xml_start_tag(self->file, "customFilters", &attributes);
-
-/* Write the filter element. */
-///     if (filter->type == LXW_FILTER_TYPE_SINGLE) {
-///         _worksheet_write_custom_filter(self, filter->value1_string,
-///                                        filter->value1, filter->criteria1);
-///     }
-///     else if (filter->type == LXW_FILTER_TYPE_AND
-///              || filter->type == LXW_FILTER_TYPE_OR) {
-///         _worksheet_write_custom_filter(self, filter->value1_string,
-///                                        filter->value1, filter->criteria1);
-///         _worksheet_write_custom_filter(self, filter->value2_string,
-///                                        filter->value2, filter->criteria2);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "customFilters");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_filter_column(lxw_worksheet *self,
-///                                lxw_filter_rule_obj *filter)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     if (!filter)
-///         return;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_INT("colId", filter->col_num);
-///
-///     lxw_xml_start_tag(self->file, "filterColumn", &attributes);
-///
-///     if (filter->list)
-///         _worksheet_write_filter_list(self, filter);
-///     else if (filter->is_custom)
-///         _worksheet_write_filter_custom(self, filter);
-///     else
-///         _worksheet_write_filter_standard(self, filter);
-///
-///     lxw_xml_end_tag(self->file, "filterColumn");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
 std::string worksheet_t::write_auto_filter() const
 {
-  const std::vector<std::tuple<std::string, std::string>> attributes;
-  std::string xml_data;
-  ///     char range[LXW_MAX_CELL_RANGE_LENGTH];
-  ///     uint16_t i;
+  if(!autofilter_.in_use_)
+  {
+    return "";
+  }
 
-  ///     if (!self->autofilter.in_use)
-  ///         return;
+  const std::string ref =
+      rowcol_to_range(autofilter_.first_row_, autofilter_.first_col_, autofilter_.last_row_, autofilter_.last_col_);
 
-  ///     lxw_rowcol_to_range(range,
-  ///                         self->autofilter.first_row,
-  ///                         self->autofilter.first_col,
-  ///                         self->autofilter.last_row,
-  ///                         self->autofilter.last_col);
+  if(autofilter_.has_rules_)
+  {
+    std::string xml_data = xml_start_tag("autoFilter", {
+                                                           {"ref", ref}
+    });
+    for(size_t i = 0; i < num_filter_rules_; i++)
+    {
+      xml_data += write_filter_column(filter_rules_[i]);
+    }
+    xml_data += xml_end_tag("autoFilter");
 
-  ///     LXW_INIT_ATTRIBUTES();
-  ///     LXW_PUSH_ATTRIBUTES_STR("ref", range);
-
-  ///     if (self->autofilter.has_rules) {
-  ///         lxw_xml_start_tag(self->file, "autoFilter", &attributes);
-
-  ///         for (i = 0; i < self->num_filter_rules; i++)
-  ///             _worksheet_write_filter_column(self, self->filter_rules[i]);
-
-  ///         lxw_xml_end_tag(self->file, "autoFilter");
-
-  ///     }
-  ///     else {
-  ///         lxw_xml_empty_tag(self->file, "autoFilter", &attributes);
-  ///     }
-
-  return xml_data;
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("autoFilter", {
+                                           {"ref", ref}
+    });
+  }
 }
 
 std::string worksheet_t::write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
@@ -7036,46 +7049,55 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
 ///                                     user_options);
 /// }
 
-void worksheet_t::set_row(row_num_t row_num,
-                          double height /*TODO, lxw_format *format, lxw_row_col_options *user_options*/)
+void worksheet_t::set_row(row_num_t row, double height)
+{
+  set_row(row, height, nullptr, std::nullopt);
+}
+
+void worksheet_t::set_row(row_num_t row_num, double height, const format_t* format,
+                          const std::optional<row_col_options_t>& user_options)
 {
   const col_num_t min_col = (dim_colmin_ != COL_MAX ? dim_colmin_ : 0);
-  ///     uint8_t hidden = LXW_FALSE;
-  ///     uint8_t level = 0;
-  ///     uint8_t collapsed = LXW_FALSE;
-  ///     row_t *row;
-  ///     lxw_error err;
-  ///
-  ///     if (user_options) {
-  ///         hidden = user_options->hidden;
-  ///         level = user_options->level;
-  ///         collapsed = user_options->collapsed;
-  ///     }
+  bool hidden             = false;
+  uint8_t level           = 0;
+  bool collapsed          = false;
+
+  if(user_options)
+  {
+    hidden    = user_options->hidden_;
+    level     = user_options->level_;
+    collapsed = user_options->collapsed_;
+  }
 
   check_dimensions(row_num, min_col, false, false);
-  ///
-  ///     /* If the height is 0 the row is hidden and the height is the default. */
-  ///     if (height == 0) {
-  ///         hidden = LXW_TRUE;
-  ///         height = self->default_row_height;
-  ///     }
-  ///
-  ///     /* Ensure the level is <= 7). */
-  ///     if (level > 7)
-  ///         level = 7;
-  ///
-  ///     if (level > self->outline_row_level)
-  ///         self->outline_row_level = level;
-  ///
+
+  // If the height is 0 the row is hidden and the height is the default.
+  if(height == 0)
+  {
+    hidden = true;
+    height = default_row_height_;
+  }
+
+  // Ensure the level is <= 7).
+  if(level > 7)
+  {
+    level = 7;
+  }
+
+  if(level > outline_row_level_)
+  {
+    outline_row_level_ = level;
+  }
+
   // Store the row properties.
-  row_t& row  = get_row(row_num);
-  row.height_ = height;
-  ///     row->format = format;
-  ///     row->hidden = hidden;
-  ///     row->level = level;
-  ///     row->collapsed = collapsed;
-  ///     row->row_changed = LXW_TRUE;
-  ///
+  row_t& row       = get_row(row_num);
+  row.height_      = height;
+  row.format_      = const_cast<format_t*>(format);
+  row.hidden_      = hidden;
+  row.level_       = level;
+  row.collapsed_   = collapsed;
+  row.row_changed_ = true;
+
   if(row.height_ != default_row_height_)
   {
     row.height_changed_ = true;
@@ -7164,288 +7186,208 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
   }
 }
 
-/// lxw_error
-/// worksheet_autofilter(lxw_worksheet *self, row_num_t first_row,
-///                      col_num_t first_col, row_num_t last_row,
-///                      col_num_t last_col)
-/// {
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     lxw_error err;
-///     lxw_filter_rule_obj **filter_rules;
-///     col_num_t num_filter_rules;
-///
-///     /* Swap last row/col with first row/col as necessary */
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     /* Check that column number is valid and store the max value */
-///     err = _check_dimensions(self, last_row, last_col, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Create a array to hold filter rules. */
-///     self->autofilter.in_use = LXW_FALSE;
-///     self->autofilter.has_rules = LXW_FALSE;
-///     _free_filter_rules(self);
-///     num_filter_rules = last_col - first_col + 1;
-///     filter_rules = calloc(num_filter_rules, sizeof(lxw_filter_rule_obj *));
-///     RETURN_ON_MEM_ERROR(filter_rules, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     self->autofilter.in_use = LXW_TRUE;
-///     self->autofilter.first_row = first_row;
-///     self->autofilter.first_col = first_col;
-///     self->autofilter.last_row = last_row;
-///     self->autofilter.last_col = last_col;
-///
-///     self->filter_rules = filter_rules;
-///     self->num_filter_rules = num_filter_rules;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::autofilter(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
 
-/// lxw_error
-/// worksheet_filter_column(lxw_worksheet *self, col_num_t col,
-///                         lxw_filter_rule *rule)
-/// {
-///     lxw_filter_rule_obj *rule_obj;
-///     uint16_t rule_index;
-///
-///     if (!rule) {
-///         LXW_WARN("worksheet_filter_column(): rule parameter cannot be NULL");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (self->autofilter.in_use == LXW_FALSE) {
-///         LXW_WARN("worksheet_filter_column(): "
-///                  "Worksheet autofilter range hasn't been defined. "
-///                  "Use worksheet_autofilter() first.");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (col < self->autofilter.first_col || col > self->autofilter.last_col) {
-///         LXW_WARN_FORMAT3("worksheet_filter_column(): "
-///                          "Column '%d' is outside autofilter range "
-///                          "'%d <= col <= %d'.", col,
-///                          self->autofilter.first_col,
-///                          self->autofilter.last_col);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Free any previous rule in the column slot. */
-///     rule_index = col - self->autofilter.first_col;
-///     _free_filter_rule(self->filter_rules[rule_index]);
-///
-///     /* Create a new rule and copy user input. */
-///     rule_obj = calloc(1, sizeof(lxw_filter_rule_obj));
-///     RETURN_ON_MEM_ERROR(rule_obj, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     rule_obj->col_num = rule_index;
-///     rule_obj->type = LXW_FILTER_TYPE_SINGLE;
-///     rule_obj->criteria1 = rule->criteria;
-///     rule_obj->value1 = rule->value;
-///
-///     if (rule_obj->criteria1 != LXW_FILTER_CRITERIA_NON_BLANKS) {
-///         rule_obj->value1_string = lxw_strdup(rule->value_string);
-///     }
-///     else {
-///         rule_obj->criteria1 = LXW_FILTER_CRITERIA_NOT_EQUAL_TO;
-///         rule_obj->value1_string = lxw_strdup(" ");
-///     }
-///
-///     if (rule_obj->criteria1 == LXW_FILTER_CRITERIA_BLANKS)
-///         rule_obj->has_blanks = LXW_TRUE;
-///
-///     _set_custom_filter(rule_obj);
-///
-///     self->filter_rules[rule_index] = rule_obj;
-///     self->filter_on = LXW_TRUE;
-///     self->autofilter.has_rules = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+  // Check that column number is valid and store the max value
+  check_dimensions(last_row, last_col, false, false);
 
-/// lxw_error
-/// worksheet_filter_column2(lxw_worksheet *self, col_num_t col,
-///                          lxw_filter_rule *rule1, lxw_filter_rule *rule2,
-///                          uint8_t and_or)
-/// {
-///     lxw_filter_rule_obj *rule_obj;
-///     uint16_t rule_index;
-///
-///     if (!rule1 || !rule2) {
-///         LXW_WARN("worksheet_filter_column2(): rule parameter cannot be NULL");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (self->autofilter.in_use == LXW_FALSE) {
-///         LXW_WARN("worksheet_filter_column2(): "
-///                  "Worksheet autofilter range hasn't been defined. "
-///                  "Use worksheet_autofilter() first.");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (col < self->autofilter.first_col || col > self->autofilter.last_col) {
-///         LXW_WARN_FORMAT3("worksheet_filter_column2(): "
-///                          "Column '%d' is outside autofilter range "
-///                          "'%d <= col <= %d'.", col,
-///                          self->autofilter.first_col,
-///                          self->autofilter.last_col);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Free any previous rule in the column slot. */
-///     rule_index = col - self->autofilter.first_col;
-///     _free_filter_rule(self->filter_rules[rule_index]);
-///
-///     /* Create a new rule and copy user input. */
-///     rule_obj = calloc(1, sizeof(lxw_filter_rule_obj));
-///     RETURN_ON_MEM_ERROR(rule_obj, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     if (and_or == LXW_FILTER_AND)
-///         rule_obj->type = LXW_FILTER_TYPE_AND;
-///     else
-///         rule_obj->type = LXW_FILTER_TYPE_OR;
-///
-///     rule_obj->col_num = rule_index;
-///
-///     rule_obj->criteria1 = rule1->criteria;
-///     rule_obj->value1 = rule1->value;
-///
-///     rule_obj->criteria2 = rule2->criteria;
-///     rule_obj->value2 = rule2->value;
-///
-///     if (rule_obj->criteria1 != LXW_FILTER_CRITERIA_NON_BLANKS) {
-///         rule_obj->value1_string = lxw_strdup(rule1->value_string);
-///     }
-///     else {
-///         rule_obj->criteria1 = LXW_FILTER_CRITERIA_NOT_EQUAL_TO;
-///         rule_obj->value1_string = lxw_strdup(" ");
-///     }
-///
-///     if (rule_obj->criteria2 != LXW_FILTER_CRITERIA_NON_BLANKS) {
-///         rule_obj->value2_string = lxw_strdup(rule2->value_string);
-///     }
-///     else {
-///         rule_obj->criteria2 = LXW_FILTER_CRITERIA_NOT_EQUAL_TO;
-///         rule_obj->value2_string = lxw_strdup(" ");
-///     }
-///
-///     if (rule_obj->criteria1 == LXW_FILTER_CRITERIA_BLANKS)
-///         rule_obj->has_blanks = LXW_TRUE;
-///
-///     if (rule_obj->criteria2 == LXW_FILTER_CRITERIA_BLANKS)
-///         rule_obj->has_blanks = LXW_TRUE;
-///
-///     _set_custom_filter(rule_obj);
-///
-///     self->filter_rules[rule_index] = rule_obj;
-///     self->filter_on = LXW_TRUE;
-///     self->autofilter.has_rules = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+  // Create a array to hold filter rules.
+  autofilter_.in_use_    = false;
+  autofilter_.has_rules_ = false;
 
-/// lxw_error
-/// worksheet_filter_list(lxw_worksheet *self, col_num_t col, const char **list)
-/// {
-///     lxw_filter_rule_obj *rule_obj;
-///     uint16_t rule_index;
-///     uint8_t has_blanks = LXW_FALSE;
-///     uint16_t num_filters = 0;
-///     uint16_t input_list_index;
-///     uint16_t rule_obj_list_index;
-///     const char *str;
-///     char **tmp_list;
-///
-///     if (!list) {
-///         LXW_WARN("worksheet_filter_list(): list parameter cannot be NULL");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (self->autofilter.in_use == LXW_FALSE) {
-///         LXW_WARN("worksheet_filter_list(): "
-///                  "Worksheet autofilter range hasn't been defined. "
-///                  "Use worksheet_autofilter() first.");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (col < self->autofilter.first_col || col > self->autofilter.last_col) {
-///         LXW_WARN_FORMAT3("worksheet_filter_list(): "
-///                          "Column '%d' is outside autofilter range "
-///                          "'%d <= col <= %d'.", col,
-///                          self->autofilter.first_col,
-///                          self->autofilter.last_col);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Count the number of non "Blanks" strings in the input list. */
-///     input_list_index = 0;
-///     while ((str = list[input_list_index]) != NULL) {
-///         if (strncmp(str, "Blanks", 6) == 0)
-///             has_blanks = LXW_TRUE;
-///         else
-///             num_filters++;
-///
-///         input_list_index++;
-///     }
-///
-///     /* There should be at least one filter string. */
-///     if (num_filters == 0) {
-///         LXW_WARN("worksheet_filter_list(): "
-///                  "list must have at least 1 non-blanks item.");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Free any previous rule in the column slot. */
-///     rule_index = col - self->autofilter.first_col;
-///     _free_filter_rule(self->filter_rules[rule_index]);
-///
-///     /* Create a new rule and copy user input. */
-///     rule_obj = calloc(1, sizeof(lxw_filter_rule_obj));
-///     RETURN_ON_MEM_ERROR(rule_obj, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     tmp_list = calloc(num_filters + 1, sizeof(char *));
-///     GOTO_LABEL_ON_MEM_ERROR(tmp_list, mem_error);
-///
-///     /* Copy input list (without any "Blanks" command) to an internal list. */
-///     input_list_index = 0;
-///     rule_obj_list_index = 0;
-///     while ((str = list[input_list_index]) != NULL) {
-///         if (strncmp(str, "Blanks", 6) != 0) {
-///             tmp_list[rule_obj_list_index] = lxw_strdup(str);
-///             rule_obj_list_index++;
-///         }
-///
-///         input_list_index++;
-///     }
-///
-///     rule_obj->list = tmp_list;
-///     rule_obj->num_list_filters = num_filters;
-///     rule_obj->is_custom = LXW_FALSE;
-///     rule_obj->col_num = rule_index;
-///     rule_obj->type = LXW_FILTER_TYPE_STRING_LIST;
-///     rule_obj->has_blanks = has_blanks;
-///
-///     self->filter_rules[rule_index] = rule_obj;
-///     self->filter_on = LXW_TRUE;
-///     self->autofilter.has_rules = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-///
-/// mem_error:
-///     free(rule_obj);
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///
-/// }
+  num_filter_rules_ = last_col - first_col + 1;
+  filter_rules_.resize(num_filter_rules_);
+
+  autofilter_.in_use_    = true;
+  autofilter_.first_row_ = first_row;
+  autofilter_.first_col_ = first_col;
+  autofilter_.last_row_  = last_row;
+  autofilter_.last_col_  = last_col;
+}
+
+void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
+{
+  filter_rule_obj_t rule_obj;
+
+  if(autofilter_.in_use_ == false)
+  {
+    throw xwpp_exception_t("worksheet_t::filter_column(): worksheet autofilter range hasn't been defined. Use "
+                           "worksheet::autofilter() first.");
+  }
+
+  if(col_num < autofilter_.first_col_ || col_num > autofilter_.last_col_)
+  {
+    throw xwpp_exception_t(
+        std::format("worksheet_t::filter_column(): Column '{}' is outside autofilter range '{} <= col_num <= {}'.",
+                    col_num, autofilter_.first_col_, autofilter_.last_col_));
+  }
+
+  uint16_t rule_index = col_num - autofilter_.first_col_;
+
+  rule_obj.col_num_   = rule_index;
+  rule_obj.type_      = filter_type_t::SINGLE;
+  rule_obj.criteria1_ = rule.criteria_;
+  rule_obj.value1_    = rule.value_;
+
+  if(rule_obj.criteria1_ != filter_criteria_t::NON_BLANKS)
+  {
+    rule_obj.value1_string_ = rule.value_string_;
+  }
+  else
+  {
+    rule_obj.criteria1_     = filter_criteria_t::NOT_EQUAL_TO;
+    rule_obj.value1_string_ = " ";
+  }
+
+  if(rule_obj.criteria1_ == filter_criteria_t::BLANKS)
+  {
+    rule_obj.has_blanks_ = true;
+  }
+
+  set_custom_filter(rule_obj);
+
+  filter_rules_[rule_index] = rule_obj;
+  filter_on_                = true;
+  autofilter_.has_rules_    = true;
+}
+
+void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
+                                 filter_type_t and_or)
+{
+  filter_rule_obj_t rule_obj;
+
+  if(autofilter_.in_use_ == false)
+  {
+    throw xwpp_exception_t("worksheet_t::filter_column2(): worksheet autofilter range hasn't been defined. Use "
+                           "worksheet::autofilter() first.");
+  }
+
+  if(col_num < autofilter_.first_col_ || col_num > autofilter_.last_col_)
+  {
+    throw xwpp_exception_t(
+        std::format("worksheet_t::filter_column2(): Column '{}' is outside autofilter range '{} <= col_num <= {}'.",
+                    col_num, autofilter_.first_col_, autofilter_.last_col_));
+  }
+
+  uint16_t rule_index = col_num - autofilter_.first_col_;
+
+  if(and_or == filter_type_t::AND)
+  {
+    rule_obj.type_ = filter_type_t::AND;
+  }
+  else
+  {
+    rule_obj.type_ = filter_type_t::OR;
+  }
+
+  rule_obj.col_num_ = rule_index;
+
+  rule_obj.criteria1_ = rule1.criteria_;
+  rule_obj.value1_    = rule1.value_;
+
+  rule_obj.criteria2_ = rule2.criteria_;
+  rule_obj.value2_    = rule2.value_;
+
+  if(rule_obj.criteria1_ != filter_criteria_t::NON_BLANKS)
+  {
+    rule_obj.value1_string_ = rule1.value_string_;
+  }
+  else
+  {
+    rule_obj.criteria1_     = filter_criteria_t::NOT_EQUAL_TO;
+    rule_obj.value1_string_ = " ";
+  }
+
+  if(rule_obj.criteria2_ != filter_criteria_t::NON_BLANKS)
+  {
+    rule_obj.value2_string_ = rule2.value_string_;
+  }
+  else
+  {
+    rule_obj.criteria2_     = filter_criteria_t::NOT_EQUAL_TO;
+    rule_obj.value2_string_ = " ";
+  }
+
+  if(rule_obj.criteria1_ == filter_criteria_t::BLANKS)
+  {
+    rule_obj.has_blanks_ = true;
+  }
+
+  if(rule_obj.criteria2_ == filter_criteria_t::BLANKS)
+  {
+    rule_obj.has_blanks_ = true;
+  }
+
+  set_custom_filter(rule_obj);
+
+  filter_rules_[rule_index] = rule_obj;
+  filter_on_                = true;
+  autofilter_.has_rules_    = true;
+}
+
+void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>& list)
+{
+  filter_rule_obj_t rule_obj;
+  bool has_blanks = false;
+
+  if(list.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::filter_list(): list parameter cannot be NULL");
+  }
+
+  if(autofilter_.in_use_ == false)
+  {
+    throw xwpp_exception_t("worksheet_t::filter_list(): worksheet autofilter range hasn't been defined. Use "
+                           "worksheet::autofilter() first.");
+  }
+
+  if(col_num < autofilter_.first_col_ || col_num > autofilter_.last_col_)
+  {
+    throw xwpp_exception_t(
+        std::format("worksheet_t::filter_list(): Column '{}' is outside autofilter range '{} <= col_num <= {}'.",
+                    col_num, autofilter_.first_col_, autofilter_.last_col_));
+  }
+
+  // Count the number of non "Blanks" strings in the input list.
+  for(const auto& str: list)
+  {
+    if(str == "Blanks")
+    {
+      has_blanks = true;
+    }
+    else
+    {
+      rule_obj.list_.push_back(str);
+    }
+  }
+
+  // There should be at least one filter string.
+  if(rule_obj.list_.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::filter_list(): list must have at least 1 non-blanks item.");
+  }
+
+  uint16_t rule_index = col_num - autofilter_.first_col_;
+
+  rule_obj.is_custom_  = false;
+  rule_obj.col_num_    = rule_index;
+  rule_obj.type_       = filter_type_t::STRING_LIST;
+  rule_obj.has_blanks_ = has_blanks;
+
+  filter_rules_[rule_index] = rule_obj;
+  filter_on_                = true;
+  autofilter_.has_rules_    = true;
+}
 
 /// lxw_error
 /// worksheet_add_table(lxw_worksheet *self, row_num_t first_row,
