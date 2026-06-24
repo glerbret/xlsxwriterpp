@@ -289,6 +289,25 @@ cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string&
   return cell;
 }
 
+cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                              const std::string& range, const format_t* format, bool is_dynamic)
+{
+  cell_t cell;
+
+  cell.row_num_    = row_num;
+  cell.col_num_    = col_num;
+  cell.format_     = const_cast<format_t*>(format);
+  cell.data_       = formula;
+  cell.user_data1_ = range;
+
+  if (is_dynamic)
+      cell.type_ = cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL;
+  else
+      cell.type_ = cell_types_t::ARRAY_FORMULA_CELL;
+
+  return cell;
+}
+
 /*
  * This function handles the additional optional parameters to
  * worksheet_write_comment_opt() as well as calculating the comment object
@@ -488,27 +507,6 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
 ///     cell->type = INLINE_RICH_STRING_CELL;
 ///     cell->format = format;
 ///     cell->u.string = string;
-
-///     return cell;
-/// }
-
-/// STATIC cell_t *
-/// _new_array_formula_cell(row_num_t row_num, col_num_t col_num, char *formula,
-///                         char *range, lxw_format *format, uint8_t is_dynamic)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->format = format;
-///     cell->u.string = formula;
-///     cell->user_data1 = range;
-
-///     if (is_dynamic)
-///         cell->type = DYNAMIC_ARRAY_FORMULA_CELL;
-///     else
-///         cell->type = ARRAY_FORMULA_CELL;
 
 ///     return cell;
 /// }
@@ -3227,27 +3225,16 @@ std::string worksheet_t::write_formula_str_cell(const cell_t& cell) const
   return xml_data;
 }
 
-/*
- * Write out an array formula worksheet cell with a numeric result.
- */
-/// STATIC void
-/// _write_array_formula_num_cell(lxw_worksheet *self, cell_t *cell)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char data[LXW_ATTR_32];
+std::string worksheet_t::write_array_formula_num_cell(const cell_t& cell) const
+{
+  std::string xml_data = xml_data_element("f", std::get<std::string>(cell.data_), {
+    {"t", "array"},
+    {"ref", cell.user_data1_},
+  });
+  xml_data += xml_data_element("v", std::format("{}", cell.formula_result_));
 
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("t", "array");
-///     LXW_PUSH_ATTRIBUTES_STR("ref", cell->user_data1);
-
-///     lxw_sprintf_dbl(data, cell->formula_result);
-
-///     lxw_xml_data_element(self->file, "f", cell->u.string, &attributes);
-///     lxw_xml_data_element(self->file, "v", data, NULL);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_data;
+}
 
 /*
  * Write out a boolean worksheet cell.
@@ -3360,17 +3347,21 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   ///         _write_boolean_cell(self, cell);
   ///         lxw_xml_end_tag(self->file, "c");
   ///     }
-  ///     else if (cell->type == ARRAY_FORMULA_CELL) {
-  ///         lxw_xml_start_tag(self->file, "c", &attributes);
-  ///         _write_array_formula_num_cell(self, cell);
-  ///         lxw_xml_end_tag(self->file, "c");
-  ///     }
-  ///     else if (cell->type == DYNAMIC_ARRAY_FORMULA_CELL) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("cm", "1");
-  ///         lxw_xml_start_tag(self->file, "c", &attributes);
-  ///         _write_array_formula_num_cell(self, cell);
-  ///         lxw_xml_end_tag(self->file, "c");
-  ///     }
+  else if (cell.type_ == cell_types_t::ARRAY_FORMULA_CELL) {
+    std::string xml_data = xml_start_tag("c", attributes);
+      xml_data +=write_array_formula_num_cell(cell);
+    xml_data += xml_end_tag("c");
+
+    return xml_data;
+  }
+  else if (cell.type_ == cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL) {
+    attributes.emplace_back("cm", "1");
+    std::string xml_data = xml_start_tag("c", attributes);
+      xml_data +=write_array_formula_num_cell(cell);
+    xml_data += xml_end_tag( "c");
+
+    return xml_data;
+  }
   else if(cell.type_ == cell_types_t::ERROR_CELL)
   {
     attributes.emplace_back("t", "e");
@@ -6356,105 +6347,79 @@ void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std:
   write_formula(row_num, col_num, formula, nullptr);
 }
 
-/// lxw_error
-/// _store_array_formula(lxw_worksheet *self,
-///                      row_num_t first_row,
-///                      col_num_t first_col,
-///                      row_num_t last_row,
-///                      col_num_t last_col,
-///                      const char *formula, lxw_format *format, double result,
-///                      uint8_t is_dynamic)
-/// {
-///     cell_t *cell;
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     char *formula_copy;
-///     char *range;
-///     lxw_error err;
-///
-///     /* Swap last row/col with first row/col as necessary */
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     if (!formula)
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///
-///     if (lxw_str_is_empty(formula))
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///
-///     /* Check that row and col are valid and store max and min values. */
-///     err = _check_dimensions(self, first_row, first_col, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     err = _check_dimensions(self, last_row, last_col, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Define the array range. */
-///     range = calloc(1, LXW_MAX_CELL_RANGE_LENGTH);
-///     RETURN_ON_MEM_ERROR(range, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     if (first_row == last_row && first_col == last_col)
-///         lxw_rowcol_to_cell(range, first_row, first_col);
-///     else
-///         lxw_rowcol_to_range(range, first_row, first_col, last_row, last_col);
-///
-///     /* Copy and trip leading "{=" from formula. */
-///     if (formula[0] == '{')
-///         if (strlen(formula) >= 2 && formula[1] == '=')
-///             formula_copy = lxw_strdup(formula + 2);
-///         else
-///             formula_copy = lxw_strdup(formula + 1);
-///     else
-///         formula_copy = lxw_strdup_formula(formula);
-///
-///     /* Strip trailing "}" from formula. */
-///     if (strlen(formula_copy) > 0
-///         && formula_copy[strlen(formula_copy) - 1] == '}') {
-///         formula_copy[strlen(formula_copy) - 1] = '\0';
-///     }
-///
-///     /* Check for empty formula that started as {=}. */
-///     if (lxw_str_is_empty(formula_copy)) {
-///         free(formula_copy);
-///         free(range);
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-///
-///     /* Create a new array formula cell object. */
-///     cell = _new_array_formula_cell(first_row, first_col,
-///                                    formula_copy, range, format, is_dynamic);
-///
-///     cell->formula_result = result;
-///
-///     _insert_cell(self, first_row, first_col, cell);
-///
-///     if (is_dynamic)
-///         self->has_dynamic_functions = LXW_TRUE;
-///
-///     /* Pad out the rest of the area with formatted zeroes. */
+void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col,
+                         row_num_t last_row, col_num_t last_col,
+                         const std::string& formula, const format_t* format,
+                         double result, bool is_dynamic)
+{
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+
+  if(formula.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::store_array_formula(): formula must not be empty");
+  }
+
+  // Check that row and col are valid and store max and min values.
+  check_dimensions(first_row, first_col, false, false);
+  check_dimensions(last_row, last_col, false, false);
+
+  // Define the array range.
+  std::string range;
+
+  if (first_row == last_row && first_col == last_col)
+     range = rowcol_to_cell(first_row, first_col);
+  else
+     range = rowcol_to_range(first_row, first_col, last_row, last_col);
+
+  // Copy and trip leading "{=" from formula
+  std::string formula_copy;
+  if (formula[0] == '{')
+      if (formula.size() >= 2 && formula[1] == '=')
+        formula_copy = formula.substr(2);
+      else
+        formula_copy = formula.substr(1);
+  else
+      formula_copy = formula;
+
+  // Strip trailing "}" from formula.
+  if(formula_copy.back() == '}')
+    formula_copy.pop_back();
+
+  // Check for empty formula that started as {=}.
+  if(formula_copy.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::store_array_formula(): formula must not be empty");
+  }
+
+  // Create a new array formula cell object.
+  cell_t cell = new_array_formula_cell(first_row, first_col, formula_copy, range, format, is_dynamic);
+  cell.formula_result_ = result;
+
+  insert_cell(first_row, first_col, cell);
+
+  if (is_dynamic)
+    has_dynamic_functions_ = true;
+
+  // Pad out the rest of the area with formatted zeroes.
 ///     if (!self->optimize) {
-///         for (tmp_row = first_row; tmp_row <= last_row; tmp_row++) {
-///             for (tmp_col = first_col; tmp_col <= last_col; tmp_col++) {
-///                 if (tmp_row == first_row && tmp_col == first_col)
-///                     continue;
-///
-///                 worksheet_write_number(self, tmp_row, tmp_col, 0, format);
-///             }
-///         }
+  for (row_num_t tmp_row = first_row; tmp_row <= last_row; tmp_row++) {
+    for (col_num_t tmp_col = first_col; tmp_col <= last_col; tmp_col++) {
+      if (tmp_row == first_row && tmp_col == first_col)
+        continue;
+
+      write_number(tmp_row, tmp_col, 0, format);
+             }
+         }
 ///     }
-///
-///     return LXW_NO_ERROR;
-/// }
+}
 
 /// lxw_error
 /// worksheet_write_array_formula_num(lxw_worksheet *self,
@@ -6470,18 +6435,21 @@ void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std:
 ///                                 LXW_FALSE);
 /// }
 
-/// lxw_error
-/// worksheet_write_array_formula(lxw_worksheet *self,
-///                               row_num_t first_row,
-///                               col_num_t first_col,
-///                               row_num_t last_row,
-///                               col_num_t last_col,
-///                               const char *formula, lxw_format *format)
-/// {
-///     return _store_array_formula(self, first_row, first_col,
-///                                 last_row, last_col, formula, format, 0,
-///                                 LXW_FALSE);
-/// }
+void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col,
+                                      row_num_t last_row, col_num_t last_col,
+                                      const std::string& formula)
+{
+  write_array_formula(first_row, first_col, last_row, last_col,
+                      formula, nullptr);
+}
+
+
+void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col,
+                                      row_num_t last_row, col_num_t last_col,
+                                      const std::string& formula, const format_t *format)
+{
+  store_array_formula(first_row, first_col, last_row, last_col, formula, format, 0, false);
+}
 
 /// lxw_error
 /// worksheet_write_dynamic_formula(lxw_worksheet *self,

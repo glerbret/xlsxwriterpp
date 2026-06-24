@@ -4038,6 +4038,58 @@ public:
    */
   void filter_list(col_num_t col_num, const std::vector<std::string>& list);
 
+/**
+ * @brief Write an array formula to a worksheet cell.
+ *
+ * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+ * @param first_row The first row of the range. (All zero indexed.)
+ * @param first_col The first column of the range.
+ * @param last_row  The last row of the range.
+ * @param last_col  The last col of the range.
+ * @param formula   Array formula to write to cell.
+ * @param format    A pointer to a Format instance or NULL.
+ *
+ * @return A #lxw_error code.
+ *
+ * The `%worksheet_write_array_formula()` function writes an array formula to
+ * a cell range. In Excel an array formula is a formula that performs a
+ * calculation on a set of values.
+ *
+ * In Excel an array formula is indicated by a pair of braces around the
+ * formula: `{=SUM(A1:B1*A2:B2)}`.
+ *
+ * Array formulas can return a single value or a range or values. For array
+ * formulas that return a range of values you must specify the range that the
+ * return values will be written to. This is why this function has `first_`
+ * and `last_` row/column parameters. The RANGE() macro can also be used to
+ * specify the range:
+ *
+ * @code
+ *     worksheet_write_array_formula(worksheet, 4, 0, 6, 0,
+ * "{=TREND(C5:C7,B5:B7)}", NULL);
+ *
+ *     // Same as above using the RANGE() macro.
+ *     worksheet_write_array_formula(worksheet, RANGE("A5:A7"),
+ * "{=TREND(C5:C7,B5:B7)}", NULL);
+ * @endcode
+ *
+ * If the array formula returns a single value then the `first_` and `last_`
+ * parameters should be the same:
+ *
+ * @code
+ *     worksheet_write_array_formula(worksheet, 1, 0, 1, 0,
+ * "{=SUM(B1:C1*B2:C2)}", NULL); worksheet_write_array_formula(worksheet,
+ * RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}", NULL);
+ * @endcode
+ *
+ */
+void write_array_formula(row_num_t first_row, col_num_t first_col,
+                         row_num_t last_row, col_num_t last_col,
+                         const std::string& formula, const format_t *format);
+void write_array_formula(row_num_t first_row, col_num_t first_col,
+                         row_num_t last_row, col_num_t last_col,
+                         const std::string& formula);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4107,6 +4159,7 @@ private:
   [[nodiscard]] std::string write_custom_filter(const std::string& str, double num, filter_criteria_t criteria) const;
   [[nodiscard]] std::string write_filter_list(const filter_rule_obj_t& filter) const;
   [[nodiscard]] std::string write_filter_custom(const filter_rule_obj_t& filter) const;
+  [[nodiscard]] std::string write_array_formula_num_cell(const cell_t& cell) const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -4124,6 +4177,10 @@ private:
   [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t get_vml_drawing_rel_index(const std::string& target);
 
+void store_array_formula(row_num_t first_row, col_num_t first_col,
+                         row_num_t last_row, col_num_t last_col,
+                         const std::string& formula, const format_t* format,
+                         double result, bool is_dynamic);
   void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
   void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
@@ -4219,7 +4276,7 @@ private:
   bool zoom_scale_normal_            = true;
   ///     uint8_t black_white;
   ///     uint8_t num_validations;
-  ///     uint8_t has_dynamic_functions;
+  bool has_dynamic_functions_ = false;
   ///     char *vba_codename;
   ///     uint16_t num_buttons;
 
@@ -4325,59 +4382,6 @@ private:
 
 ///     RB_ENTRY (lxw_drawing_rel_id) tree_pointers;
 /// } lxw_drawing_rel_id;
-
-/**
- * @brief Write an array formula to a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_row The first row of the range. (All zero indexed.)
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- * @param formula   Array formula to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_array_formula()` function writes an array formula to
- * a cell range. In Excel an array formula is a formula that performs a
- * calculation on a set of values.
- *
- * In Excel an array formula is indicated by a pair of braces around the
- * formula: `{=SUM(A1:B1*A2:B2)}`.
- *
- * Array formulas can return a single value or a range or values. For array
- * formulas that return a range of values you must specify the range that the
- * return values will be written to. This is why this function has `first_`
- * and `last_` row/column parameters. The RANGE() macro can also be used to
- * specify the range:
- *
- * @code
- *     worksheet_write_array_formula(worksheet, 4, 0, 6, 0,
- * "{=TREND(C5:C7,B5:B7)}", NULL);
- *
- *     // Same as above using the RANGE() macro.
- *     worksheet_write_array_formula(worksheet, RANGE("A5:A7"),
- * "{=TREND(C5:C7,B5:B7)}", NULL);
- * @endcode
- *
- * If the array formula returns a single value then the `first_` and `last_`
- * parameters should be the same:
- *
- * @code
- *     worksheet_write_array_formula(worksheet, 1, 0, 1, 0,
- * "{=SUM(B1:C1*B2:C2)}", NULL); worksheet_write_array_formula(worksheet,
- * RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}", NULL);
- * @endcode
- *
- */
-/// lxw_error worksheet_write_array_formula(lxw_worksheet *worksheet,
-///                                         row_num_t first_row,
-///                                         col_num_t first_col,
-///                                         row_num_t last_row,
-///                                         col_num_t last_col,
-///                                         const char *formula,
-///                                         lxw_format *format);
 
 /**
  * @brief Write an Excel 365 dynamic array formula to a worksheet range.

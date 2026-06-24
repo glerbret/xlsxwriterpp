@@ -76,9 +76,9 @@ namespace xwpp
  *     worksheet_print_area(worksheet, RANGE("A1:K42"));
  * @endcode
  */
-/// #define RANGE(range) \
-///     lxw_name_to_row(range), lxw_name_to_col(range), \
-///     lxw_name_to_row_2(range), lxw_name_to_col_2(range)
+#define RANGE(range) \
+  xwpp::name_to_row(range), xwpp::name_to_col(range), \
+  xwpp::name_to_row_2(range), xwpp::name_to_col_2(range)
 
 /**
  * @brief Retrieve the library version.
