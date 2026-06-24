@@ -59,6 +59,7 @@ private:
   void write_root_rels_file(const workbook_t& workbook);
   void write_workbook_rels_file(const workbook_t& workbook);
   void write_worksheet_files(workbook_t& workbook);
+  void write_chartsheet_files(workbook_t& workbook);
   void write_workbook_file(workbook_t& workbook);
   void write_styles_file(const workbook_t& workbook);
   void write_shared_strings_file(const workbook_t& workbook);
@@ -67,6 +68,7 @@ private:
   void write_core_file(const workbook_t& workbook);
   void write_custom_file(const workbook_t& workbook);
   void write_worksheet_rels_file(const workbook_t& workbook);
+  void write_chartsheet_rels_file(const workbook_t& workbook);
   void write_vml_files(const workbook_t& workbook);
   void write_comment_files(const workbook_t& workbook);
   void write_drawing_files(const workbook_t& workbook);

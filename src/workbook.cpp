@@ -339,30 +339,32 @@ void workbook_t::prepare_workbook()
  * sorting.
  */
 void workbook_t::store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
-                              int16_t index, bool hidden)
+                                    int16_t index, bool hidden)
 ///  STATIC lxw_error _store_defined_name(lxw_workbook *self, const char *name,
 ///                     const char *app_name, const char *formula, int16_t index,
 ///                     uint8_t hidden)
 {
-///     lxw_sheet *sheet;
-///     lxw_worksheet *worksheet;
-///     lxw_defined_name *defined_name;
-///     lxw_defined_name *list_defined_name;
-///     char name_copy[LXW_DEFINED_NAME_LENGTH];
-///     char *tmp_str;
-///     char *worksheet_name;
+  ///     lxw_sheet *sheet;
+  ///     lxw_worksheet *worksheet;
+  ///     lxw_defined_name *defined_name;
+  ///     lxw_defined_name *list_defined_name;
+  ///     char name_copy[LXW_DEFINED_NAME_LENGTH];
+  ///     char *tmp_str;
+  ///     char *worksheet_name;
 
   // Do some checks on the input data
-  if (name.empty() || formula.empty())
+  if(name.empty() || formula.empty())
+  {
     throw xwpp_exception_t("workbook_t::store_defined_name(): 'name' and 'formula' cannot be empty");
+  }
 
   defined_name_t defined_name;
 
-/* Copy the user input string. */
-///     lxw_strcpy(name_copy, name);
+  /* Copy the user input string. */
+  ///     lxw_strcpy(name_copy, name);
 
   // Set the worksheet index or -1 for a global defined name.
-  defined_name.index_ = index;
+  defined_name.index_  = index;
   defined_name.hidden_ = hidden;
 
   // Check for local defined names like like "Sheet1!name".
@@ -377,8 +379,7 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
     // The name is worksheet local. We need to extract the sheet name
     // and map it to a sheet index.
     std::string worksheet_name = name.substr(0, found_string);
-    std::string tmp_str   = name.substr(found_string + 1);
-
+    std::string tmp_str        = name.substr(found_string + 1);
 
     if(tmp_str.empty() || worksheet_name.empty())
     {
@@ -397,31 +398,33 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
 
     // Search for worksheet name to get the equivalent worksheet index.
     for(auto& sheet: sheets_)
-  {
-    if(std::holds_alternative<worksheet_t>(sheet))
     {
-      auto& ws = std::get<0>(sheet);
-
-      if(worksheet_name == ws.name_)
+      if(std::holds_alternative<worksheet_t>(sheet))
       {
-        defined_name.index_ = ws.index_;
-        defined_name.normalised_sheetname_ =worksheet_name;
-      }
+        auto& ws = std::get<worksheet_t>(sheet);
 
-    }
+        if(worksheet_name == ws.name_)
+        {
+          defined_name.index_                = ws.index_;
+          defined_name.normalised_sheetname_ = worksheet_name;
+        }
+      }
     }
 
     // If we didn't find the worksheet name we exit.
-     if (defined_name.index_ == -1)
-        throw xwpp_exception_t(std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
+    if(defined_name.index_ == -1)
+    {
+      throw xwpp_exception_t(
+          std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
+    }
 
     defined_name.name_ = tmp_str;
   }
 
   // Print titles and repeat title pass in the name used for App.xml.
-  if (!app_name.empty())
+  if(!app_name.empty())
   {
-    defined_name.app_name_ = app_name;
+    defined_name.app_name_             = app_name;
     defined_name.normalised_sheetname_ = app_name;
   }
   else
@@ -438,31 +441,36 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
   }
   else
   {
-    defined_name.normalised_name_ = defined_name.name_.substr(found_string+ 6);
+    defined_name.normalised_name_ = defined_name.name_.substr(found_string + 6);
   }
 
   std::transform(std::begin(defined_name.normalised_name_), std::end(defined_name.normalised_name_),
-                 std::begin(defined_name.normalised_name_), [] (char c) { return std::tolower(c);});
+                 std::begin(defined_name.normalised_name_), [](char c) { return std::tolower(c); });
   std::transform(std::begin(defined_name.normalised_sheetname_), std::end(defined_name.normalised_sheetname_),
-                 std::begin(defined_name.normalised_sheetname_), [] (char c) { return std::tolower(c);});
+                 std::begin(defined_name.normalised_sheetname_), [](char c) { return std::tolower(c); });
 
   // Strip leading "=" from the formula.
-  if (formula[0] == '=')
+  if(formula[0] == '=')
+  {
     defined_name.formula_ = formula.substr(1);
+  }
   else
+  {
     defined_name.formula_ = formula;
+  }
 
   // We add the defined name to the list in sorted order.
   for(auto it = std::cbegin(defined_names_); it != std::cend(defined_names_); ++it)
   {
-    if(defined_name.normalised_name_ == it->normalised_name_ && defined_name.normalised_sheetname_ == it->normalised_sheetname_)
+    if(defined_name.normalised_name_ == it->normalised_name_ &&
+       defined_name.normalised_sheetname_ == it->normalised_sheetname_)
     {
       // The entry already exists. We exit and don't overwrite.
       return;
     }
-    else if(defined_name.normalised_name_ < it->normalised_name_  ||
-      (defined_name.normalised_name_ == it->normalised_name_ && defined_name.normalised_sheetname_ < it->normalised_sheetname_)
-    )
+    else if(defined_name.normalised_name_ < it->normalised_name_ ||
+            (defined_name.normalised_name_ == it->normalised_name_ &&
+             defined_name.normalised_sheetname_ < it->normalised_sheetname_))
     {
       // New defined name is inserted in sorted order before other entries.
       defined_names_.insert(it, defined_name);
@@ -715,16 +723,8 @@ void workbook_t::prepare_drawings()
 
   for(auto& sheet: sheets_)
   {
-    // TODO
-    ///         if (sheet->is_chartsheet) {
-    ///             worksheet = sheet->u.chartsheet->worksheet;
-    ///             is_chartsheet = LXW_TRUE;
-    ///         }
-    //       if(std::holds_alternative<worksheet_t>(sheet))
-    //      {
-    worksheet_t& worksheet = std::get<worksheet_t>(sheet);
-    is_chartsheet          = false;
-    //      }
+    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet) : std::get<chartsheet_t>(sheet).worksheet_;
+    is_chartsheet   = std::holds_alternative<chartsheet_t>(sheet);
 
     if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() && worksheet.chart_data_.empty() &&
        !worksheet.has_header_vml_ && !worksheet.has_background_image_)
@@ -926,128 +926,126 @@ void workbook_t::prepare_defined_names()
       // Check for autofilter settings and store them.
       if(ws.autofilter_.in_use_)
       {
-        std::string area = rowcol_to_range_abs(ws.autofilter_.first_row_,
-                                               ws.autofilter_.first_col_,
-                                               ws.autofilter_.last_row_,
-                                               ws.autofilter_.last_col_);
+        std::string area = rowcol_to_range_abs(ws.autofilter_.first_row_, ws.autofilter_.first_col_,
+                                               ws.autofilter_.last_row_, ws.autofilter_.last_col_);
 
         // Autofilters are the only defined name to set the hidden flag.
         store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", ws.quoted_name_),
-                          std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
+                           std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
       }
 
-  /*
-   * Check for Print Area settings and store them.
-   */
-  ///         if (worksheet->print_area.in_use) {
+      /*
+       * Check for Print Area settings and store them.
+       */
+      ///         if (worksheet->print_area.in_use) {
 
-  ///             lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-  ///                          "%s!Print_Area", worksheet->quoted_name);
+      ///             lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
+      ///                          "%s!Print_Area", worksheet->quoted_name);
 
-  /* Check for print area that is the max row range. */
-  ///             if (worksheet->print_area.first_row == 0
-  ///                 && worksheet->print_area.last_row == LXW_ROW_MAX - 1) {
+      /* Check for print area that is the max row range. */
+      ///             if (worksheet->print_area.first_row == 0
+      ///                 && worksheet->print_area.last_row == LXW_ROW_MAX - 1) {
 
-  ///                 lxw_col_to_name(first_col,
-  ///                                 worksheet->print_area.first_col,
-  ///                                 LXW_FALSE);
+      ///                 lxw_col_to_name(first_col,
+      ///                                 worksheet->print_area.first_col,
+      ///                                 LXW_FALSE);
 
-  ///                 lxw_col_to_name(last_col,
-  ///                                 worksheet->print_area.last_col,
-  ///                                 LXW_FALSE);
+      ///                 lxw_col_to_name(last_col,
+      ///                                 worksheet->print_area.last_col,
+      ///                                 LXW_FALSE);
 
-  ///                 lxw_snprintf(area, LXW_MAX_CELL_RANGE_LENGTH - 1,
-  ///                 "$%s:$%s",
-  ///                              first_col, last_col);
+      ///                 lxw_snprintf(area, LXW_MAX_CELL_RANGE_LENGTH - 1,
+      ///                 "$%s:$%s",
+      ///                              first_col, last_col);
 
-  ///             }
-  /* Check for print area that is the max column range. */
-  ///             else if (worksheet->print_area.first_col == 0
-  ///                      && worksheet->print_area.last_col == LXW_COL_MAX - 1)
-  ///                      {
+      ///             }
+      /* Check for print area that is the max column range. */
+      ///             else if (worksheet->print_area.first_col == 0
+      ///                      && worksheet->print_area.last_col == LXW_COL_MAX - 1)
+      ///                      {
 
-  ///                 lxw_snprintf(area, LXW_MAX_CELL_RANGE_LENGTH - 1,
-  ///                 "$%d:$%d",
-  ///                              worksheet->print_area.first_row + 1,
-  ///                              worksheet->print_area.last_row + 1);
+      ///                 lxw_snprintf(area, LXW_MAX_CELL_RANGE_LENGTH - 1,
+      ///                 "$%d:$%d",
+      ///                              worksheet->print_area.first_row + 1,
+      ///                              worksheet->print_area.last_row + 1);
 
-  ///             }
-  ///             else {
-  ///                 lxw_rowcol_to_range_abs(area,
-  ///                                         worksheet->print_area.first_row,
-  ///                                         worksheet->print_area.first_col,
-  ///                                         worksheet->print_area.last_row,
-  ///                                         worksheet->print_area.last_col);
-  ///             }
+      ///             }
+      ///             else {
+      ///                 lxw_rowcol_to_range_abs(area,
+      ///                                         worksheet->print_area.first_row,
+      ///                                         worksheet->print_area.first_col,
+      ///                                         worksheet->print_area.last_row,
+      ///                                         worksheet->print_area.last_col);
+      ///             }
 
-  ///             lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH, "%s!%s",
-  ///                          worksheet->quoted_name, area);
+      ///             lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH, "%s!%s",
+      ///                          worksheet->quoted_name, area);
 
-  ///             _store_defined_name(self, "_xlnm.Print_Area", app_name,
-  ///                                 range, worksheet->index, LXW_FALSE);
-  ///         }
+      ///             _store_defined_name(self, "_xlnm.Print_Area", app_name,
+      ///                                 range, worksheet->index, LXW_FALSE);
+      ///         }
 
-  /*
-   * Check for repeat rows/cols. aka, Print Titles and store them.
-   */
-  ///         if (worksheet->repeat_rows.in_use ||
-  ///         worksheet->repeat_cols.in_use) {
-  ///             if (worksheet->repeat_rows.in_use
-  ///                 && worksheet->repeat_cols.in_use) {
-  ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-  ///                              "%s!Print_Titles", worksheet->quoted_name);
+      /*
+       * Check for repeat rows/cols. aka, Print Titles and store them.
+       */
+      ///         if (worksheet->repeat_rows.in_use ||
+      ///         worksheet->repeat_cols.in_use) {
+      ///             if (worksheet->repeat_rows.in_use
+      ///                 && worksheet->repeat_cols.in_use) {
+      ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
+      ///                              "%s!Print_Titles", worksheet->quoted_name);
 
-  ///                 lxw_col_to_name(first_col,
-  ///                                 worksheet->repeat_cols.first_col,
-  ///                                 LXW_FALSE);
+      ///                 lxw_col_to_name(first_col,
+      ///                                 worksheet->repeat_cols.first_col,
+      ///                                 LXW_FALSE);
 
-  ///                 lxw_col_to_name(last_col,
-  ///                                 worksheet->repeat_cols.last_col,
-  ///                                 LXW_FALSE);
+      ///                 lxw_col_to_name(last_col,
+      ///                                 worksheet->repeat_cols.last_col,
+      ///                                 LXW_FALSE);
 
-  ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
-  ///                              "%s!$%s:$%s,%s!$%d:$%d",
-  ///                              worksheet->quoted_name, first_col,
-  ///                              last_col, worksheet->quoted_name,
-  ///                              worksheet->repeat_rows.first_row + 1,
-  ///                              worksheet->repeat_rows.last_row + 1);
+      ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
+      ///                              "%s!$%s:$%s,%s!$%d:$%d",
+      ///                              worksheet->quoted_name, first_col,
+      ///                              last_col, worksheet->quoted_name,
+      ///                              worksheet->repeat_rows.first_row + 1,
+      ///                              worksheet->repeat_rows.last_row + 1);
 
-  ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
-  ///                                     range, worksheet->index, LXW_FALSE);
-  ///             }
-  ///             else if (worksheet->repeat_rows.in_use) {
+      ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
+      ///                                     range, worksheet->index, LXW_FALSE);
+      ///             }
+      ///             else if (worksheet->repeat_rows.in_use) {
 
-  ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-  ///                              "%s!Print_Titles", worksheet->quoted_name);
+      ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
+      ///                              "%s!Print_Titles", worksheet->quoted_name);
 
-  ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
-  ///                              "%s!$%d:$%d", worksheet->quoted_name,
-  ///                              worksheet->repeat_rows.first_row + 1,
-  ///                              worksheet->repeat_rows.last_row + 1);
+      ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
+      ///                              "%s!$%d:$%d", worksheet->quoted_name,
+      ///                              worksheet->repeat_rows.first_row + 1,
+      ///                              worksheet->repeat_rows.last_row + 1);
 
-  ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
-  ///                                     range, worksheet->index, LXW_FALSE);
-  ///             }
-  ///             else if (worksheet->repeat_cols.in_use) {
-  ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-  ///                              "%s!Print_Titles", worksheet->quoted_name);
+      ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
+      ///                                     range, worksheet->index, LXW_FALSE);
+      ///             }
+      ///             else if (worksheet->repeat_cols.in_use) {
+      ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
+      ///                              "%s!Print_Titles", worksheet->quoted_name);
 
-  ///                 lxw_col_to_name(first_col,
-  ///                                 worksheet->repeat_cols.first_col,
-  ///                                 LXW_FALSE);
+      ///                 lxw_col_to_name(first_col,
+      ///                                 worksheet->repeat_cols.first_col,
+      ///                                 LXW_FALSE);
 
-  ///                 lxw_col_to_name(last_col,
-  ///                                 worksheet->repeat_cols.last_col,
-  ///                                 LXW_FALSE);
+      ///                 lxw_col_to_name(last_col,
+      ///                                 worksheet->repeat_cols.last_col,
+      ///                                 LXW_FALSE);
 
-  ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
-  ///                              "%s!$%s:$%s", worksheet->quoted_name,
-  ///                              first_col, last_col);
+      ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
+      ///                              "%s!$%s:$%s", worksheet->quoted_name,
+      ///                              first_col, last_col);
 
-  ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
-  ///                                     range, worksheet->index, LXW_FALSE);
-  ///             }
-  ///         }
+      ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
+      ///                                     range, worksheet->index, LXW_FALSE);
+      ///             }
+      ///         }
     }
   }
 }
@@ -1129,7 +1127,7 @@ std::string workbook_t::write_workbook_pr() const
 
 std::string workbook_t::write_workbook_view() const
 {
-  const std::vector<std::tuple<std::string, std::string>> attributes{
+  std::vector<std::tuple<std::string, std::string>> attributes{
       {"xWindow",      "240"                         },
       {"yWindow",      "15"                          },
       {"windowWidth",  std::to_string(window_width_) },
@@ -1139,8 +1137,8 @@ std::string workbook_t::write_workbook_view() const
   ///     if (self->first_sheet)
   ///         LXW_PUSH_ATTRIBUTES_INT("firstSheet", self->first_sheet);
 
-  ///     if (self->active_sheet)
-  ///         LXW_PUSH_ATTRIBUTES_INT("activeTab", self->active_sheet);
+  if (active_sheet_)
+    attributes.emplace_back("activeTab", std::to_string(active_sheet_));
 
   return xml_empty_tag("workbookView", attributes);
 }
@@ -1154,16 +1152,16 @@ std::string workbook_t::write_book_views() const
   return xml_data;
 }
 
-std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id/*,
-             uint8_t hidden*/) const
+std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id,
+             bool hidden) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
       {"name", std::string(name)},
       {"sheetId", std::format("{}", sheet_id)},
   };
 
-  ///     if (hidden)
-  ///         LXW_PUSH_ATTRIBUTES_STR("state", "hidden");
+  if (hidden)
+    attributes.emplace_back("state", "hidden");
   attributes.emplace_back("r:id", std::format("rId{}", sheet_id));
 
   return xml_empty_tag("sheet", attributes);
@@ -1180,19 +1178,16 @@ std::string workbook_t::write_sheets() const
 
   for(auto sheet: sheets_)
   {
-    ///         if (sheet->is_chartsheet) {
-    ///             chartsheet = sheet->u.chartsheet;
-    ///             _write_sheet(self, chartsheet->name, chartsheet->index + 1,
-    ///                          chartsheet->hidden);
-    ///         }
-    ///         else {
-    const auto ws = std::get<0>(sheet);
-    xml_data += write_sheet(ws.get_sheet_name(), ws.get_sheet_index() + 1);
-
-    ///             worksheet = sheet->u.worksheet;
-    ///             _write_sheet(self, worksheet->name, worksheet->index + 1,
-    ///                          worksheet->hidden);
-    ///         }
+    if(std::holds_alternative<chartsheet_t>(sheet))
+    {
+      const auto cs = std::get<chartsheet_t>(sheet);
+      xml_data += write_sheet(cs.get_sheet_name(), cs.get_sheet_index() + 1, cs.hidden_);
+    }
+    else if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      const auto ws = std::get<worksheet_t>(sheet);
+      xml_data += write_sheet(ws.get_sheet_name(), ws.get_sheet_index() + 1, ws.hidden_);
+    }
   }
 
   xml_data += xml_end_tag("sheets");
@@ -1209,16 +1204,19 @@ std::string workbook_t::write_calc_pr() const
 
 std::string workbook_t::write_defined_name(const defined_name_t& defined_name) const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes
-  {
-    {"name", defined_name.name_}
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"name", defined_name.name_}
   };
 
-  if (defined_name.index_ != -1)
+  if(defined_name.index_ != -1)
+  {
     attributes.emplace_back("localSheetId", std::to_string(defined_name.index_));
+  }
 
-  if (defined_name.hidden_)
-        attributes.emplace_back("hidden", "1");
+  if(defined_name.hidden_)
+  {
+    attributes.emplace_back("hidden", "1");
+  }
 
   return xml_data_element("definedName", defined_name.formula_, attributes);
 }
@@ -1226,7 +1224,9 @@ std::string workbook_t::write_defined_name(const defined_name_t& defined_name) c
 std::string workbook_t::write_defined_names() const
 {
   if(defined_names_.empty())
-          return "";
+  {
+    return "";
+  }
 
   std::string xml_data = xml_start_tag("definedNames");
   for(const auto& defined_name: defined_names_)
@@ -1298,7 +1298,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       .index_              = num_sheets_,
       .hidden_             = 0,
       ///     .optimize = self->options.constant_memory,
-      ///     .active_sheet = &self->active_sheet,
+      .active_sheet_ = &active_sheet_,
       ///     .first_sheet = &self->first_sheet,
       .sst_                = &sst_,
       .name_               = std::string{sheetname},
@@ -1318,86 +1318,46 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   return std::get<worksheet_t>(sheets_.back());
 }
 
-/// lxw_chartsheet * workbook_add_chartsheet(lxw_workbook *self, const char *sheetname)
-/// {
+chartsheet_t& workbook_t::add_chartsheet()
+{
+  const std::string sheetname = "Chart" + std::to_string(num_chartsheets_ + 1);
+  return add_chartsheet(sheetname);
+}
+
+chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
+{
+  // Check that the worksheet name is valid.
+  validate_sheetname(sheetname);
+
 ///     lxw_sheet *sheet = NULL;
 ///     lxw_chartsheet *chartsheet = NULL;
 ///     lxw_chartsheet_name *chartsheet_name = NULL;
 ///     lxw_error error;
-///     lxw_worksheet_init_data init_data =
-///         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-///     char *new_name = NULL;
 
-///     if (sheetname) {
-///         /* Use the user supplied name. */
-///         init_data.name = lxw_strdup(sheetname);
-///         init_data.quoted_name = lxw_quote_sheetname(sheetname);
-///     }
-///     else {
-/* Use the default SheetN name. */
-///         new_name = malloc(LXW_MAX_SHEETNAME_LENGTH);
-///         GOTO_LABEL_ON_MEM_ERROR(new_name, mem_error);
 
-///         lxw_snprintf(new_name, LXW_MAX_SHEETNAME_LENGTH, "Chart%d",
-///                      self->num_chartsheets + 1);
-///         init_data.name = new_name;
-///         init_data.quoted_name = lxw_strdup(new_name);
-///     }
+  const worksheet_init_data_t init_data{
+      .index_              = num_sheets_,
+      .hidden_             = 0,
+      ///     .optimize = self->options.constant_memory,
+      .active_sheet_ = &active_sheet_,
+      ///     .first_sheet = &self->first_sheet,
+      .sst_                = &sst_,
+      .name_               = std::string{sheetname},
+      .quoted_name_        = quote_sheetname(sheetname),
+      ///     .tmpdir = self->options.tmpdir,
+      /// .default_url_format_ = default_url_format_,
+      ///     .max_url_length = self->max_url_length,
+      ///     .use_1904_epoch = self->use_1904_epoch,
+  };
 
-/* Check that the chartsheet name is valid. */
-///     error = workbook_validate_sheet_name(self, init_data.name);
-///     if (error) {
-///         LXW_WARN_FORMAT2
-///             ("workbook_add_chartsheet(): chartsheet name '%s' has "
-///              "error: %s", init_data.name, lxw_strerror(error));
-///         goto mem_error;
-///     }
+  sheets_.emplace_back(chartsheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1)});
+  num_chartsheets_++;
+  num_sheets_++;
 
-/* Create a struct to find/store the chartsheet name/pointer. */
-///     chartsheet_name = calloc(1, sizeof(struct lxw_chartsheet_name));
-///     GOTO_LABEL_ON_MEM_ERROR(chartsheet_name, mem_error);
+  chartsheet_names_[init_data.name_] = &std::get<chartsheet_t>(sheets_.back());
 
-/* Initialize the metadata to pass to the chartsheet. */
-///     init_data.hidden = 0;
-///     init_data.index = self->num_sheets;
-///     init_data.sst = self->sst;
-///     init_data.optimize = self->options.constant_memory;
-///     init_data.active_sheet = &self->active_sheet;
-///     init_data.first_sheet = &self->first_sheet;
-///     init_data.tmpdir = self->options.tmpdir;
-
-/* Create a new chartsheet object. */
-///     chartsheet = lxw_chartsheet_new(&init_data);
-///     GOTO_LABEL_ON_MEM_ERROR(chartsheet, mem_error);
-
-/* Add it to the chartsheet list. */
-///     self->num_chartsheets++;
-///     STAILQ_INSERT_TAIL(self->chartsheets, chartsheet, list_pointers);
-
-/* Create a new sheet object. */
-///     sheet = calloc(1, sizeof(lxw_sheet));
-///     GOTO_LABEL_ON_MEM_ERROR(sheet, mem_error);
-///     sheet->is_chartsheet = LXW_TRUE;
-///     sheet->u.chartsheet = chartsheet;
-
-/* Add it to the chartsheet list. */
-///     self->num_sheets++;
-///     STAILQ_INSERT_TAIL(self->sheets, sheet, list_pointers);
-
-/* Store the chartsheet so we can look it up by name. */
-///     chartsheet_name->name = init_data.name;
-///     chartsheet_name->chartsheet = chartsheet;
-///     RB_INSERT(lxw_chartsheet_names, self->chartsheet_names, chartsheet_name);
-
-///     return chartsheet;
-
-/// mem_error:
-///     free((void *) init_data.name);
-///     free((void *) init_data.quoted_name);
-///     free(chartsheet_name);
-///     free(chartsheet);
-///     return NULL;
-/// }
+  return std::get<chartsheet_t>(sheets_.back());
+}
 
 // TODO No need to create chart through workbook. Can be autonomous object and be added
 // to worksheet with insert_chart API (without duplication check)
@@ -1467,7 +1427,7 @@ void workbook_t::save(std::string_view filename)
   {
     if(std::holds_alternative<worksheet_t>(sheet))
     {
-      auto& worksheet = std::get<0>(sheet);
+      auto& worksheet = std::get<worksheet_t>(sheet);
       if(worksheet.index_ == active_sheet_)
       {
         worksheet.active_ = true;

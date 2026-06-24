@@ -26,6 +26,8 @@ public:
   void add_default(std::string_view key, std::string_view value);
   void add_override(std::string_view key, std::string_view value);
   void add_worksheet_name(std::string_view name);
+  void add_chartsheet_name(std::string_view name);
+
   void add_shared_strings();
   void add_custom_properties();
   void add_vml_name();
@@ -48,8 +50,6 @@ private:
 
 /// lxw_content_types *lxw_content_types_new(void);
 /// void lxw_content_types_free(lxw_content_types *content_types);
-/// void lxw_ct_add_chartsheet_name(lxw_content_types *content_types,
-///                                 const char *name);
 /// void lxw_ct_add_table_name(lxw_content_types *content_types,
 ///                            const char *name);
 /// void lxw_ct_add_calc_chain(lxw_content_types *content_types);

@@ -37,5 +37,4 @@ int main()
   worksheet.write_array_formula(4, 0, 6, 0, "{=TREND(C5:C7,B5:B7)}");
 
   workbook.save("array_formula.xlsx");
-
 }

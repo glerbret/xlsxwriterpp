@@ -42,6 +42,7 @@
 #define XWPP_WORKBOOK_H
 
 #include "xwpp/chart.h"
+#include "xwpp/chartsheet.h"
 #include "xwpp/common.h"
 #include "xwpp/worksheet.h"
 
@@ -88,7 +89,7 @@ namespace xwpp
 struct defined_name_t
 {
   int16_t index_ = 0;
-  bool hidden_ = false;
+  bool hidden_   = false;
   std::string name_;
   std::string app_name_;
   std::string formula_;
@@ -296,6 +297,55 @@ public:
    */
   worksheet_t& add_worksheet(std::string_view sheetname);
   worksheet_t& add_worksheet();
+
+  /**
+   * @brief Add a new chartsheet to a workbook.
+   *
+   * @param workbook  Pointer to a lxw_workbook instance.
+   * @param sheetname Optional chartsheet name, defaults to Chart1, etc.
+   *
+   * @return A lxw_chartsheet object.
+   *
+   * The `%workbook_add_chartsheet()` function adds a new chartsheet to a
+   * workbook. The @ref chartsheet.h "Chartsheet" object is like a worksheet
+   * except it displays a chart instead of cell data.
+   *
+   * @image html chartsheet.png
+   *
+   * The `sheetname` parameter is optional. If it is `NULL` the default
+   * Excel convention will be followed, i.e. Chart1, Chart2, etc.:
+   *
+   * @code
+   *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart1
+   *     chartsheet = workbook_add_chartsheet(workbook, "My Chart"); // My
+  Chart
+   *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart3
+   *
+   * @endcode
+   *
+   * The chartsheet name must be a valid Excel worksheet name, i.e.:
+   *
+   * - The name cannot be blank.
+   * - The name is less than or equal to 31 UTF-8 characters.
+   * - The name doesn't contain any of the characters: ` [ ] : * ? / \ `
+   * - The name doesn't start or end with an apostrophe.
+   * - The name isn't already in use. (Case insensitive).
+   *
+   * If any of these errors are encountered the function will return NULL.
+   * You can check for valid name using the `validate_sheetname()`
+   * function.
+   *
+   * @note You should also avoid using the worksheet name "History" (case
+   * insensitive) which is reserved in English language versions of
+   * Excel. Non-English versions may have restrictions on the equivalent word.
+   *
+   * At least one worksheet should be added to a new workbook when creating a
+   * chartsheet in order to provide data for the chart. The @ref worksheet.h
+   * "Worksheet" object is used to write data and configure a worksheet in the
+   * workbook.
+   */
+  chartsheet_t& add_chartsheet(std::string_view sheetname);
+  chartsheet_t& add_chartsheet();
 
   // TODO Add builder API to create format
   /**
@@ -566,7 +616,7 @@ private:
   void store_image_type(image_types_t image_type);
 
   void store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
-                              int16_t index, bool hidden);
+                          int16_t index, bool hidden);
   /**
    * @brief Get a worksheet object from its name.
    *
@@ -590,8 +640,8 @@ private:
   [[nodiscard]] std::string write_workbook_pr() const;
   [[nodiscard]] std::string write_workbook_view() const;
   [[nodiscard]] std::string write_book_views() const;
-  [[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id/*, uint8_t
-                         hidden*/) const;
+  [[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id, bool
+                         hidden) const;
   [[nodiscard]] std::string write_sheets() const;
   [[nodiscard]] std::string write_defined_names() const;
   [[nodiscard]] std::string write_calc_pr() const;
@@ -601,12 +651,12 @@ private:
 
   // Use list to not invalidate referenced owned by caller in case of insertion
   // of new sheet
-  std::list<std::variant<worksheet_t>> sheets_;
+  std::list<std::variant<worksheet_t, chartsheet_t>> sheets_;
 
   ///     struct lxw_worksheets *worksheets;
   ///     struct lxw_chartsheets *chartsheets;
   std::map<std::string, worksheet_t*> worksheet_names_;
-  ///     struct lxw_chartsheet_names *chartsheet_names;
+  std::map<std::string, chartsheet_t*> chartsheet_names_;
   std::map<std::string, uint32_t> image_md5_;
   std::map<std::string, uint32_t> embedded_image_md5_;
   std::map<std::string, uint32_t> header_image_md5_;
@@ -629,7 +679,7 @@ private:
 
   uint16_t num_sheets_          = 0; // TODO Needed ?
   uint16_t num_worksheets_      = 0;
-  ///     uint16_t num_chartsheets;
+  uint16_t num_chartsheets_     = 0;
   ///     uint16_t first_sheet;
   uint16_t active_sheet_        = 0;
   ///     uint16_t num_xf_formats;
@@ -738,55 +788,6 @@ private:
  */
 /// lxw_workbook *workbook_new_opt(const char *filename,
 ///                                lxw_workbook_options *options);
-
-/**
- * @brief Add a new chartsheet to a workbook.
- *
- * @param workbook  Pointer to a lxw_workbook instance.
- * @param sheetname Optional chartsheet name, defaults to Chart1, etc.
- *
- * @return A lxw_chartsheet object.
- *
- * The `%workbook_add_chartsheet()` function adds a new chartsheet to a
- * workbook. The @ref chartsheet.h "Chartsheet" object is like a worksheet
- * except it displays a chart instead of cell data.
- *
- * @image html chartsheet.png
- *
- * The `sheetname` parameter is optional. If it is `NULL` the default
- * Excel convention will be followed, i.e. Chart1, Chart2, etc.:
- *
- * @code
- *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart1
- *     chartsheet = workbook_add_chartsheet(workbook, "My Chart"); // My
-Chart
- *     chartsheet = workbook_add_chartsheet(workbook, NULL  );     // Chart3
- *
- * @endcode
- *
- * The chartsheet name must be a valid Excel worksheet name, i.e.:
- *
- * - The name cannot be blank.
- * - The name is less than or equal to 31 UTF-8 characters.
- * - The name doesn't contain any of the characters: ` [ ] : * ? / \ `
- * - The name doesn't start or end with an apostrophe.
- * - The name isn't already in use. (Case insensitive).
- *
- * If any of these errors are encountered the function will return NULL.
- * You can check for valid name using the `validate_sheetname()`
- * function.
- *
- * @note You should also avoid using the worksheet name "History" (case
- * insensitive) which is reserved in English language versions of
- * Excel. Non-English versions may have restrictions on the equivalent word.
- *
- * At least one worksheet should be added to a new workbook when creating a
- * chartsheet in order to provide data for the chart. The @ref worksheet.h
- * "Worksheet" object is used to write data and configure a worksheet in the
- * workbook.
- */
-/// lxw_chartsheet *workbook_add_chartsheet(lxw_workbook *workbook,
-///                                         const char *sheetname);
 
 /**
  * @brief Set a custom document date or time property.
@@ -1031,7 +1032,6 @@ Chart
 
 /// void lxw_workbook_free(lxw_workbook *workbook);
 /// void lxw_workbook_set_default_xf_indices(lxw_workbook *workbook);
-
 
 }
 

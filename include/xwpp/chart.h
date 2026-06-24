@@ -1803,6 +1803,7 @@ public:
 
 private:
   friend class worksheet_t; // TODO
+  friend class chartsheet_t; // TODO
   friend class workbook_t;
 
   void initialize_column_chart(chart_type_t type);

@@ -92,10 +92,10 @@ std::string content_types_t::assemble_xml_file() const
 /// LXW_FREE_ATTRIBUTES();
 /// }
 
-/// void lxw_ct_add_chartsheet_name(lxw_content_types *self, const char *name)
-/// {
-///   lxw_ct_add_override(self, name, LXW_APP_DOCUMENT "spreadsheetml.chartsheet+xml");
-/// }
+void content_types_t::add_chartsheet_name(std::string_view name)
+{
+  add_override(name, APP_DOCUMENT + "spreadsheetml.chartsheet+xml");
+}
 
 void content_types_t::add_chart_name(std::string_view name)
 {

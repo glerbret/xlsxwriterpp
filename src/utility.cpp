@@ -103,8 +103,10 @@ std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_nu
   std::string range = rowcol_to_cell_abs(first_row, first_col, 1, 1);
 
   // If the start and end cells are the same just return a single cell.
-  if (first_row == last_row && first_col == last_col)
+  if(first_row == last_row && first_col == last_col)
+  {
     return range;
+  }
 
   // Add the range separator.
   range += ':';

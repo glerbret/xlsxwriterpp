@@ -76,9 +76,8 @@ namespace xwpp
  *     worksheet_print_area(worksheet, RANGE("A1:K42"));
  * @endcode
  */
-#define RANGE(range) \
-  xwpp::name_to_row(range), xwpp::name_to_col(range), \
-  xwpp::name_to_row_2(range), xwpp::name_to_col_2(range)
+#define RANGE(range)                                                                                                   \
+  xwpp::name_to_row(range), xwpp::name_to_col(range), xwpp::name_to_row_2(range), xwpp::name_to_col_2(range)
 
 /**
  * @brief Retrieve the library version.
@@ -147,8 +146,8 @@ namespace xwpp
 [[nodiscard]] std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                           col_num_t last_col);
 
-[[nodiscard]] std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col,
-                                              row_num_t last_row, col_num_t last_col);
+[[nodiscard]] std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_num_t last_row,
+                                              col_num_t last_col);
 
 std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
                                   row_num_t last_row, col_num_t last_col);

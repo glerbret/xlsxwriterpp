@@ -2138,9 +2138,9 @@ struct protection_obj_t
 struct worksheet_init_data_t
 {
   uint16_t index_;
-  uint8_t hidden_;
+  uint8_t hidden_;  // TODO bool ?
   ///     uint8_t optimize;
-  ///     uint16_t *active_sheet;
+  uint16_t* active_sheet_ = nullptr;
   ///     uint16_t *first_sheet;
   shared_strings_t* sst_;
   std::string name_;
@@ -2161,6 +2161,7 @@ struct worksheet_init_data_t
 class worksheet_t
 {
 public:
+  worksheet_t();
   worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index);
 
   // TODO Add API with option (original worksheet_set_column_opt) and with format
@@ -4038,57 +4039,55 @@ public:
    */
   void filter_list(col_num_t col_num, const std::vector<std::string>& list);
 
-/**
- * @brief Write an array formula to a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_row The first row of the range. (All zero indexed.)
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- * @param formula   Array formula to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_array_formula()` function writes an array formula to
- * a cell range. In Excel an array formula is a formula that performs a
- * calculation on a set of values.
- *
- * In Excel an array formula is indicated by a pair of braces around the
- * formula: `{=SUM(A1:B1*A2:B2)}`.
- *
- * Array formulas can return a single value or a range or values. For array
- * formulas that return a range of values you must specify the range that the
- * return values will be written to. This is why this function has `first_`
- * and `last_` row/column parameters. The RANGE() macro can also be used to
- * specify the range:
- *
- * @code
- *     worksheet_write_array_formula(worksheet, 4, 0, 6, 0,
- * "{=TREND(C5:C7,B5:B7)}", NULL);
- *
- *     // Same as above using the RANGE() macro.
- *     worksheet_write_array_formula(worksheet, RANGE("A5:A7"),
- * "{=TREND(C5:C7,B5:B7)}", NULL);
- * @endcode
- *
- * If the array formula returns a single value then the `first_` and `last_`
- * parameters should be the same:
- *
- * @code
- *     worksheet_write_array_formula(worksheet, 1, 0, 1, 0,
- * "{=SUM(B1:C1*B2:C2)}", NULL); worksheet_write_array_formula(worksheet,
- * RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}", NULL);
- * @endcode
- *
- */
-void write_array_formula(row_num_t first_row, col_num_t first_col,
-                         row_num_t last_row, col_num_t last_col,
-                         const std::string& formula, const format_t *format);
-void write_array_formula(row_num_t first_row, col_num_t first_col,
-                         row_num_t last_row, col_num_t last_col,
-                         const std::string& formula);
+  /**
+   * @brief Write an array formula to a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row The first row of the range. (All zero indexed.)
+   * @param first_col The first column of the range.
+   * @param last_row  The last row of the range.
+   * @param last_col  The last col of the range.
+   * @param formula   Array formula to write to cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_array_formula()` function writes an array formula to
+   * a cell range. In Excel an array formula is a formula that performs a
+   * calculation on a set of values.
+   *
+   * In Excel an array formula is indicated by a pair of braces around the
+   * formula: `{=SUM(A1:B1*A2:B2)}`.
+   *
+   * Array formulas can return a single value or a range or values. For array
+   * formulas that return a range of values you must specify the range that the
+   * return values will be written to. This is why this function has `first_`
+   * and `last_` row/column parameters. The RANGE() macro can also be used to
+   * specify the range:
+   *
+   * @code
+   *     worksheet_write_array_formula(worksheet, 4, 0, 6, 0,
+   * "{=TREND(C5:C7,B5:B7)}", NULL);
+   *
+   *     // Same as above using the RANGE() macro.
+   *     worksheet_write_array_formula(worksheet, RANGE("A5:A7"),
+   * "{=TREND(C5:C7,B5:B7)}", NULL);
+   * @endcode
+   *
+   * If the array formula returns a single value then the `first_` and `last_`
+   * parameters should be the same:
+   *
+   * @code
+   *     worksheet_write_array_formula(worksheet, 1, 0, 1, 0,
+   * "{=SUM(B1:C1*B2:C2)}", NULL); worksheet_write_array_formula(worksheet,
+   * RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}", NULL);
+   * @endcode
+   *
+   */
+  void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                           const std::string& formula, const format_t* format);
+  void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                           const std::string& formula);
 
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
@@ -4101,6 +4100,7 @@ private:
   friend class packager_t;
   friend class workbook_t;
   friend class rich_value_t;
+  friend class chartsheet_t;
 
   void check_dimensions(row_num_t row_num, col_num_t col_num, bool ignore_row, bool ignore_col);
 
@@ -4113,8 +4113,6 @@ private:
   [[nodiscard]] std::string write_cols() const;
   [[nodiscard]] std::string write_col_info(const col_options_t& options) const;
   [[nodiscard]] std::string write_sheet_data() const;
-  ///  [[nodiscard]] std::string write_sheet_protection(const protection_obj_t&
-  ///  protect) const;
   [[nodiscard]] std::string write_auto_filter() const;
   [[nodiscard]] std::string write_merge_cells() const;
   [[nodiscard]] std::string write_conditional_formats() const;
@@ -4151,7 +4149,7 @@ private:
   [[nodiscard]] std::string write_merge_cell(const merged_range_t& merged_range) const;
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
-  [[nodiscard]] std::string write_sheet_protection() const;
+  [[nodiscard]] std::string write_sheet_protection(const protection_obj_t& protection) const;
   [[nodiscard]] std::string write_error_cell() const;
   [[nodiscard]] std::string write_filter_column(const std::optional<filter_rule_obj_t>& filter) const;
   [[nodiscard]] std::string write_filter(const std::string& str, double num, filter_criteria_t criteria) const;
@@ -4177,10 +4175,8 @@ private:
   [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t get_vml_drawing_rel_index(const std::string& target);
 
-void store_array_formula(row_num_t first_row, col_num_t first_col,
-                         row_num_t last_row, col_num_t last_col,
-                         const std::string& formula, const format_t* format,
-                         double result, bool is_dynamic);
+  void store_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                           const std::string& formula, const format_t* format, double result, bool is_dynamic);
   void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
   void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
@@ -4226,9 +4222,9 @@ void store_array_formula(row_num_t first_row, col_num_t first_col,
   bool active_    = true; // TODO Set to true for test, to be removed
   bool selected_  = false;
   bool hidden_    = false;
-  ///     uint16_t *active_sheet;
+  uint16_t* active_sheet_ = nullptr;;
   ///     uint16_t *first_sheet;
-  ///     uint8_t is_chartsheet;
+  bool is_chartsheet_ = false;
 
   std::vector<col_options_t> col_options_;
   col_num_t col_options_max_ = COL_META_MAX;
@@ -4276,7 +4272,7 @@ void store_array_formula(row_num_t first_row, col_num_t first_col,
   bool zoom_scale_normal_            = true;
   ///     uint8_t black_white;
   ///     uint8_t num_validations;
-  bool has_dynamic_functions_ = false;
+  bool has_dynamic_functions_        = false;
   ///     char *vba_codename;
   ///     uint16_t num_buttons;
 
@@ -4294,7 +4290,7 @@ void store_array_formula(row_num_t first_row, col_num_t first_col,
   uint32_t default_col_pixels_ = 64;
   ///     uint8_t default_row_zeroed;
   bool default_row_set_        = false;
-  uint8_t outline_row_level_ = 0;
+  uint8_t outline_row_level_   = 0;
   ///     uint8_t outline_col_level;
 
   bool header_footer_changed_ = false;

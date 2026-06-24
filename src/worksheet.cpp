@@ -121,12 +121,17 @@ const cell_t* worksheet_t::find_cell_in_row(const row_t* row, col_num_t col_num)
   }
 }
 
+worksheet_t::worksheet_t()
+{
+}
+
 worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index)
   : get_xf_index_{get_xf_index}
   , sst_{init_data.sst_}
   , name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
+  , active_sheet_{init_data.active_sheet_}
   , default_url_format_{init_data.default_url_format_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
@@ -169,7 +174,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         worksheet->hidden = init_data->hidden;
   ///         worksheet->sst = init_data->sst;
   ///         worksheet->optimize = init_data->optimize;
-  ///         worksheet->active_sheet = init_data->active_sheet;
   ///         worksheet->first_sheet = init_data->first_sheet;
   ///         worksheet->max_url_length = init_data->max_url_length;
   ///         worksheet->use_1904_epoch = init_data->use_1904_epoch;
@@ -300,10 +304,14 @@ cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, const std::s
   cell.data_       = formula;
   cell.user_data1_ = range;
 
-  if (is_dynamic)
-      cell.type_ = cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL;
+  if(is_dynamic)
+  {
+    cell.type_ = cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL;
+  }
   else
-      cell.type_ = cell_types_t::ARRAY_FORMULA_CELL;
+  {
+    cell.type_ = cell_types_t::ARRAY_FORMULA_CELL;
+  }
 
   return cell;
 }
@@ -1978,19 +1986,25 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
     attributes.emplace_back("ht", std::format("{}", height));
   }
 
-  if (row.hidden_)
+  if(row.hidden_)
+  {
     attributes.emplace_back("hidden", "1");
+  }
 
   if(height != DEF_ROW_HEIGHT)
   {
     attributes.emplace_back("customHeight", "1");
   }
 
-  if (row.level_ != 0)
+  if(row.level_ != 0)
+  {
     attributes.emplace_back("outlineLevel", std::to_string(row.level_));
+  }
 
-  if (row.collapsed_)
+  if(row.collapsed_)
+  {
     attributes.emplace_back("collapsed", "1");
+  }
 
   ///     if (self->excel_version == 2010)
   ///         LXW_PUSH_ATTRIBUTES_STR("x14ac:dyDescent", "0.25");
@@ -3227,9 +3241,10 @@ std::string worksheet_t::write_formula_str_cell(const cell_t& cell) const
 
 std::string worksheet_t::write_array_formula_num_cell(const cell_t& cell) const
 {
-  std::string xml_data = xml_data_element("f", std::get<std::string>(cell.data_), {
-    {"t", "array"},
-    {"ref", cell.user_data1_},
+  std::string xml_data = xml_data_element("f", std::get<std::string>(cell.data_),
+                                          {
+                                              {"t",   "array"         },
+                                              {"ref", cell.user_data1_},
   });
   xml_data += xml_data_element("v", std::format("{}", cell.formula_result_));
 
@@ -3347,18 +3362,20 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   ///         _write_boolean_cell(self, cell);
   ///         lxw_xml_end_tag(self->file, "c");
   ///     }
-  else if (cell.type_ == cell_types_t::ARRAY_FORMULA_CELL) {
+  else if(cell.type_ == cell_types_t::ARRAY_FORMULA_CELL)
+  {
     std::string xml_data = xml_start_tag("c", attributes);
-      xml_data +=write_array_formula_num_cell(cell);
+    xml_data += write_array_formula_num_cell(cell);
     xml_data += xml_end_tag("c");
 
     return xml_data;
   }
-  else if (cell.type_ == cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL) {
+  else if(cell.type_ == cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL)
+  {
     attributes.emplace_back("cm", "1");
     std::string xml_data = xml_start_tag("c", attributes);
-      xml_data +=write_array_formula_num_cell(cell);
-    xml_data += xml_end_tag( "c");
+    xml_data += write_array_formula_num_cell(cell);
+    xml_data += xml_end_tag("c");
 
     return xml_data;
   }
@@ -3727,7 +3744,7 @@ std::string worksheet_t::write_sheet_pr() const
   std::vector<std::tuple<std::string, std::string>> attributes;
 
   if(!fit_page_ && !filter_on_ && tab_color_ == color_t::UNSET && !outline_changed_
-     ///         && !self->vba_codename && !self->is_chartsheet
+     /* && !self->vba_codename */ && !is_chartsheet_
   )
   {
     return "";
@@ -4089,101 +4106,101 @@ std::string worksheet_t::write_hyperlinks()
   return xml_data;
 }
 
-std::string worksheet_t::write_sheet_protection() const
+std::string worksheet_t::write_sheet_protection(const protection_obj_t& protection) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  if(!protection_.is_configured_)
+  if(!protection.is_configured_)
   {
     return "";
   }
 
-  if(!protection_.hash_.empty())
+  if(!protection.hash_.empty())
   {
-    attributes.emplace_back("password", protection_.hash_);
+    attributes.emplace_back("password", protection.hash_);
   }
 
-  if(!protection_.no_sheet_)
+  if(!protection.no_sheet_)
   {
     attributes.emplace_back("sheet", "1");
   }
 
-  if(!protection_.no_content_)
+  if(!protection.no_content_)
   {
     attributes.emplace_back("content", "1");
   }
 
-  if(!protection_.objects_)
+  if(!protection.objects_)
   {
     attributes.emplace_back("objects", "1");
   }
 
-  if(!protection_.scenarios_)
+  if(!protection.scenarios_)
   {
     attributes.emplace_back("scenarios", "1");
   }
 
-  if(protection_.format_cells_)
+  if(protection.format_cells_)
   {
     attributes.emplace_back("formatCells", "0");
   }
 
-  if(protection_.format_columns_)
+  if(protection.format_columns_)
   {
     attributes.emplace_back("formatColumns", "0");
   }
 
-  if(protection_.format_rows_)
+  if(protection.format_rows_)
   {
     attributes.emplace_back("formatRows", "0");
   }
 
-  if(protection_.insert_columns_)
+  if(protection.insert_columns_)
   {
     attributes.emplace_back("insertColumns", "0");
   }
 
-  if(protection_.insert_rows_)
+  if(protection.insert_rows_)
   {
     attributes.emplace_back("insertRows", "0");
   }
 
-  if(protection_.insert_hyperlinks_)
+  if(protection.insert_hyperlinks_)
   {
     attributes.emplace_back("insertHyperlinks", "0");
   }
 
-  if(protection_.delete_columns_)
+  if(protection.delete_columns_)
   {
     attributes.emplace_back("deleteColumns", "0");
   }
 
-  if(protection_.delete_rows_)
+  if(protection.delete_rows_)
   {
     attributes.emplace_back("deleteRows", "0");
   }
 
-  if(protection_.no_select_locked_cells_)
+  if(protection.no_select_locked_cells_)
   {
     attributes.emplace_back("selectLockedCells", "1");
   }
 
-  if(protection_.sort_)
+  if(protection.sort_)
   {
     attributes.emplace_back("sort", "0");
   }
 
-  if(protection_.autofilter_)
+  if(protection.autofilter_)
   {
     attributes.emplace_back("autoFilter", "0");
   }
 
-  if(protection_.pivot_tables_)
+  if(protection.pivot_tables_)
   {
     attributes.emplace_back("pivotTables", "0");
   }
 
-  if(protection_.no_select_unlocked_cells_)
+  if(protection.no_select_unlocked_cells_)
   {
     attributes.emplace_back("selectUnlockedCells", "1");
   }
@@ -6174,9 +6191,7 @@ std::string worksheet_t::assemble_xml_file()
   ///     else
   ///         _worksheet_write_optimized_sheet_data(self);
 
-  // Write the sheetProtection element.
-  xml_data += write_sheet_protection();
-
+  xml_data += write_sheet_protection(protection_);
   xml_data += write_auto_filter();
   xml_data += write_merge_cells();
   xml_data += write_conditional_formats();
@@ -6347,10 +6362,9 @@ void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std:
   write_formula(row_num, col_num, formula, nullptr);
 }
 
-void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col,
-                         row_num_t last_row, col_num_t last_col,
-                         const std::string& formula, const format_t* format,
-                         double result, bool is_dynamic)
+void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                                      const std::string& formula, const format_t* format, double result,
+                                      bool is_dynamic)
 {
   // Swap last row/col with first row/col as necessary
   if(first_row > last_row)
@@ -6374,24 +6388,38 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col,
   // Define the array range.
   std::string range;
 
-  if (first_row == last_row && first_col == last_col)
-     range = rowcol_to_cell(first_row, first_col);
+  if(first_row == last_row && first_col == last_col)
+  {
+    range = rowcol_to_cell(first_row, first_col);
+  }
   else
-     range = rowcol_to_range(first_row, first_col, last_row, last_col);
+  {
+    range = rowcol_to_range(first_row, first_col, last_row, last_col);
+  }
 
   // Copy and trip leading "{=" from formula
   std::string formula_copy;
-  if (formula[0] == '{')
-      if (formula.size() >= 2 && formula[1] == '=')
-        formula_copy = formula.substr(2);
-      else
-        formula_copy = formula.substr(1);
+  if(formula[0] == '{')
+  {
+    if(formula.size() >= 2 && formula[1] == '=')
+    {
+      formula_copy = formula.substr(2);
+    }
+    else
+    {
+      formula_copy = formula.substr(1);
+    }
+  }
   else
-      formula_copy = formula;
+  {
+    formula_copy = formula;
+  }
 
   // Strip trailing "}" from formula.
   if(formula_copy.back() == '}')
+  {
     formula_copy.pop_back();
+  }
 
   // Check for empty formula that started as {=}.
   if(formula_copy.empty())
@@ -6400,25 +6428,31 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col,
   }
 
   // Create a new array formula cell object.
-  cell_t cell = new_array_formula_cell(first_row, first_col, formula_copy, range, format, is_dynamic);
+  cell_t cell          = new_array_formula_cell(first_row, first_col, formula_copy, range, format, is_dynamic);
   cell.formula_result_ = result;
 
   insert_cell(first_row, first_col, cell);
 
-  if (is_dynamic)
+  if(is_dynamic)
+  {
     has_dynamic_functions_ = true;
+  }
 
   // Pad out the rest of the area with formatted zeroes.
-///     if (!self->optimize) {
-  for (row_num_t tmp_row = first_row; tmp_row <= last_row; tmp_row++) {
-    for (col_num_t tmp_col = first_col; tmp_col <= last_col; tmp_col++) {
-      if (tmp_row == first_row && tmp_col == first_col)
+  ///     if (!self->optimize) {
+  for(row_num_t tmp_row = first_row; tmp_row <= last_row; tmp_row++)
+  {
+    for(col_num_t tmp_col = first_col; tmp_col <= last_col; tmp_col++)
+    {
+      if(tmp_row == first_row && tmp_col == first_col)
+      {
         continue;
+      }
 
       write_number(tmp_row, tmp_col, 0, format);
-             }
-         }
-///     }
+    }
+  }
+  ///     }
 }
 
 /// lxw_error
@@ -6435,18 +6469,14 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col,
 ///                                 LXW_FALSE);
 /// }
 
-void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col,
-                                      row_num_t last_row, col_num_t last_col,
+void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                       const std::string& formula)
 {
-  write_array_formula(first_row, first_col, last_row, last_col,
-                      formula, nullptr);
+  write_array_formula(first_row, first_col, last_row, last_col, formula, nullptr);
 }
 
-
-void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col,
-                                      row_num_t last_row, col_num_t last_col,
-                                      const std::string& formula, const format_t *format)
+void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                                      const std::string& formula, const format_t* format)
 {
   store_array_formula(first_row, first_col, last_row, last_col, formula, format, 0, false);
 }
