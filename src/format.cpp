@@ -98,50 +98,6 @@ format_borders_t format_t::check_border(format_borders_t style) const
 ///   return NULL;
 /// }
 
-/// int32_t lxw_format_get_dxf_index(lxw_format *self)
-/// {
-///   lxw_format *format_key;
-///   lxw_format *existing_format;
-///   lxw_hash_element *hash_element;
-///   lxw_hash_table *formats_hash_table = self->dxf_format_indices;
-///   int32_t index;
-
-/* Note: The formats_hash_table/dxf_format_indices contains the unique and
- * more importantly the *used* formats in the workbook.
- */
-
-/* Format already has an index number so return it. */
-///   if (self->dxf_index != LXW_PROPERTY_UNSET) {
-///     return self->dxf_index;
-///   }
-
-/* Otherwise, the format doesn't have an index number so we assign one.
- * First generate a unique key to identify the format in the hash table.
- */
-///   format_key = _get_format_key(self);
-
-/* Return the default format index if the key generation failed. */
-///   if (!format_key)
-///     return 0;
-
-/* Look up the format in the hash table. */
-///   hash_element = lxw_hash_key_exists(formats_hash_table, format_key, sizeof(lxw_format));
-
-///   if (hash_element) {
-/* Format matches existing format with an index. */
-///     free(format_key);
-///     existing_format = hash_element->value;
-///     return existing_format->dxf_index;
-///   }
-///   else {
-/* New format requiring an index. */
-///     index = formats_hash_table->unique_count;
-///     self->dxf_index = index;
-///     lxw_insert_hash_element(formats_hash_table, format_key, self, sizeof(lxw_format));
-///     return index;
-///   }
-/// }
-
 void format_t::set_font_name(const std::string& font_name)
 {
   font_name_ = font_name;

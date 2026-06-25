@@ -35,7 +35,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+  xwpp::worksheet_t& worksheet   = workbook.add_worksheet();
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
 
   // Add a bold format to use to highlight the header cells.

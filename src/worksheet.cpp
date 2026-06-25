@@ -125,8 +125,10 @@ worksheet_t::worksheet_t()
 {
 }
 
-worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index)
+worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
+                         std::function<int32_t(format_t*)> get_dxf_index)
   : get_xf_index_{get_xf_index}
+  , get_dxf_index_{get_dxf_index}
   , sst_{init_data.sst_}
   , name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
@@ -1308,20 +1310,17 @@ void set_custom_filter(filter_rule_obj_t& rule_obj)
 
 std::string worksheet_t::write_worksheet() const
 {
-  const std::vector<std::tuple<std::string, std::string>> attributes{
+  std::vector<std::tuple<std::string, std::string>> attributes{
       {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"          },
       {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
   };
 
-  ///     if (self->excel_version == 2010) {
-  ///     char xmlns_mc[] =
-  ///     "http://schemas.openxmlformats.org/markup-compatibility/2006"; char
-  ///     xmlns_x14ac[] =
-  ///     "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac";
-  ///         LXW_PUSH_ATTRIBUTES_STR("xmlns:mc", xmlns_mc);
-  ///         LXW_PUSH_ATTRIBUTES_STR("xmlns:x14ac", xmlns_x14ac);
-  ///         LXW_PUSH_ATTRIBUTES_STR("mc:Ignorable", "x14ac");
-  ///     }
+  if(excel_version_ == 2010)
+  {
+    attributes.emplace_back("xmlns:mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
+    attributes.emplace_back("xmlns:x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
+    attributes.emplace_back("mc:Ignorable", "x14ac");
+  }
 
   return xml_start_tag("worksheet", attributes);
 }
@@ -1768,8 +1767,10 @@ std::string worksheet_t::write_sheet_format_pr() const
   ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevelCol",
   ///         self->outline_col_level);
 
-  ///     if (self->excel_version == 2010)
-  ///         LXW_PUSH_ATTRIBUTES_STR("x14ac:dyDescent", "0.25");
+  if(excel_version_ == 2010)
+  {
+    attributes.emplace_back("x14ac:dyDescent", "0.25");
+  }
 
   return xml_empty_tag("sheetFormatPr", attributes);
 }
@@ -2006,8 +2007,10 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
     attributes.emplace_back("collapsed", "1");
   }
 
-  ///     if (self->excel_version == 2010)
-  ///         LXW_PUSH_ATTRIBUTES_STR("x14ac:dyDescent", "0.25");
+  if(excel_version_ == 2010)
+  {
+    attributes.emplace_back("x14ac:dyDescent", "0.25");
+  }
 
   if(!row.data_changed_)
   {
@@ -3072,55 +3075,19 @@ void get_image_properties(object_properties_t& image_props)
  * B1:B9, need to be written as part of one xml structure. Therefore we need
  * to store them in a RB hash/tree keyed by sqref. Within the RB hash element
  * we then store conditional formats that refer to sqref in a STAILQ list. */
-/// lxw_error
-/// _store_conditional_format_object(lxw_worksheet *self,
-///                                  lxw_cond_format_obj *cond_format)
-/// {
-///     lxw_cond_format_hash_element tmp_hash_element;
-///     lxw_cond_format_hash_element *found_hash_element = NULL;
-///     lxw_cond_format_hash_element *new_hash_element = NULL;
-
-/* Create a temp hash element to do the lookup. */
-///     LXW_ATTRIBUTE_COPY(tmp_hash_element.sqref, cond_format->sqref);
-///     found_hash_element = RB_FIND(lxw_cond_format_hash,
-///                                  self->conditional_formats,
-///                                  &tmp_hash_element);
-
-///     if (found_hash_element) {
-/* If the RB element exists then add the conditional format to the
- * list for the sqref range.*/
-///         STAILQ_INSERT_TAIL(found_hash_element->cond_formats, cond_format,
-///                            list_pointers);
-///     }
-///     else {
-/* Create a new RB hash element. */
-///         new_hash_element = calloc(1, sizeof(lxw_cond_format_hash_element));
-///         GOTO_LABEL_ON_MEM_ERROR(new_hash_element, mem_error);
-
-/* Use the sqref as the key. */
-///         LXW_ATTRIBUTE_COPY(new_hash_element->sqref, cond_format->sqref);
-
-/* Also create the list where we store the cond format objects. */
-///         new_hash_element->cond_formats =
-///             calloc(1, sizeof(struct lxw_cond_format_list));
-///         GOTO_LABEL_ON_MEM_ERROR(new_hash_element->cond_formats, mem_error);
-
-/* Initialize the list and add the conditional format object. */
-///         STAILQ_INIT(new_hash_element->cond_formats);
-///         STAILQ_INSERT_TAIL(new_hash_element->cond_formats, cond_format,
-///                            list_pointers);
-
-/* Now insert the RB hash element into the tree. */
-///         RB_INSERT(lxw_cond_format_hash, self->conditional_formats,
-///                   new_hash_element);
-///     }
-
-///     return LXW_NO_ERROR;
-
-/// mem_error:
-///     free(new_hash_element);
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+void worksheet_t::store_conditional_format_object(const cond_format_obj_t& cond_format)
+{
+  auto it = conditional_formats_.find(cond_format.sqref_);
+  if(it != std::end(conditional_formats_))
+  {
+    // If the element exists then add the conditional format to the list for the sqref range.
+    it->second.push_back(cond_format);
+  }
+  else
+  {
+    conditional_formats_[cond_format.sqref_].push_back(cond_format);
+  }
+}
 
 std::string worksheet_t::write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const
 {
@@ -3743,9 +3710,10 @@ std::string worksheet_t::write_sheet_pr() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  if(!fit_page_ && !filter_on_ && tab_color_ == color_t::UNSET && !outline_changed_
-     /* && !self->vba_codename */ && !is_chartsheet_
-  )
+  if(!fit_page_ && !filter_on_ && tab_color_ == color_t::UNSET &&
+     !outline_changed_
+     /* && !self->vba_codename */
+     && !is_chartsheet_)
   {
     return "";
   }
@@ -4472,1113 +4440,1004 @@ std::string worksheet_t::write_data_validations() const
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_formula_str(lxw_worksheet *self, char *data)
-/// {
-///     lxw_xml_data_element(self->file, "formula", data, NULL);
-/// }
-
-/// STATIC void
-/// _worksheet_write_formula_num(lxw_worksheet *self, double num)
-/// {
-///     char data[LXW_ATTR_32];
-///
-///     lxw_sprintf_dbl(data, num);
-///     lxw_xml_data_element(self->file, "formula", data, NULL);
-/// }
-
-/// STATIC void
-/// _worksheet_write_ext(lxw_worksheet *self, char *uri)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char xmlns_x_14[] =
-///         "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:x14", xmlns_x_14);
-///     LXW_PUSH_ATTRIBUTES_STR("uri", uri);
-///
-///     lxw_xml_start_tag(self->file, "ext", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_data_bar_ext(lxw_worksheet *self,
-///                               lxw_cond_format_obj *cond_format)
-/// {
-///     /* Create a pseudo GUID for each unique Excel 2010 data bar. */
-///     cond_format->guid = calloc(1, LXW_GUID_LENGTH);
-///     lxw_snprintf(cond_format->guid, LXW_GUID_LENGTH,
-///                  "{DA7ABA51-AAAA-BBBB-%04X-%012X}",
-///                  self->index + 1, ++self->data_bar_2010_index);
-///
-///     lxw_xml_start_tag(self->file, "extLst", NULL);
-///
-///     _worksheet_write_ext(self, "{B025F937-C7B1-47D3-B67F-A62EFF666E3E}");
-///
-///     lxw_xml_data_element(self->file, "x14:id", cond_format->guid, NULL);
-///
-///     lxw_xml_end_tag(self->file, "ext");
-///     lxw_xml_end_tag(self->file, "extLst");
-/// }
-
-/// STATIC void
-/// _worksheet_write_color(lxw_worksheet *self, lxw_color_t color)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb[LXW_ATTR_32];
-///
-///     lxw_snprintf(rgb, LXW_ATTR_32, "FF%06X", color & LXW_COLOR_MASK);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("rgb", rgb);
-///
-///     lxw_xml_empty_tag(self->file, "color", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cfvo_str(lxw_worksheet *self, uint8_t rule_type,
-///                           char *value, uint8_t data_bar_2010)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (rule_type == LXW_CONDITIONAL_RULE_TYPE_MINIMUM)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "min");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_NUMBER)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "num");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_PERCENT)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "percent");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_PERCENTILE)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "percentile");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_FORMULA)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "formula");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_MAXIMUM)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "max");
-///
-///     if (!data_bar_2010 || (rule_type != LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///                            && rule_type != LXW_CONDITIONAL_RULE_TYPE_MAXIMUM))
-///         LXW_PUSH_ATTRIBUTES_STR("val", value);
-///
-///     lxw_xml_empty_tag(self->file, "cfvo", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cfvo_num(lxw_worksheet *self, uint8_t rule_type,
-///                           double value, uint8_t data_bar_2010)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (rule_type == LXW_CONDITIONAL_RULE_TYPE_MINIMUM)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "min");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_NUMBER)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "num");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_PERCENT)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "percent");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_PERCENTILE)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "percentile");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_FORMULA)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "formula");
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_MAXIMUM)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "max");
-///
-///     if (!data_bar_2010 || (rule_type != LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///                            && rule_type != LXW_CONDITIONAL_RULE_TYPE_MAXIMUM))
-///         LXW_PUSH_ATTRIBUTES_DBL("val", value);
-///
-///     lxw_xml_empty_tag(self->file, "cfvo", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_icon_set(lxw_worksheet *self,
-///                           lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char *icon_set[] = {
-///         "3Arrows",
-///         "3ArrowsGray",
-///         "3Flags",
-///         "3TrafficLights",
-///         "3TrafficLights2",
-///         "3Signs",
-///         "3Symbols",
-///         "3Symbols2",
-///         "4Arrows",
-///         "4ArrowsGray",
-///         "4RedToBlack",
-///         "4Rating",
-///         "4TrafficLights",
-///         "5Arrows",
-///         "5ArrowsGray",
-///         "5Rating",
-///         "5Quarters",
-///     };
-///     uint8_t percent = LXW_CONDITIONAL_RULE_TYPE_PERCENT;
-///     uint8_t style = cond_format->icon_style;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (style != LXW_CONDITIONAL_ICONS_3_TRAFFIC_LIGHTS_UNRIMMED)
-///         LXW_PUSH_ATTRIBUTES_STR("iconSet", icon_set[style]);
-///
-///     if (cond_format->reverse_icons == LXW_TRUE)
-///         LXW_PUSH_ATTRIBUTES_STR("reverse", "1");
-///
-///     if (cond_format->icons_only == LXW_TRUE)
-///         LXW_PUSH_ATTRIBUTES_STR("showValue", "0");
-///
-///     lxw_xml_start_tag(self->file, "iconSet", &attributes);
-///
-///     if (style < LXW_CONDITIONAL_ICONS_4_ARROWS_COLORED) {
-///         _worksheet_write_cfvo_num(self, percent, 0, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 33, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 67, LXW_FALSE);
-///     }
-///
-///     if (style >= LXW_CONDITIONAL_ICONS_4_ARROWS_COLORED
-///         && style < LXW_CONDITIONAL_ICONS_5_ARROWS_COLORED) {
-///         _worksheet_write_cfvo_num(self, percent, 0, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 25, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 50, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 75, LXW_FALSE);
-///     }
-///
-///     if (style >= LXW_CONDITIONAL_ICONS_5_ARROWS_COLORED
-///         && style <= LXW_CONDITIONAL_ICONS_5_QUARTERS) {
-///         _worksheet_write_cfvo_num(self, percent, 0, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 20, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 40, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 60, LXW_FALSE);
-///         _worksheet_write_cfvo_num(self, percent, 80, LXW_FALSE);
-///     }
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_icons(lxw_worksheet *self,
-///                                lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     _worksheet_write_icon_set(self, cond_format);
-///
-///     lxw_xml_end_tag(self->file, "iconSet");
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_data_bar(lxw_worksheet *self,
-///                           lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (cond_format->bar_only)
-///         LXW_PUSH_ATTRIBUTES_STR("showValue", "0");
-///
-///     lxw_xml_start_tag(self->file, "dataBar", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_data_bar(lxw_worksheet *self,
-///                                   lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     _worksheet_write_data_bar(self, cond_format);
-///
-///     if (cond_format->min_value_string) {
-///         _worksheet_write_cfvo_str(self, cond_format->min_rule_type,
-///                                   cond_format->min_value_string,
-///                                   cond_format->data_bar_2010);
-///     }
-///     else {
-///         _worksheet_write_cfvo_num(self, cond_format->min_rule_type,
-///                                   cond_format->min_value,
-///                                   cond_format->data_bar_2010);
-///     }
-///
-///     if (cond_format->max_value_string) {
-///         _worksheet_write_cfvo_str(self, cond_format->max_rule_type,
-///                                   cond_format->max_value_string,
-///                                   cond_format->data_bar_2010);
-///     }
-///     else {
-///         _worksheet_write_cfvo_num(self, cond_format->max_rule_type,
-///                                   cond_format->max_value,
-///                                   cond_format->data_bar_2010);
-///     }
-///
-///     _worksheet_write_color(self, cond_format->bar_color);
-///
-///     lxw_xml_end_tag(self->file, "dataBar");
-///
-///     if (cond_format->data_bar_2010)
-///         _worksheet_write_data_bar_ext(self, cond_format);
-///
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_color_scale(lxw_worksheet *self,
-///                                      lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     lxw_xml_start_tag(self->file, "colorScale", NULL);
-///
-///     if (cond_format->min_value_string) {
-///         _worksheet_write_cfvo_str(self, cond_format->min_rule_type,
-///                                   cond_format->min_value_string, LXW_FALSE);
-///     }
-///     else {
-///         _worksheet_write_cfvo_num(self, cond_format->min_rule_type,
-///                                   cond_format->min_value, LXW_FALSE);
-///     }
-///
-///     if (cond_format->type == LXW_CONDITIONAL_3_COLOR_SCALE) {
-///         if (cond_format->mid_value_string) {
-///             _worksheet_write_cfvo_str(self, cond_format->mid_rule_type,
-///                                       cond_format->mid_value_string,
-///                                       LXW_FALSE);
-///         }
-///         else {
-///             _worksheet_write_cfvo_num(self, cond_format->mid_rule_type,
-///                                       cond_format->mid_value, LXW_FALSE);
-///         }
-///     }
-///
-///     if (cond_format->max_value_string) {
-///         _worksheet_write_cfvo_str(self, cond_format->max_rule_type,
-///                                   cond_format->max_value_string, LXW_FALSE);
-///     }
-///     else {
-///         _worksheet_write_cfvo_num(self, cond_format->max_rule_type,
-///                                   cond_format->max_value, LXW_FALSE);
-///     }
-///
-///     _worksheet_write_color(self, cond_format->min_color);
-///
-///     if (cond_format->type == LXW_CONDITIONAL_3_COLOR_SCALE)
-///         _worksheet_write_color(self, cond_format->mid_color);
-///
-///     _worksheet_write_color(self, cond_format->max_color);
-///
-///     lxw_xml_end_tag(self->file, "colorScale");
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_formula(lxw_worksheet *self,
-///                                  lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     _worksheet_write_formula_str(self, cond_format->min_value_string);
-///
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_top(lxw_worksheet *self,
-///                              lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     if (cond_format->criteria ==
-///         LXW_CONDITIONAL_CRITERIA_TOP_OR_BOTTOM_PERCENT)
-///         LXW_PUSH_ATTRIBUTES_INT("percent", 1);
-///
-///     if (cond_format->type == LXW_CONDITIONAL_TYPE_BOTTOM)
-///         LXW_PUSH_ATTRIBUTES_INT("bottom", 1);
-///
-///     /* Rank must be an int in the range 1-1000 . */
-///     if (cond_format->min_value < 1.0 || cond_format->min_value > 1000.0)
-///         LXW_PUSH_ATTRIBUTES_DBL("rank", 10);
-///     else
-///         LXW_PUSH_ATTRIBUTES_DBL("rank", (uint16_t) cond_format->min_value);
-///
-///     lxw_xml_empty_tag(self->file, "cfRule", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_duplicate(lxw_worksheet *self,
-///                                    lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     /* Set the attributes common to all rule types. */
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     lxw_xml_empty_tag(self->file, "cfRule", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_average(lxw_worksheet *self,
-///                                  lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     uint8_t criteria = cond_format->criteria;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW_OR_EQUAL
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_BELOW
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_BELOW
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_BELOW)
-///         LXW_PUSH_ATTRIBUTES_INT("aboveAverage", 0);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_ABOVE_OR_EQUAL
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW_OR_EQUAL)
-///         LXW_PUSH_ATTRIBUTES_INT("equalAverage", 1);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_ABOVE
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_BELOW)
-///         LXW_PUSH_ATTRIBUTES_INT("stdDev", 1);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_ABOVE
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_BELOW)
-///         LXW_PUSH_ATTRIBUTES_INT("stdDev", 2);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_ABOVE
-///         || criteria == LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_BELOW)
-///         LXW_PUSH_ATTRIBUTES_INT("stdDev", 3);
-///
-///     lxw_xml_empty_tag(self->file, "cfRule", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_time_period(lxw_worksheet *self,
-///                                      lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char formula[LXW_MAX_ATTRIBUTE_LENGTH];
-///     uint8_t pos;
-///     uint8_t criteria = cond_format->criteria;
-///     char *first_cell = cond_format->first_cell;
-///     char *time_periods[] = {
-///         "yesterday",
-///         "today",
-///         "tomorrow",
-///         "last7Days",
-///         "lastWeek",
-///         "thisWeek",
-///         "nextWeek",
-///         "lastMonth",
-///         "thisMonth",
-///         "nextMonth",
-///     };
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     pos = criteria - LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_YESTERDAY;
-///     LXW_PUSH_ATTRIBUTES_STR("timePeriod", time_periods[pos]);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_YESTERDAY) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "FLOOR(%s,1)=TODAY()-1", first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_TODAY) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "FLOOR(%s,1)=TODAY()", first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_TOMORROW) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "FLOOR(%s,1)=TODAY()+1", first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_7_DAYS) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(TODAY()-FLOOR(%s,1)<=6,FLOOR(%s,1)<=TODAY())",
-///                      first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_WEEK) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(TODAY()-ROUNDDOWN(%s,0)>=(WEEKDAY(TODAY())),"
-///                      "TODAY()-ROUNDDOWN(%s,0)<(WEEKDAY(TODAY())+7))",
-///                      first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_THIS_WEEK) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(TODAY()-ROUNDDOWN(%s,0)<=WEEKDAY(TODAY())-1,"
-///                      "ROUNDDOWN(%s,0)-TODAY()<=7-WEEKDAY(TODAY()))",
-///                      first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_WEEK) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(ROUNDDOWN(%s,0)-TODAY()>(7-WEEKDAY(TODAY())),"
-///                      "ROUNDDOWN(%s,0)-TODAY()<(15-WEEKDAY(TODAY())))",
-///                      first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_MONTH) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(MONTH(%s)=MONTH(TODAY())-1,OR(YEAR(%s)=YEAR("
-///                      "TODAY()),AND(MONTH(%s)=1,YEAR(A1)=YEAR(TODAY())-1)))",
-///                      first_cell, first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_THIS_MONTH) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(MONTH(%s)=MONTH(TODAY()),YEAR(%s)=YEAR(TODAY()))",
-///                      first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_MONTH) {
-///         lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH,
-///                      "AND(MONTH(%s)=MONTH(TODAY())+1,OR(YEAR(%s)=YEAR("
-///                      "TODAY()),AND(MONTH(%s)=12,YEAR(%s)=YEAR(TODAY())+1)))",
-///                      first_cell, first_cell, first_cell, first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_blanks(lxw_worksheet *self,
-///                                 lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char formula[LXW_ATTR_32];
-///     uint8_t type = cond_format->type;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     if (type == LXW_CONDITIONAL_TYPE_BLANKS) {
-///         lxw_snprintf(formula, LXW_ATTR_32, "LEN(TRIM(%s))=0",
-///                      cond_format->first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (type == LXW_CONDITIONAL_TYPE_NO_BLANKS) {
-///         lxw_snprintf(formula, LXW_ATTR_32, "LEN(TRIM(%s))>0",
-///                      cond_format->first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (type == LXW_CONDITIONAL_TYPE_ERRORS) {
-///         lxw_snprintf(formula, LXW_ATTR_32, "ISERROR(%s)",
-///                      cond_format->first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (type == LXW_CONDITIONAL_TYPE_NO_ERRORS) {
-///         lxw_snprintf(formula, LXW_ATTR_32, "NOT(ISERROR(%s))",
-///                      cond_format->first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_text(lxw_worksheet *self,
-///                               lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     uint8_t pos;
-///     char formula[LXW_ATTR_32 * 2];
-///     char *operators[] = {
-///         "containsText",
-///         "notContains",
-///         "beginsWith",
-///         "endsWith",
-///     };
-///     uint8_t criteria = cond_format->criteria;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_CONTAINING)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "containsText");
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_NOT_CONTAINING)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "notContainsText");
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_BEGINS_WITH)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "beginsWith");
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_ENDS_WITH)
-///         LXW_PUSH_ATTRIBUTES_STR("type", "endsWith");
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     pos = criteria - LXW_CONDITIONAL_CRITERIA_TEXT_CONTAINING;
-///     LXW_PUSH_ATTRIBUTES_STR("operator", operators[pos]);
-///
-///     LXW_PUSH_ATTRIBUTES_STR("text", cond_format->min_value_string);
-///
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_CONTAINING) {
-///         lxw_snprintf(formula, LXW_ATTR_32 * 2,
-///                      "NOT(ISERROR(SEARCH(\"%s\",%s)))",
-///                      cond_format->min_value_string, cond_format->first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_NOT_CONTAINING) {
-///         lxw_snprintf(formula, LXW_ATTR_32 * 2,
-///                      "ISERROR(SEARCH(\"%s\",%s))",
-///                      cond_format->min_value_string, cond_format->first_cell);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_BEGINS_WITH) {
-///         lxw_snprintf(formula, LXW_ATTR_32 * 2,
-///                      "LEFT(%s,%d)=\"%s\"",
-///                      cond_format->first_cell,
-///                      (uint16_t) strlen(cond_format->min_value_string),
-///                      cond_format->min_value_string);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///     else if (criteria == LXW_CONDITIONAL_CRITERIA_TEXT_ENDS_WITH) {
-///         lxw_snprintf(formula, LXW_ATTR_32 * 2,
-///                      "RIGHT(%s,%d)=\"%s\"",
-///                      cond_format->first_cell,
-///                      (uint16_t) strlen(cond_format->min_value_string),
-///                      cond_format->min_value_string);
-///         _worksheet_write_formula_str(self, formula);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule_cell(lxw_worksheet *self,
-///                               lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char *operators[] = {
-///         "none",
-///         "equal",
-///         "notEqual",
-///         "greaterThan",
-///         "lessThan",
-///         "greaterThanOrEqual",
-///         "lessThanOrEqual",
-///         "between",
-///         "notBetween",
-///     };
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     LXW_PUSH_ATTRIBUTES_STR("type", cond_format->type_string);
-///
-///     if (cond_format->dxf_index != LXW_PROPERTY_UNSET)
-///         LXW_PUSH_ATTRIBUTES_INT("dxfId", cond_format->dxf_index);
-///
-///     LXW_PUSH_ATTRIBUTES_INT("priority", cond_format->dxf_priority);
-///
-///     if (cond_format->stop_if_true)
-///         LXW_PUSH_ATTRIBUTES_INT("stopIfTrue", 1);
-///
-///     LXW_PUSH_ATTRIBUTES_STR("operator", operators[cond_format->criteria]);
-///
-///     lxw_xml_start_tag(self->file, "cfRule", &attributes);
-///
-///     if (cond_format->min_value_string)
-///         _worksheet_write_formula_str(self, cond_format->min_value_string);
-///     else
-///         _worksheet_write_formula_num(self, cond_format->min_value);
-///
-///     if (cond_format->has_max) {
-///         if (cond_format->max_value_string)
-///             _worksheet_write_formula_str(self, cond_format->max_value_string);
-///         else
-///             _worksheet_write_formula_num(self, cond_format->max_value);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "cfRule");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void
-/// _worksheet_write_cf_rule(lxw_worksheet *self,
-///                          lxw_cond_format_obj *cond_format)
-/// {
-///     if (cond_format->type == LXW_CONDITIONAL_TYPE_CELL) {
-///
-///         _worksheet_write_cf_rule_cell(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TEXT) {
-///
-///         _worksheet_write_cf_rule_text(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TIME_PERIOD) {
-///
-///         _worksheet_write_cf_rule_time_period(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_DUPLICATE
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_UNIQUE) {
-///
-///         _worksheet_write_cf_rule_duplicate(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_AVERAGE) {
-///
-///         _worksheet_write_cf_rule_average(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TOP
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_BOTTOM) {
-///
-///         _worksheet_write_cf_rule_top(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_BLANKS
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_NO_BLANKS
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_ERRORS
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_NO_ERRORS) {
-///
-///         _worksheet_write_cf_rule_blanks(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_FORMULA) {
-///
-///         _worksheet_write_cf_rule_formula(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_2_COLOR_SCALE
-///              || cond_format->type == LXW_CONDITIONAL_3_COLOR_SCALE) {
-///
-///         _worksheet_write_cf_rule_color_scale(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_DATA_BAR) {
-///
-///         _worksheet_write_cf_rule_data_bar(self, cond_format);
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_ICON_SETS) {
-///
-///         _worksheet_write_cf_rule_icons(self, cond_format);
-///     }
-///
-/// }
-
-/// STATIC void
-/// _worksheet_write_conditional_formatting(lxw_worksheet *self,
-///                                         lxw_cond_format_hash_element *element)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     lxw_cond_format_obj *cond_format;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("sqref", element->sqref);
-///
-///     lxw_xml_start_tag(self->file, "conditionalFormatting", &attributes);
-///
-///     STAILQ_FOREACH(cond_format, element->cond_formats, list_pointers) {
-///         /* Write the cfRule element. */
-///         _worksheet_write_cf_rule(self, cond_format);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "conditionalFormatting");
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-std::string worksheet_t::write_conditional_formats() const
+std::string worksheet_t::write_formula_str(const std::string& data) const
 {
-  std::string xml_data;
-  ///    lxw_cond_format_hash_element *element;
-  ///     lxw_cond_format_hash_element *next_element;
+  return xml_data_element("formula", data);
+}
 
-  ///     for (element = RB_MIN(lxw_cond_format_hash,
-  ///     self->conditional_formats);
-  ///          element; element = next_element) {
+std::string worksheet_t::write_formula_num(double num) const
+{
+  return xml_data_element("formula", std::format("{}", num));
+}
 
-  ///         _worksheet_write_conditional_formatting(self, element);
+std::string worksheet_t::write_ext(const std::string& uri) const
+{
+  return xml_start_tag(
+      "ext", {
+                 {"xmlns:x14", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"},
+                 {"uri",       uri                                                            }
+  });
+}
 
-  ///         next_element =
-  ///             RB_NEXT(lxw_cond_format_hash, self->conditional_formats,
-  ///             element);
-  ///     }
+std::string worksheet_t::write_data_bar_ext(cond_format_obj_t& cond_format)
+{
+  // Create a pseudo GUID for each unique Excel 2010 data bar.
+  cond_format.guid_ = std::format("{{DA7ABA51-AAAA-BBBB-{:04X}-{:012X}}}", index_ + 1, ++data_bar_2010_index_);
+
+  std::string xml_data = xml_start_tag("extLst");
+  xml_data += write_ext("{B025F937-C7B1-47D3-B67F-A62EFF666E3E}");
+  xml_data += xml_data_element("x14:id", cond_format.guid_);
+  xml_data += xml_end_tag("ext");
+  xml_data += xml_end_tag("extLst");
 
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_x14_color(lxw_worksheet *self, char *type, lxw_color_t color)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char rgb[LXW_ATTR_32];
-///
-///     lxw_snprintf(rgb, LXW_ATTR_32, "FF%06X", color & LXW_COLOR_MASK);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("rgb", rgb);
-///     lxw_xml_empty_tag(self->file, type, &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_color(color_t color) const
+{
+  return xml_empty_tag("color", {
+                                    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  });
+}
 
-/// STATIC void
-/// _worksheet_write_x14_cfvo(lxw_worksheet *self, uint8_t rule_type,
-///                           double number, char *string)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char data[LXW_ATTR_32];
-///     uint8_t has_value = LXW_FALSE;
-///
-///     LXW_INIT_ATTRIBUTES();
-///
-///     if (!string)
-///         lxw_sprintf_dbl(data, number);
-///
-///     if (rule_type == LXW_CONDITIONAL_RULE_TYPE_AUTO_MIN) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "autoMin");
-///         has_value = LXW_FALSE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_MINIMUM) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "min");
-///         has_value = LXW_FALSE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_NUMBER) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "num");
-///         has_value = LXW_TRUE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_PERCENT) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "percent");
-///         has_value = LXW_TRUE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_PERCENTILE) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "percentile");
-///         has_value = LXW_TRUE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_FORMULA) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "formula");
-///         has_value = LXW_TRUE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_MAXIMUM) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "max");
-///         has_value = LXW_FALSE;
-///     }
-///     else if (rule_type == LXW_CONDITIONAL_RULE_TYPE_AUTO_MAX) {
-///         LXW_PUSH_ATTRIBUTES_STR("type", "autoMax");
-///         has_value = LXW_FALSE;
-///     }
-///
-///     if (has_value) {
-///         lxw_xml_start_tag(self->file, "x14:cfvo", &attributes);
-///
-///         if (string)
-///             lxw_xml_data_element(self->file, "xm:f", string, NULL);
-///         else
-///             lxw_xml_data_element(self->file, "xm:f", data, NULL);
-///
-///         lxw_xml_end_tag(self->file, "x14:cfvo");
-///     }
-///     else {
-///         lxw_xml_empty_tag(self->file, "x14:cfvo", &attributes);
-///     }
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_cfvo_str(conditional_format_rule_types_t rule_type, const std::string& value,
+                                        bool data_bar_2010) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-/// STATIC void
-/// _worksheet_write_x14_data_bar(lxw_worksheet *self,
-///                               lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char min_length[] = "0";
-///     char max_length[] = "100";
-///     char border[] = "1";
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("minLength", min_length);
-///     LXW_PUSH_ATTRIBUTES_STR("maxLength", max_length);
-///
-///     if (!cond_format->bar_no_border)
-///         LXW_PUSH_ATTRIBUTES_STR("border", border);
-///
-///     if (cond_format->bar_solid)
-///         LXW_PUSH_ATTRIBUTES_STR("gradient", "0");
-///
-///     if (cond_format->bar_direction ==
-///         LXW_CONDITIONAL_BAR_DIRECTION_RIGHT_TO_LEFT)
-///         LXW_PUSH_ATTRIBUTES_STR("direction", "rightToLeft");
-///
-///     if (cond_format->bar_direction ==
-///         LXW_CONDITIONAL_BAR_DIRECTION_LEFT_TO_RIGHT)
-///         LXW_PUSH_ATTRIBUTES_STR("direction", "leftToRight");
-///
-///     if (cond_format->bar_negative_color_same)
-///         LXW_PUSH_ATTRIBUTES_STR("negativeBarColorSameAsPositive", "1");
-///
-///     if (!cond_format->bar_no_border
-///         && !cond_format->bar_negative_border_color_same)
-///         LXW_PUSH_ATTRIBUTES_STR("negativeBarBorderColorSameAsPositive", "0");
-///
-///     if (cond_format->bar_axis_position == LXW_CONDITIONAL_BAR_AXIS_MIDPOINT)
-///         LXW_PUSH_ATTRIBUTES_STR("axisPosition", "middle");
-///
-///     if (cond_format->bar_axis_position == LXW_CONDITIONAL_BAR_AXIS_NONE)
-///         LXW_PUSH_ATTRIBUTES_STR("axisPosition", "none");
-///
-///     lxw_xml_start_tag(self->file, "x14:dataBar", &attributes);
-///
-///     if (cond_format->auto_min)
-///         cond_format->min_rule_type = LXW_CONDITIONAL_RULE_TYPE_AUTO_MIN;
-///
-///     _worksheet_write_x14_cfvo(self, cond_format->min_rule_type,
-///                               cond_format->min_value,
-///                               cond_format->min_value_string);
-///
-///     if (cond_format->auto_max)
-///         cond_format->max_rule_type = LXW_CONDITIONAL_RULE_TYPE_AUTO_MAX;
-///
-///     _worksheet_write_x14_cfvo(self, cond_format->max_rule_type,
-///                               cond_format->max_value,
-///                               cond_format->max_value_string);
-///
-///     if (!cond_format->bar_no_border)
-///         _worksheet_write_x14_color(self, "x14:borderColor",
-///                                    cond_format->bar_border_color);
-///
-///     if (!cond_format->bar_negative_color_same)
-///         _worksheet_write_x14_color(self, "x14:negativeFillColor",
-///                                    cond_format->bar_negative_color);
-///
-///     if (!cond_format->bar_no_border
-///         && !cond_format->bar_negative_border_color_same)
-///         _worksheet_write_x14_color(self, "x14:negativeBorderColor",
-///                                    cond_format->bar_negative_border_color);
-///
-///     if (cond_format->bar_axis_position != LXW_CONDITIONAL_BAR_AXIS_NONE)
-///         _worksheet_write_x14_color(self, "x14:axisColor",
-///                                    cond_format->bar_axis_color);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  {
+    attributes.emplace_back("type", "min");
+  }
+  else if(rule_type == conditional_format_rule_types_t::NUMBER)
+  {
+    attributes.emplace_back("type", "num");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENT)
+  {
+    attributes.emplace_back("type", "percent");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
+  {
+    attributes.emplace_back("type", "percentile");
+  }
+  else if(rule_type == conditional_format_rule_types_t::FORMULA)
+  {
+    attributes.emplace_back("type", "formula");
+  }
+  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
+  {
+    attributes.emplace_back("type", "max");
+  }
 
-/// STATIC void
-/// _worksheet_write_x14_cf_rule(lxw_worksheet *self,
-///                              lxw_cond_format_obj *cond_format)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("type", "dataBar");
-///     LXW_PUSH_ATTRIBUTES_STR("id", cond_format->guid);
-///
-///     lxw_xml_start_tag(self->file, "x14:cfRule", &attributes);
-///
-///     /* Write the x14:dataBar element. */
-///     _worksheet_write_x14_data_bar(self, cond_format);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  if(!data_bar_2010 ||
+     (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
+  {
+    attributes.emplace_back("val", value);
+  }
 
-/// STATIC void
-/// _worksheet_write_xm_sqref(lxw_worksheet *self,
-///                           lxw_cond_format_obj *cond_format)
-/// {
-///     lxw_xml_data_element(self->file, "xm:sqref", cond_format->sqref, NULL);
-/// }
+  return xml_empty_tag("cfvo", attributes);
+}
 
-/// STATIC void
-/// _worksheet_write_conditional_formatting_2010(lxw_worksheet *self, lxw_cond_format_hash_element
-///                                              *element)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     lxw_cond_format_obj *cond_format;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("xmlns:xm",
-///                             "http://schemas.microsoft.com/office/excel/2006/main");
-///
-///     STAILQ_FOREACH(cond_format, element->cond_formats, list_pointers) {
-///         if (!cond_format->data_bar_2010)
-///             continue;
-///
-///         lxw_xml_start_tag(self->file, "x14:conditionalFormatting",
-///                           &attributes);
-///
-///         _worksheet_write_x14_cf_rule(self, cond_format);
-///
-///         lxw_xml_end_tag(self->file, "x14:dataBar");
-///         lxw_xml_end_tag(self->file, "x14:cfRule");
-///         _worksheet_write_xm_sqref(self, cond_format);
-///         lxw_xml_end_tag(self->file, "x14:conditionalFormatting");
-///     }
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_cfvo_num(conditional_format_rule_types_t rule_type, double value,
+                                        bool data_bar_2010) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-/// STATIC void
-/// _worksheet_write_ext_list_data_bars(lxw_worksheet *self)
-/// {
-///     lxw_cond_format_hash_element *element;
-///     lxw_cond_format_hash_element *next_element;
-///
-///     _worksheet_write_ext(self, "{78C0D931-6437-407d-A8EE-F0AAD7539E65}");
-///     lxw_xml_start_tag(self->file, "x14:conditionalFormattings", NULL);
-///
-///     for (element = RB_MIN(lxw_cond_format_hash, self->conditional_formats);
-///          element; element = next_element) {
-///
-///         _worksheet_write_conditional_formatting_2010(self, element);
-///
-///         next_element =
-///             RB_NEXT(lxw_cond_format_hash, self->conditional_formats, element);
-///     }
-///
-///     lxw_xml_end_tag(self->file, "x14:conditionalFormattings");
-///     lxw_xml_end_tag(self->file, "ext");
-/// }
+  if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  {
+    attributes.emplace_back("type", "min");
+  }
+  else if(rule_type == conditional_format_rule_types_t::NUMBER)
+  {
+    attributes.emplace_back("type", "num");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENT)
+  {
+    attributes.emplace_back("type", "percent");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
+  {
+    attributes.emplace_back("type", "percentile");
+  }
+  else if(rule_type == conditional_format_rule_types_t::FORMULA)
+  {
+    attributes.emplace_back("type", "formula");
+  }
+  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
+  {
+    attributes.emplace_back("type", "max");
+  }
 
-std::string worksheet_t::write_ext_list() const
+  if(!data_bar_2010 ||
+     (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
+  {
+    attributes.emplace_back("val", std::format("{}", value));
+  }
+
+  return xml_empty_tag("cfvo", attributes);
+}
+
+std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  const std::string icon_set[] = {
+      "3Arrows",        "3ArrowsGray", "3Flags",      "3TrafficLights", "3TrafficLights2", "3Signs",
+      "3Symbols",       "3Symbols2",   "4Arrows",     "4ArrowsGray",    "4RedToBlack",     "4Rating",
+      "4TrafficLights", "5Arrows",     "5ArrowsGray", "5Rating",        "5Quarters",
+  };
+
+  if(cond_format.icon_style_ != conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED)
+  {
+    attributes.emplace_back("iconSet", icon_set[static_cast<size_t>(cond_format.icon_style_)]);
+  }
+
+  if(cond_format.reverse_icons_ == true)
+  {
+    attributes.emplace_back("reverse", "1");
+  }
+
+  if(cond_format.icons_only_ == true)
+  {
+    attributes.emplace_back("showValue", "0");
+  }
+
+  std::string xml_data = xml_start_tag("iconSet", attributes);
+
+  if(static_cast<uint32_t>(cond_format.icon_style_) <
+     static_cast<uint32_t>(conditional_icon_types_t::FOUR_ARROWS_COLORED))
+  {
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 0, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 33, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 67, false);
+  }
+
+  if(static_cast<uint32_t>(cond_format.icon_style_) >=
+         static_cast<uint32_t>(conditional_icon_types_t::FOUR_ARROWS_COLORED) &&
+     static_cast<uint32_t>(cond_format.icon_style_) <
+         static_cast<uint32_t>(conditional_icon_types_t::FIVE_ARROWS_COLORED))
+  {
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 0, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 25, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 50, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 75, false);
+  }
+
+  if(static_cast<uint32_t>(cond_format.icon_style_) >=
+         static_cast<uint32_t>(conditional_icon_types_t::FIVE_ARROWS_COLORED) &&
+     static_cast<uint32_t>(cond_format.icon_style_) <= static_cast<uint32_t>(conditional_icon_types_t::FIVE_QUARTERS))
+  {
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 0, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 20, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 40, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 60, false);
+    xml_data += write_cfvo_num(conditional_format_rule_types_t::PERCENT, 80, false);
+  }
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type",     cond_format.type_string_                 },
+      {"priority", std::to_string(cond_format.dxf_priority_)}
+  };
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+  xml_data += write_icon_set(cond_format);
+  xml_data += xml_end_tag("iconSet");
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_data_bar(const cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(cond_format.bar_only_)
+  {
+    attributes.emplace_back("showValue", "0");
+  }
+
+  return xml_start_tag("dataBar", attributes);
+}
+
+std::string worksheet_t::write_cf_rule_data_bar(cond_format_obj_t& cond_format)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type",     cond_format.type_string_                 },
+      {"priority", std::to_string(cond_format.dxf_priority_)}
+  };
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+  xml_data += write_data_bar(cond_format);
+
+  if(!cond_format.min_value_string_.empty())
+  {
+    xml_data += write_cfvo_str(cond_format.min_rule_type_, cond_format.min_value_string_, cond_format.data_bar_2010_);
+  }
+  else
+  {
+    xml_data += write_cfvo_num(cond_format.min_rule_type_, cond_format.min_value_, cond_format.data_bar_2010_);
+  }
+
+  if(!cond_format.max_value_string_.empty())
+  {
+    xml_data += write_cfvo_str(cond_format.max_rule_type_, cond_format.max_value_string_, cond_format.data_bar_2010_);
+  }
+  else
+  {
+    xml_data += write_cfvo_num(cond_format.max_rule_type_, cond_format.max_value_, cond_format.data_bar_2010_);
+  }
+
+  xml_data += write_color(cond_format.bar_color_);
+  xml_data += xml_end_tag("dataBar");
+
+  if(cond_format.data_bar_2010_)
+  {
+    xml_data += write_data_bar_ext(cond_format);
+  }
+
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type",     cond_format.type_string_                 },
+      {"priority", std::to_string(cond_format.dxf_priority_)}
+  };
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+  xml_data += xml_start_tag("colorScale");
+
+  if(!cond_format.min_value_string_.empty())
+  {
+    xml_data += write_cfvo_str(cond_format.min_rule_type_, cond_format.min_value_string_, false);
+  }
+  else
+  {
+    xml_data += write_cfvo_num(cond_format.min_rule_type_, cond_format.min_value_, false);
+  }
+
+  if(cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
+  {
+    if(!cond_format.mid_value_string_.empty())
+    {
+      xml_data += write_cfvo_str(cond_format.mid_rule_type_, cond_format.mid_value_string_, false);
+    }
+    else
+    {
+      xml_data += write_cfvo_num(cond_format.mid_rule_type_, cond_format.mid_value_, false);
+    }
+  }
+
+  if(!cond_format.max_value_string_.empty())
+  {
+    xml_data += write_cfvo_str(cond_format.max_rule_type_, cond_format.max_value_string_, false);
+  }
+  else
+  {
+    xml_data += write_cfvo_num(cond_format.max_rule_type_, cond_format.max_value_, false);
+  }
+
+  xml_data += write_color(cond_format.min_color_);
+
+  if(cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
+  {
+    xml_data += write_color(cond_format.mid_color_);
+  }
+
+  xml_data += write_color(cond_format.max_color_);
+  xml_data += xml_end_tag("colorScale");
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+  xml_data += write_formula_str(cond_format.min_value_string_);
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_top(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  if(cond_format.criteria_ == conditional_criteria_t::TOP_OR_BOTTOM_PERCENT)
+  {
+    attributes.emplace_back("percent", "1");
+  }
+
+  if(cond_format.type_ == conditional_format_types_t::BOTTOM)
+  {
+    attributes.emplace_back("bottom", "1");
+  }
+
+  // Rank must be an int in the range 1-1000 .
+  if(cond_format.min_value_ < 1.0 || cond_format.min_value_ > 1000.0)
+  {
+    attributes.emplace_back("rank", "10");
+  }
+  else
+  {
+    attributes.emplace_back("rank", std::to_string(static_cast<uint16_t>(cond_format.min_value_)));
+  }
+
+  return xml_empty_tag("cfRule", attributes);
+}
+
+std::string worksheet_t::write_cf_rule_duplicate(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  return xml_empty_tag("cfRule", attributes);
+}
+
+std::string worksheet_t::write_cf_rule_average(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  if(cond_format.criteria_ == conditional_criteria_t::AVERAGE_BELOW ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW)
+  {
+    attributes.emplace_back("aboveAverage", "0");
+  }
+
+  if(cond_format.criteria_ == conditional_criteria_t::AVERAGE_ABOVE_OR_EQUAL ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL)
+  {
+    attributes.emplace_back("equalAverage", "1");
+  }
+
+  if(cond_format.criteria_ == conditional_criteria_t::AVERAGE_1_STD_DEV_ABOVE ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW)
+  {
+    attributes.emplace_back("stdDev", "1");
+  }
+
+  if(cond_format.criteria_ == conditional_criteria_t::AVERAGE_2_STD_DEV_ABOVE ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW)
+  {
+    attributes.emplace_back("stdDev", "2");
+  }
+
+  if(cond_format.criteria_ == conditional_criteria_t::AVERAGE_3_STD_DEV_ABOVE ||
+     cond_format.criteria_ == conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW)
+  {
+    attributes.emplace_back("stdDev", "3");
+  }
+
+  return xml_empty_tag("cfRule", attributes);
+}
+
+std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+  const std::string time_periods[] = {
+      "yesterday", "today",    "tomorrow",  "last7Days", "lastWeek",
+      "thisWeek",  "nextWeek", "lastMonth", "thisMonth", "nextMonth",
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  size_t pos =
+      static_cast<size_t>(cond_format.criteria_) - static_cast<size_t>(conditional_criteria_t::TIME_PERIOD_YESTERDAY);
+  attributes.emplace_back("timePeriod", time_periods[pos]);
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+
+  if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_YESTERDAY)
+  {
+    xml_data += write_formula_str(std::format("FLOOR({0},1)=TODAY()-1", cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_TODAY)
+  {
+    xml_data += write_formula_str(std::format("FLOOR({0},1)=TODAY()", cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_TOMORROW)
+  {
+    xml_data += write_formula_str(std::format("FLOOR({0},1)=TODAY()+1", cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS)
+  {
+    xml_data +=
+        write_formula_str(std::format("AND(TODAY()-FLOOR({0},1)<=6,FLOOR({0},1)<=TODAY())", cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_WEEK)
+  {
+    xml_data += write_formula_str(
+        std::format("AND(TODAY()-ROUNDDOWN({0},0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN({0},0)<(WEEKDAY(TODAY())+7))",
+                    cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_THIS_WEEK)
+  {
+    xml_data += write_formula_str(
+        std::format("AND(TODAY()-ROUNDDOWN({0},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN({0},0)-TODAY()<=7-WEEKDAY(TODAY()))",
+                    cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_NEXT_WEEK)
+  {
+    xml_data += write_formula_str(
+        std::format("AND(ROUNDDOWN({0},0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN({0},0)-TODAY()<(15-WEEKDAY(TODAY())))",
+                    cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_MONTH)
+  {
+    xml_data += write_formula_str(std::format(
+        "AND(MONTH({0})=MONTH(TODAY())-1,OR(YEAR({0})=YEAR(TODAY()),AND(MONTH({0})=1,YEAR(A1)=YEAR(TODAY())-1)))",
+        cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_THIS_MONTH)
+  {
+    xml_data += write_formula_str(
+        std::format("AND(MONTH({0})=MONTH(TODAY()),YEAR({0})=YEAR(TODAY()))", cond_format.first_cell_));
+  }
+  else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_NEXT_MONTH)
+  {
+    xml_data += write_formula_str(std::format(
+        "AND(MONTH({0})=MONTH(TODAY())+1,OR(YEAR({0})=YEAR(TODAY()),AND(MONTH({0})=12,YEAR({0})=YEAR(TODAY())+1)))",
+        cond_format.first_cell_));
+  }
+
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+
+  if(cond_format.type_ == conditional_format_types_t::BLANKS)
+  {
+    xml_data += write_formula_str(std::format("LEN(TRIM(%s))=0", cond_format.first_cell_));
+  }
+  else if(cond_format.type_ == conditional_format_types_t::NO_BLANKS)
+  {
+    xml_data += write_formula_str(std::format("LEN(TRIM(%s))>0", cond_format.first_cell_));
+  }
+  else if(cond_format.type_ == conditional_format_types_t::ERRORS)
+  {
+    xml_data += write_formula_str(std::format("ISERROR(%s)", cond_format.first_cell_));
+  }
+  else if(cond_format.type_ == conditional_format_types_t::NO_ERRORS)
+  {
+    xml_data += write_formula_str(std::format("NOT(ISERROR(%s))", cond_format.first_cell_));
+  }
+
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  // TODO Add conversion function
+  const std::string operators[] = {
+      "containsText",
+      "notContains",
+      "beginsWith",
+      "endsWith",
+  };
+  conditional_criteria_t criteria = cond_format.criteria_;
+
+  if(criteria == conditional_criteria_t::TEXT_CONTAINING)
+  {
+    attributes.emplace_back("type", "containsText");
+  }
+  else if(criteria == conditional_criteria_t::TEXT_NOT_CONTAINING)
+  {
+    attributes.emplace_back("type", "notContainsText");
+  }
+  else if(criteria == conditional_criteria_t::TEXT_BEGINS_WITH)
+  {
+    attributes.emplace_back("type", "beginsWith");
+  }
+  else if(criteria == conditional_criteria_t::TEXT_ENDS_WITH)
+  {
+    attributes.emplace_back("type", "endsWith");
+  }
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  size_t pos = static_cast<size_t>(criteria) - static_cast<size_t>(conditional_criteria_t::TEXT_CONTAINING);
+  attributes.emplace_back("operator", operators[pos]);
+
+  attributes.emplace_back("text", cond_format.min_value_string_);
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+
+  if(criteria == conditional_criteria_t::TEXT_CONTAINING)
+  {
+    xml_data += write_formula_str(
+        std::format("NOT(ISERROR(SEARCH(\"{}\",{})))", cond_format.min_value_string_, cond_format.first_cell_));
+  }
+  else if(criteria == conditional_criteria_t::TEXT_NOT_CONTAINING)
+  {
+    xml_data += write_formula_str(
+        std::format("ISERROR(SEARCH(\"{}\",{}))", cond_format.min_value_string_, cond_format.first_cell_));
+  }
+  else if(criteria == conditional_criteria_t::TEXT_BEGINS_WITH)
+  {
+    xml_data += write_formula_str(std::format("LEFT({},{})=\"{}\"", cond_format.first_cell_,
+                                              cond_format.min_value_string_.size(), cond_format.min_value_string_));
+  }
+  else if(criteria == conditional_criteria_t::TEXT_ENDS_WITH)
+  {
+    xml_data += write_formula_str(std::format("RIGHT({},{})=\"{}\"", cond_format.first_cell_,
+                                              cond_format.min_value_string_.size(), cond_format.min_value_string_));
+  }
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format) const
+{
+  // TODO Add conversion function
+  const std::string operators[] = {
+      "none",    "equal",      "notEqual", "greaterThan", "lessThan", "greaterThanOrEqual", "lessThanOrEqual",
+      "between", "notBetween",
+  };
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"type", cond_format.type_string_}
+  };
+
+  if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    attributes.emplace_back("dxfId", std::to_string(cond_format.dxf_index_));
+  }
+
+  attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
+
+  if(cond_format.stop_if_true_)
+  {
+    attributes.emplace_back("stopIfTrue", "1");
+  }
+
+  attributes.emplace_back("operator", operators[static_cast<size_t>(cond_format.criteria_)]);
+
+  std::string xml_data = xml_start_tag("cfRule", attributes);
+
+  if(!cond_format.min_value_string_.empty())
+  {
+    xml_data += write_formula_str(cond_format.min_value_string_);
+  }
+  else
+  {
+    xml_data += write_formula_num(cond_format.min_value_);
+  }
+
+  if(cond_format.has_max_)
+  {
+    if(!cond_format.max_value_string_.empty())
+    {
+      xml_data += write_formula_str(cond_format.max_value_string_);
+    }
+    else
+    {
+      xml_data += write_formula_num(cond_format.max_value_);
+    }
+  }
+
+  xml_data += xml_end_tag("cfRule");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_cf_rule(cond_format_obj_t& cond_format)
+{
+  if(cond_format.type_ == conditional_format_types_t::CELL)
+  {
+    return write_cf_rule_cell(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TEXT)
+  {
+    return write_cf_rule_text(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TIME_PERIOD)
+  {
+    return write_cf_rule_time_period(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::DUPLICATE ||
+          cond_format.type_ == conditional_format_types_t::UNIQUE)
+  {
+    return write_cf_rule_duplicate(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::AVERAGE)
+  {
+    return write_cf_rule_average(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TOP ||
+          cond_format.type_ == conditional_format_types_t::BOTTOM)
+  {
+    return write_cf_rule_top(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::BLANKS ||
+          cond_format.type_ == conditional_format_types_t::NO_BLANKS ||
+          cond_format.type_ == conditional_format_types_t::ERRORS ||
+          cond_format.type_ == conditional_format_types_t::NO_ERRORS)
+  {
+    return write_cf_rule_blanks(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::FORMULA)
+  {
+    return write_cf_rule_formula(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TWO_COLOR_SCALE ||
+          cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
+  {
+    return write_cf_rule_color_scale(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::DATA_BAR)
+  {
+    return write_cf_rule_data_bar(cond_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::ICON_SETS)
+  {
+    return write_cf_rule_icons(cond_format);
+  }
+
+  return "";
+}
+
+std::string worksheet_t::write_conditional_formatting(const std::string& sqref,
+                                                      std::vector<cond_format_obj_t>& cond_formats)
+{
+  std::string xml_data = xml_start_tag("conditionalFormatting", {
+                                                                    {"sqref", sqref}
+  });
+  for(auto& cond_format: cond_formats)
+  {
+    xml_data += write_cf_rule(cond_format);
+  }
+  xml_data += xml_end_tag("conditionalFormatting");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_conditional_formats()
 {
   std::string xml_data;
-  ///     if (self->data_bar_2010_index == 0)
-  ///         return;
 
-  ///     lxw_xml_start_tag(self->file, "extLst", NULL);
+  for(auto& [sqref, cond_formats]: conditional_formats_)
+  {
+    xml_data += write_conditional_formatting(sqref, cond_formats);
+  }
 
-  ///     _worksheet_write_ext_list_data_bars(self);
+  return xml_data;
+}
 
-  ///     lxw_xml_end_tag(self->file, "extLst");
+std::string worksheet_t::write_x14_color(const std::string& type, color_t color) const
+{
+  return xml_empty_tag(type, {
+                                 {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  });
+}
+
+std::string worksheet_t::write_x14_cfvo(conditional_format_rule_types_t rule_type, double number,
+                                        const std::string& str) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  bool has_value = false;
+
+  if(rule_type == conditional_format_rule_types_t::AUTO_MIN)
+  {
+    attributes.emplace_back("type", "autoMin");
+    has_value = false;
+  }
+  else if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  {
+    attributes.emplace_back("type", "min");
+    has_value = false;
+  }
+  else if(rule_type == conditional_format_rule_types_t::NUMBER)
+  {
+    attributes.emplace_back("type", "num");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENT)
+  {
+    attributes.emplace_back("type", "percent");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
+  {
+    attributes.emplace_back("type", "percentile");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::FORMULA)
+  {
+    attributes.emplace_back("type", "formula");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
+  {
+    attributes.emplace_back("type", "max");
+    has_value = false;
+  }
+  else if(rule_type == conditional_format_rule_types_t::AUTO_MAX)
+  {
+    attributes.emplace_back("type", "autoMax");
+    has_value = false;
+  }
+
+  if(has_value)
+  {
+    std::string xml_data = xml_start_tag("x14:cfvo", attributes);
+
+    if(!str.empty())
+    {
+      xml_data += xml_data_element("xm:f", str);
+    }
+    else
+    {
+      xml_data += xml_data_element("xm:f", std::format("{}", number));
+    }
+    xml_data += xml_end_tag("x14:cfvo");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("x14:cfvo", attributes);
+  }
+}
+
+std::string worksheet_t::write_x14_data_bar(cond_format_obj_t& cond_format) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+      {"minLength", "0"  },
+      {"maxLength", "100"},
+  };
+
+  if(!cond_format.bar_no_border_)
+  {
+    attributes.emplace_back("border", "1");
+  }
+
+  if(cond_format.bar_solid_)
+  {
+    attributes.emplace_back("gradient", "0");
+  }
+
+  if(cond_format.bar_direction_ == conditional_format_bar_direction_t::RIGHT_TO_LEFT)
+  {
+    attributes.emplace_back("direction", "rightToLeft");
+  }
+
+  if(cond_format.bar_direction_ == conditional_format_bar_direction_t::LEFT_TO_RIGHT)
+  {
+    attributes.emplace_back("direction", "leftToRight");
+  }
+
+  if(cond_format.bar_negative_color_same_)
+  {
+    attributes.emplace_back("negativeBarColorSameAsPositive", "1");
+  }
+
+  if(!cond_format.bar_no_border_ && !cond_format.bar_negative_border_color_same_)
+  {
+    attributes.emplace_back("negativeBarBorderColorSameAsPositive", "0");
+  }
+
+  if(cond_format.bar_axis_position_ == conditional_bar_axis_position_t::MIDPOINT)
+  {
+    attributes.emplace_back("axisPosition", "middle");
+  }
+
+  if(cond_format.bar_axis_position_ == conditional_bar_axis_position_t::NONE)
+  {
+    attributes.emplace_back("axisPosition", "none");
+  }
+
+  std::string xml_data = xml_start_tag("x14:dataBar", attributes);
+
+  if(cond_format.auto_min_)
+  {
+    cond_format.min_rule_type_ = conditional_format_rule_types_t::AUTO_MIN;
+  }
+
+  xml_data += write_x14_cfvo(cond_format.min_rule_type_, cond_format.min_value_, cond_format.min_value_string_);
+
+  if(cond_format.auto_max_)
+  {
+    cond_format.max_rule_type_ = conditional_format_rule_types_t::AUTO_MAX;
+  }
+
+  xml_data += write_x14_cfvo(cond_format.max_rule_type_, cond_format.max_value_, cond_format.max_value_string_);
+
+  if(!cond_format.bar_no_border_)
+  {
+    xml_data += write_x14_color("x14:borderColor", cond_format.bar_border_color_);
+  }
+
+  if(!cond_format.bar_negative_color_same_)
+  {
+    xml_data += write_x14_color("x14:negativeFillColor", cond_format.bar_negative_color_);
+  }
+
+  if(!cond_format.bar_no_border_ && !cond_format.bar_negative_border_color_same_)
+  {
+    xml_data += write_x14_color("x14:negativeBorderColor", cond_format.bar_negative_border_color_);
+  }
+
+  if(cond_format.bar_axis_position_ != conditional_bar_axis_position_t::NONE)
+  {
+    xml_data += write_x14_color("x14:axisColor", cond_format.bar_axis_color_);
+  }
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_x14_cf_rule(cond_format_obj_t& cond_format) const
+{
+  std::string xml_data = xml_start_tag("x14:cfRule", {
+                                                         {"type", "dataBar"        },
+                                                         {"id",   cond_format.guid_},
+  });
+  xml_data += write_x14_data_bar(cond_format);
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_xm_sqref(const cond_format_obj_t& cond_format) const
+{
+  return xml_data_element("xm:sqref", cond_format.sqref_);
+}
+
+std::string worksheet_t::write_conditional_formatting_2010(std::vector<xwpp::cond_format_obj_t>& cond_formats) const
+{
+  std::string xml_data;
+  for(auto& cond_format: cond_formats)
+  {
+    if(cond_format.data_bar_2010_)
+    {
+      xml_data += xml_start_tag("x14:conditionalFormatting",
+                                {
+                                    {"xmlns:xm", "http://schemas.microsoft.com/office/excel/2006/main"}
+      });
+      xml_data += write_x14_cf_rule(cond_format);
+      xml_data += xml_end_tag("x14:dataBar");
+      xml_data += xml_end_tag("x14:cfRule");
+      xml_data += write_xm_sqref(cond_format);
+      xml_data += xml_end_tag("x14:conditionalFormatting");
+    }
+  }
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_ext_list_data_bars()
+{
+  std::string xml_data = write_ext("{78C0D931-6437-407d-A8EE-F0AAD7539E65}");
+  xml_data += xml_start_tag("x14:conditionalFormattings");
+
+  for(auto& [sqref, cond_formats]: conditional_formats_)
+  {
+    xml_data += write_conditional_formatting_2010(cond_formats);
+  }
+  xml_data += xml_end_tag("x14:conditionalFormattings");
+  xml_data += xml_end_tag("ext");
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_ext_list()
+{
+  if(data_bar_2010_index_ == 0)
+  {
+    return "";
+  }
+
+  std::string xml_data = xml_start_tag("extLst");
+  xml_data += write_ext_list_data_bars();
+  xml_data += xml_end_tag("extLst");
 
   return xml_data;
 }
@@ -5598,439 +5457,403 @@ std::string worksheet_t::write_ext_list() const
 ///
 ///     LXW_FREE_ATTRIBUTES();
 /// }
-///
-/// lxw_error
-/// _validate_conditional_icons(lxw_conditional_format *user)
-/// {
-///     if (user->icon_style > LXW_CONDITIONAL_ICONS_5_QUARTERS) {
-///
-///         LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                          "For type = LXW_CONDITIONAL_TYPE_ICON_SETS, "
-///                          "invalid icon_style (%d).", user->icon_style);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///     else {
-///         return LXW_NO_ERROR;
-///     }
-/// }
 
-/// lxw_error
-/// _validate_conditional_data_bar(lxw_worksheet *self,
-///                                lxw_cond_format_obj *cond_format,
-///                                lxw_conditional_format *user_options)
-/// {
-///     uint8_t min_rule_type = user_options->min_rule_type;
-///     uint8_t max_rule_type = user_options->max_rule_type;
-///
-///     if (user_options->data_bar_2010
-///         || user_options->bar_solid
-///         || user_options->bar_no_border
-///         || user_options->bar_direction
-///         || user_options->bar_axis_position
-///         || user_options->bar_negative_color_same
-///         || user_options->bar_negative_border_color_same
-///         || user_options->bar_negative_color
-///         || user_options->bar_border_color
-///         || user_options->bar_negative_border_color
-///         || user_options->bar_axis_color) {
-///
-///         cond_format->data_bar_2010 = LXW_TRUE;
-///         self->excel_version = 2010;
-///     }
-///
-///     if (min_rule_type > LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///         && min_rule_type < LXW_CONDITIONAL_RULE_TYPE_MAXIMUM) {
-///         cond_format->min_rule_type = min_rule_type;
-///         cond_format->min_value = user_options->min_value;
-///         cond_format->min_value_string =
-///             lxw_strdup_formula(user_options->min_value_string);
-///     }
-///     else {
-///         cond_format->min_rule_type = LXW_CONDITIONAL_RULE_TYPE_MINIMUM;
-///         cond_format->min_value = 0;
-///     }
-///
-///     if (max_rule_type > LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///         && max_rule_type < LXW_CONDITIONAL_RULE_TYPE_MAXIMUM) {
-///         cond_format->max_rule_type = max_rule_type;
-///         cond_format->max_value = user_options->max_value;
-///         cond_format->max_value_string =
-///             lxw_strdup_formula(user_options->max_value_string);
-///     }
-///     else {
-///         cond_format->max_rule_type = LXW_CONDITIONAL_RULE_TYPE_MAXIMUM;
-///         cond_format->max_value = 0;
-///     }
-///
-///     if (cond_format->data_bar_2010) {
-///         if (min_rule_type == LXW_CONDITIONAL_RULE_TYPE_NONE)
-///             cond_format->auto_min = LXW_TRUE;
-///         if (max_rule_type == LXW_CONDITIONAL_RULE_TYPE_NONE)
-///             cond_format->auto_max = LXW_TRUE;
-///     }
-///
-///     cond_format->bar_only = user_options->bar_only;
-///     cond_format->bar_solid = user_options->bar_solid;
-///     cond_format->bar_no_border = user_options->bar_no_border;
-///     cond_format->bar_direction = user_options->bar_direction;
-///     cond_format->bar_axis_position = user_options->bar_axis_position;
-///     cond_format->bar_negative_color_same =
-///         user_options->bar_negative_color_same;
-///     cond_format->bar_negative_border_color_same =
-///         user_options->bar_negative_border_color_same;
-///
-///     if (user_options->bar_color != LXW_COLOR_UNSET)
-///         cond_format->bar_color = user_options->bar_color;
-///     else
-///         cond_format->bar_color = 0x638EC6;
-///
-///     if (user_options->bar_negative_color != LXW_COLOR_UNSET)
-///         cond_format->bar_negative_color = user_options->bar_negative_color;
-///     else
-///         cond_format->bar_negative_color = 0xFF0000;
-///
-///     if (user_options->bar_border_color != LXW_COLOR_UNSET)
-///         cond_format->bar_border_color = user_options->bar_border_color;
-///     else
-///         cond_format->bar_border_color = cond_format->bar_color;
-///
-///     if (user_options->bar_negative_border_color != LXW_COLOR_UNSET)
-///         cond_format->bar_negative_border_color =
-///             user_options->bar_negative_border_color;
-///     else
-///         cond_format->bar_negative_border_color = 0xFF0000;
-///
-///     if (user_options->bar_axis_color != LXW_COLOR_UNSET)
-///         cond_format->bar_axis_color = user_options->bar_axis_color;
-///     else
-///         cond_format->bar_axis_color = 0x000000;
-///
-///     return LXW_NO_ERROR;
-/// }
+void validate_conditional_icons(const conditional_format_t& user)
+{
+  if(user.icon_style_ > conditional_icon_types_t::FIVE_QUARTERS)
+  {
+    throw xwpp_exception_t(
+        std::format("validate_conditional_icons(): invalid icon_style '{}'", static_cast<uint32_t>(user.icon_style_)));
+  }
+}
 
-/// lxw_error
-/// _validate_conditional_scale(lxw_cond_format_obj *cond_format,
-///                             lxw_conditional_format *user_options)
-/// {
-///     uint8_t min_rule_type = user_options->min_rule_type;
-///     uint8_t mid_rule_type = user_options->mid_rule_type;
-///     uint8_t max_rule_type = user_options->max_rule_type;
-///
-///     if (min_rule_type > LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///         && min_rule_type < LXW_CONDITIONAL_RULE_TYPE_MAXIMUM) {
-///         cond_format->min_rule_type = min_rule_type;
-///         cond_format->min_value = user_options->min_value;
-///         cond_format->min_value_string =
-///             lxw_strdup_formula(user_options->min_value_string);
-///     }
-///     else {
-///         cond_format->min_rule_type = LXW_CONDITIONAL_RULE_TYPE_MINIMUM;
-///         cond_format->min_value = 0;
-///     }
-///
-///     if (max_rule_type > LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///         && max_rule_type < LXW_CONDITIONAL_RULE_TYPE_MAXIMUM) {
-///         cond_format->max_rule_type = max_rule_type;
-///         cond_format->max_value = user_options->max_value;
-///         cond_format->max_value_string =
-///             lxw_strdup_formula(user_options->max_value_string);
-///     }
-///     else {
-///         cond_format->max_rule_type = LXW_CONDITIONAL_RULE_TYPE_MAXIMUM;
-///         cond_format->max_value = 0;
-///     }
-///
-///     if (cond_format->type == LXW_CONDITIONAL_3_COLOR_SCALE) {
-///         if (mid_rule_type > LXW_CONDITIONAL_RULE_TYPE_MINIMUM
-///             && mid_rule_type < LXW_CONDITIONAL_RULE_TYPE_MAXIMUM) {
-///             cond_format->mid_rule_type = mid_rule_type;
-///             cond_format->mid_value = user_options->mid_value;
-///             cond_format->mid_value_string =
-///                 lxw_strdup_formula(user_options->mid_value_string);
-///         }
-///         else {
-///             cond_format->mid_rule_type = LXW_CONDITIONAL_RULE_TYPE_PERCENTILE;
-///             cond_format->mid_value = 50;
-///         }
-///     }
-///
-///     if (user_options->min_color != LXW_COLOR_UNSET)
-///         cond_format->min_color = user_options->min_color;
-///     else
-///         cond_format->min_color = 0xFF7128;
-///
-///     if (user_options->max_color != LXW_COLOR_UNSET)
-///         cond_format->max_color = user_options->max_color;
-///     else
-///         cond_format->max_color = 0xFFEF9C;
-///
-///     if (cond_format->type == LXW_CONDITIONAL_3_COLOR_SCALE) {
-///         if (user_options->min_color == LXW_COLOR_UNSET)
-///             cond_format->min_color = 0xF8696B;
-///
-///         if (user_options->mid_color != LXW_COLOR_UNSET)
-///             cond_format->mid_color = user_options->mid_color;
-///         else
-///             cond_format->mid_color = 0xFFEB84;
-///
-///         if (user_options->max_color == LXW_COLOR_UNSET)
-///             cond_format->max_color = 0x63BE7B;
-///     }
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::validate_conditional_data_bar(cond_format_obj_t& cond_format,
+                                                const conditional_format_t& user_options)
+{
+  conditional_format_rule_types_t min_rule_type = user_options.min_rule_type_;
+  conditional_format_rule_types_t max_rule_type = user_options.max_rule_type_;
 
-/// lxw_error
-/// _validate_conditional_top(lxw_cond_format_obj *cond_format,
-///                           lxw_conditional_format *user_options)
-/// {
-///     /* Restrict the range of rank values to Excel's allowed range. */
-///     if (user_options->criteria ==
-///         LXW_CONDITIONAL_CRITERIA_TOP_OR_BOTTOM_PERCENT) {
-///         if (user_options->value < 0.0 || user_options->value > 100.0) {
-///
-///             LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                              "For type = LXW_CONDITIONAL_TYPE_TOP/BOTTOM, "
-///                              "top/bottom percent (%g%%) must by in range 0-100",
-///                              user_options->value);
-///
-///             return LXW_ERROR_PARAMETER_VALIDATION;
-///         }
-///     }
-///     else {
-///         if (user_options->value < 1.0 || user_options->value > 1000.0) {
-///
-///             LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                              "For type = LXW_CONDITIONAL_TYPE_TOP/BOTTOM, "
-///                              "top/bottom items (%g) must by in range 1-1000",
-///                              user_options->value);
-///
-///             return LXW_ERROR_PARAMETER_VALIDATION;
-///         }
-///     }
-///
-///     cond_format->min_value = (uint16_t) user_options->value;
-///
-///     return LXW_NO_ERROR;
-/// }
+  if(user_options.data_bar_2010_ || user_options.bar_solid_ || user_options.bar_no_border_ ||
+     user_options.bar_direction_ != conditional_format_bar_direction_t::CONTEXT ||
+     user_options.bar_axis_position_ != conditional_bar_axis_position_t::AUTOMATIC ||
+     user_options.bar_negative_color_same_ || user_options.bar_negative_border_color_same_ ||
+     user_options.bar_negative_color_ != color_t::UNSET || user_options.bar_border_color_ != color_t::UNSET ||
+     user_options.bar_negative_border_color_ != color_t::UNSET || user_options.bar_axis_color_ != color_t::UNSET)
+  {
+    cond_format.data_bar_2010_ = true;
+    excel_version_             = 2010;
+  }
 
-/// lxw_error
-/// _validate_conditional_average(lxw_conditional_format *user)
-/// {
-///     if (user->criteria < LXW_CONDITIONAL_CRITERIA_AVERAGE_ABOVE ||
-///         user->criteria > LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_BELOW) {
-///
-///         LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                          "For type = LXW_CONDITIONAL_TYPE_AVERAGE, "
-///                          "invalid criteria value (%d).", user->criteria);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///     else {
-///         return LXW_NO_ERROR;
-///     }
-/// }
-///
-/// lxw_error
-/// _validate_conditional_time_period(lxw_conditional_format *user)
-/// {
-///     if (user->criteria < LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_YESTERDAY ||
-///         user->criteria > LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_MONTH) {
-///
-///         LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                          "For type = LXW_CONDITIONAL_TYPE_TIME_PERIOD, "
-///                          "invalid criteria value (%d).", user->criteria);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///     else {
-///         return LXW_NO_ERROR;
-///     }
-/// }
-///
-/// lxw_error
-/// _validate_conditional_text(lxw_cond_format_obj *cond_format,
-///                            lxw_conditional_format *user_options)
-/// {
-///     if (!user_options->value_string) {
-///
-///         LXW_WARN_FORMAT("worksheet_conditional_format_cell()/_range(): "
-///                         "For type = LXW_CONDITIONAL_TYPE_TEXT, "
-///                         "value_string can not be NULL. "
-///                         "Text must be specified.");
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (strlen(user_options->value_string) >= LXW_MAX_ATTRIBUTE_LENGTH) {
-///
-///         LXW_WARN_FORMAT2("worksheet_conditional_format_cell()/_range(): "
-///                          "For type = LXW_CONDITIONAL_TYPE_TEXT, "
-///                          "value_string length (%d) must be less than %d.",
-///                          (uint16_t) strlen(user_options->value_string),
-///                          LXW_MAX_ATTRIBUTE_LENGTH);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     if (user_options->criteria < LXW_CONDITIONAL_CRITERIA_TEXT_CONTAINING ||
-///         user_options->criteria > LXW_CONDITIONAL_CRITERIA_TEXT_ENDS_WITH) {
-///
-///         LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                          "For type = LXW_CONDITIONAL_TYPE_TEXT, "
-///                          "invalid criteria value (%d).",
-///                          user_options->criteria);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     cond_format->min_value_string =
-///         lxw_strdup_formula(user_options->value_string);
-///
-///     return LXW_NO_ERROR;
-/// }
+  if(static_cast<uint32_t>(min_rule_type) > static_cast<uint32_t>(conditional_format_rule_types_t::MINIMUM) &&
+     static_cast<uint32_t>(min_rule_type) < static_cast<uint32_t>(conditional_format_rule_types_t::MAXIMUM))
+  {
+    cond_format.min_rule_type_    = min_rule_type;
+    cond_format.min_value_        = user_options.min_value_;
+    cond_format.min_value_string_ = user_options.min_value_string_;
+  }
+  else
+  {
+    cond_format.min_rule_type_ = conditional_format_rule_types_t::MINIMUM;
+    cond_format.min_value_     = 0;
+  }
 
-/// lxw_error
-/// _validate_conditional_formula(lxw_cond_format_obj *cond_format,
-///                               lxw_conditional_format *user_options)
-/// {
-///     if (!user_options->value_string) {
-///
-///         LXW_WARN_FORMAT("worksheet_conditional_format_cell()/_range(): "
-///                         "For type = LXW_CONDITIONAL_TYPE_FORMULA, "
-///                         "value_string can not be NULL. "
-///                         "Formula must be specified.");
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     cond_format->min_value_string =
-///         lxw_strdup_formula(user_options->value_string);
-///
-///     return LXW_NO_ERROR;
-/// }
-///
-/// lxw_error
-/// _validate_conditional_cell(lxw_cond_format_obj *cond_format,
-///                            lxw_conditional_format *user_options)
-/// {
-///     cond_format->min_value = user_options->value;
-///     cond_format->min_value_string =
-///         lxw_strdup_formula(user_options->value_string);
-///
-///     if (cond_format->criteria == LXW_CONDITIONAL_CRITERIA_BETWEEN
-///         || cond_format->criteria == LXW_CONDITIONAL_CRITERIA_NOT_BETWEEN) {
-///         cond_format->has_max = LXW_TRUE;
-///         cond_format->min_value = user_options->min_value;
-///         cond_format->max_value = user_options->max_value;
-///         cond_format->min_value_string =
-///             lxw_strdup_formula(user_options->min_value_string);
-///         cond_format->max_value_string =
-///             lxw_strdup_formula(user_options->max_value_string);
-///     }
-///
-///     return LXW_NO_ERROR;
-/// }
-///
-/// /* Check that the correct criteria and used with the correct conditional format. */
-/// lxw_error
-/// _validate_conditional_criteria(lxw_cond_format_obj *cond_format)
-/// {
-///     uint8_t criteria_mismatch = LXW_FALSE;
-///
-///     if (cond_format->type == LXW_CONDITIONAL_TYPE_CELL) {
-///         switch (cond_format->criteria) {
-///             case LXW_CONDITIONAL_CRITERIA_EQUAL_TO:
-///             case LXW_CONDITIONAL_CRITERIA_NOT_EQUAL_TO:
-///             case LXW_CONDITIONAL_CRITERIA_GREATER_THAN:
-///             case LXW_CONDITIONAL_CRITERIA_LESS_THAN:
-///             case LXW_CONDITIONAL_CRITERIA_GREATER_THAN_OR_EQUAL_TO:
-///             case LXW_CONDITIONAL_CRITERIA_LESS_THAN_OR_EQUAL_TO:
-///             case LXW_CONDITIONAL_CRITERIA_BETWEEN:
-///             case LXW_CONDITIONAL_CRITERIA_NOT_BETWEEN:
-///                 criteria_mismatch = LXW_FALSE;
-///                 break;
-///             default:
-///                 criteria_mismatch = LXW_TRUE;
-///         }
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TIME_PERIOD) {
-///         switch (cond_format->criteria) {
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_YESTERDAY:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_TODAY:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_TOMORROW:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_7_DAYS:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_WEEK:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_THIS_WEEK:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_WEEK:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_MONTH:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_THIS_MONTH:
-///             case LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_MONTH:
-///                 criteria_mismatch = LXW_FALSE;
-///                 break;
-///             default:
-///                 criteria_mismatch = LXW_TRUE;
-///         }
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TEXT) {
-///         switch (cond_format->criteria) {
-///             case LXW_CONDITIONAL_CRITERIA_TEXT_CONTAINING:
-///             case LXW_CONDITIONAL_CRITERIA_TEXT_NOT_CONTAINING:
-///             case LXW_CONDITIONAL_CRITERIA_TEXT_BEGINS_WITH:
-///             case LXW_CONDITIONAL_CRITERIA_TEXT_ENDS_WITH:
-///                 criteria_mismatch = LXW_FALSE;
-///                 break;
-///             default:
-///                 criteria_mismatch = LXW_TRUE;
-///         }
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_AVERAGE) {
-///         switch (cond_format->criteria) {
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_ABOVE:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_ABOVE_OR_EQUAL:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW_OR_EQUAL:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_ABOVE:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_BELOW:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_ABOVE:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_BELOW:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_ABOVE:
-///             case LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_BELOW:
-///                 criteria_mismatch = LXW_FALSE;
-///                 break;
-///             default:
-///                 criteria_mismatch = LXW_TRUE;
-///         }
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TOP
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_BOTTOM) {
-///         switch (cond_format->criteria) {
-///             case LXW_CONDITIONAL_CRITERIA_NONE:
-///             case LXW_CONDITIONAL_CRITERIA_TOP_OR_BOTTOM_PERCENT:
-///                 criteria_mismatch = LXW_FALSE;
-///                 break;
-///             default:
-///                 criteria_mismatch = LXW_TRUE;
-///         }
-///     }
-///     else {
-///         /* Any other conditional type should have a zero criteria. */
-///         cond_format->criteria = LXW_CONDITIONAL_CRITERIA_NONE;
-///     }
-///
-///     if (criteria_mismatch) {
-///         LXW_WARN_FORMAT2("worksheet_conditional_format_cell()/_range(): "
-///                          "LXW_CONDITIONAL_CRITERIA_* = %d is not valid for "
-///                          "LXW_CONDITIONAL_TYPE_* = %d", cond_format->criteria,
-///                          cond_format->type);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///     else {
-///         return LXW_NO_ERROR;
-///     }
-/// }
+  if(static_cast<uint32_t>(max_rule_type) > static_cast<uint32_t>(conditional_format_rule_types_t::MINIMUM) &&
+     static_cast<uint32_t>(max_rule_type) < static_cast<uint32_t>(conditional_format_rule_types_t::MAXIMUM))
+  {
+    cond_format.max_rule_type_    = max_rule_type;
+    cond_format.max_value_        = user_options.max_value_;
+    cond_format.max_value_string_ = user_options.max_value_string_;
+  }
+  else
+  {
+    cond_format.max_rule_type_ = conditional_format_rule_types_t::MAXIMUM;
+    cond_format.max_value_     = 0;
+  }
+
+  if(cond_format.data_bar_2010_)
+  {
+    if(min_rule_type == conditional_format_rule_types_t::NONE)
+    {
+      cond_format.auto_min_ = true;
+    }
+    if(max_rule_type == conditional_format_rule_types_t::NONE)
+    {
+      cond_format.auto_max_ = true;
+    }
+  }
+
+  cond_format.bar_only_                       = user_options.bar_only_;
+  cond_format.bar_solid_                      = user_options.bar_solid_;
+  cond_format.bar_no_border_                  = user_options.bar_no_border_;
+  cond_format.bar_direction_                  = user_options.bar_direction_;
+  cond_format.bar_axis_position_              = user_options.bar_axis_position_;
+  cond_format.bar_negative_color_same_        = user_options.bar_negative_color_same_;
+  cond_format.bar_negative_border_color_same_ = user_options.bar_negative_border_color_same_;
+
+  if(user_options.bar_color_ != color_t::UNSET)
+  {
+    cond_format.bar_color_ = user_options.bar_color_;
+  }
+  else
+  {
+    cond_format.bar_color_ = static_cast<color_t>(0x638EC6);
+  }
+
+  if(user_options.bar_negative_color_ != color_t::UNSET)
+  {
+    cond_format.bar_negative_color_ = user_options.bar_negative_color_;
+  }
+  else
+  {
+    cond_format.bar_negative_color_ = static_cast<color_t>(0xFF0000);
+  }
+
+  if(user_options.bar_border_color_ != color_t::UNSET)
+  {
+    cond_format.bar_border_color_ = user_options.bar_border_color_;
+  }
+  else
+  {
+    cond_format.bar_border_color_ = cond_format.bar_color_;
+  }
+
+  if(user_options.bar_negative_border_color_ != color_t::UNSET)
+  {
+    cond_format.bar_negative_border_color_ = user_options.bar_negative_border_color_;
+  }
+  else
+  {
+    cond_format.bar_negative_border_color_ = static_cast<color_t>(0xFF0000);
+  }
+
+  if(user_options.bar_axis_color_ != color_t::UNSET)
+  {
+    cond_format.bar_axis_color_ = user_options.bar_axis_color_;
+  }
+  else
+  {
+    cond_format.bar_axis_color_ = static_cast<color_t>(0x000000);
+  }
+}
+
+void validate_conditional_scale(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+{
+  conditional_format_rule_types_t min_rule_type = user_options.min_rule_type_;
+  conditional_format_rule_types_t mid_rule_type = user_options.mid_rule_type_;
+  conditional_format_rule_types_t max_rule_type = user_options.max_rule_type_;
+
+  if(min_rule_type > conditional_format_rule_types_t::MINIMUM &&
+     min_rule_type < conditional_format_rule_types_t::MAXIMUM)
+  {
+    cond_format.min_rule_type_    = min_rule_type;
+    cond_format.min_value_        = user_options.min_value_;
+    cond_format.min_value_string_ = user_options.min_value_string_;
+  }
+  else
+  {
+    cond_format.min_rule_type_ = conditional_format_rule_types_t::MINIMUM;
+    cond_format.min_value_     = 0;
+  }
+
+  if(max_rule_type > conditional_format_rule_types_t::MINIMUM &&
+     max_rule_type < conditional_format_rule_types_t::MAXIMUM)
+  {
+    cond_format.max_rule_type_    = max_rule_type;
+    cond_format.max_value_        = user_options.max_value_;
+    cond_format.max_value_string_ = user_options.max_value_string_;
+  }
+  else
+  {
+    cond_format.max_rule_type_ = conditional_format_rule_types_t::MAXIMUM;
+    cond_format.max_value_     = 0;
+  }
+
+  if(cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
+  {
+    if(mid_rule_type > conditional_format_rule_types_t::MINIMUM &&
+       mid_rule_type < conditional_format_rule_types_t::MAXIMUM)
+    {
+      cond_format.mid_rule_type_    = mid_rule_type;
+      cond_format.mid_value_        = user_options.mid_value_;
+      cond_format.mid_value_string_ = user_options.mid_value_string_;
+    }
+    else
+    {
+      cond_format.mid_rule_type_ = conditional_format_rule_types_t::PERCENTILE;
+      cond_format.mid_value_     = 50;
+    }
+  }
+
+  if(user_options.min_color_ != color_t::UNSET)
+  {
+    cond_format.min_color_ = user_options.min_color_;
+  }
+  else
+  {
+    cond_format.min_color_ = static_cast<color_t>(0xFF7128);
+  }
+
+  if(user_options.max_color_ != color_t::UNSET)
+  {
+    cond_format.max_color_ = user_options.max_color_;
+  }
+  else
+  {
+    cond_format.max_color_ = static_cast<color_t>(0xFFEF9C);
+  }
+
+  if(cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
+  {
+    if(user_options.min_color_ == color_t::UNSET)
+    {
+      cond_format.min_color_ = static_cast<color_t>(0xF8696B);
+    }
+
+    if(user_options.mid_color_ != color_t::UNSET)
+    {
+      cond_format.mid_color_ = user_options.mid_color_;
+    }
+    else
+    {
+      cond_format.mid_color_ = static_cast<color_t>(0xFFEB84);
+    }
+
+    if(user_options.max_color_ == color_t::UNSET)
+    {
+      cond_format.max_color_ = static_cast<color_t>(0x63BE7B);
+    }
+  }
+}
+
+void validate_conditional_top(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+{
+  // Restrict the range of rank values to Excel's allowed range.
+  if(user_options.criteria_ == conditional_criteria_t::TOP_OR_BOTTOM_PERCENT)
+  {
+    if(user_options.value_ < 0.0 || user_options.value_ > 100.0)
+    {
+      throw xwpp_exception_t(std::format(
+          "validate_conditional_top(): top/bottom percent '{}%' must by in range '0'-'100'", user_options.value_));
+    }
+  }
+  else
+  {
+    if(user_options.value_ < 1.0 || user_options.value_ > 1000.0)
+    {
+      throw xwpp_exception_t(std::format(
+          "validate_conditional_top(): top/bottom percent '{}' must by in range '1'-'1000'", user_options.value_));
+    }
+  }
+
+  cond_format.min_value_ = static_cast<uint16_t>(user_options.value_);
+}
+
+void validate_conditional_average(const conditional_format_t& user)
+{
+  if(static_cast<uint32_t>(user.criteria_) < static_cast<uint32_t>(conditional_criteria_t::AVERAGE_ABOVE) ||
+     static_cast<uint32_t>(user.criteria_) > static_cast<uint32_t>(conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW))
+  {
+    throw xwpp_exception_t(std::format("validate_conditional_average(): invalid criteria value '{}'",
+                                       static_cast<uint32_t>(user.criteria_)));
+  }
+}
+
+void validate_conditional_time_period(const conditional_format_t& user)
+{
+  if(static_cast<uint32_t>(user.criteria_) < static_cast<uint32_t>(conditional_criteria_t::TIME_PERIOD_YESTERDAY) ||
+     static_cast<uint32_t>(user.criteria_) > static_cast<uint32_t>(conditional_criteria_t::TIME_PERIOD_NEXT_MONTH))
+  {
+    throw xwpp_exception_t(std::format("validate_conditional_time_period(): invalid criteria value '{}'",
+                                       static_cast<uint32_t>(user.criteria_)));
+  }
+}
+
+void validate_conditional_text(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+{
+  if(user_options.value_string_.empty())
+  {
+    throw xwpp_exception_t("validate_conditional_text(): 'value_string' can not be NULL");
+  }
+
+  if(static_cast<uint32_t>(user_options.criteria_) < static_cast<uint32_t>(conditional_criteria_t::TEXT_CONTAINING) ||
+     static_cast<uint32_t>(user_options.criteria_) > static_cast<uint32_t>(conditional_criteria_t::TEXT_ENDS_WITH))
+  {
+    throw xwpp_exception_t(std::format("validate_conditional_text(): invalid criteria value '{}'",
+                                       static_cast<uint32_t>(user_options.criteria_)));
+  }
+
+  cond_format.min_value_string_ = user_options.value_string_;
+}
+
+void validate_conditional_formula(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+{
+  if(user_options.value_string_.empty())
+  {
+    throw xwpp_exception_t("validate_conditional_formula(): value_string can not be NULL");
+  }
+
+  cond_format.min_value_string_ = user_options.value_string_;
+}
+
+void validate_conditional_cell(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+{
+  cond_format.min_value_        = user_options.value_;
+  cond_format.min_value_string_ = user_options.value_string_;
+
+  if(cond_format.criteria_ == conditional_criteria_t::BETWEEN ||
+     cond_format.criteria_ == conditional_criteria_t::NOT_BETWEEN)
+  {
+    cond_format.has_max_          = true;
+    cond_format.min_value_        = user_options.min_value_;
+    cond_format.max_value_        = user_options.max_value_;
+    cond_format.min_value_string_ = user_options.min_value_string_;
+    cond_format.max_value_string_ = user_options.max_value_string_;
+  }
+}
+
+void validate_conditional_criteria(cond_format_obj_t& cond_format)
+{
+  bool criteria_mismatch = false;
+
+  if(cond_format.type_ == conditional_format_types_t::CELL)
+  {
+    switch(cond_format.criteria_)
+    {
+      case conditional_criteria_t::EQUAL_TO:
+      case conditional_criteria_t::NOT_EQUAL_TO:
+      case conditional_criteria_t::GREATER_THAN:
+      case conditional_criteria_t::LESS_THAN:
+      case conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO:
+      case conditional_criteria_t::LESS_THAN_OR_EQUAL_TO:
+      case conditional_criteria_t::BETWEEN:
+      case conditional_criteria_t::NOT_BETWEEN:
+        criteria_mismatch = false;
+        break;
+      default:
+        criteria_mismatch = true;
+    }
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TIME_PERIOD)
+  {
+    switch(cond_format.criteria_)
+    {
+      case conditional_criteria_t::TIME_PERIOD_YESTERDAY:
+      case conditional_criteria_t::TIME_PERIOD_TODAY:
+      case conditional_criteria_t::TIME_PERIOD_TOMORROW:
+      case conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS:
+      case conditional_criteria_t::TIME_PERIOD_LAST_WEEK:
+      case conditional_criteria_t::TIME_PERIOD_THIS_WEEK:
+      case conditional_criteria_t::TIME_PERIOD_NEXT_WEEK:
+      case conditional_criteria_t::TIME_PERIOD_LAST_MONTH:
+      case conditional_criteria_t::TIME_PERIOD_THIS_MONTH:
+      case conditional_criteria_t::TIME_PERIOD_NEXT_MONTH:
+        criteria_mismatch = false;
+        break;
+      default:
+        criteria_mismatch = true;
+    }
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TEXT)
+  {
+    switch(cond_format.criteria_)
+    {
+      case conditional_criteria_t::TEXT_CONTAINING:
+      case conditional_criteria_t::TEXT_NOT_CONTAINING:
+      case conditional_criteria_t::TEXT_BEGINS_WITH:
+      case conditional_criteria_t::TEXT_ENDS_WITH:
+        criteria_mismatch = false;
+        break;
+      default:
+        criteria_mismatch = true;
+    }
+  }
+  else if(cond_format.type_ == conditional_format_types_t::AVERAGE)
+  {
+    switch(cond_format.criteria_)
+    {
+      case conditional_criteria_t::AVERAGE_ABOVE:
+      case conditional_criteria_t::AVERAGE_BELOW:
+      case conditional_criteria_t::AVERAGE_ABOVE_OR_EQUAL:
+      case conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL:
+      case conditional_criteria_t::AVERAGE_1_STD_DEV_ABOVE:
+      case conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW:
+      case conditional_criteria_t::AVERAGE_2_STD_DEV_ABOVE:
+      case conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW:
+      case conditional_criteria_t::AVERAGE_3_STD_DEV_ABOVE:
+      case conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW:
+        criteria_mismatch = false;
+        break;
+      default:
+        criteria_mismatch = true;
+    }
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TOP ||
+          cond_format.type_ == conditional_format_types_t::BOTTOM)
+  {
+    switch(cond_format.criteria_)
+    {
+      case conditional_criteria_t::NONE:
+      case conditional_criteria_t::TOP_OR_BOTTOM_PERCENT:
+        criteria_mismatch = false;
+        break;
+      default:
+        criteria_mismatch = true;
+    }
+  }
+  else
+  {
+    // Any other conditional type should have a zero criteria.
+    cond_format.criteria_ = conditional_criteria_t::NONE;
+  }
+
+  if(criteria_mismatch)
+  {
+    // TODO Error in conditional_format2
+    throw xwpp_exception_t(std::format("validate_conditional_criteria(): criteria {} is not valid for type {}",
+                                       static_cast<uint32_t>(cond_format.criteria_),
+                                       static_cast<uint32_t>(cond_format.type_)));
+  }
+}
 
 std::string worksheet_t::write_ignored_errors() const
 {
@@ -8875,200 +8698,149 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
 ///                                            row, col, validation);
 /// }
 
-/// lxw_error
-/// worksheet_conditional_format_range(lxw_worksheet *self, row_num_t first_row,
-///                                    col_num_t first_col,
-///                                    row_num_t last_row,
-///                                    col_num_t last_col,
-///                                    lxw_conditional_format *user_options)
-/// {
-///     lxw_cond_format_obj *cond_format;
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     lxw_error err = LXW_NO_ERROR;
-///     char *type_strings[] = {
-///         "none",
-///         "cellIs",
-///         "containsText",
-///         "timePeriod",
-///         "aboveAverage",
-///         "duplicateValues",
-///         "uniqueValues",
-///         "top10",
-///         "top10",
-///         "containsBlanks",
-///         "notContainsBlanks",
-///         "containsErrors",
-///         "notContainsErrors",
-///         "expression",
-///         "colorScale",
-///         "colorScale",
-///         "dataBar",
-///         "iconSet",
-///     };
-///
-///     /* Swap last row/col with first row/col as necessary */
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     /* Check that dimensions are valid but don't store them. */
-///     err = _check_dimensions(self, last_row, last_col, LXW_TRUE, LXW_TRUE);
-///     if (err)
-///         return err;
-///
-///     /* Check the validation type is in correct enum range. */
-///     if (user_options->type <= LXW_CONDITIONAL_TYPE_NONE ||
-///         user_options->type >= LXW_CONDITIONAL_TYPE_LAST) {
-///
-///         LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                          "invalid type value (%d).", user_options->type);
-///
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///
-///     /* Create a copy of the parameters from the user data validation. */
-///     cond_format = calloc(1, sizeof(lxw_cond_format_obj));
-///     GOTO_LABEL_ON_MEM_ERROR(cond_format, error);
-///
-///     /* Create the data validation range. */
-///     if (first_row == last_row && first_col == last_col)
-///         lxw_rowcol_to_cell(cond_format->sqref, first_row, first_col);
-///     else
-///         lxw_rowcol_to_range(cond_format->sqref, first_row, first_col,
-///                             last_row, last_col);
-///
-///     /* Store the first cell string for text and date rules. */
-///     lxw_rowcol_to_cell(cond_format->first_cell, first_row, first_col);
-///
-///     /* Overwrite the sqref range with a user supplied set of ranges. */
-///     if (user_options->multi_range) {
-///
-///         if (strlen(user_options->multi_range) >= LXW_MAX_ATTRIBUTE_LENGTH) {
-///             LXW_WARN_FORMAT1("worksheet_conditional_format_cell()/_range(): "
-///                              "multi_range >= limit = %d.",
-///                              LXW_MAX_ATTRIBUTE_LENGTH);
-///             err = LXW_ERROR_PARAMETER_VALIDATION;
-///             goto error;
-///         }
-///
-///         LXW_ATTRIBUTE_COPY(cond_format->sqref, user_options->multi_range);
-///     }
-///
-///     /* Get the conditional format dxf format index. */
-///     if (user_options->format)
-///         cond_format->dxf_index =
-///             lxw_format_get_dxf_index(user_options->format);
-///     else
-///         cond_format->dxf_index = LXW_PROPERTY_UNSET;
-///
-///     /* Set some common option for all validation types. */
-///     cond_format->type = user_options->type;
-///     cond_format->criteria = user_options->criteria;
-///     cond_format->stop_if_true = user_options->stop_if_true;
-///     cond_format->type_string = lxw_strdup(type_strings[cond_format->type]);
-///
-///     /* Check that the criteria matches the conditional type. */
-///     err = _validate_conditional_criteria(cond_format);
-///     if (err)
-///         goto error;
-///
-///     /* Validate the user input for various types of rules. */
-///     if (user_options->type == LXW_CONDITIONAL_TYPE_CELL
-///         || cond_format->type == LXW_CONDITIONAL_TYPE_DUPLICATE
-///         || cond_format->type == LXW_CONDITIONAL_TYPE_UNIQUE) {
-///
-///         err = _validate_conditional_cell(cond_format, user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (user_options->type == LXW_CONDITIONAL_TYPE_TEXT) {
-///
-///         err = _validate_conditional_text(cond_format, user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (user_options->type == LXW_CONDITIONAL_TYPE_TIME_PERIOD) {
-///
-///         err = _validate_conditional_time_period(user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (user_options->type == LXW_CONDITIONAL_TYPE_AVERAGE) {
-///
-///         err = _validate_conditional_average(user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_TOP
-///              || cond_format->type == LXW_CONDITIONAL_TYPE_BOTTOM) {
-///
-///         err = _validate_conditional_top(cond_format, user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (user_options->type == LXW_CONDITIONAL_TYPE_FORMULA) {
-///
-///         err = _validate_conditional_formula(cond_format, user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_2_COLOR_SCALE
-///              || cond_format->type == LXW_CONDITIONAL_3_COLOR_SCALE) {
-///
-///         err = _validate_conditional_scale(cond_format, user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_DATA_BAR) {
-///
-///         err = _validate_conditional_data_bar(self, cond_format, user_options);
-///         if (err)
-///             goto error;
-///     }
-///     else if (cond_format->type == LXW_CONDITIONAL_TYPE_ICON_SETS) {
-///
-///         err = _validate_conditional_icons(user_options);
-///         if (err)
-///             goto error;
-///
-///         cond_format->icon_style = user_options->icon_style;
-///         cond_format->reverse_icons = user_options->reverse_icons;
-///         cond_format->icons_only = user_options->icons_only;
-///     }
-///
-///     /* Set the priority based on the order of adding. */
-///     cond_format->dxf_priority = ++self->dxf_priority;
-///
-///     /* Store the conditional format object. */
-///     err = _store_conditional_format_object(self, cond_format);
-///
-///     if (err)
-///         goto error;
-///     else
-///         return LXW_NO_ERROR;
-///
-/// error:
-///     _free_cond_format(cond_format);
-///     return err;
-/// }
+void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_col, row_num_t last_row,
+                                           col_num_t last_col, const conditional_format_t& conditional_format)
+{
+  // TODO Add a conversion function
+  const std::string type_strings[] = {
+      "none",
+      "cellIs",
+      "containsText",
+      "timePeriod",
+      "aboveAverage",
+      "duplicateValues",
+      "uniqueValues",
+      "top10",
+      "top10",
+      "containsBlanks",
+      "notContainsBlanks",
+      "containsErrors",
+      "notContainsErrors",
+      "expression",
+      "colorScale",
+      "colorScale",
+      "dataBar",
+      "iconSet",
+  };
 
-/// lxw_error
-/// worksheet_conditional_format_cell(lxw_worksheet *self,
-///                                   row_num_t row,
-///                                   col_num_t col,
-///                                   lxw_conditional_format *options)
-/// {
-///     return worksheet_conditional_format_range(self, row, col,
-///                                               row, col, options);
-/// }
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+
+  // Check that dimensions are valid but don't store them.
+  check_dimensions(last_row, last_col, true, true);
+
+  // Check the validation type is in correct enum range.
+  if(conditional_format.type_ == conditional_format_types_t::NONE)
+  {
+    throw xwpp_exception_t("worksheet_t::conditional_format_range(): Invalid type value");
+  }
+
+  cond_format_obj_t cond_format;
+  // Create the data validation range.
+  if(first_row == last_row && first_col == last_col)
+  {
+    cond_format.sqref_ = rowcol_to_cell(first_row, first_col);
+  }
+  else
+  {
+    cond_format.sqref_ = rowcol_to_range(first_row, first_col, last_row, last_col);
+  }
+
+  // Store the first cell string for text and date rules.
+  cond_format.first_cell_ = rowcol_to_cell(first_row, first_col);
+
+  // Overwrite the sqref range with a user supplied set of ranges.
+  if(!conditional_format.multi_range_.empty())
+  {
+    cond_format.sqref_ = conditional_format.multi_range_;
+  }
+
+  // Get the conditional format dxf format index.
+  if(conditional_format.format_)
+  {
+    cond_format.dxf_index_ = get_dxf_index_(conditional_format.format_);
+  }
+  else
+  {
+    cond_format.dxf_index_ = format_t::PROPERTY_UNSET;
+  }
+
+  // Set some common option for all validation types.
+  cond_format.type_         = conditional_format.type_;
+  cond_format.criteria_     = conditional_format.criteria_;
+  cond_format.stop_if_true_ = conditional_format.stop_if_true_;
+  cond_format.type_string_  = type_strings[static_cast<size_t>(cond_format.type_)];
+
+  // ICI
+
+  // Check that the criteria matches the conditional type.
+  validate_conditional_criteria(cond_format);
+
+  // Validate the user input for various types of rules.
+  if(cond_format.type_ == conditional_format_types_t::CELL ||
+     cond_format.type_ == conditional_format_types_t::DUPLICATE ||
+     cond_format.type_ == conditional_format_types_t::UNIQUE)
+  {
+    validate_conditional_cell(cond_format, conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TEXT)
+  {
+    validate_conditional_text(cond_format, conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TIME_PERIOD)
+  {
+    validate_conditional_time_period(conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::AVERAGE)
+  {
+    validate_conditional_average(conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TOP ||
+          cond_format.type_ == conditional_format_types_t::BOTTOM)
+  {
+    validate_conditional_top(cond_format, conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::FORMULA)
+  {
+    validate_conditional_formula(cond_format, conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::TWO_COLOR_SCALE ||
+          cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
+  {
+    validate_conditional_scale(cond_format, conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::DATA_BAR)
+  {
+    validate_conditional_data_bar(cond_format, conditional_format);
+  }
+  else if(cond_format.type_ == conditional_format_types_t::ICON_SETS)
+  {
+    validate_conditional_icons(conditional_format);
+
+    cond_format.icon_style_    = conditional_format.icon_style_;
+    cond_format.reverse_icons_ = conditional_format.reverse_icons_;
+    cond_format.icons_only_    = conditional_format.icons_only_;
+  }
+
+  // Set the priority based on the order of adding.
+  cond_format.dxf_priority_ = ++dxf_priority_;
+
+  // Store the conditional format object.
+  store_conditional_format_object(cond_format);
+}
+
+void worksheet_t::conditional_format_cell(row_num_t row_num, col_num_t col_num,
+                                          const conditional_format_t& conditional_format)
+{
+  conditional_format_range(row_num, col_num, row_num, col_num, conditional_format);
+}
 
 /// lxw_error
 /// worksheet_insert_button(lxw_worksheet *self, row_num_t row_num,

@@ -174,7 +174,7 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
       const std::string xml_data = worksheet.assemble_xml_file();
       add_buffer_to_zip(xml_data, std::format("xl/worksheets/sheet{}.xml", index));
       index++;
-   }
+    }
   }
 }
 
@@ -331,7 +331,8 @@ void packager_t::write_drawing_files(const workbook_t& workbook)
 
   for(size_t index = 1; auto& sheet: workbook.sheets_)
   {
-    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet) : std::get<chartsheet_t>(sheet).worksheet_;
+    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
+                                                                 : std::get<chartsheet_t>(sheet).worksheet_;
     if(worksheet.drawing_)
     {
       const std::string xml_data = worksheet.drawing_->assemble_xml_file();
@@ -707,32 +708,7 @@ void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
   style_t styles(workbook.font_count_, workbook.fill_count_, workbook.border_count_, workbook.num_format_count_,
-                 workbook.has_comments_, workbook.used_xf_formats_);
-  ///     lxw_hash_element *hash_element;
-  /* Copy the unique and in-use dxf formats from the workbook to the styles
-   * dxf_format list. */
-  ///     LXW_FOREACH_ORDERED(hash_element, self->workbook->used_dxf_formats) {
-  ///         lxw_format *workbook_format = (lxw_format *) hash_element->value;
-  ///         lxw_format *style_format = lxw_format_new();
-
-  ///         if (!style_format) {
-  ///             err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-  ///             goto mem_error;
-  ///         }
-
-  ///         memcpy(style_format, workbook_format, sizeof(lxw_format));
-  ///         STAILQ_INSERT_TAIL(styles->dxf_formats, style_format, list_pointers);
-  ///     }
-
-  ///     styles->fill_count = self->workbook->fill_count;
-  ///     styles->xf_count = self->workbook->used_xf_formats->unique_count;
-  ///     styles->dxf_count = self->workbook->used_dxf_formats->unique_count;
-
-  ///     styles->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-  ///     if (!styles->file) {
-  ///         err = LXW_ERROR_CREATING_TMPFILE;
-  ///         goto mem_error;
-  ///     }
+                 workbook.has_comments_, workbook.used_xf_formats_, workbook.used_dxf_formats_);
 
   const std::string xml_data = styles.assemble_xml_file();
   add_buffer_to_zip(xml_data, "xl/styles.xml");
@@ -748,9 +724,9 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   ///     lxw_sheet *sheet;
   ///     char filename[LXW_MAX_ATTRIBUTE_LENGTH] = { 0 };
   ///     uint32_t index = 1;
-  uint32_t worksheet_index = 1;
+  uint32_t worksheet_index  = 1;
   uint32_t chartsheet_index = 1;
-  uint32_t drawing_count   = get_drawing_count(workbook);
+  uint32_t drawing_count    = get_drawing_count(workbook);
   ///     uint32_t table_count = _get_table_count(self);
   ///     lxw_error err = LXW_NO_ERROR;
 
@@ -877,12 +853,12 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
   ///     lxw_workbook *workbook = self->workbook;
   ///     lxw_sheet *sheet;
   ///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-  uint32_t worksheet_index = 1;
+  uint32_t worksheet_index  = 1;
   uint32_t chartsheet_index = 1;
 
   for(const auto& sheet: workbook.sheets_)
   {
-     if(std::holds_alternative<chartsheet_t>(sheet))
+    if(std::holds_alternative<chartsheet_t>(sheet))
     {
       relationships.add_document("/chartsheet", std::format("chartsheets/sheet{}.xml", chartsheet_index));
       chartsheet_index++;
@@ -991,16 +967,16 @@ void packager_t::write_chartsheet_rels_file(const workbook_t& workbook)
 /// STATIC lxw_error
 /// _write_chartsheet_rels_file(lxw_packager *self)
 {
-///     lxw_relationships *rels;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
-///     lxw_rel_tuple *rel;
-///     lxw_workbook *workbook = self->workbook;
-///     lxw_sheet *sheet;
-///     lxw_worksheet *worksheet;
-///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
+  ///     lxw_relationships *rels;
+  ///     char *buffer = NULL;
+  ///     size_t buffer_size = 0;
+  ///     lxw_rel_tuple *rel;
+  ///     lxw_workbook *workbook = self->workbook;
+  ///     lxw_sheet *sheet;
+  ///     lxw_worksheet *worksheet;
+  ///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
   uint32_t index = 0;
-///     lxw_error err;
+  ///     lxw_error err;
 
   for(const auto& sheet: workbook.sheets_)
   {
@@ -1036,19 +1012,20 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 {
   for(size_t index = 1; auto& sheet: workbook.sheets_)
   {
-      auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet) : std::get<chartsheet_t>(sheet).worksheet_;
-      if(!worksheet.drawing_links_.empty())
+    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
+                                                                 : std::get<chartsheet_t>(sheet).worksheet_;
+    if(!worksheet.drawing_links_.empty())
+    {
+      relationships_t relationships;
+      for(const auto& [type, target, target_mode]: worksheet.drawing_links_)
       {
-        relationships_t relationships;
-        for(const auto& [type, target, target_mode]: worksheet.drawing_links_)
-        {
-          relationships.add_worksheet_relationship(type, target, target_mode);
-        }
-
-        const std::string xml_data = relationships.assemble_xml_file();
-        add_buffer_to_zip(xml_data, std::format("xl/drawings/_rels/drawing{}.xml.rels", index));
-        index++;
+        relationships.add_worksheet_relationship(type, target, target_mode);
       }
+
+      const std::string xml_data = relationships.assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/drawings/_rels/drawing{}.xml.rels", index));
+      index++;
+    }
   }
 }
 

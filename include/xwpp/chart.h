@@ -1802,7 +1802,7 @@ public:
                        .axis_position_      = chart_position_t::LEFT};
 
 private:
-  friend class worksheet_t; // TODO
+  friend class worksheet_t;  // TODO
   friend class chartsheet_t; // TODO
   friend class workbook_t;
 

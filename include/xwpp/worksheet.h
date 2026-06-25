@@ -224,313 +224,317 @@ enum class comment_display_t
  *
  * Values used to set the "type" field of conditional format.
  */
-/// enum lxw_conditional_format_types {
-///     LXW_CONDITIONAL_TYPE_NONE,
+enum class conditional_format_types_t
+{
+  NONE,
 
-/** The Cell type is the most common conditional formatting type. It is
- *  used when a format is applied to a cell based on a simple
- *  criterion.  */
-///     LXW_CONDITIONAL_TYPE_CELL,
+  /** The Cell type is the most common conditional formatting type. It is
+   *  used when a format is applied to a cell based on a simple
+   *  criterion.  */
+  CELL,
 
-/** The Text type is used to specify Excel's "Specific Text" style
- *  conditional format. */
-///     LXW_CONDITIONAL_TYPE_TEXT,
+  /** The Text type is used to specify Excel's "Specific Text" style
+   *  conditional format. */
+  TEXT,
 
-/** The Time Period type is used to specify Excel's "Dates Occurring"
- *  style conditional format. */
-///     LXW_CONDITIONAL_TYPE_TIME_PERIOD,
+  /** The Time Period type is used to specify Excel's "Dates Occurring"
+   *  style conditional format. */
+  TIME_PERIOD,
 
-/** The Average type is used to specify Excel's "Average" style
- *  conditional format. */
-///     LXW_CONDITIONAL_TYPE_AVERAGE,
+  /** The Average type is used to specify Excel's "Average" style
+   *  conditional format. */
+  AVERAGE,
 
-/** The Duplicate type is used to highlight duplicate cells in a range. */
-///     LXW_CONDITIONAL_TYPE_DUPLICATE,
+  /** The Duplicate type is used to highlight duplicate cells in a range. */
+  DUPLICATE,
 
-/** The Unique type is used to highlight unique cells in a range. */
-///     LXW_CONDITIONAL_TYPE_UNIQUE,
+  /** The Unique type is used to highlight unique cells in a range. */
+  UNIQUE,
 
-/** The Top type is used to specify the top n values by number or
- *  percentage in a range. */
-///     LXW_CONDITIONAL_TYPE_TOP,
+  /** The Top type is used to specify the top n values by number or
+   *  percentage in a range. */
+  TOP,
 
-/** The Bottom type is used to specify the bottom n values by number or
- *  percentage in a range. */
-///     LXW_CONDITIONAL_TYPE_BOTTOM,
+  /** The Bottom type is used to specify the bottom n values by number or
+   *  percentage in a range. */
+  BOTTOM,
 
-/** The Blanks type is used to highlight blank cells in a range. */
-///     LXW_CONDITIONAL_TYPE_BLANKS,
+  /** The Blanks type is used to highlight blank cells in a range. */
+  BLANKS,
 
-/** The No Blanks type is used to highlight non blank cells in a range. */
-///     LXW_CONDITIONAL_TYPE_NO_BLANKS,
+  /** The No Blanks type is used to highlight non blank cells in a range. */
+  NO_BLANKS,
 
-/** The Errors type is used to highlight error cells in a range. */
-///     LXW_CONDITIONAL_TYPE_ERRORS,
+  /** The Errors type is used to highlight error cells in a range. */
+  ERRORS,
 
-/** The No Errors type is used to highlight non error cells in a range. */
-///     LXW_CONDITIONAL_TYPE_NO_ERRORS,
+  /** The No Errors type is used to highlight non error cells in a range. */
+  NO_ERRORS,
 
-/** The Formula type is used to specify a conditional format based on a
- *  user defined formula. */
-///     LXW_CONDITIONAL_TYPE_FORMULA,
+  /** The Formula type is used to specify a conditional format based on a
+   *  user defined formula. */
+  FORMULA,
 
-/** The 2 Color Scale type is used to specify Excel's "2 Color Scale"
- *  style conditional format. */
-///     LXW_CONDITIONAL_2_COLOR_SCALE,
+  /** The 2 Color Scale type is used to specify Excel's "2 Color Scale"
+   *  style conditional format. */
+  TWO_COLOR_SCALE,
 
-/** The 3 Color Scale type is used to specify Excel's "3 Color Scale"
- *  style conditional format. */
-///     LXW_CONDITIONAL_3_COLOR_SCALE,
+  /** The 3 Color Scale type is used to specify Excel's "3 Color Scale"
+   *  style conditional format. */
+  THREE_COLOR_SCALE,
 
-/** The Data Bar type is used to specify Excel's "Data Bar" style
- *  conditional format. */
-///     LXW_CONDITIONAL_DATA_BAR,
+  /** The Data Bar type is used to specify Excel's "Data Bar" style
+   *  conditional format. */
+  DATA_BAR,
 
-/** The Icon Set type is used to specify a conditional format with a set
- *  of icons such as traffic lights or arrows. */
-///     LXW_CONDITIONAL_TYPE_ICON_SETS,
-
-///     LXW_CONDITIONAL_TYPE_LAST
-/// };
+  /** The Icon Set type is used to specify a conditional format with a set
+   *  of icons such as traffic lights or arrows. */
+  ICON_SETS,
+};
 
 /** @brief The criteria used in a conditional format.
  *
  * Criteria used to define how a conditional format works.
  */
-/// enum lxw_conditional_criteria {
-///     LXW_CONDITIONAL_CRITERIA_NONE,
+enum class conditional_criteria_t
+{
+  NONE,
 
-/** Format cells equal to a value. */
-///     LXW_CONDITIONAL_CRITERIA_EQUAL_TO,
+  /** Format cells equal to a value. */
+  EQUAL_TO,
 
-/** Format cells not equal to a value. */
-///     LXW_CONDITIONAL_CRITERIA_NOT_EQUAL_TO,
+  /** Format cells not equal to a value. */
+  NOT_EQUAL_TO,
 
-/** Format cells greater than a value. */
-///     LXW_CONDITIONAL_CRITERIA_GREATER_THAN,
+  /** Format cells greater than a value. */
+  GREATER_THAN,
 
-/** Format cells less than a value. */
-///     LXW_CONDITIONAL_CRITERIA_LESS_THAN,
+  /** Format cells less than a value. */
+  LESS_THAN,
 
-/** Format cells greater than or equal to a value. */
-///     LXW_CONDITIONAL_CRITERIA_GREATER_THAN_OR_EQUAL_TO,
+  /** Format cells greater than or equal to a value. */
+  GREATER_THAN_OR_EQUAL_TO,
 
-/** Format cells less than or equal to a value. */
-///     LXW_CONDITIONAL_CRITERIA_LESS_THAN_OR_EQUAL_TO,
+  /** Format cells less than or equal to a value. */
+  LESS_THAN_OR_EQUAL_TO,
 
-/** Format cells between two values. */
-///     LXW_CONDITIONAL_CRITERIA_BETWEEN,
+  /** Format cells between two values. */
+  BETWEEN,
 
-/** Format cells that is not between two values. */
-///     LXW_CONDITIONAL_CRITERIA_NOT_BETWEEN,
+  /** Format cells that is not between two values. */
+  NOT_BETWEEN,
 
-/** Format cells that contain the specified text. */
-///     LXW_CONDITIONAL_CRITERIA_TEXT_CONTAINING,
+  /** Format cells that contain the specified text. */
+  TEXT_CONTAINING,
 
-/** Format cells that don't contain the specified text. */
-///     LXW_CONDITIONAL_CRITERIA_TEXT_NOT_CONTAINING,
+  /** Format cells that don't contain the specified text. */
+  TEXT_NOT_CONTAINING,
 
-/** Format cells that begin with the specified text. */
-///     LXW_CONDITIONAL_CRITERIA_TEXT_BEGINS_WITH,
+  /** Format cells that begin with the specified text. */
+  TEXT_BEGINS_WITH,
 
-/** Format cells that end with the specified text. */
-///     LXW_CONDITIONAL_CRITERIA_TEXT_ENDS_WITH,
+  /** Format cells that end with the specified text. */
+  TEXT_ENDS_WITH,
 
-/** Format cells with a date of yesterday. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_YESTERDAY,
+  /** Format cells with a date of yesterday. */
+  TIME_PERIOD_YESTERDAY,
 
-/** Format cells with a date of today. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_TODAY,
+  /** Format cells with a date of today. */
+  TIME_PERIOD_TODAY,
 
-/** Format cells with a date of tomorrow. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_TOMORROW,
+  /** Format cells with a date of tomorrow. */
+  TIME_PERIOD_TOMORROW,
 
-/** Format cells with a date in the last 7 days. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_7_DAYS,
+  /** Format cells with a date in the last 7 days. */
+  TIME_PERIOD_LAST_7_DAYS,
 
-/** Format cells with a date in the last week. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_WEEK,
+  /** Format cells with a date in the last week. */
+  TIME_PERIOD_LAST_WEEK,
 
-/** Format cells with a date in the current week. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_THIS_WEEK,
+  /** Format cells with a date in the current week. */
+  TIME_PERIOD_THIS_WEEK,
 
-/** Format cells with a date in the next week. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_WEEK,
+  /** Format cells with a date in the next week. */
+  TIME_PERIOD_NEXT_WEEK,
 
-/** Format cells with a date in the last month. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_LAST_MONTH,
+  /** Format cells with a date in the last month. */
+  TIME_PERIOD_LAST_MONTH,
 
-/** Format cells with a date in the current month. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_THIS_MONTH,
+  /** Format cells with a date in the current month. */
+  TIME_PERIOD_THIS_MONTH,
 
-/** Format cells with a date in the next month. */
-///     LXW_CONDITIONAL_CRITERIA_TIME_PERIOD_NEXT_MONTH,
+  /** Format cells with a date in the next month. */
+  TIME_PERIOD_NEXT_MONTH,
 
-/** Format cells above the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_ABOVE,
+  /** Format cells above the average for the range. */
+  AVERAGE_ABOVE,
 
-/** Format cells below the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW,
+  /** Format cells below the average for the range. */
+  AVERAGE_BELOW,
 
-/** Format cells above or equal to the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_ABOVE_OR_EQUAL,
+  /** Format cells above or equal to the average for the range. */
+  AVERAGE_ABOVE_OR_EQUAL,
 
-/** Format cells below or equal to the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_BELOW_OR_EQUAL,
+  /** Format cells below or equal to the average for the range. */
+  AVERAGE_BELOW_OR_EQUAL,
 
-/** Format cells 1 standard deviation above the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_ABOVE,
+  /** Format cells 1 standard deviation above the average for the range. */
+  AVERAGE_1_STD_DEV_ABOVE,
 
-/** Format cells 1 standard deviation below the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_1_STD_DEV_BELOW,
+  /** Format cells 1 standard deviation below the average for the range. */
+  AVERAGE_1_STD_DEV_BELOW,
 
-/** Format cells 2 standard deviation above the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_ABOVE,
+  /** Format cells 2 standard deviation above the average for the range. */
+  AVERAGE_2_STD_DEV_ABOVE,
 
-/** Format cells 2 standard deviation below the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_2_STD_DEV_BELOW,
+  /** Format cells 2 standard deviation below the average for the range. */
+  AVERAGE_2_STD_DEV_BELOW,
 
-/** Format cells 3 standard deviation above the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_ABOVE,
+  /** Format cells 3 standard deviation above the average for the range. */
+  AVERAGE_3_STD_DEV_ABOVE,
 
-/** Format cells 3 standard deviation below the average for the range. */
-///     LXW_CONDITIONAL_CRITERIA_AVERAGE_3_STD_DEV_BELOW,
+  /** Format cells 3 standard deviation below the average for the range. */
+  AVERAGE_3_STD_DEV_BELOW,
 
-/** Format cells in the top of bottom percentage. */
-///     LXW_CONDITIONAL_CRITERIA_TOP_OR_BOTTOM_PERCENT
-/// };
+  /** Format cells in the top of bottom percentage. */
+  TOP_OR_BOTTOM_PERCENT
+};
 
 /** @brief Conditional format rule types.
  *
  * Conditional format rule types that apply to Color Scale and Data Bars.
  */
-/// enum lxw_conditional_format_rule_types {
-///     LXW_CONDITIONAL_RULE_TYPE_NONE,
+enum class conditional_format_rule_types_t
+{
+  NONE,
 
-/** Conditional format rule type: matches the minimum values in the
- *  range. Can only be applied to min_rule_type.*/
-///     LXW_CONDITIONAL_RULE_TYPE_MINIMUM,
+  /** Conditional format rule type: matches the minimum values in the
+   *  range. Can only be applied to min_rule_type.*/
+  MINIMUM,
 
-/** Conditional format rule type: use a number to set the bound.*/
-///     LXW_CONDITIONAL_RULE_TYPE_NUMBER,
+  /** Conditional format rule type: use a number to set the bound.*/
+  NUMBER,
 
-/** Conditional format rule type: use a percentage to set the bound.*/
-///     LXW_CONDITIONAL_RULE_TYPE_PERCENT,
+  /** Conditional format rule type: use a percentage to set the bound.*/
+  PERCENT,
 
-/** Conditional format rule type: use a percentile to set the bound.*/
-///     LXW_CONDITIONAL_RULE_TYPE_PERCENTILE,
+  /** Conditional format rule type: use a percentile to set the bound.*/
+  PERCENTILE,
 
-/** Conditional format rule type: use a formula to set the bound.*/
-///     LXW_CONDITIONAL_RULE_TYPE_FORMULA,
+  /** Conditional format rule type: use a formula to set the bound.*/
+  FORMULA,
 
-/** Conditional format rule type: matches the maximum values in the
- *  range. Can only be applied to max_rule_type.*/
-///     LXW_CONDITIONAL_RULE_TYPE_MAXIMUM,
+  /** Conditional format rule type: matches the maximum values in the
+   *  range. Can only be applied to max_rule_type.*/
+  MAXIMUM,
 
-/* Used internally for Excel2010 bars. Not documented. */
-///     LXW_CONDITIONAL_RULE_TYPE_AUTO_MIN,
+  /* Used internally for Excel2010 bars. Not documented. */
+  AUTO_MIN,
 
-/* Used internally for Excel2010 bars. Not documented. */
-///     LXW_CONDITIONAL_RULE_TYPE_AUTO_MAX
-/// };
+  /* Used internally for Excel2010 bars. Not documented. */
+  AUTO_MAX
+};
 
 /** @brief Conditional format data bar directions.
  *
  * Values used to set the bar direction of a conditional format data bar.
  */
-/// enum lxw_conditional_format_bar_direction {
+enum class conditional_format_bar_direction_t
+{
 
-/** Data bar direction is set by Excel based on the context of the data
- *  displayed. */
-///     LXW_CONDITIONAL_BAR_DIRECTION_CONTEXT,
+  /** Data bar direction is set by Excel based on the context of the data
+   *  displayed. */
+  CONTEXT,
 
-/** Data bar direction is from right to left. */
-///     LXW_CONDITIONAL_BAR_DIRECTION_RIGHT_TO_LEFT,
+  /** Data bar direction is from right to left. */
+  RIGHT_TO_LEFT,
 
-/** Data bar direction is from left to right. */
-///     LXW_CONDITIONAL_BAR_DIRECTION_LEFT_TO_RIGHT
-/// };
+  /** Data bar direction is from left to right. */
+  LEFT_TO_RIGHT
+};
 
 /** @brief Conditional format data bar axis options.
  *
  * Values used to set the position of the axis in a conditional format data
  * bar.
  */
-/// enum lxw_conditional_bar_axis_position {
+enum class conditional_bar_axis_position_t
+{
 
-/** Data bar axis position is set by Excel based on the context of the
- *  data displayed. */
-///     LXW_CONDITIONAL_BAR_AXIS_AUTOMATIC,
+  /** Data bar axis position is set by Excel based on the context of the
+   *  data displayed. */
+  AUTOMATIC,
 
-/** Data bar axis position is set at the midpoint. */
-///     LXW_CONDITIONAL_BAR_AXIS_MIDPOINT,
+  /** Data bar axis position is set at the midpoint. */
+  MIDPOINT,
 
-/** Data bar axis is turned off. */
-///     LXW_CONDITIONAL_BAR_AXIS_NONE
-/// };
+  /** Data bar axis is turned off. */
+  NONE
+};
 
 /** @brief Icon types used in the #lxw_conditional_format icon_style field.
  *
  * Definitions of icon styles used with Icon Set conditional formats.
  */
-/// enum lxw_conditional_icon_types {
+enum class conditional_icon_types_t
+{
 
-/** Icon style: 3 colored arrows showing up, sideways and down. */
-///     LXW_CONDITIONAL_ICONS_3_ARROWS_COLORED,
+  /** Icon style: 3 colored arrows showing up, sideways and down. */
+  THREE_ARROWS_COLORED,
 
-/** Icon style: 3 gray arrows showing up, sideways and down. */
-///     LXW_CONDITIONAL_ICONS_3_ARROWS_GRAY,
+  /** Icon style: 3 gray arrows showing up, sideways and down. */
+  THREE_ARROWS_GRAY,
 
-/** Icon style: 3 colored flags in red, yellow and green. */
-///     LXW_CONDITIONAL_ICONS_3_FLAGS,
+  /** Icon style: 3 colored flags in red, yellow and green. */
+  THREE_FLAGS,
 
-/** Icon style: 3 traffic lights - rounded. */
-///     LXW_CONDITIONAL_ICONS_3_TRAFFIC_LIGHTS_UNRIMMED,
+  /** Icon style: 3 traffic lights - rounded. */
+  THREE_TRAFFIC_LIGHTS_UNRIMMED,
 
-/** Icon style: 3 traffic lights with a rim - squarish. */
-///     LXW_CONDITIONAL_ICONS_3_TRAFFIC_LIGHTS_RIMMED,
+  /** Icon style: 3 traffic lights with a rim - squarish. */
+  THREE_TRAFFIC_LIGHTS_RIMMED,
 
-/** Icon style: 3 colored shapes - a circle, triangle and diamond. */
-///     LXW_CONDITIONAL_ICONS_3_SIGNS,
+  /** Icon style: 3 colored shapes - a circle, triangle and diamond. */
+  THREE_SIGNS,
 
-/** Icon style: 3 circled symbols with tick mark, exclamation and
- *  cross. */
-///     LXW_CONDITIONAL_ICONS_3_SYMBOLS_CIRCLED,
+  /** Icon style: 3 circled symbols with tick mark, exclamation and
+   *  cross. */
+  THREE_SYMBOLS_CIRCLED,
 
-/** Icon style: 3 symbols with tick mark, exclamation and cross. */
-///     LXW_CONDITIONAL_ICONS_3_SYMBOLS_UNCIRCLED,
+  /** Icon style: 3 symbols with tick mark, exclamation and cross. */
+  THREE_SYMBOLS_UNCIRCLED,
 
-/** Icon style: 4 colored arrows showing up, diagonal up, diagonal down
- *  and down. */
-///     LXW_CONDITIONAL_ICONS_4_ARROWS_COLORED,
+  /** Icon style: 4 colored arrows showing up, diagonal up, diagonal down
+   *  and down. */
+  FOUR_ARROWS_COLORED,
 
-/** Icon style: 4 gray arrows showing up, diagonal up, diagonal down and
- * down. */
-///     LXW_CONDITIONAL_ICONS_4_ARROWS_GRAY,
+  /** Icon style: 4 gray arrows showing up, diagonal up, diagonal down and
+   * down. */
+  FOUR_ARROWS_GRAY,
 
-/** Icon style: 4 circles in 4 colors going from red to black. */
-///     LXW_CONDITIONAL_ICONS_4_RED_TO_BLACK,
+  /** Icon style: 4 circles in 4 colors going from red to black. */
+  FOUR_RED_TO_BLACK,
 
-/** Icon style: 4 histogram ratings. */
-///     LXW_CONDITIONAL_ICONS_4_RATINGS,
+  /** Icon style: 4 histogram ratings. */
+  FOUR_RATINGS,
 
-/** Icon style: 4 traffic lights. */
-///     LXW_CONDITIONAL_ICONS_4_TRAFFIC_LIGHTS,
+  /** Icon style: 4 traffic lights. */
+  FOUR_TRAFFIC_LIGHTS,
 
-/** Icon style: 5 colored arrows showing up, diagonal up, sideways,
- * diagonal down and down. */
-///     LXW_CONDITIONAL_ICONS_5_ARROWS_COLORED,
+  /** Icon style: 5 colored arrows showing up, diagonal up, sideways,
+   * diagonal down and down. */
+  FIVE_ARROWS_COLORED,
 
-/** Icon style: 5 gray arrows showing up, diagonal up, sideways, diagonal
- *  down and down. */
-///     LXW_CONDITIONAL_ICONS_5_ARROWS_GRAY,
+  /** Icon style: 5 gray arrows showing up, diagonal up, sideways, diagonal
+   *  down and down. */
+  FIVE_ARROWS_GRAY,
 
-/** Icon style: 5 histogram ratings. */
-///     LXW_CONDITIONAL_ICONS_5_RATINGS,
+  /** Icon style: 5 histogram ratings. */
+  FIVE_RATINGS,
 
-/** Icon style: 5 quarters, from 0 to 4 quadrants filled. */
-///     LXW_CONDITIONAL_ICONS_5_QUARTERS
-/// };
+  /** Icon style: 5 quarters, from 0 to 4 quadrants filled. */
+  FIVE_QUARTERS
+};
 
 /** @brief The type of table style.
  *
@@ -1187,266 +1191,256 @@ struct autofilter_t
  * `worksheet_conditional_format()`.
  *
  */
-/// typedef struct lxw_conditional_format {
+struct conditional_format_t
+{
+  /** The type of conditional format such as #LXW_CONDITIONAL_TYPE_CELL or
+   *  #LXW_CONDITIONAL_DATA_BAR. Should be a #lxw_conditional_format_types
+   *  value.*/
+  conditional_format_types_t type_ = conditional_format_types_t::NONE;
 
-/** The type of conditional format such as #LXW_CONDITIONAL_TYPE_CELL or
- *  #LXW_CONDITIONAL_DATA_BAR. Should be a #lxw_conditional_format_types
- *  value.*/
-///     uint8_t type;
+  /** The criteria parameter is used to set the criteria by which the cell
+   *  data will be evaluated. For example in the expression `a > 5 the
+   *  criteria is `>` or, in Xlsxwriter++ terms,
+   *  #LXW_CONDITIONAL_CRITERIA_GREATER_THAN. The criteria that are
+   *  applicable depend on the conditional format type.  The criteria
+   *  options are defined in #lxw_conditional_criteria. */
+  conditional_criteria_t criteria_ = conditional_criteria_t::NONE;
 
-/** The criteria parameter is used to set the criteria by which the cell
- *  data will be evaluated. For example in the expression `a > 5 the
- *  criteria is `>` or, in Xlsxwriter++ terms,
- *  #LXW_CONDITIONAL_CRITERIA_GREATER_THAN. The criteria that are
- *  applicable depend on the conditional format type.  The criteria
- *  options are defined in #lxw_conditional_criteria. */
-///     uint8_t criteria;
+  /** The number value to which the condition refers. For example in the
+   * expression `a > 5`, the value is 5.*/
+  double value_ = 0.;
 
-/** The number value to which the condition refers. For example in the
- * expression `a > 5`, the value is 5.*/
-///     double value;
+  /** The string value to which the condition refers, such as `"=A1"`. If a
+   *  value_string exists in the struct then the number value is
+   *  ignored. Note, if the condition refers to a text string then it must
+   *  be double quoted like this `"foo"`. */
+  std::string value_string_;
 
-/** The string value to which the condition refers, such as `"=A1"`. If a
- *  value_string exists in the struct then the number value is
- *  ignored. Note, if the condition refers to a text string then it must
- *  be double quoted like this `"foo"`. */
-///     const char *value_string;
+  /** The format field is used to specify the #lxw_format format that will
+   *  be applied to the cell when the conditional formatting criterion is
+   *  met. The #lxw_format is created using the `workbook_add_format()`
+   *  method in the same way as cell formats.
+   *
+   *  @note In Excel, a conditional format is superimposed over the existing
+   *  cell format and not all cell format properties can be
+   *  modified. Properties that @b cannot be modified, in Excel, by a
+   *  conditional format are: font name, font size, superscript and
+   *  subscript, diagonal borders, all alignment properties and all
+   *  protection properties. */
+  format_t* format_;
 
-/** The format field is used to specify the #lxw_format format that will
- *  be applied to the cell when the conditional formatting criterion is
- *  met. The #lxw_format is created using the `workbook_add_format()`
- *  method in the same way as cell formats.
- *
- *  @note In Excel, a conditional format is superimposed over the existing
- *  cell format and not all cell format properties can be
- *  modified. Properties that @b cannot be modified, in Excel, by a
- *  conditional format are: font name, font size, superscript and
- *  subscript, diagonal borders, all alignment properties and all
- *  protection properties. */
-///     lxw_format *format;
+  /** The minimum value used for Cell, Color Scale and Data Bar conditional
+   *  formats. For Cell types this is usually used with a "Between" style
+   * criteria. */
+  double min_value_ = 0.;
 
-/** The minimum value used for Cell, Color Scale and Data Bar conditional
- *  formats. For Cell types this is usually used with a "Between" style
- * criteria. */
-///     double min_value;
+  /** The minimum string value used for Cell, Color Scale and Data Bar conditional
+   *  formats. Usually used to set ranges like `=A1`. */
+  std::string min_value_string_;
 
-/** The minimum string value used for Cell, Color Scale and Data Bar conditional
- *  formats. Usually used to set ranges like `=A1`. */
-///     const char *min_value_string;
+  /** The rule used for the minimum condition in Color Scale and Data Bar
+   *  conditional formats. The rule types are defined in
+   *  #lxw_conditional_format_rule_types. */
+  conditional_format_rule_types_t min_rule_type_ = conditional_format_rule_types_t::NONE;
 
-/** The rule used for the minimum condition in Color Scale and Data Bar
- *  conditional formats. The rule types are defined in
- *  #lxw_conditional_format_rule_types. */
-///     uint8_t min_rule_type;
+  /** The color used for the minimum Color Scale conditional format.
+   *  See @ref working_with_colors. */
+  color_t min_color_ = color_t::UNSET;
 
-/** The color used for the minimum Color Scale conditional format.
- *  See @ref working_with_colors. */
-///     lxw_color_t min_color;
+  /** The middle value used for Color Scale and Data Bar conditional
+   *  formats.  */
+  double mid_value_ = 0.;
 
-/** The middle value used for Color Scale and Data Bar conditional
- *  formats.  */
-///     double mid_value;
+  /** The middle string value used for Color Scale and Data Bar conditional
+   *  formats. Usually used to set ranges like `=A1`. */
+  std::string mid_value_string_;
 
-/** The middle string value used for Color Scale and Data Bar conditional
- *  formats. Usually used to set ranges like `=A1`. */
-///     const char *mid_value_string;
+  /** The rule used for the middle condition in Color Scale and Data Bar
+   *  conditional formats. The rule types are defined in
+   *  #lxw_conditional_format_rule_types. */
+  conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
 
-/** The rule used for the middle condition in Color Scale and Data Bar
- *  conditional formats. The rule types are defined in
- *  #lxw_conditional_format_rule_types. */
-///     uint8_t mid_rule_type;
+  /** The color used for the middle Color Scale conditional format.
+   *  See @ref working_with_colors. */
+  color_t mid_color_ = color_t::UNSET;
 
-/** The color used for the middle Color Scale conditional format.
- *  See @ref working_with_colors. */
-///     lxw_color_t mid_color;
+  /** The maximum value used for Cell, Color Scale and Data Bar conditional
+   *  formats. For Cell types this is usually used with a "Between" style
+   *  criteria. */
+  double max_value_ = 0.;
 
-/** The maximum value used for Cell, Color Scale and Data Bar conditional
- *  formats. For Cell types this is usually used with a "Between" style
- *  criteria. */
-///     double max_value;
+  /** The maximum string value used for Cell, Color Scale and Data Bar conditional
+   *  formats. Usually used to set ranges like `=A1`. */
+  std::string max_value_string_;
 
-/** The maximum string value used for Cell, Color Scale and Data Bar conditional
- *  formats. Usually used to set ranges like `=A1`. */
-///     const char *max_value_string;
+  /** The rule used for the maximum condition in Color Scale and Data Bar
+   *  conditional formats. The rule types are defined in
+   *  #lxw_conditional_format_rule_types. */
+  conditional_format_rule_types_t max_rule_type_ = conditional_format_rule_types_t::NONE;
 
-/** The rule used for the maximum condition in Color Scale and Data Bar
- *  conditional formats. The rule types are defined in
- *  #lxw_conditional_format_rule_types. */
-///     uint8_t max_rule_type;
+  /** The color used for the maximum Color Scale conditional format.
+   *  See @ref working_with_colors. */
+  color_t max_color_ = color_t::UNSET;
 
-/** The color used for the maximum Color Scale conditional format.
- *  See @ref working_with_colors. */
-///     lxw_color_t max_color;
+  /** The bar_color field sets the fill color for data bars. See @ref
+   *  working_with_colors. */
+  color_t bar_color_ = color_t::UNSET;
 
-/** The bar_color field sets the fill color for data bars. See @ref
- *  working_with_colors. */
-///     lxw_color_t bar_color;
+  /** The bar_only field sets The bar_only field displays a bar data but
+   *  not the data in the cells. */
+  bool bar_only_ = false;
 
-/** The bar_only field sets The bar_only field displays a bar data but
- *  not the data in the cells. */
-///     uint8_t bar_only;
+  /** In Excel 2010 additional data bar properties were added such as solid
+   *  (non-gradient) bars and control over how negative values are
+   *  displayed. These properties can shown below.
+   *
+   *  The data_bar_2010 field sets Excel 2010 style data bars even when
+   *  Excel 2010 specific properties aren't used. */
+  bool data_bar_2010_ = false;
 
-/** In Excel 2010 additional data bar properties were added such as solid
- *  (non-gradient) bars and control over how negative values are
- *  displayed. These properties can shown below.
- *
- *  The data_bar_2010 field sets Excel 2010 style data bars even when
- *  Excel 2010 specific properties aren't used. */
-///     uint8_t data_bar_2010;
+  /** The bar_solid field turns on a solid (non-gradient) fill for data
+   *  bars. Set to LXW_TRUE to turn on. Excel 2010 only. */
+  bool bar_solid_ = false;
 
-/** The bar_solid field turns on a solid (non-gradient) fill for data
- *  bars. Set to LXW_TRUE to turn on. Excel 2010 only. */
-///     uint8_t bar_solid;
+  /** The bar_negative_color field sets the color fill for the negative
+   *  portion of a data bar. See @ref working_with_colors. Excel 2010 only. */
+  color_t bar_negative_color_ = color_t::UNSET;
 
-/** The bar_negative_color field sets the color fill for the negative
- *  portion of a data bar. See @ref working_with_colors. Excel 2010 only. */
-///     lxw_color_t bar_negative_color;
+  /** The bar_border_color field sets the color for the border line of a
+   *  data bar. See @ref working_with_colors. Excel 2010 only. */
+  color_t bar_border_color_ = color_t::UNSET;
 
-/** The bar_border_color field sets the color for the border line of a
- *  data bar. See @ref working_with_colors. Excel 2010 only. */
-///     lxw_color_t bar_border_color;
+  /** The bar_negative_border_color field sets the color for the border of
+   *  the negative portion of a data bar. See @ref
+   *  working_with_colors. Excel 2010 only. */
+  color_t bar_negative_border_color_ = color_t::UNSET;
 
-/** The bar_negative_border_color field sets the color for the border of
- *  the negative portion of a data bar. See @ref
- *  working_with_colors. Excel 2010 only. */
-///     lxw_color_t bar_negative_border_color;
+  /** The bar_negative_color_same field sets the fill color for the negative
+   *  portion of a data bar to be the same as the fill color for the
+   *  positive portion of the data bar. Set to LXW_TRUE to turn on. Excel
+   *  2010 only. */
+  bool bar_negative_color_same_ = false;
 
-/** The bar_negative_color_same field sets the fill color for the negative
- *  portion of a data bar to be the same as the fill color for the
- *  positive portion of the data bar. Set to LXW_TRUE to turn on. Excel
- *  2010 only. */
-///     uint8_t bar_negative_color_same;
+  /** The bar_negative_border_color_same field sets the border color for the
+   *  negative portion of a data bar to be the same as the border color for
+   *  the positive portion of the data bar. Set to LXW_TRUE to turn
+   *  on. Excel 2010 only. */
+  bool bar_negative_border_color_same_ = false;
 
-/** The bar_negative_border_color_same field sets the border color for the
- *  negative portion of a data bar to be the same as the border color for
- *  the positive portion of the data bar. Set to LXW_TRUE to turn
- *  on. Excel 2010 only. */
-///     uint8_t bar_negative_border_color_same;
+  /** The bar_no_border field turns off the border for data bars. Set to
+   *  LXW_TRUE to enable. Excel 2010 only. */
+  bool bar_no_border_ = false;
 
-/** The bar_no_border field turns off the border for data bars. Set to
- *  LXW_TRUE to enable. Excel 2010 only. */
-///     uint8_t bar_no_border;
+  /** The bar_direction field sets the direction for data bars. This
+   *  property can be either left for left-to-right or right for
+   *  right-to-left. If the property isn't set then Excel will adjust the
+   *  position automatically based on the context. Should be a
+   *  #lxw_conditional_format_bar_direction value. Excel 2010 only. */
+  conditional_format_bar_direction_t bar_direction_ = conditional_format_bar_direction_t::CONTEXT;
 
-/** The bar_direction field sets the direction for data bars. This
- *  property can be either left for left-to-right or right for
- *  right-to-left. If the property isn't set then Excel will adjust the
- *  position automatically based on the context. Should be a
- *  #lxw_conditional_format_bar_direction value. Excel 2010 only. */
-///     uint8_t bar_direction;
+  /** The bar_axis_position field sets the position within the cells for the
+   *  axis that is shown in data bars when there are negative values to
+   *  display. The property can be either middle or none. If the property
+   *  isn't set then Excel will position the axis based on the range of
+   *  positive and negative values. Should be a
+   *  lxw_conditional_bar_axis_position value. Excel 2010 only. */
+  conditional_bar_axis_position_t bar_axis_position_ = conditional_bar_axis_position_t::AUTOMATIC;
 
-/** The bar_axis_position field sets the position within the cells for the
- *  axis that is shown in data bars when there are negative values to
- *  display. The property can be either middle or none. If the property
- *  isn't set then Excel will position the axis based on the range of
- *  positive and negative values. Should be a
- *  lxw_conditional_bar_axis_position value. Excel 2010 only. */
-///     uint8_t bar_axis_position;
+  /** The bar_axis_color field sets the color for the axis that is shown
+   *  in data bars when there are negative values to display. See @ref
+   *  working_with_colors. Excel 2010 only. */
+  color_t bar_axis_color_ = color_t::UNSET;
 
-/** The bar_axis_color field sets the color for the axis that is shown
- *  in data bars when there are negative values to display. See @ref
- *  working_with_colors. Excel 2010 only. */
-///     lxw_color_t bar_axis_color;
+  /** The Icons Sets style is specified by the icon_style parameter. Should
+   *  be a #lxw_conditional_icon_types. */
+  conditional_icon_types_t icon_style_ = conditional_icon_types_t::THREE_ARROWS_COLORED;
 
-/** The Icons Sets style is specified by the icon_style parameter. Should
- *  be a #lxw_conditional_icon_types. */
-///     uint8_t icon_style;
+  /** The order of Icon Sets icons can be reversed by setting reverse_icons
+   *  to LXW_TRUE.  */
+  bool reverse_icons_ = false;
 
-/** The order of Icon Sets icons can be reversed by setting reverse_icons
- *  to LXW_TRUE.  */
-///     uint8_t reverse_icons;
+  /** The icons can be displayed without the cell value by settings the
+   *  icons_only parameter to LXW_TRUE.  */
+  bool icons_only_ = false;
 
-/** The icons can be displayed without the cell value by settings the
- *  icons_only parameter to LXW_TRUE.  */
-///     uint8_t icons_only;
+  /** The multi_range field is used to extend a conditional format over
+   *  non-contiguous ranges.
+   *
+   *  It is possible to apply the conditional format to different cell
+   *  ranges in a worksheet using multiple calls to
+   *  `worksheet_conditional_format()`. However, as a minor optimization it
+   *  is also possible in Excel to apply the same conditional format to
+   *  different non-contiguous cell ranges.
+   *
+   *  This is replicated in `worksheet_conditional_format()` using the
+   *  multi_range option. The range must contain the primary range for the
+   *  conditional format and any others separated by spaces. For example
+   *  `"A1 C1:C5 E2 G1:G100"`.
+   */
+  std::string multi_range_;
 
-/** The multi_range field is used to extend a conditional format over
- *  non-contiguous ranges.
- *
- *  It is possible to apply the conditional format to different cell
- *  ranges in a worksheet using multiple calls to
- *  `worksheet_conditional_format()`. However, as a minor optimization it
- *  is also possible in Excel to apply the same conditional format to
- *  different non-contiguous cell ranges.
- *
- *  This is replicated in `worksheet_conditional_format()` using the
- *  multi_range option. The range must contain the primary range for the
- *  conditional format and any others separated by spaces. For example
- *  `"A1 C1:C5 E2 G1:G100"`.
- */
-///     const char *multi_range;
+  /** The stop_if_true parameter can be used to set the "stop if true"
+   *  feature of a conditional formatting rule when more than one rule is
+   *  applied to a cell or a range of cells. When this parameter is set then
+   *  subsequent rules are not evaluated if the current rule is true. Set to
+   *  LXW_TRUE to turn on. */
+  bool stop_if_true_ = false;
+};
 
-/** The stop_if_true parameter can be used to set the "stop if true"
- *  feature of a conditional formatting rule when more than one rule is
- *  applied to a cell or a range of cells. When this parameter is set then
- *  subsequent rules are not evaluated if the current rule is true. Set to
- *  LXW_TRUE to turn on. */
-///     uint8_t stop_if_true;
+struct cond_format_obj_t
+{
+  conditional_format_types_t type_ = conditional_format_types_t::NONE;
+  conditional_criteria_t criteria_ = conditional_criteria_t::NONE;
 
-/// } lxw_conditional_format;
+  double min_value_ = 0.;
+  std::string min_value_string_;
+  conditional_format_rule_types_t min_rule_type_ = conditional_format_rule_types_t::NONE;
+  color_t min_color_                             = color_t::UNSET;
 
-/* Internal */
-/// typedef struct lxw_cond_format_obj {
-///     uint8_t type;
-///     uint8_t criteria;
+  double mid_value_ = 0.;
+  std::string mid_value_string_;
+  ///     uint8_t mid_value_type;
+  conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
+  color_t mid_color_                             = color_t::UNSET;
 
-///     double min_value;
-///     char *min_value_string;
-///     uint8_t min_rule_type;
-///     lxw_color_t min_color;
+  double max_value_ = 0.;
+  std::string max_value_string_;
+  ///     uint8_t max_value_type;
+  conditional_format_rule_types_t max_rule_type_ = conditional_format_rule_types_t::NONE;
+  color_t max_color_                             = color_t::UNSET;
 
-///     double mid_value;
-///     char *mid_value_string;
-///     uint8_t mid_value_type;
-///     uint8_t mid_rule_type;
-///     lxw_color_t mid_color;
+  bool data_bar_2010_                                = false;
+  bool auto_min_                                     = false;
+  bool auto_max_                                     = false;
+  bool bar_only_                                     = false;
+  bool bar_solid_                                    = false;
+  bool bar_negative_color_same_                      = false;
+  bool bar_negative_border_color_same_               = false;
+  bool bar_no_border_                                = false;
+  conditional_format_bar_direction_t bar_direction_  = conditional_format_bar_direction_t::CONTEXT;
+  conditional_bar_axis_position_t bar_axis_position_ = conditional_bar_axis_position_t::AUTOMATIC;
+  color_t bar_color_                                 = color_t::UNSET;
+  color_t bar_negative_color_                        = color_t::UNSET;
+  color_t bar_border_color_                          = color_t::UNSET;
+  color_t bar_negative_border_color_                 = color_t::UNSET;
+  color_t bar_axis_color_                            = color_t::UNSET;
 
-///     double max_value;
-///     char *max_value_string;
-///     uint8_t max_value_type;
-///     uint8_t max_rule_type;
-///     lxw_color_t max_color;
+  conditional_icon_types_t icon_style_ = conditional_icon_types_t::THREE_ARROWS_COLORED;
+  bool reverse_icons_                  = false;
+  bool icons_only_                     = false;
 
-///     uint8_t data_bar_2010;
-///     uint8_t auto_min;
-///     uint8_t auto_max;
-///     uint8_t bar_only;
-///     uint8_t bar_solid;
-///     uint8_t bar_negative_color_same;
-///     uint8_t bar_negative_border_color_same;
-///     uint8_t bar_no_border;
-///     uint8_t bar_direction;
-///     uint8_t bar_axis_position;
-///     lxw_color_t bar_color;
-///     lxw_color_t bar_negative_color;
-///     lxw_color_t bar_border_color;
-///     lxw_color_t bar_negative_border_color;
-///     lxw_color_t bar_axis_color;
+  bool stop_if_true_ = false;
+  bool has_max_      = false;
+  std::string type_string_;
+  std::string guid_;
 
-///     uint8_t icon_style;
-///     uint8_t reverse_icons;
-///     uint8_t icons_only;
+  // PROPERTY_UNSET should not be part of format_t
+  int32_t dxf_index_     = format_t::PROPERTY_UNSET;
+  uint32_t dxf_priority_ = 0;
 
-///     uint8_t stop_if_true;
-///     uint8_t has_max;
-///     char *type_string;
-///     char *guid;
-
-///     int32_t dxf_index;
-///     uint32_t dxf_priority;
-
-///     char first_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char sqref[LXW_MAX_ATTRIBUTE_LENGTH];
-
-///     STAILQ_ENTRY (lxw_cond_format_obj) list_pointers;
-/// } lxw_cond_format_obj;
-
-/// typedef struct lxw_cond_format_hash_element {
-///     char sqref[LXW_MAX_ATTRIBUTE_LENGTH];
-
-///     struct lxw_cond_format_list *cond_formats;
-
-///     RB_ENTRY (lxw_cond_format_hash_element) tree_pointers;
-/// } lxw_cond_format_hash_element;
+  std::string first_cell_;
+  std::string sqref_;
+};
 
 /**
  * @brief Table columns options.
@@ -2138,7 +2132,7 @@ struct protection_obj_t
 struct worksheet_init_data_t
 {
   uint16_t index_;
-  uint8_t hidden_;  // TODO bool ?
+  uint8_t hidden_; // TODO bool ?
   ///     uint8_t optimize;
   uint16_t* active_sheet_ = nullptr;
   ///     uint16_t *first_sheet;
@@ -2162,7 +2156,8 @@ class worksheet_t
 {
 public:
   worksheet_t();
-  worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index);
+  worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
+              std::function<int32_t(format_t*)> get_dxf_index);
 
   // TODO Add API with option (original worksheet_set_column_opt) and with format
   // TODO Add API with col names
@@ -4089,6 +4084,79 @@ public:
   void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                            const std::string& formula);
 
+  /**
+   * @brief Add a conditional format to a worksheet cell.
+   *
+   * @param worksheet           Pointer to a lxw_worksheet instance to be updated.
+   * @param row                 The zero indexed row number.
+   * @param col                 The zero indexed column number.
+   * @param conditional_format  A #lxw_conditional_format object to control the
+   *                            conditional format.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_conditional_format_cell()` function is used to set a
+   * conditional format for a cell in a worksheet:
+   *
+   * @code
+   *     conditional_format->type     = LXW_CONDITIONAL_TYPE_CELL;
+   *     conditional_format->criteria =
+   * LXW_CONDITIONAL_CRITERIA_GREATER_THAN_OR_EQUAL_TO; conditional_format->value
+   * = 50; conditional_format->format   = format1;
+   *     worksheet_conditional_format_cell(worksheet, CELL("A1"),
+   * conditional_format);
+   * @endcode
+   *
+   * The conditional format parameters is specified in #lxw_conditional_format.
+   *
+   * See @ref working_with_conditional_formatting for full details.
+   */
+  void conditional_format_cell(row_num_t row_num, col_num_t col_num, const conditional_format_t& conditional_format);
+
+  /**
+   * @brief Add a conditional format to a worksheet range.
+   *
+   * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row  The first row of the range. (All zero indexed.)
+   * @param first_col  The first column of the range.
+   * @param last_row   The last row of the range.
+   * @param last_col   The last col of the range.
+   * @param conditional_format  A #lxw_conditional_format object to control the
+   *                            conditional format.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_conditional_format_cell()` function is used to set a
+   * conditional format for a range of cells in a worksheet:
+   *
+   * @code
+   *     conditional_format->type     = LXW_CONDITIONAL_TYPE_CELL;
+   *     conditional_format->criteria =
+   * LXW_CONDITIONAL_CRITERIA_GREATER_THAN_OR_EQUAL_TO; conditional_format->value
+   * = 50; conditional_format->format   = format1;
+   *     worksheet_conditional_format_range(worksheet1, RANGE("B3:K12"),
+   * conditional_format);
+   *
+   *     conditional_format->type     = LXW_CONDITIONAL_TYPE_CELL;
+   *     conditional_format->criteria = LXW_CONDITIONAL_CRITERIA_LESS_THAN;
+   *     conditional_format->value    = 50;
+   *     conditional_format->format   = format2;
+   *     worksheet_conditional_format_range(worksheet1, RANGE("B3:K12"),
+   * conditional_format);
+   * @endcode
+   *
+   * Output:
+   *
+   * @image html conditional_format1.png
+   *
+   *
+   * The conditional format parameters is specified in #lxw_conditional_format.
+   *
+   * See @ref working_with_conditional_formatting for full details.
+   */
+  void conditional_format_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                                const conditional_format_t& conditional_format);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4115,7 +4183,7 @@ private:
   [[nodiscard]] std::string write_sheet_data() const;
   [[nodiscard]] std::string write_auto_filter() const;
   [[nodiscard]] std::string write_merge_cells() const;
-  [[nodiscard]] std::string write_conditional_formats() const;
+  [[nodiscard]] std::string write_conditional_formats();
   [[nodiscard]] std::string write_data_validations() const;
   [[nodiscard]] std::string write_hyperlinks();
   [[nodiscard]] std::string write_print_options() const;
@@ -4130,7 +4198,7 @@ private:
   [[nodiscard]] std::string write_legacy_drawing_hf();
   [[nodiscard]] std::string write_picture();
   [[nodiscard]] std::string write_table_parts() const;
-  [[nodiscard]] std::string write_ext_list() const;
+  [[nodiscard]] std::string write_ext_list();
   [[nodiscard]] std::string write_rows() const;
   [[nodiscard]] std::string write_row(const row_t& row, const std::string& spans) const;
   [[nodiscard]] std::string write_row(const row_t& row) const;
@@ -4158,6 +4226,39 @@ private:
   [[nodiscard]] std::string write_filter_list(const filter_rule_obj_t& filter) const;
   [[nodiscard]] std::string write_filter_custom(const filter_rule_obj_t& filter) const;
   [[nodiscard]] std::string write_array_formula_num_cell(const cell_t& cell) const;
+  [[nodiscard]] std::string write_conditional_formatting(const std::string& sqref,
+                                                         std::vector<cond_format_obj_t>& cond_formats);
+  [[nodiscard]] std::string write_formula_str(const std::string& data) const;
+  [[nodiscard]] std::string write_formula_num(double num) const;
+  [[nodiscard]] std::string write_color(color_t color) const;
+  [[nodiscard]] std::string write_cfvo_str(conditional_format_rule_types_t rule_type, const std::string& value,
+                                           bool data_bar_2010) const;
+  [[nodiscard]] std::string write_cfvo_num(conditional_format_rule_types_t rule_type, double value,
+                                           bool data_bar_2010) const;
+  [[nodiscard]] std::string write_cf_rule(cond_format_obj_t& cond_format);
+  [[nodiscard]] std::string write_cf_rule_cell(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_text(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_blanks(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_formula(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_color_scale(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_data_bar(cond_format_obj_t& cond_format);
+  [[nodiscard]] std::string write_data_bar(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_data_bar_ext(cond_format_obj_t& cond_format);
+  [[nodiscard]] std::string write_cf_rule_time_period(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_duplicate(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_average(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_top(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_cf_rule_icons(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_icon_set(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_ext(const std::string& uri) const;
+  [[nodiscard]] std::string write_ext_list_data_bars();
+  [[nodiscard]] std::string write_conditional_formatting_2010(std::vector<xwpp::cond_format_obj_t>& cond_formats) const;
+  [[nodiscard]] std::string write_x14_cf_rule(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_xm_sqref(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_x14_data_bar(cond_format_obj_t& cond_format) const;
+  [[nodiscard]] std::string write_x14_cfvo(conditional_format_rule_types_t rule_type, double number,
+                                           const std::string& str) const;
+  [[nodiscard]] std::string write_x14_color(const std::string& type, color_t color) const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -4177,13 +4278,18 @@ private:
 
   void store_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                            const std::string& formula, const format_t* format, double result, bool is_dynamic);
+  void store_conditional_format_object(const cond_format_obj_t& cond_format);
+
   void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
   void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
   void prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props, bool is_chartsheet);
   void prepare_background(uint32_t image_ref_id, object_properties_t& object_props);
 
+  void validate_conditional_data_bar(cond_format_obj_t& cond_format, const conditional_format_t& user_options);
+
   std::function<int32_t(format_t*)> get_xf_index_;
+  std::function<int32_t(format_t*)> get_dxf_index_;
   ///     FILE *file;
   ///     FILE *optimize_tmpfile;
   ///     char *optimize_buffer;
@@ -4195,7 +4301,8 @@ private:
   std::vector<merged_range_t> merged_ranges_;
   ///     struct lxw_selections *selections;
   ///     struct lxw_data_validations *data_validations;
-  ///     struct lxw_cond_format_hash *conditional_formats;
+
+  std::map<std::string, std::vector<cond_format_obj_t>> conditional_formats_;
   std::vector<object_properties_t> image_props_;
   std::vector<object_properties_t> embedded_image_props_;
   std::vector<object_properties_t> chart_data_;
@@ -4218,11 +4325,12 @@ private:
   std::string quoted_name_;
   ///     const char *tmpdir;
 
-  uint16_t index_ = 0;
-  bool active_    = true; // TODO Set to true for test, to be removed
-  bool selected_  = false;
-  bool hidden_    = false;
-  uint16_t* active_sheet_ = nullptr;;
+  uint16_t index_         = 0;
+  bool active_            = true; // TODO Set to true for test, to be removed
+  bool selected_          = false;
+  bool hidden_            = false;
+  uint16_t* active_sheet_ = nullptr;
+  ;
   ///     uint16_t *first_sheet;
   bool is_chartsheet_ = false;
 
@@ -4338,9 +4446,9 @@ private:
   std::string vml_header_id_str_;
   uint32_t vml_shape_id_;
   uint32_t vml_header_id_;
-  ///     uint32_t dxf_priority;
+  uint32_t dxf_priority_                     = 0;
   comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
-  ///     uint32_t data_bar_2010_index;
+  uint32_t data_bar_2010_index_              = 0;
 
   ///     uint8_t has_ignore_errors;
   ///     char *ignore_number_stored_as_text;
@@ -4355,7 +4463,7 @@ private:
 
   ///     uint8_t use_1904_epoch;
 
-  ///     uint16_t excel_version;
+  uint16_t excel_version_ = 0;
 
   std::optional<object_properties_t> header_footer_objs_[6];
 
@@ -5011,87 +5119,6 @@ private:
 ///                                           col_num_t last_col,
 ///                                           lxw_data_validation *validation);
 
-/**
- * @brief Add a conditional format to a worksheet cell.
- *
- * @param worksheet           Pointer to a lxw_worksheet instance to be updated.
- * @param row                 The zero indexed row number.
- * @param col                 The zero indexed column number.
- * @param conditional_format  A #lxw_conditional_format object to control the
- *                            conditional format.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_conditional_format_cell()` function is used to set a
- * conditional format for a cell in a worksheet:
- *
- * @code
- *     conditional_format->type     = LXW_CONDITIONAL_TYPE_CELL;
- *     conditional_format->criteria =
- * LXW_CONDITIONAL_CRITERIA_GREATER_THAN_OR_EQUAL_TO; conditional_format->value
- * = 50; conditional_format->format   = format1;
- *     worksheet_conditional_format_cell(worksheet, CELL("A1"),
- * conditional_format);
- * @endcode
- *
- * The conditional format parameters is specified in #lxw_conditional_format.
- *
- * See @ref working_with_conditional_formatting for full details.
- */
-/// lxw_error worksheet_conditional_format_cell(lxw_worksheet *worksheet,
-///                                             row_num_t row,
-///                                             col_num_t col,
-///                                             lxw_conditional_format
-///                                             *conditional_format);
-
-/**
- * @brief Add a conditional format to a worksheet range.
- *
- * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
- * @param first_row  The first row of the range. (All zero indexed.)
- * @param first_col  The first column of the range.
- * @param last_row   The last row of the range.
- * @param last_col   The last col of the range.
- * @param conditional_format  A #lxw_conditional_format object to control the
- *                            conditional format.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_conditional_format_cell()` function is used to set a
- * conditional format for a range of cells in a worksheet:
- *
- * @code
- *     conditional_format->type     = LXW_CONDITIONAL_TYPE_CELL;
- *     conditional_format->criteria =
- * LXW_CONDITIONAL_CRITERIA_GREATER_THAN_OR_EQUAL_TO; conditional_format->value
- * = 50; conditional_format->format   = format1;
- *     worksheet_conditional_format_range(worksheet1, RANGE("B3:K12"),
- * conditional_format);
- *
- *     conditional_format->type     = LXW_CONDITIONAL_TYPE_CELL;
- *     conditional_format->criteria = LXW_CONDITIONAL_CRITERIA_LESS_THAN;
- *     conditional_format->value    = 50;
- *     conditional_format->format   = format2;
- *     worksheet_conditional_format_range(worksheet1, RANGE("B3:K12"),
- * conditional_format);
- * @endcode
- *
- * Output:
- *
- * @image html conditional_format1.png
- *
- *
- * The conditional format parameters is specified in #lxw_conditional_format.
- *
- * See @ref working_with_conditional_formatting for full details.
- */
-/// lxw_error worksheet_conditional_format_range(lxw_worksheet *worksheet,
-///                                              row_num_t first_row,
-///                                              col_num_t first_col,
-///                                              row_num_t last_row,
-///                                              col_num_t last_col,
-///                                              lxw_conditional_format
-///                                              *conditional_format);
 /**
  * @brief Insert a button object into a worksheet.
  *

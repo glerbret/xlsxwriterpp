@@ -108,17 +108,17 @@ void workbook_t::prepare_fonts()
     }
   }
 
-  /* For DXF formats we only need to check if the properties have changed. */
-  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-  ///         lxw_format *format = (lxw_format *) used_format_element->value;
-
-  /* The only font properties that can change for a DXF format are:
-   * color, bold, italic, underline and strikethrough. */
-  ///         if (format->font_color || format->bold || format->italic
-  ///             || format->underline || format->font_strikeout) {
-  ///             format->has_dxf_font = LXW_TRUE;
-  ///         }
-  ///     }
+  // For DXF formats we only need to check if the properties have changed.
+  for(auto format: used_dxf_formats_)
+  {
+    // The only font properties that can change for a DXF format are:
+    // color, bold, italic, underline and strikethrough.
+    if(format->font_color_ != color_t::UNSET || format->bold_ || format->italic_ ||
+       format->underline_ != format_underlines_t::NONE || format->font_strikeout_)
+    {
+      format->has_dxf_font_ = true;
+    }
+  }
 
   font_count_ = static_cast<uint32_t>(fonts.size());
 }
@@ -182,16 +182,17 @@ void workbook_t::prepare_fills()
   default_fill_2.fill_index_ = 1;
   fills.push_back(&default_fill_2);
 
-  /* For DXF formats we only need to check if the properties have changed. */
-  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-  ///         lxw_format *format = (lxw_format *) used_format_element->value;
-
-  ///         if (format->pattern || format->bg_color || format->fg_color) {
-  ///             format->has_dxf_fill = LXW_TRUE;
-  ///             format->dxf_bg_color = format->bg_color;
-  ///             format->dxf_fg_color = format->fg_color;
-  ///         }
-  ///     }
+  // For DXF formats we only need to check if the properties have changed.
+  for(auto format: used_dxf_formats_)
+  {
+    if(format->pattern_ != format_patterns_t::NONE || format->bg_color_ != color_t::UNSET ||
+       format->fg_color_ != color_t::UNSET)
+    {
+      format->has_dxf_fill_ = true;
+      format->dxf_bg_color_ = format->bg_color_;
+      format->dxf_fg_color_ = format->fg_color_;
+    }
+  }
 
   // TODO Use unordered_set to optimise this search
   for(auto format: used_xf_formats_)
@@ -723,7 +724,8 @@ void workbook_t::prepare_drawings()
 
   for(auto& sheet: sheets_)
   {
-    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet) : std::get<chartsheet_t>(sheet).worksheet_;
+    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
+                                                                 : std::get<chartsheet_t>(sheet).worksheet_;
     is_chartsheet   = std::holds_alternative<chartsheet_t>(sheet);
 
     if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() && worksheet.chart_data_.empty() &&
@@ -1137,8 +1139,10 @@ std::string workbook_t::write_workbook_view() const
   ///     if (self->first_sheet)
   ///         LXW_PUSH_ATTRIBUTES_INT("firstSheet", self->first_sheet);
 
-  if (active_sheet_)
+  if(active_sheet_)
+  {
     attributes.emplace_back("activeTab", std::to_string(active_sheet_));
+  }
 
   return xml_empty_tag("workbookView", attributes);
 }
@@ -1152,16 +1156,17 @@ std::string workbook_t::write_book_views() const
   return xml_data;
 }
 
-std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id,
-             bool hidden) const
+std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id, bool hidden) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
       {"name", std::string(name)},
       {"sheetId", std::format("{}", sheet_id)},
   };
 
-  if (hidden)
+  if(hidden)
+  {
     attributes.emplace_back("state", "hidden");
+  }
   attributes.emplace_back("r:id", std::format("rId{}", sheet_id));
 
   return xml_empty_tag("sheet", attributes);
@@ -1298,7 +1303,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       .index_              = num_sheets_,
       .hidden_             = 0,
       ///     .optimize = self->options.constant_memory,
-      .active_sheet_ = &active_sheet_,
+      .active_sheet_       = &active_sheet_,
       ///     .first_sheet = &self->first_sheet,
       .sst_                = &sst_,
       .name_               = std::string{sheetname},
@@ -1309,7 +1314,8 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       ///     .use_1904_epoch = self->use_1904_epoch,
   };
 
-  sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1)});
+  sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1),
+                                   std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1)});
   num_worksheets_++;
   num_sheets_++;
 
@@ -1329,21 +1335,20 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   // Check that the worksheet name is valid.
   validate_sheetname(sheetname);
 
-///     lxw_sheet *sheet = NULL;
-///     lxw_chartsheet *chartsheet = NULL;
-///     lxw_chartsheet_name *chartsheet_name = NULL;
-///     lxw_error error;
-
+  ///     lxw_sheet *sheet = NULL;
+  ///     lxw_chartsheet *chartsheet = NULL;
+  ///     lxw_chartsheet_name *chartsheet_name = NULL;
+  ///     lxw_error error;
 
   const worksheet_init_data_t init_data{
-      .index_              = num_sheets_,
-      .hidden_             = 0,
+      .index_        = num_sheets_,
+      .hidden_       = 0,
       ///     .optimize = self->options.constant_memory,
       .active_sheet_ = &active_sheet_,
       ///     .first_sheet = &self->first_sheet,
-      .sst_                = &sst_,
-      .name_               = std::string{sheetname},
-      .quoted_name_        = quote_sheetname(sheetname),
+      .sst_          = &sst_,
+      .name_         = std::string{sheetname},
+      .quoted_name_  = quote_sheetname(sheetname),
       ///     .tmpdir = self->options.tmpdir,
       /// .default_url_format_ = default_url_format_,
       ///     .max_url_length = self->max_url_length,
@@ -1396,6 +1401,21 @@ int32_t workbook_t::get_xf_index(format_t* format)
   used_xf_formats_.push_back(format);
 
   return format->xf_index_;
+}
+
+int32_t workbook_t::get_dxf_index(format_t* format)
+{
+  // Format already has an index number so return it.
+  if(format->dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    return format->dxf_index_;
+  }
+
+  // TODO Add search to be sure there is no duplication.
+  format->dxf_index_ = static_cast<int32_t>(used_dxf_formats_.size());
+  used_dxf_formats_.push_back(format);
+
+  return format->dxf_index_;
 }
 
 void workbook_t::save(std::string_view filename)

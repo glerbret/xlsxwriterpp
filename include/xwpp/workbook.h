@@ -584,6 +584,7 @@ private:
 
   // TODO Should be provided to worksheet as callback
   int32_t get_xf_index(format_t* format);
+  int32_t get_dxf_index(format_t* format);
 
   void prepare_fonts();
   void prepare_num_formats();
@@ -640,8 +641,7 @@ private:
   [[nodiscard]] std::string write_workbook_pr() const;
   [[nodiscard]] std::string write_workbook_view() const;
   [[nodiscard]] std::string write_book_views() const;
-  [[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id, bool
-                         hidden) const;
+  [[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id, bool hidden) const;
   [[nodiscard]] std::string write_sheets() const;
   [[nodiscard]] std::string write_defined_names() const;
   [[nodiscard]] std::string write_calc_pr() const;
@@ -712,8 +712,7 @@ private:
   // TODO Combine with unordered_set to optimize search and assure uniqueness.
   // TODO And encapsule this combination and related functions in a dedicated types.
   std::vector<format_t*> used_xf_formats_;
-
-  ///     lxw_hash_table *used_dxf_formats;
+  std::vector<format_t*> used_dxf_formats_;
 
   std::string vba_project_;
   std::string vba_project_signature_;

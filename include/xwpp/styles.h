@@ -21,7 +21,7 @@ class style_t
 {
 public:
   style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
-          const std::vector<format_t*>& xf_formats);
+          const std::vector<format_t*>& xf_formats, const std::vector<format_t*>& dxf_formats);
 
   [[nodiscard]] std::string assemble_xml_file();
 
@@ -61,7 +61,7 @@ private:
   [[nodiscard]] std::string write_alignment(const format_t* format) const;
   [[nodiscard]] std::string write_protection(const format_t* format) const;
   [[nodiscard]] std::string write_xf(const format_t* format) const;
-  [[nodiscard]] std::string write_dxfs() const;
+  [[nodiscard]] std::string write_dxfs();
   [[nodiscard]] std::string write_table_styles() const;
   [[nodiscard]] std::string write_hyperlink_alignment() const;
   [[nodiscard]] std::string write_hyperlink_protection() const;

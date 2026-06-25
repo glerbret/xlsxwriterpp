@@ -87,77 +87,77 @@ public:
   [[nodiscard]] std::string get_sheet_name() const;
   [[nodiscard]] uint16_t get_sheet_index() const;
 
-/**
- * @brief Insert a chart object into a chartsheet.
- *
- * @param chartsheet   Pointer to a lxw_chartsheet instance to be updated.
- * @param chart        A #lxw_chart object created via workbook_add_chart().
- *
- * @return A #lxw_error code.
- *
- * The `%chartsheet_set_chart()` function can be used to insert a chart into a
- * chartsheet. The chart object must be created first using the
- * `workbook_add_chart()` function and configured using the @ref chart.h
- * functions.
- *
- * @code
- *     // Create the chartsheet.
- *     lxw_chartsheet *chartsheet = workbook_add_chartsheet(workbook, NULL);
- *
- *     // Create a chart object.
- *     lxw_chart *chart = workbook_add_chart(workbook, LXW_CHART_LINE);
- *
- *     // Add a data series to the chart.
- *     chart_add_series(chart, NULL, "=Sheet1!$A$1:$A$6");
- *
- *     // Insert the chart into the chartsheet.
- *     chartsheet_set_chart(chartsheet, chart);
- * @endcode
- *
- * @image html chartsheet2.png
- *
- * **Note:**
- *
- * A chart may only be inserted once into a chartsheet or a worksheet. If
- * several similar charts are required then each one must be created
- * separately.
- *
- */
-void set_chart(chart_t* chart);
-void set_chart(chart_t* chart, const std::optional<chart_options_t>& user_options);
+  /**
+   * @brief Insert a chart object into a chartsheet.
+   *
+   * @param chartsheet   Pointer to a lxw_chartsheet instance to be updated.
+   * @param chart        A #lxw_chart object created via workbook_add_chart().
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%chartsheet_set_chart()` function can be used to insert a chart into a
+   * chartsheet. The chart object must be created first using the
+   * `workbook_add_chart()` function and configured using the @ref chart.h
+   * functions.
+   *
+   * @code
+   *     // Create the chartsheet.
+   *     lxw_chartsheet *chartsheet = workbook_add_chartsheet(workbook, NULL);
+   *
+   *     // Create a chart object.
+   *     lxw_chart *chart = workbook_add_chart(workbook, LXW_CHART_LINE);
+   *
+   *     // Add a data series to the chart.
+   *     chart_add_series(chart, NULL, "=Sheet1!$A$1:$A$6");
+   *
+   *     // Insert the chart into the chartsheet.
+   *     chartsheet_set_chart(chartsheet, chart);
+   * @endcode
+   *
+   * @image html chartsheet2.png
+   *
+   * **Note:**
+   *
+   * A chart may only be inserted once into a chartsheet or a worksheet. If
+   * several similar charts are required then each one must be created
+   * separately.
+   *
+   */
+  void set_chart(chart_t* chart);
+  void set_chart(chart_t* chart, const std::optional<chart_options_t>& user_options);
 
-/**
- * @brief Make a chartsheet the active, i.e., visible chartsheet.
- *
- * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
- *
- * The `%chartsheet_activate()` function is used to specify which chartsheet
- * is initially visible in a multi-sheet workbook:
- *
- * @code
- *     lxw_worksheet  *worksheet1  = workbook_add_worksheet(workbook, NULL);
- *     lxw_chartsheet *chartsheet1 = workbook_add_chartsheet(workbook, NULL);
- *     lxw_chartsheet *chartsheet2 = workbook_add_chartsheet(workbook, NULL);
- *     lxw_chartsheet *chartsheet3 = workbook_add_chartsheet(workbook, NULL);
- *
- *     chartsheet_activate(chartsheet3);
- * @endcode
- *
- * @image html chartsheet_activate.png
- *
- * More than one chartsheet can be selected via the `chartsheet_select()`
- * function, see below, however only one chartsheet can be active.
- *
- * The default active chartsheet is the first chartsheet.
- *
- * See also `worksheet_activate()`.
- *
- */
-void activate();
+  /**
+   * @brief Make a chartsheet the active, i.e., visible chartsheet.
+   *
+   * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
+   *
+   * The `%chartsheet_activate()` function is used to specify which chartsheet
+   * is initially visible in a multi-sheet workbook:
+   *
+   * @code
+   *     lxw_worksheet  *worksheet1  = workbook_add_worksheet(workbook, NULL);
+   *     lxw_chartsheet *chartsheet1 = workbook_add_chartsheet(workbook, NULL);
+   *     lxw_chartsheet *chartsheet2 = workbook_add_chartsheet(workbook, NULL);
+   *     lxw_chartsheet *chartsheet3 = workbook_add_chartsheet(workbook, NULL);
+   *
+   *     chartsheet_activate(chartsheet3);
+   * @endcode
+   *
+   * @image html chartsheet_activate.png
+   *
+   * More than one chartsheet can be selected via the `chartsheet_select()`
+   * function, see below, however only one chartsheet can be active.
+   *
+   * The default active chartsheet is the first chartsheet.
+   *
+   * See also `worksheet_activate()`.
+   *
+   */
+  void activate();
 
 private:
-friend class packager_t;
-friend class workbook_t;
+  friend class packager_t;
+  friend class workbook_t;
 
   [[nodiscard]] std::string write_chartsheet() const;
   [[nodiscard]] std::string write_sheet_pr() const;
@@ -167,7 +167,6 @@ friend class workbook_t;
   [[nodiscard]] std::string write_page_setup() const;
   [[nodiscard]] std::string write_header_footer() const;
   [[nodiscard]] std::string write_drawings();
-
 
   // TODO To replace with common class
   // Use an embedded worksheet instance to write XML records that are shared with worksheet_t
@@ -180,10 +179,10 @@ friend class workbook_t;
   std::string name_;
   std::string quoted_name_;
   ///    const char *tmpdir;
-  uint16_t index_ = 0;
+  uint16_t index_         = 0;
   ///    uint8_t active;
   ///    uint8_t selected;
-  bool hidden_ = false;
+  bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
   ///    uint16_t *first_sheet;
   ///    uint16_t rel_count;

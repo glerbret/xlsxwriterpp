@@ -10,8 +10,8 @@
 
 #include "xwpp/worksheet.h"
 /// #include "xwpp/utility.h"
-#include "xwpp/xmlwriter.h"
 #include "xwpp/exception.h"
+#include "xwpp/xmlwriter.h"
 
 namespace xwpp
 {
@@ -23,15 +23,15 @@ chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data, std::function
   , active_sheet_{init_data.active_sheet_}
 
 {
-///     if (init_data) {
-///         chartsheet->tmpdir = init_data->tmpdir;
-///         chartsheet->index = init_data->index;
-///         chartsheet->first_sheet = init_data->first_sheet;
-///     }
+  ///     if (init_data) {
+  ///         chartsheet->tmpdir = init_data->tmpdir;
+  ///         chartsheet->index = init_data->index;
+  ///         chartsheet->first_sheet = init_data->first_sheet;
+  ///     }
 
-  worksheet_.is_chartsheet_ = true;
+  worksheet_.is_chartsheet_     = true;
   worksheet_.zoom_scale_normal_ = false;
-  worksheet_.orientation_ = drawing_orientation_t::LANDSCAPE;
+  worksheet_.orientation_       = drawing_orientation_t::LANDSCAPE;
 }
 
 std::string chartsheet_t::get_sheet_name() const
@@ -46,9 +46,10 @@ uint16_t chartsheet_t::get_sheet_index() const
 
 std::string chartsheet_t::write_chartsheet() const
 {
-  return xml_start_tag("chartsheet", {
-    {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
-    {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
+  return xml_start_tag("chartsheet",
+                       {
+                           {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"          },
+                           {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
   });
 }
 
@@ -105,13 +106,12 @@ std::string chartsheet_t::write_header_footer() const
 
 void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& user_options)
 {
-///     lxw_object_properties *object_props;
-///     lxw_chart_series *series;
-///
+  ///     lxw_object_properties *object_props;
+  ///     lxw_chart_series *series;
+  ///
   if(!chart)
   {
-    throw xwpp_exception_t(
-        "chartsheet_t::set_chart(): 'chart' must be present");
+    throw xwpp_exception_t("chartsheet_t::set_chart(): 'chart' must be present");
   }
 
   if(chart->in_use_)
@@ -128,10 +128,10 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   object_properties_t object_props;
   if(user_options)
   {
-    object_props.x_offset_        = user_options->x_offset_;
-    object_props.y_offset_        = user_options->y_offset_;
-    object_props.x_scale_         = user_options->x_scale_;
-    object_props.y_scale_         = user_options->y_scale_;
+    object_props.x_offset_ = user_options->x_offset_;
+    object_props.y_offset_ = user_options->y_offset_;
+    object_props.x_scale_  = user_options->x_scale_;
+    object_props.y_scale_  = user_options->y_scale_;
   }
 
   object_props.width_  = 480;
@@ -152,12 +152,12 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
 
   worksheet_.chart_data_.push_back(object_props);
 
-  chart->in_use_ = true;
+  chart->in_use_        = true;
   chart->is_chartsheet_ = true;
-///
-///     chart->is_protected = self->is_protected;
-///
-  chart_ = *chart;
+  ///
+  ///     chart->is_protected = self->is_protected;
+  ///
+  chart_                = *chart;
 }
 
 void chartsheet_t::set_chart(chart_t* chart)
@@ -177,7 +177,7 @@ void chartsheet_t::set_chart(chart_t* chart)
 void chartsheet_t::activate()
 {
   worksheet_.selected_ = true;
-  worksheet_.active_ = true;
+  worksheet_.active_   = true;
 
   // Active worksheet can't be hidden.
   worksheet_.hidden_ = false;

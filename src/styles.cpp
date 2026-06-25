@@ -369,12 +369,13 @@ std::string style_t::write_comment_font() const
 }
 
 style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count,
-                 bool has_comments, const std::vector<format_t*>& xf_formats)
+                 bool has_comments, const std::vector<format_t*>& xf_formats, const std::vector<format_t*>& dxf_formats)
   : font_count_{font_count}
   , num_format_count_{num_format_count}
   , border_count_{border_count}
   , fill_count_{fill_count}
   , xf_formats_{xf_formats}
+  , dxf_formats_{dxf_formats}
   , has_comments_{has_comments}
 {
 }
@@ -1067,41 +1068,49 @@ std::string style_t::write_cell_styles() const
   return xml_data;
 }
 
-std::string style_t::write_dxfs() const
+std::string style_t::write_dxfs()
 {
-  ///     lxw_format *format;
-  ///     uint32_t count = self->dxf_count;
   const std::vector<std::tuple<std::string, std::string>> attributes{
-      {"count", "0" /* TODO count*/}
+      {"count", std::to_string(dxf_formats_.size())}
   };
 
-  ///     if (count) {
-  ///         lxw_xml_start_tag(self->file, "dxfs", &attributes);
+  if(!dxf_formats_.empty())
+  {
+    std::string xml_data = xml_start_tag("dxfs", attributes);
 
-  ///         STAILQ_FOREACH(format, self->dxf_formats, list_pointers) {
-  ///             lxw_xml_start_tag(self->file, "dxf", NULL);
+    for(const auto& format: dxf_formats_)
+    {
+      xml_data += xml_start_tag("dxf");
+      if(format->has_dxf_font_)
+      {
+        xml_data += write_font(format, true, false);
+      }
 
-  ///             if (format->has_dxf_font)
-  ///                 _write_font(self, format, LXW_TRUE, LXW_FALSE);
+      if(format->num_format_index_)
+      {
+        xml_data += write_num_fmt(format->num_format_index_, format->num_format_);
+      }
 
-  ///             if (format->num_format_index)
-  ///                 _write_num_fmt(self, format->num_format_index,
-  ///                                format->num_format);
+      if(format->has_dxf_fill_)
+      {
+        xml_data += write_fill(format, true);
+      }
 
-  ///             if (format->has_dxf_fill)
-  ///                 _write_fill(self, format, LXW_TRUE);
+      if(format->has_dxf_border_)
+      {
+        xml_data += write_border(format, true);
+      }
 
-  ///             if (format->has_dxf_border)
-  ///                 _write_border(self, format, LXW_TRUE);
+      xml_data += xml_end_tag("dxf");
+    }
+    xml_data += xml_end_tag("dxfs");
 
-  ///             lxw_xml_end_tag(self->file, "dxf");
-  ///         }
-
-  ///         lxw_xml_end_tag(self->file, "dxfs");
-  ///     }
-  ///     else {
-  return xml_empty_tag("dxfs", attributes);
-  ///     }
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("dxfs", attributes);
+  }
 }
 
 std::string style_t::write_table_styles() const
