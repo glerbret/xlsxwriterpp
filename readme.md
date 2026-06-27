@@ -1,5 +1,13 @@
 # Xlsxwriter++
 
+> [!IMPORTANT]
+> Xlsxwriter++ is still a ork in progress.
+>
+> For the moment, it's a partial, direct, quick and dirty C++ port.
+> No idiomatic C++, no rich C++ API, ...
+>
+> Future commit will change architecture, implementation and API without backward compatibility.
+
 Xlsxwriter++ is a C++20 library for writing Excel XLSX files in the xlsx format.
 
 This is a C++ port of [libxlsxwriter](https://libxlsxwriter.github.io/).
