@@ -56,6 +56,11 @@ NULL);
 namespace xwpp
 {
 
+// TODO Add API with different for
+//  - integer (int, short, long, unsigned, uint16_t, ...)
+//  - date (chrono, time_t, string that contains date, ...)
+//  - ...
+
 const uint32_t HEADER_FOOTER_MAX = 255;
 /// #define LXW_PANE_NAME_LENGTH        12  /* bottomRight + 1 */
 /// #define LXW_IMAGE_BUFFER_SIZE       1024
@@ -93,118 +98,122 @@ const double DEF_ROW_HEIGHT = 15.0;
 /// };
 
 /** Data validation property values. */
-/// enum lxw_validation_boolean {
-///     LXW_VALIDATION_DEFAULT,
+enum class validation_boolean_t
+{
+  DEFAULT,
 
-/** Turn a data validation property off. */
-///     LXW_VALIDATION_OFF,
+  /** Turn a data validation property off. */
+  OFF,
 
-/** Turn a data validation property on. Data validation properties are
- * generally on by default. */
-///     LXW_VALIDATION_ON
-/// };
+  /** Turn a data validation property on. Data validation properties are
+   * generally on by default. */
+  ON
+};
 
 /** Data validation types. */
-/// enum lxw_validation_types {
-///     LXW_VALIDATION_TYPE_NONE,
+enum class validation_types_t
+{
+  NONE,
 
-/** Restrict cell input to whole/integer numbers only. */
-///     LXW_VALIDATION_TYPE_INTEGER,
+  /** Restrict cell input to whole/integer numbers only. */
+  INTEGER,
 
-/** Restrict cell input to whole/integer numbers only, using a cell
- *  reference. */
-///     LXW_VALIDATION_TYPE_INTEGER_FORMULA,
+  /** Restrict cell input to whole/integer numbers only, using a cell
+   *  reference. */
+  INTEGER_FORMULA,
 
-/** Restrict cell input to decimal numbers only. */
-///     LXW_VALIDATION_TYPE_DECIMAL,
+  /** Restrict cell input to decimal numbers only. */
+  DECIMAL,
 
-/** Restrict cell input to decimal numbers only, using a cell
- * reference. */
-///     LXW_VALIDATION_TYPE_DECIMAL_FORMULA,
+  /** Restrict cell input to decimal numbers only, using a cell
+   * reference. */
+  DECIMAL_FORMULA,
 
-/** Restrict cell input to a list of strings in a dropdown. */
-///     LXW_VALIDATION_TYPE_LIST,
+  /** Restrict cell input to a list of strings in a dropdown. */
+  LIST,
 
-/** Restrict cell input to a list of strings in a dropdown, using a
- * cell range. */
-///     LXW_VALIDATION_TYPE_LIST_FORMULA,
+  /** Restrict cell input to a list of strings in a dropdown, using a
+   * cell range. */
+  LIST_FORMULA,
 
-/** Restrict cell input to date values only, using a lxw_datetime type. */
-///     LXW_VALIDATION_TYPE_DATE,
+  /** Restrict cell input to date values only, using a lxw_datetime type. */
+  DATE,
 
-/** Restrict cell input to date values only, using a cell reference. */
-///     LXW_VALIDATION_TYPE_DATE_FORMULA,
+  /** Restrict cell input to date values only, using a cell reference. */
+  DATE_FORMULA,
 
-/* Restrict cell input to date values only, as a serial number.
- * Undocumented. */
-///     LXW_VALIDATION_TYPE_DATE_NUMBER,
+  /* Restrict cell input to date values only, as a serial number.
+   * Undocumented. */
+  DATE_NUMBER,
 
-/** Restrict cell input to time values only, using a lxw_datetime type. */
-///     LXW_VALIDATION_TYPE_TIME,
+  /** Restrict cell input to time values only, using a lxw_datetime type. */
+  TIME,
 
-/** Restrict cell input to time values only, using a cell reference. */
-///     LXW_VALIDATION_TYPE_TIME_FORMULA,
+  /** Restrict cell input to time values only, using a cell reference. */
+  TIME_FORMULA,
 
-/* Restrict cell input to time values only, as a serial number.
- * Undocumented. */
-///     LXW_VALIDATION_TYPE_TIME_NUMBER,
+  /* Restrict cell input to time values only, as a serial number.
+   * Undocumented. */
+  TIME_NUMBER,
 
-/** Restrict cell input to strings of defined length, using a cell
- * reference. */
-///     LXW_VALIDATION_TYPE_LENGTH,
+  /** Restrict cell input to strings of defined length, using a cell
+   * reference. */
+  LENGTH,
 
-/** Restrict cell input to strings of defined length, using a cell
- * reference. */
-///     LXW_VALIDATION_TYPE_LENGTH_FORMULA,
+  /** Restrict cell input to strings of defined length, using a cell
+   * reference. */
+  LENGTH_FORMULA,
 
-/** Restrict cell to input controlled by a custom formula that returns
- * `TRUE/FALSE`. */
-///     LXW_VALIDATION_TYPE_CUSTOM_FORMULA,
+  /** Restrict cell to input controlled by a custom formula that returns
+   * `TRUE/FALSE`. */
+  CUSTOM_FORMULA,
 
-/** Allow any type of input. Mainly only useful for pop-up messages. */
-///     LXW_VALIDATION_TYPE_ANY
-/// };
+  /** Allow any type of input. Mainly only useful for pop-up messages. */
+  ANY
+};
 
 /** Data validation criteria uses to control the selection of data. */
-/// enum lxw_validation_criteria {
-///     LXW_VALIDATION_CRITERIA_NONE,
+enum class validation_criteria_t
+{
+  NONE,
 
-/** Select data between two values. */
-///     LXW_VALIDATION_CRITERIA_BETWEEN,
+  /** Select data between two values. */
+  BETWEEN,
 
-/** Select data that is not between two values. */
-///     LXW_VALIDATION_CRITERIA_NOT_BETWEEN,
+  /** Select data that is not between two values. */
+  NOT_BETWEEN,
 
-/** Select data equal to a value. */
-///     LXW_VALIDATION_CRITERIA_EQUAL_TO,
+  /** Select data equal to a value. */
+  EQUAL_TO,
 
-/** Select data not equal to a value. */
-///     LXW_VALIDATION_CRITERIA_NOT_EQUAL_TO,
+  /** Select data not equal to a value. */
+  NOT_EQUAL_TO,
 
-/** Select data greater than a value. */
-///     LXW_VALIDATION_CRITERIA_GREATER_THAN,
+  /** Select data greater than a value. */
+  GREATER_THAN,
 
-/** Select data less than a value. */
-///     LXW_VALIDATION_CRITERIA_LESS_THAN,
+  /** Select data less than a value. */
+  LESS_THAN,
 
-/** Select data greater than or equal to a value. */
-///     LXW_VALIDATION_CRITERIA_GREATER_THAN_OR_EQUAL_TO,
+  /** Select data greater than or equal to a value. */
+  GREATER_THAN_OR_EQUAL_TO,
 
-/** Select data less than or equal to a value. */
-///     LXW_VALIDATION_CRITERIA_LESS_THAN_OR_EQUAL_TO
-/// };
+  /** Select data less than or equal to a value. */
+  LESS_THAN_OR_EQUAL_TO
+};
 
 /** Data validation error types for pop-up messages. */
-/// enum lxw_validation_error_types {
-/** Show a "Stop" data validation pop-up message. This is the default. */
-///     LXW_VALIDATION_ERROR_TYPE_STOP,
+enum class validation_error_types_t
+{
+  /** Show a "Stop" data validation pop-up message. This is the default. */
+  STOP,
 
-/** Show an "Error" data validation pop-up message. */
-///     LXW_VALIDATION_ERROR_TYPE_WARNING,
+  /** Show an "Error" data validation pop-up message. */
+  WARNING,
 
-/** Show an "Information" data validation pop-up message. */
-///     LXW_VALIDATION_ERROR_TYPE_INFORMATION
-/// };
+  /** Show an "Information" data validation pop-up message. */
+  INFORMATION
+};
 
 /** Set the display type for a cell comment. This is hidden by default but
  *  can be set to visible with the `worksheet_show_comments()` function. */
@@ -990,199 +999,198 @@ struct autofilter_t
 /**
  * @brief Worksheet data validation options.
  */
-/// typedef struct lxw_data_validation {
+// TODO Values can be mutualised (std::variant)
+struct data_validation_t
+{
+  /**
+   * Set the validation type. Should be a #validation_types_t value.
+   */
+  validation_types_t validate_ = validation_types_t::NONE;
 
-/**
- * Set the validation type. Should be a #lxw_validation_types value.
- */
-///     uint8_t validate;
+  /**
+   * Set the validation criteria type to select the data. Should be a
+   * #validation_criteria_t value.
+   */
+  validation_criteria_t criteria_ = validation_criteria_t::NONE;
 
-/**
- * Set the validation criteria type to select the data. Should be a
- * #lxw_validation_criteria value.
- */
-///     uint8_t criteria;
+  /** Controls whether a data validation is not applied to blank data in the
+   * cell. Should be a #validation_boolean_t value. It is on by
+   * default.
+   */
+  validation_boolean_t ignore_blank_ = validation_boolean_t::DEFAULT;
 
-/** Controls whether a data validation is not applied to blank data in the
- * cell. Should be a #lxw_validation_boolean value. It is on by
- * default.
- */
-///     uint8_t ignore_blank;
+  /**
+   * This parameter is used to toggle on and off the 'Show input message
+   * when cell is selected' option in the Excel data validation dialog. When
+   * the option is off an input message is not displayed even if it has been
+   * set using input_message. Should be a #validation_boolean_t value. It
+   * is on by default.
+   */
+  validation_boolean_t show_input_ = validation_boolean_t::DEFAULT;
 
-/**
- * This parameter is used to toggle on and off the 'Show input message
- * when cell is selected' option in the Excel data validation dialog. When
- * the option is off an input message is not displayed even if it has been
- * set using input_message. Should be a #lxw_validation_boolean value. It
- * is on by default.
- */
-///     uint8_t show_input;
+  /**
+   * This parameter is used to toggle on and off the 'Show error alert
+   * after invalid data is entered' option in the Excel data validation
+   * dialog. When the option is off an error message is not displayed even
+   * if it has been set using error_message. Should be a
+   * #validation_boolean_t value. It is on by default.
+   */
+  validation_boolean_t show_error_ = validation_boolean_t::DEFAULT;
 
-/**
- * This parameter is used to toggle on and off the 'Show error alert
- * after invalid data is entered' option in the Excel data validation
- * dialog. When the option is off an error message is not displayed even
- * if it has been set using error_message. Should be a
- * #lxw_validation_boolean value. It is on by default.
- */
-///     uint8_t show_error;
+  /**
+   * This parameter is used to specify the type of error dialog that is
+   * displayed. Should be a #validation_error_types_t value.
+   */
+  validation_error_types_t error_type_ = validation_error_types_t::STOP;
 
-/**
- * This parameter is used to specify the type of error dialog that is
- * displayed. Should be a #lxw_validation_error_types value.
- */
-///     uint8_t error_type;
+  /**
+   * This parameter is used to toggle on and off the 'In-cell dropdown'
+   * option in the Excel data validation dialog. When the option is on a
+   * dropdown list will be shown for list validations. Should be a
+   * #validation_boolean_t value. It is on by default.
+   */
+  validation_boolean_t dropdown_ = validation_boolean_t::DEFAULT;
 
-/**
- * This parameter is used to toggle on and off the 'In-cell dropdown'
- * option in the Excel data validation dialog. When the option is on a
- * dropdown list will be shown for list validations. Should be a
- * #lxw_validation_boolean value. It is on by default.
- */
-///     uint8_t dropdown;
+  /**
+   * This parameter is used to set the limiting value to which the criteria
+   * is applied using a whole or decimal number.
+   */
+  double value_number_ = 0.;
 
-/**
- * This parameter is used to set the limiting value to which the criteria
- * is applied using a whole or decimal number.
- */
-///     double value_number;
+  /**
+   * This parameter is used to set the limiting value to which the criteria
+   * is applied using a cell reference. It is valid for any of the
+   * `_FORMULA` validation types.
+   */
+  std::string value_formula_;
 
-/**
- * This parameter is used to set the limiting value to which the criteria
- * is applied using a cell reference. It is valid for any of the
- * `_FORMULA` validation types.
- */
-///     const char *value_formula;
+  /**
+   * This parameter is used to set a list of strings for a dropdown list.
+   * The list should be a `NULL` terminated array of char* strings:
+   *
+   * @code
+   *    char *list[] = {"open", "high", "close", NULL};
+   *
+   *    data_validation->validate   = LXW_VALIDATION_TYPE_LIST;
+   *    data_validation->value_list = list;
+   * @endcode
+   *
+   * The `value_formula` parameter can also be used to specify a list from
+   * an Excel cell range.
+   *
+   * Note, the string list is restricted by Excel to 255 characters,
+   * including comma separators.
+   */
+  std::vector<std::string> value_list_;
 
-/**
- * This parameter is used to set a list of strings for a dropdown list.
- * The list should be a `NULL` terminated array of char* strings:
- *
- * @code
- *    char *list[] = {"open", "high", "close", NULL};
- *
- *    data_validation->validate   = LXW_VALIDATION_TYPE_LIST;
- *    data_validation->value_list = list;
- * @endcode
- *
- * The `value_formula` parameter can also be used to specify a list from
- * an Excel cell range.
- *
- * Note, the string list is restricted by Excel to 255 characters,
- * including comma separators.
- */
-///     const char **value_list;
+  /**
+   * This parameter is used to set the limiting value to which the date or
+   * time criteria is applied using a #lxw_datetime struct.
+   */
+  std::chrono::system_clock::time_point value_datetime_;
 
-/**
- * This parameter is used to set the limiting value to which the date or
- * time criteria is applied using a #lxw_datetime struct.
- */
-///     lxw_datetime value_datetime;
+  /**
+   * This parameter is the same as `value_number` but for the minimum value
+   * when a `BETWEEN` criteria is used.
+   */
+  double minimum_number_ = 0.;
 
-/**
- * This parameter is the same as `value_number` but for the minimum value
- * when a `BETWEEN` criteria is used.
- */
-///     double minimum_number;
+  /**
+   * This parameter is the same as `value_formula` but for the minimum value
+   * when a `BETWEEN` criteria is used.
+   */
+  std::string minimum_formula_;
 
-/**
- * This parameter is the same as `value_formula` but for the minimum value
- * when a `BETWEEN` criteria is used.
- */
-///     const char *minimum_formula;
+  /**
+   * This parameter is the same as `value_datetime` but for the minimum value
+   * when a `BETWEEN` criteria is used.
+   */
+  std::chrono::system_clock::time_point minimum_datetime_;
 
-/**
- * This parameter is the same as `value_datetime` but for the minimum value
- * when a `BETWEEN` criteria is used.
- */
-///     lxw_datetime minimum_datetime;
+  /**
+   * This parameter is the same as `value_number` but for the maximum value
+   * when a `BETWEEN` criteria is used.
+   */
+  double maximum_number_ = 0.;
 
-/**
- * This parameter is the same as `value_number` but for the maximum value
- * when a `BETWEEN` criteria is used.
- */
-///     double maximum_number;
+  /**
+   * This parameter is the same as `value_formula` but for the maximum value
+   * when a `BETWEEN` criteria is used.
+   */
+  std::string maximum_formula_;
 
-/**
- * This parameter is the same as `value_formula` but for the maximum value
- * when a `BETWEEN` criteria is used.
- */
-///     const char *maximum_formula;
+  /**
+   * This parameter is the same as `value_datetime` but for the maximum value
+   * when a `BETWEEN` criteria is used.
+   */
+  std::chrono::system_clock::time_point maximum_datetime_;
 
-/**
- * This parameter is the same as `value_datetime` but for the maximum value
- * when a `BETWEEN` criteria is used.
- */
-///     lxw_datetime maximum_datetime;
+  /**
+   * The input_title parameter is used to set the title of the input message
+   * that is displayed when a cell is entered. It has no default value and
+   * is only displayed if the input message is displayed. See the
+   * `input_message` parameter below.
+   *
+   * The maximum title length is 32 characters.
+   */
+  std::string input_title_;
 
-/**
- * The input_title parameter is used to set the title of the input message
- * that is displayed when a cell is entered. It has no default value and
- * is only displayed if the input message is displayed. See the
- * `input_message` parameter below.
- *
- * The maximum title length is 32 characters.
- */
-///     const char *input_title;
+  /**
+   * The input_message parameter is used to set the input message that is
+   * displayed when a cell is entered. It has no default value.
+   *
+   * The message can be split over several lines using newlines. The maximum
+   * message length is 255 characters.
+   */
+  std::string input_message_;
 
-/**
- * The input_message parameter is used to set the input message that is
- * displayed when a cell is entered. It has no default value.
- *
- * The message can be split over several lines using newlines. The maximum
- * message length is 255 characters.
- */
-///     const char *input_message;
+  /**
+   * The error_title parameter is used to set the title of the error message
+   * that is displayed when the data validation criteria is not met. The
+   * default error title is 'Microsoft Excel'. The maximum title length is
+   * 32 characters.
+   */
+  std::string error_title_;
 
-/**
- * The error_title parameter is used to set the title of the error message
- * that is displayed when the data validation criteria is not met. The
- * default error title is 'Microsoft Excel'. The maximum title length is
- * 32 characters.
- */
-///     const char *error_title;
-
-/**
- * The error_message parameter is used to set the error message that is
- * displayed when a cell is entered. The default error message is "The
- * value you entered is not valid. A user has restricted values that can
- * be entered into the cell".
- *
- * The message can be split over several lines using newlines. The maximum
- * message length is 255 characters.
- */
-///     const char *error_message;
-
-/// } lxw_data_validation;
+  /**
+   * The error_message parameter is used to set the error message that is
+   * displayed when a cell is entered. The default error message is "The
+   * value you entered is not valid. A user has restricted values that can
+   * be entered into the cell".
+   *
+   * The message can be split over several lines using newlines. The maximum
+   * message length is 255 characters.
+   */
+  std::string error_message_;
+};
 
 /* A copy of lxw_data_validation which is used internally and which contains
  * some additional fields.
  */
-/// typedef struct lxw_data_val_obj {
-///     uint8_t validate;
-///     uint8_t criteria;
-///     uint8_t ignore_blank;
-///     uint8_t show_input;
-///     uint8_t show_error;
-///     uint8_t error_type;
-///     uint8_t dropdown;
-///     double value_number;
-///     char *value_formula;
-///     char **value_list;
-///     double minimum_number;
-///     char *minimum_formula;
-///     lxw_datetime minimum_datetime;
-///     double maximum_number;
-///     char *maximum_formula;
-///     lxw_datetime maximum_datetime;
-///     char *input_title;
-///     char *input_message;
-///     char *error_title;
-///     char *error_message;
-///     char sqref[LXW_MAX_CELL_RANGE_LENGTH];
-
-///     STAILQ_ENTRY (lxw_data_val_obj) list_pointers;
-/// } lxw_data_val_obj;
+struct data_val_obj_t
+{
+  validation_types_t validate_         = validation_types_t::NONE;
+  validation_criteria_t criteria_      = validation_criteria_t::NONE;
+  bool ignore_blank_                   = false;
+  bool show_input_                     = false;
+  bool show_error_                     = false;
+  validation_error_types_t error_type_ = validation_error_types_t::STOP;
+  bool dropdown_                       = false;
+  double value_number_                 = 0.;
+  std::string value_formula_;
+  ///     char **value_list;
+  double minimum_number_ = 0.;
+  std::string minimum_formula_;
+  ///     lxw_datetime minimum_datetime;
+  double maximum_number_ = 0.;
+  std::string maximum_formula_;
+  ///     lxw_datetime maximum_datetime;
+  std::string input_title_;
+  std::string input_message_;
+  std::string error_title_;
+  std::string error_message_;
+  std::string sqref_;
+};
 
 /**
  * @brief Worksheet conditional formatting options.
@@ -2143,7 +2151,7 @@ struct worksheet_init_data_t
   ///     const char *tmpdir;
   format_t* default_url_format_;
   ///     uint16_t max_url_length;
-  ///     uint8_t use_1904_epoch;
+  ///  TODO   uint8_t use_1904_epoch;
 };
 
 /**
@@ -4158,6 +4166,84 @@ public:
   void conditional_format_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                 const conditional_format_t& conditional_format);
 
+  /**
+   * @brief Add a data validation to a cell.
+   *
+   * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
+   * @param row        The zero indexed row number.
+   * @param col        The zero indexed column number.
+   * @param validation A #lxw_data_validation object to control the validation.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_data_validation_cell()` function is used to construct an
+   * Excel data validation or to limit the user input to a dropdown list of
+   * values:
+   *
+   * @code
+   *
+   *    lxw_data_validation *data_validation = calloc(1,
+   * sizeof(lxw_data_validation));
+   *
+   *    data_validation->validate       = LXW_VALIDATION_TYPE_INTEGER;
+   *    data_validation->criteria       = LXW_VALIDATION_CRITERIA_BETWEEN;
+   *    data_validation->minimum_number = 1;
+   *    data_validation->maximum_number = 10;
+   *
+   *    worksheet_data_validation_cell(worksheet, 2, 1, data_validation);
+   *
+   *    // Same as above with the CELL() macro.
+   *    worksheet_data_validation_cell(worksheet, CELL("B3"), data_validation);
+   *
+   * @endcode
+   *
+   * @image html data_validate4.png
+   *
+   * Data validation and the various options of #lxw_data_validation are
+   * described in more detail in @ref working_with_data_validation.
+   */
+  void data_validation_cell(row_num_t row_num, col_num_t col_num, const data_validation_t& validation);
+
+  /**
+   * @brief Add a data validation to a range.
+   *
+   * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row  The first row of the range. (All zero indexed.)
+   * @param first_col  The first column of the range.
+   * @param last_row   The last row of the range.
+   * @param last_col   The last col of the range.
+   * @param validation A #lxw_data_validation object to control the validation.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_data_validation_range()` function is the same as the
+   * `%worksheet_data_validation_cell()`, see above,  except the data validation
+   * is applied to a range of cells:
+   *
+   * @code
+   *
+   *    lxw_data_validation *data_validation = calloc(1,
+   * sizeof(lxw_data_validation));
+   *
+   *    data_validation->validate       = LXW_VALIDATION_TYPE_INTEGER;
+   *    data_validation->criteria       = LXW_VALIDATION_CRITERIA_BETWEEN;
+   *    data_validation->minimum_number = 1;
+   *    data_validation->maximum_number = 10;
+   *
+   *    worksheet_data_validation_range(worksheet, 2, 1, 4, 1, data_validation);
+   *
+   *    // Same as above with the RANGE() macro.
+   *    worksheet_data_validation_range(worksheet, RANGE("B3:B5"),
+   * data_validation);
+   *
+   * @endcode
+   *
+   * Data validation and the various options of #lxw_data_validation are
+   * described in more detail in @ref working_with_data_validation.
+   */
+  void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                             const data_validation_t& validation);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4260,6 +4346,11 @@ private:
   [[nodiscard]] std::string write_x14_cfvo(conditional_format_rule_types_t rule_type, double number,
                                            const std::string& str) const;
   [[nodiscard]] std::string write_x14_color(const std::string& type, color_t color) const;
+  [[nodiscard]] std::string write_data_validation(const data_val_obj_t& validation) const;
+  [[nodiscard]] std::string write_formula1_num(double number) const;
+  [[nodiscard]] std::string write_formula2_num(double number) const;
+  [[nodiscard]] std::string write_formula1_str(const std::string& str) const;
+  [[nodiscard]] std::string write_formula2_str(const std::string& str) const;
 
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
@@ -4301,7 +4392,7 @@ private:
   ///     struct cell_t **array;
   std::vector<merged_range_t> merged_ranges_;
   ///     struct lxw_selections *selections;
-  ///     struct lxw_data_validations *data_validations;
+  std::vector<data_val_obj_t> data_validations_;
 
   std::map<std::string, std::vector<cond_format_obj_t>> conditional_formats_;
   std::vector<object_properties_t> image_props_;
@@ -4462,7 +4553,7 @@ private:
   ///     char *ignore_calculated_column;
   ///     char *ignore_two_digit_text_year;
 
-  ///     uint8_t use_1904_epoch;
+  bool use_1904_epoch_ = false;
 
   uint16_t excel_version_ = 0;
 
@@ -5035,90 +5126,6 @@ private:
 /// lxw_error worksheet_set_background_buffer(lxw_worksheet *worksheet,
 ///                                           const unsigned char *image_buffer,
 ///                                           size_t image_size);
-
-/**
- * @brief Add a data validation to a cell.
- *
- * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
- * @param row        The zero indexed row number.
- * @param col        The zero indexed column number.
- * @param validation A #lxw_data_validation object to control the validation.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_data_validation_cell()` function is used to construct an
- * Excel data validation or to limit the user input to a dropdown list of
- * values:
- *
- * @code
- *
- *    lxw_data_validation *data_validation = calloc(1,
- * sizeof(lxw_data_validation));
- *
- *    data_validation->validate       = LXW_VALIDATION_TYPE_INTEGER;
- *    data_validation->criteria       = LXW_VALIDATION_CRITERIA_BETWEEN;
- *    data_validation->minimum_number = 1;
- *    data_validation->maximum_number = 10;
- *
- *    worksheet_data_validation_cell(worksheet, 2, 1, data_validation);
- *
- *    // Same as above with the CELL() macro.
- *    worksheet_data_validation_cell(worksheet, CELL("B3"), data_validation);
- *
- * @endcode
- *
- * @image html data_validate4.png
- *
- * Data validation and the various options of #lxw_data_validation are
- * described in more detail in @ref working_with_data_validation.
- */
-/// lxw_error worksheet_data_validation_cell(lxw_worksheet *worksheet,
-///                                          row_num_t row, col_num_t col,
-///                                          lxw_data_validation *validation);
-
-/**
- * @brief Add a data validation to a range.
- *
- * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
- * @param first_row  The first row of the range. (All zero indexed.)
- * @param first_col  The first column of the range.
- * @param last_row   The last row of the range.
- * @param last_col   The last col of the range.
- * @param validation A #lxw_data_validation object to control the validation.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_data_validation_range()` function is the same as the
- * `%worksheet_data_validation_cell()`, see above,  except the data validation
- * is applied to a range of cells:
- *
- * @code
- *
- *    lxw_data_validation *data_validation = calloc(1,
- * sizeof(lxw_data_validation));
- *
- *    data_validation->validate       = LXW_VALIDATION_TYPE_INTEGER;
- *    data_validation->criteria       = LXW_VALIDATION_CRITERIA_BETWEEN;
- *    data_validation->minimum_number = 1;
- *    data_validation->maximum_number = 10;
- *
- *    worksheet_data_validation_range(worksheet, 2, 1, 4, 1, data_validation);
- *
- *    // Same as above with the RANGE() macro.
- *    worksheet_data_validation_range(worksheet, RANGE("B3:B5"),
- * data_validation);
- *
- * @endcode
- *
- * Data validation and the various options of #lxw_data_validation are
- * described in more detail in @ref working_with_data_validation.
- */
-/// lxw_error worksheet_data_validation_range(lxw_worksheet *worksheet,
-///                                           row_num_t first_row,
-///                                           col_num_t first_col,
-///                                           row_num_t last_row,
-///                                           col_num_t last_col,
-///                                           lxw_data_validation *validation);
 
 /**
  * @brief Insert a button object into a worksheet.

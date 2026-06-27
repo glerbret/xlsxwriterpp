@@ -160,6 +160,8 @@ uint16_t name_to_col(const char* col_str);
 uint32_t name_to_row_2(const char* row_str);
 uint16_t name_to_col_2(const char* col_str);
 
+std::string dup_formula(const std::string& formula);
+
 /**
  * @brief Converts a #lxw_datetime to an Excel datetime number.
  *

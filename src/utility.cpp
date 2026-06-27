@@ -26,6 +26,18 @@
 namespace xwpp
 {
 
+std::string dup_formula(const std::string& formula)
+{
+  if(formula[0] == '=')
+  {
+    return formula.substr(1);
+  }
+  else
+  {
+    return formula;
+  }
+}
+
 std::string col_to_name(col_num_t col_num, bool absolute)
 {
   std::string col_name;
@@ -315,9 +327,9 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   const auto dp = floor<std::chrono::days>(datetime);
   const std::chrono::year_month_day ymd{dp};
   const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - dp)};
-  const int year   = static_cast<int>(ymd.year());
-  const int month  = static_cast<unsigned int>(ymd.month());
-  const int day    = static_cast<unsigned int>(ymd.day());
+  int year         = static_cast<int>(ymd.year());
+  int month        = static_cast<unsigned int>(ymd.month());
+  int day          = static_cast<unsigned int>(ymd.day());
   const int hour   = time.hours().count();
   const int min    = time.minutes().count();
   const double sec = time.seconds().count() + time.subseconds().count() / 1000.0;
@@ -329,6 +341,23 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   int leap         = 0;
   int days         = 0;
   int i;
+
+  // For times without dates (i.e. set to epoch) set the default date for the Excel epoch.
+  if(year == 1970 && month == 1 && day == 1)
+  {
+    if(!use_1904_epoch)
+    {
+      year  = 1899;
+      month = 12;
+      day   = 31;
+    }
+    else
+    {
+      year  = 1904;
+      month = 1;
+      day   = 1;
+    }
+  }
 
   // Convert the Excel seconds to a fraction of the seconds in 24 hours.
   const double seconds = (hour * 60 * 60 + min * 60 + sec) / (24 * 60 * 60.0);
