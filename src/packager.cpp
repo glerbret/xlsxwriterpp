@@ -36,9 +36,9 @@
  * The packager class coordinates the classes that represent the
  * elements of the package and writes them into the XLSX file.
  *
- * SPDX-License-Identifier: BSD-2-Clause
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 // TODO XML are built in-memory. Should use temporary files to improve memory usage

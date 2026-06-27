@@ -1,9 +1,10 @@
 /*
- * Example of writing dates and times in Excel using an lxw_datetime struct
+ * Example of writing dates and times in Excel using std::chrono
  * and date formatting.
  *
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #include "xlsxwriterpp.h"

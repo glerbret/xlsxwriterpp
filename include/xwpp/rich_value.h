@@ -1,8 +1,9 @@
 /*
- * Copyright 2026, Grégory Lerbret
- *
  * rich_value - A Xlsxwriter++ library for creating Excel XLSX rich_value files.
  *
+ * Copyright 2026, Grégory Lerbret
+ *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #ifndef XWPP_RICH_VALUE_H

@@ -1,9 +1,9 @@
 /*
  * format - A library for creating Excel XLSX format files.
  *
- * SPDX-License-Identifier: BSD-2-Clause
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #include "xwpp/format.h"

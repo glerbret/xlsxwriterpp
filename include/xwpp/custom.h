@@ -1,9 +1,9 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
- * Copyright 2026, Grégory Lerbret
- *
  * custom - A Xlsxwriter++ library for creating Excel custom property files.
  *
+ * Copyright 2026, Grégory Lerbret
+ *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #ifndef XWPP_CUSTOM_H

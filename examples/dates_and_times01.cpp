@@ -3,11 +3,9 @@
  * formatting. This demonstrates that dates and times in Excel are just
  * formatted real numbers.
  *
- * An easier approach using a lxw_datetime struct is shown in example
- * dates_and_times02.c.
- *
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #include "xlsxwriterpp.h"

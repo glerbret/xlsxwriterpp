@@ -1,10 +1,10 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
- * Copyright 2026, Grégory Lerbret
- *
  * content_types - A Xlsxwriter++ library for creating Excel XLSX
  *                 content_types files.
  *
+ * Copyright 2026, Grégory Lerbret
+ *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #ifndef XWPP_CONTENT_TYPES_H

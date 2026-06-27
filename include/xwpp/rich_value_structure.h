@@ -1,9 +1,9 @@
 /*
+ * rich_value_structure - A Xlsxwriter++ library for creating Excel XLSX rich_value_structure files.
  *
  * Copyright 2026, Grégory Lerbret
  *
- * rich_value_structure - A Xlsxwriter++ library for creating Excel XLSX rich_value_structure files.
- *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #ifndef XWPP_RICH_VALUE_STRUCTURE_H

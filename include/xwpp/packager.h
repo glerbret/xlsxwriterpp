@@ -1,9 +1,9 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
- * Copyright 2026, Grégory Lerbret
- *
  * packager - A Xlsxwriter++ library for creating Excel XLSX packager files.
  *
+ * Copyright 2026, Grégory Lerbret
+ *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #ifndef XWPP_PACKAGER_H

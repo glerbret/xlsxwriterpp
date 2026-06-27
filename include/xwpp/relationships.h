@@ -1,10 +1,10 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
- * Copyright 2026, Grégory Lerbret
- *
  * relationships - A Xlsxwriter++ library for creating Excel XLSX
  *                 relationships files.
  *
+ * Copyright 2026, Grégory Lerbret
+ *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #ifndef XWPP_RELATIONSHIPS_H
