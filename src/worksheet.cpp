@@ -854,17 +854,23 @@ std::string validation_list_to_csv(const std::vector<std::string>& list)
 double pixels_to_width(double pixels)
 {
   double max_digit_width = 7.0;
-  double padding = 5.0;
+  double padding         = 5.0;
   double width;
 
-  if (pixels == DEF_COL_WIDTH_PIXELS)
-      width = DEF_COL_WIDTH;
-  else if (pixels <= 12.0)
-      width = pixels / (max_digit_width + padding);
+  if(pixels == DEF_COL_WIDTH_PIXELS)
+  {
+    width = DEF_COL_WIDTH;
+  }
+  else if(pixels <= 12.0)
+  {
+    width = pixels / (max_digit_width + padding);
+  }
   else
-      width = (pixels - padding) / max_digit_width;
+  {
+    width = (pixels - padding) / max_digit_width;
+  }
 
-    return width;
+  return width;
 }
 
 /// STATIC double _pixels_to_height(double pixels)
@@ -3526,24 +3532,22 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
     has_custom_width = false;
   }
 
-// TODO To get same size as example of libxslxwrter, to check if we keep it
-    /* Convert column width from user units to character width. */
-    double max_digit_width = 7.0;       /* For Calabri 11. */
-    double padding = 5.0;
+  // TODO To get same size as example of libxslxwrter, to check if we keep it
+  /* Convert column width from user units to character width. */
+  double max_digit_width = 7.0; /* For Calabri 11. */
+  double padding         = 5.0;
 
-    if (width > 0) {
-        if (width < 1) {
-            width = (uint16_t) (((uint16_t)
-                                 (width * (max_digit_width + padding) + 0.5))
-                                / max_digit_width * 256.0) / 256.0;
-        }
-        else {
-            width = (uint16_t) (((uint16_t)
-                                 (width * max_digit_width + 0.5) + padding)
-                                / max_digit_width * 256.0) / 256.0;
-        }
+  if(width > 0)
+  {
+    if(width < 1)
+    {
+      width = (uint16_t)(((uint16_t)(width * (max_digit_width + padding) + 0.5)) / max_digit_width * 256.0) / 256.0;
     }
-
+    else
+    {
+      width = (uint16_t)(((uint16_t)(width * max_digit_width + 0.5) + padding) / max_digit_width * 256.0) / 256.0;
+    }
+  }
 
   attributes.emplace_back("min", std::to_string(options.firstcol_ + 1));
   attributes.emplace_back("max", std::to_string(options.lastcol_ + 1));
@@ -6329,15 +6333,16 @@ void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, 
   store_array_formula(first_row, first_col, last_row, last_col, formula, format, 0, false);
 }
 
-/// lxw_error
-/// worksheet_write_dynamic_formula(lxw_worksheet *self,
-///                                 row_num_t row,
-///                                 col_num_t col,
-///                                 const char *formula, lxw_format *format)
-/// {
-///     return _store_array_formula(self, row, col, row, col, formula, format, 0,
-///                                 LXW_TRUE);
-/// }
+void worksheet_t::write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula)
+{
+  write_dynamic_formula(row_num, col_num, formula, nullptr);
+}
+
+void worksheet_t::write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                                        const format_t* format)
+{
+  store_array_formula(row_num, col_num, row_num, col_num, formula, format, 0, true);
+}
 
 /// lxw_error
 /// worksheet_write_dynamic_formula_num(lxw_worksheet *self,
@@ -6364,18 +6369,17 @@ void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, 
 ///                                 LXW_TRUE);
 /// }
 
-/// lxw_error
-/// worksheet_write_dynamic_array_formula(lxw_worksheet *self,
-///                                       row_num_t first_row,
-///                                       col_num_t first_col,
-///                                       row_num_t last_row,
-///                                       col_num_t last_col,
-///                                       const char *formula, lxw_format *format)
-/// {
-///     return _store_array_formula(self, first_row, first_col,
-///                                 last_row, last_col, formula, format, 0,
-///                                 LXW_TRUE);
-/// }
+void worksheet_t::write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row,
+                                              col_num_t last_col, const std::string& formula)
+{
+  write_dynamic_array_formula(first_row, first_col, last_row, last_col, formula, nullptr);
+}
+
+void worksheet_t::write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row,
+                                              col_num_t last_col, const std::string& formula, const format_t* format)
+{
+  store_array_formula(first_row, first_col, last_row, last_col, formula, format, 0, true);
+}
 
 void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format_t* format)
 {
@@ -6873,7 +6877,7 @@ void worksheet_t::set_column_pixels(col_num_t firstcol, col_num_t lastcol, uint3
 {
   const double width = pixels_to_width(pixels);
 
-  set_column(firstcol, lastcol, width/*, format, NULL*/);
+  set_column(firstcol, lastcol, width /*, format, NULL*/);
 }
 
 /// lxw_error

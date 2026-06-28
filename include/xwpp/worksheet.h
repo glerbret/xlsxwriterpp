@@ -2218,58 +2218,58 @@ public:
   void set_column(col_num_t first_col, col_num_t last_col,
                   double width /* TODO, lxw_format *format, lxw_row_col_options *options*/);
 
-/**
- * @brief Set the properties for one or more columns of cells, with the width
- *        in pixels.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col The zero indexed first column.
- * @param last_col  The zero indexed last column.
- * @param pixels    The width of the column(s) in pixels.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_column_pixels()` function is the same as
- * `worksheet_set_column()` function except that the width can be set in
- * pixels:
- *
- * @code
- *     // Column width set to 75 pixels, the same as 10 character units.
- *     worksheet_set_column(worksheet, 5, 5, 75, NULL);
- * @endcode
- *
- * @image html set_column_pixels.png
- *
- * If you wish to set the format of a column without changing the width you can
- * pass the default column width in pixels: #LXW_DEF_COL_WIDTH_PIXELS.
- */
-void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels /* TODO, lxw_format *format*/);
+  /**
+   * @brief Set the properties for one or more columns of cells, with the width
+   *        in pixels.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_col The zero indexed first column.
+   * @param last_col  The zero indexed last column.
+   * @param pixels    The width of the column(s) in pixels.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_column_pixels()` function is the same as
+   * `worksheet_set_column()` function except that the width can be set in
+   * pixels:
+   *
+   * @code
+   *     // Column width set to 75 pixels, the same as 10 character units.
+   *     worksheet_set_column(worksheet, 5, 5, 75, NULL);
+   * @endcode
+   *
+   * @image html set_column_pixels.png
+   *
+   * If you wish to set the format of a column without changing the width you can
+   * pass the default column width in pixels: #LXW_DEF_COL_WIDTH_PIXELS.
+   */
+  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels /* TODO, lxw_format *format*/);
 
-/**
- * @brief Set the properties for one or more columns of cells with options,
- *        with the width in pixels.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col The zero indexed first column.
- * @param last_col  The zero indexed last column.
- * @param pixels    The width of the column(s) in pixels.
- * @param format    A pointer to a Format instance or NULL.
- * @param options   Optional row parameters: hidden, level, collapsed.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_column_pixels_opt()` function is the same as the
- * `worksheet_set_column_opt()` function except that the width can be set in
- * pixels.
- *
- */
-/// lxw_error worksheet_set_column_pixels_opt(lxw_worksheet *worksheet,
-///                                           col_num_t first_col,
-///                                           col_num_t last_col,
-///                                           uint32_t pixels,
-///                                           lxw_format *format,
-///                                           lxw_row_col_options *options);
+  /**
+   * @brief Set the properties for one or more columns of cells with options,
+   *        with the width in pixels.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_col The zero indexed first column.
+   * @param last_col  The zero indexed last column.
+   * @param pixels    The width of the column(s) in pixels.
+   * @param format    A pointer to a Format instance or NULL.
+   * @param options   Optional row parameters: hidden, level, collapsed.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_column_pixels_opt()` function is the same as the
+   * `worksheet_set_column_opt()` function except that the width can be set in
+   * pixels.
+   *
+   */
+  /// lxw_error worksheet_set_column_pixels_opt(lxw_worksheet *worksheet,
+  ///                                           col_num_t first_col,
+  ///                                           col_num_t last_col,
+  ///                                           uint32_t pixels,
+  ///                                           lxw_format *format,
+  ///                                           lxw_row_col_options *options);
 
   // TODO Add API with option (original worksheet_set_row_opt) and format
   // TODO Add API with row names
@@ -4297,6 +4297,88 @@ void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels 
   void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                              const data_validation_t& validation);
 
+  /**
+   * @brief Write an Excel 365 dynamic array formula to a worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param formula   Formula string to write to cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_write_dynamic_formula()` function is similar to the
+   * `worksheet_write_dynamic_array_formula()` function, shown above, except
+   * that it writes a dynamic array formula to a single cell, rather than a
+   * range. This is a syntactic shortcut since the array range isn't generally
+   * known for a dynamic range and specifying the initial cell is sufficient for
+   * Excel, as shown in the example below:
+   *
+   * @code
+   *     worksheet_write_dynamic_formula(worksheet, 7, 1,
+   *                                     "=_xlfn._xlws.SORT(_xlfn.UNIQUE(B2:B17))",
+   *                                     NULL);
+   * @endcode
+   *
+   * This formula gives the following result:
+   *
+   * @image html dynamic_arrays01.png
+   *
+   * The need for the `_xlfn.` and `_xlfn._xlws.` prefixes in the formula is
+   * explained in @ref ww_formulas_future.
+   */
+  void write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format);
+  void write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula);
+
+  /**
+   * @brief Write an Excel 365 dynamic array formula to a worksheet range.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row The first row of the range. (All zero indexed.)
+   * @param first_col The first column of the range.
+   * @param last_row  The last row of the range.
+   * @param last_col  The last col of the range.
+   * @param formula   Dynamic Array formula to write to cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   *
+   * The `%worksheet_write_dynamic_array_formula()` function writes an Excel 365
+   * dynamic array formula to a cell range. Some examples of functions that
+   * return dynamic arrays are:
+   *
+   * - `FILTER`
+   * - `RANDARRAY`
+   * - `SEQUENCE`
+   * - `SORTBY`
+   * - `SORT`
+   * - `UNIQUE`
+   * - `XLOOKUP`
+   * - `XMATCH`
+   *
+   * Dynamic array formulas and their usage in Xlsxwriter++ is explained in
+   * detail @ref ww_formulas_dynamic_arrays. The following is a example usage:
+   *
+   * @code
+   *     worksheet_write_dynamic_array_formula(worksheet, 1, 5, 1, 5,
+   *                                           "=_xlfn._xlws.FILTER(A1:D17,C1:C17=K2)",
+   *                                           NULL);
+   * @endcode
+   *
+   * This formula gives the results shown in the image below.
+   *
+   * @image html dynamic_arrays02.png
+   *
+   * The need for the `_xlfn._xlws.` prefix in the formula is explained in @ref
+   * ww_formulas_future.
+   */
+  void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                                   const std::string& formula, const format_t* format);
+  void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                                   const std::string& formula);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4631,94 +4713,6 @@ private:
 
 ///     RB_ENTRY (lxw_drawing_rel_id) tree_pointers;
 /// } lxw_drawing_rel_id;
-
-/**
- * @brief Write an Excel 365 dynamic array formula to a worksheet range.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_row The first row of the range. (All zero indexed.)
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- * @param formula   Dynamic Array formula to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- *
- * The `%worksheet_write_dynamic_array_formula()` function writes an Excel 365
- * dynamic array formula to a cell range. Some examples of functions that
- * return dynamic arrays are:
- *
- * - `FILTER`
- * - `RANDARRAY`
- * - `SEQUENCE`
- * - `SORTBY`
- * - `SORT`
- * - `UNIQUE`
- * - `XLOOKUP`
- * - `XMATCH`
- *
- * Dynamic array formulas and their usage in Xlsxwriter++ is explained in
- * detail @ref ww_formulas_dynamic_arrays. The following is a example usage:
- *
- * @code
- *     worksheet_write_dynamic_array_formula(worksheet, 1, 5, 1, 5,
- *                                           "=_xlfn._xlws.FILTER(A1:D17,C1:C17=K2)",
- *                                           NULL);
- * @endcode
- *
- * This formula gives the results shown in the image below.
- *
- * @image html dynamic_arrays02.png
- *
- * The need for the `_xlfn._xlws.` prefix in the formula is explained in @ref
- * ww_formulas_future.
- */
-/// lxw_error worksheet_write_dynamic_array_formula(lxw_worksheet *worksheet,
-///                                                 row_num_t first_row,
-///                                                 col_num_t first_col,
-///                                                 row_num_t last_row,
-///                                                 col_num_t last_col,
-///                                                 const char *formula,
-///                                                 lxw_format *format);
-
-/**
- * @brief Write an Excel 365 dynamic array formula to a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param formula   Formula string to write to cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_dynamic_formula()` function is similar to the
- * `worksheet_write_dynamic_array_formula()` function, shown above, except
- * that it writes a dynamic array formula to a single cell, rather than a
- * range. This is a syntactic shortcut since the array range isn't generally
- * known for a dynamic range and specifying the initial cell is sufficient for
- * Excel, as shown in the example below:
- *
- * @code
- *     worksheet_write_dynamic_formula(worksheet, 7, 1,
- *                                     "=_xlfn._xlws.SORT(_xlfn.UNIQUE(B2:B17))",
- *                                     NULL);
- * @endcode
- *
- * This formula gives the following result:
- *
- * @image html dynamic_arrays01.png
- *
- * The need for the `_xlfn.` and `_xlfn._xlws.` prefixes in the formula is
- * explained in @ref ww_formulas_future.
- */
-/// lxw_error worksheet_write_dynamic_formula(lxw_worksheet *worksheet,
-///                                           row_num_t row,
-///                                           col_num_t col,
-///                                           const char *formula,
-///                                           lxw_format *format);
 
 /// lxw_error worksheet_write_array_formula_num(lxw_worksheet *worksheet,
 ///                                             row_num_t first_row,

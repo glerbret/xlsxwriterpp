@@ -1440,10 +1440,11 @@ void workbook_t::save(std::string_view filename)
         worksheet.active_ = true;
       }
 
-      ////        if (worksheet->has_dynamic_functions) {
-      ////            self->has_metadata = LXW_TRUE;
-      ////            self->has_dynamic_functions = LXW_TRUE;
-      ////        }
+      if(worksheet.has_dynamic_functions_)
+      {
+        has_metadata_          = true;
+        has_dynamic_functions_ = true;
+      }
 
       if(!worksheet.embedded_image_props_.empty())
       {
