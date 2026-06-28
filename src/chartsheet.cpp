@@ -21,14 +21,10 @@ chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data, std::function
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
   , active_sheet_{init_data.active_sheet_}
+  , first_sheet_{init_data.first_sheet_}
+
 
 {
-  ///     if (init_data) {
-  ///         chartsheet->tmpdir = init_data->tmpdir;
-  ///         chartsheet->index = init_data->index;
-  ///         chartsheet->first_sheet = init_data->first_sheet;
-  ///     }
-
   worksheet_.is_chartsheet_     = true;
   worksheet_.zoom_scale_normal_ = false;
   worksheet_.orientation_       = drawing_orientation_t::LANDSCAPE;

@@ -184,7 +184,7 @@ private:
   ///    uint8_t selected;
   bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
-  ///    uint16_t *first_sheet;
+  uint16_t *first_sheet_ = nullptr;
   ///    uint16_t rel_count;
   ///
   ///    STAILQ_ENTRY (lxw_chartsheet) list_pointers;

@@ -1123,8 +1123,10 @@ std::string workbook_t::write_workbook_view() const
       {"windowHeight", std::to_string(window_height_)},
   };
 
-  ///     if (self->first_sheet)
-  ///         LXW_PUSH_ATTRIBUTES_INT("firstSheet", self->first_sheet);
+  if(first_sheet_)
+  {
+    attributes.emplace_back("firstSheet", std::to_string(first_sheet_));
+  }
 
   if(active_sheet_)
   {
@@ -1291,7 +1293,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       .hidden_             = 0,
       ///     .optimize = self->options.constant_memory,
       .active_sheet_       = &active_sheet_,
-      ///     .first_sheet = &self->first_sheet,
+      .first_sheet_ = &first_sheet_,
       .sst_                = &sst_,
       .name_               = std::string{sheetname},
       .quoted_name_        = quote_sheetname(sheetname),
@@ -1332,7 +1334,7 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
       .hidden_       = 0,
       ///     .optimize = self->options.constant_memory,
       .active_sheet_ = &active_sheet_,
-      ///     .first_sheet = &self->first_sheet,
+       .first_sheet_ = &first_sheet_,
       .sst_          = &sst_,
       .name_         = std::string{sheetname},
       .quoted_name_  = quote_sheetname(sheetname),

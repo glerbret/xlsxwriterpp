@@ -731,7 +731,7 @@ private:
   uint16_t num_sheets_          = 0; // TODO Needed ?
   uint16_t num_worksheets_      = 0;
   uint16_t num_chartsheets_     = 0;
-  ///     uint16_t first_sheet;
+  uint16_t first_sheet_         = 0;
   uint16_t active_sheet_        = 0;
   ///     uint16_t num_xf_formats;
   ///     uint16_t num_dxf_formats;

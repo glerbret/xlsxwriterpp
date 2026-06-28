@@ -134,6 +134,7 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
   , active_sheet_{init_data.active_sheet_}
+  , first_sheet_{init_data.first_sheet_}
   , default_url_format_{init_data.default_url_format_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
@@ -176,7 +177,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///         worksheet->hidden = init_data->hidden;
   ///         worksheet->sst = init_data->sst;
   ///         worksheet->optimize = init_data->optimize;
-  ///         worksheet->first_sheet = init_data->first_sheet;
   ///         worksheet->max_url_length = init_data->max_url_length;
   ///         worksheet->use_1904_epoch = init_data->use_1904_epoch;
   ///     }
@@ -7384,21 +7384,20 @@ void worksheet_t::select()
 ///     *self->first_sheet = self->index;
 /// }
 
-/// void
-/// worksheet_hide(lxw_worksheet *self)
-/// {
-///     self->hidden = LXW_TRUE;
-///
-///     /* A hidden worksheet shouldn't be active or selected. */
-///     self->selected = LXW_FALSE;
-///
-///     /* If this is active_sheet or first_sheet reset the workbook value. */
-///     if (*self->first_sheet == self->index)
-///         *self->first_sheet = 0;
-///
-///     if (*self->active_sheet == self->index)
-///         *self->active_sheet = 0;
-/// }
+void worksheet_t::hide()
+{
+  hidden_ = true;
+
+  // A hidden worksheet shouldn't be active or selected.
+  selected_ = false;
+
+  // If this is active_sheet or first_sheet reset the workbook value.
+  if (*first_sheet_ == index_)
+    *first_sheet_ = 0;
+
+  if (*active_sheet_ == index_)
+    *active_sheet_ = 0;
+}
 
 /// lxw_error
 /// worksheet_set_selection(lxw_worksheet *self,

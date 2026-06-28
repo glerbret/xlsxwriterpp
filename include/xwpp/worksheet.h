@@ -2144,7 +2144,7 @@ struct worksheet_init_data_t
   uint8_t hidden_; // TODO bool ?
   ///     uint8_t optimize;
   uint16_t* active_sheet_ = nullptr;
-  ///     uint16_t *first_sheet;
+  uint16_t *first_sheet_ = nullptr;
   shared_strings_t* sst_;
   std::string name_;
   std::string quoted_name_;
@@ -4379,6 +4379,35 @@ public:
   void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                    const std::string& formula);
 
+/**
+ * @brief Hide the current worksheet.
+ *
+ * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+ *
+ * The `%worksheet_hide()` function is used to hide a worksheet:
+ *
+ * @code
+ *     worksheet_hide(worksheet2);
+ * @endcode
+ *
+ * You may wish to hide a worksheet in order to avoid confusing a user with
+ * intermediate data or calculations.
+ *
+ * @image html hide_sheet.png
+ *
+ * A hidden worksheet can not be activated or selected so this function is
+ * mutually exclusive with the `worksheet_activate()` and `worksheet_select()`
+ * functions. In addition, since the first worksheet will default to being the
+ * active worksheet, you cannot hide the first worksheet without activating
+ * another sheet:
+ *
+ * @code
+ *     worksheet_activate(worksheet2);
+ *     worksheet_hide(worksheet1);
+ * @endcode
+ */
+void hide();
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4557,8 +4586,8 @@ private:
   bool selected_          = false;
   bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
-  ;
-  ///     uint16_t *first_sheet;
+
+  uint16_t *first_sheet_ = nullptr;
   bool is_chartsheet_ = false;
 
   std::vector<col_options_t> col_options_;
@@ -5210,35 +5239,6 @@ private:
  *
  */
 /// void worksheet_activate(lxw_worksheet *worksheet);
-
-/**
- * @brief Hide the current worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `%worksheet_hide()` function is used to hide a worksheet:
- *
- * @code
- *     worksheet_hide(worksheet2);
- * @endcode
- *
- * You may wish to hide a worksheet in order to avoid confusing a user with
- * intermediate data or calculations.
- *
- * @image html hide_sheet.png
- *
- * A hidden worksheet can not be activated or selected so this function is
- * mutually exclusive with the `worksheet_activate()` and `worksheet_select()`
- * functions. In addition, since the first worksheet will default to being the
- * active worksheet, you cannot hide the first worksheet without activating
- * another sheet:
- *
- * @code
- *     worksheet_activate(worksheet2);
- *     worksheet_hide(worksheet1);
- * @endcode
- */
-/// void worksheet_hide(lxw_worksheet *worksheet);
 
 /**
  * @brief Set current worksheet as the first visible sheet tab.
