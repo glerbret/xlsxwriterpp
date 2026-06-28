@@ -576,6 +576,56 @@ public:
    */
   chart_t& add_chart(chart_type_t chart_type);
 
+  /**
+   * @brief Create a defined name in the workbook to use as a variable.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   * @param name     The defined name.
+   * @param formula  The cell or range that the defined name refers to.
+   *
+   * @return A #lxw_error.
+   *
+   * This function is used to defined a name that can be used to represent a
+   * value, a single cell or a range of cells in a workbook: These defined names
+   * can then be used in formulas:
+   *
+   * @code
+   *     workbook_define_name(workbook, "Exchange_rate", "=0.96");
+   *     worksheet_write_formula(worksheet, 2, 1, "=Exchange_rate", NULL);
+   *
+   * @endcode
+   *
+   * @image html defined_name.png
+   *
+   * As in Excel a name defined like this is "global" to the workbook and can be
+   * referred to from any worksheet:
+   *
+   * @code
+   *     // Global workbook name.
+   *     workbook_define_name(workbook, "Sales", "=Sheet1!$G$1:$H$10");
+   * @endcode
+   *
+   * It is also possible to define a local/worksheet name by prefixing it with
+   * the sheet name using the syntax `'sheetname!definedname'`:
+   *
+   * @code
+   *     // Local worksheet name.
+   *     workbook_define_name(workbook, "Sheet2!Sales", "=Sheet2!$G$1:$G$10");
+   * @endcode
+   *
+   * If the sheet name contains spaces or special characters you must follow the
+   * Excel convention and enclose it in single quotes:
+   *
+   * @code
+   *     workbook_define_name(workbook, "'New Data'!Sales", "=Sheet2!$G$1:$G$10");
+   * @endcode
+   *
+   * [Microsoft Office
+   * documentation](https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64).
+   *
+   */
+  void define_name(const std::string& name, const std::string& formula);
+
   void unset_default_url_format();
 
 private:
@@ -811,57 +861,6 @@ private:
 /// lxw_error workbook_set_custom_property_datetime(lxw_workbook *workbook,
 ///                                                 const char *name,
 ///                                                 lxw_datetime *datetime);
-
-/**
- * @brief Create a defined name in the workbook to use as a variable.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     The defined name.
- * @param formula  The cell or range that the defined name refers to.
- *
- * @return A #lxw_error.
- *
- * This function is used to defined a name that can be used to represent a
- * value, a single cell or a range of cells in a workbook: These defined names
- * can then be used in formulas:
- *
- * @code
- *     workbook_define_name(workbook, "Exchange_rate", "=0.96");
- *     worksheet_write_formula(worksheet, 2, 1, "=Exchange_rate", NULL);
- *
- * @endcode
- *
- * @image html defined_name.png
- *
- * As in Excel a name defined like this is "global" to the workbook and can be
- * referred to from any worksheet:
- *
- * @code
- *     // Global workbook name.
- *     workbook_define_name(workbook, "Sales", "=Sheet1!$G$1:$H$10");
- * @endcode
- *
- * It is also possible to define a local/worksheet name by prefixing it with
- * the sheet name using the syntax `'sheetname!definedname'`:
- *
- * @code
- *     // Local worksheet name.
- *     workbook_define_name(workbook, "Sheet2!Sales", "=Sheet2!$G$1:$G$10");
- * @endcode
- *
- * If the sheet name contains spaces or special characters you must follow the
- * Excel convention and enclose it in single quotes:
- *
- * @code
- *     workbook_define_name(workbook, "'New Data'!Sales", "=Sheet2!$G$1:$G$10");
- * @endcode
- *
- * [Microsoft Office
- * documentation](https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64).
- *
- */
-/// lxw_error workbook_define_name(lxw_workbook *workbook, const char *name,
-///                                const char *formula);
 
 /**
  * @brief Get a chartsheet object from its name.

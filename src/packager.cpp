@@ -592,24 +592,26 @@ void packager_t::write_app_file(const workbook_t& workbook)
     }
   }
 
-  /* Add the Named Ranges parts. */
-  ///     TAILQ_FOREACH(defined_name, workbook->defined_names, list_pointers) {
+  // Add the Named Ranges parts.
+  uint32_t named_range_count = 0;
+  for(const auto& defined_name: workbook.defined_names_)
+  {
+    bool has_range  = defined_name.formula_.find('!') != std::string::npos;
+    bool autofilter = defined_name.app_name_.find("_FilterDatabase") != std::string::npos;
 
-  ///         has_range = strchr(defined_name->formula, '!');
-  ///         autofilter = strstr(defined_name->app_name, "_FilterDatabase");
+    // Only store defined names with ranges (except for autofilters).
+    if(has_range && !autofilter)
+    {
+      app.add_part_name(defined_name.app_name_);
+      named_range_count++;
+    }
+  }
 
-  /* Only store defined names with ranges (except for autofilters). */
-  ///         if (has_range && !autofilter) {
-  ///             lxw_app_add_part_name(app, defined_name->app_name);
-  ///             named_range_count++;
-  ///         }
-  ///     }
-
-  /* Add the Named Range heading pairs. */
-  ///     if (named_range_count) {
-  ///         lxw_snprintf(number, LXW_ATTR_32, "%d", named_range_count);
-  ///         lxw_app_add_heading_pair(app, "Named Ranges", number);
-  ///     }
+  // Add the Named Range heading pairs.
+  if(named_range_count != 0)
+  {
+    app.add_heading_pair("Named Ranges", std::to_string(named_range_count));
+  }
 
   // Set the app/doc properties.
   app.set_properties(workbook.properties_);

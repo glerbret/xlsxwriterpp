@@ -342,18 +342,7 @@ void workbook_t::prepare_workbook()
  */
 void workbook_t::store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
                                     int16_t index, bool hidden)
-///  STATIC lxw_error _store_defined_name(lxw_workbook *self, const char *name,
-///                     const char *app_name, const char *formula, int16_t index,
-///                     uint8_t hidden)
 {
-  ///     lxw_sheet *sheet;
-  ///     lxw_worksheet *worksheet;
-  ///     lxw_defined_name *defined_name;
-  ///     lxw_defined_name *list_defined_name;
-  ///     char name_copy[LXW_DEFINED_NAME_LENGTH];
-  ///     char *tmp_str;
-  ///     char *worksheet_name;
-
   // Do some checks on the input data
   if(name.empty() || formula.empty())
   {
@@ -361,9 +350,6 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
   }
 
   defined_name_t defined_name;
-
-  /* Copy the user input string. */
-  ///     lxw_strcpy(name_copy, name);
 
   // Set the worksheet index or -1 for a global defined name.
   defined_name.index_  = index;
@@ -1569,11 +1555,10 @@ void workbook_t::save(std::string_view filename)
   ////    return error;
 }
 
-/// lxw_error workbook_define_name(lxw_workbook *self, const char *name,
-///                      const char *formula)
-/// {
-///     return _store_defined_name(self, name, NULL, formula, -1, LXW_FALSE);
-/// }
+void workbook_t::define_name(const std::string& name, const std::string& formula)
+{
+  store_defined_name(name, "", formula, -1, false);
+}
 
 void workbook_t::set_properties(const doc_properties_t& properties)
 {
