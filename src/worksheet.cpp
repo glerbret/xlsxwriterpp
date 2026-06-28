@@ -138,6 +138,8 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , default_url_format_{init_data.default_url_format_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
+  col_formats_.resize(COL_META_MAX);
+  col_formats_max_ = COL_META_MAX;
 
   /* Initialize the cached rows. */
   ///     worksheet->table->cached_row_num = LXW_ROW_MAX + 1;
@@ -1747,8 +1749,10 @@ std::string worksheet_t::write_sheet_format_pr() const
     attributes.emplace_back("customHeight", "1");
   }
 
-  ///     if (self->default_row_zeroed)
-  ///         LXW_PUSH_ATTRIBUTES_STR("zeroHeight", "1");
+  if(default_row_zeroed_)
+  {
+    attributes.emplace_back("zeroHeight", "1");
+  }
 
   ///     if (self->outline_row_level)
   ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevelRow",
@@ -3524,12 +3528,15 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   // Check if width is the Excel default.
   if(width == DEF_COL_WIDTH)
   {
-
     // The default col width changes to 0 for hidden columns.
-    ///         if (options->hidden)
-    ///             width = 0;
-    ///         else
-    has_custom_width = false;
+    if(options.hidden_)
+    {
+      width = 0;
+    }
+    else
+    {
+      has_custom_width = false;
+    }
   }
 
   // TODO To get same size as example of libxslxwrter, to check if we keep it
@@ -3556,19 +3563,25 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   ///     if (xf_index)
   ///         LXW_PUSH_ATTRIBUTES_INT("style", xf_index);
 
-  ///     if (options->hidden)
-  ///         LXW_PUSH_ATTRIBUTES_STR("hidden", "1");
+  if(options.hidden_)
+  {
+    attributes.emplace_back("hidden", "1");
+  }
 
   if(has_custom_width)
   {
     attributes.emplace_back("customWidth", "1");
   }
 
-  ///     if (options->level)
-  ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevel", options->level);
+  if(options.level_ != 0)
+  {
+    attributes.emplace_back("outlineLevel", std::to_string(options.level_));
+  }
 
-  ///     if (options->collapsed)
-  ///         LXW_PUSH_ATTRIBUTES_STR("collapsed", "1");
+  if(options.collapsed_)
+  {
+    attributes.emplace_back("collapsed", "1");
+  }
 
   xml_data += xml_empty_tag("col", attributes);
 
@@ -6796,25 +6809,27 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
   write_comment(row_num, col_num, text, std::nullopt);
 }
 
-void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width /* TODO,
-                          lxw_format *format,
-                          lxw_row_col_options *user_options*/)
+void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width)
 {
-  ///     lxw_col_options *copied_options;
+  set_column(first_col, last_col, width, nullptr, std::nullopt);
+}
+
+void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format,
+                             const std::optional<row_col_options_t>& options)
+{
   const bool ignore_row = true;
-  const bool ignore_col = true;
-  ///     uint8_t hidden = LXW_FALSE;
-  ///     uint8_t level = 0;
-  ///     uint8_t collapsed = LXW_FALSE;
-  ///     col_num_t col;
-  ///     lxw_error err;
-  ///
-  ///     if (user_options) {
-  ///         hidden = user_options->hidden;
-  ///         level = user_options->level;
-  ///         collapsed = user_options->collapsed;
-  ///     }
-  ///
+  bool ignore_col       = true;
+  bool hidden           = false;
+  uint8_t level         = 0;
+  bool collapsed        = false;
+
+  if(options)
+  {
+    hidden    = options->hidden_;
+    level     = options->level_;
+    collapsed = options->collapsed_;
+  }
+
   // Ensure second col is larger than first.
   if(first_col > last_col)
   {
@@ -6824,9 +6839,11 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   /* Ensure that the cols are valid and store max and min values.
    * NOTE: The check shouldn't modify the row dimensions and should only
    *       modify the column dimensions in certain cases. */
-  ///     if (TODO format != NULL || (width != LXW_DEF_COL_WIDTH && hidden))
-  ///         ignore_col = LXW_FALSE;
-  ///
+  if(format != nullptr || (width != DEF_COL_WIDTH && hidden))
+  {
+    ignore_col = false;
+  }
+
   check_dimensions(0, first_col, ignore_row, ignore_col);
   check_dimensions(0, last_col, ignore_row, ignore_col);
 
@@ -6834,44 +6851,43 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   {
     col_options_.resize(first_col + 1);
   }
-  ///
-  ///     /* Store the column options. */
-  ///     copied_options = calloc(1, sizeof(lxw_col_options));
-  ///     RETURN_ON_MEM_ERROR(copied_options, LXW_ERROR_MEMORY_MALLOC_FAILED);
-  ///
-  ///     /* Ensure the level is <= 7). */
-  ///     if (level > 7)
-  ///         level = 7;
-  ///
-  ///     if (level > self->outline_col_level)
-  ///         self->outline_col_level = level;
-  ///
-  // Set the column properties.
-  col_options_[first_col].firstcol_ = first_col;
-  col_options_[first_col].lastcol_  = last_col;
-  col_options_[first_col].width_    = width;
-  ///     copied_options->format = format;
-  ///     copied_options->hidden = hidden;
-  ///     copied_options->level = level;
-  ///     copied_options->collapsed = collapsed;
-  ///
-  ///     /* Store the column formats for use when writing cell data. */
-  ///     for (col = firstcol; col <= lastcol; col++) {
-  ///         self->col_formats[col] = format;
-  ///     }
-  ///
-  // Store the column change to allow optimizations.
-  col_size_changed_                 = true;
-}
 
-/// lxw_error
-/// worksheet_set_column(lxw_worksheet *self,
-///                      col_num_t firstcol,
-///                      col_num_t lastcol, double width, lxw_format *format)
-/// {
-///     return worksheet_set_column_opt(self, firstcol, lastcol, width, format,
-///                                     NULL);
-/// }
+  // Resize the col_formats array if required.
+  if(last_col >= col_formats_max_)
+  {
+    col_formats_max_ = last_col + 1;
+    col_formats_.resize(col_formats_max_);
+  }
+
+  // Ensure the level is <= 7).
+  if(level > 7)
+  {
+    level = 7;
+  }
+
+  if(level > outline_col_level_)
+  {
+    outline_col_level_ = level;
+  }
+
+  // Set the column properties.
+  col_options_[first_col].firstcol_  = first_col;
+  col_options_[first_col].lastcol_   = last_col;
+  col_options_[first_col].width_     = width;
+  col_options_[first_col].format_    = const_cast<format_t*>(format);
+  col_options_[first_col].hidden_    = hidden;
+  col_options_[first_col].level_     = level;
+  col_options_[first_col].collapsed_ = collapsed;
+
+  // Store the column formats for use when writing cell data.
+  for(col_num_t col_num = first_col; col_num <= last_col; col_num++)
+  {
+    col_formats_[col_num] = const_cast<format_t*>(format);
+  }
+
+  // Store the column change to allow optimizations.
+  col_size_changed_ = true;
+}
 
 void worksheet_t::set_column_pixels(col_num_t firstcol, col_num_t lastcol, uint32_t pixels /* lxw_format *format*/)
 {
@@ -7392,11 +7408,15 @@ void worksheet_t::hide()
   selected_ = false;
 
   // If this is active_sheet or first_sheet reset the workbook value.
-  if (*first_sheet_ == index_)
+  if(*first_sheet_ == index_)
+  {
     *first_sheet_ = 0;
+  }
 
-  if (*active_sheet_ == index_)
+  if(*active_sheet_ == index_)
+  {
     *active_sheet_ = 0;
+  }
 }
 
 /// lxw_error
@@ -8015,23 +8035,26 @@ void worksheet_t::protect(const std::string& password, std::optional<protection_
 ///     self->outline_changed = LXW_TRUE;
 /// }
 
-/// void
-/// worksheet_set_default_row(lxw_worksheet *self, double height,
-///                           uint8_t hide_unused_rows)
-/// {
-///     if (height < 0)
-///         height = self->default_row_height;
-///
-///     if (height != self->default_row_height) {
-///         self->default_row_height = height;
-///         self->row_size_changed = LXW_TRUE;
-///     }
-///
-///     if (hide_unused_rows)
-///         self->default_row_zeroed = LXW_TRUE;
-///
-///     self->default_row_set = LXW_TRUE;
-/// }
+void worksheet_t::set_default_row(double height, bool hide_unused_rows)
+{
+  if(height < 0)
+  {
+    height = default_row_height_;
+  }
+
+  if(height != default_row_height_)
+  {
+    default_row_height_ = height;
+    row_size_changed_   = true;
+  }
+
+  if(hide_unused_rows)
+  {
+    default_row_zeroed_ = true;
+  }
+
+  default_row_set_ = true;
+}
 
 void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
                                std::optional<image_options_t> user_options)

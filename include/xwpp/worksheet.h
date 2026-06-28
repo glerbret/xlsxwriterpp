@@ -933,10 +933,10 @@ struct col_options_t
   col_num_t firstcol_ = std::numeric_limits<col_num_t>::max();
   col_num_t lastcol_  = std::numeric_limits<col_num_t>::max();
   double width_       = DEF_COL_WIDTH;
-  ///     lxw_format *format;
+  format_t* format_   = nullptr;
   bool hidden_        = false;
-  ///     uint8_t level;
-  ///     uint8_t collapsed;
+  uint8_t level_      = 0;
+  bool collapsed_     = false;
 };
 
 struct merged_range_t
@@ -2144,7 +2144,7 @@ struct worksheet_init_data_t
   uint8_t hidden_; // TODO bool ?
   ///     uint8_t optimize;
   uint16_t* active_sheet_ = nullptr;
-  uint16_t *first_sheet_ = nullptr;
+  uint16_t* first_sheet_  = nullptr;
   shared_strings_t* sst_;
   std::string name_;
   std::string quoted_name_;
@@ -2215,8 +2215,9 @@ public:
    *
    * @image html outline8.png
    */
-  void set_column(col_num_t first_col, col_num_t last_col,
-                  double width /* TODO, lxw_format *format, lxw_row_col_options *options*/);
+  void set_column(col_num_t first_col, col_num_t last_col, double width);
+  void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format,
+                  const std::optional<row_col_options_t>& options);
 
   /**
    * @brief Set the properties for one or more columns of cells, with the width
@@ -4379,34 +4380,64 @@ public:
   void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                    const std::string& formula);
 
-/**
- * @brief Hide the current worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `%worksheet_hide()` function is used to hide a worksheet:
- *
- * @code
- *     worksheet_hide(worksheet2);
- * @endcode
- *
- * You may wish to hide a worksheet in order to avoid confusing a user with
- * intermediate data or calculations.
- *
- * @image html hide_sheet.png
- *
- * A hidden worksheet can not be activated or selected so this function is
- * mutually exclusive with the `worksheet_activate()` and `worksheet_select()`
- * functions. In addition, since the first worksheet will default to being the
- * active worksheet, you cannot hide the first worksheet without activating
- * another sheet:
- *
- * @code
- *     worksheet_activate(worksheet2);
- *     worksheet_hide(worksheet1);
- * @endcode
- */
-void hide();
+  /**
+   * @brief Hide the current worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * The `%worksheet_hide()` function is used to hide a worksheet:
+   *
+   * @code
+   *     worksheet_hide(worksheet2);
+   * @endcode
+   *
+   * You may wish to hide a worksheet in order to avoid confusing a user with
+   * intermediate data or calculations.
+   *
+   * @image html hide_sheet.png
+   *
+   * A hidden worksheet can not be activated or selected so this function is
+   * mutually exclusive with the `worksheet_activate()` and `worksheet_select()`
+   * functions. In addition, since the first worksheet will default to being the
+   * active worksheet, you cannot hide the first worksheet without activating
+   * another sheet:
+   *
+   * @code
+   *     worksheet_activate(worksheet2);
+   *     worksheet_hide(worksheet1);
+   * @endcode
+   */
+  void hide();
+
+  /**
+   * @brief Set the default row properties.
+   *
+   * @param worksheet        Pointer to a lxw_worksheet instance to be updated.
+   * @param height           Default row height.
+   * @param hide_unused_rows Hide unused cells.
+   *
+   * The `%worksheet_set_default_row()` function is used to set Excel default
+   * row properties such as the default height and the option to hide unused
+   * rows. These parameters are an optimization used by Excel to set row
+   * properties without generating a very large file with an entry for each row.
+   *
+   * To set the default row height:
+   *
+   * @code
+   *     worksheet_set_default_row(worksheet, 24, LXW_FALSE);
+   *
+   * @endcode
+   *
+   * To hide unused rows:
+   *
+   * @code
+   *     worksheet_set_default_row(worksheet, 15, LXW_TRUE);
+   * @endcode
+   *
+   * Note, in the previous case we use the default height #LXW_DEF_ROW_HEIGHT =
+   * 15 so the the height remains unchanged.
+   */
+  void set_default_row(double height, bool hide_unused_rows);
 
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
@@ -4587,8 +4618,8 @@ private:
   bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
 
-  uint16_t *first_sheet_ = nullptr;
-  bool is_chartsheet_ = false;
+  uint16_t* first_sheet_ = nullptr;
+  bool is_chartsheet_    = false;
 
   std::vector<col_options_t> col_options_;
   col_num_t col_options_max_ = COL_META_MAX;
@@ -4596,8 +4627,8 @@ private:
   ///     double *col_sizes;
   ///     uint16_t col_sizes_max;
 
-  ///     lxw_format **col_formats;
-  ///     uint16_t col_formats_max;
+  std::vector<format_t*> col_formats_;
+  uint16_t col_formats_max_;
 
   bool col_size_changed_ = false;
   bool row_size_changed_ = false;
@@ -4652,10 +4683,10 @@ private:
   double default_row_height_   = DEF_ROW_HEIGHT;
   uint32_t default_row_pixels_ = 20;
   uint32_t default_col_pixels_ = 64;
-  ///     uint8_t default_row_zeroed;
+  bool default_row_zeroed_     = false;
   bool default_row_set_        = false;
   uint8_t outline_row_level_   = 0;
-  ///     uint8_t outline_col_level;
+  uint8_t outline_col_level_   = 0;
 
   bool header_footer_changed_ = false;
   std::string header_;
@@ -5865,37 +5896,6 @@ private:
 /// void worksheet_outline_settings(lxw_worksheet *worksheet, uint8_t visible,
 ///                                 uint8_t symbols_below, uint8_t
 ///                                 symbols_right, uint8_t auto_style);
-
-/**
- * @brief Set the default row properties.
- *
- * @param worksheet        Pointer to a lxw_worksheet instance to be updated.
- * @param height           Default row height.
- * @param hide_unused_rows Hide unused cells.
- *
- * The `%worksheet_set_default_row()` function is used to set Excel default
- * row properties such as the default height and the option to hide unused
- * rows. These parameters are an optimization used by Excel to set row
- * properties without generating a very large file with an entry for each row.
- *
- * To set the default row height:
- *
- * @code
- *     worksheet_set_default_row(worksheet, 24, LXW_FALSE);
- *
- * @endcode
- *
- * To hide unused rows:
- *
- * @code
- *     worksheet_set_default_row(worksheet, 15, LXW_TRUE);
- * @endcode
- *
- * Note, in the previous case we use the default height #LXW_DEF_ROW_HEIGHT =
- * 15 so the the height remains unchanged.
- */
-/// void worksheet_set_default_row(lxw_worksheet *worksheet, double height,
-///                                uint8_t hide_unused_rows);
 
 /**
  * @brief Set the VBA name for the worksheet.

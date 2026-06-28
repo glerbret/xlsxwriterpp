@@ -23,7 +23,6 @@ chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data, std::function
   , active_sheet_{init_data.active_sheet_}
   , first_sheet_{init_data.first_sheet_}
 
-
 {
   worksheet_.is_chartsheet_     = true;
   worksheet_.zoom_scale_normal_ = false;
