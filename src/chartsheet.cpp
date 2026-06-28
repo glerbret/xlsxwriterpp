@@ -101,9 +101,6 @@ std::string chartsheet_t::write_header_footer() const
 
 void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& user_options)
 {
-  ///     lxw_object_properties *object_props;
-  ///     lxw_chart_series *series;
-  ///
   if(!chart)
   {
     throw xwpp_exception_t("chartsheet_t::set_chart(): 'chart' must be present");
@@ -149,9 +146,7 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
 
   chart->in_use_        = true;
   chart->is_chartsheet_ = true;
-  ///
   ///     chart->is_protected = self->is_protected;
-  ///
   chart_                = *chart;
 }
 

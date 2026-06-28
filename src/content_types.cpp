@@ -84,12 +84,9 @@ std::string content_types_t::assemble_xml_file() const
 /// struct xml_attribute_list attributes;
 /// struct xml_attribute *attribute;
 
-/// LXW_INIT_ATTRIBUTES();
 /// LXW_PUSH_ATTRIBUTES_STR("xmlns", LXW_SCHEMA_CONTENT);
 
 /// lxw_xml_start_tag(self->file, "Types", &attributes);
-
-/// LXW_FREE_ATTRIBUTES();
 /// }
 
 void content_types_t::add_chartsheet_name(std::string_view name)

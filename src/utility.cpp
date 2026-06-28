@@ -6,10 +6,6 @@
  * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
-/// #ifdef USE_FMEMOPEN
-/// #define _POSIX_C_SOURCE 200809L
-/// #endif
-
 #include "xwpp/utility.h"
 
 #include "xlsxwriterpp.h"
@@ -18,10 +14,6 @@
 #include <chrono>
 
 #include <iostream>
-
-/// #ifdef USE_DTOA_LIBRARY
-/// #include "xlsxwriter/third_party/emyg_dtoa.h"
-/// #endif
 
 namespace xwpp
 {
@@ -485,49 +477,6 @@ std::string quote_sheetname(std::string_view sheetname)
   return quoted_name;
 }
 
-/// FILE *
-/// lxw_tmpfile(const char *tmpdir)
-/// {
-/// #ifndef USE_STANDARD_TMPFILE
-///     return tmpfileplus(tmpdir, NULL, NULL, 0);
-/// #else
-///     (void) tmpdir;
-///     return tmpfile();
-/// #endif
-/// }
-
-/**
- * Return a memory-backed file if supported, otherwise a temporary one
- */
-/// FILE *
-/// lxw_get_filehandle(char **buf, size_t *size, const char *tmpdir)
-/// {
-///     static size_t s;
-///     if (!size)
-///         size = &s;
-///     *buf = NULL;
-///     *size = 0;
-/// #ifdef USE_FMEMOPEN
-///     (void) tmpdir;
-///     return open_memstream(buf, size);
-/// #else
-///     return lxw_tmpfile(tmpdir);
-/// #endif
-/// }
-
-/*
- * Use third party function to handle sprintf of doubles for locale portable
- * code.
- */
-/// #ifdef USE_DTOA_LIBRARY
-/// int
-/// lxw_sprintf_dbl(char *data, double number)
-/// {
-///     emyg_dtoa(number, data);
-///     return 0;
-/// }
-/// #endif
-
 /// const char * lxw_version(void)
 /// {
 ///     return LXW_VERSION;
@@ -563,13 +512,5 @@ uint16_t hash_password(const std::string& password)
 
   return hash;
 }
-
-/* Make a simple portable version of fopen() for Windows. */
-
-/// FILE *
-/// lxw_fopen(const char *filename, const char *mode)
-/// {
-/// return fopen(filename, mode);
-/// }
 
 }

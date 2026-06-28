@@ -6,10 +6,6 @@
  * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
-/// #ifdef USE_FMEMOPEN
-/// #define _POSIX_C_SOURCE 200809L
-/// #endif
-
 #include "xwpp/worksheet.h"
 
 #include "xwpp/drawing.h"
@@ -139,46 +135,15 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
   col_formats_.resize(COL_META_MAX);
-  col_formats_max_ = COL_META_MAX;
 
   /* Initialize the cached rows. */
   ///     worksheet->table->cached_row_num = LXW_ROW_MAX + 1;
   ///     worksheet->hyperlinks->cached_row_num = LXW_ROW_MAX + 1;
   ///     worksheet->comments->cached_row_num = LXW_ROW_MAX + 1;
 
-  ///     if (init_data && init_data->optimize) {
-  ///         worksheet->array = calloc(LXW_COL_MAX, sizeof(struct cell_t *));
-  ///         GOTO_LABEL_ON_MEM_ERROR(worksheet->array, mem_error);
-  ///     }
-
-  ///     worksheet->optimize_row = calloc(1, sizeof(struct row_t));
-  ///     GOTO_LABEL_ON_MEM_ERROR(worksheet->optimize_row, mem_error);
-  ///     worksheet->optimize_row->height = LXW_DEF_ROW_HEIGHT;
-
-  ///     if (init_data && init_data->optimize) {
-  ///         FILE *tmpfile;
-
-  ///         worksheet->optimize_buffer = NULL;
-  ///         worksheet->optimize_buffer_size = 0;
-  ///         tmpfile = lxw_get_filehandle(&worksheet->optimize_buffer,
-  ///                                      &worksheet->optimize_buffer_size,
-  ///                                      init_data->tmpdir);
-  ///         if (!tmpfile) {
-  ///             LXW_ERROR("Error creating tmpfile() for worksheet in "
-  ///                       "'constant_memory' mode.");
-  ///             goto mem_error;
-  ///         }
-
-  ///         worksheet->optimize_tmpfile = tmpfile;
-  ///         GOTO_LABEL_ON_MEM_ERROR(worksheet->optimize_tmpfile, mem_error);
-  ///         worksheet->file = worksheet->optimize_tmpfile;
-  ///     }
-
   ///     if (init_data) {
   ///         worksheet->tmpdir = init_data->tmpdir;
   ///         worksheet->hidden = init_data->hidden;
-  ///         worksheet->sst = init_data->sst;
-  ///         worksheet->optimize = init_data->optimize;
   ///         worksheet->max_url_length = init_data->max_url_length;
   ///         worksheet->use_1904_epoch = init_data->use_1904_epoch;
   ///     }
@@ -556,45 +521,15 @@ row_t& table_rows_t::get_row_list(row_num_t row_num)
 
 row_t& worksheet_t::get_row(row_num_t row_num)
 {
-  ///    if (!self->optimize) {
   return table_.get_row_list(row_num);
-  ///    }
-  ///    else {
-  ///        if (row_num < self->optimize_row->row_num) {
-  ///            return NULL;
-  ///        }
-  ///        else if (row_num == self->optimize_row->row_num) {
-  ///            return self->optimize_row;
-  ///        }
-  ///        else {
-  /* Flush row. */
-  ///            lxw_worksheet_write_single_row(self);
-  ///            row = self->optimize_row;
-  ///            row->row_num = row_num;
-  ///            return row;
-  ///        }
-  ///    }
 }
 
 void worksheet_t::insert_cell(row_num_t row_num, col_num_t col_num, const cell_t& cell)
 {
   row_t& row = get_row(row_num);
 
-  ///    if (!self->optimize) {
   row.data_changed_   = true;
   row.cells_[col_num] = cell;
-  ///    }
-  ///    else {
-  ///        if (row) {
-  ///            row->data_changed = LXW_TRUE;
-
-  /* Overwrite an existing cell if necessary. */
-  ///            if (self->array[col_num])
-  ///                _free_cell(self->array[col_num]);
-
-  ///            self->array[col_num] = cell;
-  ///        }
-  ///    }
 }
 
 /*
@@ -605,10 +540,6 @@ void worksheet_t::insert_cell(row_num_t row_num, col_num_t col_num, const cell_t
  */
 void worksheet_t::insert_cell_placeholder(row_num_t row_num, col_num_t col_num)
 {
-  /* The spans calculation isn't required in constant_memory mode. */
-  ///     if (self->optimize)
-  ///         return;
-
   // Only add a cell if one doesn't already exist.
   row_t& row = get_row(row_num);
   if(row.cells_.find(col_num) == std::end(row.cells_))
@@ -665,13 +596,6 @@ void worksheet_t::check_dimensions(row_num_t row_num, col_num_t col_num, bool ig
     throw xwpp_out_of_range_t(
         std::format("worksheet_t::check_dimensions(): col_num '{}' out of range: col_num < '{}'", col_num, COL_MAX));
   }
-
-  /* In optimization mode we don't change dimensions for rows that are */
-  /* already written. */
-  ///     if (!ignore_row && !ignore_col && self->optimize) {
-  ///         if (row_num < self->optimize_row->row_num)
-  ///             return LXW_ERROR_WORKSHEET_INDEX_OUT_OF_RANGE;
-  ///     }
 
   if(!ignore_row)
   {
@@ -1322,14 +1246,6 @@ std::string worksheet_t::write_dimension() const
 {
   std::string ref;
 
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     char ref[LXW_MAX_CELL_RANGE_LENGTH];
-  ///     row_num_t dim_rowmin = self->dim_rowmin;
-  ///     row_num_t dim_rowmax = self->dim_rowmax;
-  ///     col_num_t dim_colmin = self->dim_colmin;
-  ///     col_num_t dim_colmax = self->dim_colmax;
-
   if(dim_rowmin_ == ROW_MAX && dim_colmin_ == COL_MAX)
   {
     // If the rows and cols are still the defaults then no dimensions have
@@ -1786,44 +1702,6 @@ std::string worksheet_t::write_sheet_data() const
   }
 }
 
-/// STATIC void _worksheet_write_optimized_sheet_data(lxw_worksheet *self)
-/// {
-///     size_t read_size = 1;
-///     char buffer[LXW_BUFFER_SIZE];
-
-///     if (self->dim_rowmin == LXW_ROW_MAX) {
-/* If the dimensions aren't defined then there is no data to write. */
-///         lxw_xml_empty_tag(self->file, "sheetData", NULL);
-///     }
-///     else {
-///         lxw_xml_start_tag(self->file, "sheetData", NULL);
-
-/* Flush the temp file. */
-///         fflush(self->optimize_tmpfile);
-
-///         if (self->optimize_buffer) {
-/* Ignore return value. There is no easy way to raise error. */
-///             (void) fwrite(self->optimize_buffer, self->optimize_buffer_size,
-///                           1, self->file);
-///         }
-///         else {
-/* Rewind the temp file. */
-///             rewind(self->optimize_tmpfile);
-///             while (read_size) {
-///                 read_size =
-///                     fread(buffer, 1, LXW_BUFFER_SIZE, self->optimize_tmpfile);
-/* Ignore return value. There is no easy way to raise error. */
-///                 (void) fwrite(buffer, 1, read_size, self->file);
-///             }
-///         }
-
-///         fclose(self->optimize_tmpfile);
-///         free(self->optimize_buffer);
-
-///         lxw_xml_end_tag(self->file, "sheetData");
-///     }
-/// }
-
 std::string worksheet_t::write_page_margins() const
 {
   return xml_empty_tag("pageMargins", {
@@ -2024,19 +1902,16 @@ int32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
 
   // Search for the col number in the array of col_options. Each col_option
   // entry contains the start and end column for a range.
-  for(col_num_t col_index = 0; col_index < col_options_max_; col_index++)
+  for(col_num_t col_index = 0; col_index < col_options_.size(); col_index++)
   {
-    if(col_index < col_options_.size())
+    col_opt = &col_options_[col_index];
+    if(col_num >= col_opt->firstcol_ && col_num <= col_opt->lastcol_)
     {
-      col_opt = &col_options_[col_index];
-      if(col_num >= col_opt->firstcol_ && col_num <= col_opt->lastcol_)
-      {
-        break;
-      }
-      else
-      {
-        col_opt = nullptr;
-      }
+      break;
+    }
+    else
+    {
+      col_opt = nullptr;
     }
   }
 
@@ -3005,10 +2880,6 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
 
 void process_image(object_properties_t& image_props, const std::vector<unsigned char>& buffer)
 {
-  ///     uint8_t i;
-  ///     size_t size_read;
-  ///     char buffer[LXW_IMAGE_BUFFER_SIZE];
-
   if(buffer[1] == 'P' && buffer[2] == 'N' && buffer[3] == 'G')
   {
     process_png(image_props, buffer);
@@ -3049,10 +2920,6 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
 // TODO Use dedicated library to get image properties
 void get_image_properties(object_properties_t& image_props)
 {
-  ///     uint8_t i;
-  ///     size_t size_read;
-  ///     char buffer[LXW_IMAGE_BUFFER_SIZE];
-
   if(image_props.image_buffer_.empty())
   {
     // Read image.
@@ -3086,18 +2953,6 @@ void worksheet_t::store_conditional_format_object(const cond_format_obj_t& cond_
 
 std::string worksheet_t::write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const
 {
-  /// #ifdef USE_DTOA_LIBRARY
-  ///     char data[LXW_ATTR_32];
-
-  ///     lxw_sprintf_dbl(data, cell->u.number);
-
-  ///     if (style_index)
-  ///         fprintf(self->file,
-  ///                 "<c r=\"%s\" s=\"%d\"><v>%s</v></c>",
-  ///                 range, style_index, data);
-  ///     else
-  ///         fprintf(self->file, "<c r=\"%s\"><v>%s</v></c>", range, data);
-  /// #else
   if(style_index != 0)
   {
     return std::format(R"(<c r="{}" s="{}"><v>{:.16G}</v></c>)", range, style_index, std::get<double>(cell.data_));
@@ -3241,8 +3096,6 @@ std::string worksheet_t::write_error_cell() const
 
 std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) const
 {
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
   int32_t style_index     = 0;
   const std::string range = rowcol_to_cell(cell.row_num_, cell.col_num_);
 
@@ -3401,51 +3254,6 @@ std::string worksheet_t::write_rows() const
 
   return xml_data;
 }
-
-/*
- * Write out the worksheet data as a single row with cells. This method is
- * used when memory optimization is on. A single row is written and the data
- * array is reset. That way only one row of data is kept in memory at any one
- * time. We don't write span data in the optimized case since it is optional.
- */
-/// void lxw_worksheet_write_single_row(lxw_worksheet *self)
-/// {
-///     row_t *row = self->optimize_row;
-///     col_num_t col;
-
-/* skip row if it doesn't contain row formatting, cell data or a comment. */
-///     if (!(row->row_changed || row->data_changed))
-///         return;
-
-/* Write the cells if the row contains data. */
-///     if (!row->data_changed) {
-/* Row data only. No cells. */
-///         _write_row(self, row, NULL);
-///     }
-///     else {
-/* Row and cell data. */
-///         _write_row(self, row, NULL);
-
-///         for (col = self->dim_colmin; col <= self->dim_colmax; col++) {
-///             if (self->array[col]) {
-///                 _write_cell(self, self->array[col], row->format);
-///                 _free_cell(self->array[col]);
-///                 self->array[col] = NULL;
-///             }
-///         }
-
-///         lxw_xml_end_tag(self->file, "row");
-///     }
-
-/* Reset the row. */
-///     row->height = LXW_DEF_ROW_HEIGHT;
-///     row->format = NULL;
-///     row->hidden = LXW_FALSE;
-///     row->level = 0;
-///     row->collapsed = LXW_FALSE;
-///     row->data_changed = LXW_FALSE;
-///     row->row_changed = LXW_FALSE;
-/// }
 
 // Set VML image position string based on the header/footer/position.
 std::string worksheet_t::get_vml_image_position(image_position_t image_position) const
@@ -4059,10 +3867,6 @@ std::string worksheet_t::write_hyperlink_internal(row_num_t row_num, col_num_t c
 // TODO Add again const (remove to allow increment of rel_count_)
 std::string worksheet_t::write_hyperlinks()
 {
-  ///     row_t *row;
-  ///     cell_t *link;
-  ///     lxw_rel_tuple *relationship;
-
   if(hyperlinks_.rbh_root_.empty())
   {
     return "";
@@ -6051,11 +5855,7 @@ std::string worksheet_t::assemble_xml_file()
   xml_data += write_sheet_views();
   xml_data += write_sheet_format_pr();
   xml_data += write_cols();
-  ///     if (!self->optimize)
   xml_data += write_sheet_data();
-  ///     else
-  ///         _worksheet_write_optimized_sheet_data(self);
-
   xml_data += write_sheet_protection(protection_);
   xml_data += write_auto_filter();
   xml_data += write_merge_cells();
@@ -6131,22 +5931,8 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
         std::format("worksheet_t::write_string(): string size '{}' too large (max '{}')", str.size(), STR_MAX));
   }
 
-  ///     if (!self->optimize) {
-  // Get the SST element and string id.
   const shared_strings_element_t sst_element = sst_->get_index(str, false);
-
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
-  ///     }
-  ///     else {
-  /* Look for and escape control chars in the string. */
-  ///         if (lxw_has_control_characters(string)) {
-  ///             string_copy = lxw_escape_control_characters(string);
-  ///         }
-  ///         else {
-  ///             string_copy = lxw_strdup(string);
-  ///         }
-  ///         cell = _new_inline_string_cell(row_num, col_num, string_copy, format);
-  ///     }
 
   insert_cell(row_num, col_num, cell);
 }
@@ -6304,7 +6090,6 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
   }
 
   // Pad out the rest of the area with formatted zeroes.
-  ///     if (!self->optimize) {
   for(row_num_t tmp_row = first_row; tmp_row <= last_row; tmp_row++)
   {
     for(col_num_t tmp_col = first_col; tmp_col <= last_col; tmp_col++)
@@ -6317,7 +6102,6 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
       write_number(tmp_row, tmp_col, 0, format);
     }
   }
-  ///     }
 }
 
 /// lxw_error
@@ -6732,7 +6516,6 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
 ///         return LXW_ERROR_MAX_STRING_LENGTH_EXCEEDED;
 ///     }
 ///
-///     if (!self->optimize) {
 ///         /* Get the SST element and string id. */
 ///         sst_element = lxw_get_sst_index(self->sst, rich_string, LXW_TRUE);
 ///         free((void *) rich_string);
@@ -6743,18 +6526,6 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
 ///         string_id = sst_element->index;
 ///         cell = _new_string_cell(row_num, col_num, string_id,
 ///                                 sst_element->string, format);
-///     }
-///     else {
-///         /* Look for and escape control chars in the string. */
-///         if (lxw_has_control_characters(rich_string)) {
-///             string_copy = lxw_escape_control_characters(rich_string);
-///             free((void *) rich_string);
-///         }
-///         else {
-///             string_copy = rich_string;
-///         }
-///         cell = _new_inline_rich_string_cell(row_num, col_num, string_copy,
-///                                             format);
 ///     }
 ///
 ///     _insert_cell(self, row_num, col_num, cell);
@@ -6853,10 +6624,9 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   }
 
   // Resize the col_formats array if required.
-  if(last_col >= col_formats_max_)
+  if(last_col >= col_formats_.size())
   {
-    col_formats_max_ = last_col + 1;
-    col_formats_.resize(col_formats_max_);
+    col_formats_.resize(last_col + 1);
   }
 
   // Ensure the level is <= 7).
@@ -6889,26 +6659,18 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   col_size_changed_ = true;
 }
 
-void worksheet_t::set_column_pixels(col_num_t firstcol, col_num_t lastcol, uint32_t pixels /* lxw_format *format*/)
+void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels)
+{
+  set_column_pixels(first_col, last_col, pixels, nullptr, std::nullopt);
+}
+
+void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format,
+                                    const std::optional<row_col_options_t>& options)
 {
   const double width = pixels_to_width(pixels);
 
-  set_column(firstcol, lastcol, width /*, format, NULL*/);
+  set_column(first_col, last_col, width, format, options);
 }
-
-/// lxw_error
-/// worksheet_set_column_pixels_opt(lxw_worksheet *self,
-///                                 col_num_t firstcol,
-///                                 col_num_t lastcol,
-///                                 uint32_t pixels,
-///                                 lxw_format *format,
-///                                 lxw_row_col_options *user_options)
-/// {
-///     double width = _pixels_to_width(pixels);
-///
-///     return worksheet_set_column_opt(self, firstcol, lastcol, width, format,
-///                                     user_options);
-/// }
 
 void worksheet_t::set_row(row_num_t row, double height)
 {
@@ -6997,11 +6759,6 @@ void worksheet_t::set_row(row_num_t row_num, double height, const format_t* form
 void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                               const std::string& str, const format_t* format)
 {
-  ///     lxw_merged_range *merged_range;
-  ///     row_num_t tmp_row;
-  ///     col_num_t tmp_col;
-  ///     lxw_error err;
-  ///
   // Excel doesn't allow a single cell to be merged
   if(first_row == last_row && first_col == last_col)
   {
@@ -7261,13 +7018,6 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
 ///     lxw_error err;
 ///     lxw_table_obj *table_obj;
 ///     lxw_table_column **columns;
-///
-///     if (self->optimize) {
-///         LXW_WARN_FORMAT("worksheet_add_table(): "
-///                         "worksheet tables aren't supported in "
-///                         "'constant_memory' mode");
-///         return LXW_ERROR_FEATURE_NOT_SUPPORTED;
-///     }
 ///
 ///     /* Swap last row/col with first row/col as necessary */
 ///     if (first_row > last_row) {
@@ -8358,12 +8108,6 @@ void worksheet_t::set_background(const std::string& filename)
 ///
 ///     /* Write the image buffer to a file (preferably in memory) so we can read
 ///      * the dimensions like an ordinary file. */
-/// #ifdef USE_FMEMOPEN
-///     image_stream = fmemopen((void *) image_buffer, image_size, "rb");
-///
-///     if (!image_stream)
-///         return LXW_ERROR_CREATING_TMPFILE;
-/// #else
 ///     image_stream = lxw_tmpfile(self->tmpdir);
 ///
 ///     if (!image_stream)
@@ -8375,7 +8119,6 @@ void worksheet_t::set_background(const std::string& filename)
 ///     }
 ///
 ///     rewind(image_stream);
-/// #endif
 ///
 ///     /* Create a new object to hold the image properties. */
 ///     object_props = calloc(1, sizeof(lxw_object_properties));

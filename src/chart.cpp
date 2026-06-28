@@ -2755,8 +2755,6 @@ std::string chart_t::write_minor_gridlines(const chart_axis_t& axis)
  */
 std::string chart_t::write_number_format(const chart_axis_t& axis)
 {
-  ///   struct xml_attribute_list attributes;
-  ///   struct xml_attribute* attribute;
   std::string num_format;
   uint8_t source_linked = 1;
 

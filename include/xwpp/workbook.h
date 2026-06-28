@@ -153,10 +153,6 @@ struct doc_properties_t
  *
  * The following properties are supported:
  *
- * - `constant_memory`: This option reduces the amount of data stored in
- *   memory so that large files can be written efficiently. This option is off
- *   by default. See the notes below for limitations when this mode is on.
- *
  * - `tmpdir`: Xlsxwriter++ stores workbook data in temporary files prior to
  *   assembling the final XLSX file. The temporary files are created in the
  *   system's temp directory. If the default temporary directory isn't
@@ -170,42 +166,13 @@ struct doc_properties_t
  *
  *   [zip64_wiki]: https://en.wikipedia.org/wiki/Zip_(file_format)#ZIP64
 
- * - `output_buffer`: Output to a buffer instead of a file. The buffer must be
- *   freed manually by calling free(). This option can only be used if filename
- *   is NULL.
- *
- * - `output_buffer_size`: Used with output_buffer to get the size of the
- *   created buffer. This option can only be used if filename is NULL.
- *
- * @note In `constant_memory` mode each row of in-memory data is written to
- * disk and then freed when a new row is started via one of the
- * `worksheet_write_*()` functions. Therefore, once this option is active data
- * should be written in sequential row by row order. For this reason
- * `worksheet_merge_range()` and some other row based functionality doesn't
- * work in this mode. See @ref ww_mem_constant for more details.
- *
- * @note Also, in `constant_memory` mode the library uses temp file storage
- * for worksheet data. This can lead to an issue on OSes that map the `/tmp`
- * directory into memory since it is possible to consume the "system" memory
- * even though the "process" memory remains constant. In these cases you
- * should use an alternative temp file location by using the `tmpdir` option
- * shown above. See @ref ww_mem_temp for more details.
- */
 /// typedef struct lxw_workbook_options {
-/** Optimize the workbook to use constant memory for worksheets. */
-///     uint8_t constant_memory;
 
 /** Directory to use for the temporary files created by Xlsxwriter++. */
 ///     const char *tmpdir;
 
 /** Allow ZIP64 extensions when creating the xlsx file zip container. */
 ///     uint8_t use_zip64;
-
-/** Output buffer to use instead of writing to a file */
-///     const char **output_buffer;
-
-/** Used with output_buffer to get the size of the created buffer */
-///     size_t *output_buffer_size;
 /// } lxw_workbook_options;
 
 /**
@@ -745,7 +712,6 @@ private:
   uint16_t font_count_     = 0;
   uint16_t border_count_   = 0;
   uint16_t fill_count_     = 0;
-  ///     uint8_t optimize;
   uint16_t max_url_length_ = 2079;
   ///     uint8_t read_only;
 
@@ -786,21 +752,14 @@ private:
  * additional options to be set.
  *
  * @code
- *    lxw_workbook_options options = {.constant_memory = LXW_TRUE,
- *                                    .tmpdir = "C:\\Temp",
+ *    lxw_workbook_options options = {.tmpdir = "C:\\Temp",
  *                                    .use_zip64 = LXW_FALSE,
- *                                    .output_buffer = NULL,
- *                                    .output_buffer_size = NULL};
  *
  *    lxw_workbook  *workbook  = workbook_new_opt("filename.xlsx",
 &options);
  * @endcode
  *
  * The options that can be set via #lxw_workbook_options are:
- *
- * - `constant_memory`: This option reduces the amount of data stored in
- *   memory so that large files can be written efficiently. This option is off
- *   by default. See the note below for limitations when this mode is on.
  *
  * - `tmpdir`: Xlsxwriter++ stores workbook data in temporary files prior to
  *   assembling the final XLSX file. The temporary files are created in the
@@ -814,27 +773,6 @@ private:
  *   for more information. This option is off by default.
  *
  *   [zip64_wiki]: https://en.wikipedia.org/wiki/Zip_(file_format)#ZIP64
- *
- * - `output_buffer`: Output to a memory buffer instead of a file. The buffer
- *   must be freed manually by calling `free()`. This option can only be used if
- *   filename is NULL.
- *
- * - `output_buffer_size`: Used with output_buffer to get the size of the
- *   created buffer. This option can only be used if filename is `NULL`.
- *
- * @note In `constant_memory` mode each row of in-memory data is written to
- * disk and then freed when a new row is started via one of the
- * `worksheet_write_*()` functions. Therefore, once this option is active data
- * should be written in sequential row by row order. For this reason
- * `worksheet_merge_range()` and some other row based functionality doesn't
- * work in this mode. See @ref ww_mem_constant for more details.
- *
- * @note Also, in `constant_memory` mode the library uses temp file storage
- * for worksheet data. This can lead to an issue on OSes that map the `/tmp`
- * directory into memory since it is possible to consume the "system" memory
- * even though the "process" memory remains constant. In these cases you
- * should use an alternative temp file location by using the `tmpdir` option
- * shown above. See @ref ww_mem_temp for more details.
  */
 /// lxw_workbook *workbook_new_opt(const char *filename,
 ///                                lxw_workbook_options *options);

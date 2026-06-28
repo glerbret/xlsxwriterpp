@@ -2142,7 +2142,6 @@ struct worksheet_init_data_t
 {
   uint16_t index_;
   uint8_t hidden_; // TODO bool ?
-  ///     uint8_t optimize;
   uint16_t* active_sheet_ = nullptr;
   uint16_t* first_sheet_  = nullptr;
   shared_strings_t* sst_;
@@ -2245,7 +2244,7 @@ public:
    * If you wish to set the format of a column without changing the width you can
    * pass the default column width in pixels: #LXW_DEF_COL_WIDTH_PIXELS.
    */
-  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels /* TODO, lxw_format *format*/);
+  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels);
 
   /**
    * @brief Set the properties for one or more columns of cells with options,
@@ -2265,12 +2264,8 @@ public:
    * pixels.
    *
    */
-  /// lxw_error worksheet_set_column_pixels_opt(lxw_worksheet *worksheet,
-  ///                                           col_num_t first_col,
-  ///                                           col_num_t last_col,
-  ///                                           uint32_t pixels,
-  ///                                           lxw_format *format,
-  ///                                           lxw_row_col_options *options);
+  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format,
+                         const std::optional<row_col_options_t>& options);
 
   // TODO Add API with option (original worksheet_set_row_opt) and format
   // TODO Add API with row names
@@ -3447,9 +3442,6 @@ public:
    *    // Then overwrite the first cell with a number.
    *    worksheet_write_number(worksheet, 1, 1, 123, format);
    * @endcode
-   *
-   * @note Merged ranges generally don't work in Xlsxwriter++ when the Workbook
-   * #lxw_workbook_options `constant_memory` mode is enabled.
    */
   void merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                    const std::string& str, const format_t* format);
@@ -4578,9 +4570,6 @@ private:
   std::function<int32_t(format_t*)> get_xf_index_;
   std::function<int32_t(format_t*)> get_dxf_index_;
   ///     FILE *file;
-  ///     FILE *optimize_tmpfile;
-  ///     char *optimize_buffer;
-  ///     size_t optimize_buffer_size;
   table_rows_t table_;
   table_rows_t hyperlinks_;
   table_rows_t comments_;
@@ -4622,18 +4611,14 @@ private:
   bool is_chartsheet_    = false;
 
   std::vector<col_options_t> col_options_;
-  col_num_t col_options_max_ = COL_META_MAX;
 
   ///     double *col_sizes;
   ///     uint16_t col_sizes_max;
 
   std::vector<format_t*> col_formats_;
-  uint16_t col_formats_max_;
 
   bool col_size_changed_ = false;
   bool row_size_changed_ = false;
-  ///     uint8_t optimize;
-  ///     struct row_t *optimize_row;
 
   uint16_t fit_height_               = 0;
   uint16_t fit_width_                = 0;

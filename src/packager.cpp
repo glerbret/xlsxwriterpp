@@ -82,53 +82,6 @@ namespace xwpp
 ///                              char **buffer, size_t *buffer_size,
 ///                              const char *filename);
 
-/// STATIC voidpf ZCALLBACK _fopen_memstream(voidpf opaque, const char *filename, int mode)
-/// {
-///   lxw_packager *packager = (lxw_packager *) opaque;
-///   (void) filename;
-///   (void) mode;
-///   return lxw_get_filehandle(&packager->output_buffer,
-///                             &packager->output_buffer_size,
-///                             packager->tmpdir);
-/// }
-
-/// STATIC int ZCALLBACK _fclose_memstream(voidpf opaque, voidpf stream)
-/// {
-///   lxw_packager *packager = (lxw_packager *) opaque;
-///   FILE *file = (FILE *) stream;
-///   long size;
-
-/* Ensure memstream buffer is updated */
-///   if (fflush(file))
-///     goto mem_error;
-
-/* If the memstream is backed by a temporary file, no buffer is created,
-   so create it manually. */
-///   if (!packager->output_buffer) {
-///     if (fseek(file, 0L, SEEK_END))
-///       goto mem_error;
-
-///     size = ftell(file);
-///     if (size == -1)
-///       goto mem_error;
-
-///     packager->output_buffer = malloc(size);
-///     GOTO_LABEL_ON_MEM_ERROR(packager->output_buffer, mem_error);
-
-///     rewind(file);
-///     if (fread((void *) packager->output_buffer, size, 1, file) < 1)
-///       goto mem_error;
-
-///     packager->output_buffer_size = size;
-///   }
-
-///   return fclose(file);
-
-/// mem_error:
-///   fclose(file);
-///   return EOF;
-/// }
-
 packager_t::packager_t(std::string_view filename /*, const char *tmpdir, uint8_t use_zip64*/)
     // Initialize the zip_fileinfo struct to Jan 1 1980 like Excel.
     // TODO To set locally in create function
@@ -168,9 +121,6 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
     {
       auto& worksheet = std::get<worksheet_t>(sheet);
 
-      /// if (worksheet->optimize_row)
-      ///   lxw_worksheet_write_single_row(worksheet);
-
       const std::string xml_data = worksheet.assemble_xml_file();
       add_buffer_to_zip(xml_data, std::format("xl/worksheets/sheet{}.xml", index));
       index++;
@@ -194,18 +144,7 @@ void packager_t::write_chartsheet_files(workbook_t& workbook)
 }
 
 void packager_t::write_image_files(const workbook_t& workbook)
-/// STATIC lxw_error _write_image_files(lxw_packager *self)
 {
-  ///   lxw_workbook *workbook = self->workbook;
-  ///   lxw_sheet *sheet;
-  ///   lxw_worksheet *worksheet;
-  ///   lxw_object_properties *object_props;
-  ///   lxw_error err;
-  ///   FILE *image_stream;
-
-  ///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-  ///   uint32_t index = 1;
-
   for(size_t index = 1; auto& sheet: workbook.sheets_)
   {
     if(std::holds_alternative<worksheet_t>(sheet))
@@ -320,15 +259,6 @@ void packager_t::write_chart_files(const workbook_t& workbook)
 
 void packager_t::write_drawing_files(const workbook_t& workbook)
 {
-  ///   lxw_workbook *workbook = self->workbook;
-  ///   lxw_sheet *sheet;
-  ///   lxw_worksheet *worksheet;
-  ///   lxw_drawing *drawing;
-  ///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-  ///   char *buffer = NULL;
-  ///   size_t buffer_size = 0;
-  ///   lxw_error err;
-
   for(size_t index = 1; auto& sheet: workbook.sheets_)
   {
     auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
@@ -344,10 +274,6 @@ void packager_t::write_drawing_files(const workbook_t& workbook)
 
 uint32_t packager_t::get_drawing_count(const workbook_t& workbook) const
 {
-  ///   lxw_workbook *workbook = self->workbook;
-  ///   lxw_sheet *sheet;
-  ///   lxw_worksheet *worksheet;
-  ///   lxw_drawing *drawing;
   uint32_t drawing_count = 0;
 
   for(const auto& sheet: workbook.sheets_)
@@ -451,12 +377,6 @@ uint32_t packager_t::get_drawing_count(const workbook_t& workbook) const
 
 void packager_t::write_vml_drawing_rels_file(const worksheet_t& worksheet, uint32_t index)
 {
-  ///     lxw_relationships *rels;
-  ///     char *buffer = NULL;
-  ///     size_t buffer_size = 0;
-  ///     lxw_rel_tuple *rel;
-  ///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-  ///     lxw_error err = LXW_NO_ERROR;
   relationships_t relationships;
 
   for(const auto& [type, target, target_mode]: worksheet.vml_drawing_links_)
@@ -470,15 +390,7 @@ void packager_t::write_vml_drawing_rels_file(const worksheet_t& worksheet, uint3
 
 void packager_t::write_vml_files(const workbook_t& workbook)
 {
-  ///   lxw_workbook *workbook = self->workbook;
-  ///   lxw_sheet *sheet;
-  ///   lxw_worksheet *worksheet;
-  ///   lxw_vml *vml;
-  ///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-  ///   char *buffer = NULL;
-  ///   size_t buffer_size = 0;
   uint32_t index = 1;
-  ///   lxw_error err;
 
   for(const auto& sheet: workbook.sheets_)
   {
@@ -554,19 +466,6 @@ void packager_t::write_shared_strings_file(const workbook_t& workbook)
 void packager_t::write_app_file(const workbook_t& workbook)
 {
   app_t app;
-  ///     lxw_workbook *workbook = self->workbook;
-  ///     lxw_sheet *sheet;
-  ///     lxw_worksheet *worksheet;
-  ///     lxw_chartsheet *chartsheet;
-  ///     lxw_defined_name *defined_name;
-  ///     lxw_app *app;
-  ///     char *buffer = NULL;
-  ///     size_t buffer_size = 0;
-  ///     uint32_t named_range_count = 0;
-  ///     char *autofilter;
-  ///     char *has_range;
-  ///     char number[LXW_ATTR_32] = { 0 };
-  ///     lxw_error err = LXW_NO_ERROR;
 
   if(workbook.num_worksheets_ != 0)
   {
@@ -719,30 +618,9 @@ void packager_t::write_styles_file(const workbook_t& workbook)
 void packager_t::write_content_types_file(const workbook_t& workbook)
 {
   content_types_t content_types;
-  ///     lxw_content_types *content_types = lxw_content_types_new();
-  ///     char *buffer = NULL;
-  ///     size_t buffer_size = 0;
-  ///     lxw_workbook *workbook = self->workbook;
-  ///     lxw_sheet *sheet;
-  ///     char filename[LXW_MAX_ATTRIBUTE_LENGTH] = { 0 };
-  ///     uint32_t index = 1;
   uint32_t worksheet_index  = 1;
   uint32_t chartsheet_index = 1;
   uint32_t drawing_count    = get_drawing_count(workbook);
-  ///     uint32_t table_count = _get_table_count(self);
-  ///     lxw_error err = LXW_NO_ERROR;
-
-  ///     if (!content_types) {
-  ///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-  ///         goto mem_error;
-  ///     }
-
-  ///     content_types->file = lxw_get_filehandle(&buffer, &buffer_size,
-  ///                                              self->tmpdir);
-  ///     if (!content_types->file) {
-  ///         err = LXW_ERROR_CREATING_TMPFILE;
-  ///         goto mem_error;
-  ///     }
 
   if(workbook.has_png_)
   {
@@ -850,11 +728,6 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
 void packager_t::write_workbook_rels_file(const workbook_t& workbook)
 {
   relationships_t relationships;
-  ///     char *buffer = NULL;
-  ///     size_t buffer_size = 0;
-  ///     lxw_workbook *workbook = self->workbook;
-  ///     lxw_sheet *sheet;
-  ///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
   uint32_t worksheet_index  = 1;
   uint32_t chartsheet_index = 1;
 
@@ -966,21 +839,8 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 }
 
 void packager_t::write_chartsheet_rels_file(const workbook_t& workbook)
-/// STATIC lxw_error
-/// _write_chartsheet_rels_file(lxw_packager *self)
 {
-  ///     lxw_relationships *rels;
-  ///     char *buffer = NULL;
-  ///     size_t buffer_size = 0;
-  ///     lxw_rel_tuple *rel;
-  ///     lxw_workbook *workbook = self->workbook;
-  ///     lxw_sheet *sheet;
-  ///     lxw_worksheet *worksheet;
-  ///     char sheetname[LXW_FILENAME_LENGTH] = { 0 };
-  uint32_t index = 0;
-  ///     lxw_error err;
-
-  for(const auto& sheet: workbook.sheets_)
+  for(size_t index = 0; const auto& sheet: workbook.sheets_)
   {
     if(std::holds_alternative<chartsheet_t>(sheet))
     {
@@ -1232,9 +1092,6 @@ void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std:
 // TODO const remove to allow prepare, to be refactored
 void packager_t::create_package(workbook_t& workbook)
 {
-  ///     lxw_error error;
-  ///     int8_t zip_error;
-  // Create a zip container for the xlsx file.
   /// TODO Use it as local variable (not data member) and use unique_ptr
   zipfile_ = zipOpen(filename_.c_str(), 0);
 

@@ -254,7 +254,6 @@ void workbook_t::prepare_num_formats()
   ///     lxw_hash_element *hash_element;
   ///     lxw_hash_element *used_format_element;
   ///     uint16_t index = 0xA4;
-  ///     uint16_t num_format_count = 0;
   ///     uint16_t *num_format_index;
 
   // TODO Use unordered_set to optimise this search
@@ -481,12 +480,6 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
  */
 void workbook_t::populate_range_data_cache(series_range_t& range)
 {
-  ///     lxw_worksheet *worksheet;
-  ///     row_num_t row_num;
-  ///     col_num_t col_num;
-  ///     row_t *row_obj;
-  ///     cell_t *cell_obj;
-  ///     struct lxw_series_data_point *data_point;
   uint16_t num_data_points = 0;
 
   // If ignore_cache is set then don't try to populate the cache. This flag
@@ -512,12 +505,6 @@ void workbook_t::populate_range_data_cache(series_range_t& range)
         std::format("workbook_t::populate_range_data_cache(): sheetname '{}' in chart formula '{}' doesn't exist",
                     range.sheetname_, range.formula_));
   }
-
-  /* We can't read the data when worksheet optimization is on. */
-  ///     if (worksheet->optimize) {
-  ///         range->ignore_cache = LXW_TRUE;
-  ///         return;
-  ///     }
 
   // Iterate through the worksheet data and populate the range cache.
   for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
@@ -697,17 +684,10 @@ void workbook_t::store_image_type(image_types_t image_type)
 
 void workbook_t::prepare_drawings()
 {
-  ///     lxw_sheet *sheet;
-  ///     lxw_object_properties *object_props;
   uint32_t chart_ref_id = 0;
   uint32_t image_ref_id = 0;
-  ///     uint32_t ref_id = 0;
   uint32_t drawing_id   = 0;
   bool is_chartsheet;
-  ///     lxw_image_md5 tmp_image_md5;
-  ///     lxw_image_md5 *new_image_md5 = NULL;
-  ///     lxw_image_md5 *found_duplicate_image = NULL;
-  ///     uint8_t i;
 
   for(auto& sheet: sheets_)
   {
@@ -1163,13 +1143,7 @@ std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id, bo
 
 std::string workbook_t::write_sheets() const
 {
-
-  ///     lxw_sheet *sheet;
-  ///     lxw_worksheet *worksheet;
-  ///     lxw_chartsheet *chartsheet;
-
   std::string xml_data = xml_start_tag("sheets");
-
   for(auto sheet: sheets_)
   {
     if(std::holds_alternative<chartsheet_t>(sheet))
@@ -1183,8 +1157,8 @@ std::string workbook_t::write_sheets() const
       xml_data += write_sheet(ws.get_sheet_name(), ws.get_sheet_index() + 1, ws.hidden_);
     }
   }
-
   xml_data += xml_end_tag("sheets");
+
   return xml_data;
 }
 
@@ -1253,9 +1227,6 @@ std::string workbook_t::assemble_xml_file()
 
 workbook_t::workbook_t(/*lxw_workbook_options *options*/)
 {
-  ///     lxw_format *format;
-  ///     lxw_workbook *workbook;
-
   // Add the default cell format.
   auto format = add_format();
   // Initialize its index.
@@ -1265,11 +1236,8 @@ workbook_t::workbook_t(/*lxw_workbook_options *options*/)
   default_url_format_ = add_format();
   default_url_format_->set_hyperlink();
   ///     if (options) {
-  ///         workbook->options.constant_memory = options->constant_memory;
   ///         workbook->options.tmpdir = lxw_strdup(options->tmpdir);
   ///         workbook->options.use_zip64 = options->use_zip64;
-  ///         workbook->options.output_buffer = options->output_buffer;
-  ///         workbook->options.output_buffer_size = options->output_buffer_size;
   ///     }
 }
 
@@ -1284,14 +1252,9 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   // Check that the worksheet name is valid.
   validate_sheetname(sheetname);
 
-  ///     lxw_sheet *sheet = NULL;
-  ///     lxw_worksheet *worksheet = NULL;
-  ///     lxw_worksheet_name *worksheet_name = NULL;
-  ///     lxw_error error;
   const worksheet_init_data_t init_data{
       .index_              = num_sheets_,
       .hidden_             = 0,
-      ///     .optimize = self->options.constant_memory,
       .active_sheet_       = &active_sheet_,
       .first_sheet_        = &first_sheet_,
       .sst_                = &sst_,
@@ -1324,15 +1287,9 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   // Check that the worksheet name is valid.
   validate_sheetname(sheetname);
 
-  ///     lxw_sheet *sheet = NULL;
-  ///     lxw_chartsheet *chartsheet = NULL;
-  ///     lxw_chartsheet_name *chartsheet_name = NULL;
-  ///     lxw_error error;
-
   const worksheet_init_data_t init_data{
       .index_        = num_sheets_,
       .hidden_       = 0,
-      ///     .optimize = self->options.constant_memory,
       .active_sheet_ = &active_sheet_,
       .first_sheet_  = &first_sheet_,
       .sst_          = &sst_,
@@ -1498,11 +1455,6 @@ void workbook_t::save(std::string_view filename)
   ////                                self->options.use_zip64);
 
   pkg.create_package(*this);
-
-  ////    if (!self->filename) {
-  ////        *self->options.output_buffer = packager->output_buffer;
-  ////        *self->options.output_buffer_size = packager->output_buffer_size;
-  ////    }
 
   /* Error and non-error conditions fall through to the cleanup code. */
   ////    if (error == LXW_ERROR_CREATING_TMPFILE) {

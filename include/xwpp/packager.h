@@ -90,12 +90,10 @@ private:
   [[nodiscard]] uint32_t get_chart_count(const workbook_t& workbook) const;
 
   ///     size_t buffer_size;
-  ///     size_t output_buffer_size;
   zipFile zipfile_ = nullptr;
   zip_fileinfo zip_fileinfo_;
   std::string filename_;
   ///     const char *buffer;
-  ///     char *output_buffer;
   ///     const char *tmpdir;
   ///     uint8_t use_zip64;
 };

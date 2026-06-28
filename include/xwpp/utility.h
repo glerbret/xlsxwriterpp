@@ -254,10 +254,6 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
  */
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
 
-/// FILE *lxw_tmpfile(const char *tmpdir);
-/// FILE *lxw_get_filehandle(char **buf, size_t *size, const char *tmpdir);
-/// FILE *lxw_fopen(const char *filename, const char *mode);
-
 uint16_t hash_password(const std::string& password);
 
 }

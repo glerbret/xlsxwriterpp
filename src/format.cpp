@@ -40,64 +40,6 @@ format_borders_t format_t::check_border(format_borders_t style) const
   }
 }
 
-/// STATIC lxw_format * _get_format_key(lxw_format *self)
-/// {
-///   lxw_format *key = calloc(1, sizeof(lxw_format));
-///   GOTO_LABEL_ON_MEM_ERROR(key, mem_error);
-
-///   memcpy(key, self, sizeof(lxw_format));
-
-/* Set pointer members to NULL since they aren't part of the comparison. */
-///   key->xf_format_indices = NULL;
-///   key->dxf_format_indices = NULL;
-///   key->num_xf_formats = NULL;
-///   key->num_dxf_formats = NULL;
-///   key->list_pointers.stqe_next = NULL;
-
-///   return key;
-
-/// mem_error:
-///   return NULL;
-/// }
-
-/// lxw_border * lxw_format_get_border_key(lxw_format *self)
-/// {
-///   lxw_border *key = calloc(1, sizeof(lxw_border));
-///   GOTO_LABEL_ON_MEM_ERROR(key, mem_error);
-
-///   key->bottom = self->bottom;
-///   key->left = self->left;
-///   key->right = self->right;
-///   key->top = self->top;
-///   key->diag_border = self->diag_border;
-///   key->diag_type = self->diag_type;
-///   key->bottom_color = self->bottom_color;
-///   key->left_color = self->left_color;
-///   key->right_color = self->right_color;
-///   key->top_color = self->top_color;
-///   key->diag_color = self->diag_color;
-
-///   return key;
-
-/// mem_error:
-///   return NULL;
-/// }
-
-/// lxw_fill * lxw_format_get_fill_key(lxw_format *self)
-/// {
-///   lxw_fill *key = calloc(1, sizeof(lxw_fill));
-///   GOTO_LABEL_ON_MEM_ERROR(key, mem_error);
-
-///   key->fg_color = self->fg_color;
-///   key->bg_color = self->bg_color;
-///   key->pattern = self->pattern;
-
-///   return key;
-
-/// mem_error:
-///   return NULL;
-/// }
-
 void format_t::set_font_name(const std::string& font_name)
 {
   font_name_ = font_name;

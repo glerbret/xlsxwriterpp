@@ -97,49 +97,6 @@ option(
   OFF
 )
 
-# `USE_STANDARD_TMPFILE`
-#
-# Uses the standard library `tmpfile` function to handle temp files instead of
-# the vendored `tmpfileplus` function. Turning this off eliminates a dependency.
-# This option is not recommended for Windows as it doesn't support a
-# configurable location and the default location may be in a privileged
-# directory.
-#
-# To enable this option pass `-DUSE_STANDARD_TMPFILE=ON` during configuration.
-### option(
-###     USE_STANDARD_TMPFILE
-###     "Use the C standard library tmpfile() instead of tmpfileplus"
-###     OFF
-### )
-
-# `USE_DTOA_LIBRARY`
-#
-# Use the third party Milo Yip DTOA library to handle string formatting of
-# doubles. This is used to avoid issues with double formatting in different
-# locales and gives better performance with numeric data.
-#
-# To enable this library, pass `-DUSE_DTOA_LIBRARY=ON` during configuration.
-### option(
-###     USE_DTOA_LIBRARY
-###     "Use the Milo Yip DTOA library to handle string formatting of doubles."
-###     OFF
-### )
-
-# `USE_MEM_FILE`
-#
-# Use in memory files instead of temp files using the
-# `fmemopen()`/`open_memstream()` functions. This option isn't available with
-# MSVC.
-#
-# To enable this option pass `-DUSE_MEM_FILE=ON` during configuration.
-### if(NOT MSVC)
-###     option(
-###         USE_MEM_FILE
-###         "Use fmemopen()/open_memstream() in place of temporary files"
-###         OFF
-###     )
-### endif()
-
 # `BUILD_TESTS`
 #
 # Compile the unit and function tests for Xlsxwriter++. This functional tests
@@ -168,21 +125,14 @@ option(BUILD_EXAMPLES "Build Xlsxwriter++ examples" OFF)
 # To enable this option pass `-DBUILD_FUZZERS=ON` during configuration.
 ### option(BUILD_FUZZERS "Build harness(es) for fuzzing" OFF)
 
-# `IOAPI_NO_64`
-#
-# Turn off `IOAPI_NO_64` support in minizip ioapi.c.
-#
-# To enable this option pass `-DIOAPI_NO_64=ON` during configuration.
-### option(IOAPI_NO_64 "Disable 64-bit filesystem support with minizip" OFF)
-
 # `USE_STATIC_MSVC_RUNTIME`
 #
 # Compile as a static library with the static MSVC runtime library.
 #
 # To enable this option pass `-DUSE_STATIC_MSVC_RUNTIME=ON` during configuration.
-### if(MSVC)
-###     option(USE_STATIC_MSVC_RUNTIME "Use the static runtime library" OFF)
-### endif()
+# if(MSVC)
+#     option(USE_STATIC_MSVC_RUNTIME "Use the static runtime library" OFF)
+# endif()
 
 # `ZLIB_ROOT`
 #
@@ -203,25 +153,9 @@ if(USE_SYSTEM_MINIZIP)
   list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_SYSTEM_MINIZIP)
 endif()
 
-### if(USE_STANDARD_TMPFILE)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_STANDARD_TMPFILE)
-### endif()
-
 ## TODO Replace MD5_Init and co and remove this
 # For openSSL use
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
-
-### if(USE_MEM_FILE OR USE_FMEMOPEN)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_FMEMOPEN)
-### endif()
-
-### if(USE_DTOA_LIBRARY)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_DTOA_LIBRARY)
-### endif()
-
-### if(IOAPI_NO_64)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS IOAPI_NO_64=1)
-### endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
 ### if(NOT BUILD_SHARED_LIBS)
 ###     if(UNIX)
@@ -345,15 +279,6 @@ if(NOT USE_SYSTEM_MINIZIP)
     list(APPEND XWPP_SOURCES third_party/minizip/iowin32.c)
   endif()
 endif()
-
-# If not using the system tmpfile, add the vendored tmpfileplus files.
-### if(NOT USE_STANDARD_TMPFILE)
-###     list(APPEND XWPP_SOURCES third_party/tmpfileplus/tmpfileplus.c)
-### endif()
-
-### if(USE_DTOA_LIBRARY)
-###     list(APPEND XWPP_SOURCES third_party/dtoa/emyg_dtoa.c)
-### endif()
 
 # Set project metadata.
 set(XWPP_PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
