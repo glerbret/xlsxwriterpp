@@ -851,21 +851,21 @@ std::string validation_list_to_csv(const std::vector<std::string>& list)
   return str;
 }
 
-/// STATIC double _pixels_to_width(double pixels)
-/// {
-///     double max_digit_width = 7.0;
-///     double padding = 5.0;
-///     double width;
+double pixels_to_width(double pixels)
+{
+  double max_digit_width = 7.0;
+  double padding = 5.0;
+  double width;
 
-///     if (pixels == LXW_DEF_COL_WIDTH_PIXELS)
-///         width = LXW_DEF_COL_WIDTH;
-///     else if (pixels <= 12.0)
-///         width = pixels / (max_digit_width + padding);
-///     else
-///         width = (pixels - padding) / max_digit_width;
+  if (pixels == DEF_COL_WIDTH_PIXELS)
+      width = DEF_COL_WIDTH;
+  else if (pixels <= 12.0)
+      width = pixels / (max_digit_width + padding);
+  else
+      width = (pixels - padding) / max_digit_width;
 
-///     return width;
-/// }
+    return width;
+}
 
 /// STATIC double _pixels_to_height(double pixels)
 /// {
@@ -3525,6 +3525,25 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
     ///         else
     has_custom_width = false;
   }
+
+// TODO To get same size as example of libxslxwrter, to check if we keep it
+    /* Convert column width from user units to character width. */
+    double max_digit_width = 7.0;       /* For Calabri 11. */
+    double padding = 5.0;
+
+    if (width > 0) {
+        if (width < 1) {
+            width = (uint16_t) (((uint16_t)
+                                 (width * (max_digit_width + padding) + 0.5))
+                                / max_digit_width * 256.0) / 256.0;
+        }
+        else {
+            width = (uint16_t) (((uint16_t)
+                                 (width * max_digit_width + 0.5) + padding)
+                                / max_digit_width * 256.0) / 256.0;
+        }
+    }
+
 
   attributes.emplace_back("min", std::to_string(options.firstcol_ + 1));
   attributes.emplace_back("max", std::to_string(options.lastcol_ + 1));
@@ -6850,17 +6869,12 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
 ///                                     NULL);
 /// }
 
-/// lxw_error
-/// worksheet_set_column_pixels(lxw_worksheet *self,
-///                             col_num_t firstcol,
-///                             col_num_t lastcol,
-///                             uint32_t pixels, lxw_format *format)
-/// {
-///     double width = _pixels_to_width(pixels);
-///
-///     return worksheet_set_column_opt(self, firstcol, lastcol, width, format,
-///                                     NULL);
-/// }
+void worksheet_t::set_column_pixels(col_num_t firstcol, col_num_t lastcol, uint32_t pixels /* lxw_format *format*/)
+{
+  const double width = pixels_to_width(pixels);
+
+  set_column(firstcol, lastcol, width/*, format, NULL*/);
+}
 
 /// lxw_error
 /// worksheet_set_column_pixels_opt(lxw_worksheet *self,

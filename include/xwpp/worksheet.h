@@ -74,7 +74,7 @@ const size_t BREAKS_MAX = 1023;
 const double DEF_COL_WIDTH = 8.43;
 
 /** Default Excel column width in pixels. */
-/// #define LXW_DEF_COL_WIDTH_PIXELS 64
+const double DEF_COL_WIDTH_PIXELS = 64;
 
 /** Default Excel column height in pixels. */
 /// #define LXW_DEF_ROW_HEIGHT_PIXELS 20
@@ -2217,6 +2217,59 @@ public:
    */
   void set_column(col_num_t first_col, col_num_t last_col,
                   double width /* TODO, lxw_format *format, lxw_row_col_options *options*/);
+
+/**
+ * @brief Set the properties for one or more columns of cells, with the width
+ *        in pixels.
+ *
+ * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+ * @param first_col The zero indexed first column.
+ * @param last_col  The zero indexed last column.
+ * @param pixels    The width of the column(s) in pixels.
+ * @param format    A pointer to a Format instance or NULL.
+ *
+ * @return A #lxw_error code.
+ *
+ * The `%worksheet_set_column_pixels()` function is the same as
+ * `worksheet_set_column()` function except that the width can be set in
+ * pixels:
+ *
+ * @code
+ *     // Column width set to 75 pixels, the same as 10 character units.
+ *     worksheet_set_column(worksheet, 5, 5, 75, NULL);
+ * @endcode
+ *
+ * @image html set_column_pixels.png
+ *
+ * If you wish to set the format of a column without changing the width you can
+ * pass the default column width in pixels: #LXW_DEF_COL_WIDTH_PIXELS.
+ */
+void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels /* TODO, lxw_format *format*/);
+
+/**
+ * @brief Set the properties for one or more columns of cells with options,
+ *        with the width in pixels.
+ *
+ * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+ * @param first_col The zero indexed first column.
+ * @param last_col  The zero indexed last column.
+ * @param pixels    The width of the column(s) in pixels.
+ * @param format    A pointer to a Format instance or NULL.
+ * @param options   Optional row parameters: hidden, level, collapsed.
+ *
+ * @return A #lxw_error code.
+ *
+ * The `%worksheet_set_column_pixels_opt()` function is the same as the
+ * `worksheet_set_column_opt()` function except that the width can be set in
+ * pixels.
+ *
+ */
+/// lxw_error worksheet_set_column_pixels_opt(lxw_worksheet *worksheet,
+///                                           col_num_t first_col,
+///                                           col_num_t last_col,
+///                                           uint32_t pixels,
+///                                           lxw_format *format,
+///                                           lxw_row_col_options *options);
 
   // TODO Add API with option (original worksheet_set_row_opt) and format
   // TODO Add API with row names
@@ -5044,62 +5097,6 @@ private:
 ///                                col_num_t first_col,
 ///                                col_num_t last_col,
 ///                                double width, lxw_format *format);
-
-/**
- * @brief Set the properties for one or more columns of cells, with the width
- *        in pixels.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col The zero indexed first column.
- * @param last_col  The zero indexed last column.
- * @param pixels    The width of the column(s) in pixels.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_column_pixels()` function is the same as
- * `worksheet_set_column()` function except that the width can be set in
- * pixels:
- *
- * @code
- *     // Column width set to 75 pixels, the same as 10 character units.
- *     worksheet_set_column(worksheet, 5, 5, 75, NULL);
- * @endcode
- *
- * @image html set_column_pixels.png
- *
- * If you wish to set the format of a column without changing the width you can
- * pass the default column width in pixels: #LXW_DEF_COL_WIDTH_PIXELS.
- */
-/// lxw_error worksheet_set_column_pixels(lxw_worksheet *worksheet,
-///                                       col_num_t first_col,
-///                                       col_num_t last_col,
-///                                       uint32_t pixels, lxw_format *format);
-
-/**
- * @brief Set the properties for one or more columns of cells with options,
- *        with the width in pixels.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col The zero indexed first column.
- * @param last_col  The zero indexed last column.
- * @param pixels    The width of the column(s) in pixels.
- * @param format    A pointer to a Format instance or NULL.
- * @param options   Optional row parameters: hidden, level, collapsed.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_column_pixels_opt()` function is the same as the
- * `worksheet_set_column_opt()` function except that the width can be set in
- * pixels.
- *
- */
-/// lxw_error worksheet_set_column_pixels_opt(lxw_worksheet *worksheet,
-///                                           col_num_t first_col,
-///                                           col_num_t last_col,
-///                                           uint32_t pixels,
-///                                           lxw_format *format,
-///                                           lxw_row_col_options *options);
 
 /**
  * @brief Set the background image for a worksheet, from a buffer.
