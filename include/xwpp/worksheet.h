@@ -2213,6 +2213,7 @@ public:
    *
    * @image html outline8.png
    */
+  // TODO Add API with only format or option
   void set_column(col_num_t first_col, col_num_t last_col, double width);
   void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format,
                   const std::optional<row_col_options_t>& options);
@@ -2332,6 +2333,7 @@ public:
    * @image html outline1.png
    *
    */
+  // TODO Add API with only format or option
   void set_row(row_num_t row, double height);
   void set_row(row_num_t row, double height, const format_t* format,
                const std::optional<row_col_options_t>& user_options);

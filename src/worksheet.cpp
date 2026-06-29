@@ -1671,16 +1671,14 @@ std::string worksheet_t::write_sheet_format_pr() const
     attributes.emplace_back("zeroHeight", "1");
   }
 
-  ///     if (self->outline_row_level)
-  ///       {
-    LXW_PUSH_ATTRIBUTES_INT("outlineLevelRow",
-  ///         self->outline_row_level);
+  if(outline_row_level_ != 0)
+  {
+    attributes.emplace_back("outlineLevelRow", std::to_string(outline_row_level_));
   }
 
-  ///     if (self->outline_col_level)
-  ///       {
-    LXW_PUSH_ATTRIBUTES_INT("outlineLevelCol",
-  ///         self->outline_col_level);
+  if(outline_col_level_ != 0)
+  {
+    attributes.emplace_back("outlineLevelCol", std::to_string(outline_col_level_));
   }
 
   if(excel_version_ == 2010)
@@ -3108,10 +3106,10 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   {
     style_index = get_xf_index_(row_format);
   }
-  ///     else if(col_num < self->col_formats_max && self->col_formats[col_num])
+  else if(cell.col_num_ < col_formats_.size() && col_formats_[cell.col_num_])
   {
-  ///         style_index = lxw_format_get_xf_index(self->col_formats[col_num]);
-  ///     }
+    style_index = get_xf_index_(col_formats_[cell.col_num_]);
+  }
 
   if(cell.type_ == cell_types_t::NUMBER_CELL)
   {
@@ -3328,12 +3326,13 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
 
   double width          = options.width_;
   bool has_custom_width = true;
-  ///     int32_t xf_index      = 0;
+  int32_t xf_index      = 0;
 
-  // Get the format index. */
-  ///     if(options->format) {
-  ///         xf_index = lxw_format_get_xf_index(options->format);
-  ///     }
+  // Get the format index.
+  if(options.format_)
+  {
+    xf_index = get_xf_index_(options.format_);
+  }
 
   // Check if width is the Excel default.
   if(width == DEF_COL_WIDTH)
@@ -3370,9 +3369,9 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   attributes.emplace_back("max", std::to_string(options.lastcol_ + 1));
   attributes.emplace_back("width", std::format("{}", width));
 
-  ///     if(xf_index)
+  if(xf_index)
   {
-  ///         LXW_PUSH_ATTRIBUTES_INT("style", xf_index);
+    attributes.emplace_back("style", std::to_string(xf_index));
   }
 
   if(options.hidden_)
