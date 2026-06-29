@@ -20,28 +20,23 @@
 namespace xwpp
 {
 
-/// void lxw_styles_write_string_fragment(lxw_styles *self, const char *string)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+std::string style_t::write_string_fragment(const std::string& str) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     LXW_INIT_ATTRIBUTES();
+  // Add attribute to preserve leading or trailing whitespace.
+  if(std::isspace(str[0]) || std::isspace(str.back()))
+  {
+    attributes.emplace_back("xml:space", "preserve");
+  }
 
-/* Add attribute to preserve leading or trailing whitespace. */
-///     if (isspace((unsigned char) string[0])
-///         || isspace((unsigned char) string[strlen(string) - 1]))
-///         LXW_PUSH_ATTRIBUTES_STR("xml:space", "preserve");
+  return xml_data_element("t", str, attributes);
+}
 
-///     lxw_xml_data_element(self->file, "t", string, &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// void
-/// lxw_styles_write_rich_font(lxw_styles *self, lxw_format *format)
-/// {
-///     _write_font(self, format, LXW_FALSE, LXW_TRUE);
-/// }
+std::string style_t::write_rich_font(const format_t* format)
+{
+  return write_font(format, false, true);
+}
 
 std::string style_t::write_style_sheet() const
 {
@@ -366,6 +361,10 @@ std::string style_t::write_comment_font() const
   xml_data += xml_end_tag("font");
 
   return xml_data;
+}
+
+style_t::style_t()
+{
 }
 
 style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count,

@@ -20,10 +20,13 @@ namespace xwpp
 class style_t
 {
 public:
+  style_t();
   style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
           const std::vector<format_t*>& xf_formats, const std::vector<format_t*>& dxf_formats);
 
   [[nodiscard]] std::string assemble_xml_file();
+  [[nodiscard]] std::string write_string_fragment(const std::string& str) const;
+  [[nodiscard]] std::string write_rich_font(const format_t* format);
 
 private:
   [[nodiscard]] std::string write_style_sheet() const;
@@ -82,8 +85,6 @@ private:
   bool has_comments_          = false;
 };
 
-/// void lxw_styles_write_string_fragment(lxw_styles *self, const char *string);
-/// void lxw_styles_write_rich_font(lxw_styles *styles, lxw_format *format);
 }
 
 #endif

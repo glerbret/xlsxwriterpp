@@ -11,6 +11,7 @@
 #include "xwpp/drawing.h"
 #include "xwpp/exception.h"
 #include "xwpp/shared_strings.h"
+#include "xwpp/styles.h"
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
@@ -1671,12 +1672,16 @@ std::string worksheet_t::write_sheet_format_pr() const
   }
 
   ///     if (self->outline_row_level)
-  ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevelRow",
+  ///       {
+    LXW_PUSH_ATTRIBUTES_INT("outlineLevelRow",
   ///         self->outline_row_level);
+  }
 
   ///     if (self->outline_col_level)
-  ///         LXW_PUSH_ATTRIBUTES_INT("outlineLevelCol",
+  ///       {
+    LXW_PUSH_ATTRIBUTES_INT("outlineLevelCol",
   ///         self->outline_col_level);
+  }
 
   if(excel_version_ == 2010)
   {
@@ -3103,7 +3108,8 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   {
     style_index = get_xf_index_(row_format);
   }
-  ///     else if (col_num < self->col_formats_max && self->col_formats[col_num]) {
+  ///     else if(col_num < self->col_formats_max && self->col_formats[col_num])
+  {
   ///         style_index = lxw_format_get_xf_index(self->col_formats[col_num]);
   ///     }
 
@@ -3322,10 +3328,10 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
 
   double width          = options.width_;
   bool has_custom_width = true;
-  ///     int32_t xf_index = 0;
+  ///     int32_t xf_index      = 0;
 
   // Get the format index. */
-  ///     if (options->format) {
+  ///     if(options->format) {
   ///         xf_index = lxw_format_get_xf_index(options->format);
   ///     }
 
@@ -3364,8 +3370,10 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   attributes.emplace_back("max", std::to_string(options.lastcol_ + 1));
   attributes.emplace_back("width", std::format("{}", width));
 
-  ///     if (xf_index)
+  ///     if(xf_index)
+  {
   ///         LXW_PUSH_ATTRIBUTES_INT("style", xf_index);
+  }
 
   if(options.hidden_)
   {
@@ -6397,135 +6405,65 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
  * styles object and uses it to write the data to a file. It then reads that
  * data back into memory and closes the file.
  */
-/// lxw_error
-/// worksheet_write_rich_string(lxw_worksheet *self,
-///                             row_num_t row_num,
-///                             col_num_t col_num,
-///                             lxw_rich_string_tuple *rich_strings[],
-///                             lxw_format *format)
-/// {
-///     cell_t *cell;
-///     int32_t string_id;
-///     struct sst_element *sst_element;
-///     lxw_error err;
-///     uint8_t i;
-///     long file_size;
-///     char *rich_string = NULL;
-///     const char *string_copy = NULL;
-///     lxw_styles *styles = NULL;
-///     lxw_format *default_format = NULL;
-///     lxw_rich_string_tuple *rich_string_tuple = NULL;
-///     FILE *tmpfile;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     /* Iterate through rich string fragments to check for input errors. */
-///     i = 0;
-///     err = LXW_NO_ERROR;
-///     while ((rich_string_tuple = rich_strings[i++]) != NULL) {
-///
-///         /* Check for NULL or empty strings. */
-///         if (!rich_string_tuple->string || !*rich_string_tuple->string) {
-///             err = LXW_ERROR_PARAMETER_VALIDATION;
-///         }
-///     }
-///
-///     /* If there are less than 2 fragments it isn't a rich string. */
-///     if (i <= 2)
-///         err = LXW_ERROR_PARAMETER_VALIDATION;
-///
-///     if (err)
-///         return err;
-///
-///     /* Create a tmp file for the styles object. */
-///     tmpfile = lxw_get_filehandle(&rich_string, NULL, self->tmpdir);
-///     if (!tmpfile)
-///         return LXW_ERROR_CREATING_TMPFILE;
-///
-///     /* Create a temp styles object for writing the font data. */
-///     styles = lxw_styles_new();
-///     GOTO_LABEL_ON_MEM_ERROR(styles, mem_error);
-///     styles->file = tmpfile;
-///
-///     /* Create a default format for non-formatted text. */
-///     default_format = lxw_format_new();
-///     GOTO_LABEL_ON_MEM_ERROR(default_format, mem_error);
-///
-///     /* Iterate through the rich string fragments and write each one out. */
-///     i = 0;
-///     while ((rich_string_tuple = rich_strings[i++]) != NULL) {
-///         lxw_xml_start_tag(tmpfile, "r", NULL);
-///
-///         if (rich_string_tuple->format) {
-///             /* Write the user defined font format. */
-///             lxw_styles_write_rich_font(styles, rich_string_tuple->format);
-///         }
-///         else {
-///             /* Write a default font format. Except for the first fragment. */
-///             if (i > 1)
-///                 lxw_styles_write_rich_font(styles, default_format);
-///         }
-///
-///         lxw_styles_write_string_fragment(styles, rich_string_tuple->string);
-///         lxw_xml_end_tag(tmpfile, "r");
-///     }
-///
-///     /* Free the temp objects. */
-///     lxw_styles_free(styles);
-///     lxw_format_free(default_format);
-///
-///     /* Flush the file. */
-///     fflush(tmpfile);
-///
-///     if (!rich_string) {
-///         /* Read the size to calculate the required memory. */
-///         file_size = ftell(tmpfile);
-///         /* Allocate a buffer for the rich string xml data. */
-///         rich_string = calloc(file_size + 1, 1);
-///         GOTO_LABEL_ON_MEM_ERROR(rich_string, mem_error);
-///
-///         /* Rewind the file and read the data into the memory buffer. */
-///         rewind(tmpfile);
-///         if (fread((void *) rich_string, file_size, 1, tmpfile) < 1) {
-///             fclose(tmpfile);
-///             free((void *) rich_string);
-///             return LXW_ERROR_READING_TMPFILE;
-///         }
-///     }
-///
-///     /* Close the temp file. */
-///     fclose(tmpfile);
-///
-///     if (lxw_utf8_strlen(rich_string) > LXW_STR_MAX) {
-///         free((void *) rich_string);
-///         return LXW_ERROR_MAX_STRING_LENGTH_EXCEEDED;
-///     }
-///
-///         /* Get the SST element and string id. */
-///         sst_element = lxw_get_sst_index(self->sst, rich_string, LXW_TRUE);
-///         free((void *) rich_string);
-///
-///         if (!sst_element)
-///             return LXW_ERROR_SHARED_STRING_INDEX_NOT_FOUND;
-///
-///         string_id = sst_element->index;
-///         cell = _new_string_cell(row_num, col_num, string_id,
-///                                 sst_element->string, format);
-///     }
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-///
-/// mem_error:
-///     lxw_styles_free(styles);
-///     lxw_format_free(default_format);
-///     fclose(tmpfile);
-///
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
+                                    const std::vector<xwpp::rich_string_tuple_t>& rich_strings, const format_t* format)
+{
+  check_dimensions(row_num, col_num, false, false);
+
+  // Iterate through rich string fragments to check for input errors.
+  for(const auto& rich_string_tuple: rich_strings)
+  {
+    // Check for empty strings.
+    if(rich_string_tuple.str_.empty())
+    {
+      throw xwpp_exception_t("worksheet_t::write_rich_string(): string cannot be empty");
+    }
+  }
+
+  // If there are less than 2 fragments it isn't a rich string.
+  if(rich_strings.size() < 2)
+  {
+    throw xwpp_exception_t("worksheet_t::write_rich_string(): rich string must have more than 2 fragments");
+  }
+
+  style_t style;
+  format_t default_format;
+  std::string rich_string;
+
+  // Iterate through the rich string fragments and write each one out.
+  for(size_t i = 0; const auto& rich_string_tuple: rich_strings)
+  {
+    rich_string += xml_start_tag("r");
+    if(rich_string_tuple.format_)
+    {
+      // Write the user defined font format.
+      rich_string += style.write_rich_font(rich_string_tuple.format_);
+    }
+    else
+    {
+      // Write a default font format. Except for the first fragment.
+      if(i > 1)
+      {
+        rich_string += style.write_rich_font(&default_format);
+      }
+    }
+
+    rich_string += style.write_string_fragment(rich_string_tuple.str_);
+    rich_string += xml_end_tag("r");
+    i++;
+  }
+
+  if(rich_string.size() > STR_MAX)
+  {
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::write_rich_string(): rich string size '{}' is too high (max: '{}')",
+                    rich_string.size(), STR_MAX));
+  }
+
+  const shared_strings_element_t sst_element = sst_->get_index(rich_string, true);
+  const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
+  insert_cell(row_num, col_num, cell);
+}
 
 void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std::string& text,
                                 std::optional<comment_options_t> options)
