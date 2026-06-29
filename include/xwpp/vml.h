@@ -22,8 +22,8 @@ class vml_t
 {
 public:
   vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& comment_objs, uint32_t vml_shape_id);
-  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& image_objs, uint32_t vml_shape_id,
-        comment_display_t comment_display_default);
+  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& image_objs,
+        const std::vector<vml_obj_t>& button_objs, uint32_t vml_shape_id, comment_display_t comment_display_default);
 
   [[nodiscard]] std::string assemble_xml_file();
 
@@ -56,9 +56,22 @@ private:
                                               const vml_obj_t& image_obj) const;
   [[nodiscard]] std::string write_imagedata(uint32_t rel_index, const std::string& name) const;
   [[nodiscard]] std::string write_rotation_lock() const;
+  [[nodiscard]] std::string write_button_shapetype() const;
+  [[nodiscard]] std::string write_button_path() const;
+  [[nodiscard]] std::string write_shapetype_lock() const;
+  [[nodiscard]] std::string write_button_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& vml_obj) const;
+  [[nodiscard]] std::string write_button_fill() const;
+  [[nodiscard]] std::string write_button_textbox(const vml_obj_t& vml_obj) const;
+  [[nodiscard]] std::string write_button_client_data(const vml_obj_t& vml_obj) const;
+  [[nodiscard]] std::string write_button_div(const vml_obj_t& vml_obj) const;
+  [[nodiscard]] std::string write_font(const vml_obj_t& vml_obj) const;
+  [[nodiscard]] std::string write_print_object() const;
+  [[nodiscard]] std::string write_text_halign() const;
+  [[nodiscard]] std::string write_text_valign() const;
+  [[nodiscard]] std::string write_fmla_macro(const vml_obj_t& vml_obj) const;
 
   ///     uint8_t type;
-  ///     struct lxw_comment_objs *button_objs;
+  std::vector<vml_obj_t> button_objs_;
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> image_objs_;
   std::string vml_data_id_str_;

@@ -27,6 +27,7 @@ public:
   // TODO Rename (remove _relationship)
   void add_worksheet_relationship(std::string_view type, std::string_view target, std::string_view target_mode);
   void add_rich_value();
+  void add_ms_package(std::string_view type, std::string_view target);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -37,9 +38,6 @@ private:
   /// uint32_t rel_id = 0;
   std::vector<std::tuple<std::string, std::string, std::string>> relationships_;
 };
-
-/// void lxw_add_ms_package_relationship(lxw_relationships *self,
-///                                      const char *type, const char *target);
 
 }
 

@@ -82,6 +82,7 @@ private:
   void write_rich_value_structure_file(const workbook_t& workbook);
   void write_rich_value_types_file(const workbook_t& workbook);
   void write_chart_files(const workbook_t& workbook);
+  void add_vba_project(const workbook_t& workbook);
 
   void add_buffer_to_zip(std::string_view buffer, const std::string& filename);
   void add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename);

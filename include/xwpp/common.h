@@ -106,8 +106,7 @@ enum class drawing_orientation_t
   PORTRAIT,
 };
 
-/// #define LXW_SCHEMA_MS
-/// "http://schemas.microsoft.com/office/2006/relationships"
+const std::string SCHEMA_MS        = "http://schemas.microsoft.com/office/2006/relationships";
 const std::string SCHEMA_ROOT      = "http://schemas.openxmlformats.org";
 const std::string SCHEMA_DRAWING   = SCHEMA_ROOT + "/drawingml/2006";
 const std::string SCHEMA_OFFICEDOC = SCHEMA_ROOT + "/officeDocument/2006";

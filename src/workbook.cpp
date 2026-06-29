@@ -17,6 +17,7 @@
 #include <cctype>
 #include <chrono>
 #include <format>
+#include <fstream>
 #include <functional>
 #include <string>
 
@@ -1054,16 +1055,17 @@ std::string workbook_t::write_workbook() const
 
 std::string workbook_t::write_file_version() const
 {
-  const std::vector<std::tuple<std::string, std::string>> attributes{
+  std::vector<std::tuple<std::string, std::string>> attributes{
       {"appName",      "xl"  },
       {"lastEdited",   "4"   },
       {"lowestEdited", "4"   },
       {"rupBuild",     "4505"},
   };
 
-  ///     if (self->vba_project)
-  ///         LXW_PUSH_ATTRIBUTES_STR("codeName",
-  ///                                 "{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}");
+  if(!vba_project_.empty())
+  {
+    attributes.emplace_back("codeName", "{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}");
+  }
 
   return xml_empty_tag("fileVersion", attributes);
 }
@@ -1083,8 +1085,10 @@ std::string workbook_t::write_workbook_pr() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  ///     if (self->vba_codename)
-  ///         LXW_PUSH_ATTRIBUTES_STR("codeName", self->vba_codename);
+  if(!vba_codename_.empty())
+  {
+    attributes.emplace_back("codeName", vba_codename_);
+  }
 
   ///     if (self->use_1904_epoch)
   ///         LXW_PUSH_ATTRIBUTES_STR("date1904", "1");
@@ -1413,25 +1417,27 @@ void workbook_t::save(std::string_view filename)
     }
   }
 
-  /* Set workbook and worksheet VBA codenames if a macro has been added. */
-  ////    if (self->vba_project) {
-  ////        if (!self->vba_codename)
-  ////            workbook_set_vba_name(self, "ThisWorkbook");
+  // Set workbook and worksheet VBA codenames if a macro has been added.
+  if(!vba_project_.empty())
+  {
+    if(vba_codename_.empty())
+    {
+      set_vba_name("ThisWorkbook");
+    }
 
-  ////        STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-  ////            if (sheet->is_chartsheet)
-  ////                continue;
-  ////            else
-  ////                worksheet = sheet->u.worksheet;
+    for(auto& sheet: sheets_)
+    {
+      if(std::holds_alternative<worksheet_t>(sheet))
+      {
+        auto& ws = std::get<worksheet_t>(sheet);
 
-  ////            if (!worksheet->vba_codename) {
-  ////                lxw_snprintf(codename, LXW_MAX_SHEETNAME_LENGTH,
-  ///"Sheet%d", /                             worksheet->index + 1);
-
-  ////                worksheet_set_vba_name(worksheet, codename);
-  ////            }
-  ////        }
-  ////    }
+        if(ws.vba_codename_.empty())
+        {
+          ws.set_vba_name(std::format("Sheet{}", ws.get_sheet_index() + 1));
+        }
+      }
+    }
+  }
 
   // Prepare the worksheet VML elements such as comments.
   prepare_vml();
@@ -1707,30 +1713,25 @@ void workbook_t::validate_sheetname(std::string_view sheetname) const
   ///         return LXW_ERROR_SHEETNAME_ALREADY_USED;
 }
 
-/// lxw_error workbook_add_vba_project(lxw_workbook *self, const char *filename)
-/// {
-///     FILE *filehandle;
+void workbook_t::add_vba_project(const std::string& filename)
+{
+  if(filename.empty())
+  {
+    throw xwpp_exception_t("workbook_t::add_vba_project(): project filename must be specified");
+  }
 
-///     if (!filename) {
-///         LXW_WARN("workbook_add_vba_project(): "
-///                  "project filename must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
+  // Check that the image file exists and can be opened.
+  {
+    std::ifstream vba_stream(filename);
+    if(!vba_stream)
+    {
+      throw xwpp_exception_t(
+          std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened", filename));
+    }
+  }
 
-/* Check that the vbaProject file exists and can be opened. */
-///     filehandle = lxw_fopen(filename, "rb");
-///     if (!filehandle) {
-///         LXW_WARN_FORMAT1("workbook_add_vba_project(): "
-///                          "project file doesn't exist or can't be opened: %s.",
-///                          filename);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///     fclose(filehandle);
-
-///     self->vba_project = lxw_strdup(filename);
-
-///     return LXW_NO_ERROR;
-/// }
+  vba_project_ = filename;
+}
 
 /// lxw_error workbook_add_signed_vba_project(lxw_workbook *self,
 ///                                 const char *vba_project,
@@ -1763,23 +1764,15 @@ void workbook_t::validate_sheetname(std::string_view sheetname) const
 ///     return LXW_NO_ERROR;
 /// }
 
-/// lxw_error workbook_set_vba_name(lxw_workbook *self, const char *name)
-/// {
-///     if (!name) {
-///         LXW_WARN("workbook_set_vba_name(): " "name must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
+void workbook_t::set_vba_name(const std::string& name)
+{
+  if(name.empty())
+  {
+    throw xwpp_exception_t("workbook_t::set_vba_name(): 'name' cannot be an empty string");
+  }
 
-///     if (lxw_str_is_empty(name)) {
-///         LXW_WARN_FORMAT("workbook_set_vba_name(): parameter "
-///                         "'name' cannot be an empty string.");
-///         return LXW_ERROR_PARAMETER_IS_EMPTY;
-///     }
-
-///     self->vba_codename = lxw_strdup(name);
-
-///     return LXW_NO_ERROR;
-/// }
+  vba_codename_ = name;
+}
 
 /// void workbook_read_only_recommended(lxw_workbook *self)
 /// {

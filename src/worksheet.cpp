@@ -2167,94 +2167,90 @@ void worksheet_t::position_object_emus(const object_properties_t& image, drawing
  * worksheet_insert_button() as well as calculating the button object
  * position and vertices.
  */
-/// lxw_error
-/// _get_button_params(lxw_vml_obj *button, uint16_t button_number,
-///                    lxw_button_options *options)
-/// {
-///     int32_t x_offset = 0;
-///     int32_t y_offset = 0;
-///     uint32_t height = LXW_DEF_ROW_HEIGHT_PIXELS;
-///     uint32_t width = LXW_DEF_COL_WIDTH_PIXELS;
-///     double x_scale = 1.0;
-///     double y_scale = 1.0;
-///     row_num_t row = button->row;
-///     col_num_t col = button->col;
-///     char buffer[LXW_ATTR_32];
-///     uint8_t has_caption = LXW_FALSE;
-///     uint8_t has_macro = LXW_FALSE;
-///     size_t len;
+void get_button_params(vml_obj_t& button, uint16_t button_number, const std::optional<button_options_t>& options)
+{
+  int32_t x_offset = 0;
+  int32_t y_offset = 0;
+  uint32_t height  = DEF_ROW_HEIGHT_PIXELS;
+  uint32_t width   = DEF_COL_WIDTH_PIXELS;
+  double x_scale   = 1.0;
+  double y_scale   = 1.0;
+  bool has_caption = false;
+  bool has_macro   = false;
 
-/* Set any user defined options. */
-///     if (options) {
-///         if (options->width > 0.0)
-///             width = options->width;
+  // Set any user defined options.
+  if(options)
+  {
+    if(options->width_ > 0.0)
+    {
+      width = options->width_;
+    }
 
-///         if (options->height > 0.0)
-///             height = options->height;
+    if(options->height_ > 0.0)
+    {
+      height = options->height_;
+    }
 
-///         if (options->x_scale > 0.0)
-///             x_scale = options->x_scale;
+    if(options->x_scale_ > 0.0)
+    {
+      x_scale = options->x_scale_;
+    }
 
-///         if (options->y_scale > 0.0)
-///             y_scale = options->y_scale;
+    if(options->y_scale_ > 0.0)
+    {
+      y_scale = options->y_scale_;
+    }
 
-///         if (options->x_offset != 0)
-///             x_offset = options->x_offset;
+    if(options->x_offset_ != 0)
+    {
+      x_offset = options->x_offset_;
+    }
 
-///         if (options->y_offset != 0)
-///             y_offset = options->y_offset;
+    if(options->y_offset_ != 0)
+    {
+      y_offset = options->y_offset_;
+    }
 
-///         if (options->caption) {
-///             button->name = lxw_strdup(options->caption);
-///             RETURN_ON_MEM_ERROR(button->name, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///             has_caption = LXW_TRUE;
-///         }
+    if(!options->caption_.empty())
+    {
+      button.name_ = options->caption_;
+      has_caption  = true;
+    }
 
-///         if (options->macro) {
-///             len = sizeof("[0]!") + strlen(options->macro);
-///             button->macro = calloc(1, len);
-///             RETURN_ON_MEM_ERROR(button->macro,
-///                                 LXW_ERROR_MEMORY_MALLOC_FAILED);
+    if(!options->macro_.empty())
+    {
+      button.macro_ = "[0]!" + options->macro_;
+      has_macro     = true;
+    }
 
-///             if (button->macro)
-///                 lxw_snprintf(button->macro, len, "[0]!%s", options->macro);
+    if(!options->description_.empty())
+    {
+      button.text_ = options->description_;
+    }
+  }
 
-///             has_macro = LXW_TRUE;
-///         }
+  if(!has_caption)
+  {
+    button.name_ = std::format("Button {}", button_number);
+  }
 
-///         if (options->description) {
-///             button->text = lxw_strdup(options->description);
-///             RETURN_ON_MEM_ERROR(button->text, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///         }
-///     }
+  if(!has_macro)
+  {
+    button.macro_ = std::format("[0]!Button{}_Click", button_number);
+  }
 
-///     if (!has_caption) {
-///         lxw_snprintf(buffer, LXW_ATTR_32, "Button %d", button_number);
-///         button->name = lxw_strdup(buffer);
-///         RETURN_ON_MEM_ERROR(button->name, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///     }
+  // Scale the width/height to the default/user scale and round to the
+  // nearest pixel.
+  width  = static_cast<uint32_t>(0.5 + x_scale * width);
+  height = static_cast<uint32_t>(0.5 + y_scale * height);
 
-///     if (!has_macro) {
-///         lxw_snprintf(buffer, LXW_ATTR_32, "[0]!Button%d_Click",
-///                      button_number);
-///         button->macro = lxw_strdup(buffer);
-///         RETURN_ON_MEM_ERROR(button->macro, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///     }
-
-/* Scale the width/height to the default/user scale and round to the
- * nearest pixel. */
-///     width = (uint32_t) (0.5 + x_scale * width);
-///     height = (uint32_t) (0.5 + y_scale * height);
-
-///     button->width = width;
-///     button->height = height;
-///     button->start_col = col;
-///     button->start_row = row;
-///     button->x_offset = x_offset;
-///     button->y_offset = y_offset;
-
-///     return LXW_NO_ERROR;
-/// }
+  button.width_     = width;
+  button.height_    = height;
+  button.start_col_ = button.col_;
+  button.start_row_ = button.row_;
+  button.x_offset_  = x_offset;
+  button.y_offset_  = y_offset;
+}
 
 void worksheet_t::position_vml_object(vml_obj_t& vml_obj)
 {
@@ -3539,16 +3535,16 @@ std::string worksheet_t::write_sheet_pr() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  if(!fit_page_ && !filter_on_ && tab_color_ == color_t::UNSET &&
-     !outline_changed_
-     /* && !self->vba_codename */
-     && !is_chartsheet_)
+  if(!fit_page_ && !filter_on_ && tab_color_ == color_t::UNSET && !outline_changed_ && vba_codename_.empty() &&
+     !is_chartsheet_)
   {
     return "";
   }
 
-  ///     if (self->vba_codename)
-  ///         LXW_PUSH_ATTRIBUTES_STR("codeName", self->vba_codename);
+  if(!vba_codename_.empty())
+  {
+    attributes.emplace_back("codeName", vba_codename_);
+  }
 
   if(filter_on_)
   {
@@ -5288,11 +5284,11 @@ std::string worksheet_t::write_ext_list()
   return xml_data;
 }
 
-std::string worksheet_t::write_ignored_error(const std::string& ignore_error, const std::string&range) const
+std::string worksheet_t::write_ignored_error(const std::string& ignore_error, const std::string& range) const
 {
   return xml_empty_tag("ignoredError", {
-    {"sqref", range},
-    {ignore_error, "1"},
+                                           {"sqref",      range},
+                                           {ignore_error, "1"  },
   });
 }
 
@@ -5695,45 +5691,55 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
 
 std::string worksheet_t::write_ignored_errors() const
 {
-  if (!has_ignore_errors_)
+  if(!has_ignore_errors_)
+  {
     return "";
+  }
 
   std::string xml_data = xml_start_tag("ignoredErrors");
 
-  if (!ignore_number_stored_as_text_.empty()) {
+  if(!ignore_number_stored_as_text_.empty())
+  {
     xml_data += write_ignored_error("numberStoredAsText", ignore_number_stored_as_text_);
   }
 
-  if (!ignore_eval_error_.empty())
+  if(!ignore_eval_error_.empty())
   {
     xml_data += write_ignored_error("evalError", ignore_eval_error_);
   }
 
-  if (!ignore_formula_differs_.empty()) {
+  if(!ignore_formula_differs_.empty())
+  {
     xml_data += write_ignored_error("formula", ignore_formula_differs_);
   }
 
-  if (!ignore_formula_range_.empty()) {
+  if(!ignore_formula_range_.empty())
+  {
     xml_data += write_ignored_error("formulaRange", ignore_formula_range_);
   }
 
-  if (!ignore_formula_unlocked_.empty()) {
+  if(!ignore_formula_unlocked_.empty())
+  {
     xml_data += write_ignored_error("unlockedFormula", ignore_formula_unlocked_);
   }
 
-  if (!ignore_empty_cell_reference_.empty()) {
+  if(!ignore_empty_cell_reference_.empty())
+  {
     xml_data += write_ignored_error("emptyCellReference", ignore_empty_cell_reference_);
   }
 
-  if (!ignore_list_data_validation_.empty()) {
+  if(!ignore_list_data_validation_.empty())
+  {
     xml_data += write_ignored_error("listDataValidation", ignore_list_data_validation_);
   }
 
-  if (!ignore_calculated_column_.empty()) {
+  if(!ignore_calculated_column_.empty())
+  {
     xml_data += write_ignored_error("calculatedColumn", ignore_calculated_column_);
   }
 
-  if(!ignore_two_digit_text_year_.empty()) {
+  if(!ignore_two_digit_text_year_.empty())
+  {
     xml_data += write_ignored_error("twoDigitTextYear", ignore_two_digit_text_year_);
   }
   xml_data += xml_end_tag("ignoredErrors");
@@ -8572,58 +8578,34 @@ void worksheet_t::conditional_format_cell(row_num_t row_num, col_num_t col_num,
   conditional_format_range(row_num, col_num, row_num, col_num, conditional_format);
 }
 
-/// lxw_error
-/// worksheet_insert_button(lxw_worksheet *self, row_num_t row_num,
-///                         col_num_t col_num, lxw_button_options *options)
-/// {
-///     lxw_error err;
-///     lxw_vml_obj *button;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_TRUE, LXW_TRUE);
-///     if (err)
-///         return err;
-///
-///     button = calloc(1, sizeof(lxw_vml_obj));
-///     GOTO_LABEL_ON_MEM_ERROR(button, mem_error);
-///
-///     button->row = row_num;
-///     button->col = col_num;
-///
-///     /* Set user and default parameters for the button. */
-///     err = _get_button_params(button, 1 + self->num_buttons, options);
-///     if (err)
-///         goto mem_error;
-///
-///     /* Calculate the worksheet position of the button. */
-///     _worksheet_position_vml_object(self, button);
-///
-///     self->has_vml = LXW_TRUE;
-///     self->has_buttons = LXW_TRUE;
-///     self->num_buttons++;
-///
-///     STAILQ_INSERT_TAIL(self->button_objs, button, list_pointers);
-///
-///     return LXW_NO_ERROR;
-///
-/// mem_error:
-///     if (button)
-///         _free_vml_object(button);
-///
-///     return LXW_ERROR_MEMORY_MALLOC_FAILED;
-/// }
+void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options)
+{
+  check_dimensions(row_num, col_num, true, true);
 
-/// lxw_error
-/// worksheet_set_vba_name(lxw_worksheet *self, const char *name)
-/// {
-///     if (!name) {
-///         LXW_WARN("worksheet_set_vba_name(): " "name must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     self->vba_codename = lxw_strdup(name);
-///
-///     return LXW_NO_ERROR;
-/// }
+  vml_obj_t button;
+  button.row_ = row_num;
+  button.col_ = col_num;
+
+  // Set user and default parameters for the button.
+  get_button_params(button, 1 + button_objs_.size(), options);
+
+  // Calculate the worksheet position of the button.
+  position_vml_object(button);
+
+  has_vml_     = true;
+  has_buttons_ = true;
+  button_objs_.emplace_back(button);
+}
+
+void worksheet_t::set_vba_name(const std::string& name)
+{
+  if(name.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::set_vba_name(): 'name' must be specified");
+  }
+
+  vba_codename_ = name;
+}
 
 /// void
 /// worksheet_set_comments_author(lxw_worksheet *self, const char *author)
@@ -8644,32 +8626,39 @@ void worksheet_t::ignore_errors(ignore_errors_t type, const std::string& range)
   }
 
   // Set the ranges to be ignored.
-  if (type == ignore_errors_t::NUMBER_STORED_AS_TEXT)
+  if(type == ignore_errors_t::NUMBER_STORED_AS_TEXT)
   {
     ignore_number_stored_as_text_ = range;
   }
-  else if (type == ignore_errors_t::EVAL_ERROR) {
+  else if(type == ignore_errors_t::EVAL_ERROR)
+  {
     ignore_eval_error_ = range;
   }
-  else if (type == ignore_errors_t::FORMULA_DIFFERS) {
+  else if(type == ignore_errors_t::FORMULA_DIFFERS)
+  {
     ignore_formula_differs_ = range;
   }
-  else if (type == ignore_errors_t::FORMULA_RANGE) {
+  else if(type == ignore_errors_t::FORMULA_RANGE)
+  {
     ignore_formula_range_ = range;
   }
-  else if (type == ignore_errors_t::FORMULA_UNLOCKED) {
+  else if(type == ignore_errors_t::FORMULA_UNLOCKED)
+  {
     ignore_formula_unlocked_ = range;
   }
-  else if (type == ignore_errors_t::EMPTY_CELL_REFERENCE) {
+  else if(type == ignore_errors_t::EMPTY_CELL_REFERENCE)
+  {
     ignore_empty_cell_reference_ = range;
   }
-  else if (type == ignore_errors_t::LIST_DATA_VALIDATION) {
+  else if(type == ignore_errors_t::LIST_DATA_VALIDATION)
+  {
     ignore_list_data_validation_ = range;
   }
-  else if (type == ignore_errors_t::CALCULATED_COLUMN) {
+  else if(type == ignore_errors_t::CALCULATED_COLUMN)
+  {
     ignore_calculated_column_ = range;
   }
-  else if (type == ignore_errors_t::TWO_DIGIT_TEXT_YEAR)
+  else if(type == ignore_errors_t::TWO_DIGIT_TEXT_YEAR)
   {
     ignore_two_digit_text_year_ = range;
   }

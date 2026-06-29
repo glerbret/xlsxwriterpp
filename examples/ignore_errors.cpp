@@ -24,7 +24,7 @@ int main()
 
   // Turn off some of the warnings:
   worksheet.ignore_errors(xwpp::ignore_errors_t::NUMBER_STORED_AS_TEXT, "C3");
-  worksheet.ignore_errors(xwpp::ignore_errors_t::EVAL_ERROR,            "C6");
+  worksheet.ignore_errors(xwpp::ignore_errors_t::EVAL_ERROR, "C6");
 
   // Write some descriptions for the cells and make the column wider for clarity.
   worksheet.set_column(1, 1, 16);

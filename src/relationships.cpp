@@ -78,12 +78,10 @@ void relationships_t::add_package(std::string_view type, std::string_view target
   add(SCHEMA_PACKAGE, type, target);
 }
 
-/// void
-/// lxw_add_ms_package_relationship(lxw_relationships *self, const char *type,
-///                                 const char *target)
-/// {
-///     _add_relationship(self, LXW_SCHEMA_MS, type, target, NULL);
-/// }
+void relationships_t::add_ms_package(std::string_view type, std::string_view target)
+{
+  add(SCHEMA_MS, type, target);
+}
 
 void relationships_t::add_worksheet_relationship(std::string_view type, std::string_view target,
                                                  std::string_view target_mode)

@@ -77,7 +77,7 @@ const double DEF_COL_WIDTH = 8.43;
 const double DEF_COL_WIDTH_PIXELS = 64;
 
 /** Default Excel column height in pixels. */
-/// #define LXW_DEF_ROW_HEIGHT_PIXELS 20
+const double DEF_ROW_HEIGHT_PIXELS = 20;
 
 /** Default Excel row height in character units. */
 const double DEF_ROW_HEIGHT = 15.0;
@@ -686,36 +686,36 @@ enum class ignore_errors_t
   /** Turn off errors/warnings for numbers stores as text. */
   NUMBER_STORED_AS_TEXT = 1,
 
-/** Turn off errors/warnings for formula errors (such as divide by
- *  zero). */
+  /** Turn off errors/warnings for formula errors (such as divide by
+   *  zero). */
   EVAL_ERROR,
 
-/** Turn off errors/warnings for formulas that differ from surrounding
- *  formulas. */
-FORMULA_DIFFERS,
+  /** Turn off errors/warnings for formulas that differ from surrounding
+   *  formulas. */
+  FORMULA_DIFFERS,
 
-/** Turn off errors/warnings for formulas that omit cells in a range. */
-FORMULA_RANGE,
+  /** Turn off errors/warnings for formulas that omit cells in a range. */
+  FORMULA_RANGE,
 
-/** Turn off errors/warnings for unlocked cells that contain formulas. */
-FORMULA_UNLOCKED,
+  /** Turn off errors/warnings for unlocked cells that contain formulas. */
+  FORMULA_UNLOCKED,
 
-/** Turn off errors/warnings for formulas that refer to empty cells. */
-EMPTY_CELL_REFERENCE,
+  /** Turn off errors/warnings for formulas that refer to empty cells. */
+  EMPTY_CELL_REFERENCE,
 
-/** Turn off errors/warnings for cells in a table that do not comply with
- *  applicable data validation rules. */
-LIST_DATA_VALIDATION,
+  /** Turn off errors/warnings for cells in a table that do not comply with
+   *  applicable data validation rules. */
+  LIST_DATA_VALIDATION,
 
-/** Turn off errors/warnings for cell formulas that differ from the column
- *  formula. */
-CALCULATED_COLUMN,
+  /** Turn off errors/warnings for cell formulas that differ from the column
+   *  formula. */
+  CALCULATED_COLUMN,
 
-/** Turn off errors/warnings for formulas that contain a two digit text
- *  representation of a year. */
-TWO_DIGIT_TEXT_YEAR,
+  /** Turn off errors/warnings for formulas that contain a two digit text
+   *  representation of a year. */
+  TWO_DIGIT_TEXT_YEAR,
 
-LAST_OPTION
+  LAST_OPTION
 };
 
 enum class cell_types_t
@@ -787,8 +787,7 @@ struct vml_obj_t
   std::string text_;
   std::string image_position_;
   std::string name_;
-  ///     char *macro;
-  ///     STAILQ_ENTRY (lxw_vml_obj) list_pointers;
+  std::string macro_;
 };
 
 struct cell_t
@@ -1967,43 +1966,42 @@ struct comment_options_t
  * Options for modifying buttons inserted via `worksheet_insert_button()`.
  *
  */
-/// typedef struct lxw_button_options {
+struct button_options_t
+{
+  /** Sets the caption on the button. The default is "Button n" where n is
+   *  the current number of buttons in the worksheet, including this
+   *  button. */
+  std::string caption_;
 
-/** Sets the caption on the button. The default is "Button n" where n is
- *  the current number of buttons in the worksheet, including this
- *  button. */
-///     const char *caption;
+  /** Name of the macro to run when the button is pressed. The macro must be
+   *  included with workbook_add_vba_project(). */
+  std::string macro_;
 
-/** Name of the macro to run when the button is pressed. The macro must be
- *  included with workbook_add_vba_project(). */
-///     const char *macro;
+  /** Optional description or "Alt text" for the button. This field can be
+   *  used to provide a text description of the button to help
+   *  accessibility. Set to NULL to ignore the description field. */
+  std::string description_;
 
-/** Optional description or "Alt text" for the button. This field can be
- *  used to provide a text description of the button to help
- *  accessibility. Set to NULL to ignore the description field. */
-///     const char *description;
+  /** This option is used to set the width of the cell button box
+   *  explicitly in pixels. The default width is 64 pixels. */
+  uint16_t width_ = 0;
 
-/** This option is used to set the width of the cell button box
- *  explicitly in pixels. The default width is 64 pixels. */
-///     uint16_t width;
+  /** This option is used to set the height of the cell button box
+   *  explicitly in pixels. The default height is 20 pixels. */
+  uint16_t height_ = 0;
 
-/** This option is used to set the height of the cell button box
- *  explicitly in pixels. The default height is 20 pixels. */
-///     uint16_t height;
+  /** X scale of the button as a decimal. */
+  double x_scale_ = 0.;
 
-/** X scale of the button as a decimal. */
-///     double x_scale;
+  /** Y scale of the button as a decimal. */
+  double y_scale_ = 0.;
 
-/** Y scale of the button as a decimal. */
-///     double y_scale;
+  /** Offset from the left of the cell in pixels.  */
+  int32_t x_offset_ = 0;
 
-/** Offset from the left of the cell in pixels.  */
-///     int32_t x_offset;
-
-/** Offset from the top of the cell in pixels. */
-///     int32_t y_offset;
-
-/// } lxw_button_options;
+  /** Offset from the top of the cell in pixels. */
+  int32_t y_offset_ = 0;
+};
 
 /**
  * @brief Header and footer options.
@@ -4431,110 +4429,166 @@ public:
    */
   void set_default_row(double height, bool hide_unused_rows);
 
-/**
- * @brief Ignore various Excel errors/warnings in a worksheet for user
- *        defined ranges.
- *
- * @param worksheet Pointer to a lxw_worksheet instance.
- * @param type      The type of error/warning to ignore. See #lxw_ignore_errors.
- * @param range     The range(s) for which the error/warning should be ignored.
- *
- * @return A #lxw_error.
- *
- *
- * The `%worksheet_ignore_errors()` function can be used to ignore various
- * worksheet cell errors/warnings. For example the following code writes a
- * string that looks like a number:
- *
- * @code
- *     worksheet_write_string(worksheet, CELL("D2"), "123", NULL);
- * @endcode
- *
- * This causes Excel to display a small green triangle in the top left hand
- * corner of the cell to indicate an error/warning:
- *
- * @image html ignore_errors1.png
- *
- * Sometimes these warnings are useful indicators that there is an issue in
- * the spreadsheet but sometimes it is preferable to turn them off. Warnings
- * can be turned off at the Excel level for all workbooks and worksheets by
- * using the using "Excel options -> Formulas -> Error checking
- * rules". Alternatively you can turn them off for individual cells in a
- * worksheet, or ranges of cells, using the `%worksheet_ignore_errors()`
- * function with different #lxw_ignore_errors options and ranges like this:
- *
- * @code
- *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
- * "C3"); worksheet_ignore_errors(worksheet, LXW_IGNORE_EVAL_ERROR, "C6");
- * @endcode
- *
- * The range can be a single cell, a range of cells, or multiple cells and
- * ranges separated by spaces:
- *
- * @code
- *     // Single cell.
- *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
- * "C6");
- *
- *     // Or a single range:
- *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
- * "C6:G8");
- *
- *     // Or multiple cells and ranges:
- *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT, "C6
- * E6 G1:G20 J2:J6");
- * @endcode
- *
- * @note Calling `%worksheet_ignore_errors()` more than once for the same
- * #lxw_ignore_errors type will overwrite the previous range.
- *
- * You can turn off warnings for an entire column by specifying the range from
- * the first cell in the column to the last cell in the column:
- *
- * @code
- *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
- * "A1:A1048576");
- * @endcode
- *
- * Or for the entire worksheet by specifying the range from the first cell in
- * the worksheet to the last cell in the worksheet:
- *
- * @code
- *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
- * "A1:XFD1048576");
- * @endcode
- *
- * The worksheet errors/warnings that can be ignored are:
- *
- * - #LXW_IGNORE_NUMBER_STORED_AS_TEXT: Turn off errors/warnings for numbers
- *    stores as text.
- *
- * - #LXW_IGNORE_EVAL_ERROR: Turn off errors/warnings for formula errors (such
- *    as divide by zero).
- *
- * - #LXW_IGNORE_FORMULA_DIFFERS: Turn off errors/warnings for formulas that
- *    differ from surrounding formulas.
- *
- * - #LXW_IGNORE_FORMULA_RANGE: Turn off errors/warnings for formulas that
- *    omit cells in a range.
- *
- * - #LXW_IGNORE_FORMULA_UNLOCKED: Turn off errors/warnings for unlocked cells
- *    that contain formulas.
- *
- * - #LXW_IGNORE_EMPTY_CELL_REFERENCE: Turn off errors/warnings for formulas
- *    that refer to empty cells.
- *
- * - #LXW_IGNORE_LIST_DATA_VALIDATION: Turn off errors/warnings for cells in a
- *    table that do not comply with applicable data validation rules.
- *
- * - #LXW_IGNORE_CALCULATED_COLUMN: Turn off errors/warnings for cell formulas
- *    that differ from the column formula.
- *
- * - #LXW_IGNORE_TWO_DIGIT_TEXT_YEAR: Turn off errors/warnings for formulas
- *    that contain a two digit text representation of a year.
- *
- */
-void ignore_errors(ignore_errors_t type, const std::string& range);
+  /**
+   * @brief Ignore various Excel errors/warnings in a worksheet for user
+   *        defined ranges.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance.
+   * @param type      The type of error/warning to ignore. See #lxw_ignore_errors.
+   * @param range     The range(s) for which the error/warning should be ignored.
+   *
+   * @return A #lxw_error.
+   *
+   *
+   * The `%worksheet_ignore_errors()` function can be used to ignore various
+   * worksheet cell errors/warnings. For example the following code writes a
+   * string that looks like a number:
+   *
+   * @code
+   *     worksheet_write_string(worksheet, CELL("D2"), "123", NULL);
+   * @endcode
+   *
+   * This causes Excel to display a small green triangle in the top left hand
+   * corner of the cell to indicate an error/warning:
+   *
+   * @image html ignore_errors1.png
+   *
+   * Sometimes these warnings are useful indicators that there is an issue in
+   * the spreadsheet but sometimes it is preferable to turn them off. Warnings
+   * can be turned off at the Excel level for all workbooks and worksheets by
+   * using the using "Excel options -> Formulas -> Error checking
+   * rules". Alternatively you can turn them off for individual cells in a
+   * worksheet, or ranges of cells, using the `%worksheet_ignore_errors()`
+   * function with different #lxw_ignore_errors options and ranges like this:
+   *
+   * @code
+   *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
+   * "C3"); worksheet_ignore_errors(worksheet, LXW_IGNORE_EVAL_ERROR, "C6");
+   * @endcode
+   *
+   * The range can be a single cell, a range of cells, or multiple cells and
+   * ranges separated by spaces:
+   *
+   * @code
+   *     // Single cell.
+   *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
+   * "C6");
+   *
+   *     // Or a single range:
+   *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
+   * "C6:G8");
+   *
+   *     // Or multiple cells and ranges:
+   *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT, "C6
+   * E6 G1:G20 J2:J6");
+   * @endcode
+   *
+   * @note Calling `%worksheet_ignore_errors()` more than once for the same
+   * #lxw_ignore_errors type will overwrite the previous range.
+   *
+   * You can turn off warnings for an entire column by specifying the range from
+   * the first cell in the column to the last cell in the column:
+   *
+   * @code
+   *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
+   * "A1:A1048576");
+   * @endcode
+   *
+   * Or for the entire worksheet by specifying the range from the first cell in
+   * the worksheet to the last cell in the worksheet:
+   *
+   * @code
+   *     worksheet_ignore_errors(worksheet, LXW_IGNORE_NUMBER_STORED_AS_TEXT,
+   * "A1:XFD1048576");
+   * @endcode
+   *
+   * The worksheet errors/warnings that can be ignored are:
+   *
+   * - #LXW_IGNORE_NUMBER_STORED_AS_TEXT: Turn off errors/warnings for numbers
+   *    stores as text.
+   *
+   * - #LXW_IGNORE_EVAL_ERROR: Turn off errors/warnings for formula errors (such
+   *    as divide by zero).
+   *
+   * - #LXW_IGNORE_FORMULA_DIFFERS: Turn off errors/warnings for formulas that
+   *    differ from surrounding formulas.
+   *
+   * - #LXW_IGNORE_FORMULA_RANGE: Turn off errors/warnings for formulas that
+   *    omit cells in a range.
+   *
+   * - #LXW_IGNORE_FORMULA_UNLOCKED: Turn off errors/warnings for unlocked cells
+   *    that contain formulas.
+   *
+   * - #LXW_IGNORE_EMPTY_CELL_REFERENCE: Turn off errors/warnings for formulas
+   *    that refer to empty cells.
+   *
+   * - #LXW_IGNORE_LIST_DATA_VALIDATION: Turn off errors/warnings for cells in a
+   *    table that do not comply with applicable data validation rules.
+   *
+   * - #LXW_IGNORE_CALCULATED_COLUMN: Turn off errors/warnings for cell formulas
+   *    that differ from the column formula.
+   *
+   * - #LXW_IGNORE_TWO_DIGIT_TEXT_YEAR: Turn off errors/warnings for formulas
+   *    that contain a two digit text representation of a year.
+   *
+   */
+  void ignore_errors(ignore_errors_t type, const std::string& range);
+
+  /**
+   * @brief Insert a button object into a worksheet.
+   *
+   * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
+   * @param row        The zero indexed row number.
+   * @param col        The zero indexed column number.
+   * @param options    A #lxw_button_options object to set the button properties.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_insert_button()` function can be used to insert an Excel
+   * form button into a worksheet. This function is generally only useful when
+   * used in conjunction with the `workbook_add_vba_project()` function to tie
+   * the button to a macro from an embedded VBA project:
+   *
+   * @code
+   *     lxw_button_options options = {.caption = "Press Me",
+   *                                   .macro   = "say_hello"};
+   *
+   *     worksheet_insert_button(worksheet, 2, 1, &options);
+   * @endcode
+   *
+   * @image html macros.png
+   *
+   * The button properties are set using the lxw_button_options struct.
+   *
+   * See also @ref working_with_macros
+   */
+  void insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options);
+
+  /**
+   * @brief Set the VBA name for the worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance.
+   * @param name      Name of the worksheet used by VBA.
+   *
+   * @return A #lxw_error.
+   *
+   * The `worksheet_set_vba_name()` function can be used to set the VBA name for
+   * the worksheet. This is sometimes required when a vbaProject macro included
+   * via `workbook_add_vba_project()` refers to the worksheet by a name other
+   * than the worksheet name:
+   *
+   * @code
+   *     workbook_set_vba_name (workbook,  "MyWorkbook");
+   *     worksheet_set_vba_name(worksheet, "MySheet1");
+   * @endcode
+   *
+   * In general Excel uses the worksheet name such as "Sheet1" as the VBA name.
+   * However, this can be changed in the VBA environment or if the the macro was
+   * extracted from a foreign language version of Excel.
+   *
+   * See also @ref working_with_macros
+   */
+  void set_vba_name(const std::string& name);
 
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
@@ -4643,7 +4697,7 @@ private:
   [[nodiscard]] std::string write_formula2_num(double number) const;
   [[nodiscard]] std::string write_formula1_str(const std::string& str) const;
   [[nodiscard]] std::string write_formula2_str(const std::string& str) const;
-  [[nodiscard]] std::string write_ignored_error(const std::string& ignore_error, const std::string&range) const;
+  [[nodiscard]] std::string write_ignored_error(const std::string& ignore_error, const std::string& range) const;
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
@@ -4692,7 +4746,7 @@ private:
   std::map<std::string, uint32_t> vml_drawing_rel_ids_;
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> header_image_objs_;
-  ///     struct lxw_comment_objs *button_objs;
+  std::vector<vml_obj_t> button_objs_;
   ///     struct lxw_table_objs *table_objs;
   ///     uint16_t table_count;
 
@@ -4758,8 +4812,7 @@ private:
   ///     uint8_t black_white;
   ///     uint8_t num_validations;
   bool has_dynamic_functions_        = false;
-  ///     char *vba_codename;
-  ///     uint16_t num_buttons;
+  std::string vba_codename_;
 
   color_t tab_color_ = color_t::UNSET;
 
@@ -4812,7 +4865,7 @@ private:
   bool has_comments_           = false;
   bool has_header_vml_         = false;
   bool has_background_image_   = false;
-  ///     uint8_t has_buttons;
+  bool has_buttons_            = false;
   bool storing_embedded_image_ = false;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
@@ -4827,7 +4880,7 @@ private:
   comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
   uint32_t data_bar_2010_index_              = 0;
 
-  bool has_ignore_errors_                    = false;
+  bool has_ignore_errors_ = false;
   std::string ignore_number_stored_as_text_;
   std::string ignore_eval_error_;
   std::string ignore_formula_differs_;
@@ -5267,38 +5320,6 @@ private:
 /// lxw_error worksheet_set_background_buffer(lxw_worksheet *worksheet,
 ///                                           const unsigned char *image_buffer,
 ///                                           size_t image_size);
-
-/**
- * @brief Insert a button object into a worksheet.
- *
- * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
- * @param row        The zero indexed row number.
- * @param col        The zero indexed column number.
- * @param options    A #lxw_button_options object to set the button properties.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_insert_button()` function can be used to insert an Excel
- * form button into a worksheet. This function is generally only useful when
- * used in conjunction with the `workbook_add_vba_project()` function to tie
- * the button to a macro from an embedded VBA project:
- *
- * @code
- *     lxw_button_options options = {.caption = "Press Me",
- *                                   .macro   = "say_hello"};
- *
- *     worksheet_insert_button(worksheet, 2, 1, &options);
- * @endcode
- *
- * @image html macros.png
- *
- * The button properties are set using the lxw_button_options struct.
- *
- * See also @ref working_with_macros
- */
-/// lxw_error worksheet_insert_button(lxw_worksheet *worksheet, row_num_t row,
-///                                   col_num_t col, lxw_button_options
-///                                   *options);
 
 /**
  * @brief Add an Excel table to a worksheet.
@@ -5988,33 +6009,6 @@ private:
 ///                                 symbols_right, uint8_t auto_style);
 
 /**
- * @brief Set the VBA name for the worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance.
- * @param name      Name of the worksheet used by VBA.
- *
- * @return A #lxw_error.
- *
- * The `worksheet_set_vba_name()` function can be used to set the VBA name for
- * the worksheet. This is sometimes required when a vbaProject macro included
- * via `workbook_add_vba_project()` refers to the worksheet by a name other
- * than the worksheet name:
- *
- * @code
- *     workbook_set_vba_name (workbook,  "MyWorkbook");
- *     worksheet_set_vba_name(worksheet, "MySheet1");
- * @endcode
- *
- * In general Excel uses the worksheet name such as "Sheet1" as the VBA name.
- * However, this can be changed in the VBA environment or if the the macro was
- * extracted from a foreign language version of Excel.
- *
- * See also @ref working_with_macros
- */
-/// lxw_error worksheet_set_vba_name(lxw_worksheet *worksheet, const char
-/// *name);
-
-/**
  * @brief Set the default author of the cell comments.
  *
  * @param worksheet Pointer to a lxw_worksheet instance.
@@ -6033,7 +6027,6 @@ private:
  */
 /// void worksheet_set_comments_author(lxw_worksheet *worksheet,
 ///                                    const char *author);
-
 
 /// void lxw_worksheet_write_single_row(lxw_worksheet *worksheet);
 

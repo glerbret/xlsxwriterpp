@@ -197,30 +197,17 @@ void packager_t::write_image_files(const workbook_t& workbook)
   }
 }
 
-/// STATIC lxw_error _add_vba_project(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_error err;
-///   FILE *image_stream;
+void packager_t::add_vba_project(const workbook_t& workbook)
+{
+  if(workbook.vba_project_.empty())
+  {
+    return;
+  }
 
-///   if (!workbook->vba_project)
-///     return LXW_NO_ERROR;
-
-/* Check that the image file exists and can be opened. */
-///   image_stream = lxw_fopen(workbook->vba_project, "rb");
-///   if (!image_stream) {
-///     LXW_WARN_FORMAT1("Error adding vbaProject.bin to xlsx file: "
-///                      "file doesn't exist or can't be opened: %s.",
-///                      workbook->vba_project);
-///     return LXW_ERROR_CREATING_TMPFILE;
-///   }
-
-///   err = _add_file_to_zip(self, image_stream, "xl/vbaProject.bin");
-///   fclose(image_stream);
-///   RETURN_ON_ERROR(err);
-
-///   return LXW_NO_ERROR;
-/// }
+  std::ifstream vba_stream(workbook.vba_project_, std::ios::binary);
+  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_stream), {});
+  add_buffer_to_zip(buffer, "xl/vbaProject.bin");
+}
 
 /// STATIC lxw_error _add_vba_project_signature(lxw_packager *self)
 /// {
@@ -405,10 +392,8 @@ void packager_t::write_vml_files(const workbook_t& workbook)
 
       if(ws.has_vml_)
       {
-        vml_t vml(ws.vml_data_id_str_, ws.comment_objs_, ws.vml_shape_id_, ws.comment_display_default_);
-
-        ///  vml->button_objs = worksheet->button_objs;
-
+        vml_t vml(ws.vml_data_id_str_, ws.comment_objs_, ws.button_objs_, ws.vml_shape_id_,
+                  ws.comment_display_default_);
         const std::string xml_data = vml.assemble_xml_file();
         add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
         index++;
@@ -754,9 +739,10 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
     relationships.add_document("/sharedStrings", "sharedStrings.xml");
   }
 
-  ///     if (workbook->vba_project)
-  ///         lxw_add_ms_package_relationship(rels, "/vbaProject",
-  ///                                         "vbaProject.bin");
+  if(!workbook.vba_project_.empty())
+  {
+    relationships.add_ms_package("/vbaProject", "vbaProject.bin");
+  }
 
   if(workbook.has_metadata_)
   {
@@ -1114,7 +1100,7 @@ void packager_t::create_package(workbook_t& workbook)
   write_chartsheet_rels_file(workbook);
   write_drawing_rels_file(workbook);
   write_image_files(workbook);
-  ///     error = _add_vba_project(self);
+  add_vba_project(workbook);
   ///     error = _add_vba_project_signature(self);
   ///     error = _write_vba_project_rels_file(self);
   write_core_file(workbook);

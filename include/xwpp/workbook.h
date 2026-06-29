@@ -593,6 +593,62 @@ public:
    */
   void define_name(const std::string& name, const std::string& formula);
 
+  /**
+   * @brief Add a vbaProject binary to the Excel workbook.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   * @param filename The path/filename of the vbaProject.bin file.
+   *
+   * The `%workbook_add_vba_project()` function can be used to add macros or
+   * functions to a workbook using a binary VBA project file that has been
+   * extracted from an existing Excel xlsm file:
+   *
+   * @code
+   *     workbook_add_vba_project(workbook, "vbaProject.bin");
+   * @endcode
+   *
+   * Only one `vbaProject.bin` file can be added per workbook. The name doesn't
+   * have to be `vbaProject.bin`. Any suitable path/name for an existing VBA bin
+   * file will do.
+   *
+   * Once you add a VBA project had been add to an Xlsxwriter++ workbook you
+   * should ensure that the file extension is `.xlsm` to prevent Excel from
+   * giving a warning when it opens the file:
+   *
+   * @code
+   *     lxw_workbook *workbook = new_workbook("macro.xlsm");
+   * @endcode
+   *
+   * See also @ref working_with_macros
+   *
+   * @return A #lxw_error.
+   */
+  void add_vba_project(const std::string& filename);
+
+  /**
+   * @brief Set the VBA name for the workbook.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   * @param name     Name of the workbook used by VBA.
+   *
+   * The `workbook_set_vba_name()` function can be used to set the VBA name for
+   * the workbook. This is sometimes required when a vbaProject macro included
+   * via `workbook_add_vba_project()` refers to the workbook by a name other
+   * than `ThisWorkbook`.
+   *
+   * @code
+   *     workbook_set_vba_name(workbook, "MyWorkbook");
+   * @endcode
+   *
+   * If an Excel VBA name for the workbook isn't specified then Xlsxwriter++
+   * will use `ThisWorkbook`.
+   *
+   * See also @ref working_with_macros
+   *
+   * @return A #lxw_error.
+   */
+  void set_vba_name(const std::string& name);
+
   void unset_default_url_format();
 
 private:
@@ -733,7 +789,7 @@ private:
 
   std::string vba_project_;
   std::string vba_project_signature_;
-  ///     char *vba_codename;
+  std::string vba_codename_;
 
   ///     uint8_t use_1904_epoch;
 
@@ -819,39 +875,6 @@ private:
 ///                                                 const char *name);
 
 /**
- * @brief Add a vbaProject binary to the Excel workbook.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param filename The path/filename of the vbaProject.bin file.
- *
- * The `%workbook_add_vba_project()` function can be used to add macros or
- * functions to a workbook using a binary VBA project file that has been
- * extracted from an existing Excel xlsm file:
- *
- * @code
- *     workbook_add_vba_project(workbook, "vbaProject.bin");
- * @endcode
- *
- * Only one `vbaProject.bin` file can be added per workbook. The name doesn't
- * have to be `vbaProject.bin`. Any suitable path/name for an existing VBA bin
- * file will do.
- *
- * Once you add a VBA project had been add to an Xlsxwriter++ workbook you
- * should ensure that the file extension is `.xlsm` to prevent Excel from
- * giving a warning when it opens the file:
- *
- * @code
- *     lxw_workbook *workbook = new_workbook("macro.xlsm");
- * @endcode
- *
- * See also @ref working_with_macros
- *
- * @return A #lxw_error.
- */
-/// lxw_error workbook_add_vba_project(lxw_workbook *workbook,
-///                                    const char *filename);
-
-/**
  * @brief Add a vbaProject binary and a vbaProjectSignature binary to the Excel
  * workbook.
  *
@@ -880,30 +903,6 @@ private:
 /// lxw_error workbook_add_signed_vba_project(lxw_workbook *workbook,
 ///                                           const char *vba_project,
 ///                                           const char *signature);
-
-/**
- * @brief Set the VBA name for the workbook.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     Name of the workbook used by VBA.
- *
- * The `workbook_set_vba_name()` function can be used to set the VBA name for
- * the workbook. This is sometimes required when a vbaProject macro included
- * via `workbook_add_vba_project()` refers to the workbook by a name other
- * than `ThisWorkbook`.
- *
- * @code
- *     workbook_set_vba_name(workbook, "MyWorkbook");
- * @endcode
- *
- * If an Excel VBA name for the workbook isn't specified then Xlsxwriter++
- * will use `ThisWorkbook`.
- *
- * See also @ref working_with_macros
- *
- * @return A #lxw_error.
- */
-/// lxw_error workbook_set_vba_name(lxw_workbook *workbook, const char *name);
 
 /**
  * @brief Add a recommendation to open the file in "read-only" mode.
