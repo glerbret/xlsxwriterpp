@@ -5288,21 +5288,13 @@ std::string worksheet_t::write_ext_list()
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_ignored_error(lxw_worksheet *self, char *ignore_error,
-///                                char *range)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("sqref", range);
-///     LXW_PUSH_ATTRIBUTES_STR(ignore_error, "1");
-///
-///     lxw_xml_empty_tag(self->file, "ignoredError", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
+std::string worksheet_t::write_ignored_error(const std::string& ignore_error, const std::string&range) const
+{
+  return xml_empty_tag("ignoredError", {
+    {"sqref", range},
+    {ignore_error, "1"},
+  });
+}
 
 void validate_conditional_icons(const conditional_format_t& user)
 {
@@ -5703,59 +5695,48 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
 
 std::string worksheet_t::write_ignored_errors() const
 {
-  std::string xml_data;
+  if (!has_ignore_errors_)
+    return "";
 
-  ///   if (!self->has_ignore_errors)
-  ///         return;
+  std::string xml_data = xml_start_tag("ignoredErrors");
 
-  ///     lxw_xml_start_tag(self->file, "ignoredErrors", NULL);
+  if (!ignore_number_stored_as_text_.empty()) {
+    xml_data += write_ignored_error("numberStoredAsText", ignore_number_stored_as_text_);
+  }
 
-  ///     if (self->ignore_number_stored_as_text) {
-  ///         _worksheet_write_ignored_error(self, "numberStoredAsText",
-  ///                                        self->ignore_number_stored_as_text);
-  ///     }
+  if (!ignore_eval_error_.empty())
+  {
+    xml_data += write_ignored_error("evalError", ignore_eval_error_);
+  }
 
-  ///     if (self->ignore_eval_error) {
-  ///         _worksheet_write_ignored_error(self, "evalError",
-  ///                                        self->ignore_eval_error);
-  ///     }
+  if (!ignore_formula_differs_.empty()) {
+    xml_data += write_ignored_error("formula", ignore_formula_differs_);
+  }
 
-  ///     if (self->ignore_formula_differs) {
-  ///         _worksheet_write_ignored_error(self, "formula",
-  ///                                       self->ignore_formula_differs);
-  ///     }
+  if (!ignore_formula_range_.empty()) {
+    xml_data += write_ignored_error("formulaRange", ignore_formula_range_);
+  }
 
-  ///     if (self->ignore_formula_range) {
-  ///         _worksheet_write_ignored_error(self, "formulaRange",
-  ///                                        self->ignore_formula_range);
-  ///     }
+  if (!ignore_formula_unlocked_.empty()) {
+    xml_data += write_ignored_error("unlockedFormula", ignore_formula_unlocked_);
+  }
 
-  ///     if (self->ignore_formula_unlocked) {
-  ///         _worksheet_write_ignored_error(self, "unlockedFormula",
-  ///                                        self->ignore_formula_unlocked);
-  ///     }
+  if (!ignore_empty_cell_reference_.empty()) {
+    xml_data += write_ignored_error("emptyCellReference", ignore_empty_cell_reference_);
+  }
 
-  ///     if (self->ignore_empty_cell_reference) {
-  ///         _worksheet_write_ignored_error(self, "emptyCellReference",
-  ///                                        self->ignore_empty_cell_reference);
-  ///     }
+  if (!ignore_list_data_validation_.empty()) {
+    xml_data += write_ignored_error("listDataValidation", ignore_list_data_validation_);
+  }
 
-  ///     if (self->ignore_list_data_validation) {
-  ///         _worksheet_write_ignored_error(self, "listDataValidation",
-  ///                                        self->ignore_list_data_validation);
-  ///     }
+  if (!ignore_calculated_column_.empty()) {
+    xml_data += write_ignored_error("calculatedColumn", ignore_calculated_column_);
+  }
 
-  ///     if (self->ignore_calculated_column) {
-  ///         _worksheet_write_ignored_error(self, "calculatedColumn",
-  ///                                        self->ignore_calculated_column);
-  ///     }
-
-  ///     if (self->ignore_two_digit_text_year) {
-  ///         _worksheet_write_ignored_error(self, "twoDigitTextYear",
-  ///                                        self->ignore_two_digit_text_year);
-  ///     }
-
-  ///     lxw_xml_end_tag(self->file, "ignoredErrors");
+  if(!ignore_two_digit_text_year_.empty()) {
+    xml_data += write_ignored_error("twoDigitTextYear", ignore_two_digit_text_year_);
+  }
+  xml_data += xml_end_tag("ignoredErrors");
 
   return xml_data;
 }
@@ -8655,61 +8636,46 @@ void worksheet_t::show_comments()
   comment_display_default_ = comment_display_t::VISIBLE;
 }
 
-/// lxw_error
-/// worksheet_ignore_errors(lxw_worksheet *self, uint8_t type, const char *range)
-/// {
-///     if (!range) {
-///         LXW_WARN("worksheet_ignore_errors(): " "'range' must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     if (type <= 0 || type >= LXW_IGNORE_LAST_OPTION) {
-///         LXW_WARN("worksheet_ignore_errors(): " "unknown option in 'type'.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Set the ranges to be ignored. */
-///     if (type == LXW_IGNORE_NUMBER_STORED_AS_TEXT) {
-///         free(self->ignore_number_stored_as_text);
-///         self->ignore_number_stored_as_text = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_EVAL_ERROR) {
-///         free(self->ignore_eval_error);
-///         self->ignore_eval_error = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_FORMULA_DIFFERS) {
-///         free(self->ignore_formula_differs);
-///         self->ignore_formula_differs = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_FORMULA_RANGE) {
-///         free(self->ignore_formula_range);
-///         self->ignore_formula_range = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_FORMULA_UNLOCKED) {
-///         free(self->ignore_formula_unlocked);
-///         self->ignore_formula_unlocked = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_EMPTY_CELL_REFERENCE) {
-///         free(self->ignore_empty_cell_reference);
-///         self->ignore_empty_cell_reference = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_LIST_DATA_VALIDATION) {
-///         free(self->ignore_list_data_validation);
-///         self->ignore_list_data_validation = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_CALCULATED_COLUMN) {
-///         free(self->ignore_calculated_column);
-///         self->ignore_calculated_column = lxw_strdup(range);
-///     }
-///     else if (type == LXW_IGNORE_TWO_DIGIT_TEXT_YEAR) {
-///         free(self->ignore_two_digit_text_year);
-///         self->ignore_two_digit_text_year = lxw_strdup(range);
-///     }
-///
-///     self->has_ignore_errors = LXW_TRUE;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::ignore_errors(ignore_errors_t type, const std::string& range)
+{
+  if(range.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::ignore_errors(): 'range' must be specified.");
+  }
+
+  // Set the ranges to be ignored.
+  if (type == ignore_errors_t::NUMBER_STORED_AS_TEXT)
+  {
+    ignore_number_stored_as_text_ = range;
+  }
+  else if (type == ignore_errors_t::EVAL_ERROR) {
+    ignore_eval_error_ = range;
+  }
+  else if (type == ignore_errors_t::FORMULA_DIFFERS) {
+    ignore_formula_differs_ = range;
+  }
+  else if (type == ignore_errors_t::FORMULA_RANGE) {
+    ignore_formula_range_ = range;
+  }
+  else if (type == ignore_errors_t::FORMULA_UNLOCKED) {
+    ignore_formula_unlocked_ = range;
+  }
+  else if (type == ignore_errors_t::EMPTY_CELL_REFERENCE) {
+    ignore_empty_cell_reference_ = range;
+  }
+  else if (type == ignore_errors_t::LIST_DATA_VALIDATION) {
+    ignore_list_data_validation_ = range;
+  }
+  else if (type == ignore_errors_t::CALCULATED_COLUMN) {
+    ignore_calculated_column_ = range;
+  }
+  else if (type == ignore_errors_t::TWO_DIGIT_TEXT_YEAR)
+  {
+    ignore_two_digit_text_year_ = range;
+  }
+
+  has_ignore_errors_ = true;
+}
 
 void worksheet_t::set_error_cell(const object_properties_t& object_props, uint32_t ref_id)
 {
