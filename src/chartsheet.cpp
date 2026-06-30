@@ -53,7 +53,7 @@ std::string chartsheet_t::write_sheet_pr() const
   return worksheet_.write_sheet_pr();
 }
 
-std::string chartsheet_t::write_sheet_views() const
+std::string chartsheet_t::write_sheet_views()
 {
   return worksheet_.write_sheet_views();
 }

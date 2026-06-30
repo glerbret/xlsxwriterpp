@@ -161,7 +161,7 @@ private:
 
   [[nodiscard]] std::string write_chartsheet() const;
   [[nodiscard]] std::string write_sheet_pr() const;
-  [[nodiscard]] std::string write_sheet_views() const;
+  [[nodiscard]] std::string write_sheet_views();
   [[nodiscard]] std::string write_sheet_protection(const protection_obj_t& protection) const;
   [[nodiscard]] std::string write_page_margins() const;
   [[nodiscard]] std::string write_page_setup() const;

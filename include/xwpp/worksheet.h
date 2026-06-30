@@ -736,12 +736,13 @@ enum class cell_types_t
   HYPERLINK_EXTERNAL
 };
 
-/// enum pane_types {
-///     NO_PANES = 0,
-///     FREEZE_PANES,
-///     SPLIT_PANES,
-///     FREEZE_SPLIT_PANES
-/// };
+enum class pane_types_t
+{
+  NO_PANES = 0,
+  FREEZE_PANES,
+  SPLIT_PANES,
+  FREEZE_SPLIT_PANES
+};
 
 enum class image_position_t
 {
@@ -976,24 +977,23 @@ struct autofilter_t
   col_num_t last_col_  = 0;
 };
 
-/// typedef struct lxw_panes {
-///     uint8_t type;
-///     row_num_t first_row;
-///     col_num_t first_col;
-///     row_num_t top_row;
-///     col_num_t left_col;
-///     double x_split;
-///     double y_split;
-/// } lxw_panes;
+struct panes_t
+{
+  pane_types_t type_   = pane_types_t::NO_PANES;
+  row_num_t first_row_ = 0;
+  col_num_t first_col_ = 0;
+  row_num_t top_row_   = 0;
+  col_num_t left_col_  = 0;
+  double x_split_      = 0.;
+  double y_split_      = 0.;
+};
 
-/// typedef struct lxw_selection {
-///     char pane[LXW_PANE_NAME_LENGTH];
-///     char active_cell[LXW_MAX_CELL_RANGE_LENGTH];
-///     char sqref[LXW_MAX_CELL_RANGE_LENGTH];
-
-///     STAILQ_ENTRY (lxw_selection) list_pointers;
-
-/// } lxw_selection;
+struct selection_t
+{
+  std::string pane_;
+  std::string active_cell_;
+  std::string sqref_;
+};
 
 /**
  * @brief Worksheet data validation options.
@@ -4666,6 +4666,107 @@ public:
   void write_rich_string(row_num_t row_num, col_num_t col_num,
                          const std::vector<xwpp::rich_string_tuple_t>& rich_strings, const format_t* format);
 
+  /**
+   * @brief Split and freeze a worksheet into panes.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The cell row (zero indexed).
+   * @param col       The cell column (zero indexed).
+   *
+   * The `%worksheet_freeze_panes()` function can be used to divide a worksheet
+   * into horizontal or vertical regions known as panes and to "freeze" these
+   * panes so that the splitter bars are not visible.
+   *
+   * The parameters `row` and `col` are used to specify the location of the
+   * split. It should be noted that the split is specified at the top or left of
+   * a cell and that the function uses zero based indexing. Therefore to freeze
+   * the first row of a worksheet it is necessary to specify the split at row 2
+   * (which is 1 as the zero-based index).
+   *
+   * You can set one of the `row` and `col` parameters as zero if you do not
+   * want either a vertical or horizontal split.
+   *
+   * Examples:
+   *
+   * @code
+   *     worksheet_freeze_panes(worksheet1, 1, 0); // Freeze the first row.
+   *     worksheet_freeze_panes(worksheet2, 0, 1); // Freeze the first column.
+   *     worksheet_freeze_panes(worksheet3, 1, 1); // Freeze first row/column.
+   *
+   * @endcode
+   *
+   */
+  void freeze_panes(row_num_t row_num, col_num_t col_num);
+
+  /* worksheet_freeze_panes() with infrequent options. Undocumented for now. */
+  void freeze_panes(row_num_t first_row, col_num_t first_col, row_num_t top_row, col_num_t left_col, bool type);
+  /**
+   * @brief Set the selected cell or cells in a worksheet:
+   *
+   * @param worksheet   A pointer to a lxw_worksheet instance to be updated.
+   * @param first_row   The first row of the range. (All zero indexed.)
+   * @param first_col   The first column of the range.
+   * @param last_row    The last row of the range.
+   * @param last_col    The last col of the range.
+   *
+   *
+   * The `%worksheet_set_selection()` function can be used to specify which cell
+   * or range of cells is selected in a worksheet: The most common requirement
+   * is to select a single cell, in which case the `first_` and `last_`
+   * parameters should be the same.
+   *
+   * The active cell within a selected range is determined by the order in which
+   * `first_` and `last_` are specified.
+   *
+   * Examples:
+   *
+   * @code
+   *     worksheet_set_selection(worksheet1, 3, 3, 3, 3);     // Cell D4.
+   *     worksheet_set_selection(worksheet2, 3, 3, 6, 6);     // Cells D4 to G7.
+   *     worksheet_set_selection(worksheet3, 6, 6, 3, 3);     // Cells G7 to D4.
+   *     worksheet_set_selection(worksheet5, RANGE("D4:G7")); // Using the RANGE
+   * macro.
+   *
+   * @endcode
+   *
+   */
+  void set_selection(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+  /**
+   * @brief Split a worksheet into panes.
+   *
+   * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
+   * @param vertical   The position for the vertical split.
+   * @param horizontal The position for the horizontal split.
+   *
+   * The `%worksheet_split_panes()` function can be used to divide a worksheet
+   * into horizontal or vertical regions known as panes. This function is
+   * different from the `worksheet_freeze_panes()` function in that the splits
+   * between the panes will be visible to the user and each pane will have its
+   * own scroll bars.
+   *
+   * The parameters `vertical` and `horizontal` are used to specify the vertical
+   * and horizontal position of the split. The units for `vertical` and
+   * `horizontal` are the same as those used by Excel to specify row height and
+   * column width. However, the vertical and horizontal units are different from
+   * each other. Therefore you must specify the `vertical` and `horizontal`
+   * parameters in terms of the row heights and column widths that you have set
+   * or the default values which are 15 for a row and 8.43 for a column.
+   *
+   * Examples:
+   *
+   * @code
+   *     worksheet_split_panes(worksheet1, 15, 0);    // First row.
+   *     worksheet_split_panes(worksheet2, 0,  8.43); // First column.
+   *     worksheet_split_panes(worksheet3, 15, 8.43); // First row and column.
+   *
+   * @endcode
+   *
+   */
+  void split_panes(double vertical, double horizontal);
+
+  /* worksheet_split_panes() with infrequent options. Undocumented for now. */
+  void split_panes(double vertical, double horizontal, row_num_t top_row, col_num_t left_col);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4684,8 +4785,8 @@ private:
   [[nodiscard]] std::string write_worksheet() const;
   [[nodiscard]] std::string write_sheet_pr() const;
   [[nodiscard]] std::string write_dimension() const;
-  [[nodiscard]] std::string write_sheet_view() const;
-  [[nodiscard]] std::string write_sheet_views() const;
+  [[nodiscard]] std::string write_sheet_view();
+  [[nodiscard]] std::string write_sheet_views();
   [[nodiscard]] std::string write_sheet_format_pr() const;
   [[nodiscard]] std::string write_cols() const;
   [[nodiscard]] std::string write_col_info(const col_options_t& options) const;
@@ -4774,6 +4875,13 @@ private:
   [[nodiscard]] std::string write_formula1_str(const std::string& str) const;
   [[nodiscard]] std::string write_formula2_str(const std::string& str) const;
   [[nodiscard]] std::string write_ignored_error(const std::string& ignore_error, const std::string& range) const;
+  [[nodiscard]] std::string write_panes();
+  [[nodiscard]] std::string write_freeze_panes();
+  [[nodiscard]] std::string write_split_panes();
+  [[nodiscard]] std::string write_selections() const;
+  [[nodiscard]] std::string write_selection(const selection_t& selection) const;
+
+  uint32_t calculate_x_split_width(double x_split) const;
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
@@ -4810,7 +4918,7 @@ private:
   table_rows_t comments_;
   ///     struct cell_t **array;
   std::vector<merged_range_t> merged_ranges_;
-  ///     struct lxw_selections *selections;
+  std::list<selection_t> selections_;
   std::vector<data_val_obj_t> data_validations_;
 
   std::map<std::string, std::vector<cond_format_obj_t>> conditional_formats_;
@@ -4929,7 +5037,7 @@ private:
   std::vector<std::tuple<std::string, std::string, std::string>> vml_drawing_links_;
   ///     struct lxw_rel_tuples *external_table_links;
 
-  ///     struct lxw_panes panes;
+  panes_t panes_;
   ///     char top_left_cell[LXW_MAX_CELL_NAME_LENGTH];
 
   protection_obj_t protection_;
@@ -5401,116 +5509,6 @@ private:
  * worksheet.
  */
 /// void worksheet_set_first_sheet(lxw_worksheet *worksheet);
-
-/**
- * @brief Split and freeze a worksheet into panes.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The cell row (zero indexed).
- * @param col       The cell column (zero indexed).
- *
- * The `%worksheet_freeze_panes()` function can be used to divide a worksheet
- * into horizontal or vertical regions known as panes and to "freeze" these
- * panes so that the splitter bars are not visible.
- *
- * The parameters `row` and `col` are used to specify the location of the
- * split. It should be noted that the split is specified at the top or left of
- * a cell and that the function uses zero based indexing. Therefore to freeze
- * the first row of a worksheet it is necessary to specify the split at row 2
- * (which is 1 as the zero-based index).
- *
- * You can set one of the `row` and `col` parameters as zero if you do not
- * want either a vertical or horizontal split.
- *
- * Examples:
- *
- * @code
- *     worksheet_freeze_panes(worksheet1, 1, 0); // Freeze the first row.
- *     worksheet_freeze_panes(worksheet2, 0, 1); // Freeze the first column.
- *     worksheet_freeze_panes(worksheet3, 1, 1); // Freeze first row/column.
- *
- * @endcode
- *
- */
-/// void worksheet_freeze_panes(lxw_worksheet *worksheet,
-///                             row_num_t row, col_num_t col);
-/**
- * @brief Split a worksheet into panes.
- *
- * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
- * @param vertical   The position for the vertical split.
- * @param horizontal The position for the horizontal split.
- *
- * The `%worksheet_split_panes()` function can be used to divide a worksheet
- * into horizontal or vertical regions known as panes. This function is
- * different from the `worksheet_freeze_panes()` function in that the splits
- * between the panes will be visible to the user and each pane will have its
- * own scroll bars.
- *
- * The parameters `vertical` and `horizontal` are used to specify the vertical
- * and horizontal position of the split. The units for `vertical` and
- * `horizontal` are the same as those used by Excel to specify row height and
- * column width. However, the vertical and horizontal units are different from
- * each other. Therefore you must specify the `vertical` and `horizontal`
- * parameters in terms of the row heights and column widths that you have set
- * or the default values which are 15 for a row and 8.43 for a column.
- *
- * Examples:
- *
- * @code
- *     worksheet_split_panes(worksheet1, 15, 0);    // First row.
- *     worksheet_split_panes(worksheet2, 0,  8.43); // First column.
- *     worksheet_split_panes(worksheet3, 15, 8.43); // First row and column.
- *
- * @endcode
- *
- */
-/// void worksheet_split_panes(lxw_worksheet *worksheet,
-///                            double vertical, double horizontal);
-
-/* worksheet_freeze_panes() with infrequent options. Undocumented for now. */
-/// void worksheet_freeze_panes_opt(lxw_worksheet *worksheet,
-///                                 row_num_t first_row, col_num_t first_col,
-///                                 row_num_t top_row, col_num_t left_col,
-///                                 uint8_t type);
-
-/* worksheet_split_panes() with infrequent options. Undocumented for now. */
-/// void worksheet_split_panes_opt(lxw_worksheet *worksheet,
-///                                double vertical, double horizontal,
-///                                row_num_t top_row, col_num_t left_col);
-/**
- * @brief Set the selected cell or cells in a worksheet:
- *
- * @param worksheet   A pointer to a lxw_worksheet instance to be updated.
- * @param first_row   The first row of the range. (All zero indexed.)
- * @param first_col   The first column of the range.
- * @param last_row    The last row of the range.
- * @param last_col    The last col of the range.
- *
- *
- * The `%worksheet_set_selection()` function can be used to specify which cell
- * or range of cells is selected in a worksheet: The most common requirement
- * is to select a single cell, in which case the `first_` and `last_`
- * parameters should be the same.
- *
- * The active cell within a selected range is determined by the order in which
- * `first_` and `last_` are specified.
- *
- * Examples:
- *
- * @code
- *     worksheet_set_selection(worksheet1, 3, 3, 3, 3);     // Cell D4.
- *     worksheet_set_selection(worksheet2, 3, 3, 6, 6);     // Cells D4 to G7.
- *     worksheet_set_selection(worksheet3, 6, 6, 3, 3);     // Cells G7 to D4.
- *     worksheet_set_selection(worksheet5, RANGE("D4:G7")); // Using the RANGE
- * macro.
- *
- * @endcode
- *
- */
-/// lxw_error worksheet_set_selection(lxw_worksheet *worksheet,
-///                                   row_num_t first_row, col_num_t first_col,
-///                                   row_num_t last_row, col_num_t last_col);
 
 /**
  * @brief Set the first visible cell at the top left of a worksheet.

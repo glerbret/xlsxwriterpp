@@ -1268,328 +1268,287 @@ std::string worksheet_t::write_dimension() const
   });
 }
 
-/// STATIC void _worksheet_write_freeze_panes(lxw_worksheet *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     lxw_selection *selection;
-///     lxw_selection *user_selection;
-///     row_num_t row = self->panes.first_row;
-///     col_num_t col = self->panes.first_col;
-///     row_num_t top_row = self->panes.top_row;
-///     col_num_t left_col = self->panes.left_col;
-
-///     char row_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char col_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char top_left_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char active_pane[LXW_PANE_NAME_LENGTH];
-
-/* If there is a user selection we remove it from the list and use it. */
-///     if (!STAILQ_EMPTY(self->selections)) {
-///         user_selection = STAILQ_FIRST(self->selections);
-///         STAILQ_REMOVE_HEAD(self->selections, list_pointers);
-///     }
-///     else {
-/* or else create a new blank selection. */
-///         user_selection = calloc(1, sizeof(lxw_selection));
-///         RETURN_VOID_ON_MEM_ERROR(user_selection);
-///     }
-
-///     LXW_INIT_ATTRIBUTES();
-
-///     lxw_rowcol_to_cell(top_left_cell, top_row, left_col);
-
-/* Set the active pane. */
-///     if (row && col) {
-///         lxw_strcpy(active_pane, "bottomRight");
-
-///         lxw_rowcol_to_cell(row_cell, row, 0);
-///         lxw_rowcol_to_cell(col_cell, 0, col);
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "topRight");
-///             lxw_strcpy(selection->active_cell, col_cell);
-///             lxw_strcpy(selection->sqref, col_cell);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "bottomLeft");
-///             lxw_strcpy(selection->active_cell, row_cell);
-///             lxw_strcpy(selection->sqref, row_cell);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "bottomRight");
-///             lxw_strcpy(selection->active_cell, user_selection->active_cell);
-///             lxw_strcpy(selection->sqref, user_selection->sqref);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-///     }
-///     else if (col) {
-///         lxw_strcpy(active_pane, "topRight");
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "topRight");
-///             lxw_strcpy(selection->active_cell, user_selection->active_cell);
-///             lxw_strcpy(selection->sqref, user_selection->sqref);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-///     }
-///     else {
-///         lxw_strcpy(active_pane, "bottomLeft");
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "bottomLeft");
-///             lxw_strcpy(selection->active_cell, user_selection->active_cell);
-///             lxw_strcpy(selection->sqref, user_selection->sqref);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-///     }
-
-///     if (col)
-///         LXW_PUSH_ATTRIBUTES_INT("xSplit", col);
-
-///     if (row)
-///         LXW_PUSH_ATTRIBUTES_INT("ySplit", row);
-
-///     LXW_PUSH_ATTRIBUTES_STR("topLeftCell", top_left_cell);
-///     LXW_PUSH_ATTRIBUTES_STR("activePane", active_pane);
-
-///     if (self->panes.type == FREEZE_PANES)
-///         LXW_PUSH_ATTRIBUTES_STR("state", "frozen");
-///     else if (self->panes.type == FREEZE_SPLIT_PANES)
-///         LXW_PUSH_ATTRIBUTES_STR("state", "frozenSplit");
-
-///     lxw_xml_empty_tag(self->file, "pane", &attributes);
-
-///     free(user_selection);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC uint32_t _worksheet_calculate_x_split_width(double x_split)
-/// {
-///     uint32_t width;
-///     uint32_t pixels;
-///     uint32_t points;
-///     uint32_t twips;
-///     double max_digit_width = 7.0;       /* For Calabri 11. */
-///     double padding = 5.0;
-
-/* Convert to pixels. */
-///     if (x_split < 1.0) {
-///         pixels = (uint32_t) (x_split * (max_digit_width + padding) + 0.5);
-///     }
-///     else {
-///         pixels = (uint32_t) (x_split * max_digit_width + 0.5) + 5;
-///     }
-
-/* Convert to points. */
-///     points = (pixels * 3) / 4;
-
-/* Convert to twips (twentieths of a point). */
-///     twips = points * 20;
-
-/* Add offset/padding. */
-///     width = twips + 390;
-
-///     return width;
-/// }
-
-/// STATIC void _worksheet_write_split_panes(lxw_worksheet *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     lxw_selection *selection;
-///     lxw_selection *user_selection;
-///     row_num_t row = self->panes.first_row;
-///     col_num_t col = self->panes.first_col;
-///     row_num_t top_row = self->panes.top_row;
-///     col_num_t left_col = self->panes.left_col;
-///     double x_split = self->panes.x_split;
-///     double y_split = self->panes.y_split;
-///     uint8_t has_selection = LXW_FALSE;
-
-///     char row_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char col_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char top_left_cell[LXW_MAX_CELL_NAME_LENGTH];
-///     char active_pane[LXW_PANE_NAME_LENGTH];
-
-/* If there is a user selection we remove it from the list and use it. */
-///     if (!STAILQ_EMPTY(self->selections)) {
-///         user_selection = STAILQ_FIRST(self->selections);
-///         STAILQ_REMOVE_HEAD(self->selections, list_pointers);
-///         has_selection = LXW_TRUE;
-///     }
-///     else {
-/* or else create a new blank selection. */
-///         user_selection = calloc(1, sizeof(lxw_selection));
-///         RETURN_VOID_ON_MEM_ERROR(user_selection);
-///     }
-
-///     LXW_INIT_ATTRIBUTES();
-
-/* Convert the row and col to 1/20 twip units with padding. */
-///     if (y_split > 0.0)
-///         y_split = (uint32_t) (20 * y_split + 300);
-
-///     if (x_split > 0.0)
-///         x_split = _worksheet_calculate_x_split_width(x_split);
-
-/* For non-explicit topLeft definitions, estimate the cell offset based on
- * the pixels dimensions. This is only a workaround and doesn't take
- * adjusted cell dimensions into account.
- */
-///     if (top_row == row && left_col == col) {
-///         top_row = (row_num_t) (0.5 + (y_split - 300.0) / 20.0 / 15.0);
-///         left_col = (col_num_t) (0.5 + (x_split - 390.0) / 20.0 / 3.0 / 16.0);
-///     }
-
-///     lxw_rowcol_to_cell(top_left_cell, top_row, left_col);
-
-/* If there is no selection set the active cell to the top left cell. */
-///     if (!has_selection) {
-///         lxw_strcpy(user_selection->active_cell, top_left_cell);
-///         lxw_strcpy(user_selection->sqref, top_left_cell);
-///     }
-
-/* Set the active pane. */
-///     if (y_split > 0.0 && x_split > 0.0) {
-///         lxw_strcpy(active_pane, "bottomRight");
-
-///         lxw_rowcol_to_cell(row_cell, top_row, 0);
-///         lxw_rowcol_to_cell(col_cell, 0, left_col);
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "topRight");
-///             lxw_strcpy(selection->active_cell, col_cell);
-///             lxw_strcpy(selection->sqref, col_cell);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "bottomLeft");
-///             lxw_strcpy(selection->active_cell, row_cell);
-///             lxw_strcpy(selection->sqref, row_cell);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "bottomRight");
-///             lxw_strcpy(selection->active_cell, user_selection->active_cell);
-///             lxw_strcpy(selection->sqref, user_selection->sqref);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-///     }
-///     else if (x_split > 0.0) {
-///         lxw_strcpy(active_pane, "topRight");
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "topRight");
-///             lxw_strcpy(selection->active_cell, user_selection->active_cell);
-///             lxw_strcpy(selection->sqref, user_selection->sqref);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-///     }
-///     else {
-///         lxw_strcpy(active_pane, "bottomLeft");
-
-///         selection = calloc(1, sizeof(lxw_selection));
-///         if (selection) {
-///             lxw_strcpy(selection->pane, "bottomLeft");
-///             lxw_strcpy(selection->active_cell, user_selection->active_cell);
-///             lxw_strcpy(selection->sqref, user_selection->sqref);
-
-///             STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///         }
-///     }
-
-///     if (x_split > 0.0)
-///         LXW_PUSH_ATTRIBUTES_DBL("xSplit", x_split);
-
-///     if (y_split > 0.0)
-///         LXW_PUSH_ATTRIBUTES_DBL("ySplit", y_split);
-
-///     LXW_PUSH_ATTRIBUTES_STR("topLeftCell", top_left_cell);
-
-///     if (has_selection)
-///         LXW_PUSH_ATTRIBUTES_STR("activePane", active_pane);
-
-///     lxw_xml_empty_tag(self->file, "pane", &attributes);
-
-///     free(user_selection);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void _worksheet_write_selection(lxw_worksheet *self, lxw_selection *selection)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-
-///     LXW_INIT_ATTRIBUTES();
-
-///     if (*selection->pane)
-///         LXW_PUSH_ATTRIBUTES_STR("pane", selection->pane);
-
-///     if (*selection->active_cell)
-///         LXW_PUSH_ATTRIBUTES_STR("activeCell", selection->active_cell);
-
-///     if (*selection->sqref)
-///         LXW_PUSH_ATTRIBUTES_STR("sqref", selection->sqref);
-
-///     lxw_xml_empty_tag(self->file, "selection", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-/// STATIC void _worksheet_write_selections(lxw_worksheet *self)
-/// {
-///     lxw_selection *selection;
-
-///     STAILQ_FOREACH(selection, self->selections, list_pointers) {
-///         _worksheet_write_selection(self, selection);
-///     }
-/// }
-
-/// STATIC void _worksheet_write_panes(lxw_worksheet *self)
-/// {
-///     if (self->panes.type == NO_PANES)
-///         return;
-
-///     else if (self->panes.type == FREEZE_PANES)
-///         _worksheet_write_freeze_panes(self);
-
-///     else if (self->panes.type == FREEZE_SPLIT_PANES)
-///         _worksheet_write_freeze_panes(self);
-///
-///     else if (self->panes.type == SPLIT_PANES)
-///         _worksheet_write_split_panes(self);
-/// }
-
-std::string worksheet_t::write_sheet_view() const
+std::string worksheet_t::write_freeze_panes()
+{
+  row_num_t row      = panes_.first_row_;
+  col_num_t col      = panes_.first_col_;
+  row_num_t top_row  = panes_.top_row_;
+  col_num_t left_col = panes_.left_col_;
+
+  // If there is a user selection we remove it from the list and use it.
+  selection_t user_selection;
+  if(!selections_.empty())
+  {
+    user_selection = selections_.front();
+    selections_.pop_front();
+  }
+
+  std::string top_left_cell = rowcol_to_cell(top_row, left_col);
+  std::string active_pane;
+
+  // Set the active pane.
+  if(row != 0 && col != 0)
+  {
+    active_pane = "bottomRight";
+
+    std::string row_cell = rowcol_to_cell(row, 0);
+    std::string col_cell = rowcol_to_cell(0, col);
+
+    selection_t selection;
+    selection.pane_        = "topRight";
+    selection.active_cell_ = col_cell;
+    selection.sqref_       = col_cell;
+    selections_.push_back(selection);
+
+    selection.pane_        = "bottomLeft";
+    selection.active_cell_ = row_cell;
+    selection.sqref_       = row_cell;
+    selections_.push_back(selection);
+
+    selection.pane_        = "bottomRight";
+    selection.active_cell_ = user_selection.active_cell_;
+    selection.sqref_       = user_selection.sqref_;
+    selections_.push_back(selection);
+  }
+  else if(col != 0)
+  {
+    active_pane = "topRight";
+
+    selection_t selection;
+    selection.pane_        = "topRight";
+    selection.active_cell_ = user_selection.active_cell_;
+    selection.sqref_       = user_selection.sqref_;
+    selections_.push_back(selection);
+  }
+  else
+  {
+    active_pane = "bottomLeft";
+
+    selection_t selection;
+    selection.pane_        = "bottomLeft";
+    selection.active_cell_ = user_selection.active_cell_;
+    selection.sqref_       = user_selection.sqref_;
+    selections_.push_back(selection);
+  }
+
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  if(col != 0)
+  {
+    attributes.emplace_back("xSplit", std::to_string(col));
+  }
+
+  if(row != 0)
+  {
+    attributes.emplace_back("ySplit", std::to_string(row));
+  }
+
+  attributes.emplace_back("topLeftCell", top_left_cell);
+  attributes.emplace_back("activePane", active_pane);
+
+  if(panes_.type_ == pane_types_t::FREEZE_PANES)
+  {
+    attributes.emplace_back("state", "frozen");
+  }
+  else if(panes_.type_ == pane_types_t::FREEZE_SPLIT_PANES)
+  {
+    attributes.emplace_back("state", "frozenSplit");
+  }
+
+  return xml_empty_tag("pane", attributes);
+}
+
+uint32_t worksheet_t::calculate_x_split_width(double x_split) const
+{
+  uint32_t pixels;
+  double max_digit_width = 7.0; /* For Calabri 11. */
+  double padding         = 5.0;
+
+  // Convert to pixels.
+  if(x_split < 1.0)
+  {
+    pixels = static_cast<uint32_t>(x_split * (max_digit_width + padding) + 0.5);
+  }
+  else
+  {
+    pixels = static_cast<uint32_t>(x_split * max_digit_width + 0.5) + 5;
+  }
+
+  // Convert to points.
+  uint32_t points = (pixels * 3) / 4;
+
+  // Convert to twips (twentieths of a point).
+  uint32_t twips = points * 20;
+
+  // Add offset/padding.
+  return twips + 390;
+}
+
+std::string worksheet_t::write_split_panes()
+{
+  row_num_t row      = panes_.first_row_;
+  col_num_t col      = panes_.first_col_;
+  row_num_t top_row  = panes_.top_row_;
+  col_num_t left_col = panes_.left_col_;
+  double x_split     = panes_.x_split_;
+  double y_split     = panes_.y_split_;
+  bool has_selection = false;
+
+  // If there is a user selection we remove it from the list and use it.
+  selection_t user_selection;
+  if(!selections_.empty())
+  {
+    user_selection = selections_.front();
+    selections_.pop_front();
+    has_selection = true;
+  }
+
+  // Convert the row and col to 1/20 twip units with padding.
+  if(y_split > 0.0)
+  {
+    y_split = static_cast<uint32_t>(20 * y_split + 300);
+  }
+
+  if(x_split > 0.0)
+  {
+    x_split = calculate_x_split_width(x_split);
+  }
+
+  /* For non-explicit topLeft definitions, estimate the cell offset based on
+   * the pixels dimensions. This is only a workaround and doesn't take
+   * adjusted cell dimensions into account. */
+  if(top_row == row && left_col == col)
+  {
+    top_row  = static_cast<row_num_t>(0.5 + (y_split - 300.0) / 20.0 / 15.0);
+    left_col = static_cast<col_num_t>(0.5 + (x_split - 390.0) / 20.0 / 3.0 / 16.0);
+  }
+
+  std::string top_left_cell = rowcol_to_cell(top_row, left_col);
+
+  // If there is no selection set the active cell to the top left cell.
+  if(!has_selection)
+  {
+    user_selection.active_cell_ = top_left_cell;
+    user_selection.sqref_       = top_left_cell;
+  }
+
+  std::string active_pane;
+  // Set the active pane.
+  if(y_split > 0.0 && x_split > 0.0)
+  {
+    active_pane = "bottomRight";
+
+    std::string row_cell = rowcol_to_cell(top_row, 0);
+    std::string col_cell = rowcol_to_cell(0, left_col);
+
+    selection_t selection;
+    selection.pane_        = "topRight";
+    selection.active_cell_ = col_cell;
+    selection.sqref_       = col_cell;
+    selections_.push_back(selection);
+
+    selection.pane_        = "bottomLeft";
+    selection.active_cell_ = row_cell;
+    selection.sqref_       = row_cell;
+    selections_.push_back(selection);
+
+    selection.pane_        = "bottomRight";
+    selection.active_cell_ = user_selection.active_cell_;
+    selection.sqref_       = user_selection.sqref_;
+    selections_.push_back(selection);
+  }
+  else if(x_split > 0.0)
+  {
+    active_pane = "topRight";
+
+    selection_t selection;
+    selection.pane_        = "topRight";
+    selection.active_cell_ = user_selection.active_cell_;
+    selection.sqref_       = user_selection.sqref_;
+    selections_.push_back(selection);
+  }
+  else
+  {
+    active_pane = "bottomLeft";
+
+    selection_t selection;
+    selection.pane_        = "bottomLeft";
+    selection.active_cell_ = user_selection.active_cell_;
+    selection.sqref_       = user_selection.sqref_;
+    selections_.push_back(selection);
+  }
+
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(x_split > 0.0)
+  {
+    attributes.emplace_back("xSplit", std::format("{}", x_split));
+  }
+
+  if(y_split > 0.0)
+  {
+    attributes.emplace_back("ySplit", std::format("{}", y_split));
+  }
+
+  attributes.emplace_back("topLeftCell", top_left_cell);
+
+  if(has_selection)
+  {
+    attributes.emplace_back("activePane", active_pane);
+  }
+
+  return xml_empty_tag("pane", attributes);
+}
+
+std::string worksheet_t::write_selection(const selection_t& selection) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(!selection.pane_.empty())
+  {
+    attributes.emplace_back("pane", selection.pane_);
+  }
+
+  if(!selection.active_cell_.empty())
+  {
+    attributes.emplace_back("activeCell", selection.active_cell_);
+  }
+
+  if(!selection.sqref_.empty())
+  {
+    attributes.emplace_back("sqref", selection.sqref_);
+  }
+
+  return xml_empty_tag("selection", attributes);
+}
+
+std::string worksheet_t::write_selections() const
+{
+  std::string xml_data;
+  for(const auto& selection: selections_)
+  {
+    xml_data += write_selection(selection);
+  }
+
+  return xml_data;
+}
+
+std::string worksheet_t::write_panes()
+{
+  switch(panes_.type_)
+  {
+    case pane_types_t::FREEZE_PANES:
+      return write_freeze_panes();
+    case pane_types_t::FREEZE_SPLIT_PANES:
+      return write_freeze_panes();
+    case pane_types_t::SPLIT_PANES:
+      return write_split_panes();
+    case pane_types_t::NO_PANES:
+    default:
+      return "";
+  }
+}
+
+std::string worksheet_t::write_sheet_view()
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   /* Hide screen gridlines if required */
@@ -1635,18 +1594,22 @@ std::string worksheet_t::write_sheet_view() const
 
   attributes.emplace_back("workbookViewId", "0");
 
-  ///     if (self->panes.type != NO_PANES || !STAILQ_EMPTY(self->selections)) {
-  ///         lxw_xml_start_tag(self->file, "sheetView", &attributes);
-  ///         _worksheet_write_panes(self);
-  ///         _worksheet_write_selections(self);
-  ///         lxw_xml_end_tag(self->file, "sheetView");
-  ///     }
-  ///     else {
-  return xml_empty_tag("sheetView", attributes);
-  ///     }
+  if(panes_.type_ != pane_types_t::NO_PANES || !selections_.empty())
+  {
+    std::string xml_data = xml_start_tag("sheetView", attributes);
+    xml_data += write_panes();
+    xml_data += write_selections();
+    xml_data += xml_end_tag("sheetView");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("sheetView", attributes);
+  }
 }
 
-std::string worksheet_t::write_sheet_views() const
+std::string worksheet_t::write_sheet_views()
 {
   std::string xml_data = xml_start_tag("sheetViews");
   xml_data += write_sheet_view();
@@ -7093,73 +7056,55 @@ void worksheet_t::hide()
   }
 }
 
-/// lxw_error
-/// worksheet_set_selection(lxw_worksheet *self,
-///                         row_num_t first_row, col_num_t first_col,
-///                         row_num_t last_row, col_num_t last_col)
-/// {
-///     lxw_selection *selection;
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     lxw_error err;
-///     char active_cell[LXW_MAX_CELL_RANGE_LENGTH];
-///     char sqref[LXW_MAX_CELL_RANGE_LENGTH];
-///
-///     /* Only allow selection to be set once to avoid freeing/re-creating it. */
-///     if (!STAILQ_EMPTY(self->selections))
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///
-///     /* Excel doesn't set a selection for cell A1 since it is the default. */
-///     if (first_row == 0 && first_col == 0 && last_row == 0 && last_col == 0)
-///         return LXW_NO_ERROR;
-///
-///     selection = calloc(1, sizeof(lxw_selection));
-///     RETURN_ON_MEM_ERROR(selection, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     /* Check that row and col are valid without storing. */
-///     err = _check_dimensions(self, first_row, first_col, LXW_TRUE, LXW_TRUE);
-///     if (err) {
-///         free(selection);
-///         return err;
-///     }
-///
-///     err = _check_dimensions(self, last_row, last_col, LXW_TRUE, LXW_TRUE);
-///     if (err) {
-///         free(selection);
-///         return err;
-///     }
-///
-///     /* Set the cell range selection. Do this before swapping max/min to  */
-///     /* allow the selection direction to be reversed. */
-///     lxw_rowcol_to_cell(active_cell, first_row, first_col);
-///
-///     /* Swap last row/col for first row/col if necessary. */
-///     if (first_row > last_row) {
-///         tmp_row = first_row;
-///         first_row = last_row;
-///         last_row = tmp_row;
-///     }
-///
-///     if (first_col > last_col) {
-///         tmp_col = first_col;
-///         first_col = last_col;
-///         last_col = tmp_col;
-///     }
-///
-///     /* If the first and last cell are the same write a single cell. */
-///     if ((first_row == last_row) && (first_col == last_col))
-///         lxw_rowcol_to_cell(sqref, first_row, first_col);
-///     else
-///         lxw_rowcol_to_range(sqref, first_row, first_col, last_row, last_col);
-///
-///     lxw_strcpy(selection->pane, "");
-///     lxw_strcpy(selection->active_cell, active_cell);
-///     lxw_strcpy(selection->sqref, sqref);
-///
-///     STAILQ_INSERT_TAIL(self->selections, selection, list_pointers);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::set_selection(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  // Only allow selection to be set once to avoid freeing/re-creating it.
+  if(!selections_.empty())
+  {
+    throw xwpp_exception_t("Selection can be set only once");
+  }
+
+  // Excel doesn't set a selection for cell A1 since it is the default.
+  if(first_row == 0 && first_col == 0 && last_row == 0 && last_col == 0)
+  {
+    return;
+  }
+
+  // Check that row and col are valid without storing.
+  check_dimensions(first_row, first_col, true, true);
+  check_dimensions(last_row, last_col, true, true);
+
+  // Set the cell range selection. Do this before swapping max/min to
+  // allow the selection direction to be reversed.
+  std::string active_cell = rowcol_to_cell(first_row, first_col);
+
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+
+  std::string sqref;
+  // If the first and last cell are the same write a single cell. */
+  if((first_row == last_row) && (first_col == last_col))
+  {
+    sqref = rowcol_to_cell(first_row, first_col);
+  }
+  else
+  {
+    sqref = rowcol_to_range(first_row, first_col, last_row, last_col);
+  }
+
+  selection_t selection;
+  selection.active_cell_ = active_cell;
+  selection.sqref_       = sqref;
+
+  selections_.push_back(selection);
+}
 
 /// void
 /// worksheet_set_top_left_cell(lxw_worksheet *self, row_num_t row, col_num_t col)
@@ -7170,52 +7115,46 @@ void worksheet_t::hide()
 ///     lxw_rowcol_to_cell(self->top_left_cell, row, col);
 /// }
 
-/// void
-/// worksheet_freeze_panes_opt(lxw_worksheet *self,
-///                            row_num_t first_row, col_num_t first_col,
-///                            row_num_t top_row, col_num_t left_col,
-///                            uint8_t type)
-/// {
-///     self->panes.first_row = first_row;
-///     self->panes.first_col = first_col;
-///     self->panes.top_row = top_row;
-///     self->panes.left_col = left_col;
-///     self->panes.x_split = 0.0;
-///     self->panes.y_split = 0.0;
-///
-///     if (type)
-///         self->panes.type = FREEZE_SPLIT_PANES;
-///     else
-///         self->panes.type = FREEZE_PANES;
-/// }
+void worksheet_t::freeze_panes(row_num_t first_row, col_num_t first_col, row_num_t top_row, col_num_t left_col,
+                               bool type)
+{
+  panes_.first_row_ = first_row;
+  panes_.first_col_ = first_col;
+  panes_.top_row_   = top_row;
+  panes_.left_col_  = left_col;
+  panes_.x_split_   = 0.0;
+  panes_.y_split_   = 0.0;
 
-/// void
-/// worksheet_freeze_panes(lxw_worksheet *self,
-///                        row_num_t first_row, col_num_t first_col)
-/// {
-///     worksheet_freeze_panes_opt(self, first_row, first_col,
-///                                first_row, first_col, 0);
-/// }
+  if(type)
+  {
+    panes_.type_ = pane_types_t::FREEZE_SPLIT_PANES;
+  }
+  else
+  {
+    panes_.type_ = pane_types_t::FREEZE_PANES;
+  }
+}
 
-/// void
-/// worksheet_split_panes_opt(lxw_worksheet *self,
-///                           double y_split, double x_split,
-///                           row_num_t top_row, col_num_t left_col)
-/// {
-///     self->panes.first_row = 0;
-///     self->panes.first_col = 0;
-///     self->panes.top_row = top_row;
-///     self->panes.left_col = left_col;
-///     self->panes.x_split = x_split;
-///     self->panes.y_split = y_split;
-///     self->panes.type = SPLIT_PANES;
-/// }
+void worksheet_t::freeze_panes(row_num_t row_num, col_num_t col_num)
+{
+  freeze_panes(row_num, col_num, row_num, col_num, false);
+}
 
-/// void
-/// worksheet_split_panes(lxw_worksheet *self, double y_split, double x_split)
-/// {
-///     worksheet_split_panes_opt(self, y_split, x_split, 0, 0);
-/// }
+void worksheet_t::split_panes(double y_split, double x_split, row_num_t top_row, col_num_t left_col)
+{
+  panes_.first_row_ = 0;
+  panes_.first_col_ = 0;
+  panes_.top_row_   = top_row;
+  panes_.left_col_  = left_col;
+  panes_.x_split_   = x_split;
+  panes_.y_split_   = y_split;
+  panes_.type_      = pane_types_t::SPLIT_PANES;
+}
+
+void worksheet_t::split_panes(double y_split, double x_split)
+{
+  split_panes(y_split, x_split, 0, 0);
+}
 
 /// void
 /// worksheet_set_portrait(lxw_worksheet *self)
