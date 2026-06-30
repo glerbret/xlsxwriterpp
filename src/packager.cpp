@@ -59,6 +59,7 @@
 #include "xwpp/rich_value_types.h"
 #include "xwpp/shared_strings.h"
 #include "xwpp/styles.h"
+#include "xwpp/table.h"
 #include "xwpp/theme.h"
 #include "xwpp/vml.h"
 #include "xwpp/xmlwriter.h"
@@ -287,80 +288,49 @@ uint32_t packager_t::get_drawing_count(const workbook_t& workbook) const
   return drawing_count;
 }
 
-/// STATIC lxw_error _write_table_files(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_sheet *sheet;
-///   lxw_worksheet *worksheet;
-///   lxw_table *table;
-///   lxw_table_obj *table_obj;
-///   lxw_error err;
+void packager_t::write_table_files(const workbook_t& workbook)
+{
+  for(uint32_t index = 1; const auto& sheet: workbook.sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      const auto& ws = std::get<worksheet_t>(sheet);
+      if(!ws.table_objs_.empty())
+      {
+        for(const auto& table_obj: ws.table_objs_)
+        {
+          table_t table{table_obj};
 
-///   char filename[LXW_FILENAME_LENGTH] = { 0 };
-///   char *buffer = NULL;
-///   size_t buffer_size = 0;
-///   uint32_t index = 1;
+          std::string xml_data = table.assemble_xml_file();
+          add_buffer_to_zip(xml_data, std::format("xl/tables/table{}.xml", index));
+          index++;
+        }
+      }
+    }
+  }
+}
 
-///   STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///     if (sheet->is_chartsheet)
-///       continue;
-///     else
-///       worksheet = sheet->u.worksheet;
+uint32_t packager_t::get_table_count(const workbook_t& workbook) const
+{
+  uint32_t table_count = 0;
 
-///     if (STAILQ_EMPTY(worksheet->table_objs))
-///       continue;
+  for(const auto& sheet: workbook.sheets_)
+  {
+    if(std::holds_alternative<chartsheet_t>(sheet))
+    {
+      const auto& ws = std::get<chartsheet_t>(sheet).worksheet_;
+      table_count += ws.table_objs_.size();
+    }
 
-///     STAILQ_FOREACH(table_obj, worksheet->table_objs, list_pointers) {
-///       lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                    "xl/tables/table%d.xml", index++);
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      const auto& ws = std::get<worksheet_t>(sheet);
+      table_count += ws.table_objs_.size();
+    }
+  }
 
-///       table = lxw_table_new();
-///       if (!table) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         RETURN_ON_ERROR(err);
-///       }
-
-///       table->file = lxw_get_filehandle(&buffer, &buffer_size,
-///                                        self->tmpdir);
-///       if (!table->file) {
-///         lxw_table_free(table);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///       }
-
-///       table->table_obj = table_obj;
-
-///       lxw_table_assemble_xml_file(table);
-
-///       err = _add_to_zip(self, table->file, &buffer, &buffer_size,
-///                         filename);
-///       fclose(table->file);
-///       free(buffer);
-///       lxw_table_free(table);
-///       RETURN_ON_ERROR(err);
-///     }
-///   }
-
-///   return LXW_NO_ERROR;
-/// }
-
-/// uint32_t _get_table_count(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_sheet *sheet;
-///   lxw_worksheet *worksheet;
-///   uint32_t table_count = 0;
-
-///   STAILQ_FOREACH(sheet, workbook->sheets, list_pointers) {
-///     if (sheet->is_chartsheet)
-///       worksheet = sheet->u.chartsheet->worksheet;
-///     else
-///       worksheet = sheet->u.worksheet;
-
-///     table_count += worksheet->table_count;
-///   }
-
-///   return table_count;
-/// }
+  return table_count;
+}
 
 void packager_t::write_vml_drawing_rels_file(const worksheet_t& worksheet, uint32_t index)
 {
@@ -606,6 +576,7 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   uint32_t worksheet_index  = 1;
   uint32_t chartsheet_index = 1;
   uint32_t drawing_count    = get_drawing_count(workbook);
+  uint32_t table_count      = get_table_count(workbook);
 
   if(workbook.has_png_)
   {
@@ -670,11 +641,10 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_drawing_name(std::format("/xl/drawings/drawing{}.xml", index));
   }
 
-  ///     for (index = 1; index <= table_count; index++) {
-  ///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-  ///                      "/xl/tables/table%d.xml", index);
-  ///         lxw_ct_add_table_name(content_types, filename);
-  ///     }
+  for(uint32_t index = 1; index <= table_count; index++)
+  {
+    content_types.add_table_name(std::format("/xl/tables/table{}.xml", index));
+  }
 
   if(workbook.has_vml_)
   {
@@ -771,8 +741,7 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
       index++;
 
-      if(ws.external_hyperlinks_.empty() && ws.external_drawing_links_.empty() &&
-         ///             STAILQ_EMPTY(ws.external_table_links) &&
+      if(ws.external_hyperlinks_.empty() && ws.external_drawing_links_.empty() && ws.external_table_links_.empty() &&
          !ws.external_vml_header_link_.has_value() && !ws.external_vml_comment_link_.has_value() &&
          !ws.external_background_link_.has_value() && !ws.external_comment_link_.has_value())
       {
@@ -807,10 +776,10 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
         relationships.add_worksheet_relationship(std::get<0>(rel), std::get<1>(rel), std::get<2>(rel));
       }
 
-      ///         STAILQ_FOREACH(rel, worksheet->external_table_links, list_pointers) {
-      ///             lxw_add_worksheet_relationship(rels, rel->type, rel->target,
-      ///                                            rel->target_mode);
-      ///}
+      for(const auto& [type, target, target_mode]: ws.external_table_links_)
+      {
+        relationships.add_worksheet_relationship(type, target, target_mode);
+      }
 
       if(ws.external_comment_link_.has_value())
       {
@@ -1091,7 +1060,7 @@ void packager_t::create_package(workbook_t& workbook)
   write_drawing_files(workbook);
   write_vml_files(workbook);
   write_comment_files(workbook);
-  ///     error = _write_table_files(self);
+  write_table_files(workbook);
   write_shared_strings_file(workbook);
   write_custom_file(workbook);
   write_theme_file();

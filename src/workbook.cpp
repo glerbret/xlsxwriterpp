@@ -171,13 +171,13 @@ void workbook_t::prepare_fills()
   std::vector<format_t*> fills;
 
   // Add the default fills.
-  format_t default_fill_1;
+  format_t default_fill_1(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
   default_fill_1.fg_color_   = color_t::UNSET;
   default_fill_1.bg_color_   = color_t::UNSET;
   default_fill_1.pattern_    = format_patterns_t::NONE;
   default_fill_1.fill_index_ = 0;
   fills.push_back(&default_fill_1);
-  format_t default_fill_2;
+  format_t default_fill_2(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
   default_fill_2.fg_color_   = color_t::UNSET;
   default_fill_2.bg_color_   = color_t::UNSET;
   default_fill_2.pattern_    = format_patterns_t::GRAY_125;
@@ -1022,26 +1022,21 @@ void workbook_t::prepare_defined_names()
 
 void workbook_t::prepare_tables()
 {
-  ///     lxw_worksheet *worksheet;
-  ///     lxw_sheet *sheet;
-  ///     uint32_t table_id = 0;
-  ///     uint32_t table_count = 0;
+  uint32_t table_id = 0;
 
-  ///     STAILQ_FOREACH(sheet, self->sheets, list_pointers) {
-  ///         if (sheet->is_chartsheet)
-  ///             continue;
-  ///         else
-  ///             worksheet = sheet->u.worksheet;
+  for(auto& sheet: sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& ws = std::get<worksheet_t>(sheet);
 
-  ///         table_count = worksheet->table_count;
-
-  ///         if (table_count == 0)
-  ///             continue;
-
-  ///         lxw_worksheet_prepare_tables(worksheet, table_id + 1);
-
-  ///         table_id += table_count;
-  ///     }
+      if(!ws.table_objs_.empty())
+      {
+        ws.prepare_tables(table_id + 1);
+        table_id += ws.table_objs_.size();
+      }
+    }
+  }
 }
 
 std::string workbook_t::write_workbook() const
@@ -1148,7 +1143,7 @@ std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id, bo
 std::string workbook_t::write_sheets() const
 {
   std::string xml_data = xml_start_tag("sheets");
-  for(auto sheet: sheets_)
+  for(const auto& sheet: sheets_)
   {
     if(std::holds_alternative<chartsheet_t>(sheet))
     {
@@ -1333,7 +1328,7 @@ chart_t& workbook_t::add_chart(chart_type_t chart_type)
 // TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship)
 format_t* workbook_t::add_format()
 {
-  formats_.emplace_back();
+  formats_.emplace_back(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
 
   return &formats_.back();
 }

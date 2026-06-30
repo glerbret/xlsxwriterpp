@@ -62,6 +62,7 @@
 #define XWPP_FORMAT_H
 
 #include <cstdint>
+#include <functional>
 #include <string>
 
 namespace xwpp
@@ -332,6 +333,8 @@ enum class format_borders_t
 class format_t
 {
 public:
+  format_t(std::function<int32_t(format_t*)> get_dxf_index);
+
   /**
    * @brief Set the number format for a cell.
    *
@@ -1029,6 +1032,9 @@ public:
   void set_font_condense();
   void set_font_extend();
   void set_font_only();
+
+  // TODO Refactor this point to not have it in several places
+  std::function<int32_t(format_t*)> get_dxf_index_;
 
   /**
    * @brief Set the cell unlocked state.

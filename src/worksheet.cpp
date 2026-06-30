@@ -18,6 +18,7 @@
 #include <openssl/md5.h>
 
 #include <cstdint>
+#include <cstring>
 #include <format>
 #include <fstream>
 #include <span>
@@ -851,380 +852,277 @@ void set_custom_filter(filter_rule_obj_t& rule_obj)
   }
 }
 
-/// void _check_and_copy_table_style(lxw_table_obj *table_obj,
-///                             lxw_table_options *user_options)
-/// {
-///     if (!user_options)
-///         return;
-
-/* Set the defaults. */
-///     table_obj->style_type = LXW_TABLE_STYLE_TYPE_MEDIUM;
-///     table_obj->style_type_number = 9;
-
-///     if (user_options->style_type > LXW_TABLE_STYLE_TYPE_DARK) {
-///         LXW_WARN_FORMAT1
-///             ("worksheet_add_table(): invalid style_type = %d. "
-///              "Using default TableStyleMedium9", user_options->style_type);
-
-///         table_obj->style_type = LXW_TABLE_STYLE_TYPE_MEDIUM;
-///         table_obj->style_type_number = 9;
-///     }
-///     else {
-///         table_obj->style_type = user_options->style_type;
-///     }
-
-/* Each type (light, medium and dark) has a different number of styles. */
-///     if (user_options->style_type == LXW_TABLE_STYLE_TYPE_LIGHT) {
-///         if (user_options->style_type_number > 21) {
-///             LXW_WARN_FORMAT1("worksheet_add_table(): "
-///                              "invalid style_type_number = %d for style type "
-///                              "LXW_TABLE_STYLE_TYPE_LIGHT. "
-///                              "Using default TableStyleMedium9",
-///                              user_options->style_type);
-
-///             table_obj->style_type = LXW_TABLE_STYLE_TYPE_MEDIUM;
-///             table_obj->style_type_number = 9;
-///         }
-///         else {
-///             table_obj->style_type_number = user_options->style_type_number;
-///         }
-///     }
-
-///     if (user_options->style_type == LXW_TABLE_STYLE_TYPE_MEDIUM) {
-///         if (user_options->style_type_number < 1
-///             || user_options->style_type_number > 28) {
-///             LXW_WARN_FORMAT1("worksheet_add_table(): "
-///                              "invalid style_type_number = %d for style type "
-///                              "LXW_TABLE_STYLE_TYPE_MEDIUM. "
-///                              "Using default TableStyleMedium9",
-///                              user_options->style_type_number);
-
-///             table_obj->style_type = LXW_TABLE_STYLE_TYPE_MEDIUM;
-///             table_obj->style_type_number = 9;
-///         }
-///         else {
-///             table_obj->style_type_number = user_options->style_type_number;
-///         }
-///     }
-
-///     if (user_options->style_type == LXW_TABLE_STYLE_TYPE_DARK) {
-///         if (user_options->style_type_number < 1
-///             || user_options->style_type_number > 11) {
-///             LXW_WARN_FORMAT1("worksheet_add_table(): "
-///                              "invalid style_type_number = %d for style type "
-///                              "LXW_TABLE_STYLE_TYPE_DARK. "
-///                              "Using default TableStyleMedium9",
-///                              user_options->style_type_number);
-
-///             table_obj->style_type = LXW_TABLE_STYLE_TYPE_MEDIUM;
-///             table_obj->style_type_number = 9;
-///         }
-///         else {
-///             table_obj->style_type_number = user_options->style_type_number;
-///         }
-///     }
-/// }
-
-/// lxw_error _set_default_table_columns(lxw_table_obj *table_obj)
-/// {
-///     char col_name[LXW_ATTR_32];
-///     char *header;
-///     uint16_t i;
-///     lxw_table_column *column;
-///     uint16_t num_cols = table_obj->num_cols;
-///     lxw_table_column **columns = table_obj->columns;
-
-///     for (i = 0; i < num_cols; i++) {
-///         lxw_snprintf(col_name, LXW_ATTR_32, "Column%d", i + 1);
-
-///         column = calloc(num_cols, sizeof(lxw_table_column));
-///         RETURN_ON_MEM_ERROR(column, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///         header = lxw_strdup(col_name);
-///         if (!header) {
-///             free(column);
-///             RETURN_ON_MEM_ERROR(header, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///         }
-///         columns[i] = column;
-///         columns[i]->header = header;
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// char * _expand_table_formula(const char *formula)
-/// {
-///     char *expanded;
-///     const char *ptr;
-///     size_t i;
-///     size_t ref_count = 0;
-///     size_t expanded_len;
-
-///     ptr = formula;
-
-///     while (*ptr) {
-///         if (*ptr == '@')
-///             ref_count++;
-
-///         ptr++;
-///     }
-
-///     if (ref_count == 0) {
-/* String doesn't need to be expanded. Just copy it. */
-///         expanded = lxw_strdup_formula(formula);
-///     }
-///     else {
-/* Convert "@" in the formula string to "[#This Row],".  */
-///         expanded_len = strlen(formula) + (sizeof(LXW_THIS_ROW) * ref_count);
-///         expanded = calloc(1, expanded_len);
-
-///         if (!expanded)
-///             return NULL;
-
-///         i = 0;
-///         ptr = formula;
-/* Ignore the = in the formula. */
-///         if (*ptr == '=')
-///             ptr++;
-
-/* Do the "@" expansion. */
-///         while (*ptr) {
-///             if (*ptr == '@') {
-///                 strcat(&expanded[i], LXW_THIS_ROW);
-///                 i += sizeof(LXW_THIS_ROW) - 1;
-///             }
-///             else {
-///                 expanded[i] = *ptr;
-///                 i++;
-///             }
-
-///             ptr++;
-///         }
-///     }
-
-///     return expanded;
-/// }
-
-/// lxw_error _set_custom_table_columns(lxw_table_obj *table_obj,
-///                           lxw_table_options *user_options)
-/// {
-///     char *str;
-///     uint16_t i;
-///     lxw_table_column *table_column;
-///     lxw_table_column *user_column;
-///     uint16_t num_cols = table_obj->num_cols;
-///     lxw_table_column **user_columns = user_options->columns;
-
-///     for (i = 0; i < num_cols; i++) {
-
-///         user_column = user_columns[i];
-///         table_column = table_obj->columns[i];
-
-/* NULL indicates end of user input array. */
-///         if (user_column == NULL)
-///             return LXW_NO_ERROR;
-
-///         if (user_column->header) {
-///             if (lxw_utf8_strlen(user_column->header) > 255) {
-///                 LXW_WARN_FORMAT("worksheet_add_table(): column parameter "
-///                                 "'header' exceeds Excel length limit of 255.");
-///                 return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///             }
-
-///             str = lxw_strdup(user_column->header);
-///             RETURN_ON_MEM_ERROR(str, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-/* Free the default column header. */
-///             free((void *) table_column->header);
-///             table_column->header = str;
-///         }
-
-///         if (user_column->total_string) {
-///             str = lxw_strdup(user_column->total_string);
-///             RETURN_ON_MEM_ERROR(str, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///             table_column->total_string = str;
-///         }
-
-///         if (user_column->formula) {
-///             str = _expand_table_formula(user_column->formula);
-///             RETURN_ON_MEM_ERROR(str, LXW_ERROR_MEMORY_MALLOC_FAILED);
-
-///             table_column->formula = str;
-///         }
-
-///         table_column->format = user_column->format;
-///         table_column->total_value = user_column->total_value;
-///         table_column->header_format = user_column->header_format;
-///         table_column->total_function = user_column->total_function;
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// void _write_column_function(lxw_worksheet *self, row_num_t row, col_num_t col,
-///                        lxw_table_column *column)
-/// {
-///     size_t offset;
-///     char formula[LXW_MAX_ATTRIBUTE_LENGTH];
-///     lxw_format *format = column->format;
-///     uint8_t total_function = column->total_function;
-///     double value = column->total_value;
-///     const char *header = column->header;
-
-/* Write the subtotal formula number. */
-///     lxw_snprintf(formula, LXW_MAX_ATTRIBUTE_LENGTH, "SUBTOTAL(%d,[",
-///                  total_function);
-
-/* Copy the header string but escape any special characters. Note, this is
- * guaranteed to fit in the 2k buffer since the header is max 255
- * characters, checked in _set_custom_table_columns(). */
-///     offset = strlen(formula);
-///     while (*header) {
-///         switch (*header) {
-///             case '\'':
-///             case '#':
-///             case '[':
-///             case ']':
-///                 formula[offset++] = '\'';
-///                 formula[offset] = *header;
-///                 break;
-///             default:
-///                 formula[offset] = *header;
-///                 break;
-///         }
-///         offset++;
-///         header++;
-///     }
-
-/* Write the end of the string. */
-///     memcpy(&formula[offset], "])\0", sizeof("])\0"));
-
-///     worksheet_write_formula_num(self, row, col, formula, format, value);
-/// }
-
-/// void _write_column_formula(lxw_worksheet *self, row_num_t first_row,
-///                       row_num_t last_row, col_num_t col,
-///                       lxw_table_column *column)
-/// {
-///     row_num_t row;
-///     const char *formula = column->formula;
-///     lxw_format *format = column->format;
-
-///     for (row = first_row; row <= last_row; row++)
-///         worksheet_write_formula(self, row, col, formula, format);
-/// }
-
-/// void _write_table_column_data(lxw_worksheet *self, lxw_table_obj *table_obj)
-/// {
-///     uint16_t i;
-///     lxw_table_column *column;
-///     lxw_table_column **columns = table_obj->columns;
-
-///     col_num_t col;
-///     row_num_t first_row = table_obj->first_row;
-///     col_num_t first_col = table_obj->first_col;
-///     row_num_t last_row = table_obj->last_row;
-///     row_num_t first_data_row = first_row;
-///     row_num_t last_data_row = last_row;
-
-///     if (!table_obj->no_header_row)
-///         first_data_row++;
-
-///     if (table_obj->total_row)
-///         last_data_row--;
-
-///     for (i = 0; i < table_obj->num_cols; i++) {
-///         col = first_col + i;
-///         column = columns[i];
-
-///         if (table_obj->no_header_row == LXW_FALSE)
-///             worksheet_write_string(self, first_row, col, column->header,
-///                                    column->header_format);
-
-///         if (column->total_string)
-///             worksheet_write_string(self, last_row, col, column->total_string,
-///                                    NULL);
-
-///         if (column->total_function)
-///             _write_column_function(self, last_row, col, column);
-
-///         if (column->formula)
-///             _write_column_formula(self, first_data_row, last_data_row, col,
-///                                   column);
-///     }
-/// }
-
-/// lxw_error _check_table_rows(row_num_t first_row, row_num_t last_row,
-///                   lxw_table_options *user_options)
-/// {
-///     row_num_t num_non_header_rows = last_row - first_row;
-
-///     if (user_options && user_options->no_header_row == LXW_TRUE)
-///         num_non_header_rows++;
-
-///     if (num_non_header_rows == 0) {
-///         LXW_WARN_FORMAT("worksheet_add_table(): "
-///                         "table must have at least 1 non-header row.");
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
-
-/// lxw_error _check_table_name(lxw_table_options *user_options)
-/// {
-///     const char *name;
-///     char *ptr;
-///     char first[2] = { 0, 0 };
-
-///     if (!user_options)
-///         return LXW_NO_ERROR;
-
-///     if (!user_options->name)
-///         return LXW_NO_ERROR;
-
-///     name = user_options->name;
-
-/* Check table name length. */
-///     if (lxw_utf8_strlen(name) > 255) {
-///         LXW_WARN_FORMAT("worksheet_add_table(): "
-///                         "Table name exceeds Excel's limit of 255.");
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Check some short invalid names. */
-///     if (strlen(name) == 1
-///         && (name[0] == 'C' || name[0] == 'c' || name[0] == 'R'
-///             || name[0] == 'r')) {
-///         LXW_WARN_FORMAT1("worksheet_add_table(): "
-///                          "invalid table name \"%s\".", name);
-///         return LXW_ERROR_255_STRING_LENGTH_EXCEEDED;
-///     }
-
-/* Check for invalid characters in Table name, while trying to allow
- * for utf8 strings. */
-///     ptr = strpbrk(name, " !\"#$%&'()*+,-/:;<=>?@[\\]^`{|}~");
-///     if (ptr) {
-///         LXW_WARN_FORMAT2("worksheet_add_table(): "
-///                          "invalid character '%c' in table name \"%s\".",
-///                          *ptr, name);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-
-/* Check for invalid initial character in Table name, while trying to allow
- * for utf8 strings. */
-///     first[0] = name[0];
-///     ptr = strpbrk(first, " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^`{|}~");
-///     if (ptr) {
-///         LXW_WARN_FORMAT2("worksheet_add_table(): "
-///                          "invalid first character '%c' in table name \"%s\".",
-///                          *ptr, name);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
+void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<table_options_t>& user_options)
+{
+  if(!user_options)
+  {
+    return;
+  }
+
+  // Each type (light, medium and dark) has a different number of styles.
+  if(user_options->style_type_ == table_style_type_t::LIGHT)
+  {
+    if(user_options->style_type_number_ > 21)
+    {
+      throw xwpp_out_of_range_t(
+          std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'LIGHT' ([0, 21])",
+                      user_options->style_type_number_));
+    }
+  }
+
+  if(user_options->style_type_ == table_style_type_t::MEDIUM)
+  {
+    if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 28)
+    {
+      throw xwpp_out_of_range_t(
+          std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'MEDIUM' ([1, 28])",
+                      user_options->style_type_number_));
+    }
+  }
+
+  if(user_options->style_type_ == table_style_type_t::DARK)
+  {
+    if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 11)
+    {
+      throw xwpp_out_of_range_t(
+          std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'DARK' ([1, 11])",
+                      user_options->style_type_number_));
+    }
+  }
+
+  table_obj.style_type_        = user_options->style_type_;
+  table_obj.style_type_number_ = user_options->style_type_number_;
+}
+
+void set_default_table_columns(table_obj_t& table_obj)
+{
+  for(size_t i = 1; auto& column: table_obj.columns_)
+  {
+    column.header_ = std::format("Column{}", i);
+    i++;
+  }
+}
+
+std::string expand_table_formula(const std::string& formula)
+{
+  size_t ref_count = 0;
+  for(const auto c: formula)
+  {
+    if(c == '@')
+    {
+      ref_count++;
+    }
+  }
+
+  if(ref_count == 0)
+  {
+    // String doesn't need to be expanded. Just copy it.
+    return dup_formula(formula);
+  }
+  else
+  {
+    // Convert "@" in the formula string to "[#This Row],".
+    std::string expanded;
+
+    size_t start = 0;
+    // Ignore the = in the formula.
+    if(formula[0] == '=')
+    {
+      start = 1;
+    }
+
+    // Do the "@" expansion.
+    for(size_t i = start; i < formula.size(); i++)
+    {
+      if(formula[i] == '@')
+      {
+        expanded += "[#This Row],";
+      }
+      else
+      {
+        expanded += formula[i];
+      }
+    }
+
+    return expanded;
+  }
+}
+
+void set_custom_table_columns(table_obj_t& table_obj, const std::optional<table_options_t>& user_options)
+{
+  // TODO Check size consistency, and if possible use algorithm
+  for(size_t i = 0; i < user_options->columns_.size(); i++)
+  {
+    const table_column_t& user_column = user_options->columns_[i];
+    table_column_t& table_column      = table_obj.columns_[i];
+
+    if(!user_column.header_.empty())
+    {
+      if(user_column.header_.size() > 255)
+      {
+        throw xwpp_out_of_range_t("set_custom_table_columns(): 'header' exceeds Excel length limit of 255.");
+      }
+
+      table_column.header_ = user_column.header_;
+    }
+
+    table_column.total_string_ = user_column.total_string_;
+
+    if(!user_column.formula_.empty())
+    {
+      table_column.formula_ = expand_table_formula(user_column.formula_);
+    }
+
+    table_column.format_         = user_column.format_;
+    table_column.total_value_    = user_column.total_value_;
+    table_column.header_format_  = user_column.header_format_;
+    table_column.total_function_ = user_column.total_function_;
+  }
+}
+
+void worksheet_t::write_column_function(row_num_t row_num, col_num_t col_num, const table_column_t& column)
+{
+  // Write the subtotal formula number.
+  std::string formula = std::format("SUBTOTAL({},[", static_cast<int>(column.total_function_));
+
+  // Copy the header string but escape any special characters. Note, this is
+  // guaranteed to fit in the 2k buffer since the header is max 255
+  // characters, checked in _set_custom_table_columns().
+  for(const auto c: column.header_)
+  {
+    switch(c)
+    {
+      case '\'':
+      case '#':
+      case '[':
+      case ']':
+        formula += '\'' + c;
+        break;
+      default:
+        formula += +c;
+        break;
+    }
+  }
+
+  // Write the end of the string.
+  formula += "])";
+
+  write_formula_num(row_num, col_num, formula, column.format_, column.total_value_);
+}
+
+void worksheet_t::write_column_formula(row_num_t first_row, row_num_t last_row, col_num_t col,
+                                       const table_column_t& column)
+{
+  for(row_num_t row = first_row; row <= last_row; row++)
+  {
+    write_formula(row, col, column.formula_, column.format_);
+  }
+}
+
+void worksheet_t::write_table_column_data(const table_obj_t& table_obj)
+{
+  row_num_t first_row      = table_obj.first_row_;
+  col_num_t first_col      = table_obj.first_col_;
+  row_num_t last_row       = table_obj.last_row_;
+  row_num_t first_data_row = first_row;
+  row_num_t last_data_row  = last_row;
+
+  if(!table_obj.no_header_row_)
+  {
+    first_data_row++;
+  }
+
+  if(table_obj.total_row_)
+  {
+    last_data_row--;
+  }
+
+  for(size_t i = 0; const auto& column: table_obj.columns_)
+  {
+    col_num_t col = first_col + i;
+
+    if(!table_obj.no_header_row_)
+    {
+      write_string(first_row, col, column.header_, column.header_format_);
+    }
+
+    if(!column.total_string_.empty())
+    {
+      write_string(last_row, col, column.total_string_);
+    }
+
+    if(column.total_function_ != table_total_functions_t::NONE)
+    {
+      write_column_function(last_row, col, column);
+    }
+
+    if(!column.formula_.empty())
+    {
+      write_column_formula(first_data_row, last_data_row, col, column);
+    }
+
+    i++;
+  }
+}
+
+void check_table_rows(row_num_t first_row, row_num_t last_row, const std::optional<table_options_t> user_options)
+{
+  row_num_t num_non_header_rows = last_row - first_row;
+
+  if(user_options && user_options->no_header_row_ == true)
+  {
+    num_non_header_rows++;
+  }
+
+  if(num_non_header_rows == 0)
+  {
+    throw xwpp_exception_t("check_table_rows(): table must have at least 1 non-header row.");
+  }
+}
+
+void check_table_name(const std::optional<table_options_t> user_options)
+{
+  if(!user_options)
+  {
+    return;
+  }
+
+  if(user_options->name_.empty())
+  {
+    return;
+  }
+
+  std::string name = user_options->name_;
+
+  // Check table name length.
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t("check_table_name(): Table name exceeds Excel's limit of 255.");
+  }
+
+  // Check some short invalid names.
+  if(name.size() == 1 && (name[0] == 'C' || name[0] == 'c' || name[0] == 'R' || name[0] == 'r'))
+  {
+    throw xwpp_exception_t(std::format("check_table_name(): invalid table name '{}'.", name));
+  }
+
+  // Check for invalid characters in Table name, while trying to allow
+  // for utf8 strings.
+  // TODO Replace strpbrk by a C++ algo
+  const char* ptr = strpbrk(name.data(), " !\"#$%&'()*+,-/:;<=>?@[\\]^`{|}~");
+  if(ptr)
+  {
+    throw xwpp_exception_t(std::format("check_table_name(): invalid character '{}' name '{}'.", *ptr, name));
+  }
+
+  // Check for invalid initial character in Table name, while trying to allow
+  // for utf8 strings.
+  const std::string invalid_first_char = " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^`{|}~";
+  if(invalid_first_char.find(name[0]) != std::string::npos)
+  {
+    throw xwpp_exception_t(std::format("check_table_name(): invalid first character '{}' name '{}'.", name[0], name));
+  }
+}
 
 std::string worksheet_t::write_worksheet() const
 {
@@ -2500,51 +2398,20 @@ void worksheet_t::prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vm
   vml_header_id_str_ = std::to_string(vml_header_id);
 }
 
-/// void lxw_worksheet_prepare_tables(lxw_worksheet *self, uint32_t table_id)
-/// {
-///     lxw_table_obj *table_obj;
-///     lxw_rel_tuple *relationship;
-///     char name[LXW_ATTR_32];
-///     char filename[LXW_FILENAME_LENGTH];
+void worksheet_t::prepare_tables(uint32_t table_id)
+{
+  for(auto& table_obj: table_objs_)
+  {
+    external_table_links_.emplace_back("/table", std::format("../tables/table{}.xml", table_id), "");
 
-///     STAILQ_FOREACH(table_obj, self->table_objs, list_pointers) {
-
-///         relationship = calloc(1, sizeof(lxw_rel_tuple));
-///         GOTO_LABEL_ON_MEM_ERROR(relationship, mem_error);
-
-///         relationship->type = lxw_strdup("/table");
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->type, mem_error);
-
-///         lxw_snprintf(filename, LXW_FILENAME_LENGTH,
-///                      "../tables/table%d.xml", table_id);
-
-///         relationship->target = lxw_strdup(filename);
-///         GOTO_LABEL_ON_MEM_ERROR(relationship->target, mem_error);
-
-///         STAILQ_INSERT_TAIL(self->external_table_links, relationship,
-///                            list_pointers);
-
-///         if (!table_obj->name) {
-///             lxw_snprintf(name, LXW_ATTR_32, "Table%d", table_id);
-///             table_obj->name = lxw_strdup(name);
-///             GOTO_LABEL_ON_MEM_ERROR(table_obj->name, mem_error);
-///         }
-///         table_obj->id = table_id;
-///         table_id++;
-///     }
-
-///     return;
-
-/// mem_error:
-///     if (relationship) {
-///         free(relationship->type);
-///         free(relationship->target);
-///         free(relationship->target_mode);
-///         free(relationship);
-///     }
-
-///     return;
-/// }
+    if(table_obj.name_.empty())
+    {
+      table_obj.name_ = std::format("Table{}", table_id);
+    }
+    table_obj.id_ = table_id;
+    table_id++;
+  }
+}
 
 void process_png(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
@@ -5717,45 +5584,31 @@ std::string worksheet_t::write_ignored_errors() const
   return xml_data;
 }
 
-/// STATIC void
-/// _worksheet_write_table_part(lxw_worksheet *self, uint16_t id)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
-///     char r_id[LXW_MAX_ATTRIBUTE_LENGTH];
-///
-///     lxw_snprintf(r_id, LXW_ATTR_32, "rId%d", id);
-///
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("r:id", r_id);
-///
-///     lxw_xml_empty_tag(self->file, "tablePart", &attributes);
-///
-///     LXW_FREE_ATTRIBUTES();
-/// }
-
-std::string worksheet_t::write_table_parts() const
+std::string worksheet_t::write_table_part(uint16_t id)
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     lxw_table_obj *table_obj;
+  return xml_empty_tag("tablePart", {
+                                        {"r:id", std::format("rId{}", id)}
+  });
+}
 
-  ///     if (!self->table_count)
-  ///         return;
+std::string worksheet_t::write_table_parts()
+{
+  if(table_objs_.empty())
+  {
+    return "";
+  }
 
-  ///     LXW_PUSH_ATTRIBUTES_INT("count", self->table_count);
+  std::string xml_data = xml_start_tag("tableParts", {
+                                                         {"count", std::to_string(table_objs_.size())}
+  });
+  for(const auto& table_obj: table_objs_)
+  {
+    rel_count_++;
 
-  ///     lxw_xml_start_tag(self->file, "tableParts", &attributes);
-
-  ///     STAILQ_FOREACH(table_obj, self->table_objs, list_pointers) {
-  ///         self->rel_count++;
-
-  /* Write the tablePart element. */
-  ///         _worksheet_write_table_part(self, self->rel_count);
-  ///     }
-
-  ///     lxw_xml_end_tag(self->file, "tableParts");
+    // Write the tablePart element.
+    xml_data += write_table_part(rel_count_);
+  }
+  xml_data += xml_end_tag("tableParts");
 
   return xml_data;
 }
@@ -6389,7 +6242,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   }
 
   style_t style;
-  format_t default_format;
+  format_t default_format(get_dxf_index_);
   std::string rich_string;
 
   // Iterate through the rich string fragments and write each one out.
@@ -6894,119 +6747,86 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
   autofilter_.has_rules_    = true;
 }
 
-/// lxw_error
-/// worksheet_add_table(lxw_worksheet *self, row_num_t first_row,
-///                     col_num_t first_col, row_num_t last_row,
-///                     col_num_t last_col, lxw_table_options *user_options)
-/// {
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     col_num_t num_cols;
-///     lxw_error err;
-///     lxw_table_obj *table_obj;
-///     lxw_table_column **columns;
-///
-///     /* Swap last row/col with first row/col as necessary */
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     /* Check that column number is valid and store the max value */
-///     err = _check_dimensions(self, last_row, last_col, LXW_TRUE, LXW_TRUE);
-///     if (err)
-///         return err;
-///
-///     num_cols = last_col - first_col + 1;
-///
-///     /* Check that there are sufficient data rows. */
-///     err = _check_table_rows(first_row, last_row, user_options);
-///     if (err)
-///         return err;
-///
-///     /* Check that the the table name is valid. */
-///     err = _check_table_name(user_options);
-///     if (err)
-///         return err;
-///
-///     /* Create a table object to copy from the user options. */
-///     table_obj = calloc(1, sizeof(lxw_table_obj));
-///     RETURN_ON_MEM_ERROR(table_obj, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///
-///     columns = calloc(num_cols, sizeof(lxw_table_column *));
-///     GOTO_LABEL_ON_MEM_ERROR(columns, error);
-///
-///     table_obj->columns = columns;
-///     table_obj->num_cols = num_cols;
-///     table_obj->first_row = first_row;
-///     table_obj->first_col = first_col;
-///     table_obj->last_row = last_row;
-///     table_obj->last_col = last_col;
-///
-///     err = _set_default_table_columns(table_obj);
-///     if (err)
-///         goto error;
-///
-///     /* Create the table range. */
-///     lxw_rowcol_to_range(table_obj->sqref,
-///                         first_row, first_col, last_row, last_col);
-///     lxw_rowcol_to_range(table_obj->filter_sqref,
-///                         first_row, first_col, last_row, last_col);
-///
-///     /* Validate and copy user options to an internal object. */
-///     if (user_options) {
-///
-///         _check_and_copy_table_style(table_obj, user_options);
-///
-///         table_obj->total_row = user_options->total_row;
-///         table_obj->last_column = user_options->last_column;
-///         table_obj->first_column = user_options->first_column;
-///         table_obj->no_autofilter = user_options->no_autofilter;
-///         table_obj->no_header_row = user_options->no_header_row;
-///         table_obj->no_banded_rows = user_options->no_banded_rows;
-///         table_obj->banded_columns = user_options->banded_columns;
-///
-///         if (user_options->no_header_row)
-///             table_obj->no_autofilter = LXW_TRUE;
-///
-///         if (user_options->columns) {
-///             err = _set_custom_table_columns(table_obj, user_options);
-///             if (err)
-///                 goto error;
-///         }
-///
-///         if (user_options->total_row) {
-///             lxw_rowcol_to_range(table_obj->filter_sqref,
-///                                 first_row, first_col, last_row - 1, last_col);
-///         }
-///
-///         if (user_options->name) {
-///             table_obj->name = lxw_strdup(user_options->name);
-///             if (!table_obj->name) {
-///                 err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///                 goto error;
-///             }
-///         }
-///     }
-///
-///     _write_table_column_data(self, table_obj);
-///
-///     STAILQ_INSERT_TAIL(self->table_objs, table_obj, list_pointers);
-///     self->table_count++;
-///
-///     return LXW_NO_ERROR;
-///
-/// error:
-///     _free_worksheet_table(table_obj);
-///     return err;
-///
-/// }
+void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  add_table(first_row, first_col, last_row, last_col, std::nullopt);
+}
+
+void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                            const std::optional<table_options_t>& user_options)
+{
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+
+  // Check that column number is valid and store the max value
+  check_dimensions(last_row, last_col, true, true);
+
+  col_num_t num_cols = last_col - first_col + 1;
+
+  // Check that there are sufficient data rows.
+  check_table_rows(first_row, last_row, user_options);
+
+  // Check that the the table name is valid.
+  check_table_name(user_options);
+
+  table_obj_t table_obj;
+  std::vector<table_column_t> columns(num_cols);
+
+  table_obj.columns_   = columns;
+  table_obj.num_cols_  = num_cols;
+  table_obj.first_row_ = first_row;
+  table_obj.first_col_ = first_col;
+  table_obj.last_row_  = last_row;
+  table_obj.last_col_  = last_col;
+  set_default_table_columns(table_obj);
+
+  // Create the table range.
+  table_obj.sqref_        = rowcol_to_range(first_row, first_col, last_row, last_col);
+  table_obj.filter_sqref_ = rowcol_to_range(first_row, first_col, last_row, last_col);
+
+  // Validate and copy user options to an internal object.
+  if(user_options)
+  {
+    check_and_copy_table_style(table_obj, user_options);
+    table_obj.total_row_      = user_options->total_row_;
+    table_obj.last_column_    = user_options->last_column_;
+    table_obj.first_column_   = user_options->first_column_;
+    table_obj.no_autofilter_  = user_options->no_autofilter_;
+    table_obj.no_header_row_  = user_options->no_header_row_;
+    table_obj.no_banded_rows_ = user_options->no_banded_rows_;
+    table_obj.banded_columns_ = user_options->banded_columns_;
+
+    if(user_options->no_header_row_)
+    {
+      table_obj.no_autofilter_ = true;
+    }
+
+    if(!user_options->columns_.empty())
+    {
+      set_custom_table_columns(table_obj, user_options);
+    }
+
+    if(user_options->total_row_)
+    {
+      table_obj.filter_sqref_ = rowcol_to_range(first_row, first_col, last_row - 1, last_col);
+    }
+
+    if(!user_options->name_.empty())
+    {
+      table_obj.name_ = user_options->name_;
+    }
+  }
+  write_table_column_data(table_obj);
+
+  table_objs_.push_back(table_obj);
+}
 
 void worksheet_t::select()
 {

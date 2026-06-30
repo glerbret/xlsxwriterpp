@@ -40,6 +40,11 @@ format_borders_t format_t::check_border(format_borders_t style) const
   }
 }
 
+format_t::format_t(std::function<int32_t(format_t*)> get_dxf_index)
+  : get_dxf_index_{get_dxf_index}
+{
+}
+
 void format_t::set_font_name(const std::string& font_name)
 {
   font_name_ = font_name;

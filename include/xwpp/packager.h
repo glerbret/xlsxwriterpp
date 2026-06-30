@@ -82,6 +82,7 @@ private:
   void write_rich_value_structure_file(const workbook_t& workbook);
   void write_rich_value_types_file(const workbook_t& workbook);
   void write_chart_files(const workbook_t& workbook);
+  void write_table_files(const workbook_t& workbook);
   void add_vba_project(const workbook_t& workbook);
 
   void add_buffer_to_zip(std::string_view buffer, const std::string& filename);
@@ -89,6 +90,7 @@ private:
 
   [[nodiscard]] uint32_t get_drawing_count(const workbook_t& workbook) const;
   [[nodiscard]] uint32_t get_chart_count(const workbook_t& workbook) const;
+  [[nodiscard]] uint32_t get_table_count(const workbook_t& workbook) const;
 
   ///     size_t buffer_size;
   zipFile zipfile_ = nullptr;
