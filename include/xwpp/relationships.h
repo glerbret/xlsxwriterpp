@@ -24,8 +24,7 @@ class relationships_t
 public:
   void add_document(std::string_view type, std::string_view target);
   void add_package(std::string_view type, std::string_view target);
-  // TODO Rename (remove _relationship)
-  void add_worksheet_relationship(std::string_view type, std::string_view target, std::string_view target_mode);
+  void add_worksheet(std::string_view type, std::string_view target, std::string_view target_mode);
   void add_rich_value();
   void add_ms_package(std::string_view type, std::string_view target);
 

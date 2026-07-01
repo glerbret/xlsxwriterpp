@@ -83,8 +83,7 @@ void relationships_t::add_ms_package(std::string_view type, std::string_view tar
   add(SCHEMA_MS, type, target);
 }
 
-void relationships_t::add_worksheet_relationship(std::string_view type, std::string_view target,
-                                                 std::string_view target_mode)
+void relationships_t::add_worksheet(std::string_view type, std::string_view target, std::string_view target_mode)
 {
   add(SCHEMA_DOCUMENT, type, target, target_mode);
 }

@@ -338,7 +338,7 @@ void packager_t::write_vml_drawing_rels_file(const worksheet_t& worksheet, uint3
 
   for(const auto& [type, target, target_mode]: worksheet.vml_drawing_links_)
   {
-    relationships.add_worksheet_relationship(type, target, target_mode);
+    relationships.add_worksheet(type, target, target_mode);
   }
 
   const std::string xml_data = relationships.assemble_xml_file();
@@ -750,41 +750,41 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
       for(const auto& [type, target, target_mode]: ws.external_hyperlinks_)
       {
-        relationships.add_worksheet_relationship(type, target, target_mode);
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       for(const auto& [type, target, target_mode]: ws.external_drawing_links_)
       {
-        relationships.add_worksheet_relationship(type, target, target_mode);
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       if(ws.external_vml_comment_link_.has_value())
       {
         auto comment = ws.external_vml_comment_link_.value();
-        relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+        relationships.add_worksheet(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
       }
 
       if(ws.external_vml_header_link_.has_value())
       {
         auto header = ws.external_vml_header_link_.value();
-        relationships.add_worksheet_relationship(std::get<0>(header), std::get<1>(header), std::get<2>(header));
+        relationships.add_worksheet(std::get<0>(header), std::get<1>(header), std::get<2>(header));
       }
 
       if(ws.external_background_link_.has_value())
       {
         auto rel = ws.external_background_link_.value();
-        relationships.add_worksheet_relationship(std::get<0>(rel), std::get<1>(rel), std::get<2>(rel));
+        relationships.add_worksheet(std::get<0>(rel), std::get<1>(rel), std::get<2>(rel));
       }
 
       for(const auto& [type, target, target_mode]: ws.external_table_links_)
       {
-        relationships.add_worksheet_relationship(type, target, target_mode);
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       if(ws.external_comment_link_.has_value())
       {
         auto comment = ws.external_comment_link_.value();
-        relationships.add_worksheet_relationship(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+        relationships.add_worksheet(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
       }
 
       const std::string xml_data = relationships.assemble_xml_file();
@@ -811,12 +811,12 @@ void packager_t::write_chartsheet_rels_file(const workbook_t& workbook)
 
       for(const auto& [type, target, target_mode]: ws.external_hyperlinks_)
       {
-        relationships.add_worksheet_relationship(type, target, target_mode);
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       for(const auto& [type, target, target_mode]: ws.external_drawing_links_)
       {
-        relationships.add_worksheet_relationship(type, target, target_mode);
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       const std::string xml_data = relationships.assemble_xml_file();
@@ -836,7 +836,7 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
       relationships_t relationships;
       for(const auto& [type, target, target_mode]: worksheet.drawing_links_)
       {
-        relationships.add_worksheet_relationship(type, target, target_mode);
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       const std::string xml_data = relationships.assemble_xml_file();
