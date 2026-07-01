@@ -12,13 +12,7 @@ jobs:
       matrix:
         cc:          [gcc, clang]
         cmake_flags: ["-DBUILD_EXAMPLES=ON",
-###                      "-DUSE_DTOA_LIBRARY=ON",
-###                      "-DUSE_MEM_FILE=ON",
-###                      "-DUSE_NO_MD5=ON",
-###                      "-DUSE_OPENSSL_MD5=ON",
-###                      "-DUSE_STANDARD_TMPFILE=ON",
                       "-DUSE_SYSTEM_MINIZIP=ON",
-###                      "-DUSE_SYSTEM_MINIZIP=ON -DUSE_OPENSSL_MD5=ON",
                       ]
     runs-on: ubuntu-latest
     env:
@@ -33,7 +27,7 @@ jobs:
         sudo apt-get -y install libboost-dev libboost-test-dev
         sudo apt-get -y install zlib1g-dev
         sudo apt-get -y install libminizip-dev
-###        sudo apt-get -y install libssl-dev
+        sudo apt-get -y install libssl-dev
 
     - name: Configure CMake
       run: |
@@ -49,4 +43,4 @@ jobs:
     - name: Test
       run: |
         cd build
-        for f in test/*; do ./$f; done
+        for f in test/unit/*; do ./$f; done

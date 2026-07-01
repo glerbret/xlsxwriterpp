@@ -146,7 +146,7 @@ int main()
      * the same results with the following simpler, but reversed, code:
      *
      *     if (strcmp(data[i].region, "East") != 0) {
-     *         worksheet_set_row_opt(worksheet2, i + 1, LXW_DEF_ROW_HEIGHT, NULL, &hidden);
+     *         worksheet_set_row_opt(worksheet2, i + 1, LXW_DEF_ROW_HEIGHT, nullptr, &hidden);
      *     }
      *
      * The same applies to the Examples 3-6 as well.

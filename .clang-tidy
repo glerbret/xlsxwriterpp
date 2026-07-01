@@ -20,6 +20,7 @@ Checks: "*,
          -performance-enum-size,
          -readability-avoid-unconditional-preprocessor-if,
          -readability-convert-member-functions-to-static,
+         -readability-function-cognitive-complexity,
 "
 WarningsAsErrors: '*'
 HeaderFileExtensions:
@@ -41,4 +42,6 @@ CheckOptions:
     value:           'i|j|k|c|os|it|wb|ws'
   - key:             readability-identifier-length.IgnoredParameterNames
     value:           'i|j|k|c|os|it'
+  - key:             readability-implicit-bool-conversion.AllowPointerConditions
+    value:           true
 ...

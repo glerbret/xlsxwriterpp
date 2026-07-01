@@ -1,7 +1,7 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #define BOOST_TEST_DYN_LINK
@@ -52,15 +52,6 @@ BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes_to_escape)
   }));
 }
 
-/// BOOST_AUTO_TEST_CASE(xml_start_tag_unencoded)
-/// {
-///   const std::string expected = "<foo span=\"&<>\"\">";
-
-///     BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, {
-///         {"span", "&<>\""},
-///     }));
-/// }
-
 BOOST_AUTO_TEST_CASE(xml_end_tag)
 {
   const std::string expected = "</foo>";
@@ -95,15 +86,6 @@ BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes_to_escape)
                                                               {"span", "&<>\""},
   }));
 }
-
-/// BOOST_AUTO_TEST_CASE(xml_empty_tag_unencoded)
-/// {
-///   const std::string expected = R"(<foo span="&<>""/>)";
-
-///     BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag_unencoded("foo"s, {
-///         {"span", "&<>\""},
-///     }));
-/// }
 
 BOOST_AUTO_TEST_CASE(xml_data_element)
 {

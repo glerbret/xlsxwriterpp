@@ -135,6 +135,7 @@ struct doc_properties_t
   /** The hyperlink base URL of the Excel Document. */
   ///     const char *hyperlink_base;
 
+  // TODO Manage internally with a port of lxw_datetime
   /** The file creation date/time shown in Excel. This defaults to the
    * current time and date. If you wish to create files that are
    * binary equivalent (for the same input data) then you should set this
@@ -446,7 +447,7 @@ public:
   // TODO Add overload for all float types (template)
   void set_custom_property(std::string_view name, double value);
   void set_custom_property(std::string_view name, bool value);
-  // TODO Add overload with tm, ...
+  // TODO Add overload with tm, ... (including lxw_datetime)
   void set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value);
   void set_custom_property(std::string_view name, const std::chrono::year_month_day& value);
 
@@ -651,6 +652,23 @@ public:
 
   void unset_default_url_format();
 
+  /**
+   * @brief Get a worksheet object from its name.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   * @param name     Worksheet name.
+   *
+   * @return A lxw_worksheet object.
+   *
+   * This function returns a lxw_worksheet object reference based on its name:
+   *
+   * @code
+   *     worksheet = workbook_get_worksheet_by_name(workbook, "Sheet1");
+   * @endcode
+   *
+   */
+  const worksheet_t* get_worksheet_by_name(std::string_view name) const;
+
 private:
   // TODO packager_t needs to access to workbook field.
   friend class packager_t;
@@ -692,22 +710,23 @@ private:
 
   void store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
                           int16_t index, bool hidden);
+
   /**
-   * @brief Get a worksheet object from its name.
+   * @brief Get a chartsheet object from its name.
    *
    * @param workbook Pointer to a lxw_workbook instance.
-   * @param name     Worksheet name.
+   * @param name     chartsheet name.
    *
-   * @return A lxw_worksheet object.
+   * @return A lxw_chartsheet object.
    *
-   * This function returns a lxw_worksheet object reference based on its name:
+   * This function returns a lxw_chartsheet object reference based on its name:
    *
    * @code
-   *     worksheet = workbook_get_worksheet_by_name(workbook, "Sheet1");
+   *     chartsheet = workbook_get_chartsheet_by_name(workbook, "Chart1");
    * @endcode
    *
    */
-  const worksheet_t* get_worksheet_by_name(std::string_view name) const;
+  const chartsheet_t* get_chartsheet_by_name(std::string_view name) const;
 
   [[nodiscard]] std::string write_workbook() const;
   [[nodiscard]] std::string write_file_version() const;
@@ -729,6 +748,8 @@ private:
 
   ///     struct lxw_worksheets *worksheets;
   ///     struct lxw_chartsheets *chartsheets;
+  // As the unicity of sheet name is case insensitive, the name
+  // is stored as lower case
   std::map<std::string, worksheet_t*> worksheet_names_;
   std::map<std::string, chartsheet_t*> chartsheet_names_;
   std::map<std::string, uint32_t> image_md5_;
@@ -855,24 +876,6 @@ private:
 /// lxw_error workbook_set_custom_property_datetime(lxw_workbook *workbook,
 ///                                                 const char *name,
 ///                                                 lxw_datetime *datetime);
-
-/**
- * @brief Get a chartsheet object from its name.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     chartsheet name.
- *
- * @return A lxw_chartsheet object.
- *
- * This function returns a lxw_chartsheet object reference based on its name:
- *
- * @code
- *     chartsheet = workbook_get_chartsheet_by_name(workbook, "Chart1");
- * @endcode
- *
- */
-/// lxw_chartsheet *workbook_get_chartsheet_by_name(lxw_workbook *workbook,
-///                                                 const char *name);
 
 /**
  * @brief Add a vbaProject binary and a vbaProjectSignature binary to the Excel

@@ -39,11 +39,11 @@
 #     cmake --build . --config Release
 # ```
 #
-#### If the tests run successfully, you can install the library as follows:
+# If the tests run successfully, you can install the library as follows:
 #
-#### ```
-####     cmake --build . --config Release --target install
-#### ```
+# ```
+#     cmake --build . --config Release --target install
+# ```
 #
 # The Xlsxwriter++ CMake options are shown below.
 
@@ -75,7 +75,6 @@ set(XLSXPP_PROJECT_NAME
 )
 
 project(${XLSXPP_PROJECT_NAME} C CXX)
-### enable_testing()
 
 # -------------------
 # Compilation options
@@ -103,13 +102,11 @@ option(
 # require the Boost.Test library. The tests can be run after compilation.
 #
 # To enable this option pass `-DBUILD_TESTS=ON` during configuration.
-# option(
-#     BUILD_TESTS
-#     "Build the Xlsxwriter++ unit and functional tests (requires Boost.Test)"
-#     OFF
-# )
-
-# TODO XWPP_TARGET_BIG_ENDIAN
+option(
+  BUILD_TESTS
+  "Build the Xlsxwriter++ unit and functional tests (requires Boost.Test)"
+  OFF
+)
 
 # `BUILD_EXAMPLES`
 #
@@ -118,21 +115,14 @@ option(
 # To enable this option pass `-DBUILD_EXAMPLES=ON` during configuration.
 option(BUILD_EXAMPLES "Build Xlsxwriter++ examples" OFF)
 
-# `BUILD_FUZZERS`
-#
-# Compile the fuzzer harnesses.
-#
-# To enable this option pass `-DBUILD_FUZZERS=ON` during configuration.
-### option(BUILD_FUZZERS "Build harness(es) for fuzzing" OFF)
-
 # `USE_STATIC_MSVC_RUNTIME`
 #
 # Compile as a static library with the static MSVC runtime library.
 #
 # To enable this option pass `-DUSE_STATIC_MSVC_RUNTIME=ON` during configuration.
-# if(MSVC)
-#     option(USE_STATIC_MSVC_RUNTIME "Use the static runtime library" OFF)
-# endif()
+if(MSVC)
+  option(USE_STATIC_MSVC_RUNTIME "Use the static runtime library" OFF)
+endif()
 
 # `ZLIB_ROOT`
 #
@@ -157,49 +147,44 @@ endif()
 # For openSSL use
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
-### if(NOT BUILD_SHARED_LIBS)
-###     if(UNIX)
-###         set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-###     elseif(MINGW OR MSYS)
-###         set(CMAKE_C_FLAGS
-###             "${CMAKE_C_FLAGS} -static -static-libgcc -Wno-char-subscripts -Wno-long-long"
-###         )
-###         list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_FILE32API)
-###     elseif(MSVC)
-###         set(CMAKE_C_FLAGS_DEBUG
-###             "${CMAKE_C_FLAGS_DEBUG} /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
-###         )
-###         set(CMAKE_C_FLAGS_RELEASE
-###             "${CMAKE_C_FLAGS_RELEASE} /Ox /Zi /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
-###         )
-###         set(CMAKE_C_FLAGS_MINSIZEREL
-###             "${CMAKE_C_FLAGS_MINSIZEREL} /Zi /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
-###         )
-###         set(CMAKE_C_FLAGS_RELWITHDEBINFO
-###             "${CMAKE_C_FLAGS_RELWITHDEBINFO} /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
-###         )
-###     endif()
-### endif()
+if(NOT BUILD_SHARED_LIBS)
+  if(UNIX)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  elseif(MINGW OR MSYS)
+    set(CMAKE_C_FLAGS
+      "${CMAKE_C_FLAGS} -static -static-libgcc -Wno-char-subscripts -Wno-long-long"
+    )
+    list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_FILE32API)
+  elseif(MSVC)
+    set(CMAKE_C_FLAGS_DEBUG
+      "${CMAKE_C_FLAGS_DEBUG} /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
+    )
+    set(CMAKE_C_FLAGS_RELEASE
+      "${CMAKE_C_FLAGS_RELEASE} /Ox /Zi /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
+    )
+    set(CMAKE_C_FLAGS_MINSIZEREL
+      "${CMAKE_C_FLAGS_MINSIZEREL} /Zi /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
+    )
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO
+      "${CMAKE_C_FLAGS_RELWITHDEBINFO} /Fd\"${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pdb\""
+    )
+  endif()
+endif()
 
-### if(MSVC AND USE_STATIC_MSVC_RUNTIME)
-###     foreach(
-###         flag_var
-###         CMAKE_C_FLAGS
-###         CMAKE_C_FLAGS_DEBUG
-###         CMAKE_C_FLAGS_RELEASE
-###         CMAKE_C_FLAGS_MINSIZEREL
-###         CMAKE_C_FLAGS_RELWITHDEBINFO
-###     )
-###         if(${flag_var} MATCHES "/MD")
-###             string(REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-###         endif()
-###     endforeach()
-### endif()
-
-# -----------------------------
-# Create the xlsxwriterpp.pc file
-# -----------------------------
-set(PREFIX ${CMAKE_INSTALL_PREFIX})
+if(MSVC AND USE_STATIC_MSVC_RUNTIME)
+  foreach(
+    flag_var
+    CMAKE_C_FLAGS
+    CMAKE_C_FLAGS_DEBUG
+    CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_MINSIZEREL
+    CMAKE_C_FLAGS_RELWITHDEBINFO
+  )
+    if(${flag_var} MATCHES "/MD")
+      string(REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif()
+  endforeach()
+endif()
 
 file(READ "include/xlsxwriterpp.h" ver)
 string(REGEX MATCH "XWPP_VERSION \"([^\"]+)\"" _ ${ver})
@@ -212,9 +197,6 @@ if(USE_SYSTEM_MINIZIP)
   string(APPEND ENABLED_OPTIONS " minizip")
 endif()
 string(APPEND ENABLED_OPTIONS " libcrypto")
-
-# Expand out the xlsxwriterpp.pc file.
-### configure_file(dev/release/pkg-config.txt xlsxwriterpp.pc @ONLY)
 
 # ----------------
 # Set the includes
@@ -245,24 +227,12 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 # ----------------------------
 # Set the library dependencies
 # ----------------------------
-### list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS NOCRYPT NOUNCRYPT)
+list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS NOCRYPT NOUNCRYPT)
 
 # Ensure CRT Secure warnings are disabled.
-### if(MSVC)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
-### endif()
-
-# Ensure "TESTING" macro is defined if building tests.
-### if(BUILD_TESTS)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS TESTING)
-### endif()
-
-# Define "XWPP_BIG_ENDIAN" macro on big-endian architectures.
-### include(TestBigEndian)
-### test_big_endian(XWPP_TARGET_BIG_ENDIAN)
-### if(XWPP_TARGET_BIG_ENDIAN)
-###     list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS XWPP_BIG_ENDIAN)
-### endif()
+if(MSVC)
+  list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
+endif()
 
 # Set the source files.
 file(GLOB XWPP_SOURCES src/*.cpp)
@@ -297,22 +267,22 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_CRYPTO} ${OPENSSL_CRYPTO_LIBRARY})
 
-### target_compile_definitions(
-###     ${PROJECT_NAME}
-###     PRIVATE ${XWPP_PRIVATE_COMPILE_DEFINITIONS}
-### )
+target_compile_definitions(
+    ${PROJECT_NAME}
+    PRIVATE ${XWPP_PRIVATE_COMPILE_DEFINITIONS}
+)
 
 # Ensure MSVC supports /utf-8.
-### if(MSVC AND MSVC_VERSION GREATER_EQUAL 1900)
-###     target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
-### endif()
+if(MSVC AND MSVC_VERSION GREATER_EQUAL 1900)
+  target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+endif()
 
-### if(WINDOWSSTORE)
-###     target_compile_definitions(
-###         ${PROJECT_NAME}
-###         PRIVATE -DIOWIN32_USING_WINRT_API
-###     )
-### endif()
+if(WINDOWSSTORE)
+  target_compile_definitions(
+    ${PROJECT_NAME}
+    PRIVATE -DIOWIN32_USING_WINRT_API
+  )
+endif()
 
 target_include_directories(
   ${PROJECT_NAME}
@@ -323,75 +293,30 @@ target_include_directories(
 # ----------------
 # Set up the tests
 # ------ ---------
-if(NOT MSVC)
-
-
-
-# Skip unit tests on Windows.
-  set(XWPP_UNIT_SOURCES
-###         test/unit/test_all.c
-###         ${XWPP_UTILITY_SOURCES}
-###         ${XWPP_XMLWRITER_SOURCES}
-###         ${XWPP_WORKSHEET_SOURCES}
-###         ${XWPP_SST_SOURCES}
-###         ${XWPP_WORKBOOK_SOURCES}
-###         ${XWPP_APP_SOURCES}
-###         ${XWPP_CONTENTTYPES_SOURCES}
-###         ${XWPP_CORE_SOURCES}
-###         ${XWPP_RELATIONSHIPS_SOURCES}
-###         ${XWPP_FORMAT_SOURCES}
-###         ${XWPP_STYLES_SOURCES}
-###         ${XWPP_DRAWING_SOURCES}
-###         ${XWPP_CHART_SOURCES}
-###         ${XWPP_CUSTOM_SOURCES}
-    )
-### else()
-###     set(XWPP_UNIT_SOURCES test/cpp/test_compilation.cpp)
-endif()
-
-## TODO Autodetect unit tests
 if(BUILD_TESTS)
   find_package(Boost 1.83 REQUIRED COMPONENTS unit_test_framework)
 
-  file(GLOB XWPP_APP_SOURCES test/unit/app/*.cpp)
-  add_executable(test_app ${XWPP_APP_SOURCES})
-  target_link_libraries(test_app ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties( test_app PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
+  MACRO(SUBDIRLIST result curdir)
+    FILE(GLOB children ${curdir}/*)
+    SET(dirlist "")
+    FOREACH(child ${children})
+      IF(IS_DIRECTORY ${child})
+        get_filename_component(basename ${child} NAME)
+        LIST(APPEND dirlist ${basename})
+      ENDIF()
+    ENDFOREACH()
+    SET(${result} ${dirlist})
+  ENDMACRO()
 
-  file(GLOB XWPP_CORE_SOURCES test/unit/core/*.cpp)
-  add_executable(test_core ${XWPP_CORE_SOURCES})
-  target_link_libraries(test_core ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties( test_core PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
-
-  file(GLOB XWPP_CONTENTTYPES_SOURCES test/unit/content_types/*.cpp)
-  add_executable(test_content_types ${XWPP_CONTENTTYPES_SOURCES})
-  target_link_libraries(test_content_types ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties( test_content_types PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
-
-  file(GLOB XWPP_RELATIONSHIPS_SOURCES test/unit/relationships/*.cpp)
-  add_executable(test_relationships ${XWPP_RELATIONSHIPS_SOURCES})
-  target_link_libraries(test_relationships ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties(test_relationships PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
-
-  file(GLOB XWPP_SST_SOURCES test/unit/sst/*.cpp)
-  add_executable(test_sst ${XWPP_SST_SOURCES})
-  target_link_libraries(test_sst ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties(test_sst PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
-
-  file(GLOB XWPP_UTILITY_SOURCES test/unit/utility/*.cpp)
-  add_executable(test_utility ${XWPP_UTILITY_SOURCES})
-  target_link_libraries(test_utility ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties(test_utility PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
-
-  file(GLOB XWPP_WORKBOOK_SOURCES test/unit/workbook/*.cpp)
-  add_executable(test_workbook ${XWPP_WORKBOOK_SOURCES})
-  target_link_libraries(test_workbook ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties(test_workbook PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
-
-  file(GLOB XWPP_XMLWRITER_SOURCES test/unit/xmlwriter/*.cpp)
-  add_executable(test_xmlwriter ${XWPP_XMLWRITER_SOURCES})
-  target_link_libraries(test_xmlwriter ${PROJECT_NAME} ${Boost_LIBRARIES})
-  set_target_properties(test_xmlwriter PROPERTIES RUNTIME_OUTPUT_DIRECTORY "tests")
+  # Unit test
+  SUBDIRLIST(SUBDIRS "test/unit")
+  FOREACH(subdir ${SUBDIRS})
+    set(test_exec_name "test_${subdir}")
+    file(GLOB XWPP_SOURCES test/unit/${subdir}/*.cpp)
+    add_executable(${test_exec_name} ${XWPP_SOURCES})
+    target_link_libraries(${test_exec_name} ${PROJECT_NAME} ${Boost_LIBRARIES})
+    set_target_properties(${test_exec_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "test/unit")
+  ENDFOREACH()
 
     # Unit tests.
 ###     create_test(XWPP_UNIT_SOURCES unit)
@@ -445,7 +370,6 @@ endif()
 
 file(GLOB XWPP_EXAMPLE_SOURCES examples/*.cpp)
 
-
 # TODO Copy logo in RUNTIME_OUTPUT_DIRECTORY
 if(BUILD_EXAMPLES)
   foreach(source ${XWPP_EXAMPLE_SOURCES})
@@ -456,34 +380,23 @@ if(BUILD_EXAMPLES)
   endforeach(source)
 endif()
 
-# -----------------
-# Fuzzing harnesses
-# -----------------
-### if(BUILD_FUZZERS AND DEFINED ENV{LIB_FUZZING_ENGINE})
-###     add_subdirectory(dev/fuzzing)
-### endif()
-
 # -------------------
 # Install the library
 # -------------------
-### include(GNUInstallDirs)
+include(GNUInstallDirs)
 
-### install(
-###     TARGETS ${PROJECT_NAME}
-###     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-###     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-###     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-### )
+install(
+  TARGETS ${PROJECT_NAME}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 install(FILES include/xlsxwriterpp.h DESTINATION include)
 
-### install(
-###     DIRECTORY include/xlsxwriter
-###     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-###     FILES_MATCHING
-###     PATTERN "*.h"
-### )
-### install(
-###     FILES ${CMAKE_CURRENT_BINARY_DIR}/xlsxwriterpp.pc
-###     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-### )
+install(
+  DIRECTORY include/xlsxwriter
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING
+  PATTERN "*.h"
+)

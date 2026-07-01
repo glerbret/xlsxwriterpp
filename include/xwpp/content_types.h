@@ -37,6 +37,7 @@ public:
   void add_rich_value();
   void add_chart_name(std::string_view name);
   void add_table_name(std::string_view name);
+  void add_calc_chain();
 
   [[nodiscard]] std::string assemble_xml_file() const;
 
@@ -48,15 +49,6 @@ private:
   std::vector<std::tuple<std::string, std::string>> default_types_;
   std::vector<std::tuple<std::string, std::string>> overrides_;
 };
-
-/// lxw_content_types *lxw_content_types_new(void);
-/// void lxw_content_types_free(lxw_content_types *content_types);
-/// void lxw_ct_add_calc_chain(lxw_content_types *content_types);
-/// STATIC void _content_types_xml_declaration(lxw_content_types *self);
-/// STATIC void _write_default(lxw_content_types *self, const char *ext,
-///                            const char *type);
-/// STATIC void _write_override(lxw_content_types *self, const char *part_name,
-///                             const char *type);
 
 }
 

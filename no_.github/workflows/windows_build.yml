@@ -11,10 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         cmake_flags: ["-DBUILD_EXAMPLES=ON",
-###                      "-DUSE_DTOA_LIBRARY=ON",
                       "-DUSE_SYSTEM_MINIZIP=ON",
-###                      "-DUSE_SYSTEM_MINIZIP=ON   -DUSE_OPENSSL_MD5=ON",
-###                      "-DUSE_OPENSSL_MD5=ON",
                       ]
 
     runs-on: windows-latest

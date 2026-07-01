@@ -801,13 +801,17 @@ double pixels_to_width(double pixels)
   return width;
 }
 
-/// STATIC double _pixels_to_height(double pixels)
-/// {
-///     if (pixels == LXW_DEF_ROW_HEIGHT_PIXELS)
-///         return LXW_DEF_ROW_HEIGHT;
-///     else
-///         return pixels * 0.75;
-/// }
+double pixels_to_height(double pixels)
+{
+  if(pixels == DEF_ROW_HEIGHT_PIXELS)
+  {
+    return DEF_ROW_HEIGHT;
+  }
+  else
+  {
+    return pixels * 0.75;
+  }
+}
 
 void set_custom_filter(filter_rule_obj_t& rule_obj)
 {
@@ -4663,19 +4667,19 @@ std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_form
 
   if(cond_format.type_ == conditional_format_types_t::BLANKS)
   {
-    xml_data += write_formula_str(std::format("LEN(TRIM(%s))=0", cond_format.first_cell_));
+    xml_data += write_formula_str(std::format("LEN(TRIM({}))=0", cond_format.first_cell_));
   }
   else if(cond_format.type_ == conditional_format_types_t::NO_BLANKS)
   {
-    xml_data += write_formula_str(std::format("LEN(TRIM(%s))>0", cond_format.first_cell_));
+    xml_data += write_formula_str(std::format("LEN(TRIM({}))>0", cond_format.first_cell_));
   }
   else if(cond_format.type_ == conditional_format_types_t::ERRORS)
   {
-    xml_data += write_formula_str(std::format("ISERROR(%s)", cond_format.first_cell_));
+    xml_data += write_formula_str(std::format("ISERROR({})", cond_format.first_cell_));
   }
   else if(cond_format.type_ == conditional_format_types_t::NO_ERRORS)
   {
-    xml_data += write_formula_str(std::format("NOT(ISERROR(%s))", cond_format.first_cell_));
+    xml_data += write_formula_str(std::format("NOT(ISERROR({}))", cond_format.first_cell_));
   }
 
   xml_data += xml_end_tag("cfRule");
@@ -5383,7 +5387,7 @@ void validate_conditional_text(cond_format_obj_t& cond_format, const conditional
 {
   if(user_options.value_string_.empty())
   {
-    throw xwpp_exception_t("validate_conditional_text(): 'value_string' can not be NULL");
+    throw xwpp_exception_t("validate_conditional_text(): 'value_string' can not be empty");
   }
 
   if(static_cast<uint32_t>(user_options.criteria_) < static_cast<uint32_t>(conditional_criteria_t::TEXT_CONTAINING) ||
@@ -5400,7 +5404,7 @@ void validate_conditional_formula(cond_format_obj_t& cond_format, const conditio
 {
   if(user_options.value_string_.empty())
   {
-    throw xwpp_exception_t("validate_conditional_formula(): value_string can not be NULL");
+    throw xwpp_exception_t("validate_conditional_formula(): value_string can not be empty");
   }
 
   cond_format.min_value_string_ = dup_formula(user_options.value_string_);
@@ -5914,19 +5918,12 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
   }
 }
 
-/// lxw_error
-/// worksheet_write_array_formula_num(lxw_worksheet *self,
-///                                   row_num_t first_row,
-///                                   col_num_t first_col,
-///                                   row_num_t last_row,
-///                                   col_num_t last_col,
-///                                   const char *formula,
-///                                   lxw_format *format, double result)
-/// {
-///     return _store_array_formula(self, first_row, first_col,
-///                                 last_row, last_col, formula, format, result,
-///                                 LXW_FALSE);
-/// }
+void worksheet_t::write_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row,
+                                          col_num_t last_col, const std::string& formula, const format_t* format,
+                                          double result)
+{
+  store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, false);
+}
 
 void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                       const std::string& formula)
@@ -6031,7 +6028,7 @@ void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
                                  const std::chrono::system_clock::time_point& datetime, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
-  const double excel_date = datetime_to_excel_date_with_epoch(datetime, false /* TODOself->use_1904_epoch*/);
+  const double excel_date = datetime_to_excel_date_with_epoch(datetime, false /* TODO self->use_1904_epoch*/);
   const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
   insert_cell(row_num, col_num, cell);
 }
@@ -6700,7 +6697,7 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
 
   if(list.empty())
   {
-    throw xwpp_exception_t("worksheet_t::filter_list(): list parameter cannot be NULL");
+    throw xwpp_exception_t("worksheet_t::filter_list(): list parameter cannot be empty");
   }
 
   if(autofilter_.in_use_ == false)
@@ -7446,7 +7443,7 @@ void worksheet_t::protect(const std::string& password, std::optional<protection_
   if(!password.empty())
   {
     const uint16_t hash = hash_password(password);
-    protection_.hash_   = std::format("{:5X}", hash);
+    protection_.hash_   = std::format("{:04X}", hash);
   }
 
   protection_.no_sheet_      = false;
@@ -7895,7 +7892,7 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
 
 void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart)
 {
-  return insert_chart(row_num, col_num, chart, std::nullopt);
+  insert_chart(row_num, col_num, chart, std::nullopt);
 }
 
 void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row,
@@ -7954,7 +7951,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
     is_between = true;
   }
 
-  // Check that formula values are non NULL.
+  // Check that formula values are non empty.
   if(is_formula)
   {
     if(is_between)

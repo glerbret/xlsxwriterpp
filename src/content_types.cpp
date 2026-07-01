@@ -79,16 +79,6 @@ std::string content_types_t::assemble_xml_file() const
   return xml_data;
 }
 
-/// void _write_types(lxw_content_types *self)
-/// {
-/// struct xml_attribute_list attributes;
-/// struct xml_attribute *attribute;
-
-/// LXW_PUSH_ATTRIBUTES_STR("xmlns", LXW_SCHEMA_CONTENT);
-
-/// lxw_xml_start_tag(self->file, "Types", &attributes);
-/// }
-
 void content_types_t::add_chartsheet_name(std::string_view name)
 {
   add_override(name, APP_DOCUMENT + "spreadsheetml.chartsheet+xml");
@@ -124,10 +114,10 @@ void content_types_t::add_shared_strings()
   add_override("/xl/sharedStrings.xml", APP_DOCUMENT + "spreadsheetml.sharedStrings+xml");
 }
 
-/// void lxw_ct_add_calc_chain(lxw_content_types *self)
-/// {
-///   lxw_ct_add_override(self, "/xl/calcChain.xml", LXW_APP_DOCUMENT "spreadsheetml.calcChain+xml");
-/// }
+void content_types_t::add_calc_chain()
+{
+  add_override("/xl/calcChain.xml", APP_DOCUMENT + "spreadsheetml.calcChain+xml");
+}
 
 void content_types_t::add_custom_properties()
 {

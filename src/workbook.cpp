@@ -30,41 +30,6 @@ using namespace std::literals::chrono_literals;
 namespace xwpp
 {
 
-/// STATIC int _worksheet_name_cmp(lxw_worksheet_name *name1,
-///                                lxw_worksheet_name *name2);
-/// STATIC int _chartsheet_name_cmp(lxw_chartsheet_name *name1,
-///                                 lxw_chartsheet_name *name2);
-/// STATIC int _image_md5_cmp(lxw_image_md5 *tuple1, lxw_image_md5 *tuple2);
-
-/// STATIC int
-/// _worksheet_name_cmp(lxw_worksheet_name *name1, lxw_worksheet_name *name2)
-/// {
-///     return lxw_strcasecmp(name1->name, name2->name);
-/// }
-
-/// STATIC int
-/// _chartsheet_name_cmp(lxw_chartsheet_name *name1, lxw_chartsheet_name *name2)
-/// {
-///     return lxw_strcasecmp(name1->name, name2->name);
-/// }
-
-/// STATIC int
-/// _image_md5_cmp(lxw_image_md5 *tuple1, lxw_image_md5 *tuple2)
-/// {
-///     return strcmp(tuple1->md5, tuple2->md5);
-/// }
-
-/// STATIC void  _free_custom_doc_property(lxw_custom_property *custom_property)
-/// {
-///     if (custom_property) {
-///         free(custom_property->name);
-///         if (custom_property->type == LXW_CUSTOM_STRING)
-///             free(custom_property->u.string);
-///     }
-
-///     free(custom_property);
-/// }
-
 /// void lxw_workbook_set_default_xf_indices(lxw_workbook *self)
 /// {
 ///     lxw_format *format;
@@ -1270,7 +1235,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   num_worksheets_++;
   num_sheets_++;
 
-  worksheet_names_[init_data.name_] = &std::get<worksheet_t>(sheets_.back());
+  worksheet_names_[to_lower(init_data.name_)] = &std::get<worksheet_t>(sheets_.back());
 
   return std::get<worksheet_t>(sheets_.back());
 }
@@ -1304,7 +1269,7 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   num_chartsheets_++;
   num_sheets_++;
 
-  chartsheet_names_[init_data.name_] = &std::get<chartsheet_t>(sheets_.back());
+  chartsheet_names_[to_lower(init_data.name_)] = &std::get<chartsheet_t>(sheets_.back());
 
   return std::get<chartsheet_t>(sheets_.back());
 }
@@ -1629,7 +1594,7 @@ const worksheet_t* workbook_t::get_worksheet_by_name(std::string_view name) cons
     return nullptr;
   }
 
-  const auto it = worksheet_names_.find(std::string{name});
+  const auto it = worksheet_names_.find(to_lower(std::string{name}));
   if(it != std::end(worksheet_names_))
   {
     return it->second;
@@ -1638,23 +1603,21 @@ const worksheet_t* workbook_t::get_worksheet_by_name(std::string_view name) cons
   return nullptr;
 }
 
-/// lxw_chartsheet * workbook_get_chartsheet_by_name(lxw_workbook *self, const char *name)
-/// {
-///     lxw_chartsheet_name chartsheet_name;
-///     lxw_chartsheet_name *found;
+const chartsheet_t* workbook_t::get_chartsheet_by_name(std::string_view name) const
+{
+  if(name.empty())
+  {
+    return nullptr;
+  }
 
-///     if (!name)
-///         return NULL;
+  const auto it = chartsheet_names_.find(to_lower(std::string{name}));
+  if(it != std::end(chartsheet_names_))
+  {
+    return it->second;
+  }
 
-///     chartsheet_name.name = name;
-///     found = RB_FIND(lxw_chartsheet_names,
-///                     self->chartsheet_names, &chartsheet_name);
-
-///     if (found)
-///         return found->chartsheet;
-///     else
-///         return NULL;
-/// }
+  return nullptr;
+}
 
 format_t* workbook_t::get_default_url_format() const
 {
@@ -1704,8 +1667,10 @@ void workbook_t::validate_sheetname(std::string_view sheetname) const
   }
 
   // Check if the chartsheet name is already in use.
-  ///     if (workbook_get_chartsheet_by_name(self, sheetname))
-  ///         return LXW_ERROR_SHEETNAME_ALREADY_USED;
+  if(get_chartsheet_by_name(sheetname) != nullptr)
+  {
+    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used", sheetname));
+  }
 }
 
 void workbook_t::add_vba_project(const std::string& filename)

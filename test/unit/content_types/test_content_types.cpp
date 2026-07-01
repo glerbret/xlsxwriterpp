@@ -1,7 +1,7 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #define BOOST_TEST_DYN_LINK
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
       "<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>"
       "<Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
       "<Override PartName=\"/xl/sharedStrings.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\"/>"
-///           "<Override PartName=\"/xl/calcChain.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml\"/>"
+      "<Override PartName=\"/xl/calcChain.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml\"/>"
     "</Types>";
   // clang-format on
 
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   content_types.add_worksheet_name("/xl/worksheets/sheet1.xml");
   content_types.add_default("jpeg", "image/jpeg");
   content_types.add_shared_strings();
-  ///     lxw_ct_add_calc_chain(content_types);
+  content_types.add_calc_chain();
 
   BOOST_CHECK_EQUAL(expected, content_types.assemble_xml_file());
 }

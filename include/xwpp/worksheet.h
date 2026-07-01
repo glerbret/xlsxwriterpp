@@ -1086,6 +1086,7 @@ struct data_validation_t
    * This parameter is used to set the limiting value to which the date or
    * time criteria is applied using a #lxw_datetime struct.
    */
+  // TODO Manage internally with a port of lxw_datetime, some for other datetime
   std::chrono::system_clock::time_point value_datetime_;
 
   /**
@@ -1235,7 +1236,7 @@ struct conditional_format_t
    *  conditional format are: font name, font size, superscript and
    *  subscript, diagonal borders, all alignment properties and all
    *  protection properties. */
-  format_t* format_;
+  format_t* format_ = nullptr;
 
   /** The minimum value used for Cell, Color Scale and Data Bar conditional
    *  formats. For Cell types this is usually used with a "Between" style
@@ -2077,6 +2078,8 @@ struct protection_t
   /** Protect scenarios. */
   bool scenarios_ = false;
 
+  // TODO Not clear, why there is two options objects_ and no_objects_
+  // TODO And objects_ seems to be wrong name as XML object option is set to 1 iff objects_ is false
   /** Protect drawing objects. Worksheets only. */
   bool objects_ = false;
 
@@ -2460,7 +2463,7 @@ public:
    * times in Xlsxwriter++.
    */
   // TODO Add API with col/row names and cell name
-  // TODO Add overload with other date and time type
+  // TODO Add overload with other date and time type (including lxw_datetime)
   void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime);
   void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime,
                       const format_t* format);
@@ -4137,6 +4140,8 @@ public:
                            const std::string& formula, const format_t* format);
   void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                            const std::string& formula);
+  void write_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                               const std::string& formula, const format_t* format, double result);
 
   /**
    * @brief Add a conditional format to a worksheet cell.
@@ -5138,15 +5143,6 @@ private:
 ///     RB_ENTRY (lxw_drawing_rel_id) tree_pointers;
 /// } lxw_drawing_rel_id;
 
-/// lxw_error worksheet_write_array_formula_num(lxw_worksheet *worksheet,
-///                                             row_num_t first_row,
-///                                             col_num_t first_col,
-///                                             row_num_t last_row,
-///                                             col_num_t last_col,
-///                                             const char *formula,
-///                                             lxw_format *format,
-///                                             double result);
-
 /// lxw_error worksheet_write_dynamic_array_formula_num(lxw_worksheet
 /// *worksheet,
 ///                                                     row_num_t first_row,
@@ -6053,8 +6049,8 @@ private:
 
 /// STATIC void _worksheet_write_sheet_pr(lxw_worksheet *worksheet);
 
-/// STATIC double _pixels_to_height(double pixels);
-/// STATIC double _pixels_to_width(double pixels);
+double pixels_to_height(double pixels);
+double pixels_to_width(double pixels);
 
 }
 

@@ -1,7 +1,7 @@
 /*
- * SPDX-License-Identifier: BSD-2-Clause
  * Copyright 2026, Grégory Lerbret
  *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
  */
 
 #define BOOST_TEST_DYN_LINK
@@ -14,9 +14,9 @@
 
 #include <string>
 
-BOOST_AUTO_TEST_SUITE(test_workbook)
+BOOST_AUTO_TEST_SUITE(workbook)
 
-BOOST_AUTO_TEST_CASE(test_validate_sheetname_valid)
+BOOST_AUTO_TEST_CASE(validate_sheetname_valid)
 {
   const std::string sheetname = "123456789_123456789_123456789_1";
   const xwpp::workbook_t workbook;
@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(test_validate_sheetname_valid)
   BOOST_REQUIRE_NO_THROW(workbook.validate_sheetname(sheetname));
 }
 
-BOOST_AUTO_TEST_CASE(test_validate_sheetname_too_long)
+BOOST_AUTO_TEST_CASE(validate_sheetname_too_long)
 {
   const std::string sheetname = "123456789_123456789_123456789_12";
   const xwpp::workbook_t workbook;
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(test_validate_sheetname_too_long)
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-BOOST_AUTO_TEST_CASE(test_validate_sheetname_invalid_char)
+BOOST_AUTO_TEST_CASE(validate_sheetname_invalid_char)
 {
   const std::string sheetname = "Sheet[1]";
   const xwpp::workbook_t workbook;
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(test_validate_sheetname_invalid_char)
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-BOOST_AUTO_TEST_CASE(test_validate_sheetname_unbalanced_single_quote_start)
+BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_single_quote_start)
 {
   const std::string sheetname = "'Sheet1";
   const xwpp::workbook_t workbook;
@@ -48,8 +48,7 @@ BOOST_AUTO_TEST_CASE(test_validate_sheetname_unbalanced_single_quote_start)
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-/* Test a sheet name that ends with an apostrophe. */
-BOOST_AUTO_TEST_CASE(test_validate_sheetname_unbalanced_single_quote_end)
+BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_single_quote_end)
 {
   const std::string sheetname = "Sheet1'";
   const xwpp::workbook_t workbook;
@@ -57,126 +56,64 @@ BOOST_AUTO_TEST_CASE(test_validate_sheetname_unbalanced_single_quote_end)
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-#if 0
-/* Test a sheet name that already exists. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name04) {
+BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists)
+{
+  const std::string sheetname = "Sheet1";
+  xwpp::workbook_t workbook;
+  workbook.add_worksheet(sheetname);
 
-    const char* sheetname = "Sheet1";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    workbook_add_worksheet(workbook, sheetname);
-
-    lxw_error exp = LXW_ERROR_SHEETNAME_ALREADY_USED;
-    lxw_error got = workbook_validate_sheet_name(workbook, sheetname);
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-/* Test a sheet name that starts with an apostrophe. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name05) {
+BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_apostrophe_start)
+{
+  const std::string sheetname = "'Sheet1";
+  const xwpp::workbook_t workbook;
 
-    const char* sheetname = "'Sheet1";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    lxw_error exp = LXW_ERROR_SHEETNAME_START_END_APOSTROPHE;
-    lxw_error got = workbook_validate_sheet_name(workbook, sheetname);
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-/* Test a sheet name that ends with an apostrophe. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name06) {
+BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_apostrophe_end)
+{
+  const std::string sheetname = "Sheet1'";
+  const xwpp::workbook_t workbook;
 
-    const char* sheetname = "Sheet1'";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    lxw_error exp = LXW_ERROR_SHEETNAME_START_END_APOSTROPHE;
-    lxw_error got = workbook_validate_sheet_name(workbook, sheetname);
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
 
-/* Test a sheet name that already exists, case insensitive. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name07) {
+BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_1)
+{
+  const std::string sheetname = "Sheet1";
+  xwpp::workbook_t workbook;
+  workbook.add_worksheet(sheetname);
 
-    const char* sheetname = "Sheet1";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    workbook_add_worksheet(workbook, sheetname);
-
-    lxw_error exp = LXW_ERROR_SHEETNAME_ALREADY_USED;
-    lxw_error got = workbook_validate_sheet_name(workbook, "sheet1");
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname("sheet1"), xwpp::xwpp_exception_t);
 }
 
-/* Test a sheet name that already exists, case insensitive. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name08) {
+BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_2)
+{
+  const std::string sheetname = "Café";
+  xwpp::workbook_t workbook;
+  workbook.add_worksheet(sheetname);
 
-    const char* sheetname = "Café";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    workbook_add_worksheet(workbook, sheetname);
-
-    lxw_error exp = LXW_ERROR_SHEETNAME_ALREADY_USED;
-    lxw_error got = workbook_validate_sheet_name(workbook, "café");
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname("café"), xwpp::xwpp_exception_t);
 }
 
-/* Test a sheet name that already exists, case insensitive. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name09) {
+BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_3)
+{
+  const std::string sheetname = "abcde";
+  xwpp::workbook_t workbook;
+  workbook.add_worksheet(sheetname);
 
-    const char* sheetname = "abcde";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    workbook_add_worksheet(workbook, sheetname);
-
-    lxw_error exp = LXW_ERROR_SHEETNAME_ALREADY_USED;
-    lxw_error got = workbook_validate_sheet_name(workbook, "ABCDE");
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname("ABCDE"), xwpp::xwpp_exception_t);
 }
 
-/* Test for empty sheet name. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name10) {
+BOOST_AUTO_TEST_CASE(validate_worksheet_empty_name)
+{
+  const std::string sheetname = "";
+  const xwpp::workbook_t workbook;
 
-    const char* sheetname = "";
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    lxw_error exp = LXW_ERROR_PARAMETER_IS_EMPTY;
-    lxw_error got = workbook_validate_sheet_name(workbook, sheetname);
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
+  BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
 }
-
-/* Test for NULL sheet name. */
-BOOST_AUTO_TEST_CASE(workbook, validate_worksheet_name11) {
-
-    const char* sheetname = NULL;
-
-    lxw_workbook *workbook = workbook_new(NULL);
-    lxw_error exp = LXW_ERROR_NULL_PARAMETER_IGNORED;
-    lxw_error got = workbook_validate_sheet_name(workbook, sheetname);
-
-    ASSERT_EQUAL(exp, got);
-
-    lxw_workbook_free(workbook);
-}
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()

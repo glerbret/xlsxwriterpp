@@ -8,10 +8,12 @@
 
 #include "xwpp/chartsheet.h"
 
-#include "xwpp/worksheet.h"
-/// #include "xwpp/utility.h"
 #include "xwpp/exception.h"
+#include "xwpp/utility.h"
+#include "xwpp/worksheet.h"
 #include "xwpp/xmlwriter.h"
+
+#include <format>
 
 namespace xwpp
 {
@@ -146,7 +148,7 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
 
   chart->in_use_        = true;
   chart->is_chartsheet_ = true;
-  ///     chart->is_protected = self->is_protected;
+  chart->is_protected_  = is_protected_;
   chart_                = *chart;
 }
 
@@ -206,40 +208,61 @@ void chartsheet_t::activate()
 ///     self->worksheet->tab_color = color;
 /// }
 
-/// void
-/// chartsheet_protect(lxw_chartsheet *self, const char *password,
-///                    lxw_protection *options)
-/// {
-///     struct lxw_protection_obj *protect = &self->protection;
-///
-///     /* Copy any user parameters to the internal structure. */
-///     if (options) {
-///         protect->objects = options->no_objects;
-///         protect->no_content = options->no_content;
-///     }
-///     else {
-///         protect->objects = LXW_FALSE;
-///         protect->no_content = LXW_FALSE;
-///     }
-///
-///     if (password) {
-///         uint16_t hash = lxw_hash_password(password);
-///         lxw_snprintf(protect->hash, 5, "%X", hash);
-///     }
-///     else {
-///         if (protect->objects && protect->no_content)
-///             return;
-///     }
-///
-///     protect->no_sheet = LXW_TRUE;
-///     protect->scenarios = LXW_TRUE;
-///     protect->is_configured = LXW_TRUE;
-///
-///     if (self->chart)
-///         self->chart->is_protected = LXW_TRUE;
-///     else
-///         self->is_protected = LXW_TRUE;
-/// }
+void chartsheet_t::protect(const std::string& password)
+{
+  protect(password, std::nullopt);
+}
+
+void chartsheet_t::protect(std::optional<protection_t> options)
+{
+  protect("", options);
+}
+
+void chartsheet_t::protect()
+{
+  protect("", std::nullopt);
+}
+
+void chartsheet_t::protect(const std::string& password, std::optional<protection_t> options)
+{
+  // Copy any user parameters to the internal structure.
+  if(options)
+  {
+    protection_.objects_    = options->no_objects_;
+    protection_.no_content_ = options->no_content_;
+  }
+  else
+  {
+    protection_.objects_    = false;
+    protection_.no_content_ = false;
+  }
+
+  if(!password.empty())
+  {
+    const uint16_t hash = hash_password(password);
+    protection_.hash_   = std::format("{:04X}", hash);
+  }
+  else
+  {
+    if(protection_.objects_ && protection_.no_content_)
+    {
+      return;
+    }
+  }
+
+  protection_.no_sheet_      = true;
+  protection_.scenarios_     = true;
+  protection_.is_configured_ = true;
+
+  if(chart_)
+  {
+    chart_->is_protected_ = true;
+  }
+  else
+  {
+    is_protected_ = true;
+  }
+}
 
 /// void
 /// chartsheet_set_zoom(lxw_chartsheet *self, uint16_t scale)

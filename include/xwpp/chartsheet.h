@@ -155,6 +155,64 @@ public:
    */
   void activate();
 
+  /**
+   * @brief Protect elements of a chartsheet from modification.
+   *
+   * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
+   * @param password   A chartsheet password.
+   * @param options    Chartsheet elements to protect.
+   *
+   * The `%chartsheet_protect()` function protects chartsheet elements from
+   * modification:
+   *
+   * @code
+   *     chartsheet_protect(chartsheet, "Some Password", options);
+   * @endcode
+   *
+   * The `password` and lxw_protection pointer are both optional:
+   *
+   * @code
+   *     chartsheet_protect(chartsheet2, NULL,       my_options);
+   *     chartsheet_protect(chartsheet3, "password", NULL);
+   *     chartsheet_protect(chartsheet4, "password", my_options);
+   * @endcode
+   *
+   * Passing a `NULL` password is the same as turning on protection without a
+   * password. Passing a `NULL` password and `NULL` options had no effect on
+   * chartsheets.
+   *
+   * You can specify which chartsheet elements you wish to protect by passing a
+   * lxw_protection pointer in the `options` argument. In Excel chartsheets only
+   * have two protection options:
+   *
+   *     no_content
+   *     no_objects
+   *
+   * All parameters are off by default. Individual elements can be protected as
+   * follows:
+   *
+   * @code
+   *     lxw_protection options = {
+   *         .no_content  = 1,
+   *         .no_objects  = 1,
+   *     };
+   *
+   *     chartsheet_protect(chartsheet, NULL, &options);
+   *
+   * @endcode
+   *
+   * See also worksheet_protect().
+   *
+   * **Note:** Sheet level passwords in Excel offer **very** weak
+   * protection. They don't encrypt your data and are very easy to
+   * deactivate. Full workbook encryption is not supported by `libxlsxwriter`
+   * since it requires a completely different file format.
+   */
+  void protect(const std::string& password, std::optional<protection_t> options);
+  void protect(const std::string& password);
+  void protect(std::optional<protection_t> options);
+  void protect();
+
 private:
   friend class packager_t;
   friend class workbook_t;
@@ -174,7 +232,7 @@ private:
   std::optional<chart_t> chart_;
   ///
   protection_obj_t protection_;
-  ///    uint8_t is_protected;
+  bool is_protected_ = false;
   ///
   std::string name_;
   std::string quoted_name_;
@@ -291,62 +349,6 @@ private:
  * See also `worksheet_set_tab_color()`.
  */
 /// void chartsheet_set_tab_color(lxw_chartsheet *chartsheet, lxw_color_t color);
-
-/**
- * @brief Protect elements of a chartsheet from modification.
- *
- * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
- * @param password   A chartsheet password.
- * @param options    Chartsheet elements to protect.
- *
- * The `%chartsheet_protect()` function protects chartsheet elements from
- * modification:
- *
- * @code
- *     chartsheet_protect(chartsheet, "Some Password", options);
- * @endcode
- *
- * The `password` and lxw_protection pointer are both optional:
- *
- * @code
- *     chartsheet_protect(chartsheet2, NULL,       my_options);
- *     chartsheet_protect(chartsheet3, "password", NULL);
- *     chartsheet_protect(chartsheet4, "password", my_options);
- * @endcode
- *
- * Passing a `NULL` password is the same as turning on protection without a
- * password. Passing a `NULL` password and `NULL` options had no effect on
- * chartsheets.
- *
- * You can specify which chartsheet elements you wish to protect by passing a
- * lxw_protection pointer in the `options` argument. In Excel chartsheets only
- * have two protection options:
- *
- *     no_content
- *     no_objects
- *
- * All parameters are off by default. Individual elements can be protected as
- * follows:
- *
- * @code
- *     lxw_protection options = {
- *         .no_content  = 1,
- *         .no_objects  = 1,
- *     };
- *
- *     chartsheet_protect(chartsheet, NULL, &options);
- *
- * @endcode
- *
- * See also worksheet_protect().
- *
- * **Note:** Sheet level passwords in Excel offer **very** weak
- * protection. They don't encrypt your data and are very easy to
- * deactivate. Full workbook encryption is not supported by `libxlsxwriter`
- * since it requires a completely different file format.
- */
-/// void chartsheet_protect(lxw_chartsheet *chartsheet, const char *password,
-///                         lxw_protection *options);
 
 /**
  * @brief Set the chartsheet zoom factor.

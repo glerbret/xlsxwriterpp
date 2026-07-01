@@ -314,9 +314,11 @@ uint16_t name_to_col_2(const char* col_str)
 ///     return LXW_NO_ERROR;
 /// }
 
+// TODO Note about range of std::chrono::system_clock::time_point(up to 2062)
+// TODO Add overload with other date /time type (included lxw_datetime)
 double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
 {
-  const auto dp = floor<std::chrono::days>(datetime);
+  const auto dp = std::chrono::floor<std::chrono::days>(datetime);
   const std::chrono::year_month_day ymd{dp};
   const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - dp)};
   int year         = static_cast<int>(ymd.year());
@@ -419,21 +421,19 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   return days + seconds;
 }
 
-/// double
-/// lxw_datetime_to_excel_datetime(lxw_datetime *datetime)
-/// {
-///     return lxw_datetime_to_excel_date_with_epoch(datetime, LXW_FALSE);
-/// }
+double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime)
+{
+  return datetime_to_excel_date_with_epoch(datetime, false);
+}
 
 /*
  * Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
  * 1900 epoch.
  */
-/// double
-/// lxw_unixtime_to_excel_date(int64_t unixtime)
-/// {
-///     return lxw_unixtime_to_excel_date_with_epoch(unixtime, LXW_FALSE);
-/// }
+double unixtime_to_excel_date(int64_t unixtime)
+{
+  return unixtime_to_excel_date_with_epoch(unixtime, false);
+}
 
 // Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
 // 1900 or 1904 epoch.
@@ -455,6 +455,12 @@ double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 // copy if it doesn't required quoting.
 std::string quote_sheetname(std::string_view sheetname)
 {
+  // Don't quote the sheetname if it is already quoted.
+  if(sheetname[0] == '\'')
+  {
+    return std::string{sheetname};
+  }
+
   // Check if the sheetname contains any characters that require it
   // to be quoted. Also check for single quotes within the string.
   if(std::ranges::all_of(sheetname, [](char c) { return isalnum(c) != 0 || c == '_' || c == '.'; }))
@@ -511,6 +517,16 @@ uint16_t hash_password(const std::string& password)
   hash ^= 0xCE4B;
 
   return hash;
+}
+
+std::string to_lower(const std::string& str)
+{
+  std::string lower_str;
+
+  std::transform(std::begin(str), std::end(str), std::back_inserter(lower_str),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  return lower_str;
 }
 
 }

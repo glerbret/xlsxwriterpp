@@ -180,7 +180,7 @@ std::string dup_formula(const std::string& formula);
  *
  * See @ref working_with_dates for more details on the Excel datetime format.
  */
-/// double lxw_datetime_to_excel_datetime(lxw_datetime *datetime);
+double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime);
 
 /**
  * @brief Converts a #lxw_datetime to an Excel datetime number with 1900/1904
@@ -237,7 +237,7 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
  *
  * See @ref working_with_dates for more details.
  */
-/// double lxw_unixtime_to_excel_date(int64_t unixtime);
+double unixtime_to_excel_date(int64_t unixtime);
 
 /**
  * @brief Converts a unix datetime to an Excel datetime number with 1900/1904
@@ -255,6 +255,8 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
 
 uint16_t hash_password(const std::string& password);
+
+std::string to_lower(const std::string& str);
 
 }
 
