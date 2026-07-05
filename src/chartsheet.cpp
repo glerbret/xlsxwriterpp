@@ -149,7 +149,7 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   chart->in_use_        = true;
   chart->is_chartsheet_ = true;
   chart->is_protected_  = is_protected_;
-  chart_                = *chart;
+  chart_                = chart;
 }
 
 void chartsheet_t::set_chart(chart_t* chart)
@@ -186,27 +186,29 @@ void chartsheet_t::activate()
 ///     *self->first_sheet = self->index;
 /// }
 
-/// void
-/// chartsheet_hide(lxw_chartsheet *self)
-/// {
-///     self->hidden = LXW_TRUE;
-///
-///     /* A hidden worksheet shouldn't be active or selected. */
-///     self->selected = LXW_FALSE;
-///
-///     /* If this is active_sheet or first_sheet reset the workbook value. */
-///     if (*self->first_sheet == self->index)
-///         *self->first_sheet = 0;
-///
-///     if (*self->active_sheet == self->index)
-///         *self->active_sheet = 0;
-/// }
+void chartsheet_t::hide()
+{
+  hidden_ = true;
 
-/// void
-/// chartsheet_set_tab_color(lxw_chartsheet *self, lxw_color_t color)
-/// {
-///     self->worksheet->tab_color = color;
-/// }
+  // A hidden worksheet shouldn't be active or selected.
+  worksheet_.selected_ = false;
+
+  // If this is active_sheet or first_sheet reset the workbook value.
+  if(*first_sheet_ == index_)
+  {
+    *first_sheet_ = 0;
+  }
+
+  if(*active_sheet_ == index_)
+  {
+    *active_sheet_ = 0;
+  }
+}
+
+void chartsheet_t::set_tab_color(color_t color)
+{
+  worksheet_.tab_color_ = color;
+}
 
 void chartsheet_t::protect(const std::string& password)
 {
@@ -264,68 +266,60 @@ void chartsheet_t::protect(const std::string& password, std::optional<protection
   }
 }
 
-/// void
-/// chartsheet_set_zoom(lxw_chartsheet *self, uint16_t scale)
-/// {
-///     /* Confine the scale to Excel"s range */
-///     if (scale < 10 || scale > 400) {
-///         LXW_WARN("chartsheet_set_zoom(): "
-///                  "Zoom factor scale outside range: 10 <= zoom <= 400.");
-///         return;
-///     }
-///
-///     self->worksheet->zoom = scale;
-/// }
+void chartsheet_t::set_zoom(uint16_t scale)
+{
+  // Confine the scale to Excel"s range
+  if(scale < 10 || scale > 400)
+  {
+    throw xwpp_out_of_range_t("chartsheet_t::set_zoom(): Zoom factor scale outside range: 10 <= zoom <= 400.");
+  }
 
-/// void
-/// chartsheet_set_portrait(lxw_chartsheet *self)
-/// {
-///     worksheet_set_portrait(self->worksheet);
-/// }
+  worksheet_.zoom_ = scale;
+}
 
-/// void
-/// chartsheet_set_landscape(lxw_chartsheet *self)
-/// {
-///     worksheet_set_landscape(self->worksheet);
-/// }
+void chartsheet_t::set_portrait()
+{
+  worksheet_.set_portrait();
+}
 
-/// void
-/// chartsheet_set_paper(lxw_chartsheet *self, uint8_t paper_size)
-/// {
-///     worksheet_set_paper(self->worksheet, paper_size);
-/// }
+void chartsheet_t::set_landscape()
+{
+  worksheet_.set_landscape();
+}
 
-/// void
-/// chartsheet_set_margins(lxw_chartsheet *self, double left, double right,
-///                        double top, double bottom)
-/// {
-///     worksheet_set_margins(self->worksheet, left, right, top, bottom);
-/// }
+void chartsheet_t::set_paper(uint8_t paper_size)
+{
+  worksheet_.set_paper(paper_size);
+}
 
-/// lxw_error
-/// chartsheet_set_header_opt(lxw_chartsheet *self, const char *string,
-///                           lxw_header_footer_options *options)
-/// {
-///     return worksheet_set_header_opt(self->worksheet, string, options);
-/// }
+void chartsheet_t::set_margins(double left, double right, double top, double bottom)
+{
+  worksheet_.set_margins(left, right, top, bottom);
+}
 
-/// lxw_error
-/// chartsheet_set_footer_opt(lxw_chartsheet *self, const char *string,
-///                           lxw_header_footer_options *options)
-/// {
-///     return worksheet_set_footer_opt(self->worksheet, string, options);
-/// }
+void chartsheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
+{
+  worksheet_.set_header(str, options);
+}
 
-/// lxw_error
-/// chartsheet_set_header(lxw_chartsheet *self, const char *string)
-/// {
-///     return chartsheet_set_header_opt(self, string, NULL);
-/// }
+void chartsheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
+{
+  worksheet_.set_footer(str, options);
+}
 
-/// lxw_error
-/// chartsheet_set_footer(lxw_chartsheet *self, const char *string)
-/// {
-///     return chartsheet_set_footer_opt(self, string, NULL);
-/// }
+void chartsheet_t::set_header(const std::string& str)
+{
+  set_header(str, std::nullopt);
+}
+
+void chartsheet_t::set_footer(const std::string& str)
+{
+  set_footer(str, std::nullopt);
+}
+
+void chartsheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
+{
+  worksheet_.set_dpi(horizontal_dpi, vertical_dpi);
+}
 
 }

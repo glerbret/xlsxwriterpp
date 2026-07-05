@@ -1,0 +1,21 @@
+/*
+ * Copyright 2026, Grégory Lerbret
+ *
+ * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
+ */
+
+#include "xlsxwriterpp.h"
+
+int main()
+{
+  xwpp::workbook_t workbook;
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+  xwpp::row_col_options_t col_options = {.hidden_ = true};
+  worksheet.set_column(COLS("B:B"), 5, nullptr, col_options);
+
+  xwpp::image_options_t image_options = {.x_offset_ = 192};
+  worksheet.insert_image(CELL("A9"), "images/red.png", image_options);
+
+  workbook.save("test_object_position17.xlsx");
+}

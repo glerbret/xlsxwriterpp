@@ -36,6 +36,7 @@ public:
   void add_part_name(const std::string& name);
   void add_heading_pair(const std::string& key, const std::string& value);
   void set_properties(const doc_properties_t& properties);
+  void set_doc_security(uint8_t doc_security);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 

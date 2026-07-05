@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <format>
 #include <fstream>
 #include <span>
@@ -76,7 +77,7 @@ std::string calculate_spans(std::map<col_num_t, row_t>::const_iterator it,
 }
 
 /// #define LXW_BUFFER_SIZE                  4096
-/// #define LXW_PRINT_ACROSS                 1
+const uint8_t PRINT_ACROSS                = 1;
 const size_t VALIDATION_MAX_TITLE_LENGTH  = 32;
 const size_t VALIDATION_MAX_STRING_LENGTH = 255;
 /// #define LXW_THIS_ROW "[#This Row],"
@@ -134,6 +135,8 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , active_sheet_{init_data.active_sheet_}
   , first_sheet_{init_data.first_sheet_}
   , default_url_format_{init_data.default_url_format_}
+  , use_1904_epoch_{init_data.use_1904_epoch_}
+  , max_url_length_{init_data.max_url_length_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
   col_formats_.resize(COL_META_MAX);
@@ -146,8 +149,6 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   ///     if (init_data) {
   ///         worksheet->tmpdir = init_data->tmpdir;
   ///         worksheet->hidden = init_data->hidden;
-  ///         worksheet->max_url_length = init_data->max_url_length;
-  ///         worksheet->use_1904_epoch = init_data->use_1904_epoch;
   ///     }
 }
 
@@ -490,21 +491,18 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
 ///     return cell;
 /// }
 
-/// STATIC cell_t *
-/// _new_boolean_cell(row_num_t row_num, col_num_t col_num, int value,
-///                   lxw_format *format)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
+cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const format_t* format)
+{
+  cell_t cell;
 
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = BOOLEAN_CELL;
-///     cell->format = format;
-///     cell->u.number = value;
+  cell.type_    = cell_types_t::BOOLEAN_CELL;
+  cell.row_num_ = row_num;
+  cell.col_num_ = col_num;
+  cell.format_  = const_cast<format_t*>(format);
+  cell.data_    = static_cast<uint32_t>(value);
 
-///     return cell;
-/// }
+  return cell;
+}
 
 row_t& table_rows_t::get_row_list(row_num_t row_num)
 {
@@ -1000,10 +998,12 @@ void worksheet_t::write_column_function(row_num_t row_num, col_num_t col_num, co
       case '#':
       case '[':
       case ']':
-        formula += '\'' + c;
+        formula += '\'';
+        formula += c;
         break;
+
       default:
-        formula += +c;
+        formula += c;
         break;
     }
   }
@@ -1453,17 +1453,24 @@ std::string worksheet_t::write_panes()
 std::string worksheet_t::write_sheet_view()
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
-  /* Hide screen gridlines if required */
-  ///     if (!self->screen_gridlines)
-  ///         LXW_PUSH_ATTRIBUTES_STR("showGridLines", "0");
 
-  /* Hide zeroes in cells. */
-  ///     if (!self->show_zeros)
-  ///         LXW_PUSH_ATTRIBUTES_STR("showZeros", "0");
+  // Hide screen gridlines if required
+  if(!screen_gridlines_)
+  {
+    attributes.emplace_back("showGridLines", "0");
+  }
 
-  /* Display worksheet right to left for Hebrew, Arabic and others. */
-  ///     if (self->right_to_left)
-  ///         LXW_PUSH_ATTRIBUTES_STR("rightToLeft", "1");
+  // Hide zeroes in cells.
+  if(!show_zeros_)
+  {
+    attributes.emplace_back("showZeros", "0");
+  }
+
+  // Display worksheet right to left for Hebrew, Arabic and others.
+  if(right_to_left_)
+  {
+    attributes.emplace_back("rightToLeft", "1");
+  }
 
   // Show that the sheet tab is selected.
   if(selected_)
@@ -1471,17 +1478,23 @@ std::string worksheet_t::write_sheet_view()
     attributes.emplace_back("tabSelected", "1");
   }
 
-  /* Turn outlines off. Also required in the outlinePr element. */
-  ///     if (!self->outline_on)
-  ///         LXW_PUSH_ATTRIBUTES_STR("showOutlineSymbols", "0");
+  // Turn outlines off. Also required in the outlinePr element.
+  if(!outline_on_)
+  {
+    attributes.emplace_back("showOutlineSymbols", "0");
+  }
 
-  /* Set the page view/layout mode if required. */
-  ///     if (self->page_view)
-  ///         LXW_PUSH_ATTRIBUTES_STR("view", "pageLayout");
+  // Set the page view/layout mode if required.
+  if(page_view_)
+  {
+    attributes.emplace_back("view", "pageLayout");
+  }
 
-  /* Set the top left cell if required. */
-  ///     if (self->top_left_cell[0])
-  ///         LXW_PUSH_ATTRIBUTES_STR("topLeftCell", self->top_left_cell);
+  // Set the top left cell if required.
+  if(!top_left_cell_.empty())
+  {
+    attributes.emplace_back("topLeftCell", top_left_cell_);
+  }
 
   // Set the zoom level.
   if(zoom_ != 100 && !page_view_)
@@ -1601,93 +1614,131 @@ std::string worksheet_t::write_page_margins() const
  */
 std::string worksheet_t::write_page_setup() const
 {
-  std::string xml_data;
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
+  if(!page_setup_changed_)
+  {
+    return "";
+  }
 
-  ///     if (!self->page_setup_changed)
-  ///         return;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-  /* Set paper size. */
-  ///     if (self->paper_size)
-  ///         LXW_PUSH_ATTRIBUTES_INT("paperSize", self->paper_size);
+  // Set paper size.
+  if(paper_size_ != 0)
+  {
+    attributes.emplace_back("paperSize", std::to_string(paper_size_));
+  }
 
-  /* Set the print_scale. */
-  ///     if (self->print_scale != 100)
-  ///         LXW_PUSH_ATTRIBUTES_INT("scale", self->print_scale);
+  // Set the print_scale.
+  if(print_scale_ != 100)
+  {
+    attributes.emplace_back("scale", std::to_string(print_scale_));
+  }
 
-  /* Set the "Fit to page" properties. */
-  ///     if (self->fit_page && self->fit_width != 1)
-  ///         LXW_PUSH_ATTRIBUTES_INT("fitToWidth", self->fit_width);
+  // Set the "Fit to page" properties.
+  if(fit_page_ && fit_width_ != 1)
+  {
+    attributes.emplace_back("fitToWidth", std::to_string(fit_width_));
+  }
 
-  ///     if (self->fit_page && self->fit_height != 1)
-  ///         LXW_PUSH_ATTRIBUTES_INT("fitToHeight", self->fit_height);
+  if(fit_page_ && fit_height_ != 1)
+  {
+    attributes.emplace_back("fitToHeight", std::to_string(fit_height_));
+  }
 
-  /* Set the page print direction. */
-  ///     if (self->page_order)
-  ///         LXW_PUSH_ATTRIBUTES_STR("pageOrder", "overThenDown");
+  // Set the page print direction
+  if(page_order_ != 0)
+  {
+    attributes.emplace_back("pageOrder", "overThenDown");
+  }
 
-  /* Set start page. */
-  ///     if (self->page_start > 1)
-  ///         LXW_PUSH_ATTRIBUTES_INT("firstPageNumber", self->page_start);
+  // Set start page.
+  if(page_start_ > 1)
+  {
+    attributes.emplace_back("firstPageNumber", std::to_string(page_start_));
+  }
 
-  /* Set page orientation. */
-  ///     if (self->orientation)
-  ///         LXW_PUSH_ATTRIBUTES_STR("orientation", "portrait");
-  ///     else
-  ///         LXW_PUSH_ATTRIBUTES_STR("orientation", "landscape");
+  // Set page orientation.
+  if(orientation_ == drawing_orientation_t::PORTRAIT)
+  {
+    attributes.emplace_back("orientation", "portrait");
+  }
+  else
+  {
+    attributes.emplace_back("orientation", "landscape");
+  }
 
-  ///     if (self->black_white)
-  ///         LXW_PUSH_ATTRIBUTES_STR("blackAndWhite", "1");
+  if(black_white_)
+  {
+    attributes.emplace_back("blackAndWhite", "1");
+  }
 
-  /* Set start page active flag. */
-  ///     if (self->page_start)
-  ///         LXW_PUSH_ATTRIBUTES_INT("useFirstPageNumber", 1);
+  // Set start page active flag.
+  if(page_start_)
+  {
+    attributes.emplace_back("useFirstPageNumber", "1");
+  }
 
-  /* Set the DPI. Mainly only for testing. */
-  ///     if (self->horizontal_dpi)
-  ///         LXW_PUSH_ATTRIBUTES_INT("horizontalDpi", self->horizontal_dpi);
+  // Set the DPI. Mainly only for testing.
+  if(horizontal_dpi_ != 0)
+  {
+    attributes.emplace_back("horizontalDpi", std::to_string(horizontal_dpi_));
+  }
 
-  ///     if (self->vertical_dpi)
-  ///         LXW_PUSH_ATTRIBUTES_INT("verticalDpi", self->vertical_dpi);
+  if(vertical_dpi_ != 0)
+  {
+    attributes.emplace_back("verticalDpi", std::to_string(vertical_dpi_));
+  }
 
-  ///     lxw_xml_empty_tag(self->file, "pageSetup", &attributes);
+  return xml_empty_tag("pageSetup", attributes);
+}
 
-  return xml_data;
+void worksheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
+{
+  if(horizontal_dpi != 0)
+  {
+    horizontal_dpi_ = horizontal_dpi;
+  }
+  if(vertical_dpi != 0)
+  {
+    vertical_dpi_ = vertical_dpi;
+  }
 }
 
 std::string worksheet_t::write_print_options() const
 {
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
   std::string xml_data;
 
-  ///     struct xml_attribute_list attributes;
-  ///     struct xml_attribute *attribute;
-  ///     if (!self->print_options_changed)
-  ///         return;
+  if(!print_options_changed_)
+  {
+    return "";
+  }
 
-  ///     /* Set horizontal centering. */
-  ///     if (self->hcenter) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("horizontalCentered", "1");
-  ///     }
+  // Set horizontal centering.
+  if(hcenter_)
+  {
+    attributes.emplace_back("horizontalCentered", "1");
+  }
 
-  ///     /* Set vertical centering. */
-  ///     if (self->vcenter) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("verticalCentered", "1");
-  ///     }
+  // Set vertical centering.
+  if(vcenter_)
+  {
+    attributes.emplace_back("verticalCentered", "1");
+  }
 
-  /* Enable row and column headers. */
-  ///     if (self->print_headers) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("headings", "1");
-  ///     }
+  // Enable row and column headers.
+  if(print_headers_)
+  {
+    attributes.emplace_back("headings", "1");
+  }
 
-  /* Set printed gridlines. */
-  ///     if (self->print_gridlines) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("gridLines", "1");
-  ///     }
+  // Set printed gridlines.
+  if(print_gridlines_)
+  {
+    attributes.emplace_back("gridLines", "1");
+  }
 
-  ///     lxw_xml_empty_tag(self->file, "printOptions", &attributes);
-
-  return xml_data;
+  return xml_empty_tag("printOptions", attributes);
 }
 
 std::string worksheet_t::write_row(const row_t& row) const
@@ -2180,7 +2231,6 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
 
   object_props.width_  = width;
   object_props.height_ = height;
-
   position_object_emus(object_props, drawing_object);
 
   // Convert from pixels to emus.
@@ -2204,10 +2254,11 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
     }
 
     // Set the relationship object for each type of link.
+    std::tuple<std::string, std::string, std::string> relation;
     if(link_type == cell_types_t::HYPERLINK_INTERNAL)
     {
       const std::string target = "#"s + url.substr(sizeof("internal"));
-      drawing_links_.emplace_back("/hyperlink", target, "");
+      relation                 = std::make_tuple("/hyperlink", target, "");
     }
     else if(link_type == cell_types_t::HYPERLINK_EXTERNAL)
     {
@@ -2223,27 +2274,32 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
       if(found_string != std::string::npos)
       {
         // Add the file:/// URI to the url if non-local.
-        drawing_links_.emplace_back("/hyperlink", "file:///"s + escape_url_characters(url_copy, true), "External");
+        relation = std::make_tuple("/hyperlink", "file:///"s + escape_url_characters(url_copy, true), "External");
       }
       else
       {
         // Copy the relative url without "external:".
-        std::string url_copy = escape_url_characters(url.substr(sizeof("external")), true);
+        std::string target = escape_url_characters(url.substr(sizeof("external")), true);
 
         // Switch backslash to forward slash.
-        for(auto& c: url_copy)
+        for(auto& c: target)
         {
-          if(c == '/')
+          if(c == '\\')
           {
-            c = '\\';
+            c = '/';
           }
         }
-        drawing_links_.emplace_back("/hyperlink", url_copy, "External");
+        relation = std::make_tuple("/hyperlink", target, "External");
       }
     }
     else
     {
-      drawing_links_.emplace_back("/hyperlink", escape_url_characters(object_props.url_, false), "External");
+      relation = std::make_tuple("/hyperlink", escape_url_characters(object_props.url_, false), "External");
+    }
+
+    if(find_drawing_rel_index(url) == 0)
+    {
+      drawing_links_.push_back(relation);
     }
 
     drawing_object.url_rel_index_ = get_drawing_rel_index(url);
@@ -2491,225 +2547,149 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
   image_props.image_type_ = image_types_t::PNG;
   image_props.width_      = width;
   image_props.height_     = height;
-  image_props.x_dpi_      = x_dpi;
-  image_props.y_dpi_      = y_dpi;
+  image_props.x_dpi_      = x_dpi ? x_dpi : 96;
+  image_props.y_dpi_      = y_dpi ? y_dpi : 96;
   image_props.extension_  = "png";
 }
 
-/// STATIC lxw_error
-/// _process_jpeg(lxw_object_properties *image_props)
-/// {
-///     uint16_t length;
-///     uint16_t marker;
-///     uint32_t offset;
-///     uint16_t width = 0;
-///     uint16_t height = 0;
-///     double x_dpi = 96;
-///     double y_dpi = 96;
-///     int fseek_err;
+void process_jpeg(object_properties_t& image_props, const std::vector<unsigned char>& data)
+{
+  uint32_t width  = 0;
+  uint32_t height = 0;
+  double x_dpi    = 96;
+  double y_dpi    = 96;
 
-///     FILE *stream = image_props->stream;
+  // Start after header;
+  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  it += 2;
 
-/* Read back 2 bytes to the end of the initial 0xFFD8 marker. */
-///     fseek_err = fseek(stream, -2, SEEK_CUR);
-///     if (fseek_err)
-///         goto file_error;
+  // Search through the image data and read the JPEG markers.
+  while(it + 4 < std::end(data))
+  {
+    // Read the JPEG marker and length fields for the sub-section.
+    uint16_t marker = *it * 0x100 + *(it + 1);
+    it += 2;
+    uint16_t length = *it * 0x100 + *(it + 1);
+    it += 2;
 
-/* Search through the image data and read the JPEG markers. */
-///     while (!feof(stream)) {
+    // The offset for next fseek() is the field length + type length.
+    uint32_t offset = length - 2;
 
-/* Read the JPEG marker and length fields for the sub-section. */
-///         if (fread(&marker, sizeof(marker), 1, stream) < 1)
-///             break;
+    // Read the height and width in the 0xFFCn elements (except C4, C8
+    // and CC which aren't SOF markers).
+    if((marker & 0xFFF0) == 0xFFC0 && marker != 0xFFC4 && marker != 0xFFC8 && marker != 0xFFCC)
+    {
+      if(it + 5 < std::end(data))
+      {
+        // Skip 1 byte to height and width.
+        it++;
 
-///         if (fread(&length, sizeof(length), 1, stream) < 1)
-///             break;
+        height = *it * 0x100 + *(it + 1);
+        it += 2;
+        width = *it * 0x100 + *(it + 1);
+        it += 2;
+        offset -= 5;
+      }
+    }
 
-/* Convert the marker and length to network order. */
-///         marker = LXW_UINT16_NETWORK(marker);
-///         length = LXW_UINT16_NETWORK(length);
+    // Read the DPI in the 0xFFE0 element.
+    if(marker == 0xFFE0)
+    {
+      if(it + 12 < std::end(data))
+      {
+        it += 7;
+        uint8_t units = *it;
+        it++;
+        uint16_t x_density = *it * 0x100 + *(it + 1);
+        it += 2;
+        uint16_t y_density = *it * 0x100 + *(it + 1);
+        it += 2;
 
-/* The offset for next fseek() is the field length + type length. */
-///         offset = length - 2;
+        if(units == 1)
+        {
+          x_dpi = x_density;
+          y_dpi = y_density;
+        }
 
-/* Read the height and width in the 0xFFCn elements (except C4, C8 */
-/* and CC which aren't SOF markers). */
-///         if ((marker & 0xFFF0) == 0xFFC0 && marker != 0xFFC4
-///             && marker != 0xFFC8 && marker != 0xFFCC) {
-/* Skip 1 byte to height and width. */
-///             fseek_err = fseek(stream, 1, SEEK_CUR);
-///             if (fseek_err)
-///                 goto file_error;
+        if(units == 2)
+        {
+          x_dpi = x_density * 2.54;
+          y_dpi = y_density * 2.54;
+        }
+        offset -= 12;
+      }
+    }
 
-///             if (fread(&height, sizeof(height), 1, stream) < 1)
-///                 break;
+    if(marker == 0xFFDA)
+    {
+      break;
+    }
 
-///             if (fread(&width, sizeof(width), 1, stream) < 1)
-///                 break;
+    it += offset;
+  }
 
-///             height = LXW_UINT16_NETWORK(height);
-///             width = LXW_UINT16_NETWORK(width);
+  // Ensure that we read some valid data from the file.
+  if(width == 0)
+  {
+    throw xwpp_exception_t("process_jpeg(): file not valid");
+  }
 
-///             offset -= 9;
-///         }
+  // Set the image metadata.
+  image_props.image_type_ = image_types_t::JPEG;
+  image_props.width_      = width;
+  image_props.height_     = height;
+  image_props.x_dpi_      = x_dpi ? x_dpi : 96;
+  image_props.y_dpi_      = y_dpi ? y_dpi : 96;
+  image_props.extension_  = "jpeg";
+}
 
-/* Read the DPI in the 0xFFE0 element. */
-///         if (marker == 0xFFE0) {
-///             uint16_t x_density = 0;
-///             uint16_t y_density = 0;
-///             uint8_t units = 1;
+void process_bmp(object_properties_t& image_props, const std::vector<unsigned char>& data)
+{
+  double x_dpi = 96;
+  double y_dpi = 96;
 
-///             fseek_err = fseek(stream, 7, SEEK_CUR);
-///             if (fseek_err)
-///                 goto file_error;
+  // Skip 18 bytes to the start of the BMP height/width.
+  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  it += 18;
 
-///             if (fread(&units, sizeof(units), 1, stream) < 1)
-///                 break;
+  uint32_t width = *(it + 3) * 0x1000000 + *(it + 2) * 0x10000 + *(it + 1) * 0x100 + *it;
+  it += 4;
 
-///             if (fread(&x_density, sizeof(x_density), 1, stream) < 1)
-///                 break;
+  uint32_t height = *(it + 3) * 0x1000000 + *(it + 2) * 0x10000 + *(it + 1) * 0x100 + *it;
+  it += 4;
 
-///             if (fread(&y_density, sizeof(y_density), 1, stream) < 1)
-///                 break;
+  // Set the image metadata.
+  image_props.image_type_ = image_types_t::BMP;
+  image_props.width_      = width;
+  image_props.height_     = height;
+  image_props.x_dpi_      = x_dpi;
+  image_props.y_dpi_      = y_dpi;
+  image_props.extension_  = "bmp";
+}
 
-///             x_density = LXW_UINT16_NETWORK(x_density);
-///             y_density = LXW_UINT16_NETWORK(y_density);
+void process_gif(object_properties_t& image_props, const std::vector<unsigned char>& data)
+{
+  double x_dpi = 96;
+  double y_dpi = 96;
 
-///             if (units == 1) {
-///                 x_dpi = x_density;
-///                 y_dpi = y_density;
-///             }
+  // Skip 6 bytes to the start of the GIF height/width.
+  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  it += 6;
 
-///             if (units == 2) {
-///                 x_dpi = x_density * 2.54;
-///                 y_dpi = y_density * 2.54;
-///             }
+  uint16_t width = *(it + 1) * 0x100 + *it;
+  it += 2;
 
-///             offset -= 12;
-///         }
+  uint16_t height = *(it + 1) * 0x100 + *it;
+  it += 2;
 
-///         if (marker == 0xFFDA)
-///             break;
-
-///         if (!feof(stream)) {
-///             fseek_err = fseek(stream, offset, SEEK_CUR);
-///             if (fseek_err)
-///                 break;
-///         }
-///     }
-
-/* Ensure that we read some valid data from the file. */
-///     if (width == 0)
-///         goto file_error;
-
-/* Set the image metadata. */
-///     image_props->image_type = LXW_IMAGE_JPEG;
-///     image_props->width = width;
-///     image_props->height = height;
-///     image_props->x_dpi = x_dpi ? x_dpi : 96;
-///     image_props->y_dpi = y_dpi ? y_dpi : 96;
-///     image_props->extension = lxw_strdup("jpeg");
-
-///     return LXW_NO_ERROR;
-
-/// file_error:
-///     LXW_WARN_FORMAT1("worksheet image insertion: "
-///                      "no size data found in: %s.", image_props->filename);
-
-///     return LXW_ERROR_IMAGE_DIMENSIONS;
-/// }
-
-/// STATIC lxw_error
-/// _process_bmp(lxw_object_properties *image_props)
-/// {
-///     uint32_t width = 0;
-///     uint32_t height = 0;
-///     double x_dpi = 96;
-///     double y_dpi = 96;
-///     int fseek_err;
-
-///     FILE *stream = image_props->stream;
-
-/* Skip another 14 bytes to the start of the BMP height/width. */
-///     fseek_err = fseek(stream, 14, SEEK_CUR);
-///     if (fseek_err)
-///         goto file_error;
-
-///     if (fread(&width, sizeof(width), 1, stream) < 1)
-///         width = 0;
-
-///     if (fread(&height, sizeof(height), 1, stream) < 1)
-///         height = 0;
-
-/* Ensure that we read some valid data from the file. */
-///     if (width == 0)
-///         goto file_error;
-
-///     height = LXW_UINT32_HOST(height);
-///     width = LXW_UINT32_HOST(width);
-
-/* Set the image metadata. */
-///     image_props->image_type = LXW_IMAGE_BMP;
-///     image_props->width = width;
-///     image_props->height = height;
-///     image_props->x_dpi = x_dpi;
-///     image_props->y_dpi = y_dpi;
-///     image_props->extension = lxw_strdup("bmp");
-
-///     return LXW_NO_ERROR;
-
-/// file_error:
-///     LXW_WARN_FORMAT1("worksheet image insertion: "
-///                      "no size data found in: %s.", image_props->filename);
-
-///     return LXW_ERROR_IMAGE_DIMENSIONS;
-/// }
-
-/// STATIC lxw_error
-/// _process_gif(lxw_object_properties *image_props)
-/// {
-///     uint16_t width = 0;
-///     uint16_t height = 0;
-///     double x_dpi = 96;
-///     double y_dpi = 96;
-///     int fseek_err;
-
-///     FILE *stream = image_props->stream;
-
-/* Skip another 2 bytes to the start of the GIF height/width. */
-///     fseek_err = fseek(stream, 2, SEEK_CUR);
-///     if (fseek_err)
-///         goto file_error;
-
-///     if (fread(&width, sizeof(width), 1, stream) < 1)
-///         width = 0;
-
-///     if (fread(&height, sizeof(height), 1, stream) < 1)
-///         height = 0;
-
-/* Ensure that we read some valid data from the file. */
-///     if (width == 0)
-///         goto file_error;
-
-///     height = LXW_UINT16_HOST(height);
-///     width = LXW_UINT16_HOST(width);
-
-/* Set the image metadata. */
-///     image_props->image_type = LXW_IMAGE_GIF;
-///     image_props->width = width;
-///     image_props->height = height;
-///     image_props->x_dpi = x_dpi;
-///     image_props->y_dpi = y_dpi;
-///     image_props->extension = lxw_strdup("gif");
-
-///     return LXW_NO_ERROR;
-
-/// file_error:
-///     LXW_WARN_FORMAT1("worksheet image insertion: "
-///                      "no size data found in: %s.", image_props->filename);
-
-///     return LXW_ERROR_IMAGE_DIMENSIONS;
-/// }
+  // Set the image metadata.
+  image_props.image_type_ = image_types_t::GIF;
+  image_props.width_      = width;
+  image_props.height_     = height;
+  image_props.x_dpi_      = x_dpi;
+  image_props.y_dpi_      = y_dpi;
+  image_props.extension_  = "gif";
+}
 
 void process_image(object_properties_t& image_props, const std::vector<unsigned char>& buffer)
 {
@@ -2717,25 +2697,22 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
   {
     process_png(image_props, buffer);
   }
-  // TODO Manage other formats
-  ///     else if (signature[0] == 0xFF && signature[1] == 0xD8) {
-  ///         if (_process_jpeg(image_props) != LXW_NO_ERROR)
-  ///             return LXW_ERROR_IMAGE_DIMENSIONS;
-  ///     }
-  ///     else if (memcmp(signature, "BM", 2) == 0) {
-  ///         if (_process_bmp(image_props) != LXW_NO_ERROR)
-  ///             return LXW_ERROR_IMAGE_DIMENSIONS;
-  ///     }
-  ///     else if (memcmp(signature, "GIF8", 4) == 0) {
-  ///         if (_process_gif(image_props) != LXW_NO_ERROR)
-  ///             return LXW_ERROR_IMAGE_DIMENSIONS;
-  ///     }
-  ///     else {
-  ///         LXW_WARN_FORMAT1("worksheet image insertion: "
-  ///                          "unsupported image format for: %s.",
-  ///                          image_props->filename);
-  ///         return LXW_ERROR_IMAGE_DIMENSIONS;
-  ///     }
+  else if(buffer[0] == 0xFF && buffer[1] == 0xD8)
+  {
+    process_jpeg(image_props, buffer);
+  }
+  else if(buffer[0] == 'B' && buffer[1] == 'M')
+  {
+    process_bmp(image_props, buffer);
+  }
+  else if(buffer[0] == 'G' && buffer[1] == 'I' && buffer[2] == 'F' && buffer[3] == '8')
+  {
+    process_gif(image_props, buffer);
+  }
+  else
+  {
+    throw xwpp_exception_t(std::format("process_image(): unsupported image format for: {}", image_props.filename_));
+  }
 
   // Calculate an MD5 checksum for the image so that we can remove duplicate
   // images to reduce the xlsx file size.
@@ -2750,7 +2727,6 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
   }
 }
 
-// TODO Use dedicated library to get image properties
 void get_image_properties(object_properties_t& image_props)
 {
   if(image_props.image_buffer_.empty())
@@ -2901,27 +2877,11 @@ std::string worksheet_t::write_array_formula_num_cell(const cell_t& cell) const
   return xml_data;
 }
 
-/*
- * Write out a boolean worksheet cell.
- */
-/// STATIC void
-/// _write_boolean_cell(lxw_worksheet *self, cell_t *cell)
-/// {
-///     char data[LXW_ATTR_32];
+std::string worksheet_t::write_boolean_cell(const cell_t& cell) const
+{
+  return xml_data_element("v", std::get<uint32_t>(cell.data_) == 0 ? "0" : "1");
+}
 
-///     if (cell->u.number == 0.0)
-///         data[0] = '0';
-///     else
-///         data[0] = '1';
-
-///     data[1] = '\0';
-
-///     lxw_xml_data_element(self->file, "v", data, NULL);
-/// }
-
-/*
- * Write out a error worksheet cell.
- */
 std::string worksheet_t::write_error_cell() const
 {
   return xml_data_element("v", "#VALUE!");
@@ -3005,12 +2965,15 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
       return xml_empty_tag("c", attributes);
     }
   }
-  ///     else if (cell->type == BOOLEAN_CELL) {
-  ///         LXW_PUSH_ATTRIBUTES_STR("t", "b");
-  ///         lxw_xml_start_tag(self->file, "c", &attributes);
-  ///         _write_boolean_cell(self, cell);
-  ///         lxw_xml_end_tag(self->file, "c");
-  ///     }
+  else if(cell.type_ == cell_types_t::BOOLEAN_CELL)
+  {
+    attributes.emplace_back("t", "b");
+    std::string xml_data = xml_start_tag("c", attributes);
+    xml_data += write_boolean_cell(cell);
+    xml_data += xml_end_tag("c");
+
+    return xml_data;
+  }
   else if(cell.type_ == cell_types_t::ARRAY_FORMULA_CELL)
   {
     std::string xml_data = xml_start_tag("c", attributes);
@@ -3080,9 +3043,9 @@ std::string worksheet_t::write_rows() const
         {
           xml_data += write_cell(cell, row.format_);
         }
-      }
 
-      xml_data += xml_end_tag("row");
+        xml_data += xml_end_tag("row");
+      }
     }
   }
 
@@ -3141,8 +3104,8 @@ void worksheet_t::set_header_footer_image(const std::string& filename, image_pos
   // Copy other options or set defaults.
   object_props.filename_    = filename;
   // Use the filename as the default description, like Excel.
-  // TODO Use basename of file, not full name
-  object_props.description_ = filename;
+  object_props.description_ = std::filesystem::path(filename).filename();
+  ;
 
   // Set VML image position string based on the header/footer/position.
   object_props.image_position_ = get_vml_image_position(image_position);
@@ -3316,21 +3279,17 @@ std::string worksheet_t::write_header_footer() const
   return xml_data;
 }
 
-/// STATIC void _worksheet_write_page_set_up_pr(lxw_worksheet *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+std::string worksheet_t::write_page_set_up_pr() const
+{
+  if(!fit_page_)
+  {
+    return "";
+  }
 
-///     if (!self->fit_page)
-///         return;
-
-///     LXW_INIT_ATTRIBUTES();
-///     LXW_PUSH_ATTRIBUTES_STR("fitToPage", "1");
-
-///     lxw_xml_empty_tag(self->file, "pageSetUpPr", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("pageSetUpPr", {
+                                          {"fitToPage", "1"}
+  });
+}
 
 std::string worksheet_t::write_tab_color() const
 {
@@ -3345,32 +3304,37 @@ std::string worksheet_t::write_tab_color() const
   });
 }
 
-/// STATIC void _worksheet_write_outline_pr(lxw_worksheet *self)
-/// {
-///     struct xml_attribute_list attributes;
-///     struct xml_attribute *attribute;
+std::string worksheet_t::write_outline_pr() const
+{
+  if(!outline_changed_)
+  {
+    return "";
+  }
 
-///     if (!self->outline_changed)
-///         return;
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-///     LXW_INIT_ATTRIBUTES();
+  if(outline_style_)
+  {
+    attributes.emplace_back("applyStyles", "1");
+  }
 
-///     if (self->outline_style)
-///         LXW_PUSH_ATTRIBUTES_STR("applyStyles", "1");
+  if(!outline_below_)
+  {
+    attributes.emplace_back("summaryBelow", "0");
+  }
 
-///     if (!self->outline_below)
-///         LXW_PUSH_ATTRIBUTES_STR("summaryBelow", "0");
+  if(!outline_right_)
+  {
+    attributes.emplace_back("summaryRight", "0");
+  }
 
-///     if (!self->outline_right)
-///         LXW_PUSH_ATTRIBUTES_STR("summaryRight", "0");
+  if(!outline_on_)
+  {
+    attributes.emplace_back("showOutlineSymbols", "0");
+  }
 
-///     if (!self->outline_on)
-///         LXW_PUSH_ATTRIBUTES_STR("showOutlineSymbols", "0");
-
-///     lxw_xml_empty_tag(self->file, "outlinePr", &attributes);
-
-///     LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("outlinePr", attributes);
+}
 
 std::string worksheet_t::write_sheet_pr() const
 {
@@ -3396,8 +3360,8 @@ std::string worksheet_t::write_sheet_pr() const
   {
     std::string xml_data = xml_start_tag("sheetPr", attributes);
     xml_data += write_tab_color();
-    ///         _worksheet_write_outline_pr(self);
-    ///         _worksheet_write_page_set_up_pr(self);
+    xml_data += write_outline_pr();
+    xml_data += write_page_set_up_pr();
     xml_data += xml_end_tag("sheetPr");
 
     return xml_data;
@@ -5948,30 +5912,18 @@ void worksheet_t::write_dynamic_formula(row_num_t row_num, col_num_t col_num, co
   store_array_formula(row_num, col_num, row_num, col_num, formula, format, 0, true);
 }
 
-/// lxw_error
-/// worksheet_write_dynamic_formula_num(lxw_worksheet *self,
-///                                     row_num_t row,
-///                                     col_num_t col,
-///                                     const char *formula,
-///                                     lxw_format *format, double result)
-/// {
-///     return _store_array_formula(self, row, col, row, col, formula, format,
-///                                 result, LXW_TRUE);
-/// }
+void worksheet_t::write_dynamic_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                                            const format_t* format, double result)
+{
+  store_array_formula(row_num, col_num, row_num, col_num, formula, format, result, true);
+}
 
-/// lxw_error
-/// worksheet_write_dynamic_array_formula_num(lxw_worksheet *self,
-///                                           row_num_t first_row,
-///                                           col_num_t first_col,
-///                                           row_num_t last_row,
-///                                           col_num_t last_col,
-///                                           const char *formula,
-///                                           lxw_format *format, double result)
-/// {
-///     return _store_array_formula(self, first_row, first_col,
-///                                 last_row, last_col, formula, format, result,
-///                                 LXW_TRUE);
-/// }
+void worksheet_t::write_dynamic_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row,
+                                                  col_num_t last_col, const std::string& formula,
+                                                  const format_t* format, double result)
+{
+  store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, true);
+}
 
 void worksheet_t::write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                               col_num_t last_col, const std::string& formula)
@@ -5999,24 +5951,19 @@ void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format
   insert_cell(row_num, col_num, cell);
 }
 
-/// lxw_error
-/// worksheet_write_boolean(lxw_worksheet *self,
-///                         row_num_t row_num, col_num_t col_num,
-///                         int value, lxw_format *format)
-/// {
-///     cell_t *cell;
-///     lxw_error err;
-///
-///     err = _check_dimensions(self, row_num, col_num, LXW_FALSE, LXW_FALSE);
-///     if (err)
-///         return err;
-///
-///     cell = _new_boolean_cell(row_num, col_num, value, format);
-///
-///     _insert_cell(self, row_num, col_num, cell);
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::write_boolean(row_num_t row_num, col_num_t col_num, bool value)
+{
+  write_boolean(row_num, col_num, value, nullptr);
+}
+
+void worksheet_t::write_boolean(row_num_t row_num, col_num_t col_num, bool value, const format_t* format)
+{
+  check_dimensions(row_num, col_num, false, false);
+
+  cell_t cell = new_boolean_cell(row_num, col_num, value, format);
+
+  insert_cell(row_num, col_num, cell);
+}
 
 void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
                                  const std::chrono::system_clock::time_point& datetime)
@@ -6028,7 +5975,7 @@ void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
                                  const std::chrono::system_clock::time_point& datetime, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
-  const double excel_date = datetime_to_excel_date_with_epoch(datetime, false /* TODO self->use_1904_epoch*/);
+  const double excel_date = datetime_to_excel_date_with_epoch(datetime, use_1904_epoch_);
   const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
   insert_cell(row_num, col_num, cell);
 }
@@ -6041,7 +5988,7 @@ void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t u
 void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
-  const double excel_date = unixtime_to_excel_date_with_epoch(unixtime, false /* TODO self->use_1904_epoch*/);
+  const double excel_date = unixtime_to_excel_date_with_epoch(unixtime, use_1904_epoch_);
   const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
   insert_cell(row_num, col_num, cell);
 }
@@ -6254,7 +6201,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
     else
     {
       // Write a default font format. Except for the first fragment.
-      if(i > 1)
+      if(i > 0)
       {
         rich_string += style.write_rich_font(&default_format);
       }
@@ -6320,6 +6267,11 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
 void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width)
 {
   set_column(first_col, last_col, width, nullptr, std::nullopt);
+}
+
+void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format)
+{
+  set_column(first_col, last_col, width, format, std::nullopt);
 }
 
 void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format,
@@ -6464,34 +6416,32 @@ void worksheet_t::set_row(row_num_t row_num, double height, const format_t* form
   }
 }
 
-/// lxw_error
-/// worksheet_set_row(lxw_worksheet *self,
-///                   row_num_t row_num, double height, lxw_format *format)
-/// {
-///     return worksheet_set_row_opt(self, row_num, height, format, NULL);
-/// }
+void worksheet_t::set_row(row_num_t row_num, double height, const format_t* format)
+{
+  set_row(row_num, height, format, std::nullopt);
+}
 
-/// lxw_error
-/// worksheet_set_row_pixels(lxw_worksheet *self,
-///                          row_num_t row_num, uint32_t pixels,
-///                          lxw_format *format)
-/// {
-///     double height = _pixels_to_height(pixels);
-///
-///     return worksheet_set_row_opt(self, row_num, height, format, NULL);
-/// }
+void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels)
+{
+  double height = pixels_to_height(pixels);
 
-/// lxw_error
-/// worksheet_set_row_pixels_opt(lxw_worksheet *self,
-///                              row_num_t row_num,
-///                              uint32_t pixels,
-///                              lxw_format *format,
-///                              lxw_row_col_options *user_options)
-/// {
-///     double height = _pixels_to_height(pixels);
-///
-///     return worksheet_set_row_opt(self, row_num, height, format, user_options);
-/// }
+  set_row(row_num, height, nullptr, std::nullopt);
+}
+
+void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format)
+{
+  double height = pixels_to_height(pixels);
+
+  set_row(row_num, height, format, std::nullopt);
+}
+
+void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format,
+                                 const std::optional<row_col_options_t>& options)
+{
+  double height = pixels_to_height(pixels);
+
+  set_row(row_num, height, format, options);
+}
 
 void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                               const std::string& str, const format_t* format)
@@ -6833,26 +6783,24 @@ void worksheet_t::select()
   hidden_ = false;
 }
 
-/// void
-/// worksheet_activate(lxw_worksheet *self)
-/// {
-///     self->selected = LXW_TRUE;
-///     self->active = LXW_TRUE;
-///
-///     /* Active worksheet can't be hidden. */
-///     self->hidden = LXW_FALSE;
-///
-///     *self->active_sheet = self->index;
-/// }
+void worksheet_t::activate()
+{
+  selected_ = true;
+  active_   = true;
 
-/// void
-/// worksheet_set_first_sheet(lxw_worksheet *self)
-/// {
-///     /* Active worksheet can't be hidden. */
-///     self->hidden = LXW_FALSE;
-///
-///     *self->first_sheet = self->index;
-/// }
+  // Active worksheet can't be hidden.
+  hidden_ = false;
+
+  *active_sheet_ = index_;
+}
+
+void worksheet_t::set_first_sheet()
+{
+  // Active worksheet can't be hidden.
+  hidden_ = false;
+
+  *first_sheet_ = index_;
+}
 
 void worksheet_t::hide()
 {
@@ -6923,14 +6871,15 @@ void worksheet_t::set_selection(row_num_t first_row, col_num_t first_col, row_nu
   selections_.push_back(selection);
 }
 
-/// void
-/// worksheet_set_top_left_cell(lxw_worksheet *self, row_num_t row, col_num_t col)
-/// {
-///     if (row == 0 && col == 0)
-///         return;
-///
-///     lxw_rowcol_to_cell(self->top_left_cell, row, col);
-/// }
+void worksheet_t::set_top_left_cell(row_num_t row_num, col_num_t col_num)
+{
+  if(row_num == 0 && col_num == 0)
+  {
+    return;
+  }
+
+  top_left_cell_ = rowcol_to_cell(row_num, col_num);
+}
 
 void worksheet_t::freeze_panes(row_num_t first_row, col_num_t first_col, row_num_t top_row, col_num_t left_col,
                                bool type)
@@ -6973,45 +6922,40 @@ void worksheet_t::split_panes(double y_split, double x_split)
   split_panes(y_split, x_split, 0, 0);
 }
 
-/// void
-/// worksheet_set_portrait(lxw_worksheet *self)
-/// {
-///     self->orientation = LXW_PORTRAIT;
-///     self->page_setup_changed = LXW_TRUE;
-/// }
+void worksheet_t::set_portrait()
+{
+  orientation_        = drawing_orientation_t::PORTRAIT;
+  page_setup_changed_ = true;
+}
 
-/// void
-/// worksheet_set_landscape(lxw_worksheet *self)
-/// {
-///     self->orientation = LXW_LANDSCAPE;
-///     self->page_setup_changed = LXW_TRUE;
-/// }
+void worksheet_t::set_landscape()
+{
+  orientation_        = drawing_orientation_t::LANDSCAPE;
+  page_setup_changed_ = true;
+}
 
-/// void
-/// worksheet_set_page_view(lxw_worksheet *self)
-/// {
-///     self->page_view = LXW_TRUE;
-/// }
+void worksheet_t::set_page_view()
+{
+  page_view_ = true;
+}
 
-/// void
-/// worksheet_set_paper(lxw_worksheet *self, uint8_t paper_size)
-/// {
-///     if (paper_size > 118) {
-///         LXW_WARN_FORMAT1("worksheet_set_paper(): invalid paper size: %d. "
-///                          "Valid range is 0-118", paper_size);
-///         return;
-///     }
-///
-///     self->paper_size = paper_size;
-///     self->page_setup_changed = LXW_TRUE;
-/// }
+void worksheet_t::set_paper(uint8_t paper_size)
+{
+  if(paper_size > 118)
+  {
+    throw xwpp_out_of_range_t(
+        std::format("worksheet_t::set_paper(): invalid paper size: {}. Valid range is 0-118", paper_size));
+  }
 
-/// void
-/// worksheet_print_across(lxw_worksheet *self)
-/// {
-///     self->page_order = LXW_PRINT_ACROSS;
-///     self->page_setup_changed = LXW_TRUE;
-/// }
+  paper_size_         = paper_size;
+  page_setup_changed_ = true;
+}
+
+void worksheet_t::print_across()
+{
+  page_order_         = PRINT_ACROSS;
+  page_setup_changed_ = true;
+}
 
 void worksheet_t::set_margins(double left, double right, double top, double bottom)
 {
@@ -7187,168 +7131,132 @@ void worksheet_t::set_footer(const std::string& str)
   set_footer(str, std::nullopt);
 }
 
-/// void
-/// worksheet_gridlines(lxw_worksheet *self, uint8_t option)
-/// {
-///     if (option == LXW_HIDE_ALL_GRIDLINES) {
-///         self->print_gridlines = 0;
-///         self->screen_gridlines = 0;
-///     }
-///
-///     if (option & LXW_SHOW_SCREEN_GRIDLINES) {
-///         self->screen_gridlines = 1;
-///     }
-///
-///     if (option & LXW_SHOW_PRINT_GRIDLINES) {
-///         self->print_gridlines = 1;
-///         self->print_options_changed = 1;
-///     }
-/// }
+void worksheet_t::gridlines(gridlines_t option)
+{
+  if(option == gridlines_t::HIDE_ALL_GRIDLINES)
+  {
+    print_gridlines_  = false;
+    screen_gridlines_ = false;
+  }
 
-/// void
-/// worksheet_center_horizontally(lxw_worksheet *self)
-/// {
-///     self->print_options_changed = 1;
-///     self->hcenter = 1;
-/// }
+  if(option & gridlines_t::SHOW_SCREEN_GRIDLINES)
+  {
+    screen_gridlines_ = true;
+  }
 
-/// void
-/// worksheet_center_vertically(lxw_worksheet *self)
-/// {
-///     self->print_options_changed = 1;
-///     self->vcenter = 1;
-/// }
+  if(option & gridlines_t::SHOW_PRINT_GRIDLINES)
+  {
+    print_gridlines_       = true;
+    print_options_changed_ = true;
+  }
+}
 
-/// void
-/// worksheet_print_row_col_headers(lxw_worksheet *self)
-/// {
-///     self->print_headers = 1;
-///     self->print_options_changed = 1;
-/// }
+void worksheet_t::center_horizontally()
+{
+  print_options_changed_ = true;
+  hcenter_               = true;
+}
 
-/// lxw_error
-/// worksheet_repeat_rows(lxw_worksheet *self, row_num_t first_row,
-///                       row_num_t last_row)
-/// {
-///     row_num_t tmp_row;
-///     lxw_error err;
-///
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///
-///     err = _check_dimensions(self, last_row, 0, LXW_IGNORE, LXW_IGNORE);
-///     if (err)
-///         return err;
-///
-///     self->repeat_rows.in_use = LXW_TRUE;
-///     self->repeat_rows.first_row = first_row;
-///     self->repeat_rows.last_row = last_row;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::center_vertically()
+{
+  print_options_changed_ = true;
+  vcenter_               = true;
+}
 
-/// lxw_error
-/// worksheet_repeat_columns(lxw_worksheet *self, col_num_t first_col,
-///                          col_num_t last_col)
-/// {
-///     col_num_t tmp_col;
-///     lxw_error err;
-///
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     err = _check_dimensions(self, last_col, 0, LXW_IGNORE, LXW_IGNORE);
-///     if (err)
-///         return err;
-///
-///     self->repeat_cols.in_use = LXW_TRUE;
-///     self->repeat_cols.first_col = first_col;
-///     self->repeat_cols.last_col = last_col;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::print_row_col_headers()
+{
+  print_headers_         = true;
+  print_options_changed_ = true;
+}
 
-/// lxw_error
-/// worksheet_print_area(lxw_worksheet *self, row_num_t first_row,
-///                      col_num_t first_col, row_num_t last_row,
-///                      col_num_t last_col)
-/// {
-///     row_num_t tmp_row;
-///     col_num_t tmp_col;
-///     lxw_error err;
-///
-///     if (first_row > last_row) {
-///         tmp_row = last_row;
-///         last_row = first_row;
-///         first_row = tmp_row;
-///     }
-///
-///     if (first_col > last_col) {
-///         tmp_col = last_col;
-///         last_col = first_col;
-///         first_col = tmp_col;
-///     }
-///
-///     err = _check_dimensions(self, last_row, last_col, LXW_IGNORE, LXW_IGNORE);
-///     if (err)
-///         return err;
-///
-///     /* Ignore max area since it is the same as no print area in Excel. */
-///     if (first_row == 0 && first_col == 0 && last_row == LXW_ROW_MAX - 1
-///         && last_col == LXW_COL_MAX - 1) {
-///         return LXW_NO_ERROR;
-///     }
-///
-///     self->print_area.in_use = LXW_TRUE;
-///     self->print_area.first_row = first_row;
-///     self->print_area.last_row = last_row;
-///     self->print_area.first_col = first_col;
-///     self->print_area.last_col = last_col;
-///
-///     return LXW_NO_ERROR;
-/// }
+void worksheet_t::repeat_rows(row_num_t first_row, row_num_t last_row)
+{
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
 
-/// void
-/// worksheet_fit_to_pages(lxw_worksheet *self, uint16_t width, uint16_t height)
-/// {
-///     self->fit_page = 1;
-///     self->fit_width = width;
-///     self->fit_height = height;
-///     self->page_setup_changed = 1;
-/// }
+  check_dimensions(last_row, 0, true, true);
 
-/// void
-/// worksheet_set_start_page(lxw_worksheet *self, uint16_t start_page)
-/// {
-///     self->page_start = start_page;
-/// }
+  repeat_rows_.in_use_    = true;
+  repeat_rows_.first_row_ = first_row;
+  repeat_rows_.last_row_  = last_row;
+}
 
-/// void
-/// worksheet_set_print_scale(lxw_worksheet *self, uint16_t scale)
-/// {
-///     /* Confine the scale to Excel"s range */
-///     if (scale < 10 || scale > 400)
-///         return;
-///
-///     /* Turn off "fit to page" option. */
-///     self->fit_page = LXW_FALSE;
-///
-///     self->print_scale = scale;
-///     self->page_setup_changed = LXW_TRUE;
-/// }
+void worksheet_t::repeat_columns(col_num_t first_col, col_num_t last_col)
+{
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
 
-/// void
-/// worksheet_print_black_and_white(lxw_worksheet *self)
-/// {
-///     self->black_white = LXW_TRUE;
-///     self->page_setup_changed = LXW_TRUE;
-/// }
+  check_dimensions(last_col, 0, true, true);
+
+  repeat_cols_.in_use_    = true;
+  repeat_cols_.first_col_ = first_col;
+  repeat_cols_.last_col_  = last_col;
+}
+
+void worksheet_t::print_area(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  // Swap last row/col with first row/col as necessary
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+
+  check_dimensions(last_row, last_col, true, true);
+
+  // Ignore max area since it is the same as no print area in Excel.
+  if(first_row == 0 && first_col == 0 && last_row == worksheet_t::ROW_MAX - 1 && last_col == worksheet_t::COL_MAX - 1)
+  {
+    return;
+  }
+
+  print_area_.in_use_    = true;
+  print_area_.first_row_ = first_row;
+  print_area_.last_row_  = last_row;
+  print_area_.first_col_ = first_col;
+  print_area_.last_col_  = last_col;
+}
+
+void worksheet_t::fit_to_pages(uint16_t width, uint16_t height)
+{
+  fit_page_           = true;
+  fit_width_          = width;
+  fit_height_         = height;
+  page_setup_changed_ = true;
+}
+
+void worksheet_t::set_start_page(uint16_t start_page)
+{
+  page_start_ = start_page;
+}
+
+void worksheet_t::set_print_scale(uint16_t scale)
+{
+  // Confine the scale to Excel"s range
+  if(scale < 10 || scale > 400)
+  {
+    return;
+  }
+
+  // Turn off "fit to page" option.
+  fit_page_ = false;
+
+  print_scale_        = scale;
+  page_setup_changed_ = true;
+}
+
+void worksheet_t::print_black_and_white()
+{
+  black_white_        = true;
+  page_setup_changed_ = true;
+}
 
 void worksheet_t::set_h_pagebreaks(const std::vector<row_num_t>& breaks)
 {
@@ -7451,19 +7359,15 @@ void worksheet_t::protect(const std::string& password, std::optional<protection_
   protection_.is_configured_ = true;
 }
 
-/// void
-/// worksheet_outline_settings(lxw_worksheet *self,
-///                            uint8_t visible,
-///                            uint8_t symbols_below,
-///                            uint8_t symbols_right, uint8_t auto_style)
-/// {
-///     self->outline_on = visible;
-///     self->outline_below = symbols_below;
-///     self->outline_right = symbols_right;
-///     self->outline_style = auto_style;
-///
-///     self->outline_changed = LXW_TRUE;
-/// }
+void worksheet_t::outline_settings(bool visible, bool symbols_below, bool symbols_right, bool auto_style)
+{
+  outline_on_    = visible;
+  outline_below_ = symbols_below;
+  outline_right_ = symbols_right;
+  outline_style_ = auto_style;
+
+  outline_changed_ = true;
+}
 
 void worksheet_t::set_default_row(double height, bool hide_unused_rows)
 {
@@ -7505,8 +7409,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   }
 
   // Use the filename as the default description, like Excel.
-  // TODO Use basename of file, not fullname
-  std::string description = filename;
+  std::string description = std::filesystem::path(filename).filename();
 
   // Create a new object to hold the image properties.
   object_properties_t object_props;
@@ -7522,9 +7425,9 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
     object_props.object_position_ = user_options->object_position_;
     object_props.decorative_      = user_options->decorative_;
 
-    if(!user_options->description_.empty())
+    if(user_options->description_)
     {
-      description = user_options->description_;
+      description = user_options->description_.value();
     }
   }
 
@@ -7574,8 +7477,11 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
     object_props.url_             = user_options->url_;
     object_props.tip_             = user_options->tip_;
     object_props.object_position_ = user_options->object_position_;
-    object_props.description_     = user_options->description_;
-    object_props.decorative_      = user_options->decorative_;
+    if(user_options->description_)
+    {
+      object_props.description_ = user_options->description_.value();
+    }
+    object_props.decorative_ = user_options->decorative_;
   }
 
   // Copy other options or set defaults.
@@ -7650,9 +7556,9 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
     }
 
     object_props.decorative_ = options->decorative_;
-    if(!options->description_.empty())
+    if(options->description_)
     {
-      object_props.description_ = options->description_;
+      object_props.description_ = options->description_.value();
     }
   }
   // Copy other options or set defaults.
@@ -7716,9 +7622,9 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
     }
 
     object_props.decorative_ = options->decorative_;
-    if(!options->description_.empty())
+    if(options->description_)
     {
-      object_props.description_ = options->description_;
+      object_props.description_ = options->description_.value();
     }
   }
   // Copy other options or set defaults.
@@ -7773,71 +7679,25 @@ void worksheet_t::set_background(const std::string& filename)
   has_background_image_ = true;
 }
 
-/// lxw_error
-/// worksheet_set_background_buffer(lxw_worksheet *self,
-///                                 const unsigned char *image_buffer,
-///                                 size_t image_size)
-/// {
-///     FILE *image_stream;
-///     lxw_object_properties *object_props;
-///
-///     if (!image_size) {
-///         LXW_WARN("worksheet_set_background(): " "size must be non-zero.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
-///
-///     /* Write the image buffer to a file (preferably in memory) so we can read
-///      * the dimensions like an ordinary file. */
-///     image_stream = lxw_tmpfile(self->tmpdir);
-///
-///     if (!image_stream)
-///         return LXW_ERROR_CREATING_TMPFILE;
-///
-///     if (fwrite(image_buffer, 1, image_size, image_stream) != image_size) {
-///         fclose(image_stream);
-///         return LXW_ERROR_CREATING_TMPFILE;
-///     }
-///
-///     rewind(image_stream);
-///
-///     /* Create a new object to hold the image properties. */
-///     object_props = calloc(1, sizeof(lxw_object_properties));
-///     if (!object_props) {
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///
-///     /* Store the image data in the properties structure. */
-///     object_props->image_buffer = calloc(1, image_size);
-///     if (!object_props->image_buffer) {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_MEMORY_MALLOC_FAILED;
-///     }
-///     else {
-///         memcpy(object_props->image_buffer, image_buffer, image_size);
-///         object_props->image_buffer_size = image_size;
-///         object_props->is_image_buffer = LXW_TRUE;
-///     }
-///
-///     /* Copy other options or set defaults. */
-///     object_props->filename = lxw_strdup("image_buffer");
-///     object_props->stream = image_stream;
-///     object_props->is_background = LXW_TRUE;
-///
-///     if (_get_image_properties(object_props) == LXW_NO_ERROR) {
-///         _free_object_properties(self->background_image);
-///         self->background_image = object_props;
-///         self->has_background_image = LXW_TRUE;
-///         fclose(image_stream);
-///         return LXW_NO_ERROR;
-///     }
-///     else {
-///         _free_object_properties(object_props);
-///         fclose(image_stream);
-///         return LXW_ERROR_IMAGE_DIMENSIONS;
-///     }
-/// }
+void worksheet_t::set_background_buffer(const std::vector<unsigned char>& image_buffer)
+{
+  if(image_buffer.empty())
+  {
+    throw xwpp_exception_t("worksheet_t::set_background_buffer(): image must not be empty");
+  }
+
+  // Create a new object to hold the image properties.
+  object_properties_t object_props;
+  object_props.image_buffer_ = image_buffer;
+
+  // Copy other options or set defaults.
+  object_props.filename_      = "image_buffer";
+  object_props.is_background_ = true;
+
+  get_image_properties(object_props);
+  background_image_     = object_props;
+  has_background_image_ = true;
+}
 
 void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
                                const std::optional<chart_options_t>& user_options)
@@ -8271,6 +8131,11 @@ void worksheet_t::conditional_format_cell(row_num_t row_num, col_num_t col_num,
   conditional_format_range(row_num, col_num, row_num, col_num, conditional_format);
 }
 
+void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num)
+{
+  insert_button(row_num, col_num, std::nullopt);
+}
+
 void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options)
 {
   check_dimensions(row_num, col_num, true, true);
@@ -8300,11 +8165,10 @@ void worksheet_t::set_vba_name(const std::string& name)
   vba_codename_ = name;
 }
 
-/// void
-/// worksheet_set_comments_author(lxw_worksheet *self, const char *author)
-/// {
-///     self->comment_author = lxw_strdup(author);
-/// }
+void worksheet_t::set_comments_author(const std::string& author)
+{
+  comment_author_ = author;
+}
 
 void worksheet_t::show_comments()
 {

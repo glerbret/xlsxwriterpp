@@ -83,19 +83,20 @@ const double DEF_ROW_HEIGHT_PIXELS = 20;
 const double DEF_ROW_HEIGHT = 15.0;
 
 /** Gridline options using in `worksheet_gridlines()`. */
-/// enum lxw_gridlines {
-/** Hide screen and print gridlines. */
-///     LXW_HIDE_ALL_GRIDLINES = 0,
+enum gridlines_t
+{
+  /** Hide screen and print gridlines. */
+  HIDE_ALL_GRIDLINES = 0,
 
-/** Show screen gridlines. */
-///     LXW_SHOW_SCREEN_GRIDLINES,
+  /** Show screen gridlines. */
+  SHOW_SCREEN_GRIDLINES = 1,
 
-/** Show print gridlines. */
-///     LXW_SHOW_PRINT_GRIDLINES,
+  /** Show print gridlines. */
+  SHOW_PRINT_GRIDLINES = 2,
 
-/** Show screen and print gridlines. */
-///     LXW_SHOW_ALL_GRIDLINES
-/// };
+  /** Show screen and print gridlines. */
+  SHOW_ALL_GRIDLINES = 3,
+};
 
 /** Data validation property values. */
 enum class validation_boolean_t
@@ -947,25 +948,28 @@ struct merged_range_t
   col_num_t last_col_;
 };
 
-/// typedef struct lxw_repeat_rows {
-///     uint8_t in_use;
-///     row_num_t first_row;
-///     row_num_t last_row;
-/// } lxw_repeat_rows;
+struct repeat_rows_t
+{
+  bool in_use_         = false;
+  row_num_t first_row_ = 0;
+  row_num_t last_row_  = 0;
+};
 
-/// typedef struct lxw_repeat_cols {
-///     uint8_t in_use;
-///     col_num_t first_col;
-///     col_num_t last_col;
-/// } lxw_repeat_cols;
+struct repeat_cols_t
+{
+  bool in_use_         = false;
+  col_num_t first_col_ = 0;
+  col_num_t last_col_  = 0;
+};
 
-/// typedef struct lxw_print_area {
-///     uint8_t in_use;
-///     row_num_t first_row;
-///     row_num_t last_row;
-///     col_num_t first_col;
-///     col_num_t last_col;
-/// } lxw_print_area;
+struct print_area_t
+{
+  bool in_use_         = false;
+  row_num_t first_row_ = 0;
+  row_num_t last_row_  = 0;
+  col_num_t first_col_ = 0;
+  col_num_t last_col_  = 0;
+};
 
 struct autofilter_t
 {
@@ -1789,7 +1793,7 @@ struct image_options_t
    *  used to provide a text description of the image to help
    *  accessibility. Defaults to the image filename as in Excel. Set to ""
    *  to ignore the description field. */
-  std::string description_;
+  std::optional<std::string> description_;
 
   /** Optional parameter to help accessibility. It is used to mark the image
    *  as decorative, and thus uninformative, for automated screen
@@ -1862,11 +1866,10 @@ struct object_properties_t
   std::string url_;
   std::string tip_;
   object_position_t object_position_ = object_position_t::DEFAULT;
-  ///     FILE *stream;
   image_types_t image_type_;
   std::vector<unsigned char> image_buffer_;
-  double width_;
-  double height_;
+  double width_  = 0.;
+  double height_ = 0.;
   std::string extension_;
   double x_dpi_;
   double y_dpi_;
@@ -2149,8 +2152,8 @@ struct worksheet_init_data_t
   std::string quoted_name_;
   ///     const char *tmpdir;
   format_t* default_url_format_;
-  ///     uint16_t max_url_length;
-  ///  TODO   uint8_t use_1904_epoch;
+  uint16_t max_url_length_;
+  bool use_1904_epoch_ = false;
 };
 
 /**
@@ -2218,6 +2221,107 @@ public:
   void set_column(col_num_t first_col, col_num_t last_col, double width);
   void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format,
                   const std::optional<row_col_options_t>& options);
+
+  /**
+   * @brief Set the properties for one or more columns of cells.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_col The zero indexed first column.
+   * @param last_col  The zero indexed last column.
+   * @param width     The width of the column(s).
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_column()` function can be used to change the default
+   * properties of a single column or a range of columns:
+   *
+   * @code
+   *     // Width of columns B:D set to 30.
+   *     worksheet_set_column(worksheet, 1, 3, 30, NULL);
+   *
+   * @endcode
+   *
+   * If `%worksheet_set_column()` is applied to a single column the value of
+   * `first_col` and `last_col` should be the same:
+   *
+   * @code
+   *     // Width of column B set to 30.
+   *     worksheet_set_column(worksheet, 1, 1, 30, NULL);
+   *
+   * @endcode
+   *
+   * It is also possible, and generally clearer, to specify a column range using
+   * the form of `COLS()` macro:
+   *
+   * @code
+   *     worksheet_set_column(worksheet, 4, 4, 20, NULL);
+   *     worksheet_set_column(worksheet, 5, 8, 30, NULL);
+   *
+   *     // Same as the examples above but clearer.
+   *     worksheet_set_column(worksheet, COLS("E:E"), 20, NULL);
+   *     worksheet_set_column(worksheet, COLS("F:H"), 30, NULL);
+   *
+   * @endcode
+   *
+   * The `width` parameter sets the column width in the same units used by Excel
+   * which is: the number of characters in the default font. The default width
+   * is 8.43 in the default font of Calibri 11. The actual relationship between
+   * a string width and a column width in Excel is complex. See the
+   * [following explanation of column
+   * widths](https://support.microsoft.com/en-us/kb/214123) from the Microsoft
+   * support documentation for more details. To set the width in pixels use the
+   * `worksheet_set_column_pixels()` function.
+   *
+   * There is no way to specify "AutoFit" for a column in the Excel file
+   * format. This feature is only available at runtime from within Excel. It is
+   * possible to simulate "AutoFit" in your application by tracking the maximum
+   * width of the data in the column as your write it and then adjusting the
+   * column width at the end.
+   *
+   * As usual the @ref format.h `format` parameter is optional. If you wish to
+   * set the format without changing the width you can pass a default column
+   * width of #LXW_DEF_COL_WIDTH = 8.43:
+   *
+   * @code
+   *     lxw_format *bold = workbook_add_format(workbook);
+   *     format_set_bold(bold);
+   *
+   *     // Set the first column to bold.
+   *     worksheet_set_column(worksheet, 0, 0, LXW_DEF_COL_WIDTH, bold);
+   * @endcode
+   *
+   * The `format` parameter will be applied to any cells in the column that
+   * don't have a format. For example:
+   *
+   * @code
+   *     // Column 1 has format1.
+   *     worksheet_set_column(worksheet, COLS("A:A"), 8.43, format1);
+   *
+   *     // Cell A1 in column 1 defaults to format1.
+   *     worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
+   *
+   *     // Cell A2 in column 1 keeps format2.
+   *     worksheet_write_string(worksheet, 1, 0, "Hello", format2);
+   * @endcode
+   *
+   * As in Excel a row format takes precedence over a default column format:
+   *
+   * @code
+   *     // Row 1 has format1.
+   *     worksheet_set_row(worksheet, 0, 15, format1);
+   *
+   *     // Col 1 has format2.
+   *     worksheet_set_column(worksheet, COLS("A:A"), 8.43, format2);
+   *
+   *     // Cell A1 defaults to format1, the row format.
+   *     worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
+   *
+   *    // Cell A2 keeps format2, the column format.
+   *     worksheet_write_string(worksheet, 1, 0, "Hello", NULL);
+   * @endcode
+   */
+  void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format);
 
   /**
    * @brief Set the properties for one or more columns of cells, with the width
@@ -2335,9 +2439,68 @@ public:
    *
    */
   // TODO Add API with only format or option
-  void set_row(row_num_t row, double height);
-  void set_row(row_num_t row, double height, const format_t* format,
+  void set_row(row_num_t row_num, double height);
+  void set_row(row_num_t row_num, double height, const format_t* format,
                const std::optional<row_col_options_t>& user_options);
+
+  /**
+   * @brief Set the properties for a row of cells.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param height    The row height, in character units.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_row()` function is used to change the default
+   * properties of a row. The most common use for this function is to change the
+   * height of a row:
+   *
+   * @code
+   *     // Set the height of Row 1 to 20.
+   *     worksheet_set_row(worksheet, 0, 20, NULL);
+   * @endcode
+   *
+   * The height is specified in character units. To specify the height in pixels
+   * use the `worksheet_set_row_pixels()` function.
+   *
+   * The other common use for `%worksheet_set_row()` is to set the a @ref
+   * format.h "Format" for all cells in the row:
+   *
+   * @code
+   *     lxw_format *bold = workbook_add_format(workbook);
+   *     format_set_bold(bold);
+   *
+   *     // Set the header row to bold.
+   *     worksheet_set_row(worksheet, 0, 15, bold);
+   * @endcode
+   *
+   * If you wish to set the format of a row without changing the height you can
+   * pass the default row height of #LXW_DEF_ROW_HEIGHT = 15:
+   *
+   * @code
+   *     worksheet_set_row(worksheet, 0, LXW_DEF_ROW_HEIGHT, format);
+   *     worksheet_set_row(worksheet, 0, 15, format); // Same as above.
+   * @endcode
+   *
+   * The `format` parameter will be applied to any cells in the row that don't
+   * have a format. As with Excel the row format is overridden by an explicit
+   * cell format. For example:
+   *
+   * @code
+   *     // Row 1 has format1.
+   *     worksheet_set_row(worksheet, 0, 15, format1);
+   *
+   *     // Cell A1 in Row 1 defaults to format1.
+   *     worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
+   *
+   *     // Cell B1 in Row 1 keeps format2.
+   *     worksheet_write_string(worksheet, 0, 1, "Hello", format2);
+   * @endcode
+   *
+   */
+  void set_row(row_num_t row_num, double height, const format_t* format);
 
   // TODO Use overload of write (don't use suffix like "_string")
   /**
@@ -3925,6 +4088,30 @@ public:
   void set_background(const std::string& filename);
 
   /**
+   * @brief Set the background image for a worksheet, from a buffer.
+   *
+   * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
+   * @param image_buffer Pointer to an array of bytes that holds the image data.
+   * @param image_size   The size of the array of bytes.
+   *
+   * @return A #lxw_error code.
+   *
+   * This function can be used to insert a background image into a worksheet
+   * from a memory buffer:
+   *
+   * @code
+   *     worksheet_set_background_buffer(worksheet, image_buffer, image_size);
+   * @endcode
+   *
+   * The buffer should be a pointer to an array of unsigned char data with a
+   * specified size.
+   *
+   * See `worksheet_set_background()` for more details.
+   *
+   */
+  void set_background_buffer(const std::vector<unsigned char>& image_buffer);
+
+  /**
    * @brief Set the autofilter area in the worksheet.
    *
    * @param worksheet Pointer to a lxw_worksheet instance to be updated.
@@ -4568,6 +4755,7 @@ public:
    *
    * See also @ref working_with_macros
    */
+  void insert_button(row_num_t row_num, col_num_t col_num);
   void insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options);
 
   /**
@@ -4804,6 +4992,596 @@ public:
                  const std::optional<table_options_t>& options);
   void add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
+  /**
+   * @brief Write a formatted boolean worksheet cell.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param col       The zero indexed column number.
+   * @param value     The boolean value to write to the cell.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * Write an Excel boolean to the cell specified by `row` and `column`:
+   *
+   * @code
+   *     worksheet_write_boolean(worksheet, 2, 2, 0, my_format);
+   * @endcode
+   *
+   */
+  void write_boolean(row_num_t row_num, col_num_t col_num, bool value);
+  void write_boolean(row_num_t row_num, col_num_t col_num, bool value, const format_t* format);
+
+  /**
+   * @brief Set the default author of the cell comments.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance.
+   * @param author    The name of the comment author.
+   *
+   * This `%worksheet_set_comments_author()` function is used to set the
+   * default author of all cell comments:
+   *
+   * @code
+   *     worksheet_set_comments_author(worksheet, "Jane Gloriana Villanueva")
+   * @endcode
+   *
+   * Individual authors can be set using the `author` option of the
+   * #comment_options_t struct and the `worksheet_write_comment_opt()`
+   * function (see above and @ref ww_comments_author).
+   */
+  void set_comments_author(const std::string& author);
+
+  /**
+   * @brief Make a worksheet the active, i.e., visible worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * The `%worksheet_activate()` function is used to specify which worksheet is
+   * initially visible in a multi-sheet workbook:
+   *
+   * @code
+   *     lxw_worksheet *worksheet1 = workbook_add_worksheet(workbook, NULL);
+   *     lxw_worksheet *worksheet2 = workbook_add_worksheet(workbook, NULL);
+   *     lxw_worksheet *worksheet3 = workbook_add_worksheet(workbook, NULL);
+   *
+   *     worksheet_activate(worksheet3);
+   * @endcode
+   *
+   * @image html worksheet_activate.png
+   *
+   * More than one worksheet can be selected via the `worksheet_select()`
+   * function, see below, however only one worksheet can be active.
+   *
+   * The default active worksheet is the first worksheet.
+   *
+   */
+  void activate();
+
+  /**
+   * @brief Set current worksheet as the first visible sheet tab.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * The `worksheet_activate()` function determines which worksheet is initially
+   * selected.  However, if there are a large number of worksheets the selected
+   * worksheet may not appear on the screen. To avoid this you can select the
+   * leftmost visible worksheet tab using `%worksheet_set_first_sheet()`:
+   *
+   * @code
+   *     worksheet_set_first_sheet(worksheet19); // First visible worksheet tab.
+   *     worksheet_activate(worksheet20);        // First visible worksheet.
+   * @endcode
+   *
+   * This function is not required very often. The default value is the first
+   * worksheet.
+   */
+  void set_first_sheet();
+
+  /**
+   * @brief Set the paper type for printing.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param paper_type The Excel paper format type.
+   *
+   * This function is used to set the paper format for the printed output of a
+   * worksheet. The following paper styles are available:
+   *
+   *
+   *   Index    | Paper format            | Paper size
+   *   :------- | :---------------------- | :-------------------
+   *   0        | Printer default         | Printer default
+   *   1        | Letter                  | 8 1/2 x 11 in
+   *   2        | Letter Small            | 8 1/2 x 11 in
+   *   3        | Tabloid                 | 11 x 17 in
+   *   4        | Ledger                  | 17 x 11 in
+   *   5        | Legal                   | 8 1/2 x 14 in
+   *   6        | Statement               | 5 1/2 x 8 1/2 in
+   *   7        | Executive               | 7 1/4 x 10 1/2 in
+   *   8        | A3                      | 297 x 420 mm
+   *   9        | A4                      | 210 x 297 mm
+   *   10       | A4 Small                | 210 x 297 mm
+   *   11       | A5                      | 148 x 210 mm
+   *   12       | B4                      | 250 x 354 mm
+   *   13       | B5                      | 182 x 257 mm
+   *   14       | Folio                   | 8 1/2 x 13 in
+   *   15       | Quarto                  | 215 x 275 mm
+   *   16       | ---                     | 10x14 in
+   *   17       | ---                     | 11x17 in
+   *   18       | Note                    | 8 1/2 x 11 in
+   *   19       | Envelope 9              | 3 7/8 x 8 7/8
+   *   20       | Envelope 10             | 4 1/8 x 9 1/2
+   *   21       | Envelope 11             | 4 1/2 x 10 3/8
+   *   22       | Envelope 12             | 4 3/4 x 11
+   *   23       | Envelope 14             | 5 x 11 1/2
+   *   24       | C size sheet            | ---
+   *   25       | D size sheet            | ---
+   *   26       | E size sheet            | ---
+   *   27       | Envelope DL             | 110 x 220 mm
+   *   28       | Envelope C3             | 324 x 458 mm
+   *   29       | Envelope C4             | 229 x 324 mm
+   *   30       | Envelope C5             | 162 x 229 mm
+   *   31       | Envelope C6             | 114 x 162 mm
+   *   32       | Envelope C65            | 114 x 229 mm
+   *   33       | Envelope B4             | 250 x 353 mm
+   *   34       | Envelope B5             | 176 x 250 mm
+   *   35       | Envelope B6             | 176 x 125 mm
+   *   36       | Envelope                | 110 x 230 mm
+   *   37       | Monarch                 | 3.875 x 7.5 in
+   *   38       | Envelope                | 3 5/8 x 6 1/2 in
+   *   39       | Fanfold                 | 14 7/8 x 11 in
+   *   40       | German Std Fanfold      | 8 1/2 x 12 in
+   *   41       | German Legal Fanfold    | 8 1/2 x 13 in
+   *
+   * Note, it is likely that not all of these paper types will be available to
+   * the end user since it will depend on the paper formats that the user's
+   * printer supports. Therefore, it is best to stick to standard paper types:
+   *
+   * @code
+   *     worksheet_set_paper(worksheet1, 1);  // US Letter
+   *     worksheet_set_paper(worksheet2, 9);  // A4
+   * @endcode
+   *
+   * If you do not specify a paper type the worksheet will print using the
+   * printer's default paper style.
+   */
+  void set_paper(uint8_t paper_type);
+
+  /**
+   * @brief Set the page orientation as landscape.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * This function is used to set the orientation of a worksheet's printed page
+   * to landscape:
+   *
+   * @code
+   *     worksheet_set_landscape(worksheet);
+   * @endcode
+   */
+  void set_landscape();
+
+  /**
+   * @brief Set the page orientation as portrait.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * This function is used to set the orientation of a worksheet's printed page
+   * to portrait. The default worksheet orientation is portrait, so this
+   * function isn't generally required:
+   *
+   * @code
+   *     worksheet_set_portrait(worksheet);
+   * @endcode
+   */
+  void set_portrait();
+
+  void set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi);
+
+  /**
+   * @brief Set the print area for a worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row The first row of the range. (All zero indexed.)
+   * @param first_col The first column of the range.
+   * @param last_row  The last row of the range.
+   * @param last_col  The last col of the range.
+   *
+   * @return A #lxw_error code.
+   *
+   * This function is used to specify the area of the worksheet that will be
+   * printed. The RANGE() macro is often convenient for this.
+   *
+   * @code
+   *     worksheet_print_area(worksheet, 0, 0, 41, 10); // A1:K42.
+   *
+   *     // Same as:
+   *     worksheet_print_area(worksheet, RANGE("A1:K42"));
+   * @endcode
+   *
+   * In order to set a row or column range you must specify the entire range:
+   *
+   * @code
+   *     worksheet_print_area(worksheet, RANGE("A1:H1048576")); // Same as A:H.
+   * @endcode
+   */
+  void print_area(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+
+  /**
+   * @brief Fit the printed area to a specific number of pages both vertically
+   *        and horizontally.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param width     Number of pages horizontally.
+   * @param height    Number of pages vertically.
+   *
+   * The `%worksheet_fit_to_pages()` function is used to fit the printed area to
+   * a specific number of pages both vertically and horizontally. If the printed
+   * area exceeds the specified number of pages it will be scaled down to
+   * fit. This ensures that the printed area will always appear on the specified
+   * number of pages even if the page size or margins change:
+   *
+   * @code
+   *     worksheet_fit_to_pages(worksheet1, 1, 1); // Fit to 1x1 pages.
+   *     worksheet_fit_to_pages(worksheet2, 2, 1); // Fit to 2x1 pages.
+   *     worksheet_fit_to_pages(worksheet3, 1, 2); // Fit to 1x2 pages.
+   * @endcode
+   *
+   * The print area can be defined using the `worksheet_print_area()` function
+   * as described above.
+   *
+   * A common requirement is to fit the printed output to `n` pages wide but
+   * have the height be as long as necessary. To achieve this set the `height`
+   * to zero:
+   *
+   * @code
+   *     // 1 page wide and as long as necessary.
+   *     worksheet_fit_to_pages(worksheet, 1, 0);
+   * @endcode
+   *
+   * **Note**:
+   *
+   * - Although it is valid to use both `%worksheet_fit_to_pages()` and
+   *   `worksheet_set_print_scale()` on the same worksheet Excel only allows one
+   *   of these options to be active at a time. The last function call made will
+   *   set the active option.
+   *
+   * - The `%worksheet_fit_to_pages()` function will override any manual page
+   *   breaks that are defined in the worksheet.
+   *
+   * - When using `%worksheet_fit_to_pages()` it may also be required to set the
+   *   printer paper size using `worksheet_set_paper()` or else Excel will
+   *   default to "US Letter".
+   *
+   */
+  void fit_to_pages(uint16_t width, uint16_t height);
+
+  void write_dynamic_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
+                                       const std::string& formula, const format_t* format, double result);
+
+  void write_dynamic_formula_num(row_num_t row, col_num_t col, const std::string& formula, const format_t* format,
+                                 double result);
+
+  /**
+   * @brief Set the option to display or hide gridlines on the screen and
+   *        the printed page.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param option    Gridline option.
+   *
+   * Display or hide screen and print gridlines using one of the values of
+   * @ref lxw_gridlines.
+   *
+   * @code
+   *    worksheet_gridlines(worksheet1, );
+   *
+   *    worksheet_gridlines(worksheet2, LXW_SHOW_PRINT_GRIDLINES);
+   * @endcode
+   *
+   * The Excel default is that the screen gridlines are on  and the printed
+   * worksheet is off.
+   *
+   */
+  void gridlines(gridlines_t option);
+
+  /**
+   * @brief Set the order in which pages are printed.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * The `%worksheet_print_across()` function is used to change the default
+   * print direction. This is referred to by Excel as the sheet "page order":
+   *
+   * @code
+   *     worksheet_print_across(worksheet);
+   * @endcode
+   *
+   * The default page order is shown below for a worksheet that extends over 4
+   * pages. The order is called "down then across":
+   *
+   *     [1] [3]
+   *     [2] [4]
+   *
+   * However, by using the `print_across` function the print order will be
+   * changed to "across then down":
+   *
+   *     [1] [2]
+   *     [3] [4]
+   *
+   */
+  void print_across();
+
+  /**
+   * @brief Set the page layout to page view mode.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * This function is used to display the worksheet in "Page View/Layout" mode:
+   *
+   * @code
+   *     worksheet_set_page_view(worksheet);
+   * @endcode
+   */
+  void set_page_view();
+
+  /**
+   * @brief Set the Outline and Grouping display properties.
+   *
+   * @param worksheet      Pointer to a lxw_worksheet instance to be updated.
+   * @param visible        Outlines are visible. Optional, defaults to True.
+   * @param symbols_below  Show row outline symbols below the outline bar.
+   * @param symbols_right  Show column outline symbols to the right of outline.
+   * @param auto_style     Use Automatic outline style.
+   *
+   * The `%worksheet_outline_settings()` method is used to control the
+   * appearance of outlines in Excel. Outlines are described the section on
+   * @ref working_with_outlines.
+   *
+   * The `visible` parameter is used to control whether or not outlines are
+   * visible. Setting this parameter to False will cause all outlines on the
+   * worksheet to be hidden. They can be un-hidden in Excel by means of the
+   * "Show Outline Symbols" command button. The default Excel setting is True
+   * for visible outlines.
+   *
+   * The `symbols_below` parameter is used to control whether the row outline
+   * symbol will appear above or below the outline level bar. The default Excel
+   * setting is True for symbols to appear below the outline level bar.
+   *
+   * The `symbols_right` parameter is used to control whether the column outline
+   * symbol will appear to the left or the right of the outline level bar. The
+   * default Excel setting is True for symbols to appear to the right of the
+   * outline level bar.
+   *
+   * The `auto_style` parameter is used to control whether the automatic outline
+   * generator in Excel uses automatic styles when creating an outline. This has
+   * no effect on a file generated by XlsxWriter but it does have an effect on
+   * how the worksheet behaves after it is created. The default Excel setting is
+   * False for "Automatic Styles" to be turned off.
+   *
+   * The default settings for all of these parameters in Xlsxwriter++
+   * correspond to Excel's default parameters and are shown below:
+   *
+   * @code
+   *     worksheet_outline_settings(worksheet1, LXW_TRUE, LXW_TRUE, LXW_TRUE,
+   * LXW_FALSE);
+   * @endcode
+   *
+   * The worksheet parameters controlled by `worksheet_outline_settings()` are
+   * rarely used.
+   */
+  void outline_settings(bool visible, bool symbols_below, bool symbols_right, bool auto_style);
+
+  /**
+   * @brief Center the printed page horizontally.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * Center the worksheet data horizontally between the margins on the printed
+   * page:
+   *
+   * @code
+   *     worksheet_center_horizontally(worksheet);
+   * @endcode
+   *
+   */
+  void center_horizontally();
+
+  /**
+   * @brief Center the printed page vertically.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * Center the worksheet data vertically between the margins on the printed
+   * page:
+   *
+   * @code
+   *     worksheet_center_vertically(worksheet);
+   * @endcode
+   *
+   */
+  void center_vertically();
+
+  /**
+   * @brief Set the option to print the row and column headers on the printed
+   *        page.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * When printing a worksheet from Excel the row and column headers (the row
+   * numbers on the left and the column letters at the top) aren't printed by
+   * default.
+   *
+   * This function sets the printer option to print these headers:
+   *
+   * @code
+   *    worksheet_print_row_col_headers(worksheet);
+   * @endcode
+   *
+   */
+  void print_row_col_headers();
+
+  /**
+   * @brief Set the number of rows to repeat at the top of each printed page.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_row First row of repeat range.
+   * @param last_row  Last row of repeat range.
+   *
+   * @return A #lxw_error code.
+   *
+   * For large Excel documents it is often desirable to have the first row or
+   * rows of the worksheet print out at the top of each page.
+   *
+   * This can be achieved by using this function. The parameters `first_row`
+   * and `last_row` are zero based:
+   *
+   * @code
+   *     worksheet_repeat_rows(worksheet, 0, 0); // Repeat the first row.
+   *     worksheet_repeat_rows(worksheet, 0, 1); // Repeat the first two rows.
+   * @endcode
+   */
+  void repeat_rows(row_num_t first_row, row_num_t last_row);
+
+  /**
+   * @brief Set the number of columns to repeat at the top of each printed page.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param first_col First column of repeat range.
+   * @param last_col  Last column of repeat range.
+   *
+   * @return A #lxw_error code.
+   *
+   * For large Excel documents it is often desirable to have the first column or
+   * columns of the worksheet print out at the left of each page.
+   *
+   * This can be achieved by using this function. The parameters `first_col`
+   * and `last_col` are zero based:
+   *
+   * @code
+   *     worksheet_repeat_columns(worksheet, 0, 0); // Repeat the first col.
+   *     worksheet_repeat_columns(worksheet, 0, 1); // Repeat the first two cols.
+   * @endcode
+   */
+  void repeat_columns(col_num_t first_col, col_num_t last_col);
+
+  /**
+   * @brief Set the worksheet to print in black and white
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * Set the option to print the worksheet in black and white:
+   * @code
+   *     worksheet_print_black_and_white(worksheet);
+   * @endcode
+   */
+  void print_black_and_white();
+
+  /**
+   * @brief Set the scale factor for the printed page.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param scale     Print scale of worksheet to be printed.
+   *
+   * This function sets the scale factor of the printed page. The Scale factor
+   * must be in the range `10 <= scale <= 400`:
+   *
+   * @code
+   *     worksheet_set_print_scale(worksheet1, 75);
+   *     worksheet_set_print_scale(worksheet2, 400);
+   * @endcode
+   *
+   * The default scale factor is 100. Note, `%worksheet_set_print_scale()` does
+   * not affect the scale of the visible page in Excel. For that you should use
+   * `worksheet_set_zoom()`.
+   *
+   * Note that although it is valid to use both `worksheet_fit_to_pages()` and
+   * `%worksheet_set_print_scale()` on the same worksheet Excel only allows one
+   * of these options to be active at a time. The last function call made will
+   * set the active option.
+   *
+   */
+  void set_print_scale(uint16_t scale);
+
+  /**
+   * @brief Set the properties for a row of cells, with the height in pixels.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param pixels    The row height in pixels.
+   * @param format    A pointer to a Format instance or NULL.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_row_pixels()` function is the same as the
+   * `worksheet_set_row()` function except that the height can be set in pixels
+   *
+   * @code
+   *     // Set the height of Row 1 to 20 pixels.
+   *     worksheet_set_row_pixels(worksheet, 0, 20, NULL);
+   * @endcode
+   *
+   * If you wish to set the format of a row without changing the height you can
+   * pass the default row height in pixels: #LXW_DEF_ROW_HEIGHT_PIXELS.
+   */
+  void set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format);
+  void set_row_pixels(row_num_t row_num, uint32_t pixels);
+
+  /**
+   * @brief Set the properties for a row of cells, with the height in pixels.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The zero indexed row number.
+   * @param pixels    The row height in pixels.
+   * @param format    A pointer to a Format instance or NULL.
+   * @param options   Optional row parameters: hidden, level, collapsed.
+   *
+   * @return A #lxw_error code.
+   *
+   * The `%worksheet_set_row_pixels_opt()` function is the same as the
+   * `worksheet_set_row_opt()` function except that the height can be set in
+   * pixels.
+   *
+   */
+  void set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format,
+                      const std::optional<row_col_options_t>& options);
+
+  /**
+   * @brief Set the start/first page number when printing.
+   *
+   * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
+   * @param start_page Page number of the starting page when printing.
+   *
+   * The `%worksheet_set_start_page()` function is used to set the number number
+   * of the first page when the worksheet is printed out. It is the same as the
+   * "First Page Number" option in Excel:
+   *
+   * @code
+   *     // Start print from page 2.
+   *     worksheet_set_start_page(worksheet, 2);
+   * @endcode
+   */
+  void set_start_page(uint16_t start_page);
+
+  /**
+   * @brief Set the first visible cell at the top left of a worksheet.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   * @param row       The cell row (zero indexed).
+   * @param col       The cell column (zero indexed).
+   *
+   * The `%worksheet_set_top_left_cell()` function can be used to set the
+   * top leftmost visible cell in the worksheet:
+   *
+   * @code
+   *     worksheet_set_top_left_cell(worksheet, 31, 26);
+   *     worksheet_set_top_left_cell(worksheet, CELL("AA32")); // Same as above.
+   * @endcode
+   *
+   * @image html top_left_cell.png
+   *
+   */
+  void set_top_left_cell(row_num_t row_num, col_num_t col_num);
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -4865,6 +5643,7 @@ private:
   [[nodiscard]] std::string write_merge_cell(const merged_range_t& merged_range) const;
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
+  [[nodiscard]] std::string write_boolean_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_sheet_protection(const protection_obj_t& protection) const;
   [[nodiscard]] std::string write_error_cell() const;
   [[nodiscard]] std::string write_filter_column(const std::optional<filter_rule_obj_t>& filter) const;
@@ -4918,6 +5697,8 @@ private:
   [[nodiscard]] std::string write_split_panes();
   [[nodiscard]] std::string write_selections() const;
   [[nodiscard]] std::string write_selection(const selection_t& selection) const;
+  [[nodiscard]] std::string write_page_set_up_pr() const;
+  [[nodiscard]] std::string write_outline_pr() const;
 
   uint32_t calculate_x_split_width(double x_split) const;
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
@@ -5016,7 +5797,7 @@ private:
   uint16_t zoom_                     = 100;
   bool filter_on_                    = false;
   bool fit_page_                     = false;
-  ///     uint8_t hcenter;
+  bool hcenter_                      = false;
   drawing_orientation_t orientation_ = drawing_orientation_t::PORTRAIT;
   bool outline_changed_              = false;
   bool outline_on_                   = true;
@@ -5028,14 +5809,14 @@ private:
   bool page_view_                    = false;
   uint8_t paper_size_                = 0;
   bool print_gridlines_              = false;
-  ///     uint8_t print_headers;
+  bool print_headers_                = false;
   bool print_options_changed_        = false;
-  ///     uint8_t right_to_left;
+  bool right_to_left_                = false;
   bool screen_gridlines_             = true;
   bool show_zeros_                   = true;
-  ///     uint8_t vcenter;
+  bool vcenter_                      = false;
   bool zoom_scale_normal_            = true;
-  ///     uint8_t black_white;
+  bool black_white_                  = false;
   ///     uint8_t num_validations;
   bool has_dynamic_functions_        = false;
   std::string vba_codename_;
@@ -5061,9 +5842,9 @@ private:
   std::string header_;
   std::string footer_;
 
-  ///     struct lxw_repeat_rows repeat_rows;
-  ///     struct lxw_repeat_cols repeat_cols;
-  ///     struct lxw_print_area print_area;
+  repeat_rows_t repeat_rows_;
+  repeat_cols_t repeat_cols_;
+  print_area_t print_area_;
   autofilter_t autofilter_;
 
   uint16_t max_url_length_ = 2079;
@@ -5080,7 +5861,7 @@ private:
   std::vector<std::tuple<std::string, std::string, std::string>> external_table_links_;
 
   panes_t panes_;
-  ///     char top_left_cell[LXW_MAX_CELL_NAME_LENGTH];
+  std::string top_left_cell_;
 
   protection_obj_t protection_;
 
@@ -5143,23 +5924,6 @@ private:
 ///     RB_ENTRY (lxw_drawing_rel_id) tree_pointers;
 /// } lxw_drawing_rel_id;
 
-/// lxw_error worksheet_write_dynamic_array_formula_num(lxw_worksheet
-/// *worksheet,
-///                                                     row_num_t first_row,
-///                                                     col_num_t first_col,
-///                                                     row_num_t last_row,
-///                                                     col_num_t last_col,
-///                                                     const char *formula,
-///                                                     lxw_format *format,
-///                                                     double result);
-
-/// lxw_error worksheet_write_dynamic_formula_num(lxw_worksheet *worksheet,
-///                                               row_num_t row,
-///                                               col_num_t col,
-///                                               const char *formula,
-///                                               lxw_format *format,
-///                                               double result);
-
 /**
  * @brief Write a Unix datetime to a worksheet cell.
  *
@@ -5204,725 +5968,6 @@ private:
 ///                                    lxw_format *format);
 
 /**
- * @brief Write a formatted boolean worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param value     The boolean value to write to the cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * Write an Excel boolean to the cell specified by `row` and `column`:
- *
- * @code
- *     worksheet_write_boolean(worksheet, 2, 2, 0, my_format);
- * @endcode
- *
- */
-/// lxw_error worksheet_write_boolean(lxw_worksheet *worksheet,
-///                                   row_num_t row, col_num_t col,
-///                                   int value, lxw_format *format);
-
-/**
- * @brief Set the properties for a row of cells.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param height    The row height, in character units.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_row()` function is used to change the default
- * properties of a row. The most common use for this function is to change the
- * height of a row:
- *
- * @code
- *     // Set the height of Row 1 to 20.
- *     worksheet_set_row(worksheet, 0, 20, NULL);
- * @endcode
- *
- * The height is specified in character units. To specify the height in pixels
- * use the `worksheet_set_row_pixels()` function.
- *
- * The other common use for `%worksheet_set_row()` is to set the a @ref
- * format.h "Format" for all cells in the row:
- *
- * @code
- *     lxw_format *bold = workbook_add_format(workbook);
- *     format_set_bold(bold);
- *
- *     // Set the header row to bold.
- *     worksheet_set_row(worksheet, 0, 15, bold);
- * @endcode
- *
- * If you wish to set the format of a row without changing the height you can
- * pass the default row height of #LXW_DEF_ROW_HEIGHT = 15:
- *
- * @code
- *     worksheet_set_row(worksheet, 0, LXW_DEF_ROW_HEIGHT, format);
- *     worksheet_set_row(worksheet, 0, 15, format); // Same as above.
- * @endcode
- *
- * The `format` parameter will be applied to any cells in the row that don't
- * have a format. As with Excel the row format is overridden by an explicit
- * cell format. For example:
- *
- * @code
- *     // Row 1 has format1.
- *     worksheet_set_row(worksheet, 0, 15, format1);
- *
- *     // Cell A1 in Row 1 defaults to format1.
- *     worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
- *
- *     // Cell B1 in Row 1 keeps format2.
- *     worksheet_write_string(worksheet, 0, 1, "Hello", format2);
- * @endcode
- *
- */
-/// lxw_error worksheet_set_row(lxw_worksheet *worksheet,
-///                             row_num_t row, double height, lxw_format
-///                             *format);
-
-/**
- * @brief Set the properties for a row of cells, with the height in pixels.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param pixels    The row height in pixels.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_row_pixels()` function is the same as the
- * `worksheet_set_row()` function except that the height can be set in pixels
- *
- * @code
- *     // Set the height of Row 1 to 20 pixels.
- *     worksheet_set_row_pixels(worksheet, 0, 20, NULL);
- * @endcode
- *
- * If you wish to set the format of a row without changing the height you can
- * pass the default row height in pixels: #LXW_DEF_ROW_HEIGHT_PIXELS.
- */
-/// lxw_error worksheet_set_row_pixels(lxw_worksheet *worksheet,
-///                                    row_num_t row, uint32_t pixels,
-///                                    lxw_format *format);
-/**
- * @brief Set the properties for a row of cells, with the height in pixels.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param pixels    The row height in pixels.
- * @param format    A pointer to a Format instance or NULL.
- * @param options   Optional row parameters: hidden, level, collapsed.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_row_pixels_opt()` function is the same as the
- * `worksheet_set_row_opt()` function except that the height can be set in
- * pixels.
- *
- */
-/// lxw_error worksheet_set_row_pixels_opt(lxw_worksheet *worksheet,
-///                                        row_num_t row,
-///                                        uint32_t pixels,
-///                                        lxw_format *format,
-///                                        lxw_row_col_options *options);
-
-/**
- * @brief Set the properties for one or more columns of cells.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col The zero indexed first column.
- * @param last_col  The zero indexed last column.
- * @param width     The width of the column(s).
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_set_column()` function can be used to change the default
- * properties of a single column or a range of columns:
- *
- * @code
- *     // Width of columns B:D set to 30.
- *     worksheet_set_column(worksheet, 1, 3, 30, NULL);
- *
- * @endcode
- *
- * If `%worksheet_set_column()` is applied to a single column the value of
- * `first_col` and `last_col` should be the same:
- *
- * @code
- *     // Width of column B set to 30.
- *     worksheet_set_column(worksheet, 1, 1, 30, NULL);
- *
- * @endcode
- *
- * It is also possible, and generally clearer, to specify a column range using
- * the form of `COLS()` macro:
- *
- * @code
- *     worksheet_set_column(worksheet, 4, 4, 20, NULL);
- *     worksheet_set_column(worksheet, 5, 8, 30, NULL);
- *
- *     // Same as the examples above but clearer.
- *     worksheet_set_column(worksheet, COLS("E:E"), 20, NULL);
- *     worksheet_set_column(worksheet, COLS("F:H"), 30, NULL);
- *
- * @endcode
- *
- * The `width` parameter sets the column width in the same units used by Excel
- * which is: the number of characters in the default font. The default width
- * is 8.43 in the default font of Calibri 11. The actual relationship between
- * a string width and a column width in Excel is complex. See the
- * [following explanation of column
- * widths](https://support.microsoft.com/en-us/kb/214123) from the Microsoft
- * support documentation for more details. To set the width in pixels use the
- * `worksheet_set_column_pixels()` function.
- *
- * There is no way to specify "AutoFit" for a column in the Excel file
- * format. This feature is only available at runtime from within Excel. It is
- * possible to simulate "AutoFit" in your application by tracking the maximum
- * width of the data in the column as your write it and then adjusting the
- * column width at the end.
- *
- * As usual the @ref format.h `format` parameter is optional. If you wish to
- * set the format without changing the width you can pass a default column
- * width of #LXW_DEF_COL_WIDTH = 8.43:
- *
- * @code
- *     lxw_format *bold = workbook_add_format(workbook);
- *     format_set_bold(bold);
- *
- *     // Set the first column to bold.
- *     worksheet_set_column(worksheet, 0, 0, LXW_DEF_COL_WIDTH, bold);
- * @endcode
- *
- * The `format` parameter will be applied to any cells in the column that
- * don't have a format. For example:
- *
- * @code
- *     // Column 1 has format1.
- *     worksheet_set_column(worksheet, COLS("A:A"), 8.43, format1);
- *
- *     // Cell A1 in column 1 defaults to format1.
- *     worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
- *
- *     // Cell A2 in column 1 keeps format2.
- *     worksheet_write_string(worksheet, 1, 0, "Hello", format2);
- * @endcode
- *
- * As in Excel a row format takes precedence over a default column format:
- *
- * @code
- *     // Row 1 has format1.
- *     worksheet_set_row(worksheet, 0, 15, format1);
- *
- *     // Col 1 has format2.
- *     worksheet_set_column(worksheet, COLS("A:A"), 8.43, format2);
- *
- *     // Cell A1 defaults to format1, the row format.
- *     worksheet_write_string(worksheet, 0, 0, "Hello", NULL);
- *
- *    // Cell A2 keeps format2, the column format.
- *     worksheet_write_string(worksheet, 1, 0, "Hello", NULL);
- * @endcode
- */
-/// lxw_error worksheet_set_column(lxw_worksheet *worksheet,
-///                                col_num_t first_col,
-///                                col_num_t last_col,
-///                                double width, lxw_format *format);
-
-/**
- * @brief Set the background image for a worksheet, from a buffer.
- *
- * @param worksheet    Pointer to a lxw_worksheet instance to be updated.
- * @param image_buffer Pointer to an array of bytes that holds the image data.
- * @param image_size   The size of the array of bytes.
- *
- * @return A #lxw_error code.
- *
- * This function can be used to insert a background image into a worksheet
- * from a memory buffer:
- *
- * @code
- *     worksheet_set_background_buffer(worksheet, image_buffer, image_size);
- * @endcode
- *
- * The buffer should be a pointer to an array of unsigned char data with a
- * specified size.
- *
- * See `worksheet_set_background()` for more details.
- *
- */
-/// lxw_error worksheet_set_background_buffer(lxw_worksheet *worksheet,
-///                                           const unsigned char *image_buffer,
-///                                           size_t image_size);
-
-/**
- * @brief Make a worksheet the active, i.e., visible worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `%worksheet_activate()` function is used to specify which worksheet is
- * initially visible in a multi-sheet workbook:
- *
- * @code
- *     lxw_worksheet *worksheet1 = workbook_add_worksheet(workbook, NULL);
- *     lxw_worksheet *worksheet2 = workbook_add_worksheet(workbook, NULL);
- *     lxw_worksheet *worksheet3 = workbook_add_worksheet(workbook, NULL);
- *
- *     worksheet_activate(worksheet3);
- * @endcode
- *
- * @image html worksheet_activate.png
- *
- * More than one worksheet can be selected via the `worksheet_select()`
- * function, see below, however only one worksheet can be active.
- *
- * The default active worksheet is the first worksheet.
- *
- */
-/// void worksheet_activate(lxw_worksheet *worksheet);
-
-/**
- * @brief Set current worksheet as the first visible sheet tab.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `worksheet_activate()` function determines which worksheet is initially
- * selected.  However, if there are a large number of worksheets the selected
- * worksheet may not appear on the screen. To avoid this you can select the
- * leftmost visible worksheet tab using `%worksheet_set_first_sheet()`:
- *
- * @code
- *     worksheet_set_first_sheet(worksheet19); // First visible worksheet tab.
- *     worksheet_activate(worksheet20);        // First visible worksheet.
- * @endcode
- *
- * This function is not required very often. The default value is the first
- * worksheet.
- */
-/// void worksheet_set_first_sheet(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the first visible cell at the top left of a worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The cell row (zero indexed).
- * @param col       The cell column (zero indexed).
- *
- * The `%worksheet_set_top_left_cell()` function can be used to set the
- * top leftmost visible cell in the worksheet:
- *
- * @code
- *     worksheet_set_top_left_cell(worksheet, 31, 26);
- *     worksheet_set_top_left_cell(worksheet, CELL("AA32")); // Same as above.
- * @endcode
- *
- * @image html top_left_cell.png
- *
- */
-/// void worksheet_set_top_left_cell(lxw_worksheet *worksheet, row_num_t row,
-///                                  col_num_t col);
-
-/**
- * @brief Set the page orientation as landscape.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * This function is used to set the orientation of a worksheet's printed page
- * to landscape:
- *
- * @code
- *     worksheet_set_landscape(worksheet);
- * @endcode
- */
-/// void worksheet_set_landscape(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the page orientation as portrait.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * This function is used to set the orientation of a worksheet's printed page
- * to portrait. The default worksheet orientation is portrait, so this
- * function isn't generally required:
- *
- * @code
- *     worksheet_set_portrait(worksheet);
- * @endcode
- */
-/// void worksheet_set_portrait(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the page layout to page view mode.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * This function is used to display the worksheet in "Page View/Layout" mode:
- *
- * @code
- *     worksheet_set_page_view(worksheet);
- * @endcode
- */
-/// void worksheet_set_page_view(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the paper type for printing.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param paper_type The Excel paper format type.
- *
- * This function is used to set the paper format for the printed output of a
- * worksheet. The following paper styles are available:
- *
- *
- *   Index    | Paper format            | Paper size
- *   :------- | :---------------------- | :-------------------
- *   0        | Printer default         | Printer default
- *   1        | Letter                  | 8 1/2 x 11 in
- *   2        | Letter Small            | 8 1/2 x 11 in
- *   3        | Tabloid                 | 11 x 17 in
- *   4        | Ledger                  | 17 x 11 in
- *   5        | Legal                   | 8 1/2 x 14 in
- *   6        | Statement               | 5 1/2 x 8 1/2 in
- *   7        | Executive               | 7 1/4 x 10 1/2 in
- *   8        | A3                      | 297 x 420 mm
- *   9        | A4                      | 210 x 297 mm
- *   10       | A4 Small                | 210 x 297 mm
- *   11       | A5                      | 148 x 210 mm
- *   12       | B4                      | 250 x 354 mm
- *   13       | B5                      | 182 x 257 mm
- *   14       | Folio                   | 8 1/2 x 13 in
- *   15       | Quarto                  | 215 x 275 mm
- *   16       | ---                     | 10x14 in
- *   17       | ---                     | 11x17 in
- *   18       | Note                    | 8 1/2 x 11 in
- *   19       | Envelope 9              | 3 7/8 x 8 7/8
- *   20       | Envelope 10             | 4 1/8 x 9 1/2
- *   21       | Envelope 11             | 4 1/2 x 10 3/8
- *   22       | Envelope 12             | 4 3/4 x 11
- *   23       | Envelope 14             | 5 x 11 1/2
- *   24       | C size sheet            | ---
- *   25       | D size sheet            | ---
- *   26       | E size sheet            | ---
- *   27       | Envelope DL             | 110 x 220 mm
- *   28       | Envelope C3             | 324 x 458 mm
- *   29       | Envelope C4             | 229 x 324 mm
- *   30       | Envelope C5             | 162 x 229 mm
- *   31       | Envelope C6             | 114 x 162 mm
- *   32       | Envelope C65            | 114 x 229 mm
- *   33       | Envelope B4             | 250 x 353 mm
- *   34       | Envelope B5             | 176 x 250 mm
- *   35       | Envelope B6             | 176 x 125 mm
- *   36       | Envelope                | 110 x 230 mm
- *   37       | Monarch                 | 3.875 x 7.5 in
- *   38       | Envelope                | 3 5/8 x 6 1/2 in
- *   39       | Fanfold                 | 14 7/8 x 11 in
- *   40       | German Std Fanfold      | 8 1/2 x 12 in
- *   41       | German Legal Fanfold    | 8 1/2 x 13 in
- *
- * Note, it is likely that not all of these paper types will be available to
- * the end user since it will depend on the paper formats that the user's
- * printer supports. Therefore, it is best to stick to standard paper types:
- *
- * @code
- *     worksheet_set_paper(worksheet1, 1);  // US Letter
- *     worksheet_set_paper(worksheet2, 9);  // A4
- * @endcode
- *
- * If you do not specify a paper type the worksheet will print using the
- * printer's default paper style.
- */
-/// void worksheet_set_paper(lxw_worksheet *worksheet, uint8_t paper_type);
-
-/**
- * @brief Set the order in which pages are printed.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `%worksheet_print_across()` function is used to change the default
- * print direction. This is referred to by Excel as the sheet "page order":
- *
- * @code
- *     worksheet_print_across(worksheet);
- * @endcode
- *
- * The default page order is shown below for a worksheet that extends over 4
- * pages. The order is called "down then across":
- *
- *     [1] [3]
- *     [2] [4]
- *
- * However, by using the `print_across` function the print order will be
- * changed to "across then down":
- *
- *     [1] [2]
- *     [3] [4]
- *
- */
-/// void worksheet_print_across(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the option to display or hide gridlines on the screen and
- *        the printed page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param option    Gridline option.
- *
- * Display or hide screen and print gridlines using one of the values of
- * @ref lxw_gridlines.
- *
- * @code
- *    worksheet_gridlines(worksheet1, LXW_HIDE_ALL_GRIDLINES);
- *
- *    worksheet_gridlines(worksheet2, LXW_SHOW_PRINT_GRIDLINES);
- * @endcode
- *
- * The Excel default is that the screen gridlines are on  and the printed
- * worksheet is off.
- *
- */
-/// void worksheet_gridlines(lxw_worksheet *worksheet, uint8_t option);
-
-/**
- * @brief Center the printed page horizontally.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * Center the worksheet data horizontally between the margins on the printed
- * page:
- *
- * @code
- *     worksheet_center_horizontally(worksheet);
- * @endcode
- *
- */
-/// void worksheet_center_horizontally(lxw_worksheet *worksheet);
-
-/**
- * @brief Center the printed page vertically.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * Center the worksheet data vertically between the margins on the printed
- * page:
- *
- * @code
- *     worksheet_center_vertically(worksheet);
- * @endcode
- *
- */
-/// void worksheet_center_vertically(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the option to print the row and column headers on the printed
- *        page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * When printing a worksheet from Excel the row and column headers (the row
- * numbers on the left and the column letters at the top) aren't printed by
- * default.
- *
- * This function sets the printer option to print these headers:
- *
- * @code
- *    worksheet_print_row_col_headers(worksheet);
- * @endcode
- *
- */
-/// void worksheet_print_row_col_headers(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the number of rows to repeat at the top of each printed page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_row First row of repeat range.
- * @param last_row  Last row of repeat range.
- *
- * @return A #lxw_error code.
- *
- * For large Excel documents it is often desirable to have the first row or
- * rows of the worksheet print out at the top of each page.
- *
- * This can be achieved by using this function. The parameters `first_row`
- * and `last_row` are zero based:
- *
- * @code
- *     worksheet_repeat_rows(worksheet, 0, 0); // Repeat the first row.
- *     worksheet_repeat_rows(worksheet, 0, 1); // Repeat the first two rows.
- * @endcode
- */
-/// lxw_error worksheet_repeat_rows(lxw_worksheet *worksheet, row_num_t
-/// first_row,
-///                                 row_num_t last_row);
-
-/**
- * @brief Set the number of columns to repeat at the top of each printed page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_col First column of repeat range.
- * @param last_col  Last column of repeat range.
- *
- * @return A #lxw_error code.
- *
- * For large Excel documents it is often desirable to have the first column or
- * columns of the worksheet print out at the left of each page.
- *
- * This can be achieved by using this function. The parameters `first_col`
- * and `last_col` are zero based:
- *
- * @code
- *     worksheet_repeat_columns(worksheet, 0, 0); // Repeat the first col.
- *     worksheet_repeat_columns(worksheet, 0, 1); // Repeat the first two cols.
- * @endcode
- */
-/// lxw_error worksheet_repeat_columns(lxw_worksheet *worksheet,
-///                                    col_num_t first_col, col_num_t last_col);
-
-/**
- * @brief Set the print area for a worksheet.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param first_row The first row of the range. (All zero indexed.)
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- *
- * @return A #lxw_error code.
- *
- * This function is used to specify the area of the worksheet that will be
- * printed. The RANGE() macro is often convenient for this.
- *
- * @code
- *     worksheet_print_area(worksheet, 0, 0, 41, 10); // A1:K42.
- *
- *     // Same as:
- *     worksheet_print_area(worksheet, RANGE("A1:K42"));
- * @endcode
- *
- * In order to set a row or column range you must specify the entire range:
- *
- * @code
- *     worksheet_print_area(worksheet, RANGE("A1:H1048576")); // Same as A:H.
- * @endcode
- */
-/// lxw_error worksheet_print_area(lxw_worksheet *worksheet, row_num_t
-/// first_row,
-///                                col_num_t first_col, row_num_t last_row,
-///                                col_num_t last_col);
-/**
- * @brief Fit the printed area to a specific number of pages both vertically
- *        and horizontally.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param width     Number of pages horizontally.
- * @param height    Number of pages vertically.
- *
- * The `%worksheet_fit_to_pages()` function is used to fit the printed area to
- * a specific number of pages both vertically and horizontally. If the printed
- * area exceeds the specified number of pages it will be scaled down to
- * fit. This ensures that the printed area will always appear on the specified
- * number of pages even if the page size or margins change:
- *
- * @code
- *     worksheet_fit_to_pages(worksheet1, 1, 1); // Fit to 1x1 pages.
- *     worksheet_fit_to_pages(worksheet2, 2, 1); // Fit to 2x1 pages.
- *     worksheet_fit_to_pages(worksheet3, 1, 2); // Fit to 1x2 pages.
- * @endcode
- *
- * The print area can be defined using the `worksheet_print_area()` function
- * as described above.
- *
- * A common requirement is to fit the printed output to `n` pages wide but
- * have the height be as long as necessary. To achieve this set the `height`
- * to zero:
- *
- * @code
- *     // 1 page wide and as long as necessary.
- *     worksheet_fit_to_pages(worksheet, 1, 0);
- * @endcode
- *
- * **Note**:
- *
- * - Although it is valid to use both `%worksheet_fit_to_pages()` and
- *   `worksheet_set_print_scale()` on the same worksheet Excel only allows one
- *   of these options to be active at a time. The last function call made will
- *   set the active option.
- *
- * - The `%worksheet_fit_to_pages()` function will override any manual page
- *   breaks that are defined in the worksheet.
- *
- * - When using `%worksheet_fit_to_pages()` it may also be required to set the
- *   printer paper size using `worksheet_set_paper()` or else Excel will
- *   default to "US Letter".
- *
- */
-/// void worksheet_fit_to_pages(lxw_worksheet *worksheet, uint16_t width,
-///                             uint16_t height);
-
-/**
- * @brief Set the start/first page number when printing.
- *
- * @param worksheet  Pointer to a lxw_worksheet instance to be updated.
- * @param start_page Page number of the starting page when printing.
- *
- * The `%worksheet_set_start_page()` function is used to set the number number
- * of the first page when the worksheet is printed out. It is the same as the
- * "First Page Number" option in Excel:
- *
- * @code
- *     // Start print from page 2.
- *     worksheet_set_start_page(worksheet, 2);
- * @endcode
- */
-/// void worksheet_set_start_page(lxw_worksheet *worksheet, uint16_t
-/// start_page);
-
-/**
- * @brief Set the scale factor for the printed page.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param scale     Print scale of worksheet to be printed.
- *
- * This function sets the scale factor of the printed page. The Scale factor
- * must be in the range `10 <= scale <= 400`:
- *
- * @code
- *     worksheet_set_print_scale(worksheet1, 75);
- *     worksheet_set_print_scale(worksheet2, 400);
- * @endcode
- *
- * The default scale factor is 100. Note, `%worksheet_set_print_scale()` does
- * not affect the scale of the visible page in Excel. For that you should use
- * `worksheet_set_zoom()`.
- *
- * Note that although it is valid to use both `worksheet_fit_to_pages()` and
- * `%worksheet_set_print_scale()` on the same worksheet Excel only allows one
- * of these options to be active at a time. The last function call made will
- * set the active option.
- *
- */
-/// void worksheet_set_print_scale(lxw_worksheet *worksheet, uint16_t scale);
-
-/**
- * @brief Set the worksheet to print in black and white
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * Set the option to print the worksheet in black and white:
- * @code
- *     worksheet_print_black_and_white(worksheet);
- * @endcode
- */
-/// void worksheet_print_black_and_white(lxw_worksheet *worksheet);
-
-/**
  * @brief Display the worksheet cells from right to left for some versions of
  *        Excel.
  *
@@ -5954,75 +5999,6 @@ private:
  * @endcode
  */
 /// void worksheet_hide_zero(lxw_worksheet *worksheet);
-
-/**
- * @brief Set the Outline and Grouping display properties.
- *
- * @param worksheet      Pointer to a lxw_worksheet instance to be updated.
- * @param visible        Outlines are visible. Optional, defaults to True.
- * @param symbols_below  Show row outline symbols below the outline bar.
- * @param symbols_right  Show column outline symbols to the right of outline.
- * @param auto_style     Use Automatic outline style.
- *
- * The `%worksheet_outline_settings()` method is used to control the
- * appearance of outlines in Excel. Outlines are described the section on
- * @ref working_with_outlines.
- *
- * The `visible` parameter is used to control whether or not outlines are
- * visible. Setting this parameter to False will cause all outlines on the
- * worksheet to be hidden. They can be un-hidden in Excel by means of the
- * "Show Outline Symbols" command button. The default Excel setting is True
- * for visible outlines.
- *
- * The `symbols_below` parameter is used to control whether the row outline
- * symbol will appear above or below the outline level bar. The default Excel
- * setting is True for symbols to appear below the outline level bar.
- *
- * The `symbols_right` parameter is used to control whether the column outline
- * symbol will appear to the left or the right of the outline level bar. The
- * default Excel setting is True for symbols to appear to the right of the
- * outline level bar.
- *
- * The `auto_style` parameter is used to control whether the automatic outline
- * generator in Excel uses automatic styles when creating an outline. This has
- * no effect on a file generated by XlsxWriter but it does have an effect on
- * how the worksheet behaves after it is created. The default Excel setting is
- * False for "Automatic Styles" to be turned off.
- *
- * The default settings for all of these parameters in Xlsxwriter++
- * correspond to Excel's default parameters and are shown below:
- *
- * @code
- *     worksheet_outline_settings(worksheet1, LXW_TRUE, LXW_TRUE, LXW_TRUE,
- * LXW_FALSE);
- * @endcode
- *
- * The worksheet parameters controlled by `worksheet_outline_settings()` are
- * rarely used.
- */
-/// void worksheet_outline_settings(lxw_worksheet *worksheet, uint8_t visible,
-///                                 uint8_t symbols_below, uint8_t
-///                                 symbols_right, uint8_t auto_style);
-
-/**
- * @brief Set the default author of the cell comments.
- *
- * @param worksheet Pointer to a lxw_worksheet instance.
- * @param author    The name of the comment author.
- *
- * This `%worksheet_set_comments_author()` function is used to set the
- * default author of all cell comments:
- *
- * @code
- *     worksheet_set_comments_author(worksheet, "Jane Gloriana Villanueva")
- * @endcode
- *
- * Individual authors can be set using the `author` option of the
- * #comment_options_t struct and the `worksheet_write_comment_opt()`
- * function (see above and @ref ww_comments_author).
- */
-/// void worksheet_set_comments_author(lxw_worksheet *worksheet,
-///                                    const char *author);
 
 /// void lxw_worksheet_write_single_row(lxw_worksheet *worksheet);
 

@@ -210,30 +210,18 @@ void packager_t::add_vba_project(const workbook_t& workbook)
   add_buffer_to_zip(buffer, "xl/vbaProject.bin");
 }
 
-/// STATIC lxw_error _add_vba_project_signature(lxw_packager *self)
-/// {
-///   lxw_workbook *workbook = self->workbook;
-///   lxw_error err;
-///   FILE *image_stream;
+void packager_t::add_vba_project_signature(const workbook_t& workbook)
+{
+  if(workbook.vba_project_signature_.empty())
+  {
+    return;
+  }
 
-///   if (!workbook->vba_project_signature)
-///     return LXW_NO_ERROR;
-
-/* Check that the image file exists and can be opened. */
-///   image_stream = lxw_fopen(workbook->vba_project_signature, "rb");
-///   if (!image_stream) {
-///     LXW_WARN_FORMAT1("Error adding vbaProjectSignature.bin to xlsx file: "
-///                      "file doesn't exist or can't be opened: %s.",
-///                      workbook->vba_project_signature);
-///     return LXW_ERROR_CREATING_TMPFILE;
-///   }
-
-///   err = _add_file_to_zip(self, image_stream, "xl/vbaProjectSignature.bin");
-///   fclose(image_stream);
-///   RETURN_ON_ERROR(err);
-
-///   return LXW_NO_ERROR;
-/// }
+  // Check that the image file exists and can be opened.
+  std::ifstream vba_signature_stream(workbook.vba_project_signature_, std::ios::binary);
+  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_signature_stream), {});
+  add_buffer_to_zip(buffer, "xl/vbaProjectSignature.bin");
+}
 
 void packager_t::write_chart_files(const workbook_t& workbook)
 {
@@ -432,6 +420,7 @@ void packager_t::write_app_file(const workbook_t& workbook)
     app.add_heading_pair("Charts", std::to_string(workbook.num_chartsheets_));
   }
 
+  // Two passes to have the same order of Excel: first worksheet and then chartsheet
   for(const auto& sheet: workbook.sheets_)
   {
     if(std::holds_alternative<worksheet_t>(sheet))
@@ -439,7 +428,10 @@ void packager_t::write_app_file(const workbook_t& workbook)
       const auto& ws = std::get<worksheet_t>(sheet);
       app.add_part_name(ws.get_sheet_name());
     }
-    else if(std::holds_alternative<chartsheet_t>(sheet))
+  }
+  for(const auto& sheet: workbook.sheets_)
+  {
+    if(std::holds_alternative<chartsheet_t>(sheet))
     {
       const auto& cs = std::get<chartsheet_t>(sheet);
       app.add_part_name(cs.get_sheet_name());
@@ -470,7 +462,7 @@ void packager_t::write_app_file(const workbook_t& workbook)
   // Set the app/doc properties.
   app.set_properties(workbook.properties_);
 
-  ///     app->doc_security = workbook->read_only;
+  app.set_doc_security(workbook.read_only_);
 
   const std::string xml_data = app.assemble_xml_file();
   add_buffer_to_zip(xml_data, "docProps/app.xml");
@@ -846,46 +838,20 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
   }
 }
 
-/// STATIC lxw_error
-/// _write_vba_project_rels_file(lxw_packager *self)
-/// {
-///     lxw_relationships *rels;
-///     lxw_workbook *workbook = self->workbook;
-///     lxw_error err = LXW_NO_ERROR;
-///     char *buffer = NULL;
-///     size_t buffer_size = 0;
+void packager_t::write_vba_project_rels_file(const workbook_t& workbook)
+{
+  if(workbook.vba_project_signature_.empty())
+  {
+    return;
+  }
 
-///     if (!workbook->vba_project_signature)
-///         return LXW_NO_ERROR;
+  relationships_t relationships;
 
-///     rels = lxw_relationships_new();
-///     if (!rels) {
-///         err = LXW_ERROR_MEMORY_MALLOC_FAILED;
-///         goto mem_error;
-///     }
+  relationships.add_ms_package("/vbaProjectSignature", "vbaProjectSignature.bin");
 
-///     rels->file = lxw_get_filehandle(&buffer, &buffer_size, self->tmpdir);
-///     if (!rels->file) {
-///         err = LXW_ERROR_CREATING_TMPFILE;
-///         goto mem_error;
-///     }
-
-///     lxw_add_ms_package_relationship(rels, "/vbaProjectSignature",
-///                                     "vbaProjectSignature.bin");
-
-///     lxw_relationships_assemble_xml_file(rels);
-
-///     err = _add_to_zip(self, rels->file, &buffer, &buffer_size,
-///                       "xl/_rels/vbaProject.bin.rels");
-
-///     fclose(rels->file);
-///     free(buffer);
-
-/// mem_error:
-///     lxw_free_relationships(rels);
-
-///     return err;
-/// }
+  const std::string xml_data = relationships.assemble_xml_file();
+  add_buffer_to_zip(xml_data, "xl/_rels/vbaProject.bin.rels");
+}
 
 void packager_t::write_rich_value_rels_file(const workbook_t& workbook)
 {
@@ -1070,8 +1036,8 @@ void packager_t::create_package(workbook_t& workbook)
   write_drawing_rels_file(workbook);
   write_image_files(workbook);
   add_vba_project(workbook);
-  ///     error = _add_vba_project_signature(self);
-  ///     error = _write_vba_project_rels_file(self);
+  add_vba_project_signature(workbook);
+  write_vba_project_rels_file(workbook);
   write_core_file(workbook);
   write_metadata_file(workbook);
   write_rich_value_file(workbook);

@@ -108,35 +108,6 @@ namespace xwpp
  */
 /// uint16_t lxw_version_id(void);
 
-/**
- * @brief Converts a Xlsxwriter++ error number to a string.
- *
- * The `%lxw_strerror` function converts a Xlsxwriter++ error number defined
- * by #lxw_error to a pointer to a string description of the error.
- * Similar to the standard library strerror(3) function.
- *
- * For example:
- *
- * @code
- *     lxw_error error = workbook_close(workbook);
- *
- *     if (error)
- *         printf("Error in workbook_close().\n"
- *                "Error %d = %s\n", error, lxw_strerror(error));
- * @endcode
- *
- * This would produce output like the following if the target file wasn't
- * writable:
- *
- *     Error in workbook_close().
- *     Error 2 = Error creating output xlsx file. Usually a permissions error.
- *
- * @param error_num The error number returned by a Xlsxwriter++ function.
- *
- * @return A pointer to a statically allocated string. Do not free.
- */
-/// char *lxw_strerror(lxw_error error_num);
-
 // Create a quoted version of the worksheet name
 [[nodiscard]] std::string quote_sheetname(std::string_view sheetname);
 [[nodiscard]] std::string col_to_name(col_num_t col_num, bool absolute);

@@ -142,6 +142,45 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
   return pattern;
 }
 
+std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layout_t> user_layout,
+                                                  chart_layout_type_t type)
+{
+  if(!user_layout)
+  {
+    return std::nullopt;
+  }
+
+  chart_layout_t layout;
+  switch(type)
+  {
+    case chart_layout_type_t::LEGEND:
+      layout.x_         = user_layout->x_;
+      layout.y_         = user_layout->y_;
+      layout.width_     = user_layout->width_;
+      layout.height_    = user_layout->height_;
+      layout.has_inner_ = false;
+      break;
+
+    case chart_layout_type_t::PLOTAREA:
+      layout.x_         = user_layout->x_;
+      layout.y_         = user_layout->y_;
+      layout.width_     = user_layout->width_;
+      layout.height_    = user_layout->height_;
+      layout.has_inner_ = true;
+      break;
+
+    default:
+      layout.x_         = user_layout->x_;
+      layout.y_         = user_layout->y_;
+      layout.width_     = 0.0;
+      layout.height_    = 0.0;
+      layout.has_inner_ = false;
+      break;
+  }
+
+  return layout;
+}
+
 /*
  * Verify that a X/Y error bar property is supported for the chart type.
  * All chart types, except Bar have Y error bars. Only Bar and Scatter
@@ -174,44 +213,6 @@ void check_error_bars(const series_error_bars_t& error_bars, const std::string& 
 }
 
 }
-
-// TODO Add chart layout example
-/*
- * Create a copy of a user supplied layout.
- */
-/// STATIC lxw_chart_layout* _chart_convert_layout_args(lxw_chart_layout* user_layout, enum lxw_chart_layout_type type)
-/// {
-///   lxw_chart_layout* layout = calloc(1, sizeof(struct lxw_chart_layout));
-///   RETURN_ON_MEM_ERROR(layout, NULL);
-///
-///   /* Copy the user supplied properties. */
-///   switch(type)
-///   {
-///     case LXW_CHART_LAYOUT_LEGEND:
-///       layout->x         = user_layout->x;
-///       layout->y         = user_layout->y;
-///       layout->width     = user_layout->width;
-///       layout->height    = user_layout->height;
-///       layout->has_inner = LXW_FALSE;
-///       break;
-///     case LXW_CHART_LAYOUT_PLOTAREA:
-///       layout->x         = user_layout->x;
-///       layout->y         = user_layout->y;
-///       layout->width     = user_layout->width;
-///       layout->height    = user_layout->height;
-///       layout->has_inner = LXW_TRUE;
-///       break;
-///     default:
-///       layout->x         = user_layout->x;
-///       layout->y         = user_layout->y;
-///       layout->width     = 0.0;
-///       layout->height    = 0.0;
-///       layout->has_inner = LXW_FALSE;
-///       break;
-///   }
-///
-///   return layout;
-/// }
 
 void chart_t::add_axis_ids(chart_t& chart)
 {
@@ -268,80 +269,47 @@ std::string chart_t::write_style() const
   });
 }
 
-/*
- * Write the <c:layoutTarget> element.
- */
-/// STATIC void _chart_write_layout_target(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "inner");
-///
-///   lxw_xml_empty_tag(self->file, "c:layoutTarget", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_layout_target()
+{
+  return xml_empty_tag("c:layoutTarget", {
+                                             {"val", "inner"}
+  });
+}
 
-/*
- * Write the <c:xMode> and <c:yMode> element.
- */
-/// STATIC void _chart_write_layout_mode(lxw_chart* self, char* mode)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_STR("val", "edge");
-///
-///   lxw_xml_empty_tag(self->file, mode, &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_layout_mode(const std::string& mode)
+{
+  return xml_empty_tag(mode, {
+                                 {"val", "edge"}
+  });
+}
 
-/*
- * Write the layout dimension elements.
- */
-/// STATIC void _chart_write_layout_dimension(lxw_chart* self, char* dimension, double value)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_DBL("val", value);
-///
-///   lxw_xml_empty_tag(self->file, dimension, &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_layout_dimension(const std::string& dimension, double value)
+{
+  return xml_empty_tag(dimension, {
+                                      {"val", std::format("{}", value)}
+  });
+}
 
 std::string chart_t::write_manual_layout(const chart_layout_t& layout)
 {
   std::string xml_data = xml_start_tag("c:manualLayout");
-  ///
-  ///   /* Write the c:layoutTarget element. */
-  ///   if(layout->has_inner)
-  ///   {
-  ///     xml_data += _chart_write_layout_target(self);
-  ///   }
-  ///
-  ///   /* Write the c:xMode and c:yMode elements. */
-  ///   xml_data += _chart_write_layout_mode(self, "c:xMode");
-  ///   xml_data += _chart_write_layout_mode(self, "c:yMode");
-  ///
-  ///   /* Write the dimension elements. */
-  ///   xml_data += _chart_write_layout_dimension(self, "c:x", layout->x);
-  ///   xml_data += _chart_write_layout_dimension(self, "c:y", layout->y);
-  ///   if(layout->width > 0.0)
-  ///   {
-  ///     xml_data += _chart_write_layout_dimension(self, "c:w", layout->width);
-  ///   }
-  ///   if(layout->height > 0.0)
-  ///   {
-  ///     xml_data += _chart_write_layout_dimension(self, "c:h", layout->height);
-  ///   }
-  ///
+
+  if(layout.has_inner_)
+  {
+    xml_data += write_layout_target();
+  }
+  xml_data += write_layout_mode("c:xMode");
+  xml_data += write_layout_mode("c:yMode");
+  xml_data += write_layout_dimension("c:x", layout.x_);
+  xml_data += write_layout_dimension("c:y", layout.y_);
+  if(layout.width_ > 0.0)
+  {
+    xml_data += write_layout_dimension("c:w", layout.width_);
+  }
+  if(layout.height_ > 0.0)
+  {
+    xml_data += write_layout_dimension("c:h", layout.height_);
+  }
   xml_data += xml_end_tag("c:manualLayout");
 
   return xml_data;
@@ -775,7 +743,8 @@ std::string chart_t::write_pt_count(uint16_t num_data_points)
 
 std::string chart_t::write_v_num(double number)
 {
-  return xml_data_element("c:v", std::format("{}", number));
+  // TODO Complex format to have 20000000 and not 2e07. To check to have better choice
+  return xml_data_element("c:v", std::format("{:.10g}", number));
 }
 
 std::string chart_t::write_v_str(const std::string& str)
@@ -796,6 +765,7 @@ std::string chart_t::write_pt(uint16_t index, const series_data_point_t& data_po
     std::string xml_data = xml_start_tag("c:pt", {
                                                      {"idx", std::to_string(index)}
     });
+
     if(data_point.is_string_ && !data_point.str_.empty())
     {
       xml_data += write_v_str(data_point.str_);
@@ -2569,47 +2539,29 @@ std::string chart_t::write_label_align(const chart_axis_t& axis)
   return xml_empty_tag("c:lblAlgn", attributes);
 }
 
-/*
- * Write the <c:tickLblSkip> element.
- */
-/// STATIC void _chart_write_tick_label_skip(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->interval_unit)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_INT("val", axis->interval_unit);
-///
-///   lxw_xml_empty_tag(self->file, "c:tickLblSkip", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_tick_label_skip(const chart_axis_t& axis)
+{
+  if(axis.interval_unit_ == 0)
+  {
+    return "";
+  }
 
-/*
- * Write the <c:tickMarkSkip> element.
- */
-/// STATIC void _chart_write_tick_mark_skip(lxw_chart* self, lxw_chart_axis* axis)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(!axis->interval_tick)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///   LXW_PUSH_ATTRIBUTES_INT("val", axis->interval_tick);
-///
-///   lxw_xml_empty_tag(self->file, "c:tickMarkSkip", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+  return xml_empty_tag("c:tickLblSkip", {
+                                            {"val", std::to_string(axis.interval_unit_)}
+  });
+}
+
+std::string chart_t::write_tick_mark_skip(const chart_axis_t& axis)
+{
+  if(axis.interval_tick_ == 0)
+  {
+    return "";
+  }
+
+  return xml_empty_tag("c:tickMarkSkip", {
+                                             {"val", std::to_string(axis.interval_tick_)}
+  });
+}
 
 std::string chart_t::write_major_unit(const chart_axis_t& axis)
 {
@@ -3006,34 +2958,26 @@ std::string chart_t::write_gap_width(uint16_t gap)
   });
 }
 
-/*
- * Write the <c:dispBlanksAs> element.
- */
-/// STATIC void _chart_write_disp_blanks_as(lxw_chart* self)
-/// {
-///   struct xml_attribute_list attributes;
-///   struct xml_attribute* attribute;
-///
-///   if(self->show_blanks_as != LXW_CHART_BLANKS_AS_ZERO && self->show_blanks_as != LXW_CHART_BLANKS_AS_CONNECTED)
-///   {
-///     return;
-///   }
-///
-///   LXW_INIT_ATTRIBUTES();
-///
-///   if(self->show_blanks_as == LXW_CHART_BLANKS_AS_ZERO)
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "zero");
-///   }
-///   else
-///   {
-///     LXW_PUSH_ATTRIBUTES_STR("val", "span");
-///   }
-///
-///   lxw_xml_empty_tag(self->file, "c:dispBlanksAs", &attributes);
-///
-///   LXW_FREE_ATTRIBUTES();
-/// }
+std::string chart_t::write_disp_blanks_as()
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(show_blanks_as_ != chart_blank_t::AS_ZERO && show_blanks_as_ != chart_blank_t::AS_CONNECTED)
+  {
+    return "";
+  }
+
+  if(show_blanks_as_ == chart_blank_t::AS_ZERO)
+  {
+    attributes.emplace_back("val", "zero");
+  }
+  else
+  {
+    attributes.emplace_back("val", "span");
+  }
+
+  return xml_empty_tag("c:dispBlanksAs", attributes);
+}
 
 std::string chart_t::write_show_horz_border(bool value)
 {
@@ -3254,8 +3198,8 @@ std::string chart_t::write_cat_axis(chart_t& chart)
   xml_data += write_auto();
   xml_data += write_label_align(chart.x_axis_);
   xml_data += write_label_offset();
-  ///   xml_data += _chart_write_tick_label_skip(self, self->x_axis);
-  ///   xml_data += _chart_write_tick_mark_skip(self, self->x_axis);
+  xml_data += write_tick_label_skip(chart.x_axis_);
+  xml_data += write_tick_mark_skip(chart.x_axis_);
   xml_data += xml_end_tag("c:catAx");
 
   return xml_data;
@@ -3572,7 +3516,7 @@ std::string chart_t::write_chart()
   xml_data += write_plot_area_(*this);
   xml_data += write_legend();
   xml_data += write_plot_vis_only();
-  ///   xml_data +=_chart_write_disp_blanks_as(self);
+  xml_data += write_disp_blanks_as();
   xml_data += xml_end_tag("c:chart");
 
   return xml_data;
@@ -3809,6 +3753,12 @@ void chart_t::initialize(chart_type_t type)
   }
 }
 
+void chart_t::set_axis_ids(uint32_t axis_id_1, uint32_t axis_id_2)
+{
+  axis_id_1_ = axis_id_1;
+  axis_id_2_ = axis_id_2;
+}
+
 std::string chart_t::assemble_xml_file()
 {
   // Reverse the X and Y axes for Bar charts.
@@ -3953,29 +3903,15 @@ void chart_series_set_line(chart_series_t& series, const std::optional<chart_lin
   series.line_ = convert_line_args(line);
 }
 
-/*
- * Set a fill type for a series.
- */
-/// void chart_series_set_fill(lxw_chart_series* series, lxw_chart_fill* fill)
-/// {
-///   if(!fill)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->fill);
-///
-///   series->fill = _chart_convert_fill_args(fill);
-/// }
+void chart_series_set_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
+{
+  series.fill_ = convert_fill_args(fill);
+}
 
-/*
- * Invert the colors of a fill for a series.
- */
-/// void chart_series_set_invert_if_negative(lxw_chart_series* series)
-/// {
-///   series->invert_if_negative = LXW_TRUE;
-/// }
+void chart_series_set_invert_if_negative(chart_series_t& series)
+{
+  series.invert_if_negative_ = true;
+}
 
 void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
 {
@@ -3992,72 +3928,41 @@ void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t
   series.marker_->type_ = type;
 }
 
-/*
- * Set a marker size for a series.
- */
-/// void chart_series_set_marker_size(lxw_chart_series* series, uint8_t size)
-/// {
-///   if(size < 2 || size > 72)
-///   {
-///     LXW_WARN_FORMAT1("chart_series_set_marker_size(): marker size '%d' outside Excel range: 2 <= size <= 72", size);
-///     return;
-///   }
-///
-///   if(!series->marker)
-///   {
-///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
-///     RETURN_VOID_ON_MEM_ERROR(marker);
-///     series->marker = marker;
-///   }
-///
-///   series->marker->size = size;
-/// }
+void chart_series_set_marker_size(chart_series_t& series, uint8_t size)
+{
+  if(size < 2 || size > 72)
+  {
+    throw xwpp_out_of_range_t(
+        std::format("chart_series_set_marker_size(): marker size '{}' outside Excel range: 2 <= size <= 72", size));
+  }
 
-/*
- * Set a line type for a series marker.
- */
-/// void chart_series_set_marker_line(lxw_chart_series* series, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   if(!series->marker)
-///   {
-///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
-///     RETURN_VOID_ON_MEM_ERROR(marker);
-///     series->marker = marker;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->marker->line);
-///
-///   series->marker->line = _chart_convert_line_args(line);
-/// }
+  if(!series.marker_)
+  {
+    series.marker_ = chart_marker_t{};
+  }
 
-/*
- * Set a fill type for a series marker.
- */
-/// void chart_series_set_marker_fill(lxw_chart_series* series, lxw_chart_fill* fill)
-/// {
-///   if(!fill)
-///   {
-///     return;
-///   }
-///
-///   if(!series->marker)
-///   {
-///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
-///     RETURN_VOID_ON_MEM_ERROR(marker);
-///     series->marker = marker;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->marker->fill);
-///
-///   series->marker->fill = _chart_convert_fill_args(fill);
-/// }
+  series.marker_->size_ = size;
+}
+
+void chart_series_set_marker_line(chart_series_t& series, const std::optional<chart_line_t>& line)
+{
+  if(!series.marker_)
+  {
+    series.marker_ = chart_marker_t{};
+  }
+
+  series.marker_->line_ = convert_line_args(line);
+}
+
+void chart_series_set_marker_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
+{
+  if(!series.marker_)
+  {
+    series.marker_ = chart_marker_t{};
+  }
+
+  series.marker_->fill_ = convert_fill_args(fill);
+}
 
 /*
  * Set a pattern type for a series.
@@ -4100,13 +4005,10 @@ void series_set_points(chart_series_t& series, const std::vector<chart_point_t> 
   }
 }
 
-/*
- * Set the smooth property for a line or scatter series.
- */
-/// void chart_series_set_smooth(lxw_chart_series* series, uint8_t smooth)
-/// {
-///   series->smooth = smooth;
-/// }
+void chart_series_set_smooth(chart_series_t& series, bool smooth)
+{
+  series.smooth_ = smooth;
+}
 
 void chart_series_set_labels(chart_series_t& series)
 {
@@ -4166,83 +4068,48 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
   }
 }
 
-/*
- * Set the data labels separator for a series.
- */
-/// void chart_series_set_labels_separator(lxw_chart_series* series, uint8_t separator)
-/// {
-///   if(separator > LXW_CHART_LABEL_SEPARATOR_SPACE)
-///   {
-///     LXW_WARN_FORMAT1("chart_series_set_labels_separator(): invalid label separator: %d", separator);
-///     return;
-///   }
-///
-///   series->has_labels      = LXW_TRUE;
-///   series->label_separator = separator;
-/// }
+void chart_series_set_labels_separator(chart_series_t& series, chart_label_separator_t separator)
+{
+  series.has_labels_      = true;
+  series.label_separator_ = separator;
+}
 
-/*
- * Set the data labels position for a series.
- */
-/// void chart_series_set_labels_position(lxw_chart_series* series, uint8_t position)
-/// {
-///   if(position > LXW_CHART_LABEL_POSITION_BEST_FIT)
-///   {
-///     LXW_WARN_FORMAT1("chart_series_set_labels_position(): invalid label position: %d", position);
-///     return;
-///   }
-///
-///   series->has_labels        = LXW_TRUE;
-///   series->show_labels_value = LXW_TRUE;
-///
-///   if(position != series->default_label_position)
-///   {
-///     series->label_position = position;
-///   }
-/// }
+void chart_series_set_labels_position(chart_series_t& series, chart_label_position_t position)
+{
+  series.has_labels_        = true;
+  series.show_labels_value_ = true;
 
-/*
- * Set the data labels position for a series.
- */
-/// void chart_series_set_labels_leader_line(lxw_chart_series* series)
-/// {
-///   series->has_labels         = LXW_TRUE;
-///   series->show_labels_leader = LXW_TRUE;
-/// }
+  if(position != series.default_label_position_)
+  {
+    series.label_position_ = position;
+  }
+}
 
-/*
- * Turn on the data labels legend for a series.
- */
-/// void chart_series_set_labels_legend(lxw_chart_series* series)
-/// {
-///   series->has_labels         = LXW_TRUE;
-///   series->show_labels_legend = LXW_TRUE;
-/// }
+void chart_series_set_labels_leader_line(chart_series_t& series)
+{
+  series.has_labels_         = true;
+  series.show_labels_leader_ = true;
+}
 
-/*
- * Turn on the data labels percentage for a series.
- */
-/// void chart_series_set_labels_percentage(lxw_chart_series* series)
-/// {
-///   series->has_labels          = LXW_TRUE;
-///   series->show_labels_percent = LXW_TRUE;
-/// }
+void chart_series_set_labels_legend(chart_series_t& series)
+{
+  series.has_labels_         = true;
+  series.show_labels_legend_ = true;
+}
 
-/*
- * Set an data labels number format.
- */
-/// void chart_series_set_labels_num_format(lxw_chart_series* series, const char* num_format)
-/// {
-///   if(!num_format)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->label_num_format);
-///
-///   series->label_num_format = lxw_strdup(num_format);
-/// }
+void chart_series_set_labels_percentage(chart_series_t& series)
+{
+  series.has_labels_          = true;
+  series.show_labels_percent_ = true;
+}
+
+void chart_series_set_labels_num_format(chart_series_t& series, const std::string& num_format)
+{
+  if(!num_format.empty())
+  {
+    series.label_num_format_ = num_format;
+  }
+}
 
 void chart_series_set_labels_font(chart_series_t& series, const std::optional<chart_font_t>& font)
 {
@@ -4259,21 +4126,10 @@ void chart_series_set_labels_fill(chart_series_t& series, const std::optional<ch
   series.label_fill_ = convert_fill_args(fill);
 }
 
-/*
- * Set a pattern type for a series data labels.
- */
-/// void chart_series_set_labels_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern)
-/// {
-///   if(!pattern)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->label_pattern);
-///
-///   series->label_pattern = _chart_convert_pattern_args(pattern);
-/// }
+void chart_series_set_labels_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
+{
+  series.label_pattern_ = convert_pattern_args(pattern);
+}
 
 void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, uint8_t value)
 {
@@ -4292,145 +4148,90 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
   series.trendline_value_ = value;
 }
 
-/*
- * Set the trendline forecast for a chart series.
- */
-/// void chart_series_set_trendline_forecast(lxw_chart_series* series, double forward, double backward)
-/// {
-///   if(!series->has_trendline)
-///   {
-///     LXW_WARN("chart_series_set_trendline_forecast(): trendline type "
-///              "must be set first using chart_series_set_trendline()");
-///     return;
-///   }
-///
-///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
-///   {
-///     LXW_WARN("chart_series_set_trendline(): forecast isn't available "
-///              "in Excel for a Moving Average trendline");
-///     return;
-///   }
-///
-///   series->has_trendline_forecast = LXW_TRUE;
-///   series->trendline_forward      = forward;
-///   series->trendline_backward     = backward;
-/// }
+void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward)
+{
+  if(!series.has_trendline_)
+  {
+    throw xwpp_exception_t(
+        "chart_series_set_trendline_forecast(): trendline type must be set first using chart_series_set_trendline()");
+  }
 
-/*
- * Display the equation for a series trendline.
- */
-/// void chart_series_set_trendline_equation(lxw_chart_series* series)
-/// {
-///   if(!series->has_trendline)
-///   {
-///     LXW_WARN("chart_series_set_trendline_equation(): trendline type "
-///              "must be set first using chart_series_set_trendline()");
-///     return;
-///   }
-///
-///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
-///   {
-///     LXW_WARN("chart_series_set_trendline_equation(): equation isn't "
-///              "available in Excel for a Moving Average trendline");
-///     return;
-///   }
-///
-///   series->has_trendline_equation = LXW_TRUE;
-/// }
+  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE)
+  {
+    throw xwpp_exception_t(
+        "chart_series_set_trendline_forecast(): forecast isn't available in Excel for a Moving Average trendline");
+  }
 
-/*
- * Display the R squared value for a series trendline.
- */
-/// void chart_series_set_trendline_r_squared(lxw_chart_series* series)
-/// {
-///   if(!series->has_trendline)
-///   {
-///     LXW_WARN("chart_series_set_trendline_r_squared(): trendline type "
-///              "must be set first using chart_series_set_trendline()");
-///     return;
-///   }
-///
-///   if(series->trendline_type == LXW_CHART_TRENDLINE_TYPE_AVERAGE)
-///   {
-///     LXW_WARN("chart_series_set_trendline_r_squared(): R squared isn't "
-///              "available in Excel for a Moving Average trendline");
-///     return;
-///   }
-///
-///   series->has_trendline_r_squared = LXW_TRUE;
-/// }
+  series.has_trendline_forecast_ = true;
+  series.trendline_forward_      = forward;
+  series.trendline_backward_     = backward;
+}
 
-/*
- * Set the trendline intercept for a chart series.
- */
-/// void chart_series_set_trendline_intercept(lxw_chart_series* series, double intercept)
-/// {
-///   if(!series->has_trendline)
-///   {
-///     LXW_WARN("chart_series_set_trendline_intercept(): trendline type "
-///              "must be set first using chart_series_set_trendline()");
-///     return;
-///   }
-///
-///   if(series->trendline_type != LXW_CHART_TRENDLINE_TYPE_EXP &&
-///      series->trendline_type != LXW_CHART_TRENDLINE_TYPE_LINEAR &&
-///      series->trendline_type != LXW_CHART_TRENDLINE_TYPE_POLY)
-///   {
-///
-///     LXW_WARN("chart_series_set_trendline_intercept(): intercept is only "
-///              "available in Excel for Exponential, Linear and Polynomial "
-///              "trendline types");
-///     return;
-///   }
-///
-///   series->has_trendline_intercept = LXW_TRUE;
-///   series->trendline_intercept     = intercept;
-/// }
+void chart_series_set_trendline_equation(chart_series_t& series)
+{
+  if(!series.has_trendline_)
+  {
+    throw xwpp_exception_t(
+        "series_set_trendline_equation(): trendline type must be set first using chart_series_set_trendline()");
+  }
 
-/*
- * Set a line type for a series trendline.
- */
-/// void chart_series_set_trendline_name(lxw_chart_series* series, const char* name)
-/// {
-///   if(!name)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->trendline_name);
-///
-///   series->trendline_name = lxw_strdup(name);
-/// }
+  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE)
+  {
+    throw xwpp_exception_t(
+        "series_set_trendline_equation(): equation isn't available in Excel for a Moving Average trendline");
+  }
+
+  series.has_trendline_equation_ = true;
+}
+
+void chart_series_set_trendline_r_squared(chart_series_t& series)
+{
+  if(!series.has_trendline_)
+  {
+    throw xwpp_exception_t(
+        "chart_series_set_trendline_r_squared(): trendline type must be set first using chart_series_set_trendline()");
+  }
+
+  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE)
+  {
+    throw xwpp_exception_t(
+        "chart_series_set_trendline_r_squared(): R squared isn't available in Excel for a Moving Average trendline");
+  }
+
+  series.has_trendline_r_squared_ = true;
+}
+
+void chart_series_set_trendline_intercept(chart_series_t& series, double intercept)
+{
+  if(!series.has_trendline_)
+  {
+    throw xwpp_exception_t(
+        "chart_series_set_trendline_intercept(): trendline type must be set first using chart_series_set_trendline()");
+  }
+
+  if(series.trendline_type_ != chart_trendline_type_t::EXP &&
+     series.trendline_type_ != chart_trendline_type_t::LINEAR && series.trendline_type_ != chart_trendline_type_t::POLY)
+  {
+    throw xwpp_exception_t("chart_series_set_trendline_r_squared(): intercept is only available in Excel for "
+                           "Exponential, Linear and Polynomial trendline types");
+  }
+
+  series.has_trendline_intercept_ = true;
+  series.trendline_intercept_     = intercept;
+}
+
+void chart_series_set_trendline_name(chart_series_t& series, const std::string& name)
+{
+  if(!name.empty())
+  {
+    series.trendline_name_ = name;
+  }
+}
 
 void series_set_trendline_line(chart_series_t& series, const std::optional<chart_line_t>& line)
 {
   series.trendline_line_ = convert_line_args(line);
 }
-
-/*
- * Set the X or Y error bars from a chart series.
- */
-/// lxw_series_error_bars* chart_series_get_error_bars(lxw_chart_series* series, lxw_chart_error_bar_axis axis_type)
-/// {
-///   if(!series)
-///   {
-///     return NULL;
-///   }
-///
-///   if(axis_type == LXW_CHART_ERROR_BAR_AXIS_X)
-///   {
-///     return series->x_error_bars;
-///   }
-///   else if(axis_type == LXW_CHART_ERROR_BAR_AXIS_Y)
-///   {
-///     return series->y_error_bars;
-///   }
-///   else
-///   {
-///     return NULL;
-///   }
-/// }
 
 void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value)
 {
@@ -4447,76 +4248,38 @@ void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error
   }
 }
 
-/*
- * Set the error bars direction for a chart series.
- */
-/// void chart_series_set_error_bars_direction(lxw_series_error_bars* error_bars, uint8_t direction)
-/// {
-///   if(_chart_check_error_bars(error_bars, "_direction"))
-///   {
-///     return;
-///   }
-///
-///   error_bars->direction = direction;
-/// }
+void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, chart_error_bar_direction_t direction)
+{
+  check_error_bars(error_bars, "_direction");
 
-/*
- * Set the error bars end cap type for a chart series.
- */
-/// void chart_series_set_error_bars_endcap(lxw_series_error_bars* error_bars, uint8_t endcap)
-/// {
-///   if(_chart_check_error_bars(error_bars, "_endcap"))
-///   {
-///     return;
-///   }
-///
-///   error_bars->endcap = endcap;
-/// }
+  error_bars.direction_ = direction;
+}
 
-/*
- * Set a line type for a series error bars.
- */
-/// void chart_series_set_error_bars_line(lxw_series_error_bars* error_bars, lxw_chart_line* line)
-/// {
-///   if(_chart_check_error_bars(error_bars, "_line"))
-///   {
-///     return;
-///   }
-///
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(error_bars->line);
-///
-///   error_bars->line = _chart_convert_line_args(line);
-/// }
+void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_error_bar_cap_t endcap)
+{
+  check_error_bars(error_bars, "_endcap");
 
-/*
- * Get an axis pointer from a chart.
- */
-/// lxw_chart_axis* chart_axis_get(lxw_chart* self, lxw_chart_axis_type axis_type)
-/// {
-///   if(!self)
-///   {
-///     return NULL;
-///   }
-///
-///   if(axis_type == LXW_CHART_AXIS_TYPE_X)
-///   {
-///     return self->x_axis;
-///   }
-///   else if(axis_type == LXW_CHART_AXIS_TYPE_Y)
-///   {
-///     return self->y_axis;
-///   }
-///   else
-///   {
-///     return NULL;
-///   }
-/// }
+  error_bars.endcap_ = endcap;
+}
+
+void chart_series_set_error_bars_line(series_error_bars_t& error_bars, const std::optional<chart_line_t>& line)
+{
+  check_error_bars(error_bars, "_line");
+
+  error_bars.line_ = convert_line_args(line);
+}
+
+chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
+{
+  if(axis_type == chart_axis_type_t::TYPE_X)
+  {
+    return x_axis_;
+  }
+  else
+  {
+    return y_axis_;
+  }
+}
 
 void chart_axis_set_name(chart_axis_t& axis, const std::string& name)
 {
@@ -4535,36 +4298,21 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name)
   }
 }
 
-/*
- * Set an axis caption, with a range instead or a formula.
- */
-/// void chart_axis_set_name_range(lxw_chart_axis* axis, const char* sheetname, lxw_row_t row, lxw_col_t col)
-/// {
-///   if(!sheetname)
-///   {
-///     LXW_WARN("chart_axis_set_name_range(): sheetname must be specified");
-///     return;
-///   }
-///
-///   /* Start and end row, col are the same for single cell range. */
-///   _chart_set_range(axis->title.range, sheetname, row, col, row, col);
-/// }
+void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row, col_num_t col)
+{
+  if(sheetname.empty())
+  {
+    throw xwpp_exception_t("chart_axis_set_name_range(): sheetname must be specified");
+  }
 
-/*
- * Set a layout for the chart axis name.
- */
-/// void chart_axis_set_name_layout(lxw_chart_axis* axis, lxw_chart_layout* layout)
-/// {
-///   if(!layout)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->title.layout);
-///
-///   axis->title.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_AXIS_NAME);
-/// }
+  // Start and end row, col are the same for single cell range.
+  set_range(axis.title_.range_, sheetname, row, col, row, col);
+}
+
+void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_layout_t>& layout)
+{
+  axis.title_.layout_ = convert_layout_args(layout, chart_layout_type_t::AXIS_NAME);
+}
 
 void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
 {
@@ -4584,53 +4332,25 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
   axis.num_font_ = convert_font_args(font);
 }
 
-/*
- * Set an axis number format.
- */
-/// void chart_axis_set_num_format(lxw_chart_axis* axis, const char* num_format)
-/// {
-///   if(!num_format)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->num_format);
-///
-///   axis->num_format = lxw_strdup(num_format);
-/// }
+void chart_axis_set_num_format(chart_axis_t& axis, const std::string& num_format)
+{
+  axis.num_format_ = num_format;
+}
 
-/*
- * Set a line type for an axis.
- */
-/// void chart_axis_set_line(lxw_chart_axis* axis, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->line);
-///
-///   axis->line = _chart_convert_line_args(line);
-/// }
+void chart_axis_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line)
+{
+  if(!line)
+  {
+    return;
+  }
 
-/*
- * Set a fill type for an axis.
- */
-/// void chart_axis_set_fill(lxw_chart_axis* axis, lxw_chart_fill* fill)
-/// {
-///   if(!fill)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->fill);
-///
-///   axis->fill = _chart_convert_fill_args(fill);
-/// }
+  axis.line_ = convert_line_args(line);
+}
+
+void chart_axis_set_fill(chart_axis_t& axis, const std::optional<chart_fill_t>& fill)
+{
+  axis.fill_ = convert_fill_args(fill);
+}
 
 /*
  * Set a pattern type for an axis.
@@ -4648,40 +4368,28 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
 ///   axis->pattern = _chart_convert_pattern_args(pattern);
 /// }
 
-/*
- * Reverse the direction of an axis.
- */
-/// void chart_axis_set_reverse(lxw_chart_axis* axis)
-/// {
-///   axis->reverse = LXW_TRUE;
-/// }
+void chart_axis_set_reverse(chart_axis_t& axis)
+{
+  axis.reverse_ = true;
+}
 
-/*
- * Set the axis crossing position.
- */
-/// void chart_axis_set_crossing(lxw_chart_axis* axis, double value)
-/// {
-///   axis->has_crossing = LXW_TRUE;
-///   axis->crossing     = value;
-/// }
+void chart_axis_set_crossing(chart_axis_t& axis, double value)
+{
+  axis.has_crossing_ = true;
+  axis.crossing_     = value;
+}
 
-/*
- * Set the axis crossing position as the minimum possible value.
- */
-/// void chart_axis_set_crossing_min(lxw_chart_axis* axis)
-/// {
-///   axis->has_crossing = LXW_TRUE;
-///   axis->crossing_min = LXW_TRUE;
-/// }
+void chart_axis_set_crossing_min(chart_axis_t& axis)
+{
+  axis.has_crossing_ = true;
+  axis.crossing_min_ = true;
+}
 
-/*
- * Set the axis crossing position as the maximum possible value.
- */
-/// void chart_axis_set_crossing_max(lxw_chart_axis* axis)
-/// {
-///   axis->has_crossing = LXW_TRUE;
-///   axis->crossing_max = LXW_TRUE;
-/// }
+void chart_axis_set_crossing_max(chart_axis_t& axis)
+{
+  axis.has_crossing_ = true;
+  axis.crossing_max_ = true;
+}
 
 /*
  * Turn off/hide the axis.
@@ -4691,242 +4399,116 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
 ///   axis->hidden = LXW_TRUE;
 /// }
 
-/*
- * Set the category axis position.
- */
-/// void chart_axis_set_position(lxw_chart_axis* axis, uint8_t position)
-/// {
-///   if(position > LXW_CHART_AXIS_POSITION_BETWEEN)
-///   {
-///     LXW_WARN_FORMAT1("chart_axis_set_position(): invalid position: %d", position);
-///     return;
-///   }
-///
-///   LXW_WARN_CAT_AND_DATE_AXIS_ONLY("chart_axis_set_position");
-///
-///   axis->position_axis = position;
-/// }
+void chart_axis_set_position(chart_axis_t& axis, chart_axis_tick_position_t position)
+{
+  axis.position_axis_ = position;
+}
 
-/*
- * Set the axis label position.
- */
-/// void chart_axis_set_label_position(lxw_chart_axis* axis, uint8_t position)
-/// {
-///   if(position > LXW_CHART_AXIS_LABEL_POSITION_NONE)
-///   {
-///     LXW_WARN_FORMAT1("chart_axis_set_label_position(): invalid label position: %d", position);
-///     return;
-///   }
-///
-///   axis->label_position = position;
-/// }
+void chart_axis_set_label_position(chart_axis_t& axis, chart_axis_label_position_t position)
+{
+  axis.label_position_ = position;
+}
 
-/*
- * Set the minimum value for an axis.
- */
-/// void chart_axis_set_min(lxw_chart_axis* axis, double min)
-/// {
-///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_min");
-///
-///   axis->min     = min;
-///   axis->has_min = LXW_TRUE;
-/// }
+void chart_axis_set_min(chart_axis_t& axis, double min)
+{
+  axis.min_     = min;
+  axis.has_min_ = true;
+}
 
-/*
- * Set the maximum value for an axis.
- */
-/// void chart_axis_set_max(lxw_chart_axis* axis, double max)
-/// {
-///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_max");
-///
-///   axis->max     = max;
-///   axis->has_max = LXW_TRUE;
-/// }
+void chart_axis_set_max(chart_axis_t& axis, double max)
+{
+  axis.max_     = max;
+  axis.has_max_ = true;
+}
 
-/*
- * Set the log base for an axis.
- */
-/// void chart_axis_set_log_base(lxw_chart_axis* axis, uint16_t log_base)
-/// {
-///   LXW_WARN_VALUE_AXIS_ONLY("chart_axis_set_log_base");
-///
-///   /* Excel log range is 2-1000. */
-///   if(log_base >= 2 && log_base <= 1000)
-///   {
-///     axis->log_base = log_base;
-///   }
-/// }
+void chart_axis_set_log_base(chart_axis_t& axis, uint16_t log_base)
+{
+  // Excel log range is 2-1000.
+  if(log_base >= 2 && log_base <= 1000)
+  {
+    axis.log_base_ = log_base;
+  }
+}
 
-/*
- * Set the major mark for an axis.
- */
-/// void chart_axis_set_major_tick_mark(lxw_chart_axis* axis, uint8_t type)
-/// {
-///   if(type > LXW_CHART_AXIS_TICK_MARK_CROSSING)
-///   {
-///     LXW_WARN_FORMAT1("chart_axis_set_major_tick_mark(): invalid tick mark type: %d", type);
-///     return;
-///   }
-///
-///   axis->major_tick_mark = type;
-/// }
+void chart_axis_set_major_tick_mark(chart_axis_t& axis, chart_axis_tick_mark_t type)
+{
+  axis.major_tick_mark_ = type;
+}
 
-/*
- * Set the minor mark for an axis.
- */
-/// void chart_axis_set_minor_tick_mark(lxw_chart_axis* axis, uint8_t type)
-/// {
-///   if(type > LXW_CHART_AXIS_TICK_MARK_CROSSING)
-///   {
-///     LXW_WARN_FORMAT1("chart_axis_set_minor_tick_mark(): invalid tick mark type: %d", type);
-///     return;
-///   }
-///
-///   axis->minor_tick_mark = type;
-/// }
+void chart_axis_set_minor_tick_mark(chart_axis_t& axis, chart_axis_tick_mark_t type)
+{
+  axis.minor_tick_mark_ = type;
+}
 
-/*
- * Set interval unit for a category axis.
- */
-/// void chart_axis_set_interval_unit(lxw_chart_axis* axis, uint16_t unit)
-/// {
-///   LXW_WARN_CAT_AND_DATE_AXIS_ONLY("chart_axis_set_major_unit");
-///
-///   axis->interval_unit = unit;
-/// }
+void chart_axis_set_interval_unit(chart_axis_t& axis, uint16_t unit)
+{
+  axis.interval_unit_ = unit;
+}
 
-/*
- * Set tick interval for a category axis.
- */
-/// void chart_axis_set_interval_tick(lxw_chart_axis* axis, uint16_t unit)
-/// {
-///   LXW_WARN_CAT_AND_DATE_AXIS_ONLY("chart_axis_set_major_tick");
-///
-///   axis->interval_tick = unit;
-/// }
+void chart_axis_set_interval_tick(chart_axis_t& axis, uint16_t unit)
+{
+  axis.interval_tick_ = unit;
+}
 
-/*
- * Set major unit for a value axis.
- */
-/// void chart_axis_set_major_unit(lxw_chart_axis* axis, double unit)
-/// {
-///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_major_unit");
-///
-///   axis->has_major_unit = LXW_TRUE;
-///   axis->major_unit     = unit;
-/// }
+void chart_axis_set_major_unit(chart_axis_t& axis, double unit)
+{
+  axis.has_major_unit_ = true;
+  axis.major_unit_     = unit;
+}
 
-/*
- * Set minor unit for a value axis.
- */
-/// void chart_axis_set_minor_unit(lxw_chart_axis* axis, double unit)
-/// {
-///   LXW_WARN_VALUE_AND_DATE_AXIS_ONLY("chart_axis_set_minor_unit");
-///
-///   axis->has_minor_unit = LXW_TRUE;
-///   axis->minor_unit     = unit;
-/// }
+void chart_axis_set_minor_unit(chart_axis_t& axis, double unit)
+{
+  axis.has_minor_unit_ = true;
+  axis.minor_unit_     = unit;
+}
 
-/*
- * Set the display units for a value axis.
- */
-/// void chart_axis_set_display_units(lxw_chart_axis* axis, uint8_t units)
-/// {
-///   if(units > LXW_CHART_AXIS_UNITS_TRILLIONS)
-///   {
-///     LXW_WARN_FORMAT1("chart_axis_set_display_units(): invalid display units: %d", units);
-///     return;
-///   }
-///
-///   LXW_WARN_VALUE_AXIS_ONLY("chart_axis_set_display_units");
-///
-///   axis->display_units         = units;
-///   axis->display_units_visible = LXW_TRUE;
-/// }
+void chart_axis_set_display_units(chart_axis_t& axis, chart_axis_display_unit_t units)
+{
+  axis.display_units_         = units;
+  axis.display_units_visible_ = true;
+}
 
-/*
- * Turn on/off the display units for a value axis.
- */
-/// void chart_axis_set_display_units_visible(lxw_chart_axis* axis, uint8_t visible)
-/// {
-///   LXW_WARN_VALUE_AXIS_ONLY("chart_axis_set_display_units");
-///
-///   axis->display_units_visible = visible;
-/// }
+void chart_axis_set_display_units_visible(chart_axis_t& axis, bool visible)
+{
+  axis.display_units_visible_ = visible;
+}
 
-/*
- * Set the axis major gridlines on/off.
- */
-/// void chart_axis_major_gridlines_set_visible(lxw_chart_axis* axis, uint8_t visible)
-/// {
-///   axis->major_gridlines.visible = visible;
-/// }
+void chart_axis_major_gridlines_set_visible(chart_axis_t& axis, bool visible)
+{
+  axis.major_gridlines_.visible_ = visible;
+}
 
-/*
- * Set a line type for the major gridlines.
- */
-/// void chart_axis_major_gridlines_set_line(lxw_chart_axis* axis, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->major_gridlines.line);
-///
-///   axis->major_gridlines.line = _chart_convert_line_args(line);
-///
-///   /* If the gridline has a format it should also be visible. */
-///   if(axis->major_gridlines.line)
-///   {
-///     axis->major_gridlines.visible = LXW_TRUE;
-///   }
-/// }
+void chart_axis_major_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line)
+{
+  axis.major_gridlines_.line_ = convert_line_args(line);
 
-/*
- * Set the axis minor gridlines on/off.
- */
-/// void chart_axis_minor_gridlines_set_visible(lxw_chart_axis* axis, uint8_t visible)
-/// {
-///   axis->minor_gridlines.visible = visible;
-/// }
+  // If the gridline has a format it should also be visible.
+  if(axis.major_gridlines_.line_)
+  {
+    axis.major_gridlines_.visible_ = true;
+  }
+}
 
-/*
- * Set a line type for the minor gridlines.
- */
-/// void chart_axis_minor_gridlines_set_line(lxw_chart_axis* axis, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->minor_gridlines.line);
-///
-///   axis->minor_gridlines.line = _chart_convert_line_args(line);
-///
-///   /* If the gridline has a format it should also be visible. */
-///   if(axis->minor_gridlines.line)
-///   {
-///     axis->minor_gridlines.visible = LXW_TRUE;
-///   }
-/// }
+void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible)
+{
+  axis.minor_gridlines_.visible_ = visible;
+}
 
-/*
- * Set the chart axis label alignment.
- */
-/// void chart_axis_set_label_align(lxw_chart_axis* axis, uint8_t align)
-/// {
-///   if(align > LXW_CHART_AXIS_LABEL_ALIGN_RIGHT)
-///   {
-///     LXW_WARN_FORMAT1("chart_axis_set_label_align(): invalid label alignment: %d", align);
-///     return;
-///   }
-///
-///   axis->label_align = align;
-/// }
+void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line)
+{
+  axis.minor_gridlines_.line_ = convert_line_args(line);
+
+  // If the gridline has a format it should also be visible.
+  if(axis.minor_gridlines_.line_)
+  {
+    axis.minor_gridlines_.visible_ = true;
+  }
+}
+
+void chart_axis_set_label_align(chart_axis_t& axis, chart_axis_label_alignment_t align)
+{
+  axis.label_align_ = align;
+}
 
 void chart_t::title_set_name(const std::string& name)
 {
@@ -4943,151 +4525,77 @@ void chart_t::title_set_name(const std::string& name)
   }
 }
 
-/*
- * Set the chart title, with a range instead or a formula.
- */
-/// void chart_title_set_name_range(lxw_chart* self, const char* sheetname, lxw_row_t row, lxw_col_t col)
-/// {
-///   if(!sheetname)
-///   {
-///     LXW_WARN("chart_title_set_name_range(): sheetname must be specified");
-///     return;
-///   }
-///
-///   /* Start and end row, col are the same for single cell range. */
-///   _chart_set_range(self->title.range, sheetname, row, col, row, col);
-/// }
+void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row, col_num_t col)
+{
+  if(sheetname.empty())
+  {
+    throw xwpp_exception_t("chart_t::title_set_name_range(): sheetname must be specified");
+  }
+
+  // Start and end row, col are the same for single cell range.
+  set_range(title_.range_, sheetname, row, col, row, col);
+}
 
 void chart_t::title_set_name_font(const chart_font_t& font)
 {
   title_.font_ = convert_font_args(font, true);
 }
 
-/*
- * Turn off the chart title.
- */
-/// void chart_title_off(lxw_chart* self)
-/// {
-///   self->title.off = LXW_TRUE;
-/// }
+void chart_t::title_off()
+{
+  title_.off_ = true;
+}
 
-/*
- * Set a layout for the chart title.
- */
-/// void chart_title_set_layout(lxw_chart* self, lxw_chart_layout* layout)
-/// {
-///   if(!layout)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->title.layout);
-///
-///   self->title.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_TITLE);
-/// }
+void chart_t::title_set_layout(const std::optional<chart_layout_t>& layout)
+{
+  title_.layout_ = convert_layout_args(layout, chart_layout_type_t::TITLE);
+}
 
-/*
- * Overlay the chart title on the chart.
- */
-/// void chart_title_set_overlay(lxw_chart* self, uint8_t overlay)
-/// {
-///   self->title.has_overlay = overlay;
-/// }
+void chart_t::title_set_overlay(bool overlay)
+{
+  title_.has_overlay_ = overlay;
+}
 
 void chart_t::legend_set_position(chart_legend_position_t position)
 {
   legend_.position_ = position;
 }
 
-/*
- * Set a layout for the chart legend.
- */
-/// void chart_legend_set_layout(lxw_chart* self, lxw_chart_layout* layout)
-/// {
-///   if(!layout)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->legend.layout);
-///
-///   self->legend.layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_LEGEND);
-/// }
+void chart_t::legend_set_layout(const std::optional<chart_layout_t>& layout)
+{
+  legend_.layout_ = convert_layout_args(layout, chart_layout_type_t::LEGEND);
+}
 
 void chart_t::legend_set_font(const std::optional<chart_font_t>& font)
 {
   legend_.font_ = convert_font_args(font);
 }
 
-/*
- * Remove one or more series from the the legend.
- */
-/// lxw_error chart_legend_delete_series(lxw_chart* self, int16_t delete_series[])
-/// {
-///   uint16_t count = 0;
-///
-///   if(delete_series == NULL)
-///   {
-///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///   }
-///
-///   while(delete_series[count] >= 0)
-///   {
-///     count++;
-///   }
-///
-///   if(count == 0)
-///   {
-///     return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///   }
-///
-///   /* The maximum number of series in a chart is 255. */
-///   if(count > 255)
-///   {
-///     count = 255;
-///   }
-///
-///   self->delete_series = calloc(count, sizeof(int16_t));
-///   RETURN_ON_MEM_ERROR(self->delete_series, LXW_ERROR_MEMORY_MALLOC_FAILED);
-///   memcpy(self->delete_series, delete_series, count * sizeof(int16_t));
-///   self->delete_series_count = count;
-///
-///   return LXW_NO_ERROR;
-/// }
+void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
+{
+  if(delete_series.empty())
+  {
+    throw xwpp_exception_t("chart_t::legend_delete_series(): 'delete_series' is empty");
+  }
 
-/*
- * Set a line type for the chartarea.
- */
-/// void chart_chartarea_set_line(lxw_chart* self, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->chartarea_line);
-///
-///   self->chartarea_line = _chart_convert_line_args(line);
-/// }
+  // The maximum number of series in a chart is 255.
+  if(delete_series.size() > 255)
+  {
+    throw xwpp_out_of_range_t("chart_t::legend_delete_series(): too manu elements in 'delete_series'");
+  }
 
-/*
- * Set a fill type for the chartarea.
- */
-/// void chart_chartarea_set_fill(lxw_chart* self, lxw_chart_fill* fill)
-/// {
-///   if(!fill)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->chartarea_fill);
-///
-///   self->chartarea_fill = _chart_convert_fill_args(fill);
-/// }
+  delete_series_ = delete_series;
+}
+
+void chart_t::chartarea_set_line(const std::optional<chart_line_t>& line)
+{
+  chartarea_line_ = convert_line_args(line);
+}
+
+void chart_t::chartarea_set_fill(const std::optional<chart_fill_t>& fill)
+{
+  chartarea_fill_ = convert_fill_args(fill);
+}
 
 /*
  * Set a pattern type for the chartarea.
@@ -5105,69 +4613,25 @@ void chart_t::legend_set_font(const std::optional<chart_font_t>& font)
 ///   self->chartarea_pattern = _chart_convert_pattern_args(pattern);
 /// }
 
-/*
- * Set a line type for the plotarea.
- */
-/// void chart_plotarea_set_line(lxw_chart* self, lxw_chart_line* line)
-/// {
-///   if(!line)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->plotarea_line);
-///
-///   self->plotarea_line = _chart_convert_line_args(line);
-/// }
+void chart_t::plotarea_set_line(const std::optional<chart_line_t>& line)
+{
+  plotarea_line_ = convert_line_args(line);
+}
 
-/*
- * Set a fill type for the plotarea.
- */
-/// void chart_plotarea_set_fill(lxw_chart* self, lxw_chart_fill* fill)
-/// {
-///   if(!fill)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->plotarea_fill);
-///
-///   self->plotarea_fill = _chart_convert_fill_args(fill);
-/// }
+void chart_t::plotarea_set_fill(const std::optional<chart_fill_t>& fill)
+{
+  plotarea_fill_ = convert_fill_args(fill);
+}
 
-/*
- * Set a pattern type for the plotarea.
- */
-/// void chart_plotarea_set_pattern(lxw_chart* self, lxw_chart_pattern* pattern)
-/// {
-///   if(!pattern)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->plotarea_pattern);
-///
-///   self->plotarea_pattern = _chart_convert_pattern_args(pattern);
-/// }
+void chart_t::plotarea_set_pattern(const std::optional<chart_pattern_t>& pattern)
+{
+  plotarea_pattern_ = convert_pattern_args(pattern);
+}
 
-/*
- * Set a layout for the plotarea.
- */
-/// void chart_plotarea_set_layout(lxw_chart* self, lxw_chart_layout* layout)
-/// {
-///   if(!layout)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->plotarea_layout);
-///
-///   self->plotarea_layout = _chart_convert_layout_args(layout, LXW_CHART_LAYOUT_PLOTAREA);
-/// }
+void chart_t::plotarea_set_layout(const std::optional<chart_layout_t>& layout)
+{
+  plotarea_layout_ = convert_layout_args(layout, chart_layout_type_t::PLOTAREA);
+}
 
 void chart_t::set_table()
 {
@@ -5187,18 +4651,11 @@ void chart_t::set_table_grid(bool horizontal, bool vertical, bool outline, bool 
   has_table_legend_keys_ = legend_keys;
 }
 
-/*
- * Set the font for the chart data table grid.
- */
-/// void chart_set_table_font(lxw_chart* self, lxw_chart_font* font)
-/// {
-///   self->has_table = LXW_TRUE;
-///
-///   /* Free any previously allocated resource. */
-///   _chart_free_font(self->table_font);
-///
-///   self->table_font = _chart_convert_font_args(font);
-/// }
+void chart_t::set_table_font(const std::optional<chart_font_t>& font)
+{
+  has_table_  = true;
+  table_font_ = convert_font_args(font);
+}
 
 void chart_t::set_up_down_bars()
 {
@@ -5229,44 +4686,29 @@ void chart_t::set_high_low_lines(const std::optional<chart_line_t>& line)
   high_low_lines_line_ = convert_line_args(line);
 }
 
-/*
- * Set the Bar/Column overlap for all data series.
- */
-/// void chart_set_series_overlap(lxw_chart* self, int8_t overlap)
-/// {
-///   if(overlap >= -100 && overlap <= 100)
-///   {
-///     self->overlap_y1 = overlap;
-///   }
-///   else
-///   {
-///     LXW_WARN_FORMAT1("chart_set_series_overlap(): Chart series overlap "
-///                      "'%d' outside Excel range: -100 <= overlap <= 100",
-///                      overlap);
-///   }
-/// }
+void chart_t::set_series_overlap(int8_t overlap)
+{
+  if(overlap >= -100 && overlap <= 100)
+  {
+    overlap_y1_ = overlap;
+  }
+  else
+  {
+    throw xwpp_exception_t(std::format(
+        "chart_t::set_series_overlap(): Chart series overlap '{}' outside Excel range: -100 <= overlap <= 100",
+        overlap));
+  }
+}
 
-/*
- * Set the option for displaying blank data in a chart.
- */
-/// void chart_show_blanks_as(lxw_chart* self, uint8_t option)
-/// {
-///   if(option > LXW_CHART_BLANKS_AS_CONNECTED)
-///   {
-///     LXW_WARN_FORMAT1("chart_show_blanks_as(): invalid blank display option: %d", option);
-///     return;
-///   }
-///
-///   self->show_blanks_as = option;
-/// }
+void chart_t::show_blanks_as(chart_blank_t option)
+{
+  show_blanks_as_ = option;
+}
 
-/*
- * Display data on charts from hidden rows or columns.
- */
-/// void chart_show_hidden_data(lxw_chart* self)
-/// {
-///   self->show_hidden_data = LXW_TRUE;
-/// }
+void chart_t::show_hidden_data()
+{
+  show_hidden_data_ = true;
+}
 
 void chart_t::set_series_gap(uint16_t gap)
 {
@@ -5304,6 +4746,19 @@ void chart_t::set_hole_size(uint8_t size)
   {
     throw xwpp_out_of_range_t(
         std::format("chart_t::set_hole_size(): hole size '{}' outside Excel range: 10 <= size <= 90", size));
+  }
+}
+
+void chart_add_data_cache(series_range_t& range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
+{
+  range.ignore_cache_    = true;
+  range.num_data_points_ = rows;
+
+  // Initialize the series range data cache.
+  for(size_t i = 0; i < rows; i++)
+  {
+    series_data_point_t data_point{.number_ = data[i * cols + col]};
+    range.data_cache_.push_back(data_point);
   }
 }
 

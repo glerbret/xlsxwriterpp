@@ -58,12 +58,10 @@ std::string app_t::write_vt_i4(const std::string& value) const
 
 std::string app_t::write_vt_variant(const std::string& key, const std::string& value) const
 {
-  // Write the vt:lpstr element.
   std::string xml_data = xml_start_tag("vt:variant");
   xml_data += write_vt_lpstr(key);
   xml_data += xml_end_tag("vt:variant");
 
-  // Write the vt:i4 element.
   xml_data += xml_start_tag("vt:variant");
   xml_data += write_vt_i4(value);
   xml_data += xml_end_tag("vt:variant");
@@ -158,14 +156,14 @@ std::string app_t::write_shared_doc() const
 
 std::string app_t::write_hyperlink_base() const
 {
-  /// lxw_doc_properties *properties = self->properties;
-
-  /// if (!properties)
-  ///   return;
-
-  /// if (properties->hyperlink_base)
-  ///   lxw_xml_data_element(self->file, "HyperlinkBase", properties->hyperlink_base, NULL);
-  return "";
+  if(!properties_.hyperlink_base_.empty())
+  {
+    return xml_data_element("HyperlinkBase", properties_.hyperlink_base_);
+  }
+  else
+  {
+    return "";
+  }
 }
 
 std::string app_t::write_hyperlinks_changed() const
@@ -221,6 +219,11 @@ void app_t::add_heading_pair(const std::string& key, const std::string& value)
 void app_t::set_properties(const doc_properties_t& properties)
 {
   properties_ = properties;
+}
+
+void app_t::set_doc_security(uint8_t doc_security)
+{
+  doc_security_ = doc_security;
 }
 
 }

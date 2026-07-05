@@ -618,7 +618,7 @@ enum class chart_axis_tick_mark_t
 struct series_data_point_t
 {
   bool is_string_ = false;
-  double number_;
+  double number_  = 0;
   std::string str_;
   bool no_data_ = false;
 };
@@ -794,18 +794,18 @@ struct chart_font_t
 struct chart_layout_t
 {
   /** The x offset in the range `0.0 < x <= 1.0` */
-  ///   double x;
+  double x_ = 0.;
 
   /** The y offset in the range `0.0 < y <= 1.0` */
-  ///   double y;
+  double y_ = 0.;
 
   /** The width of the plotarea or legend in the range `0.0 < x <= 1.0` */
-  ///   double width;
+  double width_ = 0.;
 
   /** The height of the plotarea or legend in the range `0.0 < x <= 1.0` */
-  ///   double height;
+  double height_ = 0.;
 
-  ///   uint8_t has_inner;
+  bool has_inner_ = false;
 };
 
 struct chart_marker_t
@@ -1144,8 +1144,8 @@ struct chart_axis_t
   bool has_minor_unit_ = false;
   double minor_unit_   = 0.;
 
-  ///   uint16_t interval_unit;
-  ///   uint16_t interval_tick;
+  uint16_t interval_unit_ = 0;
+  uint16_t interval_tick_ = 0;
 
   uint16_t log_base_ = 0;
 
@@ -1801,6 +1801,306 @@ public:
                        .major_gridlines_    = {.visible_ = true},
                        .axis_position_      = chart_position_t::LEFT};
 
+  /**
+   * @brief Set the line properties for a chartarea.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param line  A #lxw_chart_line struct.
+   *
+   * Set the line/border properties of a chartarea. In Excel the chartarea
+   * is the background area behind the chart:
+   *
+   * @code
+   *     lxw_chart_line line = {.none  = LXW_TRUE};
+   *     lxw_chart_fill fill = {.color = LXW_COLOR_RED};
+   *
+   *     chart_chartarea_set_line(chart, &line);
+   *     chart_chartarea_set_fill(chart, &fill);
+   * @endcode
+   *
+   * @image html chart_chartarea.png
+   *
+   * For more information see @ref chart_lines.
+   */
+  void chartarea_set_line(const std::optional<chart_line_t>& line);
+
+  /**
+   * @brief Set the fill properties for a chartarea.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param fill  A #lxw_chart_fill struct.
+   *
+   * Set the fill properties of a chartarea:
+   *
+   * @code
+   *     chart_chartarea_set_fill(chart, &fill);
+   * @endcode
+   *
+   * See the example and image above.
+   *
+   * For more information see @ref chart_fills.
+   */
+  void chartarea_set_fill(const std::optional<chart_fill_t>& fill);
+
+  /**
+   * @brief Set the line properties for a plotarea.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param line  A #lxw_chart_line struct.
+   *
+   * Set the line/border properties of a plotarea. In Excel the plotarea is
+   * the area between the axes on which the chart series are plotted:
+   *
+   * @code
+   *     lxw_chart_line line = {.color     = LXW_COLOR_RED,
+   *                            .width     = 2,
+   *                            .dash_type = LXW_CHART_LINE_DASH_DASH};
+   *     lxw_chart_fill fill = {.color     = 0xFFFFC2};
+   *
+   *     chart_plotarea_set_line(chart, &line);
+   *     chart_plotarea_set_fill(chart, &fill);
+   *
+   * @endcode
+   *
+   * @image html chart_plotarea.png
+   *
+   * For more information see @ref chart_lines.
+   */
+  void plotarea_set_line(const std::optional<chart_line_t>& line);
+
+  /**
+   * @brief Set the fill properties for a plotarea.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   * @param fill  A #lxw_chart_fill struct.
+   *
+   * Set the fill properties of a plotarea:
+   *
+   * @code
+   *     chart_plotarea_set_fill(chart, &fill);
+   * @endcode
+   *
+   * See the example and image above.
+   *
+   * For more information see @ref chart_fills.
+   */
+  void plotarea_set_fill(const std::optional<chart_fill_t>& fill);
+
+  /**
+   * @brief Set the option for displaying blank data in a chart.
+   *
+   * @param chart    Pointer to a lxw_chart instance to be configured.
+   * @param option The display option. A #lxw_chart_blank option.
+   *
+   * The `%chart_show_blanks_as()` function controls how blank data is displayed
+   * in a chart:
+   *
+   * @code
+   *     chart_show_blanks_as(chart, LXW_CHART_BLANKS_AS_CONNECTED);
+   * @endcode
+   *
+   * The `option` parameter can have one of the following values:
+   *
+   * - #LXW_CHART_BLANKS_AS_GAP: Show empty chart cells as gaps in the data.
+   *   This is the default option for Excel charts.
+   * - #LXW_CHART_BLANKS_AS_ZERO: Show empty chart cells as zeros.
+   * - #LXW_CHART_BLANKS_AS_CONNECTED: Show empty chart cells as connected.
+   *   Only for charts with lines.
+   */
+  void show_blanks_as(chart_blank_t option);
+
+  /**
+   * @brief Display data on charts from hidden rows or columns.
+   *
+   * @param chart Pointer to a lxw_chart instance to be configured.
+   *
+   * Display data that is in hidden rows or columns on the chart:
+   *
+   * @code
+   *     chart_show_hidden_data(chart);
+   * @endcode
+   */
+  void show_hidden_data();
+
+  // TODO For test
+  void set_axis_ids(uint32_t axis_id_1, uint32_t axis_id_2);
+
+  /**
+   * @brief Set a chart title formula using row and column values.
+   *
+   * @param chart     Pointer to a lxw_chart instance to be configured.
+   * @param sheetname The name of the worksheet that contains the cell range.
+   * @param row       The zero indexed row number of the range.
+   * @param col       The zero indexed column number of the range.
+   *
+   * The `%chart_title_set_name_range()` function can be used to set a chart
+   * title range and is an alternative to using `chart_title_set_name()` and a
+   * string formula:
+   *
+   * @code
+   *     chart_title_set_name_range(chart, "Sheet1", 1, 0);
+   * @endcode
+   */
+  void title_set_name_range(const std::string& sheetname, row_num_t row, col_num_t col);
+
+  /**
+   * @brief Remove one or more series from the the legend.
+   *
+   * @param chart         Pointer to a lxw_chart instance to be configured.
+   * @param delete_series An array of zero-indexed values to delete from series.
+   *
+   * @return A #lxw_error.
+   *
+   * The `%chart_legend_delete_series()` function allows you to remove/hide one
+   * or more series in a chart legend (the series will still display on the chart).
+   *
+   * This function takes an array of one or more zero indexed series
+   * numbers. The array should be terminated with -1.
+   *
+   * For example to remove the first and third zero-indexed series from the
+   * legend of a chart with 3 series:
+   *
+   * @code
+   *     int16_t series[] = {0, 2, -1};
+   *
+   *     chart_legend_delete_series(chart, series);
+   * @endcode
+   *
+   * @image html chart_legend_delete.png
+   */
+  void legend_delete_series(const std::vector<int16_t>& delete_series);
+
+  /**
+   * @brief Set the overlap between series in a Bar/Column chart.
+   *
+   * @param chart   Pointer to a lxw_chart instance to be configured.
+   * @param overlap The overlap between the series. -100 to 100.
+   *
+   * The `%chart_set_series_overlap()` function sets the overlap between series
+   * in Bar and Column charts.
+   *
+   * @code
+   *     chart_set_series_overlap(chart, -50);
+   * @endcode
+   *
+   * @image html chart_overlap.png
+   *
+   * The overlap value must be in the range `0 <= overlap <= 500`.
+   * The default value is 0.
+   *
+   * This option is only available for Bar/Column charts.
+   */
+  void set_series_overlap(int8_t overlap);
+
+  /**
+   * @brief           Get an axis pointer from a chart.
+   *
+   * @param chart     Pointer to a lxw_chart instance to be configured.
+   * @param axis_type The axis type (X or Y): #lxw_chart_axis_type.
+   *
+   * The `%chart_axis_get()` function returns a pointer to a chart axis based
+   * on the  #lxw_chart_axis_type:
+   *
+   * @code
+   *     lxw_chart_axis *x_axis = chart_axis_get(chart, TYPE_X);
+   *     lxw_chart_axis *y_axis = chart_axis_get(chart, TYPE_Y);
+   *
+   *     // Use the axis pointer in other functions.
+   *     chart_axis_major_gridlines_set_visible(x_axis, LXW_TRUE);
+   *     chart_axis_major_gridlines_set_visible(y_axis, LXW_TRUE);
+   * @endcode
+   *
+   * Note, the axis pointer can also be accessed directly:
+   *
+   * @code
+   *     // Equivalent to the above example, without function calls.
+   *     chart_axis_major_gridlines_set_visible(chart->x_axis, LXW_TRUE);
+   *     chart_axis_major_gridlines_set_visible(chart->y_axis, LXW_TRUE);
+   * @endcode
+   *
+   * @return Pointer to the chart axis, or NULL if not found.
+   */
+  chart_axis_t& axis_get(chart_axis_type_t axis_type);
+
+  /**
+   * @brief Set the manual layout of the chart plotarea.
+   *
+   * @param chart  Pointer to a lxw_chart instance to be configured.
+   * @param layout A pointer to a chart #lxw_chart_layout struct.
+   *
+   * This function is used to simulate setting the manual position of the chart
+   * plotarea. See @ref chart_layout for more information.
+   */
+  void plotarea_set_layout(const std::optional<chart_layout_t>& layout);
+
+  /**
+   * @brief Set the manual layout of the chart legend.
+   *
+   * @param chart  Pointer to a lxw_chart instance to be configured.
+   * @param layout A pointer to a chart #lxw_chart_layout struct.
+   *
+   * This function is used to simulate setting the manual position of the chart
+   * legend. See @ref chart_layout for more information.
+   */
+  void legend_set_layout(const std::optional<chart_layout_t>& layout);
+
+  /**
+   * @brief Set the manual position of the chart title.
+   *
+   * @param chart  Pointer to a lxw_chart instance to be configured.
+   * @param layout A pointer to a chart #lxw_chart_layout struct.
+   *
+   * This function is used to simulate setting the manual position of the chart
+   * title. See @ref chart_layout for more information.
+   */
+  void title_set_layout(const std::optional<chart_layout_t>& layout);
+
+  /**
+   * @brief Allow the chart title to overlay the chart.
+   *
+   * @param chart   Pointer to a lxw_chart instance to be configured.
+   * @param overlay Turn off/on the overlay. (0/1)
+   *
+   * This option allows the chart title to overlay the chart when the
+   * `chart_title_set_layout()` function.
+   */
+  void title_set_overlay(bool overlay);
+
+  /**
+   * @brief Set the pattern properties for a plotarea.
+   *
+   * @param chart   Pointer to a lxw_chart instance to be configured.
+   * @param pattern A #lxw_chart_pattern struct.
+   *
+   * Set the pattern properties of a plotarea:
+   *
+   * @code
+   *     chart_plotarea_set_pattern(series1, &pattern);
+   * @endcode
+   *
+   * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
+   */
+  void plotarea_set_pattern(const std::optional<chart_pattern_t>& pattern);
+
+  void set_table_font(const std::optional<chart_font_t>& font);
+
+  /**
+   * @brief Turn off an automatic chart title.
+   *
+   * @param chart  Pointer to a lxw_chart instance to be configured.
+   *
+   * In general in Excel a chart title isn't displayed unless the user
+   * explicitly adds one. However, Excel adds an automatic chart title to charts
+   * with a single series and a user defined series name. The
+   * `chart_title_off()` function allows you to turn off this automatic chart
+   * title:
+   *
+   * @code
+   *     chart_title_off(chart);
+   * @endcode
+   */
+  void title_off();
+
 private:
   friend class worksheet_t;  // TODO
   friend class chartsheet_t; // TODO
@@ -1997,6 +2297,15 @@ private:
   [[nodiscard]] static std::string write_minor_unit(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_disp_units(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_scatter_style(const chart_t& chart);
+  [[nodiscard]] static std::string write_tick_label_skip(const chart_axis_t& axis);
+  [[nodiscard]] static std::string write_tick_mark_skip(const chart_axis_t& axis);
+  [[nodiscard]] std::string write_disp_blanks_as();
+  [[nodiscard]] static std::string write_layout_target();
+  [[nodiscard]] static std::string write_layout_mode(const std::string& mode);
+  [[nodiscard]] static std::string write_layout_dimension(const std::string& dimension, double value);
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
+  //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
   //  [[nodiscard]] static std::string ();
@@ -2067,8 +2376,8 @@ private:
   bool has_table_legend_keys_ = false;
   std::optional<chart_font_t> table_font_;
 
-  ///   uint8_t show_blanks_as;
-  bool show_hidden_data_ = false;
+  chart_blank_t show_blanks_as_ = chart_blank_t::AS_GAP;
+  bool show_hidden_data_        = false;
 
   bool has_up_down_bars_ = false;
   std::optional<chart_line_t> up_bar_line_;
@@ -2205,7 +2514,7 @@ void chart_series_set_line(chart_series_t& series, const std::optional<chart_lin
  *
  * For more information see @ref chart_fills.
  */
-/// void chart_series_set_fill(lxw_chart_series* series, lxw_chart_fill* fill);
+void chart_series_set_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill);
 
 /**
  * @brief Invert the fill color for negative series values.
@@ -2220,7 +2529,7 @@ void chart_series_set_line(chart_series_t& series, const std::optional<chart_lin
  * @endcode
  *
  */
-/// void chart_series_set_invert_if_negative(lxw_chart_series* series);
+void chart_series_set_invert_if_negative(chart_series_t& series);
 
 /**
  * @brief Set the pattern properties for a chart series.
@@ -2267,7 +2576,7 @@ void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_
  * @image html chart_series_set_marker_size.png
  *
  */
-/// void chart_series_set_marker_size(lxw_chart_series* series, uint8_t size);
+void chart_series_set_marker_size(chart_series_t& series, uint8_t size);
 
 /**
  * @brief Set the line properties for a chart series marker.
@@ -2292,7 +2601,7 @@ void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_
  *
  * For more information see @ref chart_lines.
  */
-/// void chart_series_set_marker_line(lxw_chart_series* series, lxw_chart_line* line);
+void chart_series_set_marker_line(chart_series_t& series, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the fill properties for a chart series marker.
@@ -2308,7 +2617,7 @@ void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_
  *
  * See the example and image above and also see @ref chart_fills.
  */
-/// void chart_series_set_marker_fill(lxw_chart_series* series, lxw_chart_fill* fill);
+void chart_series_set_marker_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill);
 
 /**
  * @brief Set the pattern properties for a chart series marker.
@@ -2370,7 +2679,7 @@ void series_set_points(chart_series_t& series, const std::vector<chart_point_t> 
  *
  *
  */
-/// void chart_series_set_smooth(lxw_chart_series* series, uint8_t smooth);
+void chart_series_set_smooth(chart_series_t& series, bool smooth);
 
 // TODO Member function of series
 /**
@@ -2507,7 +2816,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_separator(lxw_chart_series* series, uint8_t separator);
+void chart_series_set_labels_separator(chart_series_t& series, chart_label_separator_t separator);
 
 /**
  * @brief Set the data label position for a series.
@@ -2543,7 +2852,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_position(lxw_chart_series* series, uint8_t position);
+void chart_series_set_labels_position(chart_series_t& series, chart_label_position_t position);
 
 /**
  * @brief Set leader lines for Pie and Doughnut charts.
@@ -2567,7 +2876,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_leader_line(lxw_chart_series* series);
+void chart_series_set_labels_leader_line(chart_series_t& series);
 
 /**
  * @brief Set the legend key for a data label in a chart series.
@@ -2586,7 +2895,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_legend(lxw_chart_series* series);
+void chart_series_set_labels_legend(chart_series_t& series);
 
 /**
  * @brief Set the percentage for a Pie/Doughnut data point.
@@ -2607,7 +2916,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_percentage(lxw_chart_series* series);
+void chart_series_set_labels_percentage(chart_series_t& series);
 
 /**
  * @brief Set the number format for chart data labels in a series.
@@ -2630,7 +2939,7 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  *
  * For more information see @ref chart_labels.
  */
-/// void chart_series_set_labels_num_format(lxw_chart_series* series, const char* num_format);
+void chart_series_set_labels_num_format(chart_series_t& series, const std::string& num_format);
 
 /**
  * @brief Set the font properties for chart data labels in a series
@@ -2712,7 +3021,7 @@ void chart_series_set_labels_fill(chart_series_t& series, const std::optional<ch
  *
  * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
  */
-/// void chart_series_set_labels_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern);
+void chart_series_set_labels_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
 
 /**
  * @brief Turn on a trendline for a chart data series.
@@ -2791,7 +3100,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  *
  * For more information see @ref chart_trendlines.
  */
-/// void chart_series_set_trendline_forecast(lxw_chart_series* series, double forward, double backward);
+void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward);
 
 /**
  * @brief Display the equation of a trendline for a chart data series.
@@ -2812,7 +3121,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  *
  * For more information see @ref chart_trendlines.
  */
-/// void chart_series_set_trendline_equation(lxw_chart_series* series);
+void chart_series_set_trendline_equation(chart_series_t& series);
 
 /**
  * @brief Display the R squared value of a trendline for a chart data series.
@@ -2833,7 +3142,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  *
  * For more information see @ref chart_trendlines.
  */
-/// void chart_series_set_trendline_r_squared(lxw_chart_series* series);
+void chart_series_set_trendline_r_squared(chart_series_t& series);
 
 /**
  * @brief Set the trendline Y-axis intercept for a chart data series.
@@ -2860,7 +3169,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  *
  * For more information see @ref chart_trendlines.
  */
-/// void chart_series_set_trendline_intercept(lxw_chart_series* series, double intercept);
+void chart_series_set_trendline_intercept(chart_series_t& series, double intercept);
 
 /**
  * @brief Set the trendline name for a chart data series.
@@ -2899,7 +3208,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  *
  * For more information see @ref chart_trendlines.
  */
-/// void chart_series_set_trendline_name(lxw_chart_series* series, const char* name);
+void chart_series_set_trendline_name(chart_series_t& series, const std::string& name);
 
 /**
  * @brief Set the trendline line properties for a chart data series.
@@ -2923,46 +3232,6 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  * For more information see @ref chart_trendlines and @ref chart_lines.
  */
 void series_set_trendline_line(chart_series_t& series, const std::optional<chart_line_t>& line);
-
-/**
- * @brief           Get a pointer to X or Y error bars from a chart series.
- *
- * @param series    A series object created via `chart_add_series()`.
- * @param axis_type The axis type (X or Y): #lxw_chart_error_bar_axis.
- *
- * The `%chart_series_get_error_bars()` function returns a pointer to the
- * error bars of a series based on the type of #lxw_chart_error_bar_axis:
- *
- * @code
- *     lxw_series_error_bars *x_error_bars;
- *     lxw_series_error_bars *y_error_bars;
- *
- *     x_error_bars = chart_series_get_error_bars(series, LXW_CHART_ERROR_BAR_AXIS_X);
- *     y_error_bars = chart_series_get_error_bars(series, LXW_CHART_ERROR_BAR_AXIS_Y);
- *
- *     // Use the error bar pointers.
- *     chart_series_set_error_bars(x_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_STD_DEV, 1);
- *
- *     chart_series_set_error_bars(y_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_STD_ERROR, 0);
- * @endcode
- *
- * Note, the series error bars can also be accessed directly:
- *
- * @code
- *     // Equivalent to the above example, without function calls.
- *     chart_series_set_error_bars(series->x_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_STD_DEV, 1);
- *
- *     chart_series_set_error_bars(series->y_error_bars,
- *                                 LXW_CHART_ERROR_BAR_TYPE_STD_ERROR, 0);
- * @endcode
- *
- * @return Pointer to the series error bars, or NULL if not found.
- */
-
-/// lxw_series_error_bars* chart_series_get_error_bars(lxw_chart_series* series, lxw_chart_error_bar_axis axis_type);
 
 /**
  * @brief Set the direction (up, down or both) of the error bars for a chart
@@ -2993,7 +3262,7 @@ void series_set_trendline_line(chart_series_t& series, const std::optional<chart
  *
  * For more information see @ref chart_error_bars.
  */
-/// void chart_series_set_error_bars_direction(lxw_series_error_bars* error_bars, uint8_t direction);
+void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, chart_error_bar_direction_t direction);
 
 /**
  * @brief Set the end cap type for the error bars of a chart series.
@@ -3021,7 +3290,7 @@ void series_set_trendline_line(chart_series_t& series, const std::optional<chart
  *
  * For more information see @ref chart_error_bars.
  */
-/// void chart_series_set_error_bars_endcap(lxw_series_error_bars* error_bars, uint8_t endcap);
+void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_error_bar_cap_t endcap);
 
 /**
  * @brief Set the line properties for a chart series error bars.
@@ -3046,37 +3315,7 @@ void series_set_trendline_line(chart_series_t& series, const std::optional<chart
  *
  * For more information see @ref chart_lines and @ref chart_error_bars.
  */
-/// void chart_series_set_error_bars_line(lxw_series_error_bars* error_bars, lxw_chart_line* line);
-
-/**
- * @brief           Get an axis pointer from a chart.
- *
- * @param chart     Pointer to a lxw_chart instance to be configured.
- * @param axis_type The axis type (X or Y): #lxw_chart_axis_type.
- *
- * The `%chart_axis_get()` function returns a pointer to a chart axis based
- * on the  #lxw_chart_axis_type:
- *
- * @code
- *     lxw_chart_axis *x_axis = chart_axis_get(chart, TYPE_X);
- *     lxw_chart_axis *y_axis = chart_axis_get(chart, TYPE_Y);
- *
- *     // Use the axis pointer in other functions.
- *     chart_axis_major_gridlines_set_visible(x_axis, LXW_TRUE);
- *     chart_axis_major_gridlines_set_visible(y_axis, LXW_TRUE);
- * @endcode
- *
- * Note, the axis pointer can also be accessed directly:
- *
- * @code
- *     // Equivalent to the above example, without function calls.
- *     chart_axis_major_gridlines_set_visible(chart->x_axis, LXW_TRUE);
- *     chart_axis_major_gridlines_set_visible(chart->y_axis, LXW_TRUE);
- * @endcode
- *
- * @return Pointer to the chart axis, or NULL if not found.
- */
-/// lxw_chart_axis* chart_axis_get(lxw_chart* chart, lxw_chart_axis_type axis_type);
+void chart_series_set_error_bars_line(series_error_bars_t& error_bars, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the name caption of the an axis.
@@ -3130,7 +3369,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_name_range(lxw_chart_axis* axis, const char* sheetname, lxw_row_t row, lxw_col_t col);
+void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row, col_num_t col);
 
 /**
  * @brief Set the manual position of the chart axis name.
@@ -3141,7 +3380,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * This function is used to simulate setting the manual position of a chart
  * axis name. See @ref chart_layout for more information.
  */
-/// void chart_axis_set_name_layout(lxw_chart_axis* axis, lxw_chart_layout* layout);
+void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_layout_t>& layout);
 
 /**
  * @brief Set the font properties for a chart axis name.
@@ -3214,7 +3453,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_num_format(lxw_chart_axis* axis, const char* num_format);
+void chart_axis_set_num_format(chart_axis_t& axis, const std::string& num_format);
 
 /**
  * @brief Set the line properties for a chart axis.
@@ -3238,7 +3477,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_line(lxw_chart_axis* axis, lxw_chart_line* line);
+void chart_axis_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the fill properties for a chart axis.
@@ -3261,7 +3500,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_fill(lxw_chart_axis* axis, lxw_chart_fill* fill);
+void chart_axis_set_fill(chart_axis_t& axis, const std::optional<chart_fill_t>& fill);
 
 /**
  * @brief Set the pattern properties for a chart axis.
@@ -3298,7 +3537,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_reverse(lxw_chart_axis* axis);
+void chart_axis_set_reverse(chart_axis_t& axis);
 
 /**
  * @brief Set the position that the axis will cross the opposite axis.
@@ -3321,7 +3560,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_crossing(lxw_chart_axis* axis, double value);
+void chart_axis_set_crossing(chart_axis_t& axis, double value);
 
 /**
  * @brief Set the opposite axis crossing position as the axis maximum.
@@ -3343,7 +3582,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_crossing_max(lxw_chart_axis* axis);
+void chart_axis_set_crossing_max(chart_axis_t& axis);
 
 /**
  * @brief Set the opposite axis crossing position as the axis minimum.
@@ -3363,7 +3602,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_crossing_min(lxw_chart_axis* axis);
+void chart_axis_set_crossing_min(chart_axis_t& axis);
 
 /**
  * @brief Turn off/hide an axis.
@@ -3405,7 +3644,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to category axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_position(lxw_chart_axis* axis, uint8_t position);
+void chart_axis_set_position(chart_axis_t& axis, chart_axis_tick_position_t position);
 
 /**
  * @brief Position the axis labels.
@@ -3442,7 +3681,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_label_position(lxw_chart_axis* axis, uint8_t position);
+void chart_axis_set_label_position(chart_axis_t& axis, chart_axis_label_position_t position);
 
 /**
  * @brief Set the alignment of the axis labels.
@@ -3467,7 +3706,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to category axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_label_align(lxw_chart_axis* axis, uint8_t align);
+void chart_axis_set_label_align(chart_axis_t& axis, chart_axis_label_alignment_t align);
 
 /**
  * @brief Set the minimum value for a chart axis.
@@ -3487,7 +3726,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value and date axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_min(lxw_chart_axis* axis, double min);
+void chart_axis_set_min(chart_axis_t& axis, double min);
 
 /**
  * @brief Set the maximum value for a chart axis.
@@ -3507,7 +3746,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value and date axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_max(lxw_chart_axis* axis, double max);
+void chart_axis_set_max(chart_axis_t& axis, double max);
 
 /**
  * @brief Set the log base of the axis range.
@@ -3529,7 +3768,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_log_base(lxw_chart_axis* axis, uint16_t log_base);
+void chart_axis_set_log_base(chart_axis_t& axis, uint16_t log_base);
 
 /**
  * @brief Set the major axis tick mark type.
@@ -3562,7 +3801,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_major_tick_mark(lxw_chart_axis* axis, uint8_t type);
+void chart_axis_set_major_tick_mark(chart_axis_t& axis, chart_axis_tick_mark_t type);
 
 /**
  * @brief Set the minor axis tick mark type.
@@ -3581,7 +3820,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_minor_tick_mark(lxw_chart_axis* axis, uint8_t type);
+void chart_axis_set_minor_tick_mark(chart_axis_t& axis, chart_axis_tick_mark_t type);
 
 /**
  * @brief Set the interval between category values.
@@ -3609,7 +3848,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to category and date axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_interval_unit(lxw_chart_axis* axis, uint16_t unit);
+void chart_axis_set_interval_unit(chart_axis_t& axis, uint16_t unit);
 
 /**
  * @brief Set the interval between category tick marks.
@@ -3629,7 +3868,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to category and date axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_interval_tick(lxw_chart_axis* axis, uint16_t unit);
+void chart_axis_set_interval_tick(chart_axis_t& axis, uint16_t unit);
 
 /**
  * @brief Set the increment of the major units in the axis.
@@ -3652,7 +3891,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value and date axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_major_unit(lxw_chart_axis* axis, double unit);
+void chart_axis_set_major_unit(chart_axis_t& axis, double unit);
 
 /**
  * @brief Set the increment of the minor units in the axis.
@@ -3671,7 +3910,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value and date axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_minor_unit(lxw_chart_axis* axis, double unit);
+void chart_axis_set_minor_unit(chart_axis_t& axis, double unit);
 
 /**
  * @brief Set the display units for a value axis.
@@ -3692,7 +3931,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_display_units(lxw_chart_axis* axis, uint8_t units);
+void chart_axis_set_display_units(chart_axis_t& axis, chart_axis_display_unit_t units);
 
 /**
  * @brief Turn on/off the display units for a value axis.
@@ -3710,7 +3949,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to value axes only.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_display_units_visible(lxw_chart_axis* axis, uint8_t visible);
+void chart_axis_set_display_units_visible(chart_axis_t& axis, bool visible);
 
 /**
  * @brief Turn on/off the major gridlines for an axis.
@@ -3735,7 +3974,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_major_gridlines_set_visible(lxw_chart_axis* axis, uint8_t visible);
+void chart_axis_major_gridlines_set_visible(chart_axis_t& axis, bool visible);
 
 /**
  * @brief Turn on/off the minor gridlines for an axis.
@@ -3760,7 +3999,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_minor_gridlines_set_visible(lxw_chart_axis* axis, uint8_t visible);
+void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible);
 
 /**
  * @brief Set the line properties for the chart axis major gridlines.
@@ -3795,7 +4034,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_major_gridlines_set_line(lxw_chart_axis* axis, lxw_chart_line* line);
+void chart_axis_major_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the line properties for the chart axis minor gridlines.
@@ -3811,143 +4050,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_minor_gridlines_set_line(lxw_chart_axis* axis, lxw_chart_line* line);
-
-/**
- * @brief Set a chart title formula using row and column values.
- *
- * @param chart     Pointer to a lxw_chart instance to be configured.
- * @param sheetname The name of the worksheet that contains the cell range.
- * @param row       The zero indexed row number of the range.
- * @param col       The zero indexed column number of the range.
- *
- * The `%chart_title_set_name_range()` function can be used to set a chart
- * title range and is an alternative to using `chart_title_set_name()` and a
- * string formula:
- *
- * @code
- *     chart_title_set_name_range(chart, "Sheet1", 1, 0);
- * @endcode
- */
-/// void chart_title_set_name_range(lxw_chart* chart, const char* sheetname, lxw_row_t row, lxw_col_t col);
-
-/**
- * @brief Turn off an automatic chart title.
- *
- * @param chart  Pointer to a lxw_chart instance to be configured.
- *
- * In general in Excel a chart title isn't displayed unless the user
- * explicitly adds one. However, Excel adds an automatic chart title to charts
- * with a single series and a user defined series name. The
- * `chart_title_off()` function allows you to turn off this automatic chart
- * title:
- *
- * @code
- *     chart_title_off(chart);
- * @endcode
- */
-/// void chart_title_off(lxw_chart* chart);
-
-/**
- * @brief Set the manual position of the chart title.
- *
- * @param chart  Pointer to a lxw_chart instance to be configured.
- * @param layout A pointer to a chart #lxw_chart_layout struct.
- *
- * This function is used to simulate setting the manual position of the chart
- * title. See @ref chart_layout for more information.
- */
-/// void chart_title_set_layout(lxw_chart* chart, lxw_chart_layout* layout);
-
-/**
- * @brief Allow the chart title to overlay the chart.
- *
- * @param chart   Pointer to a lxw_chart instance to be configured.
- * @param overlay Turn off/on the overlay. (0/1)
- *
- * This option allows the chart title to overlay the chart when the
- * `chart_title_set_layout()` function.
- */
-/// void chart_title_set_overlay(lxw_chart* chart, uint8_t overlay);
-
-/**
- * @brief Set the manual layout of the chart legend.
- *
- * @param chart  Pointer to a lxw_chart instance to be configured.
- * @param layout A pointer to a chart #lxw_chart_layout struct.
- *
- * This function is used to simulate setting the manual position of the chart
- * legend. See @ref chart_layout for more information.
- */
-/// void chart_legend_set_layout(lxw_chart* chart, lxw_chart_layout* layout);
-
-/**
- * @brief Remove one or more series from the the legend.
- *
- * @param chart         Pointer to a lxw_chart instance to be configured.
- * @param delete_series An array of zero-indexed values to delete from series.
- *
- * @return A #lxw_error.
- *
- * The `%chart_legend_delete_series()` function allows you to remove/hide one
- * or more series in a chart legend (the series will still display on the chart).
- *
- * This function takes an array of one or more zero indexed series
- * numbers. The array should be terminated with -1.
- *
- * For example to remove the first and third zero-indexed series from the
- * legend of a chart with 3 series:
- *
- * @code
- *     int16_t series[] = {0, 2, -1};
- *
- *     chart_legend_delete_series(chart, series);
- * @endcode
- *
- * @image html chart_legend_delete.png
- */
-/// lxw_error chart_legend_delete_series(lxw_chart* chart, int16_t delete_series[]);
-
-/**
- * @brief Set the line properties for a chartarea.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param line  A #lxw_chart_line struct.
- *
- * Set the line/border properties of a chartarea. In Excel the chartarea
- * is the background area behind the chart:
- *
- * @code
- *     lxw_chart_line line = {.none  = LXW_TRUE};
- *     lxw_chart_fill fill = {.color = LXW_COLOR_RED};
- *
- *     chart_chartarea_set_line(chart, &line);
- *     chart_chartarea_set_fill(chart, &fill);
- * @endcode
- *
- * @image html chart_chartarea.png
- *
- * For more information see @ref chart_lines.
- */
-/// void chart_chartarea_set_line(lxw_chart* chart, lxw_chart_line* line);
-
-/**
- * @brief Set the fill properties for a chartarea.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param fill  A #lxw_chart_fill struct.
- *
- * Set the fill properties of a chartarea:
- *
- * @code
- *     chart_chartarea_set_fill(chart, &fill);
- * @endcode
- *
- * See the example and image above.
- *
- * For more information see @ref chart_fills.
- */
-/// void chart_chartarea_set_fill(lxw_chart* chart, lxw_chart_fill* fill);
+void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
 
 /**
  * @brief Set the pattern properties for a chartarea.
@@ -3965,136 +4068,8 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  */
 /// void chart_chartarea_set_pattern(lxw_chart* chart, lxw_chart_pattern* pattern);
 
-/**
- * @brief Set the line properties for a plotarea.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param line  A #lxw_chart_line struct.
- *
- * Set the line/border properties of a plotarea. In Excel the plotarea is
- * the area between the axes on which the chart series are plotted:
- *
- * @code
- *     lxw_chart_line line = {.color     = LXW_COLOR_RED,
- *                            .width     = 2,
- *                            .dash_type = LXW_CHART_LINE_DASH_DASH};
- *     lxw_chart_fill fill = {.color     = 0xFFFFC2};
- *
- *     chart_plotarea_set_line(chart, &line);
- *     chart_plotarea_set_fill(chart, &fill);
- *
- * @endcode
- *
- * @image html chart_plotarea.png
- *
- * For more information see @ref chart_lines.
- */
-/// void chart_plotarea_set_line(lxw_chart* chart, lxw_chart_line* line);
-
-/**
- * @brief Set the fill properties for a plotarea.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- * @param fill  A #lxw_chart_fill struct.
- *
- * Set the fill properties of a plotarea:
- *
- * @code
- *     chart_plotarea_set_fill(chart, &fill);
- * @endcode
- *
- * See the example and image above.
- *
- * For more information see @ref chart_fills.
- */
-/// void chart_plotarea_set_fill(lxw_chart* chart, lxw_chart_fill* fill);
-
-/**
- * @brief Set the pattern properties for a plotarea.
- *
- * @param chart   Pointer to a lxw_chart instance to be configured.
- * @param pattern A #lxw_chart_pattern struct.
- *
- * Set the pattern properties of a plotarea:
- *
- * @code
- *     chart_plotarea_set_pattern(series1, &pattern);
- * @endcode
- *
- * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
- */
-/// void chart_plotarea_set_pattern(lxw_chart* chart, lxw_chart_pattern* pattern);
-
-/**
- * @brief Set the manual layout of the chart plotarea.
- *
- * @param chart  Pointer to a lxw_chart instance to be configured.
- * @param layout A pointer to a chart #lxw_chart_layout struct.
- *
- * This function is used to simulate setting the manual position of the chart
- * plotarea. See @ref chart_layout for more information.
- */
-/// void chart_plotarea_set_layout(lxw_chart* chart, lxw_chart_layout* layout);
-
-/// void chart_set_table_font(lxw_chart* chart, lxw_chart_font* font);
-
-/**
- * @brief Set the overlap between series in a Bar/Column chart.
- *
- * @param chart   Pointer to a lxw_chart instance to be configured.
- * @param overlap The overlap between the series. -100 to 100.
- *
- * The `%chart_set_series_overlap()` function sets the overlap between series
- * in Bar and Column charts.
- *
- * @code
- *     chart_set_series_overlap(chart, -50);
- * @endcode
- *
- * @image html chart_overlap.png
- *
- * The overlap value must be in the range `0 <= overlap <= 500`.
- * The default value is 0.
- *
- * This option is only available for Bar/Column charts.
- */
-/// void chart_set_series_overlap(lxw_chart* chart, int8_t overlap);
-
-/**
- * @brief Set the option for displaying blank data in a chart.
- *
- * @param chart    Pointer to a lxw_chart instance to be configured.
- * @param option The display option. A #lxw_chart_blank option.
- *
- * The `%chart_show_blanks_as()` function controls how blank data is displayed
- * in a chart:
- *
- * @code
- *     chart_show_blanks_as(chart, LXW_CHART_BLANKS_AS_CONNECTED);
- * @endcode
- *
- * The `option` parameter can have one of the following values:
- *
- * - #LXW_CHART_BLANKS_AS_GAP: Show empty chart cells as gaps in the data.
- *   This is the default option for Excel charts.
- * - #LXW_CHART_BLANKS_AS_ZERO: Show empty chart cells as zeros.
- * - #LXW_CHART_BLANKS_AS_CONNECTED: Show empty chart cells as connected.
- *   Only for charts with lines.
- */
-/// void chart_show_blanks_as(lxw_chart* chart, uint8_t option);
-
-/**
- * @brief Display data on charts from hidden rows or columns.
- *
- * @param chart Pointer to a lxw_chart instance to be configured.
- *
- * Display data that is in hidden rows or columns on the chart:
- *
- * @code
- *     chart_show_hidden_data(chart);
- * @endcode
- */
-/// void chart_show_hidden_data(lxw_chart* chart);
+// TODO To rework (or remove). For test
+void chart_add_data_cache(series_range_t& range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
 
 }
 

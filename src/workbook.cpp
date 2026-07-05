@@ -30,20 +30,21 @@ using namespace std::literals::chrono_literals;
 namespace xwpp
 {
 
-/// void lxw_workbook_set_default_xf_indices(lxw_workbook *self)
-/// {
-///     lxw_format *format;
-///     int32_t index = 0;
+void workbook_t::set_default_xf_indices()
+{
+  int32_t index = 0;
 
-///     STAILQ_FOREACH(format, self->formats, list_pointers) {
+  for(auto& format: formats_)
+  {
+    // Skip the hyperlink format.
+    if(index != 1)
+    {
+      get_xf_index(&format);
+    }
 
-/* Skip the hyperlink format. */
-///         if (index != 1)
-///             lxw_format_get_xf_index(format);
-
-///         index++;
-///     }
-/// }
+    index++;
+  }
+}
 
 void workbook_t::prepare_fonts()
 {
@@ -119,14 +120,15 @@ void workbook_t::prepare_borders()
     }
   }
 
-  /* For DXF formats we only need to check if the properties have changed. */
-  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-  ///         lxw_format *format = (lxw_format *) used_format_element->value;
-
-  ///         if (format->left || format->right || format->top || format->bottom) {
-  ///             format->has_dxf_border = LXW_TRUE;
-  ///         }
-  ///     }
+  // For DXF formats we only need to check if the properties have changed.
+  for(const auto format: used_dxf_formats_)
+  {
+    if(format->left_ != format_borders_t::NONE || format->right_ != format_borders_t::NONE ||
+       format->top_ != format_borders_t::NONE || format->bottom_ != format_borders_t::NONE)
+    {
+      format->has_dxf_border_ = true;
+    }
+  }
 
   border_count_ = static_cast<uint32_t>(borders.size());
 }
@@ -252,42 +254,53 @@ void workbook_t::prepare_num_formats()
     }
   }
 
-  ///     LXW_FOREACH_ORDERED(used_format_element, self->used_dxf_formats) {
-  ///         lxw_format *format = (lxw_format *) used_format_element->value;
-
-  /* Format already has a number format index. */
-  ///         if (format->num_format_index)
-  ///             continue;
-
-  /* Check if there is a user defined number format string. */
-  ///         if (*format->num_format) {
-  ///             char num_format[LXW_FORMAT_FIELD_LEN] = { 0 };
-  ///             lxw_snprintf(num_format, LXW_FORMAT_FIELD_LEN, "%s",
-  ///                          format->num_format);
-
-  /* Look up the num_format in the hash table. */
-  ///             hash_element = lxw_hash_key_exists(num_formats, num_format,
-  ///                                                LXW_FORMAT_FIELD_LEN);
-
-  ///             if (hash_element) {
-  /* Num_Format has already been used. */
-  ///                 format->num_format_index = *(uint16_t *) hash_element->value;
-  ///             }
-  ///             else {
-  /* This is a new num_format. */
-  ///                 num_format_index = calloc(1, sizeof(uint16_t));
-  ///                 *num_format_index = index;
-  ///                 format->num_format_index = index;
-  ///                 lxw_insert_hash_element(num_formats, format->num_format,
-  ///                                         num_format_index,
-  ///                                         LXW_FORMAT_FIELD_LEN);
-  ///                 index++;
-  /* Don't update num_format_count for DXF formats. */
-  ///             }
-  ///         }
-  ///     }
-
+  // Don't update num_format_count for DXF formats.
   num_format_count_ = static_cast<uint32_t>(num_formats.size());
+
+  for(const auto format: used_dxf_formats_)
+  {
+    // Format already has a number format index.
+    if(format->num_format_index_ != 0)
+    {
+      continue;
+    }
+
+    // Check if there is a user defined number format string.
+    if(!format->num_format_.empty())
+    {
+      for(const auto num_format: num_formats)
+      {
+        if(format->num_format_ == num_format->num_format_)
+        {
+          // Format number has already been used.
+          format->num_format_index_ = num_format->num_format_index_;
+        }
+      }
+
+      if(format->num_format_index_ == 0)
+      {
+        // Custom number formats start at 0xA4
+        format->num_format_index_ = static_cast<int32_t>(num_formats.size()) + 0xA4;
+        num_formats.push_back(format);
+      }
+    }
+
+    ///             if (hash_element) {
+    /* Num_Format has already been used. */
+    ///                 format->num_format_index = *(uint16_t *) hash_element->value;
+    ///             }
+    ///             else {
+    /* This is a new num_format. */
+    ///                 num_format_index = calloc(1, sizeof(uint16_t));
+    ///                 *num_format_index = index;
+    ///                 format->num_format_index = index;
+    ///                 lxw_insert_hash_element(num_formats, format->num_format,
+    ///                                         num_format_index,
+    ///                                         LXW_FORMAT_FIELD_LEN);
+    ///                 index++;
+    ///             }
+    ///         }
+  }
 }
 
 void workbook_t::prepare_workbook()
@@ -849,8 +862,6 @@ void workbook_t::prepare_defined_names()
   ///     char app_name[LXW_DEFINED_NAME_LENGTH];
   ///     char range[LXW_DEFINED_NAME_LENGTH];
   ///     char area[LXW_MAX_CELL_RANGE_LENGTH];
-  ///     char first_col[8];
-  ///     char last_col[8];
 
   for(auto& sheet: sheets_)
   {
@@ -869,118 +880,63 @@ void workbook_t::prepare_defined_names()
                            std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
       }
 
-      /*
-       * Check for Print Area settings and store them.
-       */
-      ///         if (worksheet->print_area.in_use) {
+      // Check for Print Area settings and store them.
+      if(ws.print_area_.in_use_)
+      {
+        std::string area;
 
-      ///             lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-      ///                          "%s!Print_Area", worksheet->quoted_name);
+        // Check for print area that is the max row range.
+        if(ws.print_area_.first_row_ == 0 && ws.print_area_.last_row_ == worksheet_t::ROW_MAX - 1)
+        {
+          const std::string first_col = col_to_name(ws.print_area_.first_col_, false);
+          const std::string last_col  = col_to_name(ws.print_area_.last_col_, false);
+          area                        = std::format("${}:${}", first_col, last_col);
+        }
+        // Check for print area that is the max column range.
+        else if(ws.print_area_.first_col_ == 0 && ws.print_area_.last_col_ == worksheet_t::COL_MAX - 1)
+        {
+          area = std::format("${}:${}", ws.print_area_.first_row_ + 1, ws.print_area_.last_row_ + 1);
+        }
+        else
+        {
+          area = rowcol_to_range_abs(ws.print_area_.first_row_, ws.print_area_.first_col_, ws.print_area_.last_row_,
+                                     ws.print_area_.last_col_);
+        }
 
-      /* Check for print area that is the max row range. */
-      ///             if (worksheet->print_area.first_row == 0
-      ///                 && worksheet->print_area.last_row == LXW_ROW_MAX - 1) {
+        const std::string app_name = std::format("{}!Print_Area", ws.quoted_name_);
+        const std::string range    = std::format("{}!{}", ws.quoted_name_, area);
+        store_defined_name("_xlnm.Print_Area", app_name, range, ws.index_, false);
+      }
 
-      ///                 lxw_col_to_name(first_col,
-      ///                                 worksheet->print_area.first_col,
-      ///                                 LXW_FALSE);
-
-      ///                 lxw_col_to_name(last_col,
-      ///                                 worksheet->print_area.last_col,
-      ///                                 LXW_FALSE);
-
-      ///                 lxw_snprintf(area, LXW_MAX_CELL_RANGE_LENGTH - 1,
-      ///                 "$%s:$%s",
-      ///                              first_col, last_col);
-
-      ///             }
-      /* Check for print area that is the max column range. */
-      ///             else if (worksheet->print_area.first_col == 0
-      ///                      && worksheet->print_area.last_col == LXW_COL_MAX - 1)
-      ///                      {
-
-      ///                 lxw_snprintf(area, LXW_MAX_CELL_RANGE_LENGTH - 1,
-      ///                 "$%d:$%d",
-      ///                              worksheet->print_area.first_row + 1,
-      ///                              worksheet->print_area.last_row + 1);
-
-      ///             }
-      ///             else {
-      ///                 lxw_rowcol_to_range_abs(area,
-      ///                                         worksheet->print_area.first_row,
-      ///                                         worksheet->print_area.first_col,
-      ///                                         worksheet->print_area.last_row,
-      ///                                         worksheet->print_area.last_col);
-      ///             }
-
-      ///             lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH, "%s!%s",
-      ///                          worksheet->quoted_name, area);
-
-      ///             _store_defined_name(self, "_xlnm.Print_Area", app_name,
-      ///                                 range, worksheet->index, LXW_FALSE);
-      ///         }
-
-      /*
-       * Check for repeat rows/cols. aka, Print Titles and store them.
-       */
-      ///         if (worksheet->repeat_rows.in_use ||
-      ///         worksheet->repeat_cols.in_use) {
-      ///             if (worksheet->repeat_rows.in_use
-      ///                 && worksheet->repeat_cols.in_use) {
-      ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-      ///                              "%s!Print_Titles", worksheet->quoted_name);
-
-      ///                 lxw_col_to_name(first_col,
-      ///                                 worksheet->repeat_cols.first_col,
-      ///                                 LXW_FALSE);
-
-      ///                 lxw_col_to_name(last_col,
-      ///                                 worksheet->repeat_cols.last_col,
-      ///                                 LXW_FALSE);
-
-      ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
-      ///                              "%s!$%s:$%s,%s!$%d:$%d",
-      ///                              worksheet->quoted_name, first_col,
-      ///                              last_col, worksheet->quoted_name,
-      ///                              worksheet->repeat_rows.first_row + 1,
-      ///                              worksheet->repeat_rows.last_row + 1);
-
-      ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
-      ///                                     range, worksheet->index, LXW_FALSE);
-      ///             }
-      ///             else if (worksheet->repeat_rows.in_use) {
-
-      ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-      ///                              "%s!Print_Titles", worksheet->quoted_name);
-
-      ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
-      ///                              "%s!$%d:$%d", worksheet->quoted_name,
-      ///                              worksheet->repeat_rows.first_row + 1,
-      ///                              worksheet->repeat_rows.last_row + 1);
-
-      ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
-      ///                                     range, worksheet->index, LXW_FALSE);
-      ///             }
-      ///             else if (worksheet->repeat_cols.in_use) {
-      ///                 lxw_snprintf(app_name, LXW_DEFINED_NAME_LENGTH,
-      ///                              "%s!Print_Titles", worksheet->quoted_name);
-
-      ///                 lxw_col_to_name(first_col,
-      ///                                 worksheet->repeat_cols.first_col,
-      ///                                 LXW_FALSE);
-
-      ///                 lxw_col_to_name(last_col,
-      ///                                 worksheet->repeat_cols.last_col,
-      ///                                 LXW_FALSE);
-
-      ///                 lxw_snprintf(range, LXW_DEFINED_NAME_LENGTH,
-      ///                              "%s!$%s:$%s", worksheet->quoted_name,
-      ///                              first_col, last_col);
-
-      ///                 _store_defined_name(self, "_xlnm.Print_Titles", app_name,
-      ///                                     range, worksheet->index, LXW_FALSE);
-      ///             }
-      ///         }
+      // Check for repeat rows/cols. aka, Print Titles and store them.
+      if(ws.repeat_rows_.in_use_ || ws.repeat_cols_.in_use_)
+      {
+        if(ws.repeat_rows_.in_use_ && ws.repeat_cols_.in_use_)
+        {
+          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
+          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
+          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
+          const std::string range =
+              std::format("{}!${}:${},{}!${}:${}", ws.quoted_name_, first_col, last_col, ws.quoted_name_,
+                          ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+        }
+        else if(ws.repeat_rows_.in_use_)
+        {
+          const std::string app_name = std::format("{}!Print_Titles", ws.quoted_name_);
+          const std::string range =
+              std::format("{}!${}:${}", ws.quoted_name_, ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+        }
+        else if(ws.repeat_cols_.in_use_)
+        {
+          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
+          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
+          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
+          const std::string range     = std::format("{}!${}:${}", ws.quoted_name_, first_col, last_col);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+        }
+      }
     }
   }
 }
@@ -1032,13 +988,14 @@ std::string workbook_t::write_file_version() const
 
 std::string workbook_t::write_file_sharing() const
 {
-  ///     if (self->read_only == 0)
-  ///         return;
+  if(read_only_ == 0)
+  {
+    return "";
+  }
 
-  ///     LXW_PUSH_ATTRIBUTES_STR("readOnlyRecommended", "1");
-  ///     lxw_xml_empty_tag(self->file, "fileSharing", &attributes);
-
-  return "";
+  return xml_empty_tag("fileSharing", {
+                                          {"readOnlyRecommended", "1"}
+  });
 }
 
 std::string workbook_t::write_workbook_pr() const
@@ -1050,8 +1007,10 @@ std::string workbook_t::write_workbook_pr() const
     attributes.emplace_back("codeName", vba_codename_);
   }
 
-  ///     if (self->use_1904_epoch)
-  ///         LXW_PUSH_ATTRIBUTES_STR("date1904", "1");
+  if(use_1904_epoch_)
+  {
+    attributes.emplace_back("date1904", "1");
+  }
 
   attributes.emplace_back("defaultThemeVersion", "124226");
 
@@ -1226,8 +1185,8 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       .quoted_name_        = quote_sheetname(sheetname),
       ///     .tmpdir = self->options.tmpdir,
       .default_url_format_ = default_url_format_,
-      ///     .max_url_length = self->max_url_length,
-      ///     .use_1904_epoch = self->use_1904_epoch,
+      .max_url_length_     = max_url_length_,
+      .use_1904_epoch_     = use_1904_epoch_,
   };
 
   sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1),
@@ -1252,17 +1211,17 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   validate_sheetname(sheetname);
 
   const worksheet_init_data_t init_data{
-      .index_        = num_sheets_,
-      .hidden_       = 0,
-      .active_sheet_ = &active_sheet_,
-      .first_sheet_  = &first_sheet_,
-      .sst_          = &sst_,
-      .name_         = std::string{sheetname},
-      .quoted_name_  = quote_sheetname(sheetname),
+      .index_          = num_sheets_,
+      .hidden_         = 0,
+      .active_sheet_   = &active_sheet_,
+      .first_sheet_    = &first_sheet_,
+      .sst_            = &sst_,
+      .name_           = std::string{sheetname},
+      .quoted_name_    = quote_sheetname(sheetname),
       ///     .tmpdir = self->options.tmpdir,
       /// .default_url_format_ = default_url_format_,
-      ///     .max_url_length = self->max_url_length,
-      ///     .use_1904_epoch = self->use_1904_epoch,
+      .max_url_length_ = max_url_length_,
+      .use_1904_epoch_ = use_1904_epoch_,
   };
 
   sheets_.emplace_back(chartsheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1)});
@@ -1306,7 +1265,42 @@ int32_t workbook_t::get_xf_index(format_t* format)
     return format->xf_index_;
   }
 
-  // TODO Add search to be sure there is no duplication.
+  for(const auto fmt: used_xf_formats_)
+  {
+    if(fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
+       fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
+       fmt->num_format_index_ == format->num_format_index_ && fmt->font_index_ == format->font_index_ &&
+       fmt->has_font_ == format->has_font_ && fmt->has_dxf_font_ == format->has_dxf_font_ &&
+       fmt->font_size_ == format->font_size_ && fmt->bold_ == format->bold_ && fmt->italic_ == format->italic_ &&
+       fmt->font_color_ == format->font_color_ && fmt->underline_ == format->underline_ &&
+       fmt->font_strikeout_ == format->font_strikeout_ && fmt->font_outline_ == format->font_outline_ &&
+       fmt->font_shadow_ == format->font_shadow_ && fmt->font_script_ == format->font_script_ &&
+       fmt->font_family_ == format->font_family_ && fmt->font_charset_ == format->font_charset_ &&
+       fmt->font_condense_ == format->font_condense_ && fmt->font_extend_ == format->font_extend_ &&
+       fmt->theme_ == format->theme_ && fmt->hyperlink_ == format->hyperlink_ && fmt->hidden_ == format->hidden_ &&
+       fmt->locked_ == format->locked_ && fmt->text_h_align_ == format->text_h_align_ &&
+       fmt->text_wrap_ == format->text_wrap_ && fmt->text_v_align_ == format->text_v_align_ &&
+       fmt->text_justlast_ == format->text_justlast_ && fmt->rotation_ == format->rotation_ &&
+       fmt->fg_color_ == format->fg_color_ && fmt->bg_color_ == format->bg_color_ &&
+       fmt->dxf_fg_color_ == format->dxf_fg_color_ && fmt->dxf_bg_color_ == format->dxf_bg_color_ &&
+       fmt->pattern_ == format->pattern_ && fmt->has_fill_ == format->has_fill_ &&
+       fmt->has_dxf_fill_ == format->has_dxf_fill_ && fmt->fill_index_ == format->fill_index_ &&
+       fmt->fill_count_ == format->fill_count_ && fmt->border_index_ == format->border_index_ &&
+       fmt->has_border_ == format->has_border_ && fmt->has_dxf_border_ == format->has_dxf_border_ &&
+       fmt->border_count_ == format->border_count_ && fmt->bottom_ == format->bottom_ &&
+       fmt->diag_border_ == format->diag_border_ && fmt->diag_type_ == format->diag_type_ &&
+       fmt->left_ == format->left_ && fmt->right_ == format->right_ && fmt->top_ == format->top_ &&
+       fmt->bottom_color_ == format->bottom_color_ && fmt->diag_color_ == format->diag_color_ &&
+       fmt->left_color_ == format->left_color_ && fmt->right_color_ == format->right_color_ &&
+       fmt->top_color_ == format->top_color_ && fmt->indent_ == format->indent_ && fmt->shrink_ == format->shrink_ &&
+       fmt->merge_range_ == format->merge_range_ && fmt->reading_order_ == format->reading_order_ &&
+       fmt->just_distrib_ == format->just_distrib_ && fmt->color_indexed_ == format->color_indexed_ &&
+       fmt->font_only_ == format->font_only_ && fmt->quote_prefix_ == format->quote_prefix_)
+    {
+      return fmt->xf_index_;
+    }
+  }
+
   format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
   used_xf_formats_.push_back(format);
 
@@ -1330,12 +1324,6 @@ int32_t workbook_t::get_dxf_index(format_t* format)
 
 void workbook_t::save(std::string_view filename)
 {
-  ////   lxw_sheet *sheet = NULL;
-  ////    lxw_worksheet *worksheet = NULL;
-  ////    lxw_packager *packager = NULL;
-  ////    lxw_error error = LXW_NO_ERROR;
-  ////    char codename[LXW_MAX_SHEETNAME_LENGTH] = { 0 };
-
   // Add a default worksheet if non have been added.
   if(num_sheets_ == 0)
   {
@@ -1416,64 +1404,8 @@ void workbook_t::save(std::string_view filename)
 
   // Create a packager object to assemble sub-elements into a zip file.
   packager_t pkg(filename);
-  ////    packager = lxw_packager_new(self->filename,
-  ////                                self->options.tmpdir,
-  ////                                self->options.use_zip64);
 
   pkg.create_package(*this);
-
-  /* Error and non-error conditions fall through to the cleanup code. */
-  ////    if (error == LXW_ERROR_CREATING_TMPFILE) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Error creating tmpfile(s) to assemble '%s'. "
-  ////                   "System error = %s\n", self->filename,
-  /// strerror(errno)); /    }
-
-  /* If LXW_ERROR_ZIP_FILE_OPERATION then errno is set by zip. */
-  ////    if (error == LXW_ERROR_ZIP_FILE_OPERATION) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Zip ZIP_ERRNO error while creating xlsx file '%s'. "
-  ////                   "System error = %s\n", self->filename,
-  /// strerror(errno)); /    }
-
-  /* If LXW_ERROR_ZIP_PARAMETER_ERROR then errno is set by zip. */
-  ////    if (error == LXW_ERROR_ZIP_PARAMETER_ERROR) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Zip ZIP_PARAMERROR error while creating xlsx file
-  ///'%s'. " /                   "System error = %s\n", self->filename,
-  /// strerror(errno)); /    }
-
-  /* If LXW_ERROR_ZIP_BAD_ZIP_FILE then errno is set by zip. */
-  ////    if (error == LXW_ERROR_ZIP_BAD_ZIP_FILE) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Zip ZIP_BADZIPFILE error while creating xlsx file
-  ///'%s'. " /                   "This may require the use_zip64 option for
-  /// large files. " /                   "System error = %s\n", self->filename,
-  /// strerror(errno)); /    }
-
-  /* If LXW_ERROR_ZIP_INTERNAL_ERROR then errno is set by zip. */
-  ////    if (error == LXW_ERROR_ZIP_INTERNAL_ERROR) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Zip ZIP_INTERNALERROR error while creating xlsx file
-  ///'%s'. " /                   "System error = %s\n", self->filename,
-  /// strerror(errno)); /    }
-
-  /* The next 2 error conditions don't set errno. */
-  ////    if (error == LXW_ERROR_ZIP_FILE_ADD) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Zip error adding file to xlsx file '%s'.\n",
-  ////                   self->filename);
-  ////    }
-
-  ////    if (error == LXW_ERROR_ZIP_CLOSE) {
-  ////        LXW_PRINTF(LXW_STDERR "[ERROR] workbook_close(): "
-  ////                   "Zip error closing xlsx file '%s'.\n", self->filename);
-  ////    }
-
-  ////mem_error:
-  ////    lxw_packager_free(packager);
-  ////    lxw_workbook_free(self);
-  ////    return error;
 }
 
 void workbook_t::define_name(const std::string& name, const std::string& formula)
@@ -1693,36 +1625,27 @@ void workbook_t::add_vba_project(const std::string& filename)
   vba_project_ = filename;
 }
 
-/// lxw_error workbook_add_signed_vba_project(lxw_workbook *self,
-///                                 const char *vba_project,
-///                                 const char *signature)
-/// {
-///     FILE *filehandle;
+void workbook_t::add_signed_vba_project(const std::string& vba_project, const std::string& signature)
+{
+  add_vba_project(vba_project);
 
-///     lxw_error error = workbook_add_vba_project(self, vba_project);
-///     if (error != LXW_NO_ERROR)
-///         return error;
+  if(signature.empty())
+  {
+    throw xwpp_exception_t("workbook_t::add_signed_vba_project(): signature filename must be specified.");
+  }
 
-///     if (!signature) {
-///         LXW_WARN("workbook_add_signed_vba_project(): "
-///                  "signature filename must be specified.");
-///         return LXW_ERROR_NULL_PARAMETER_IGNORED;
-///     }
+  // Check that the vbaProjectSignature file exists and can be opened.
+  {
+    std::ifstream signature_file(signature);
+    if(!signature_file)
+    {
+      throw xwpp_exception_t(std::format(
+          "workbook_t::add_signed_vba_project(): signature file doesn't exist or can't be opened{}", signature));
+    }
+  }
 
-/* Check that the vbaProjectSignature file exists and can be opened. */
-///     filehandle = lxw_fopen(signature, "rb");
-///     if (!filehandle) {
-///         LXW_WARN_FORMAT1("workbook_add_signed_vba_project(): "
-///                          "signature file doesn't exist or can't be opened: %s.",
-///                          signature);
-///         return LXW_ERROR_PARAMETER_VALIDATION;
-///     }
-///     fclose(filehandle);
-
-///     self->vba_project_signature = lxw_strdup(signature);
-
-///     return LXW_NO_ERROR;
-/// }
+  vba_project_signature_ = signature;
+}
 
 void workbook_t::set_vba_name(const std::string& name)
 {
@@ -1734,15 +1657,15 @@ void workbook_t::set_vba_name(const std::string& name)
   vba_codename_ = name;
 }
 
-/// void workbook_read_only_recommended(lxw_workbook *self)
-/// {
-///     self->read_only = 2;
-/// }
+void workbook_t::read_only_recommended()
+{
+  read_only_ = 2;
+}
 
-/// void workbook_use_1904_epoch(lxw_workbook *self)
-/// {
-///     self->use_1904_epoch = LXW_TRUE;
-/// }
+void workbook_t::use_1904_epoch()
+{
+  use_1904_epoch_ = true;
+}
 
 /// void workbook_set_size(lxw_workbook *workbook, uint16_t width, uint16_t height)
 /// {

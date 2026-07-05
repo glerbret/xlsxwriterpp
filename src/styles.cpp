@@ -47,15 +47,74 @@ std::string style_t::write_style_sheet() const
 
 std::string style_t::write_num_fmt(uint16_t num_fmt_id, const std::string& format_code) const
 {
+  std::vector<std::string> format_codes{"General",
+                                        "0",
+                                        "0.00",
+                                        "#,##0",
+                                        "#,##0.00",
+                                        "($#,##0_);($#,##0)",
+                                        "($#,##0_);[Red]($#,##0)",
+                                        "($#,##0.00_);($#,##0.00)",
+                                        "($#,##0.00_);[Red]($#,##0.00)",
+                                        "0%",
+                                        "0.00%",
+                                        "0.00E+00",
+                                        "# ?/?",
+                                        "# ?"
+                                        "?/?"
+                                        "?", /* Split string to avoid unintentional trigraph. */
+                                        "m/d/yy",
+                                        "d-mmm-yy",
+                                        "d-mmm",
+                                        "mmm-yy",
+                                        "h:mm AM/PM",
+                                        "h:mm:ss AM/PM",
+                                        "h:mm",
+                                        "h:mm:ss",
+                                        "m/d/yy h:mm",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "General",
+                                        "(#,##0_);(#,##0)",
+                                        "(#,##0_);[Red](#,##0)",
+                                        "(#,##0.00_);(#,##0.00)",
+                                        "(#,##0.00_);[Red](#,##0.00)",
+                                        "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)",
+                                        "_($* #,##0_);_($* (#,##0);_($* \"-\"_);_(@_)",
+                                        "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)",
+                                        "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
+                                        "mm:ss",
+                                        "[h]:mm:ss",
+                                        "mm:ss.0",
+                                        "##0.0E+0",
+                                        "@"};
+
   std::vector<std::tuple<std::string, std::string>> attributes{
       {"numFmtId", std::to_string(num_fmt_id)}
   };
-  ///     if (num_fmt_id < 50)
-  ///         LXW_PUSH_ATTRIBUTES_STR("formatCode", format_codes[num_fmt_id]);
-  ///     else if (num_fmt_id < 164)
-  ///         LXW_PUSH_ATTRIBUTES_STR("formatCode", "General");
-  ///     else
-  attributes.emplace_back("formatCode", format_code);
+  if(num_fmt_id < 50)
+  {
+    attributes.emplace_back("formatCode", format_codes[num_fmt_id]);
+  }
+  else if(num_fmt_id < 164)
+  {
+    attributes.emplace_back("formatCode", "General");
+  }
+  else
+  {
+    attributes.emplace_back("formatCode", format_code);
+  }
 
   return xml_empty_tag("numFmt", attributes);
 }

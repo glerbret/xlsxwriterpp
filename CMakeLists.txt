@@ -332,17 +332,40 @@ if(BUILD_TESTS)
 ###         message("    pip install pytest\n")
 ###     endif()
 
-###     foreach(source ${XWPP_FUNCTIONAL_SOURCES})
-###         get_filename_component(basename ${source} NAME_WE)
-###         add_executable(${basename} ${source})
-###         target_link_libraries(${basename} xlsxwriter)
-###         set_target_properties(
-###             ${basename}
-###             PROPERTIES RUNTIME_OUTPUT_DIRECTORY "test/functional/src"
-###         )
-###     endforeach(source)
+  file(GLOB XWPP_FUNCTIONAL_SOURCES test/functional/src/*.cpp)
+  foreach(source ${XWPP_FUNCTIONAL_SOURCES})
+    get_filename_component(basename ${source} NAME_WE)
+    add_executable(${basename} ${source})
+    target_link_libraries(${basename} ${PROJECT_NAME})
+    set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "test/functional/src")
+  endforeach(source)
 
-###     add_custom_command(
+  # Custom target and commands to copy necessary files for testing
+  # They use fake files to force copy
+  add_custom_target(
+    custom_test_target_runs_always ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_xlsx ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_py ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_images
+  )
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_xlsx
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            ${CMAKE_SOURCE_DIR}/test/functional/xlsx_files
+            ${CMAKE_CURRENT_BINARY_DIR}/test/functional/xlsx_files)
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_images
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            ${CMAKE_SOURCE_DIR}/test/functional/src/images
+            ${CMAKE_CURRENT_BINARY_DIR}/test/functional/src/images)
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_py
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_SOURCE_DIR}/test/functional/*.py
+            ${CMAKE_CURRENT_BINARY_DIR}/test/functional)
+
+            ###     add_custom_command(
 ###         TARGET xlsxwriter_unit
 ###         POST_BUILD
 ###         COMMAND

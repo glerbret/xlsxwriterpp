@@ -57,36 +57,6 @@
 namespace xwpp
 {
 
-/// #define LXW_DEFINED_NAME_LENGTH 128
-
-/* Struct to hold the 2 sheet types. */
-/// typedef struct lxw_sheet {
-///     uint8_t is_chartsheet;
-
-///     union {
-///         lxw_worksheet *worksheet;
-///         lxw_chartsheet *chartsheet;
-///     } u;
-
-///     STAILQ_ENTRY (lxw_sheet) list_pointers;
-/// } lxw_sheet;
-
-/* Struct to represent a worksheet name/pointer pair. */
-/// typedef struct lxw_worksheet_name {
-///     const char *name;
-///     lxw_worksheet *worksheet;
-
-///     RB_ENTRY (lxw_worksheet_name) tree_pointers;
-/// } lxw_worksheet_name;
-
-/* Struct to represent a chartsheet name/pointer pair. */
-/// typedef struct lxw_chartsheet_name {
-///     const char *name;
-///     lxw_chartsheet *chartsheet;
-
-///     RB_ENTRY (lxw_chartsheet_name) tree_pointers;
-/// } lxw_chartsheet_name;
-
 struct defined_name_t
 {
   int16_t index_ = 0;
@@ -133,7 +103,7 @@ struct doc_properties_t
   std::string status_;
 
   /** The hyperlink base URL of the Excel Document. */
-  ///     const char *hyperlink_base;
+  std::string hyperlink_base_;
 
   // TODO Manage internally with a port of lxw_datetime
   /** The file creation date/time shown in Excel. This defaults to the
@@ -669,6 +639,86 @@ public:
    */
   const worksheet_t* get_worksheet_by_name(std::string_view name) const;
 
+  /**
+   * @brief Set the workbook to use the 1904 epoch.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   *
+   * The `%workbook_use_1904_epoch()` function can be used to set the workbook to
+   * use the 1904 epoch instead of the default 1900 epoch.
+   *
+   * Excel supports two date epochs. The first based on 1900-01-01 is the default
+   * for all Windows versions of Excel and for recent versions of Excel for macOS.
+   * Older versions of Excel for macOS used a 1904-01-01 epoch. The 1904 epoch can
+   * be set for compatibility with older versions of Excel or to work around the
+   * Excel limitation of not being able to handle negative times.
+   *
+   * This function should be called before `worksheet_add_worksheet()`.
+   *
+   * @code
+   *     workbook_use_1904_epoch(workbook);
+   * @endcode
+   *
+   */
+  void use_1904_epoch();
+
+  // TODO For test, to be replaced
+  void set_max_url_length(uint16_t max_url_length)
+  {
+    max_url_length_ = max_url_length;
+  }
+
+  /**
+   * @brief Add a vbaProject binary and a vbaProjectSignature binary to the Excel
+   * workbook.
+   *
+   * @param workbook    Pointer to a lxw_workbook instance.
+   * @param vba_project The path/filename of the vbaProject.bin file.
+   * @param signature   The path/filename of the vbaProjectSignature.bin file.
+   *
+   * The `%workbook_add_signed_vba_project()` function can be used to add
+   * digitally signed macros or functions to a workbook. The function adds a
+   * binary VBA project file and a binary VBA project signature file that have
+   * been extracted from an existing Excel xlsm file with digitally signed macros:
+   *
+   * @code
+   *     workbook_add_signed_vba_project(workbook, "vbaProject.bin",
+   * "vbaProjectSignature.bin");
+   * @endcode
+   *
+   * Only one `vbaProject.bin` file can be added per workbook. The name doesn't
+   * have to be `vbaProject.bin`. Any suitable path/name for an existing VBA bin
+   * file will do. The same applies for `vbaProjectSignature.bin`.
+   *
+   * See also @ref working_with_macros
+   *
+   * @return A #lxw_error.
+   */
+  void add_signed_vba_project(const std::string& vba_project, const std::string& signature);
+
+  /**
+   * @brief Add a recommendation to open the file in "read-only" mode.
+   *
+   * @param workbook Pointer to a lxw_workbook instance.
+   *
+   * This function can be used to set the Excel "Read-only Recommended" option
+   * that is available when saving a file. This presents the user of the file
+   * with an option to open it in "read-only" mode. This means that any changes
+   * to the file can't be saved back to the same file and must be saved to a new
+   * file. It can be set as follows:
+   *
+   * @code
+   *     workbook_read_only_recommended(workbook);
+   * @endcode
+   *
+   * Which will raise a dialog like the following when opening the file:
+   *
+   * @image html read_only.png
+   */
+  void read_only_recommended();
+
+  void set_default_xf_indices();
+
 private:
   // TODO packager_t needs to access to workbook field.
   friend class packager_t;
@@ -746,8 +796,6 @@ private:
   // of new sheet
   std::list<std::variant<worksheet_t, chartsheet_t>> sheets_;
 
-  ///     struct lxw_worksheets *worksheets;
-  ///     struct lxw_chartsheets *chartsheets;
   // As the unicity of sheet name is case insensitive, the name
   // is stored as lower case
   std::map<std::string, worksheet_t*> worksheet_names_;
@@ -769,7 +817,6 @@ private:
   doc_properties_t properties_;
   std::vector<custom_property_t> custom_properties_;
 
-  ///     char *filename;
   ///     lxw_workbook_options options;
 
   uint16_t num_sheets_          = 0; // TODO Needed ?
@@ -790,7 +837,7 @@ private:
   uint16_t border_count_   = 0;
   uint16_t fill_count_     = 0;
   uint16_t max_url_length_ = 2079;
-  ///     uint8_t read_only;
+  uint8_t read_only_       = 0;
 
   bool has_png_                         = false;
   bool has_jpeg_                        = false;
@@ -812,7 +859,7 @@ private:
   std::string vba_project_signature_;
   std::string vba_codename_;
 
-  ///     uint8_t use_1904_epoch;
+  bool use_1904_epoch_ = false;
 
   format_t* default_url_format_;
 };
@@ -878,80 +925,6 @@ private:
 ///                                                 lxw_datetime *datetime);
 
 /**
- * @brief Add a vbaProject binary and a vbaProjectSignature binary to the Excel
- * workbook.
- *
- * @param workbook    Pointer to a lxw_workbook instance.
- * @param vba_project The path/filename of the vbaProject.bin file.
- * @param signature   The path/filename of the vbaProjectSignature.bin file.
- *
- * The `%workbook_add_signed_vba_project()` function can be used to add
- * digitally signed macros or functions to a workbook. The function adds a
- * binary VBA project file and a binary VBA project signature file that have
- * been extracted from an existing Excel xlsm file with digitally signed macros:
- *
- * @code
- *     workbook_add_signed_vba_project(workbook, "vbaProject.bin",
- * "vbaProjectSignature.bin");
- * @endcode
- *
- * Only one `vbaProject.bin` file can be added per workbook. The name doesn't
- * have to be `vbaProject.bin`. Any suitable path/name for an existing VBA bin
- * file will do. The same applies for `vbaProjectSignature.bin`.
- *
- * See also @ref working_with_macros
- *
- * @return A #lxw_error.
- */
-/// lxw_error workbook_add_signed_vba_project(lxw_workbook *workbook,
-///                                           const char *vba_project,
-///                                           const char *signature);
-
-/**
- * @brief Add a recommendation to open the file in "read-only" mode.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- *
- * This function can be used to set the Excel "Read-only Recommended" option
- * that is available when saving a file. This presents the user of the file
- * with an option to open it in "read-only" mode. This means that any changes
- * to the file can't be saved back to the same file and must be saved to a new
- * file. It can be set as follows:
- *
- * @code
- *     workbook_read_only_recommended(workbook);
- * @endcode
- *
- * Which will raise a dialog like the following when opening the file:
- *
- * @image html read_only.png
- */
-/// void workbook_read_only_recommended(lxw_workbook *workbook);
-
-/**
- * @brief Set the workbook to use the 1904 epoch.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- *
- * The `%workbook_use_1904_epoch()` function can be used to set the workbook to
- * use the 1904 epoch instead of the default 1900 epoch.
- *
- * Excel supports two date epochs. The first based on 1900-01-01 is the default
- * for all Windows versions of Excel and for recent versions of Excel for macOS.
- * Older versions of Excel for macOS used a 1904-01-01 epoch. The 1904 epoch can
- * be set for compatibility with older versions of Excel or to work around the
- * Excel limitation of not being able to handle negative times.
- *
- * This function should be called before `worksheet_add_worksheet()`.
- *
- * @code
- *     workbook_use_1904_epoch(workbook);
- * @endcode
- *
- */
-/// void workbook_use_1904_epoch(lxw_workbook *workbook);
-
-/**
  * @brief Set the size of a workbook window.
  *
  * @param workbook Pointer to a lxw_workbook instance.
@@ -968,9 +941,6 @@ private:
  */
 /// void workbook_set_size(lxw_workbook *workbook,
 ///                        uint16_t width, uint16_t height);
-
-/// void lxw_workbook_free(lxw_workbook *workbook);
-/// void lxw_workbook_set_default_xf_indices(lxw_workbook *workbook);
 
 }
 

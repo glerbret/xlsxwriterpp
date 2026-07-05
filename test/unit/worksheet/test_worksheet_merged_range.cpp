@@ -29,10 +29,10 @@ BOOST_AUTO_TEST_CASE(merged_range01)
       "<sheetFormatPr defaultRowHeight=\"15\"/>"
       "<sheetData>"
         "<row r=\"3\" spans=\"2:3\">"
-          "<c r=\"B3\" s=\"1\" t=\"s\">"
+          "<c r=\"B3\" t=\"s\">"
             "<v>0</v>"
           "</c>"
-          "<c r=\"C3\" s=\"1\"/>"
+          "<c r=\"C3\"/>"
         "</row>"
       "</sheetData>"
       "<mergeCells count=\"1\">"
@@ -46,6 +46,7 @@ BOOST_AUTO_TEST_CASE(merged_range01)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
   xwpp::format_t* format = workbook.add_format();
+
   worksheet.merge_range(2, 1, 2, 2, "Foo", format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

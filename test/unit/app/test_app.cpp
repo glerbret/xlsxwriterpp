@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
       // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">"
-        "<Application>Xslswriter++</Application>"
+        "<Application>Microsoft Excel</Application>"
         "<DocSecurity>0</DocSecurity>"
         "<ScaleCrop>false</ScaleCrop>"
         "<HeadingPairs>"
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
       // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">"
-        "<Application>Xslswriter++</Application>"
+        "<Application>Microsoft Excel</Application>"
         "<DocSecurity>0</DocSecurity>"
         "<ScaleCrop>false</ScaleCrop>"
         "<HeadingPairs>"
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_3)
       // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">"
-        "<Application>Xslswriter++</Application>"
+        "<Application>Microsoft Excel</Application>"
         "<DocSecurity>0</DocSecurity>"
         "<ScaleCrop>false</ScaleCrop>"
         "<HeadingPairs>"
