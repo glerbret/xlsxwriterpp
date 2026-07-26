@@ -2204,7 +2204,7 @@ std::string chart_t::write_marker(chart_t& chart, std::optional<chart_marker_t>&
   return xml_data;
 }
 
-std::string chart_t::write_marker_value(const chart_t& chart)
+std::string chart_t::write_marker_value()
 {
   return xml_empty_tag("c:marker", {
                                        {"val", "1"}
@@ -3369,7 +3369,7 @@ std::string chart_t::write_line_chart(chart_t& chart)
   xml_data += write_drop_lines(chart);
   xml_data += write_hi_low_lines(chart);
   xml_data += write_up_down_bars(chart);
-  xml_data += write_marker_value(chart);
+  xml_data += write_marker_value();
   xml_data += write_axis_ids(chart);
   xml_data += xml_end_tag("c:lineChart");
 
@@ -3964,28 +3964,16 @@ void chart_series_set_marker_fill(chart_series_t& series, const std::optional<ch
   series.marker_->fill_ = convert_fill_args(fill);
 }
 
-/*
- * Set a pattern type for a series.
- */
-/// void chart_series_set_marker_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern)
-/// {
-///   if(!pattern)
-///   {
-///     return;
-///   }
-///
-///   if(!series->marker)
-///   {
-///     lxw_chart_marker* marker = calloc(1, sizeof(struct lxw_chart_marker));
-///     RETURN_VOID_ON_MEM_ERROR(marker);
-///     series->marker = marker;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(series->marker->pattern);
-///
-///   series->marker->pattern = _chart_convert_pattern_args(pattern);
-/// }
+// TODO Add test
+void chart_series_set_marker_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
+{
+  if(!series.marker_)
+  {
+    series.marker_ = chart_marker_t{};
+  }
+
+  series.marker_->pattern_ = convert_pattern_args(pattern);
+}
 
 void series_set_points(chart_series_t& series, const std::vector<chart_point_t> points)
 {
@@ -4352,21 +4340,11 @@ void chart_axis_set_fill(chart_axis_t& axis, const std::optional<chart_fill_t>& 
   axis.fill_ = convert_fill_args(fill);
 }
 
-/*
- * Set a pattern type for an axis.
- */
-/// void chart_axis_set_pattern(lxw_chart_axis* axis, lxw_chart_pattern* pattern)
-/// {
-///   if(!pattern)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(axis->pattern);
-///
-///   axis->pattern = _chart_convert_pattern_args(pattern);
-/// }
+// TODO Add test
+void chart_axis_set_pattern(chart_axis_t& axis, const std::optional<chart_pattern_t>& pattern)
+{
+  axis.pattern_ = convert_pattern_args(pattern);
+}
 
 void chart_axis_set_reverse(chart_axis_t& axis)
 {
@@ -4391,13 +4369,11 @@ void chart_axis_set_crossing_max(chart_axis_t& axis)
   axis.crossing_max_ = true;
 }
 
-/*
- * Turn off/hide the axis.
- */
-/// void chart_axis_off(lxw_chart_axis* axis)
-/// {
-///   axis->hidden = LXW_TRUE;
-/// }
+// TODO Add test
+void chart_axis_off(chart_axis_t& axis)
+{
+  axis.hidden_ = true;
+}
 
 void chart_axis_set_position(chart_axis_t& axis, chart_axis_tick_position_t position)
 {
@@ -4597,21 +4573,11 @@ void chart_t::chartarea_set_fill(const std::optional<chart_fill_t>& fill)
   chartarea_fill_ = convert_fill_args(fill);
 }
 
-/*
- * Set a pattern type for the chartarea.
- */
-/// void chart_chartarea_set_pattern(lxw_chart* self, lxw_chart_pattern* pattern)
-/// {
-///   if(!pattern)
-///   {
-///     return;
-///   }
-///
-///   /* Free any previously allocated resource. */
-///   free(self->chartarea_pattern);
-///
-///   self->chartarea_pattern = _chart_convert_pattern_args(pattern);
-/// }
+// TODO Add test
+void chart_t::chartarea_set_pattern(const std::optional<chart_pattern_t>& pattern)
+{
+  chartarea_pattern_ = convert_pattern_args(pattern);
+}
 
 void chart_t::plotarea_set_line(const std::optional<chart_line_t>& line)
 {

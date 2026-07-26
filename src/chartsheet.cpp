@@ -157,14 +157,14 @@ void chartsheet_t::set_chart(chart_t* chart)
   set_chart(chart, std::nullopt);
 }
 
-/// void
-/// chartsheet_select(lxw_chartsheet *self)
-/// {
-///     self->selected = LXW_TRUE;
-///
-///     /* Selected worksheet can't be hidden. */
-///     self->hidden = LXW_FALSE;
-/// }
+// TODO Add test
+void chartsheet_t::select()
+{
+  worksheet_.selected_ = true;
+
+  // Selected worksheet can't be hidden.
+  worksheet_.hidden_ = false;
+}
 
 void chartsheet_t::activate()
 {
@@ -177,14 +177,14 @@ void chartsheet_t::activate()
   *active_sheet_ = index_;
 }
 
-/// void
-/// chartsheet_set_first_sheet(lxw_chartsheet *self)
-/// {
-///     /* Active worksheet can't be hidden. */
-///     self->hidden = LXW_FALSE;
-///
-///     *self->first_sheet = self->index;
-/// }
+// TODO Add test
+void chartsheet_t::set_first_sheet()
+{
+  // Active worksheet can't be hidden.
+  worksheet_.hidden_ = false;
+
+  *first_sheet_ = index_;
+}
 
 void chartsheet_t::hide()
 {

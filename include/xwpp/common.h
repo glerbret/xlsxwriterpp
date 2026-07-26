@@ -34,26 +34,25 @@ using row_num_t = uint32_t;
  */
 using col_num_t = uint16_t;
 
+// TODO Add again (in complement of std::ptime)
 /** @brief Struct to represent a date and time in Excel.
  *
  * Struct to represent a date and time in Excel. See @ref working_with_dates.
  */
-/// typedef struct lxw_datetime {
-
+// typedef struct lxw_datetime {
 /** Year     : 1900 - 9999 */
-///     int year;
+//     int year;
 /** Month    : 1 - 12 */
-///     int month;
+//     int month;
 /** Day      : 1 - 31 */
-///     int day;
+//     int day;
 /** Hour     : 0 - 23 */
-///     int hour;
+//     int hour;
 /** Minute   : 0 - 59 */
-///     int min;
+//     int min;
 /** Seconds  : 0 - 59.999 */
-///     double sec;
-
-/// } lxw_datetime;
+//     double sec;
+//};
 
 enum class custom_property_types_t
 {
@@ -67,38 +66,6 @@ enum class custom_property_types_t
 
 // Size of MD5 byte arrays.
 const size_t MD5_SIZE = 16;
-
-/* Excel sheetname max of 31 chars. */
-/// #define LXW_SHEETNAME_MAX         31
-
-/* Max with all worksheet chars 4xUTF-8 bytes + start and end quotes + \0. */
-/// #define LXW_MAX_SHEETNAME_LENGTH  ((LXW_SHEETNAME_MAX * 4) + 2 + 1)
-
-/* Max col string length. */
-/// #define LXW_MAX_COL_NAME_LENGTH   sizeof("$XFD")
-
-/* Max row string length. */
-/// #define LXW_MAX_ROW_NAME_LENGTH   sizeof("$1048576")
-
-/* Max cell string length. */
-/// #define LXW_MAX_CELL_NAME_LENGTH  sizeof("$XFWD$1048576")
-
-/* Max range: $XFWD$1048576:$XFWD$1048576\0 */
-/// #define LXW_MAX_CELL_RANGE_LENGTH (LXW_MAX_CELL_NAME_LENGTH * 2)
-
-/* Max range formula Sheet1!$A$1:$C$5$ style. */
-/// #define LXW_MAX_FORMULA_RANGE_LENGTH (LXW_MAX_SHEETNAME_LENGTH +
-/// LXW_MAX_CELL_RANGE_LENGTH)
-
-/* Datetime string length. */
-/// #define LXW_DATETIME_LENGTH       sizeof("2016-12-12T23:00:00Z")
-
-/* GUID string length. */
-/// #define LXW_GUID_LENGTH sizeof("{12345678-1234-1234-1234-1234567890AB}\0")
-
-/// #define LXW_UINT32_T_LENGTH       sizeof("4294967296")
-/// #define LXW_FILENAME_LENGTH       128
-/// #define LXW_IGNORE                1
 
 enum class drawing_orientation_t
 {
@@ -114,206 +81,7 @@ const std::string SCHEMA_PACKAGE   = SCHEMA_ROOT + "/package/2006/relationships"
 const std::string SCHEMA_DOCUMENT  = SCHEMA_ROOT + "/officeDocument/2006/relationships";
 const std::string SCHEMA_CONTENT   = SCHEMA_ROOT + "/package/2006/content-types";
 
-/* Use REprintf() for error handling when compiled as an R library. */
-/// #ifdef USE_R_LANG
-/// #include <R.h>
-/// #define LXW_PRINTF REprintf
-/// #define LXW_STDERR
-/// #else
-/// #define LXW_PRINTF fprintf
-/// #define LXW_STDERR stderr,
-/// #endif
-
-/// #define LXW_ERROR(message)                      \
-///     LXW_PRINTF(LXW_STDERR "[ERROR][%s:%d]: " message "\n", __FILE__, __LINE__)
-
-/// #define LXW_MEM_ERROR()                         \
-///     LXW_ERROR("Memory allocation failed.")
-
-/// #define GOTO_LABEL_ON_MEM_ERROR(pointer, label) \
-///     do {                                        \
-///         if (!pointer) {                         \
-///             LXW_MEM_ERROR();                    \
-///             goto label;                         \
-///         }                                       \
-///     } while (0)
-
-/// #define RETURN_ON_MEM_ERROR(pointer, error)     \
-///     do {                                        \
-///         if (!pointer) {                         \
-///             LXW_MEM_ERROR();                    \
-///             return error;                       \
-///         }                                       \
-///     } while (0)
-
-/// #define RETURN_VOID_ON_MEM_ERROR(pointer)       \
-///     do {                                        \
-///         if (!pointer) {                         \
-///             LXW_MEM_ERROR();                    \
-///             return;                             \
-///         }                                       \
-///     } while (0)
-
-/// #define RETURN_ON_ERROR(error)                  \
-///     do {                                        \
-///         if (error)                              \
-///             return error;                       \
-///     } while (0)
-
-/// #define RETURN_AND_ZIPCLOSE_ON_ERROR(error)     \
-///         do {                                    \
-///             if (error) {                        \
-///                 zipClose(self->zipfile, NULL);  \
-///                 return error;                   \
-///             }                                   \
-///         } while (0)
-
-/// #define LXW_WARN(message)                       \
-///     LXW_PRINTF(LXW_STDERR "[WARNING]: " message "\n")
-
-/* We can't use variadic macros here since we support ANSI C. */
-/// #define LXW_WARN_FORMAT(message)                \
-///     LXW_PRINTF(LXW_STDERR "[WARNING]: " message "\n")
-
-/// #define LXW_WARN_FORMAT1(message, var)          \
-///     LXW_PRINTF(LXW_STDERR "[WARNING]: " message "\n", var)
-
-/// #define LXW_WARN_FORMAT2(message, var1, var2)    \
-///     LXW_PRINTF(LXW_STDERR "[WARNING]: " message "\n", var1, var2)
-
-/// #define LXW_WARN_FORMAT3(message, var1, var2, var3) \
-///     LXW_PRINTF(LXW_STDERR "[WARNING]: " message "\n", var1, var2, var3)
-
-/* Chart axis type checks. */
-/// #define LXW_WARN_CAT_AXIS_ONLY(function)                                   \
-///     do {                                                                   \
-///         if (!axis->is_category) {                                          \
-///             LXW_PRINTF(LXW_STDERR "[WARNING]: "                            \
-///                     function "() is only valid for category axes\n");      \
-///            return;                                                         \
-///         }                                                                  \
-///     } while (0)
-
-/// #define LXW_WARN_VALUE_AXIS_ONLY(function)                                 \
-///     do {                                                                   \
-///         if (!axis->is_value) {                                             \
-///             LXW_PRINTF(LXW_STDERR "[WARNING]: "                            \
-///                 function "() is only valid for value axes\n");             \
-///                 return;                                                    \
-///         }                                                                  \
-///     } while (0)
-
-/// #define LXW_WARN_DATE_AXIS_ONLY(function)                                  \
-///     do {                                                                   \
-///         if (!axis->is_date) {                                              \
-///             LXW_PRINTF(LXW_STDERR "[WARNING]: "                            \
-///                     function "() is only valid for date axes\n");          \
-///            return;                                                         \
-///         }                                                                  \
-///     } while (0)
-
-/// #define LXW_WARN_CAT_AND_DATE_AXIS_ONLY(function)                          \
-///     do {                                                                   \
-///         if (!axis->is_category && !axis->is_date) {                        \
-///             LXW_PRINTF(LXW_STDERR "[WARNING]: "                            \
-///                 function "() is only valid for category and date axes\n"); \
-///            return;                                                         \
-///         }                                                                  \
-///     } while (0)
-
-/// #define LXW_WARN_VALUE_AND_DATE_AXIS_ONLY(function)                        \
-///     do {                                                                   \
-///         if (!axis->is_value && !axis->is_date) {                           \
-///             LXW_PRINTF(LXW_STDERR "[WARNING]: "                            \
-///                 function "() is only valid for value and date axes\n");    \
-///             return;                                                        \
-///         }                                                                  \
-///     } while (0)
-
-/// #ifndef LXW_BIG_ENDIAN
-/// #define LXW_UINT16_HOST(n)    (n)
-/// #define LXW_UINT32_HOST(n)    (n)
-/// #define LXW_UINT16_NETWORK(n) ((((n) & 0x00FF) << 8) | (((n) & 0xFF00) >>
-/// 8))
-/// #define LXW_UINT32_NETWORK(n) ((((n) & 0xFF)       << 24) | \
-///                                (((n) & 0xFF00)     <<  8) | \
-///                                (((n) & 0xFF0000)   >>  8) | \
-///                                (((n) & 0xFF000000) >> 24))
-/// #else
-/// #define LXW_UINT16_NETWORK(n) (n)
-/// #define LXW_UINT32_NETWORK(n) (n)
-/// #define LXW_UINT16_HOST(n)    ((((n) & 0x00FF) << 8) | (((n) & 0xFF00) >>
-/// 8))
-/// #define LXW_UINT32_HOST(n)    ((((n) & 0xFF)       << 24) | \
-///                                (((n) & 0xFF00)     <<  8) | \
-///                                (((n) & 0xFF0000)   >>  8) | \
-///                                (((n) & 0xFF000000) >> 24))
-/// #endif
-
-/* Compilers that have a native snprintf() can use it directly. */
-/// #ifdef _MSC_VER
-/// #define LXW_HAS_SNPRINTF
-/// #endif
-
-/// #ifdef LXW_HAS_SNPRINTF
-/// #define lxw_snprintf snprintf
-/// #else
-/// #define lxw_snprintf __builtin_snprintf
-/// #endif
-
-/* Define a snprintf for MSVC 2010. */
-/// #if defined(_MSC_VER) && _MSC_VER < 1900
-
-/// #include <stdarg.h>
-/// #define snprintf msvc2010_snprintf
-/// #define vsnprintf msvc2010_vsnprintf
-
-/// __inline int
-/// msvc2010_vsnprintf(char *str, size_t size, const char *format, va_list ap)
-/// {
-///     int count = -1;
-
-///     if (size != 0)
-///         count = _vsnprintf_s(str, size, _TRUNCATE, format, ap);
-///     if (count == -1)
-///         count = _vscprintf(format, ap);
-
-///     return count;
-/// }
-
-/// __inline int
-/// msvc2010_snprintf(char *str, size_t size, const char *format, ...)
-/// {
-///     int count;
-///     va_list ap;
-
-///     va_start(ap, format);
-///     count = msvc2010_vsnprintf(str, size, format, ap);
-///     va_end(ap);
-
-///     return count;
-/// }
-
-/// #endif
-
-/* Safer strcpy for fixed width char arrays. */
-/// #define lxw_strcpy(dest, src) \
-///     lxw_snprintf(dest, sizeof(dest), "%s", src)
-
-/* Define the queue.h structs for the formats list. */
-/// STAILQ_HEAD(lxw_formats, lxw_format);
-
-/* Define the queue.h structs for the generic data structs. */
-/// STAILQ_HEAD(lxw_tuples, lxw_tuple);
-
-/// typedef struct lxw_tuple {
-///     char *key;
-///     char *value;
-
-///     STAILQ_ENTRY (lxw_tuple) list_pointers;
-/// } lxw_tuple;
-
-/* Define custom property used in workbook.c and custom.c. */
+// Define custom property used in workbook.c and custom.c.
 struct custom_property_t
 {
   custom_property_types_t type_;

@@ -117,42 +117,12 @@ struct doc_properties_t
 };
 
 /**
- * @brief Workbook options.
- *
- * Optional parameters when creating a new workbook object via
- * workbook_new_opt().
- *
- * The following properties are supported:
- *
- * - `tmpdir`: Xlsxwriter++ stores workbook data in temporary files prior to
- *   assembling the final XLSX file. The temporary files are created in the
- *   system's temp directory. If the default temporary directory isn't
- *   accessible to your application, or doesn't contain enough space, you can
- *   specify an alternative location using the `tmpdir` option.
- *
- * - `use_zip64`: Make the zip library use ZIP64 extensions when writing very
- *   large xlsx files to allow the zip container, or individual XML files
- *   within it, to be greater than 4 GB. See [ZIP64 on Wikipedia][zip64_wiki]
- *   for more information. This option is off by default.
- *
- *   [zip64_wiki]: https://en.wikipedia.org/wiki/Zip_(file_format)#ZIP64
-
-/// typedef struct lxw_workbook_options {
-
-/** Directory to use for the temporary files created by Xlsxwriter++. */
-///     const char *tmpdir;
-
-/** Allow ZIP64 extensions when creating the xlsx file zip container. */
-///     uint8_t use_zip64;
-/// } lxw_workbook_options;
-
-/**
  * @brief Representation of an Excel workbook.
  */
 class workbook_t
 {
 public:
-  workbook_t();
+  explicit workbook_t(bool use_zip64 = false);
 
   /**
    * @brief Validate a worksheet or chartsheet name.
@@ -719,6 +689,23 @@ public:
 
   void set_default_xf_indices();
 
+/**
+ * @brief Set the size of a workbook window.
+ *
+ * @param workbook Pointer to a lxw_workbook instance.
+ * @param width    Width of the window in pixels.
+ * @param height   Height of the window in pixels.
+ *
+ * Set the size of a workbook window. This is generally only useful on macOS
+ * since Microsoft Windows uses the window size from the last time an Excel file
+ * was opened/saved. The default size is 1073 x 644 pixels.
+ *
+ * The resulting pixel sizes may not exactly match the target screen and
+ * resolution since it is based on the original Excel for Windows sizes. Some
+ * trial and error may be required to get an exact size.
+ */
+  void set_size(uint16_t width, uint16_t height);
+
 private:
   // TODO packager_t needs to access to workbook field.
   friend class packager_t;
@@ -811,28 +798,21 @@ private:
   // Use list to not invalidate referenced owned by caller in case of insertion
   // of new format
   std::list<format_t> formats_;
-
   std::list<defined_name_t> defined_names_;
   shared_strings_t sst_;
   doc_properties_t properties_;
   std::vector<custom_property_t> custom_properties_;
-
-  ///     lxw_workbook_options options;
-
   uint16_t num_sheets_          = 0; // TODO Needed ?
   uint16_t num_worksheets_      = 0;
   uint16_t num_chartsheets_     = 0;
   uint16_t first_sheet_         = 0;
   uint16_t active_sheet_        = 0;
-  ///     uint16_t num_xf_formats;
-  ///     uint16_t num_dxf_formats;
   uint16_t num_format_count_    = 0;
   uint16_t drawing_count_       = 0;
   uint16_t comment_count_       = 0;
   uint32_t num_embedded_images_ = 0;
   uint16_t window_width_        = 16095;
   uint16_t window_height_       = 9660;
-
   uint16_t font_count_     = 0;
   uint16_t border_count_   = 0;
   uint16_t fill_count_     = 0;
@@ -854,93 +834,13 @@ private:
   // TODO And encapsule this combination and related functions in a dedicated types.
   std::vector<format_t*> used_xf_formats_;
   std::vector<format_t*> used_dxf_formats_;
-
   std::string vba_project_;
   std::string vba_project_signature_;
   std::string vba_codename_;
-
   bool use_1904_epoch_ = false;
-
   format_t* default_url_format_;
+  bool use_zip64_ = false;
 };
-
-/**
- * @brief Create a new workbook object, and set the workbook options.
- *
- * @param filename The name of the new Excel file to create.
- * @param options  Workbook options.
- *
- * @return A lxw_workbook instance.
- *
- * This function is the same as the `workbook_new()` constructor but allows
- * additional options to be set.
- *
- * @code
- *    lxw_workbook_options options = {.tmpdir = "C:\\Temp",
- *                                    .use_zip64 = LXW_FALSE,
- *
- *    lxw_workbook  *workbook  = workbook_new_opt("filename.xlsx",
-&options);
- * @endcode
- *
- * The options that can be set via #lxw_workbook_options are:
- *
- * - `tmpdir`: Xlsxwriter++ stores workbook data in temporary files prior to
- *   assembling the final XLSX file. The temporary files are created in the
- *   system's temp directory. If the default temporary directory isn't
- *   accessible to your application, or doesn't contain enough space, you can
- *   specify an alternative location using the `tmpdir` option.
- *
- * - `use_zip64`: Make the zip library use ZIP64 extensions when writing very
- *   large xlsx files to allow the zip container, or individual XML files
- *   within it, to be greater than 4 GB. See [ZIP64 on Wikipedia][zip64_wiki]
- *   for more information. This option is off by default.
- *
- *   [zip64_wiki]: https://en.wikipedia.org/wiki/Zip_(file_format)#ZIP64
- */
-/// lxw_workbook *workbook_new_opt(const char *filename,
-///                                lxw_workbook_options *options);
-
-/**
- * @brief Set a custom document date or time property.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param name     The name of the custom property.
- * @param datetime The value of the custom property.
- *
- * @return A #lxw_error.
- *
- * Set a custom date or time number property.
- * See `set_custom_property()` above for details.
- *
- * @code
- *     lxw_datetime datetime  = {2016, 12, 1,  11, 55, 0.0};
- *
- *     workbook_set_custom_property_datetime(workbook, "Date completed",
- * &datetime);
- * @endcode
- */
-/// lxw_error workbook_set_custom_property_datetime(lxw_workbook *workbook,
-///                                                 const char *name,
-///                                                 lxw_datetime *datetime);
-
-/**
- * @brief Set the size of a workbook window.
- *
- * @param workbook Pointer to a lxw_workbook instance.
- * @param width    Width of the window in pixels.
- * @param height   Height of the window in pixels.
- *
- * Set the size of a workbook window. This is generally only useful on macOS
- * since Microsoft Windows uses the window size from the last time an Excel file
- * was opened/saved. The default size is 1073 x 644 pixels.
- *
- * The resulting pixel sizes may not exactly match the target screen and
- * resolution since it is based on the original Excel for Windows sizes. Some
- * trial and error may be required to get an exact size.
- */
-/// void workbook_set_size(lxw_workbook *workbook,
-///                        uint16_t width, uint16_t height);
 
 }
 

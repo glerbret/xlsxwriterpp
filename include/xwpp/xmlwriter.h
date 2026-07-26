@@ -51,18 +51,6 @@ const size_t MAX_ATTRIBUTE_LENGTH = 2080;
 [[nodiscard]] std::string xml_start_tag(std::string_view tag);
 
 /**
- * Write an XML start tag with optional un-encoded attributes.
- * This is a minor optimization for attributes that don't need encoding.
- *
- * @param xmlfile    A FILE pointer to the output XML file.
- * @param tag        The XML tag to write.
- * @param attributes An optional list of attributes to add to the tag.
- */
-/// void lxw_xml_start_tag_unencoded(FILE *xmlfile,
-///                                  const char *tag,
-///                                  struct xml_attribute_list *attributes);
-
-/**
  * Write an XML end tag.
  *
  * @param tag        The XML tag to write.
@@ -84,18 +72,6 @@ const size_t MAX_ATTRIBUTE_LENGTH = 2080;
 [[nodiscard]] std::string xml_empty_tag(std::string_view tag);
 
 /**
- * Write an XML empty tag with optional un-encoded attributes.
- * This is a minor optimization for attributes that don't need encoding.
- *
- * @param xmlfile    A FILE pointer to the output XML file.
- * @param tag        The XML tag to write.
- * @param attributes An optional list of attributes to add to the tag.
- */
-/// void lxw_xml_empty_tag_unencoded(FILE *xmlfile,
-///                                  const char *tag,
-///                                  struct xml_attribute_list *attributes);
-
-/**
  * Write an XML element containing data and optional attributes.
  *
  * @param tag        The XML tag to write.
@@ -108,13 +84,9 @@ const size_t MAX_ATTRIBUTE_LENGTH = 2080;
                                            const std::vector<std::tuple<std::string, std::string>>& attributes);
 [[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data);
 [[nodiscard]] std::string xml_data_element(std::string_view tag);
-
 [[nodiscard]] std::string xml_rich_si_element(std::string_view str);
-
-/// uint8_t lxw_has_control_characters(const char *string);
 [[nodiscard]] std::string escape_control_characters(std::string_view str);
 [[nodiscard]] std::string escape_url_characters(const std::string& str, bool escape_hash);
-
 [[nodiscard]] std::string escape_data(std::string_view data);
 
 }

@@ -218,12 +218,6 @@ void workbook_t::prepare_num_formats()
 {
   std::vector<format_t*> num_formats;
 
-  ///     lxw_hash_table *num_formats = lxw_hash_new(128, 0, 1);
-  ///     lxw_hash_element *hash_element;
-  ///     lxw_hash_element *used_format_element;
-  ///     uint16_t index = 0xA4;
-  ///     uint16_t *num_format_index;
-
   // TODO Use unordered_set to optimise this search
   for(const auto format: used_xf_formats_)
   {
@@ -284,22 +278,6 @@ void workbook_t::prepare_num_formats()
         num_formats.push_back(format);
       }
     }
-
-    ///             if (hash_element) {
-    /* Num_Format has already been used. */
-    ///                 format->num_format_index = *(uint16_t *) hash_element->value;
-    ///             }
-    ///             else {
-    /* This is a new num_format. */
-    ///                 num_format_index = calloc(1, sizeof(uint16_t));
-    ///                 *num_format_index = index;
-    ///                 format->num_format_index = index;
-    ///                 lxw_insert_hash_element(num_formats, format->num_format,
-    ///                                         num_format_index,
-    ///                                         LXW_FORMAT_FIELD_LEN);
-    ///                 index++;
-    ///             }
-    ///         }
   }
 }
 
@@ -857,12 +835,6 @@ void workbook_t::prepare_vml()
 
 void workbook_t::prepare_defined_names()
 {
-  ///     lxw_worksheet *worksheet;
-  ///     lxw_sheet *sheet;
-  ///     char app_name[LXW_DEFINED_NAME_LENGTH];
-  ///     char range[LXW_DEFINED_NAME_LENGTH];
-  ///     char area[LXW_MAX_CELL_RANGE_LENGTH];
-
   for(auto& sheet: sheets_)
   {
     if(std::holds_alternative<worksheet_t>(sheet))
@@ -1148,7 +1120,8 @@ std::string workbook_t::assemble_xml_file()
   return xml_data;
 }
 
-workbook_t::workbook_t(/*lxw_workbook_options *options*/)
+workbook_t::workbook_t(bool use_zip64)
+  : use_zip64_{use_zip64}
 {
   // Add the default cell format.
   auto format = add_format();
@@ -1158,10 +1131,6 @@ workbook_t::workbook_t(/*lxw_workbook_options *options*/)
   // Add the default hyperlink format.
   default_url_format_ = add_format();
   default_url_format_->set_hyperlink();
-  ///     if (options) {
-  ///         workbook->options.tmpdir = lxw_strdup(options->tmpdir);
-  ///         workbook->options.use_zip64 = options->use_zip64;
-  ///     }
 }
 
 worksheet_t& workbook_t::add_worksheet()
@@ -1183,7 +1152,6 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
       .sst_                = &sst_,
       .name_               = std::string{sheetname},
       .quoted_name_        = quote_sheetname(sheetname),
-      ///     .tmpdir = self->options.tmpdir,
       .default_url_format_ = default_url_format_,
       .max_url_length_     = max_url_length_,
       .use_1904_epoch_     = use_1904_epoch_,
@@ -1211,17 +1179,16 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   validate_sheetname(sheetname);
 
   const worksheet_init_data_t init_data{
-      .index_          = num_sheets_,
-      .hidden_         = 0,
-      .active_sheet_   = &active_sheet_,
-      .first_sheet_    = &first_sheet_,
-      .sst_            = &sst_,
-      .name_           = std::string{sheetname},
-      .quoted_name_    = quote_sheetname(sheetname),
-      ///     .tmpdir = self->options.tmpdir,
-      /// .default_url_format_ = default_url_format_,
-      .max_url_length_ = max_url_length_,
-      .use_1904_epoch_ = use_1904_epoch_,
+      .index_              = num_sheets_,
+      .hidden_             = 0,
+      .active_sheet_       = &active_sheet_,
+      .first_sheet_        = &first_sheet_,
+      .sst_                = &sst_,
+      .name_               = std::string{sheetname},
+      .quoted_name_        = quote_sheetname(sheetname),
+      .default_url_format_ = default_url_format_,
+      .max_url_length_     = max_url_length_,
+      .use_1904_epoch_     = use_1904_epoch_,
   };
 
   sheets_.emplace_back(chartsheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1)});
@@ -1667,14 +1634,14 @@ void workbook_t::use_1904_epoch()
   use_1904_epoch_ = true;
 }
 
-/// void workbook_set_size(lxw_workbook *workbook, uint16_t width, uint16_t height)
-/// {
-/* Convert the width/height to twips at 96 dpi. */
-///     if (width)
-///         workbook->window_width = width * 1440 / 96;
+void workbook_t::set_size(uint16_t width, uint16_t height)
+{
+  // Convert the width/height to twips at 96 dpi.
+  if (width)
+    window_width_ = width * 1440 / 96;
 
-///     if (height)
-///         workbook->window_height = height * 1440 / 96;
-/// }
+  if (height)
+    window_height_ = height * 1440 / 96;
+}
 
 }

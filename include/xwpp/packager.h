@@ -25,31 +25,10 @@
 namespace xwpp
 {
 
-/// #define LXW_ZIP_BUFFER_SIZE (16384)
-
-/* If zip returns a ZIP_XXX error then errno is set and we can trap that in
- * workbook.c. Otherwise return a default Xlsxwriter++ error. */
-/// #define RETURN_ON_ZIP_ERROR(err, default_err)       \
-///     do {                                            \
-///         if (err == ZIP_ERRNO)                       \
-///             return LXW_ERROR_ZIP_FILE_OPERATION;    \
-///         else if (err == ZIP_PARAMERROR)             \
-///             return LXW_ERROR_ZIP_PARAMETER_ERROR;   \
-///         else if (err == ZIP_BADZIPFILE)             \
-///             return LXW_ERROR_ZIP_BAD_ZIP_FILE;      \
-///         else if (err == ZIP_INTERNALERROR)          \
-///             return LXW_ERROR_ZIP_INTERNAL_ERROR;    \
-///         else                                        \
-///             return default_err;                     \
-///     } while (0)
-
 class packager_t
 {
 public:
-  explicit packager_t(std::string_view filename //,
-                                                /// const char *tmpdir,
-                                                /// uint8_t use_zip64
-  );
+  explicit packager_t(std::string_view filename, bool use_zip64 = false);
 
   // Write the xml files that make up the XLSX OPC package.
   void create_package(workbook_t& workbook);
@@ -94,13 +73,10 @@ private:
   [[nodiscard]] uint32_t get_chart_count(const workbook_t& workbook) const;
   [[nodiscard]] uint32_t get_table_count(const workbook_t& workbook) const;
 
-  ///     size_t buffer_size;
   zipFile zipfile_ = nullptr;
   zip_fileinfo zip_fileinfo_;
   std::string filename_;
-  ///     const char *buffer;
-  ///     const char *tmpdir;
-  ///     uint8_t use_zip64;
+  bool use_zip64_ = false;
 };
 
 }

@@ -70,7 +70,6 @@ private:
   [[nodiscard]] std::string write_text_valign() const;
   [[nodiscard]] std::string write_fmla_macro(const vml_obj_t& vml_obj) const;
 
-  ///     uint8_t type;
   std::vector<vml_obj_t> button_objs_;
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> image_objs_;

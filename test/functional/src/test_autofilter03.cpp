@@ -108,7 +108,7 @@ int main()
 
   xwpp::filter_rule_t filter_rule1 = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
   xwpp::filter_rule_t filter_rule2 = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "South"};
-  worksheet.filter_column2(0, filter_rule1, filter_rule2, xwpp::filter_type_t::OR);
+  worksheet.filter_column2(0, filter_rule1, filter_rule2, xwpp::filter_operator_t::OR);
 
   workbook.save("test_autofilter03.xlsx");
 }

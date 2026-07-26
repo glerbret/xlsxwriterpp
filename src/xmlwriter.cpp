@@ -93,23 +93,6 @@ std::string xml_start_tag(std::string_view tag)
   return std::format("<{}>", tag);
 }
 
-/// void lxw_xml_start_tag_unencoded(FILE *xmlfile,
-///                             const char *tag,
-///                             struct xml_attribute_list *attributes)
-/// {
-///     struct xml_attribute *attribute;
-
-///     fprintf(xmlfile, "<%s", tag);
-
-///     if (attributes) {
-///         STAILQ_FOREACH(attribute, attributes, list_entries) {
-///             fprintf(xmlfile, " %s=\"%s\"", attribute->key, attribute->value);
-///         }
-///     }
-
-///     fprintf(xmlfile, ">");
-/// }
-
 std::string xml_end_tag(std::string_view tag)
 {
   return std::format("</{}>", tag);
@@ -124,23 +107,6 @@ std::string xml_empty_tag(std::string_view tag)
 {
   return std::format("<{}/>", tag);
 }
-
-/// void lxw_xml_empty_tag_unencoded(FILE *xmlfile,
-///                             const char *tag,
-///                             struct xml_attribute_list *attributes)
-/// {
-///     struct xml_attribute *attribute;
-
-///     fprintf(xmlfile, "<%s", tag);
-
-///     if (attributes) {
-///         STAILQ_FOREACH(attribute, attributes, list_entries) {
-///             fprintf(xmlfile, " %s=\"%s\"", attribute->key, attribute->value);
-///         }
-///     }
-
-///     fprintf(xmlfile, "/>");
-/// }
 
 std::string xml_data_element(std::string_view tag, std::string_view data,
                              const std::vector<std::tuple<std::string, std::string>>& attributes)
@@ -191,19 +157,6 @@ std::string escape_data(std::string_view data)
 
   return encoded;
 }
-
-/// uint8_t lxw_has_control_characters(const char *string)
-/// {
-///     while (*string) {
-///         /* 0xE0 == 0b11100000 masks values > 0x19 == 0b00011111. */
-///         if (!(*string & 0xE0) && *string != 0x0A && *string != 0x09)
-///             return LXW_TRUE;
-
-///         string++;
-///     }
-
-///     return LXW_FALSE;
-/// }
 
 // Escape control characters in strings with _xHHHH_.
 std::string escape_control_characters(std::string_view str)
@@ -308,35 +261,5 @@ std::string escape_url_characters(const std::string& str, bool escape_hash)
 
   return encoded;
 }
-
-/// struct xml_attribute * lxw_new_attribute_str(const char *key, const char *value)
-/// {
-///     struct xml_attribute *attribute = malloc(sizeof(struct xml_attribute));
-
-///     LXW_ATTRIBUTE_COPY(attribute->key, key);
-///     LXW_ATTRIBUTE_COPY(attribute->value, value);
-
-///     return attribute;
-/// }
-
-/// struct xml_attribute * lxw_new_attribute_int(const char *key, int32_t value)
-/// {
-///     struct xml_attribute *attribute = malloc(sizeof(struct xml_attribute));
-
-///     LXW_ATTRIBUTE_COPY(attribute->key, key);
-///     lxw_snprintf(attribute->value, LXW_MAX_ATTRIBUTE_LENGTH, "%d", value);
-
-///     return attribute;
-/// }
-
-/// struct xml_attribute * lxw_new_attribute_dbl(const char *key, double value)
-/// {
-///     struct xml_attribute *attribute = malloc(sizeof(struct xml_attribute));
-
-///     LXW_ATTRIBUTE_COPY(attribute->key, key);
-///     lxw_sprintf_dbl(attribute->value, value);
-
-///     return attribute;
-/// }
 
 }

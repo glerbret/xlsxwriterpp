@@ -92,21 +92,7 @@ namespace xwpp
  *  @endcode
  *
  */
-/// const char *lxw_version(void);
-
-/**
- * @brief Retrieve the library version ID.
- *
- * @return The version ID.
- *
- * Get the library version such as "X.Y.Z" as a XYZ integer.
- *
- *  @code
- *      printf("Xlsxwriter++ version id = %d\n", lxw_version_id());
- *  @endcode
- *
- */
-/// uint16_t lxw_version_id(void);
+std::string version();
 
 // Create a quoted version of the worksheet name
 [[nodiscard]] std::string quote_sheetname(std::string_view sheetname);
@@ -190,7 +176,8 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
  * @return A #lxw_error code. Either #LXW_NO_ERROR or
  *         #LXW_ERROR_DATETIME_VALIDATION if a field is out of range.
  */
-/// lxw_error lxw_datetime_validate(lxw_datetime *datetime);
+// TODO Set again lxw_datetime
+// lxw_error lxw_datetime_validate(lxw_datetime *datetime);
 
 /**
  * @brief Converts a unix datetime to an Excel datetime number.

@@ -110,7 +110,7 @@ int main()
   xwpp::filter_rule_t filter_rule2 = {.criteria_ = xwpp::filter_criteria_t::GREATER_THAN, .value_ = 3000};
   xwpp::filter_rule_t filter_rule3 = {.criteria_ = xwpp::filter_criteria_t::LESS_THAN, .value_ = 8000};
   worksheet.filter_column(0, filter_rule1);
-  worksheet.filter_column2(2, filter_rule2, filter_rule3, xwpp::filter_type_t::AND);
+  worksheet.filter_column2(2, filter_rule2, filter_rule3, xwpp::filter_operator_t::AND);
 
   workbook.save("test_autofilter04.xlsx");
 }

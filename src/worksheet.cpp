@@ -76,18 +76,9 @@ std::string calculate_spans(std::map<col_num_t, row_t>::const_iterator it,
 
 }
 
-/// #define LXW_BUFFER_SIZE                  4096
 const uint8_t PRINT_ACROSS                = 1;
 const size_t VALIDATION_MAX_TITLE_LENGTH  = 32;
 const size_t VALIDATION_MAX_STRING_LENGTH = 255;
-/// #define LXW_THIS_ROW "[#This Row],"
-
-/// STATIC int _row_cmp(row_t *row1, row_t *row2);
-/// STATIC int _cell_cmp(cell_t *cell1, cell_t *cell2);
-/// STATIC int _drawing_rel_id_cmp(lxw_drawing_rel_id *tuple1,
-///                                lxw_drawing_rel_id *tuple2);
-/// STATIC int _cond_format_hash_cmp(lxw_cond_format_hash_element *elem_1,
-///                                  lxw_cond_format_hash_element *elem_2);
 
 const row_t* worksheet_t::find_row(row_num_t row_num) const
 {
@@ -137,19 +128,10 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , default_url_format_{init_data.default_url_format_}
   , use_1904_epoch_{init_data.use_1904_epoch_}
   , max_url_length_{init_data.max_url_length_}
+  , hidden_{init_data.hidden_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
   col_formats_.resize(COL_META_MAX);
-
-  /* Initialize the cached rows. */
-  ///     worksheet->table->cached_row_num = LXW_ROW_MAX + 1;
-  ///     worksheet->hyperlinks->cached_row_num = LXW_ROW_MAX + 1;
-  ///     worksheet->comments->cached_row_num = LXW_ROW_MAX + 1;
-
-  ///     if (init_data) {
-  ///         worksheet->tmpdir = init_data->tmpdir;
-  ///         worksheet->hidden = init_data->hidden;
-  ///     }
 }
 
 namespace
@@ -459,38 +441,6 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
 
 }
 
-/// STATIC cell_t * _new_inline_string_cell(row_num_t row_num,
-///                         col_num_t col_num, char *string, lxw_format *format)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = INLINE_STRING_CELL;
-///     cell->format = format;
-///     cell->u.string = string;
-
-///     return cell;
-/// }
-
-/// STATIC cell_t *
-/// _new_inline_rich_string_cell(row_num_t row_num,
-///                              col_num_t col_num, const char *string,
-///                              lxw_format *format)
-/// {
-///     cell_t *cell = calloc(1, sizeof(cell_t));
-///     RETURN_ON_MEM_ERROR(cell, cell);
-
-///     cell->row_num = row_num;
-///     cell->col_num = col_num;
-///     cell->type = INLINE_RICH_STRING_CELL;
-///     cell->format = format;
-///     cell->u.string = string;
-
-///     return cell;
-/// }
-
 cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const format_t* format)
 {
   cell_t cell;
@@ -514,8 +464,6 @@ row_t& table_rows_t::get_row_list(row_num_t row_num)
     row.row_num_ = row_num;
   }
 
-  ///    table->cached_row = row;
-  ///    table->cached_row_num = row_num;
   return row;
 }
 
@@ -563,19 +511,6 @@ void worksheet_t::insert_comment(row_num_t row_num, col_num_t col_num, const cel
   row.cells_[col_num] = link;
 }
 
-/// STATIC col_num_t
-/// _next_power_of_two(uint16_t col)
-/// {
-///     col--;
-///     col |= col >> 1;
-///     col |= col >> 2;
-///     col |= col >> 4;
-///     col |= col >> 8;
-///     col++;
-
-///     return col;
-/// }
-
 /*
  * Check that row and col are within the allowed Excel range and store max
  * and min values for use in other methods/elements.
@@ -609,37 +544,6 @@ void worksheet_t::check_dimensions(row_num_t row_num, col_num_t col_num, bool ig
     dim_colmax_ = std::max(col_num, dim_colmax_);
   }
 }
-
-/// STATIC int
-/// _row_cmp(row_t *row1, row_t *row2)
-/// {
-///     if (row1->row_num > row2->row_num)
-///         return 1;
-///     if (row1->row_num < row2->row_num)
-///         return -1;
-///     return 0;
-/// }
-
-/// STATIC int
-/// _cell_cmp(cell_t *cell1, cell_t *cell2)
-/// {
-///     if (cell1->col_num > cell2->col_num)
-///         return 1;
-///     if (cell1->col_num < cell2->col_num)
-///         return -1;
-///     return 0;
-/// }
-
-/// STATIC int _drawing_rel_id_cmp(lxw_drawing_rel_id *rel_id1, lxw_drawing_rel_id *rel_id2)
-/// {
-///     return strcmp(rel_id1->target, rel_id2->target);
-/// }
-
-/// STATIC int _cond_format_hash_cmp(lxw_cond_format_hash_element *elem_1,
-///                       lxw_cond_format_hash_element *elem_2)
-/// {
-///     return strcmp(elem_1->sqref, elem_2->sqref);
-/// }
 
 uint32_t worksheet_t::get_drawing_rel_index(const std::string& target)
 {
@@ -722,26 +626,6 @@ uint32_t worksheet_t::find_vml_drawing_rel_index(const std::string& target)
     return 0;
   }
 }
-
-/// const char * lxw_basename(const char *path)
-/// {
-///     const char *forward_slash;
-///     const char *back_slash;
-
-///     if (!path)
-///         return NULL;
-
-///     forward_slash = strrchr(path, '/');
-///     back_slash = strrchr(path, '\\');
-
-///     if (!forward_slash && !back_slash)
-///         return path;
-
-///     if (forward_slash > back_slash)
-///         return forward_slash + 1;
-///     else
-///         return back_slash + 1;
-/// }
 
 size_t validation_list_length(const std::vector<std::string>& list)
 {
@@ -2784,68 +2668,6 @@ std::string worksheet_t::write_string_cell(std::string_view range, int32_t style
   }
 }
 
-/*
- * Write out an inline string. Doesn't use the xml functions as an
- * optimization in the inner cell writing loop.
- */
-/// STATIC void
-/// _write_inline_string_cell(lxw_worksheet *self, char *range,
-///                           int32_t style_index, cell_t *cell)
-/// {
-///     char *string = lxw_escape_data(cell->u.string);
-
-/* Add attribute to preserve leading or trailing whitespace. */
-///     if (isspace((unsigned char) string[0])
-///         || isspace((unsigned char) string[strlen(string) - 1])) {
-
-///         if (style_index)
-///             fprintf(self->file,
-///                     "<c r=\"%s\" s=\"%d\" t=\"inlineStr\"><is>"
-///                     "<t xml:space=\"preserve\">%s</t></is></c>",
-///                     range, style_index, string);
-///         else
-///             fprintf(self->file,
-///                     "<c r=\"%s\" t=\"inlineStr\"><is>"
-///                     "<t xml:space=\"preserve\">%s</t></is></c>",
-///                     range, string);
-///     }
-///     else {
-///         if (style_index)
-///             fprintf(self->file,
-///                     "<c r=\"%s\" s=\"%d\" t=\"inlineStr\">"
-///                     "<is><t>%s</t></is></c>", range, style_index, string);
-///         else
-///             fprintf(self->file,
-///                     "<c r=\"%s\" t=\"inlineStr\">"
-///                     "<is><t>%s</t></is></c>", range, string);
-///     }
-
-///     free(string);
-/// }
-
-/*
- * Write out an inline rich string. Doesn't use the xml functions as an
- * optimization in the inner cell writing loop.
- */
-/// STATIC void
-/// _write_inline_rich_string_cell(lxw_worksheet *self, char *range,
-///                                int32_t style_index, cell_t *cell)
-/// {
-///     const char *string = cell->u.string;
-
-///     if (style_index)
-///         fprintf(self->file,
-///                 "<c r=\"%s\" s=\"%d\" t=\"inlineStr\">"
-///                 "<is>%s</is></c>", range, style_index, string);
-///     else
-///         fprintf(self->file,
-///                 "<c r=\"%s\" t=\"inlineStr\">"
-///                 "<is>%s</is></c>", range, string);
-/// }
-
-/*
- * Write out a formula worksheet cell with a numeric result.
- */
 std::string worksheet_t::write_formula_num_cell(const cell_t& cell) const
 {
   std::string xml_data = xml_data_element("f", std::get<std::string>(cell.data_));
@@ -2914,16 +2736,6 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   {
     return write_string_cell(range, style_index, cell);
   }
-
-  ///     if (cell->type == INLINE_STRING_CELL) {
-  ///         _write_inline_string_cell(self, range, style_index, cell);
-  ///         return;
-  ///     }
-
-  ///     if (cell->type == INLINE_RICH_STRING_CELL) {
-  ///         _write_inline_rich_string_cell(self, range, style_index, cell);
-  ///         return;
-  ///     }
 
   // For other cell types use the general functions.
   std::vector<std::tuple<std::string, std::string>> attributes{
@@ -5581,49 +5393,6 @@ std::string worksheet_t::write_table_parts()
   return xml_data;
 }
 
-/// void
-/// lxw_worksheet_write_sheet_views(lxw_worksheet *self)
-/// {
-///     _worksheet_write_sheet_views(self);
-/// }
-///
-/// void
-/// lxw_worksheet_write_page_margins(lxw_worksheet *self)
-/// {
-///     _worksheet_write_page_margins(self);
-/// }
-///
-/// void
-/// lxw_worksheet_write_drawings(lxw_worksheet *self)
-/// {
-///     _worksheet_write_drawings(self);
-/// }
-///
-/// void
-/// lxw_worksheet_write_sheet_protection(lxw_worksheet *self,
-///                                      lxw_protection_obj *protect)
-/// {
-///     _worksheet_write_sheet_protection(self, protect);
-/// }
-///
-/// void
-/// lxw_worksheet_write_sheet_pr(lxw_worksheet *self)
-/// {
-///     _worksheet_write_sheet_pr(self);
-/// }
-///
-/// void
-/// lxw_worksheet_write_page_setup(lxw_worksheet *self)
-/// {
-///     _worksheet_write_page_setup(self);
-/// }
-///
-/// void
-/// lxw_worksheet_write_header_footer(lxw_worksheet *self)
-/// {
-///     _worksheet_write_header_footer(self);
-/// }
-
 std::string worksheet_t::assemble_xml_file()
 {
   std::string xml_data = xml_declaration();
@@ -6567,7 +6336,7 @@ void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
 }
 
 void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
-                                 filter_type_t and_or)
+                                 filter_operator_t and_or)
 {
   filter_rule_obj_t rule_obj;
 
@@ -6586,7 +6355,7 @@ void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, 
 
   uint16_t rule_index = col_num - autofilter_.first_col_;
 
-  if(and_or == filter_type_t::AND)
+  if(and_or == filter_operator_t::AND)
   {
     rule_obj.type_ = filter_type_t::AND;
   }
@@ -7294,17 +7063,17 @@ void worksheet_t::set_zoom(uint16_t scale)
   zoom_ = scale;
 }
 
-/// void
-/// worksheet_hide_zero(lxw_worksheet *self)
-/// {
-///     self->show_zeros = LXW_FALSE;
-/// }
+// TODO Add test
+void worksheet_t::hide_zero()
+{
+  show_zeros_ = false;
+}
 
-/// void
-/// worksheet_right_to_left(lxw_worksheet *self)
-/// {
-///     self->right_to_left = LXW_TRUE;
-/// }
+// TODO Add test
+void worksheet_t::right_to_left()
+{
+  right_to_left_ = true;
+}
 
 void worksheet_t::set_tab_color(color_t color)
 {

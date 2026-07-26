@@ -101,7 +101,6 @@ enum class color_t : uint32_t
 };
 const uint32_t COLOR_MASK = 0xFFFFFF;
 
-/// #define LXW_FORMAT_FIELD_LEN            128
 const double MIN_FONT_SIZE = 1.0;
 const double MAX_FONT_SIZE = 409.0;
 
@@ -1196,10 +1195,6 @@ private:
 
   static const uint8_t DEFAULT_FONT_FAMILY = 2;
 
-  ///  lxw_hash_table *xf_format_indices_ = nullptr;
-  ///  lxw_hash_table *dxf_format_indices_ = nullptr;
-  ///  uint16_t *num_xf_formats_;
-  ///  uint16_t *num_dxf_formats_;
   int32_t xf_index_  = PROPERTY_UNSET;
   int32_t dxf_index_ = PROPERTY_UNSET;
   int32_t xf_id_     = 0;
@@ -1265,62 +1260,6 @@ private:
   bool font_only_                    = false;
   bool quote_prefix_                 = false;
 };
-
-/*
- * Struct to represent the font component of a format.
- */
-/// typedef struct lxw_font {
-
-///  char font_name[LXW_FORMAT_FIELD_LEN];
-///  double font_size;
-///  uint8_t bold;
-///  uint8_t italic;
-///  uint8_t underline;
-///  uint8_t theme;
-///  uint8_t font_strikeout;
-///  uint8_t font_outline;
-///  uint8_t font_shadow;
-///  uint8_t font_script;
-///  uint8_t font_family;
-///  uint8_t font_charset;
-///  uint8_t font_condense;
-///  uint8_t font_extend;
-///  lxw_color_t font_color;
-/// } lxw_font;
-
-/*
- * Struct to represent the border component of a format.
- */
-/// typedef struct lxw_border {
-///  uint8_t bottom;
-///  uint8_t diag_border;
-///  uint8_t diag_type;
-///  uint8_t left;
-///  uint8_t right;
-///  uint8_t top;
-
-///  lxw_color_t bottom_color;
-///  lxw_color_t diag_color;
-///  lxw_color_t left_color;
-///  lxw_color_t right_color;
-///  lxw_color_t top_color;
-
-/// } lxw_border;
-
-/*
- * Struct to represent the fill component of a format.
- */
-/// typedef struct lxw_fill {
-
-///  lxw_color_t fg_color;
-///  lxw_color_t bg_color;
-///  uint8_t pattern;
-
-/// } lxw_fill;
-
-/// int32_t lxw_format_get_dxf_index(lxw_format *format);
-/// lxw_border *lxw_format_get_border_key(lxw_format *format);
-/// lxw_fill *lxw_format_get_fill_key(lxw_format *format);
 
 }
 

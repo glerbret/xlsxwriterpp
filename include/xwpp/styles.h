@@ -73,8 +73,6 @@ private:
   [[nodiscard]] std::string write_bg_color(color_t color, format_patterns_t pattern) const;
 
   uint32_t font_count_;
-  ///  uint32_t xf_count;
-  ///  uint32_t dxf_count;
   uint32_t num_format_count_;
   uint32_t border_count_;
   uint32_t fill_count_;

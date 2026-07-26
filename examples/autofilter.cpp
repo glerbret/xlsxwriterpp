@@ -193,7 +193,7 @@ int main()
 
   xwpp::filter_rule_t filter_rule3b = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "South"};
 
-  worksheet3.filter_column2(0, filter_rule3a, filter_rule3b, xwpp::filter_type_t::OR);
+  worksheet3.filter_column2(0, filter_rule3a, filter_rule3b, xwpp::filter_operator_t::OR);
 
   // Example 4. Autofilter with filter conditions in two columns.
   // Set up the worksheet data.
@@ -230,7 +230,7 @@ int main()
   xwpp::filter_rule_t filter_rule4c = {.criteria_ = xwpp::filter_criteria_t::LESS_THAN, .value_ = 8000};
 
   worksheet4.filter_column(0, filter_rule4a);
-  worksheet4.filter_column2(2, filter_rule4b, filter_rule4c, xwpp::filter_type_t::AND);
+  worksheet4.filter_column2(2, filter_rule4b, filter_rule4c, xwpp::filter_operator_t::AND);
 
   // Example 5. Autofilter with a dual filter condition in one of the columns.
   // Set up the worksheet data.

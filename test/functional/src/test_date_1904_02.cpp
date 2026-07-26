@@ -30,12 +30,12 @@ int main()
   const auto datetime6 = std::chrono::sys_days{4641y / std::chrono::November / 27d} + 0h + 0min + 0s;
 
   // TODO Add again this struct
-  ///  lxw_datetime datetime1 = {1904, 1, 1, 0, 0, 0.0};
-  ///  lxw_datetime datetime2 = {1906, 9, 27, 0, 0, 0.0};
-  ///  lxw_datetime datetime3 = {1917, 9, 9, 0, 0, 0.0};
-  ///  lxw_datetime datetime4 = {1931, 5, 19, 0, 0, 0.0};
-  ///  lxw_datetime datetime5 = {2177, 10, 15, 0, 0, 0.0};
-  ///  lxw_datetime datetime6 = {4641, 11, 27, 0, 0, 0.0};
+  //  lxw_datetime datetime1 = {1904, 1, 1, 0, 0, 0.0};
+  //  lxw_datetime datetime2 = {1906, 9, 27, 0, 0, 0.0};
+  //  lxw_datetime datetime3 = {1917, 9, 9, 0, 0, 0.0};
+  //  lxw_datetime datetime4 = {1931, 5, 19, 0, 0, 0.0};
+  //  lxw_datetime datetime5 = {2177, 10, 15, 0, 0, 0.0};
+  //  lxw_datetime datetime6 = {4641, 11, 27, 0, 0, 0.0};
 
   worksheet.set_column(0, 0, 12);
 

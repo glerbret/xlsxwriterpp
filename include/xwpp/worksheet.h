@@ -62,9 +62,6 @@ namespace xwpp
 //  - ...
 
 const uint32_t HEADER_FOOTER_MAX = 255;
-/// #define LXW_PANE_NAME_LENGTH        12  /* bottomRight + 1 */
-/// #define LXW_IMAGE_BUFFER_SIZE       1024
-/// #define LXW_HEADER_FOOTER_OBJS_MAX  6   /* Header/footer image objs. */
 
 /* The Excel 2007 specification says that the maximum number of page
  * breaks is 1026. However, in practice it is actually 1023. */
@@ -642,13 +639,14 @@ enum filter_criteria_t
  * LXW_FILTER_CRITERIA_EQUAL_TO and LXW_FILTER_AND is used with the other
  * filter criteria.
  */
-/// enum lxw_filter_operator {
-/** Logical "and" of 2 filter rules. */
-///     LXW_FILTER_AND,
+enum class filter_operator_t
+{
+  /** Logical "and" of 2 filter rules. */
+  AND,
 
-/** Logical "or" of 2 filter rules. */
-///     LXW_FILTER_OR
-/// };
+  /** Logical "or" of 2 filter rules. */
+  OR
+};
 
 enum class filter_type_t
 {
@@ -723,8 +721,6 @@ enum class cell_types_t
 {
   NUMBER_CELL = 1,
   STRING_CELL,
-  INLINE_STRING_CELL,
-  INLINE_RICH_STRING_CELL,
   FORMULA_CELL,
   ARRAY_FORMULA_CELL,
   DYNAMIC_ARRAY_FORMULA_CELL,
@@ -755,13 +751,7 @@ enum class image_position_t
   FOOTER_RIGHT
 };
 
-/* Define the tree.h RB structs for the red-black head types. */
-/// RB_HEAD(lxw_table_cells, cell_t);
-/// RB_HEAD(lxw_drawing_rel_ids, lxw_drawing_rel_id);
-/// RB_HEAD(lxw_vml_drawing_rel_ids, lxw_drawing_rel_id);
-/// RB_HEAD(lxw_cond_format_hash, lxw_cond_format_hash_element);
-
-/* Internal structure for VML object options. */
+// Internal structure for VML object options.
 struct vml_obj_t
 {
   row_num_t row_;
@@ -797,19 +787,13 @@ struct cell_t
   row_num_t row_num_ = 0;
   col_num_t col_num_ = 0;
   cell_types_t type_ = cell_types_t::BLANK_CELL;
-  ///     enum cell_types type;
   format_t* format_  = nullptr;
   std::optional<vml_obj_t> comment_;
-
   std::variant<uint32_t, double, std::string> data_;
-
   double formula_result_;
   std::string user_data1_;
   std::string user_data2_;
   std::string sst_string_;
-
-  /* List pointers for tree.h. */
-  ///     RB_ENTRY (cell_t) tree_pointers;
 };
 
 struct row_t
@@ -832,75 +816,7 @@ struct table_rows_t
   row_t& get_row_list(row_num_t row_num);
 
   std::map<col_num_t, row_t> rbh_root_; // NOLINT(misc-non-private-member-variables-in-classes)
-  ///     struct row_t *cached_row;
-  ///     row_num_t cached_row_num;
 };
-
-/* Wrapper around RB_GENERATE_STATIC from tree.h to avoid unused function
- * warnings and to avoid portability issues with the _unused attribute. */
-/// #define LXW_RB_GENERATE_ROW(name, type, field, cmp)       \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)   \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)   \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)    \
-///     RB_GENERATE_REMOVE(name, type, field, static)         \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)      \
-///     RB_GENERATE_NEXT(name, type, field, static)           \
-///     RB_GENERATE_MINMAX(name, type, field, static)         \
-    /* Add unused struct to allow adding a semicolon */   \
-///     struct lxw_rb_generate_row{int unused;}
-
-/// #define LXW_RB_GENERATE_CELL(name, type, field, cmp)      \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)   \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)   \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)    \
-///     RB_GENERATE_REMOVE(name, type, field, static)         \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)      \
-///     RB_GENERATE_NEXT(name, type, field, static)           \
-///     RB_GENERATE_MINMAX(name, type, field, static)         \
-    /* Add unused struct to allow adding a semicolon */   \
-///     struct lxw_rb_generate_cell{int unused;}
-
-/// #define LXW_RB_GENERATE_DRAWING_REL_IDS(name, type, field, cmp) \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)         \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)         \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)          \
-///     RB_GENERATE_REMOVE(name, type, field, static)               \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)            \
-///     RB_GENERATE_NEXT(name, type, field, static)                 \
-///     RB_GENERATE_MINMAX(name, type, field, static)               \
-    /* Add unused struct to allow adding a semicolon */         \
-///     struct lxw_rb_generate_drawing_rel_ids{int unused;}
-
-/// #define LXW_RB_GENERATE_VML_DRAWING_REL_IDS(name, type, field, cmp) \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)         \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)         \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)          \
-///     RB_GENERATE_REMOVE(name, type, field, static)               \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)            \
-///     RB_GENERATE_NEXT(name, type, field, static)                 \
-///     RB_GENERATE_MINMAX(name, type, field, static)               \
-    /* Add unused struct to allow adding a semicolon */         \
-///     struct lxw_rb_generate_vml_drawing_rel_ids{int unused;}
-
-/// #define LXW_RB_GENERATE_COND_FORMAT_HASH(name, type, field, cmp) \
-///     RB_GENERATE_INSERT_COLOR(name, type, field, static)         \
-///     RB_GENERATE_REMOVE_COLOR(name, type, field, static)         \
-///     RB_GENERATE_INSERT(name, type, field, cmp, static)          \
-///     RB_GENERATE_REMOVE(name, type, field, static)               \
-///     RB_GENERATE_FIND(name, type, field, cmp, static)            \
-///     RB_GENERATE_NEXT(name, type, field, static)                 \
-///     RB_GENERATE_MINMAX(name, type, field, static)               \
-    /* Add unused struct to allow adding a semicolon */         \
-///     struct lxw_rb_generate_cond_format_hash{int unused;}
-
-/// STAILQ_HEAD(lxw_merged_ranges, lxw_merged_range);
-/// STAILQ_HEAD(lxw_selections, lxw_selection);
-/// STAILQ_HEAD(lxw_data_validations, lxw_data_val_obj);
-/// STAILQ_HEAD(lxw_cond_format_list, lxw_cond_format_obj);
-/// STAILQ_HEAD(lxw_image_props, lxw_object_properties);
-/// STAILQ_HEAD(lxw_embedded_image_props, lxw_object_properties);
-/// STAILQ_HEAD(lxw_chart_props, lxw_object_properties);
-/// STAILQ_HEAD(lxw_table_objs, lxw_table_obj);
 
 /**
  * @brief Options for rows and columns.
@@ -1182,13 +1098,10 @@ struct data_val_obj_t
   bool dropdown_                       = false;
   double value_number_                 = 0.;
   std::string value_formula_;
-  ///     char **value_list;
   double minimum_number_ = 0.;
   std::string minimum_formula_;
-  ///     lxw_datetime minimum_datetime;
   double maximum_number_ = 0.;
   std::string maximum_formula_;
-  ///     lxw_datetime maximum_datetime;
   std::string input_title_;
   std::string input_message_;
   std::string error_title_;
@@ -1412,13 +1325,13 @@ struct cond_format_obj_t
 
   double mid_value_ = 0.;
   std::string mid_value_string_;
-  ///     uint8_t mid_value_type;
+  // TODO ?    uint8_t mid_value_type;
   conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
   color_t mid_color_                             = color_t::UNSET;
 
   double max_value_ = 0.;
   std::string max_value_string_;
-  ///     uint8_t max_value_type;
+  // TODO ?     uint8_t max_value_type;
   conditional_format_rule_types_t max_rule_type_ = conditional_format_rule_types_t::NONE;
   color_t max_color_                             = color_t::UNSET;
 
@@ -2150,7 +2063,6 @@ struct worksheet_init_data_t
   shared_strings_t* sst_;
   std::string name_;
   std::string quoted_name_;
-  ///     const char *tmpdir;
   format_t* default_url_format_;
   uint16_t max_url_length_;
   bool use_1904_epoch_ = false;
@@ -2179,8 +2091,8 @@ public:
    * @param first_col The zero indexed first column.
    * @param last_col  The zero indexed last column.
    * @param width     The width of the column(s).
-  /// * @param format    A pointer to a Format instance or NULL.
-  /// * @param options   Optional row parameters: hidden, level, collapsed.
+   * @param format    A pointer to a Format instance or NULL.
+   * @param options   Optional row parameters: hidden, level, collapsed.
    *
    * @return A #lxw_error code.
    *
@@ -2518,30 +2430,30 @@ public:
    * specified by `row` and `column`:
    *
    * @code
-  /// *     write_string(0, 0, "This phrase is English!", nullptr);
+   *     write_string(0, 0, "This phrase is English!", nullptr);
    * @endcode
    *
-  /// * @image html write_string01.png
+   * @image html write_string01.png
    *
    * The `format` parameter is used to apply formatting to the cell. This
    * parameter can be `NULL` to indicate no formatting or it can be a
    * @ref format.h "Format" object:
    *
-  /// * @code
-  /// *     lxw_format *format = workbook_add_format(workbook);
-  /// *     format_set_bold(format);
-  /// *
-  /// *     worksheet_write_string(worksheet, 0, 0, "This phrase is Bold!", format);
-  /// * @endcode
+   * @code
+   *     lxw_format *format = workbook_add_format(workbook);
+   *     format_set_bold(format);
    *
-  /// * @image html write_string02.png
+   *     worksheet_write_string(worksheet, 0, 0, "This phrase is Bold!", format);
+   * @endcode
+   *
+   * @image html write_string02.png
    *
    * Unicode strings are supported in UTF-8 encoding. This generally requires
    * that your source file is UTF-8 encoded or that the data has been read from
    * a UTF-8 source:
    *
    * @code
-  /// *    worksheet_write_string(worksheet, 0, 0, "Это фраза на русском!", NULL);
+   *    worksheet_write_string(worksheet, 0, 0, "Это фраза на русском!", NULL);
    * @endcode
    *
    * @image html write_string03.png
@@ -4233,7 +4145,8 @@ public:
    * hide any rows that don't match the filter condition. See @ref
    * ww_autofilters_data for more details.
    */
-  void filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2, filter_type_t and_or);
+  void filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
+                      filter_operator_t and_or);
 
   /**
    * @brief Write multiple string filters to an autofilter column.
@@ -5582,6 +5495,39 @@ public:
    */
   void set_top_left_cell(row_num_t row_num, col_num_t col_num);
 
+  /**
+   * @brief Display the worksheet cells from right to left for some versions of
+   *        Excel.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * The `%worksheet_right_to_left()` function is used to change the default
+   * direction of the worksheet from left-to-right, with the `A1` cell in the
+   * top left, to right-to-left, with the `A1` cell in the top right.
+   *
+   * @code
+   *     worksheet_right_to_left(worksheet1);
+   * @endcode
+   *
+   * This is useful when creating Arabic, Hebrew or other near or far eastern
+   * worksheets that use right-to-left as the default direction.
+   */
+  void right_to_left();
+
+  /**
+   * @brief Hide zero values in worksheet cells.
+   *
+   * @param worksheet Pointer to a lxw_worksheet instance to be updated.
+   *
+   * The `%worksheet_hide_zero()` function is used to hide any zero values that
+   * appear in cells:
+   *
+   * @code
+   *     worksheet_hide_zero(worksheet1);
+   * @endcode
+   */
+  void hide_zero();
+
   static const size_t MAX_NUMBER_URLS = 65530;
   static const row_num_t ROW_MAX      = 1048576;
   static const col_num_t COL_MAX      = 16384;
@@ -5735,57 +5681,40 @@ private:
 
   std::function<int32_t(format_t*)> get_xf_index_;
   std::function<int32_t(format_t*)> get_dxf_index_;
-  ///     FILE *file;
   table_rows_t table_;
   table_rows_t hyperlinks_;
   table_rows_t comments_;
-  ///     struct cell_t **array;
   std::vector<merged_range_t> merged_ranges_;
   std::list<selection_t> selections_;
   std::vector<data_val_obj_t> data_validations_;
-
   std::map<std::string, std::vector<cond_format_obj_t>> conditional_formats_;
   std::vector<object_properties_t> image_props_;
   std::vector<object_properties_t> embedded_image_props_;
   std::vector<object_properties_t> chart_data_;
-
   std::map<std::string, uint32_t> drawing_rel_ids_;
   std::map<std::string, uint32_t> vml_drawing_rel_ids_;
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> header_image_objs_;
   std::vector<vml_obj_t> button_objs_;
   std::vector<table_obj_t> table_objs_;
-  ///     uint16_t table_count; // TODO Should be used (table_objs_.size())
-
   row_num_t dim_rowmin_ = ROW_MAX;
   row_num_t dim_rowmax_ = 0;
   col_num_t dim_colmin_ = COL_MAX;
   col_num_t dim_colmax_ = 0;
-
   shared_strings_t* sst_ = nullptr;
   std::string name_;
   std::string quoted_name_;
-  ///     const char *tmpdir;
-
   uint16_t index_         = 0;
   bool active_            = true; // TODO Set to true for test, to be removed
   bool selected_          = false;
   bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
-
   uint16_t* first_sheet_ = nullptr;
   bool is_chartsheet_    = false;
-
   std::vector<col_options_t> col_options_;
-
-  ///     double *col_sizes;
-  ///     uint16_t col_sizes_max;
-
   std::vector<format_t*> col_formats_;
-
   bool col_size_changed_ = false;
   bool row_size_changed_ = false;
-
   uint16_t fit_height_               = 0;
   uint16_t fit_width_                = 0;
   uint16_t horizontal_dpi_           = 0;
@@ -5817,19 +5746,15 @@ private:
   bool vcenter_                      = false;
   bool zoom_scale_normal_            = true;
   bool black_white_                  = false;
-  ///     uint8_t num_validations;
   bool has_dynamic_functions_        = false;
   std::string vba_codename_;
-
   color_t tab_color_ = color_t::UNSET;
-
   double margin_left_   = 0.7;
   double margin_right_  = 0.7;
   double margin_top_    = 0.75;
   double margin_bottom_ = 0.75;
   double margin_header_ = 0.3;
   double margin_footer_ = 0.3;
-
   double default_row_height_   = DEF_ROW_HEIGHT;
   uint32_t default_row_pixels_ = 20;
   uint32_t default_col_pixels_ = 64;
@@ -5837,21 +5762,16 @@ private:
   bool default_row_set_        = false;
   uint8_t outline_row_level_   = 0;
   uint8_t outline_col_level_   = 0;
-
   bool header_footer_changed_ = false;
   std::string header_;
   std::string footer_;
-
   repeat_rows_t repeat_rows_;
   repeat_cols_t repeat_cols_;
   print_area_t print_area_;
   autofilter_t autofilter_;
-
   uint16_t max_url_length_ = 2079;
-
   std::vector<row_num_t> hbreaks_;
   std::vector<col_num_t> vbreaks_;
-
   uint32_t drawing_rel_id_     = 0;
   uint32_t vml_drawing_rel_id_ = 0;
   std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
@@ -5859,15 +5779,11 @@ private:
   std::vector<std::tuple<std::string, std::string, std::string>> drawing_links_;
   std::vector<std::tuple<std::string, std::string, std::string>> vml_drawing_links_;
   std::vector<std::tuple<std::string, std::string, std::string>> external_table_links_;
-
   panes_t panes_;
   std::string top_left_cell_;
-
   protection_obj_t protection_;
-
   std::optional<drawing_t> drawing_;
   format_t* default_url_format_;
-
   bool has_vml_                = false;
   bool has_comments_           = false;
   bool has_header_vml_         = false;
@@ -5886,7 +5802,6 @@ private:
   uint32_t dxf_priority_                     = 0;
   comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
   uint32_t data_bar_2010_index_              = 0;
-
   bool has_ignore_errors_ = false;
   std::string ignore_number_stored_as_text_;
   std::string ignore_eval_error_;
@@ -5897,133 +5812,13 @@ private:
   std::string ignore_list_data_validation_;
   std::string ignore_calculated_column_;
   std::string ignore_two_digit_text_year_;
-
   bool use_1904_epoch_ = false;
-
   uint16_t excel_version_ = 0;
-
   std::optional<object_properties_t> header_footer_objs_[6];
-
-  ///     lxw_object_properties *header_left_object_props;
-  ///     lxw_object_properties *header_center_object_props;
-  ///     lxw_object_properties *header_right_object_props;
-  ///     lxw_object_properties *footer_left_object_props;
-  ///     lxw_object_properties *footer_center_object_props;
-  ///     lxw_object_properties *footer_right_object_props;
   std::optional<object_properties_t> background_image_;
-  ///     lxw_object_properties *;
   std::vector<std::optional<filter_rule_obj_t>> filter_rules_;
   col_num_t num_filter_rules_ = 0;
 };
-
-/* Struct to represent a drawing Target/ID pair. */
-/// typedef struct lxw_drawing_rel_id {
-///     uint32_t id;
-///     char *target;
-
-///     RB_ENTRY (lxw_drawing_rel_id) tree_pointers;
-/// } lxw_drawing_rel_id;
-
-/**
- * @brief Write a Unix datetime to a worksheet cell.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- * @param row       The zero indexed row number.
- * @param col       The zero indexed column number.
- * @param unixtime  The Unix datetime to write to the cell.
- * @param format    A pointer to a Format instance or NULL.
- *
- * @return A #lxw_error code.
- *
- * The `%worksheet_write_unixtime()` function can be used to write dates and
- * times in Unix date format to the cell specified by `row` and
- * `column`. [Unix Time](https://en.wikipedia.org/wiki/Unix_time) which is a
- * common integer time format. It is defined as the number of seconds since
- * the Unix epoch (1970-01-01 00:00 UTC). Negative values can also be used for
- * dates prior to 1970:
- *
- * @dontinclude dates_and_times03.c
- * @skip 1970
- * @until 2208988800
- *
- * The `format` parameter should be used to apply formatting to the cell using
- * a @ref format.h "Format" object as shown above. Without a date format the
- * datetime will appear as a number only.
- *
- * The output from this code sample is:
- *
- * @image html date_example03.png
- *
- * Unixtime is generally represented with a 32 bit `time_t` type which has a
- * range of approximately 1900-12-14 to 2038-01-19. To access the full Excel
- * date range of 1900-01-01 to 9999-12-31 this function uses a 64 bit
- * parameter.
- *
- * See @ref working_with_dates for more information about handling dates and
- * times in Xlsxwriter++.
- */
-/// lxw_error worksheet_write_unixtime(lxw_worksheet *worksheet,
-///                                    row_num_t row,
-///                                    col_num_t col, int64_t unixtime,
-///                                    lxw_format *format);
-
-/**
- * @brief Display the worksheet cells from right to left for some versions of
- *        Excel.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `%worksheet_right_to_left()` function is used to change the default
- * direction of the worksheet from left-to-right, with the `A1` cell in the
- * top left, to right-to-left, with the `A1` cell in the top right.
- *
- * @code
- *     worksheet_right_to_left(worksheet1);
- * @endcode
- *
- * This is useful when creating Arabic, Hebrew or other near or far eastern
- * worksheets that use right-to-left as the default direction.
- */
-/// void worksheet_right_to_left(lxw_worksheet *worksheet);
-
-/**
- * @brief Hide zero values in worksheet cells.
- *
- * @param worksheet Pointer to a lxw_worksheet instance to be updated.
- *
- * The `%worksheet_hide_zero()` function is used to hide any zero values that
- * appear in cells:
- *
- * @code
- *     worksheet_hide_zero(worksheet1);
- * @endcode
- */
-/// void worksheet_hide_zero(lxw_worksheet *worksheet);
-
-/// void lxw_worksheet_write_single_row(lxw_worksheet *worksheet);
-
-/// cell_t *lxw_worksheet_find_cell_in_row(row_t *row, col_num_t
-/// col_num);
-/*
- * External functions to call intern XML functions shared with chartsheet.
- */
-/// void lxw_worksheet_write_sheet_views(lxw_worksheet *worksheet);
-/// void lxw_worksheet_write_page_margins(lxw_worksheet *worksheet);
-/// void lxw_worksheet_write_drawings(lxw_worksheet *worksheet);
-/// void lxw_worksheet_write_sheet_protection(lxw_worksheet *worksheet,
-///                                           lxw_protection_obj *protect);
-/// void lxw_worksheet_write_sheet_pr(lxw_worksheet *worksheet);
-/// void lxw_worksheet_write_page_setup(lxw_worksheet *worksheet);
-/// void lxw_worksheet_write_header_footer(lxw_worksheet *worksheet);
-
-/// STATIC void _worksheet_xml_declaration(lxw_worksheet *worksheet);
-/// STATIC void _worksheet_write_worksheet(lxw_worksheet *worksheet);
-/// STATIC void _worksheet_write_dimension(lxw_worksheet *worksheet);
-
-/// STATIC void _worksheet_write_merge_cell(lxw_worksheet *worksheet,
-///                                         lxw_merged_range *merged_range);
-
-/// STATIC void _worksheet_write_sheet_pr(lxw_worksheet *worksheet);
 
 double pixels_to_height(double pixels);
 double pixels_to_width(double pixels);

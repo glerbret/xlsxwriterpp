@@ -143,7 +143,7 @@ if(USE_SYSTEM_MINIZIP)
   list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_SYSTEM_MINIZIP)
 endif()
 
-## TODO Replace MD5_Init and co and remove this
+# TODO Replace MD5_Init and co and remove this
 # For openSSL use
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
@@ -318,20 +318,6 @@ if(BUILD_TESTS)
     set_target_properties(${test_exec_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "test/unit")
   ENDFOREACH()
 
-    # Unit tests.
-###     create_test(XWPP_UNIT_SOURCES unit)
-
-    # Functional tests.
-###     find_package(Python COMPONENTS Interpreter REQUIRED)
-###     find_program(Pytest_EXECUTABLE NAMES pytest)
-
-###     if(NOT Pytest_EXECUTABLE)
-###         message(
-###             "Please install the Python pytest library to run the functional tests:"
-###         )
-###         message("    pip install pytest\n")
-###     endif()
-
   file(GLOB XWPP_FUNCTIONAL_SOURCES test/functional/src/*.cpp)
   foreach(source ${XWPP_FUNCTIONAL_SOURCES})
     get_filename_component(basename ${source} NAME_WE)
@@ -364,27 +350,6 @@ if(BUILD_TESTS)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${CMAKE_SOURCE_DIR}/test/functional/*.py
             ${CMAKE_CURRENT_BINARY_DIR}/test/functional)
-
-            ###     add_custom_command(
-###         TARGET xlsxwriter_unit
-###         POST_BUILD
-###         COMMAND
-###             ${CMAKE_COMMAND} -E copy_directory
-###             ${CMAKE_SOURCE_DIR}/test/functional test/functional
-###     )
-
-###     if(USE_NO_MD5)
-###         add_test(
-###             NAME functional
-###             COMMAND pytest -v test/functional -m "not skipif"
-###             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-###         )
-###     else()
-###         add_test(
-###             NAME functional
-###             COMMAND pytest -v test/functional
-###             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-###         )
 endif()
 
 # ------------------------------------
@@ -393,7 +358,6 @@ endif()
 
 file(GLOB XWPP_EXAMPLE_SOURCES examples/*.cpp)
 
-# TODO Copy logo in RUNTIME_OUTPUT_DIRECTORY
 if(BUILD_EXAMPLES)
   foreach(source ${XWPP_EXAMPLE_SOURCES})
     get_filename_component(basename ${source} NAME_WE)
@@ -401,6 +365,25 @@ if(BUILD_EXAMPLES)
     target_link_libraries(${basename} ${PROJECT_NAME})
     set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "examples")
   endforeach(source)
+
+  # Custom target and commands to copy necessary files for examples
+  # They use fake files to force copy
+  add_custom_target(
+    custom_example_target_runs_always ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images  ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin
+  )
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/examples/*.png
+            ${CMAKE_CURRENT_BINARY_DIR}/examples)
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/examples/*.bin
+            ${CMAKE_CURRENT_BINARY_DIR}/examples)
 endif()
 
 # -------------------

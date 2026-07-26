@@ -81,8 +81,6 @@
 namespace xwpp
 {
 
-/// #define LXW_CHART_NUM_FORMAT_LEN 128
-
 /**
  * @brief Available chart types.
  */
@@ -827,12 +825,12 @@ struct chart_legend_t
 struct chart_title_t
 {
   std::string name_;
-  ///   lxw_row_t row;
-  ///   lxw_col_t col;
+  // TODO ?   lxw_row_t row;
+  // TODO ?   lxw_col_t col;
   std::optional<chart_font_t> font_;
   bool off_           = false;
   bool is_horizontal_ = false;
-  ///   uint8_t ignore_cache;
+  // TODO ?   uint8_t ignore_cache;
   bool has_overlay_   = false;
 
   // TODO ?
@@ -840,7 +838,7 @@ struct chart_title_t
    * will only have 1 point in order to re-use similar functions.*/
   series_range_t range_;
 
-  ///   struct lxw_series_data_point data_point;
+  // TODO ?   struct lxw_series_data_point data_point;
   std::optional<chart_layout_t> layout_;
 };
 
@@ -905,7 +903,7 @@ struct chart_custom_label_t
   // will only have 1 point in order to re-use similar functions.
   std::optional<series_range_t> range_;
 
-  ///   struct lxw_series_data_point data_point;
+  // TODO ?   struct lxw_series_data_point data_point;
 };
 
 /**
@@ -1113,7 +1111,7 @@ struct chart_axis_t
 
   chart_axis_tick_mark_t major_tick_mark_ = chart_axis_tick_mark_t::DEFAULT;
   chart_axis_tick_mark_t minor_tick_mark_ = chart_axis_tick_mark_t::DEFAULT;
-  ///   uint8_t is_horizontal;
+  // TODO ?   uint8_t is_horizontal;
 
   chart_gridline_t major_gridlines_;
   chart_gridline_t minor_gridlines_;
@@ -1124,7 +1122,7 @@ struct chart_axis_t
   std::optional<chart_pattern_t> pattern_;
 
   bool is_category_ = false;
-  ///   uint8_t is_date;
+  // TODO ?   uint8_t is_date;
   bool is_value_    = false;
 
   chart_position_t axis_position_             = chart_position_t::RIGHT;
@@ -2101,6 +2099,22 @@ public:
    */
   void title_off();
 
+  /**
+   * @brief Set the pattern properties for a chartarea.
+   *
+   * @param chart   Pointer to a lxw_chart instance to be configured.
+   * @param pattern A #lxw_chart_pattern struct.
+   *
+   * Set the pattern properties of a chartarea:
+   *
+   * @code
+   *     chart_chartarea_set_pattern(series1, &pattern);
+   * @endcode
+   *
+   * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
+   */
+  void chartarea_set_pattern(const std::optional<chart_pattern_t>& pattern);
+
 private:
   friend class worksheet_t;  // TODO
   friend class chartsheet_t; // TODO
@@ -2255,7 +2269,7 @@ private:
   [[nodiscard]] static std::string write_show_keys(bool value);
   [[nodiscard]] static std::string write_hi_low_lines(const chart_t& chart);
   [[nodiscard]] static std::string write_up_down_bars(const chart_t& chart);
-  [[nodiscard]] static std::string write_marker_value(const chart_t& chart);
+  [[nodiscard]] static std::string write_marker_value();
   [[nodiscard]] static std::string write_up_bars(const std::optional<chart_line_t>& line,
                                                  const std::optional<chart_fill_t> fill);
   [[nodiscard]] static std::string write_down_bars(const std::optional<chart_line_t>& line,
@@ -2322,74 +2336,59 @@ private:
 
   chart_title_t title_;
 
-  uint32_t id_        = 0;
-  uint32_t axis_id_1_ = 0;
-  uint32_t axis_id_2_ = 0;
-  ///   uint32_t axis_id_3;
-  ///   uint32_t axis_id_4;
-
-  bool in_use_              = false;
-  chart_type_t chart_group_ = chart_type_t::NONE;
-  bool cat_has_num_fmt_     = false;
-  bool is_chartsheet_       = false;
-  bool has_horiz_cat_axis_  = false;
-  bool has_horiz_val_axis_  = true;
-  uint8_t style_id_         = 2; // TODO Constant for default style
-  uint16_t rotation_        = 0;
-  uint16_t hole_size_       = 50;
-
-  ///   uint8_t no_title;
-  bool has_overlap_  = false;
-  int8_t overlap_y1_ = 0;
-  ///   int8_t overlap_y2;
-  uint16_t gap_y1_   = DEFAULT_GAP;
-  uint16_t gap_y2_   = DEFAULT_GAP;
-
+  uint32_t id_                                      = 0;
+  uint32_t axis_id_1_                               = 0;
+  uint32_t axis_id_2_                               = 0;
+  // TODO ?   uint32_t axis_id_3;
+  // TODO ?   uint32_t axis_id_4;
+  bool in_use_                                      = false;
+  chart_type_t chart_group_                         = chart_type_t::NONE;
+  bool cat_has_num_fmt_                             = false;
+  bool is_chartsheet_                               = false;
+  bool has_horiz_cat_axis_                          = false;
+  bool has_horiz_val_axis_                          = true;
+  uint8_t style_id_                                 = 2; // TODO Constant for default style
+  uint16_t rotation_                                = 0;
+  uint16_t hole_size_                               = 50;
+  // TODO ?   uint8_t no_title;
+  bool has_overlap_                                 = false;
+  int8_t overlap_y1_                                = 0;
+  // TODO ?   int8_t overlap_y2;
+  uint16_t gap_y1_                                  = DEFAULT_GAP;
+  uint16_t gap_y2_                                  = DEFAULT_GAP;
   chart_grouping_t grouping_                        = chart_grouping_t::CLUSTERED;
   chart_axis_tick_position_t default_cross_between_ = chart_axis_tick_position_t::DEFAULT;
   chart_legend_t legend_{.position_ = chart_legend_position_t::RIGHT};
   std::vector<int16_t> delete_series_;
-  ///   uint16_t delete_series_count;
   std::optional<chart_marker_t> default_marker_;
-
   std::optional<chart_line_t> chartarea_line_;
   std::optional<chart_fill_t> chartarea_fill_;
   std::optional<chart_pattern_t> chartarea_pattern_;
-
   std::optional<chart_line_t> plotarea_line_;
   std::optional<chart_fill_t> plotarea_fill_;
   std::optional<chart_layout_t> plotarea_layout_;
   std::optional<chart_pattern_t> plotarea_pattern_;
-
   bool has_drop_lines_ = false;
   std::optional<chart_line_t> drop_lines_line_;
-
   bool has_high_low_lines_ = false;
   std::optional<chart_line_t> high_low_lines_line_;
-
   std::list<chart_series_t> series_list_;
-
   bool has_table_             = false;
   bool has_table_vertical_    = false;
   bool has_table_horizontal_  = false;
   bool has_table_outline_     = false;
   bool has_table_legend_keys_ = false;
   std::optional<chart_font_t> table_font_;
-
   chart_blank_t show_blanks_as_ = chart_blank_t::AS_GAP;
   bool show_hidden_data_        = false;
-
-  bool has_up_down_bars_ = false;
+  bool has_up_down_bars_        = false;
   std::optional<chart_line_t> up_bar_line_;
   std::optional<chart_line_t> down_bar_line_;
   std::optional<chart_fill_t> up_bar_fill_;
   std::optional<chart_fill_t> down_bar_fill_;
-
   chart_label_position_t default_label_position_ = chart_label_position_t::DEFAULT;
   bool is_protected_                             = false;
 
-  ///   STAILQ_ENTRY(lxw_chart) ordered_list_pointers;
-  ///   STAILQ_ENTRY(lxw_chart) list_pointers;
   static const uint16_t DEFAULT_GAP = 501;
 };
 
@@ -2633,7 +2632,7 @@ void chart_series_set_marker_fill(chart_series_t& series, const std::optional<ch
  *
  * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
  */
-/// void chart_series_set_marker_pattern(lxw_chart_series* series, lxw_chart_pattern* pattern);
+void chart_series_set_marker_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
 
 /**
  * @brief Set the formatting for points in the series.
@@ -3519,7 +3518,7 @@ void chart_axis_set_fill(chart_axis_t& axis, const std::optional<chart_fill_t>& 
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_set_pattern(lxw_chart_axis* axis, lxw_chart_pattern* pattern);
+void chart_axis_set_pattern(chart_axis_t& axis, const std::optional<chart_pattern_t>& pattern);
 
 /**
  * @brief Reverse the order of the axis categories or values.
@@ -3620,7 +3619,7 @@ void chart_axis_set_crossing_min(chart_axis_t& axis);
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-/// void chart_axis_off(lxw_chart_axis* axis);
+void chart_axis_off(chart_axis_t& axis);
 
 /**
  * @brief Position a category axis on or between the axis tick marks.
@@ -4051,22 +4050,6 @@ void chart_axis_major_gridlines_set_line(chart_axis_t& axis, const std::optional
  *                 See @ref ww_charts_axes.
  */
 void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
-
-/**
- * @brief Set the pattern properties for a chartarea.
- *
- * @param chart   Pointer to a lxw_chart instance to be configured.
- * @param pattern A #lxw_chart_pattern struct.
- *
- * Set the pattern properties of a chartarea:
- *
- * @code
- *     chart_chartarea_set_pattern(series1, &pattern);
- * @endcode
- *
- * For more information see #lxw_chart_pattern_type and @ref chart_patterns.
- */
-/// void chart_chartarea_set_pattern(lxw_chart* chart, lxw_chart_pattern* pattern);
 
 // TODO To rework (or remove). For test
 void chart_add_data_cache(series_range_t& range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);

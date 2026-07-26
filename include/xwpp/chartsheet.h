@@ -56,10 +56,10 @@
 #ifndef XWPP_CHARTSHEET_H
 #define XWPP_CHARTSHEET_H
 
-/// #include "xwpp/common.h"
+#include "xwpp/common.h"
+#include "xwpp/drawing.h"
+#include "xwpp/utility.h"
 #include "xwpp/worksheet.h"
-/// #include "xwpp/drawing.h"
-/// #include "xwpp/utility.h"
 
 #include <cstdint>
 #include <optional>
@@ -452,6 +452,55 @@ public:
    */
   void set_portrait();
 
+  /**
+   * @brief Set a chartsheet tab as selected.
+   *
+   * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
+   *
+   * The `%chartsheet_select()` function is used to indicate that a chartsheet
+   * is selected in a multi-sheet workbook:
+   *
+   * @code
+   *     chartsheet_activate(chartsheet1);
+   *     chartsheet_select(chartsheet2);
+   *     chartsheet_select(chartsheet3);
+   *
+   * @endcode
+   *
+   * A selected chartsheet has its tab highlighted. Selecting chartsheets is a
+   * way of grouping them together so that, for example, several chartsheets
+   * could be printed in one go. A chartsheet that has been activated via the
+   * `chartsheet_activate()` function will also appear as selected.
+   *
+   * See also `worksheet_select()`.
+   *
+   */
+  void select();
+
+  /**
+   * @brief Set current chartsheet as the first visible sheet tab.
+   *
+   * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
+   *
+   * The `chartsheet_activate()` function determines which chartsheet is
+   * initially selected.  However, if there are a large number of chartsheets the
+   * selected chartsheet may not appear on the screen. To avoid this you can
+   * select the leftmost visible chartsheet tab using
+   * `%chartsheet_set_first_sheet()`:
+   *
+   * @code
+   *     chartsheet_set_first_sheet(chartsheet19); // First visible chartsheet tab.
+   *     chartsheet_activate(chartsheet20);        // First visible chartsheet.
+   * @endcode
+   *
+   * This function is not required very often. The default value is the first
+   * chartsheet.
+   *
+   * See also `worksheet_set_first_sheet()`.
+   *
+   */
+  void set_first_sheet();
+
 private:
   friend class packager_t;
   friend class workbook_t;
@@ -469,72 +518,15 @@ private:
   // Use an embedded worksheet instance to write XML records that are shared with worksheet_t
   worksheet_t worksheet_;
   chart_t* chart_ = nullptr;
-  ///
   protection_obj_t protection_;
   bool is_protected_ = false;
-  ///
   std::string name_;
   std::string quoted_name_;
-  ///    const char *tmpdir;
   uint16_t index_         = 0;
-  ///    uint8_t active;
-  ///    uint8_t selected;
   bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
   uint16_t* first_sheet_  = nullptr;
-  ///    uint16_t rel_count;
-  ///
-  ///    STAILQ_ENTRY (lxw_chartsheet) list_pointers;
 };
-
-/**
- * @brief Set a chartsheet tab as selected.
- *
- * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
- *
- * The `%chartsheet_select()` function is used to indicate that a chartsheet
- * is selected in a multi-sheet workbook:
- *
- * @code
- *     chartsheet_activate(chartsheet1);
- *     chartsheet_select(chartsheet2);
- *     chartsheet_select(chartsheet3);
- *
- * @endcode
- *
- * A selected chartsheet has its tab highlighted. Selecting chartsheets is a
- * way of grouping them together so that, for example, several chartsheets
- * could be printed in one go. A chartsheet that has been activated via the
- * `chartsheet_activate()` function will also appear as selected.
- *
- * See also `worksheet_select()`.
- *
- */
-/// void chartsheet_select(lxw_chartsheet *chartsheet);
-
-/**
- * @brief Set current chartsheet as the first visible sheet tab.
- *
- * @param chartsheet Pointer to a lxw_chartsheet instance to be updated.
- *
- * The `chartsheet_activate()` function determines which chartsheet is
- * initially selected.  However, if there are a large number of chartsheets the
- * selected chartsheet may not appear on the screen. To avoid this you can
- * select the leftmost visible chartsheet tab using
- * `%chartsheet_set_first_sheet()`:
- *
- * @code
- *     chartsheet_set_first_sheet(chartsheet19); // First visible chartsheet tab.
- *     chartsheet_activate(chartsheet20);        // First visible chartsheet.
- * @endcode
- *
- * This function is not required very often. The default value is the first
- * chartsheet.
- *
- * See also `worksheet_set_first_sheet()`.
- *
- */
-/// void chartsheet_set_first_sheet(lxw_chartsheet *chartsheet);
 
 }
 

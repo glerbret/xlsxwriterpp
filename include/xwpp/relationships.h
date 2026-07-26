@@ -34,7 +34,6 @@ private:
   void add(std::string_view schema, std::string_view type, std::string_view target, std::string_view target_mode);
   void add(std::string_view schema, std::string_view type, std::string_view target);
 
-  /// uint32_t rel_id = 0;
   std::vector<std::tuple<std::string, std::string, std::string>> relationships_;
 };
 

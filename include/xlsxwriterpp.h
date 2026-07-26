@@ -21,7 +21,6 @@
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define XWPP_VERSION "0.1.0"
-//// #define LXW_VERSION_ID 10
 #define XWPP_SOVERSION "0"
 // NOLINTEND(cppcoreguidelines-macro-usage)
 

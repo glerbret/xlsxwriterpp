@@ -73,17 +73,7 @@
 namespace xwpp
 {
 
-/// STATIC lxw_error _add_file_to_zip(lxw_packager *self, FILE *file,
-///                                   const char *filename);
-
-/// STATIC lxw_error _add_buffer_to_zip(lxw_packager *self, const char *buffer,
-///                                     size_t buffer_size, const char *filename);
-
-/// STATIC lxw_error _add_to_zip(lxw_packager *self, FILE *file,
-///                              char **buffer, size_t *buffer_size,
-///                              const char *filename);
-
-packager_t::packager_t(std::string_view filename /*, const char *tmpdir, uint8_t use_zip64*/)
+packager_t::packager_t(std::string_view filename, bool use_zip64)
     // Initialize the zip_fileinfo struct to Jan 1 1980 like Excel.
     // TODO To set locally in create function
     : zip_fileinfo_{
@@ -99,12 +89,11 @@ packager_t::packager_t(std::string_view filename /*, const char *tmpdir, uint8_t
         .dosDate = 0,
         .internal_fa = 0,
         .external_fa = 0,
+
     }
     , filename_{filename}
+    , use_zip64_{use_zip64}
 {
-  /// packager->tmpdir = tmpdir;
-  /// packager->buffer_size = LXW_ZIP_BUFFER_SIZE;
-  /// packager->use_zip64 = use_zip64;
 }
 
 void packager_t::write_workbook_file(workbook_t& workbook)
@@ -900,65 +889,11 @@ void packager_t::write_root_rels_file(const workbook_t& workbook)
   add_buffer_to_zip(xml_data, "_rels/.rels");
 }
 
-/// STATIC lxw_error
-/// _add_file_to_zip(lxw_packager *self, FILE *file, const char *filename)
-/// {
-///     int16_t error = ZIP_OK;
-///     size_t size_read;
-
-///     error = zipOpenNewFileInZip4_64(self->zipfile,
-///                                     filename,
-///                                     &self->zipfile_info,
-///                                     NULL, 0, NULL, 0, NULL,
-///                                     Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0,
-///                                     -MAX_WBITS, DEF_MEM_LEVEL,
-///                                     Z_DEFAULT_STRATEGY, NULL, 0, 0, 0,
-///                                     self->use_zip64);
-
-///     if (error != ZIP_OK) {
-///         LXW_ERROR("Error adding member to zipfile");
-///         RETURN_ON_ZIP_ERROR(error, LXW_ERROR_ZIP_FILE_ADD);
-///     }
-
-///     fflush(file);
-///     rewind(file);
-
-///     size_read = fread((void *) self->buffer, 1, self->buffer_size, file);
-
-///     while (size_read) {
-///         if (size_read < self->buffer_size) {
-///             if (ferror(file)) {
-///                 LXW_ERROR("Error reading member file data");
-///                 RETURN_ON_ZIP_ERROR(error, LXW_ERROR_ZIP_FILE_ADD);
-///             }
-///         }
-
-///         error = zipWriteInFileInZip(self->zipfile,
-///                                     self->buffer, (unsigned int) size_read);
-
-///         if (error < 0) {
-///             LXW_ERROR("Error in writing member in the zipfile");
-///             RETURN_ON_ZIP_ERROR(error, LXW_ERROR_ZIP_FILE_ADD);
-///         }
-
-///         size_read =
-///             fread((void *) (void *) self->buffer, 1, self->buffer_size, file);
-///     }
-
-///     error = zipCloseFileInZip(self->zipfile);
-///     if (error != ZIP_OK) {
-///         LXW_ERROR("Error in closing member in the zipfile");
-///         RETURN_ON_ZIP_ERROR(error, LXW_ERROR_ZIP_FILE_ADD);
-///     }
-
-///     return LXW_NO_ERROR;
-/// }
-
 void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& filename)
 {
   if(zipOpenNewFileInZip4_64(zipfile_, filename.c_str(), &zip_fileinfo_, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED,
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
-                             0 /*self->use_zip64*/) != ZIP_OK)
+                             use_zip64_) != ZIP_OK)
   {
     throw xwpp_exception_t(std::format("packager_t::add_buffer_to_zip(): error adding '{}' to zipfile", filename));
   }
@@ -980,7 +915,7 @@ void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std:
 {
   if(zipOpenNewFileInZip4_64(zipfile_, filename.c_str(), &zip_fileinfo_, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED,
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
-                             0 /*self->use_zip64*/) != ZIP_OK)
+                             use_zip64_) != ZIP_OK)
   {
     throw xwpp_exception_t(
         std::format("packager_t::add_buffer_to_zip(): error adding member '{}' to zipfile", filename));
@@ -999,21 +934,10 @@ void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std:
   }
 }
 
-/// STATIC lxw_error
-/// _add_to_zip(lxw_packager *self, FILE *file, char **buffer,
-///             size_t *buffer_size, const char *filename)
-/// {
-/* Flush to ensure buffer is updated when using a memory-backed file. */
-///     fflush(file);
-///     return *buffer ?
-///         _add_buffer_to_zip(self, *buffer, *buffer_size, filename) :
-///         _add_file_to_zip(self, file, filename);
-/// }
-
 // TODO const remove to allow prepare, to be refactored
 void packager_t::create_package(workbook_t& workbook)
 {
-  /// TODO Use it as local variable (not data member) and use unique_ptr
+  // TODO Use it as local variable (not data member) and use unique_ptr
   zipfile_ = zipOpen(filename_.c_str(), 0);
 
   write_content_types_file(workbook);
@@ -1049,9 +973,9 @@ void packager_t::create_package(workbook_t& workbook)
 
   // TODO Manage errors (exception)
   /*zip_error =*/zipClose(zipfile_, nullptr);
-  ///     if (zip_error) {
-  ///         RETURN_ON_ZIP_ERROR(zip_error, LXW_ERROR_ZIP_CLOSE);
-  ///     }
+  //     if (zip_error) {
+  //         RETURN_ON_ZIP_ERROR(zip_error, LXW_ERROR_ZIP_CLOSE);
+  //     }
 }
 
 }

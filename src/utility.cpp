@@ -251,68 +251,68 @@ uint16_t name_to_col_2(const char* col_str)
   }
 }
 
-/// lxw_error
-/// lxw_datetime_validate(lxw_datetime *datetime)
-/// {
-///     if (!datetime)
-///         return LXW_ERROR_DATETIME_VALIDATION;
+// lxw_error
+// lxw_datetime_validate(lxw_datetime *datetime)
+// {
+//     if (!datetime)
+//         return LXW_ERROR_DATETIME_VALIDATION;
 
 /*
  * Excel uses the year 1900 as the default epoch but it uses 1899-12-31 as
  * the 0 date and internally we use the 0-0-0 date for time only values.
  */
-///     if (datetime->year < 1900 &&
-///         !(datetime->year == 0 &&
-///           datetime->month == 0 && datetime->day == 0) &&
-///         !(datetime->year == 1899 &&
-///           datetime->month == 12 && datetime->day == 31)) {
+//     if (datetime->year < 1900 &&
+//         !(datetime->year == 0 &&
+//           datetime->month == 0 && datetime->day == 0) &&
+//         !(datetime->year == 1899 &&
+//           datetime->month == 12 && datetime->day == 31)) {
 
-///         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid year: %d. "
-///                          "Valid range is 1900-9999.", datetime->year);
+//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid year: %d. "
+//                          "Valid range is 1900-9999.", datetime->year);
 
-///         return LXW_ERROR_DATETIME_VALIDATION;
-///     }
+//         return LXW_ERROR_DATETIME_VALIDATION;
+//     }
 
-///     if (datetime->year > 9999) {
-///         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid year: %d. "
-///                          "Valid range is 1900-9999.", datetime->year);
-///         return LXW_ERROR_DATETIME_VALIDATION;
-///     }
+//     if (datetime->year > 9999) {
+//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid year: %d. "
+//                          "Valid range is 1900-9999.", datetime->year);
+//         return LXW_ERROR_DATETIME_VALIDATION;
+//     }
 
-///     if (datetime->year != 0) {
-///         if (datetime->month < 1 || datetime->month > 12) {
-///             LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid month: %d. "
-///                              "Valid range is 1-12.", datetime->month);
-///             return LXW_ERROR_DATETIME_VALIDATION;
-///         }
+//     if (datetime->year != 0) {
+//         if (datetime->month < 1 || datetime->month > 12) {
+//             LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid month: %d. "
+//                              "Valid range is 1-12.", datetime->month);
+//             return LXW_ERROR_DATETIME_VALIDATION;
+//         }
 
-///         if (datetime->day < 1 || datetime->day > 31) {
-///             LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid day: %d. "
-///                              "Valid range is 1-31.", datetime->day);
-///             return LXW_ERROR_DATETIME_VALIDATION;
-///         }
-///     }
+//         if (datetime->day < 1 || datetime->day > 31) {
+//             LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid day: %d. "
+//                              "Valid range is 1-31.", datetime->day);
+//             return LXW_ERROR_DATETIME_VALIDATION;
+//         }
+//     }
 
-///     if (datetime->hour < 0 || datetime->hour > 23) {
-///         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid hour: %d. "
-///                          "Valid range is 0-23.", datetime->hour);
-///         return LXW_ERROR_DATETIME_VALIDATION;
-///     }
+//     if (datetime->hour < 0 || datetime->hour > 23) {
+//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid hour: %d. "
+//                          "Valid range is 0-23.", datetime->hour);
+//         return LXW_ERROR_DATETIME_VALIDATION;
+//     }
 
-///     if (datetime->min < 0 || datetime->min > 59) {
-///         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid minute: %d. "
-///                          "Valid range is 0-59.", datetime->min);
-///         return LXW_ERROR_DATETIME_VALIDATION;
-///     }
+//     if (datetime->min < 0 || datetime->min > 59) {
+//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid minute: %d. "
+//                          "Valid range is 0-59.", datetime->min);
+//         return LXW_ERROR_DATETIME_VALIDATION;
+//     }
 
-///     if (datetime->sec < 0.0 || datetime->sec >= 60.0) {
-///         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid seconds: %.3f. "
-///                          "Valid range is 0.0-59.999.", datetime->sec);
-///         return LXW_ERROR_DATETIME_VALIDATION;
-///     }
+//     if (datetime->sec < 0.0 || datetime->sec >= 60.0) {
+//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid seconds: %.3f. "
+//                          "Valid range is 0.0-59.999.", datetime->sec);
+//         return LXW_ERROR_DATETIME_VALIDATION;
+//     }
 
-///     return LXW_NO_ERROR;
-/// }
+//     return LXW_NO_ERROR;
+// }
 
 // TODO Note about range of std::chrono::system_clock::time_point(up to 2062)
 // TODO Add overload with other date /time type (included lxw_datetime)
@@ -483,15 +483,10 @@ std::string quote_sheetname(std::string_view sheetname)
   return quoted_name;
 }
 
-/// const char * lxw_version(void)
-/// {
-///     return LXW_VERSION;
-/// }
-
-/// uint16_t lxw_version_id(void)
-/// {
-///     return LXW_VERSION_ID;
-/// }
+std::string lxw_version()
+{
+  return XWPP_VERSION;
+}
 
 /*
  * Hash a worksheet password. Based on the algorithm in ECMA-376-4:2016,

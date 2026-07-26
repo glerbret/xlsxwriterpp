@@ -53,7 +53,7 @@ struct drawing_object_t
   uint64_t row_absolute_;
   uint32_t width_;
   uint32_t height_;
-  ///     uint8_t shape;
+  // TODO ?     uint8_t shape;
   uint32_t rel_index_;
   uint32_t url_rel_index_;
   std::string description_;
