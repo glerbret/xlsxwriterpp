@@ -147,7 +147,7 @@ std::string table_t::write_table_columns()
   std::string xml_data = xml_start_tag("tableColumns", {
                                                            {"count", std::to_string(table_obj_.columns_.size())}
   });
-  for(size_t i = 0; const auto& column: table_obj_.columns_)
+  for(uint16_t i = 0; const auto& column: table_obj_.columns_)
   {
     xml_data += write_table_column(i + 1, column);
     i++;

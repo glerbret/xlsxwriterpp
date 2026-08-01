@@ -88,7 +88,7 @@ void workbook_t::prepare_fonts()
     }
   }
 
-  font_count_ = static_cast<uint32_t>(fonts.size());
+  font_count_ = static_cast<uint16_t>(fonts.size());
 }
 
 void workbook_t::prepare_borders()
@@ -130,7 +130,7 @@ void workbook_t::prepare_borders()
     }
   }
 
-  border_count_ = static_cast<uint32_t>(borders.size());
+  border_count_ = static_cast<uint16_t>(borders.size());
 }
 
 void workbook_t::prepare_fills()
@@ -210,7 +210,7 @@ void workbook_t::prepare_fills()
     }
   }
 
-  fill_count_ = static_cast<uint32_t>(fills.size());
+  fill_count_ = static_cast<uint16_t>(fills.size());
   ;
 }
 
@@ -242,14 +242,14 @@ void workbook_t::prepare_num_formats()
       if(format->num_format_index_ == 0)
       {
         // Custom number formats start at 0xA4
-        format->num_format_index_ = static_cast<int32_t>(num_formats.size()) + 0xA4;
+        format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + 0xA4;
         num_formats.push_back(format);
       }
     }
   }
 
   // Don't update num_format_count for DXF formats.
-  num_format_count_ = static_cast<uint32_t>(num_formats.size());
+  num_format_count_ = static_cast<uint16_t>(num_formats.size());
 
   for(const auto format: used_dxf_formats_)
   {
@@ -274,7 +274,7 @@ void workbook_t::prepare_num_formats()
       if(format->num_format_index_ == 0)
       {
         // Custom number formats start at 0xA4
-        format->num_format_index_ = static_cast<int32_t>(num_formats.size()) + 0xA4;
+        format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + 0xA4;
         num_formats.push_back(format);
       }
     }
@@ -570,7 +570,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
     range.first_row_ = name_to_row(tmp_str.c_str());
     range.first_col_ = name_to_col(tmp_str.c_str());
 
-    size_t found_string = formula.find(':');
+    found_string = formula.find(':');
     if(found_string == std::string::npos)
     {
       // 1D range.
@@ -780,7 +780,7 @@ void workbook_t::prepare_drawings()
     }
   }
 
-  drawing_count_ = drawing_id;
+  drawing_count_ = static_cast<uint16_t>(drawing_id);
 }
 
 void workbook_t::prepare_vml()
@@ -926,7 +926,7 @@ void workbook_t::prepare_tables()
       if(!ws.table_objs_.empty())
       {
         ws.prepare_tables(table_id + 1);
-        table_id += ws.table_objs_.size();
+        table_id += static_cast<uint32_t>(ws.table_objs_.size());
       }
     }
   }
@@ -1191,7 +1191,7 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
       .use_1904_epoch_     = use_1904_epoch_,
   };
 
-  sheets_.emplace_back(chartsheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1)});
+  sheets_.emplace_back(chartsheet_t{init_data});
   num_chartsheets_++;
   num_sheets_++;
 

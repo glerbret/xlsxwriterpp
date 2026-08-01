@@ -31,8 +31,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  int row = 0;
-  int col = 0;
+  xwpp::row_num_t row = 0;
+  xwpp::col_num_t col = 0;
   int i;
 
   // Add a bold format to use to highlight cells.

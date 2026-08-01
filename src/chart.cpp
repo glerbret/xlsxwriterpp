@@ -2857,7 +2857,7 @@ std::string chart_t::write_legend()
       xml_data += write_legend_pos("r");
   }
 
-  for(size_t index = 0; index < delete_series_.size(); index++)
+  for(uint16_t index = 0; index < delete_series_.size(); index++)
   {
     xml_data += write_legend_entry(index);
   }
@@ -4723,7 +4723,7 @@ void chart_add_data_cache(series_range_t& range, uint8_t* data, uint16_t rows, u
   // Initialize the series range data cache.
   for(size_t i = 0; i < rows; i++)
   {
-    series_data_point_t data_point{.number_ = data[i * cols + col]};
+    series_data_point_t data_point{.number_ = static_cast<double>(data[i * cols + col])};
     range.data_cache_.push_back(data_point);
   }
 }

@@ -33,9 +33,9 @@ int main()
       {60, 80,  30, 30,  10,  50,  80, 60,  50,  30},
   };
 
-  for(size_t row = 0; row < 10; row++)
+  for(xwpp::row_num_t row = 0; row < 10; row++)
   {
-    for(size_t col = 0; col < 10; col++)
+    for(xwpp::col_num_t col = 0; col < 10; col++)
     {
       worksheet.write_number(row, col, data[row][col]);
     }

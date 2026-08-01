@@ -13,7 +13,6 @@
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-  int row, col;
   uint8_t data[6][3] = {
       {2, 10, 30},
       {3, 40, 60},
@@ -27,9 +26,9 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write_string(CELL("B1"), "Batch 1", bold);
   worksheet.write_string(CELL("C1"), "Batch 2", bold);
 
-  for(row = 0; row < 6; row++)
+  for(xwpp::row_num_t row = 0; row < 6; row++)
   {
-    for(col = 0; col < 3; col++)
+    for(xwpp::col_num_t col = 0; col < 3; col++)
     {
       worksheet.write_number(row + 1, col, data[row][col]);
     }

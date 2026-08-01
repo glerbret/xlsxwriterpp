@@ -20,7 +20,7 @@ int main()
   std::string data_1[5] = {"A", "B", "C", "D", "E"};
   uint8_t data_2[5]     = {1, 2, 3, 2, 1};
 
-  for(size_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row = 0; row < 5; row++)
   {
     worksheet.write_string(row, 0, data_1[row]);
     worksheet.write_number(row, 1, data_2[row]);

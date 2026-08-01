@@ -440,7 +440,7 @@ style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count
 
 std::string style_t::write_fonts()
 {
-  uint16_t count = font_count_;
+  uint32_t count = font_count_;
   if(has_comments_)
   {
     count++;
@@ -744,7 +744,7 @@ std::string style_t::write_hyperlink_protection() const
   });
 }
 
-std::string style_t::write_style_xf(bool has_hyperlink, uint16_t font_id) const
+std::string style_t::write_style_xf(bool has_hyperlink, int32_t font_id) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
       {"numFmtId", "0"                    },
@@ -1066,7 +1066,7 @@ std::string style_t::write_xf(const format_t* format) const
 
 std::string style_t::write_cell_xfs() const
 {
-  uint32_t count = xf_formats_.size();
+  size_t count = xf_formats_.size();
   /* If the last format is "font_only" it is for the comment font and
    * shouldn't be counted. This is a workaround to get the last object
    * in the list since STAILQ_LAST() requires __containerof and isn't

@@ -14,7 +14,7 @@ int main()
   char c[] = {0x00, 0x00};
 
   worksheet.write_string(0, 0, "_x0000_");
-  for(size_t i = 1; i < 127; i++)
+  for(xwpp::row_num_t i = 1; i < 127; i++)
   {
     (*c)++;
     if(i != 34)

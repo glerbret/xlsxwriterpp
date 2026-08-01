@@ -24,9 +24,9 @@ int main()
       {2, 2, 2, 2, 2, 2, 2, 2}
   };
 
-  for(size_t row = 0; row < 3; row++)
+  for(xwpp::row_num_t row = 0; row < 3; row++)
   {
-    for(size_t col = 0; col < 8; col++)
+    for(xwpp::col_num_t col = 0; col < 8; col++)
     {
       worksheet.write_number(row, col, data[row][col]);
     }

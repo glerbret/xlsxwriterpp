@@ -80,7 +80,7 @@ namespace xwpp
 class chartsheet_t
 {
 public:
-  chartsheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index);
+  explicit chartsheet_t(const worksheet_init_data_t& init_data);
 
   [[nodiscard]] std::string assemble_xml_file();
 

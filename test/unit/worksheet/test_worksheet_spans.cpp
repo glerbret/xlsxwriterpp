@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(spans05)
 
   for(size_t i = 0; i < 20; i++)
   {
-    worksheet.write_number(i, i, i + 1);
+    worksheet.write_number(static_cast<xwpp::row_num_t>(i), static_cast<xwpp::col_num_t>(i), static_cast<double>(i + 1));
   }
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

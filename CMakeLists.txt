@@ -60,13 +60,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-if (MSVC)
-  # warning level 4
-  add_compile_options(/W4)
-else()
-  # additional warnings
-  add_compile_options(-Wall -Wextra -Wpedantic -Wno-comment -Wno-missing-field-initializers)
-endif()
 
 set(XLSXPP_PROJECT_NAME
   "xlsxwriterpp"
@@ -75,6 +68,14 @@ set(XLSXPP_PROJECT_NAME
 )
 
 project(${XLSXPP_PROJECT_NAME} C CXX)
+
+if(MSVC)
+  # warning level 4
+  add_compile_options(/W4)
+else()
+  # additional warnings
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-comment -Wno-missing-field-initializers)
+endif()
 
 # -------------------
 # Compilation options
@@ -145,7 +146,11 @@ endif()
 
 # TODO Replace MD5_Init and co and remove this
 # For openSSL use
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+if(MSVC)
+  add_compile_options(/wd4996)
+else()
+  add_compile_options(-Wno-deprecated-declarations)
+endif()
 
 if(NOT BUILD_SHARED_LIBS)
   if(UNIX)
@@ -246,6 +251,7 @@ if(NOT USE_SYSTEM_MINIZIP)
     third_party/minizip/zip.c
   )
   if(MSVC)
+    add_compile_options(/wd4100 /wd4189)
     list(APPEND XWPP_SOURCES third_party/minizip/iowin32.c)
   endif()
 endif()
@@ -296,6 +302,11 @@ target_include_directories(
 if(BUILD_TESTS)
   find_package(Boost 1.83 REQUIRED COMPONENTS unit_test_framework)
 
+  if(MSVC)
+    # Disable warnings C4005 caused by BOOST_TEST_DYN_LINK
+    add_compile_options(/wd4005)
+  endif()
+
   MACRO(SUBDIRLIST result curdir)
     FILE(GLOB children ${curdir}/*)
     SET(dirlist "")
@@ -315,7 +326,7 @@ if(BUILD_TESTS)
     file(GLOB XWPP_SOURCES test/unit/${subdir}/*.cpp)
     add_executable(${test_exec_name} ${XWPP_SOURCES})
     target_link_libraries(${test_exec_name} ${PROJECT_NAME} ${Boost_LIBRARIES})
-    set_target_properties(${test_exec_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "test/unit")
+    set_target_properties(${test_exec_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<1:test/unit>)
   ENDFOREACH()
 
   file(GLOB XWPP_FUNCTIONAL_SOURCES test/functional/src/*.cpp)
@@ -323,7 +334,7 @@ if(BUILD_TESTS)
     get_filename_component(basename ${source} NAME_WE)
     add_executable(${basename} ${source})
     target_link_libraries(${basename} ${PROJECT_NAME})
-    set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "test/functional/src")
+    set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<1:test/functional/src>)
   endforeach(source)
 
   # Custom target and commands to copy necessary files for testing
@@ -333,22 +344,26 @@ if(BUILD_TESTS)
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_xlsx ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_py ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_images
   )
 
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__test_copy_xlsx PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_xlsx
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             ${CMAKE_SOURCE_DIR}/test/functional/xlsx_files
             ${CMAKE_CURRENT_BINARY_DIR}/test/functional/xlsx_files)
 
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__test_copy_images PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_images
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             ${CMAKE_SOURCE_DIR}/test/functional/src/images
             ${CMAKE_CURRENT_BINARY_DIR}/test/functional/src/images)
 
+  file(GLOB PYTHON_TEST_SRC ${CMAKE_SOURCE_DIR}/test/functional/*.py)
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__test_copy_py PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__test_copy_py
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_SOURCE_DIR}/test/functional/*.py
+            ${PYTHON_TEST_SRC}
             ${CMAKE_CURRENT_BINARY_DIR}/test/functional)
 endif()
 
@@ -363,7 +378,7 @@ if(BUILD_EXAMPLES)
     get_filename_component(basename ${source} NAME_WE)
     add_executable(${basename} ${source})
     target_link_libraries(${basename} ${PROJECT_NAME})
-    set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "examples")
+    set_target_properties(${basename} PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<1:examples>)
   endforeach(source)
 
   # Custom target and commands to copy necessary files for examples
@@ -373,16 +388,22 @@ if(BUILD_EXAMPLES)
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images  ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin
   )
 
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples RESULT res)
+
+  file(GLOB EXAMPLES_IMAGES ${CMAKE_SOURCE_DIR}/examples/*.png)
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images
-    COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/examples/*.png
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${EXAMPLES_IMAGES}
             ${CMAKE_CURRENT_BINARY_DIR}/examples)
 
+  file(GLOB EXAMPLES_BIN ${CMAKE_SOURCE_DIR}/examples/*.bin)
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin
-    COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/examples/*.bin
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${EXAMPLES_BIN}
             ${CMAKE_CURRENT_BINARY_DIR}/examples)
 endif()
 

@@ -9,9 +9,12 @@
 #include "xwpp/utility.h"
 
 #include "xlsxwriterpp.h"
+#include "xwpp/exception.h"
 
 #include <algorithm>
 #include <chrono>
+#include <format>
+#include <vector>
 
 #include <iostream>
 
@@ -331,10 +334,9 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   const int offset = use_1904_epoch ? 4 : 0;
   const int norm   = 300;
   // Set month days and check for leap year.
-  int mdays[]      = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  std::vector<int> mdays {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   int leap         = 0;
   int days         = 0;
-  int i;
 
   // For times without dates (i.e. set to epoch) set the default date for the Excel epoch.
   if(year == 1970 && month == 1 && day == 1)
@@ -394,8 +396,13 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   // Calculate the serial date by accumulating the number of days
   //  since the epoch.
 
+  if(month > 12)
+  {
+    throw xwpp_exception_t(std::format("datetime_to_excel_date_with_epoch(): invalid month '{}'", month));
+  }
+
   // Add days for previous months.
-  for(i = 0; i < month; i++)
+  for(size_t i = 0; i < static_cast<size_t>(month) && i < mdays.size(); i++)
   {
     days += mdays[i];
   }

@@ -110,7 +110,7 @@ static int filetime(const char *f, tm_zip *tmzip, uLong *dt) {
       len = MAXFILENAME;
 
     strncpy(name, f,MAXFILENAME-1);
-    /* strncpy doesn't append the trailing nullptr, of the string is too long. */
+    /* strncpy doesn't append the trailing NULL, of the string is too long. */
     name[ MAXFILENAME ] = '\0';
 
     if (name[len - 1] == '/')
@@ -152,7 +152,7 @@ static int check_exist_file(const char* filename) {
     FILE* ftestexist;
     int ret = 1;
     ftestexist = FOPEN_FUNC(filename,"rb");
-    if (ftestexist==nullptr)
+    if (ftestexist==NULL)
         ret = 0;
     else
         fclose(ftestexist);
@@ -183,7 +183,7 @@ static int getFileCrc(const char* filenameinzip, void* buf, unsigned long size_b
 
    unsigned long size_read = 0;
    /* unsigned long total_read = 0; */
-   if (fin==nullptr)
+   if (fin==NULL)
    {
        err = ZIP_ERRNO;
    }
@@ -219,7 +219,7 @@ static int isLargeFile(const char* filename) {
   ZPOS64_T pos = 0;
   FILE* pFile = FOPEN_FUNC(filename, "rb");
 
-  if(pFile != nullptr)
+  if(pFile != NULL)
   {
     FSEEKO_FUNC(pFile, 0, SEEK_END);
     pos = (ZPOS64_T)FTELLO_FUNC(pFile);
@@ -245,8 +245,8 @@ int main(int argc, char *argv[]) {
     int zipok;
     int err=0;
     size_t size_buf=0;
-    void* buf=nullptr;
-    const char* password=nullptr;
+    void* buf=NULL;
+    const char* password=NULL;
 
 
     do_banner();
@@ -294,7 +294,7 @@ int main(int argc, char *argv[]) {
 
     size_buf = WRITEBUFFERSIZE;
     buf = (void*)malloc(size_buf);
-    if (buf==nullptr)
+    if (buf==NULL)
     {
         printf("Error allocating memory\n");
         return ZIP_INTERNALERROR;
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 
         zipok = 1 ;
         strncpy(filename_try, argv[zipfilenamearg],MAXFILENAME-1);
-        /* strncpy doesn't append the trailing nullptr, of the string is too long. */
+        /* strncpy doesn't append the trailing NULL, of the string is too long. */
         filename_try[ MAXFILENAME ] = '\0';
 
         len=(int)strlen(filename_try);
@@ -362,12 +362,12 @@ int main(int argc, char *argv[]) {
 #        ifdef USEWIN32IOAPI
         zlib_filefunc64_def ffunc;
         fill_win32_filefunc64A(&ffunc);
-        zf = zipOpen2_64(filename_try,(opt_overwrite==2) ? 2 : 0,nullptr,&ffunc);
+        zf = zipOpen2_64(filename_try,(opt_overwrite==2) ? 2 : 0,NULL,&ffunc);
 #        else
         zf = zipOpen64(filename_try,(opt_overwrite==2) ? 2 : 0);
 #        endif
 
-        if (zf == nullptr)
+        if (zf == NULL)
         {
             printf("error opening %s\n",filename_try);
             err= ZIP_ERRNO;
@@ -384,7 +384,7 @@ int main(int argc, char *argv[]) {
                    ((argv[i][1]>='0') && (argv[i][1]<='9'))) &&
                   (strlen(argv[i]) == 2)))
             {
-                FILE * fin = nullptr;
+                FILE * fin = NULL;
                 size_t size_read;
                 const char* filenameinzip = argv[i];
                 const char *savefilenameinzip;
@@ -401,11 +401,11 @@ int main(int argc, char *argv[]) {
 
 /*
                 err = zipOpenNewFileInZip(zf,filenameinzip,&zi,
-                                 nullptr,0,nullptr,0,nullptr / * comment * /,
+                                 NULL,0,NULL,0,NULL / * comment * /,
                                  (opt_compress_level != 0) ? Z_DEFLATED : 0,
                                  opt_compress_level);
 */
-                if ((password != nullptr) && (err==ZIP_OK))
+                if ((password != NULL) && (err==ZIP_OK))
                     err = getFileCrc(filenameinzip,buf,size_buf,&crcFile);
 
                 zip64 = isLargeFile(filenameinzip);
@@ -430,7 +430,7 @@ int main(int argc, char *argv[]) {
                              lastslash = tmpptr;
                          }
                      }
-                     if( lastslash != nullptr )
+                     if( lastslash != NULL )
                      {
                          savefilenameinzip = lastslash+1; // base filename follows last slash.
                      }
@@ -438,7 +438,7 @@ int main(int argc, char *argv[]) {
 
                  /**/
                 err = zipOpenNewFileInZip3_64(zf,savefilenameinzip,&zi,
-                                 nullptr,0,nullptr,0,nullptr /* comment*/,
+                                 NULL,0,NULL,0,NULL /* comment*/,
                                  (opt_compress_level != 0) ? Z_DEFLATED : 0,
                                  opt_compress_level,0,
                                  /* -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, */
@@ -450,7 +450,7 @@ int main(int argc, char *argv[]) {
                 else
                 {
                     fin = FOPEN_FUNC(filenameinzip,"rb");
-                    if (fin==nullptr)
+                    if (fin==NULL)
                     {
                         err=ZIP_ERRNO;
                         printf("error in opening %s for reading\n",filenameinzip);
@@ -495,7 +495,7 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-        errclose = zipClose(zf,nullptr);
+        errclose = zipClose(zf,NULL);
         if (errclose != ZIP_OK)
             printf("error in closing %s\n",filename_try);
     }

@@ -26,10 +26,9 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet)
       {70, 5,   46, 14, 71, 19, 66, 36, 41, 21},
   };
 
-  int row, col;
-  for(row = 0; row < 10; row++)
+  for(xwpp::row_num_t row = 0; row < 10; row++)
   {
-    for(col = 0; col < 10; col++)
+    for(xwpp::col_num_t col = 0; col < 10; col++)
     {
       worksheet.write_number(row + 2, col + 1, data[row][col]);
     }
@@ -282,21 +281,21 @@ int main()
   // Write the worksheet data.
   for(int i = 1; i <= 3; i++)
   {
-    worksheet9.write_number(2, i, i);
-    worksheet9.write_number(3, i, i);
-    worksheet9.write_number(4, i, i);
-    worksheet9.write_number(5, i, i);
+    worksheet9.write_number(2, static_cast<xwpp::col_num_t>(i), i);
+    worksheet9.write_number(3, static_cast<xwpp::col_num_t>(i), i);
+    worksheet9.write_number(4, static_cast<xwpp::col_num_t>(i), i);
+    worksheet9.write_number(5, static_cast<xwpp::col_num_t>(i), i);
   }
 
   for(int i = 1; i <= 4; i++)
   {
-    worksheet9.write_number(6, i, i);
+    worksheet9.write_number(6, static_cast<xwpp::col_num_t>(i), i);
   }
 
   for(int i = 1; i <= 5; i++)
   {
-    worksheet9.write_number(7, i, i);
-    worksheet9.write_number(8, i, i);
+    worksheet9.write_number(7, static_cast<xwpp::col_num_t>(i), i);
+    worksheet9.write_number(8, static_cast<xwpp::col_num_t>(i), i);
   }
 
   worksheet9.write_string(CELL("A1"), "Examples of conditional formats with icon sets.");

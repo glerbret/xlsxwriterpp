@@ -82,7 +82,7 @@ int main()
   worksheet.write_string(0, 3, "Month");
 
   // Write the row data.
-  for(size_t i = 0; const auto& [region, item, volume, month]: data)
+  for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
   {
     worksheet.write_string(i + 1, 0, region);
     worksheet.write_string(i + 1, 1, item);

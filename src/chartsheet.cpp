@@ -18,7 +18,7 @@
 namespace xwpp
 {
 
-chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index)
+chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data)
   : name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}

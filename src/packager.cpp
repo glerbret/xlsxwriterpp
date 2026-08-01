@@ -296,13 +296,13 @@ uint32_t packager_t::get_table_count(const workbook_t& workbook) const
     if(std::holds_alternative<chartsheet_t>(sheet))
     {
       const auto& ws = std::get<chartsheet_t>(sheet).worksheet_;
-      table_count += ws.table_objs_.size();
+      table_count += static_cast<uint32_t>(ws.table_objs_.size());
     }
 
     if(std::holds_alternative<worksheet_t>(sheet))
     {
       const auto& ws = std::get<worksheet_t>(sheet);
-      table_count += ws.table_objs_.size();
+      table_count += static_cast<uint32_t>(ws.table_objs_.size());
     }
   }
 
@@ -898,7 +898,7 @@ void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& f
     throw xwpp_exception_t(std::format("packager_t::add_buffer_to_zip(): error adding '{}' to zipfile", filename));
   }
 
-  if(zipWriteInFileInZip(zipfile_, buffer.data(), buffer.size()) < 0)
+  if(zipWriteInFileInZip(zipfile_, buffer.data(), static_cast<unsigned long>(buffer.size())) < 0)
   {
     throw xwpp_exception_t(
         std::format("packager_t::add_buffer_to_zip(): error in writing member '{}' to zipfile", filename));
@@ -921,7 +921,7 @@ void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std:
         std::format("packager_t::add_buffer_to_zip(): error adding member '{}' to zipfile", filename));
   }
 
-  if(zipWriteInFileInZip(zipfile_, buffer.data(), buffer.size()) < 0)
+  if(zipWriteInFileInZip(zipfile_, buffer.data(), static_cast<unsigned long>(buffer.size())) < 0)
   {
     throw xwpp_exception_t(
         std::format("packager_t::add_buffer_to_zip(): error in writing member '{}' to zipfile", filename));

@@ -84,7 +84,7 @@ int main()
   xwpp::row_col_options_t hidden = {.hidden_ = true};
 
   // Write the row data.
-  for(size_t i = 0; const auto& [region, item, volume, month]: data)
+  for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
   {
     worksheet.write_string(i + 3, 3, region);
     worksheet.write_string(i + 3, 4, item);

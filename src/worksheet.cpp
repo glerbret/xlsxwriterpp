@@ -45,8 +45,8 @@ namespace
  *
  * The span is the same for each block of 16 rows.
  */
-std::string calculate_spans(std::map<col_num_t, row_t>::const_iterator it,
-                            std::map<col_num_t, row_t>::const_iterator end, int32_t& block_num)
+std::string calculate_spans(std::map<row_num_t, row_t>::const_iterator it,
+                            std::map<row_num_t, row_t>::const_iterator end, int32_t& block_num)
 {
   col_num_t span_col_min = std::numeric_limits<col_num_t>::max();
   col_num_t span_col_max = std::numeric_limits<col_num_t>::max();
@@ -123,12 +123,12 @@ worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<i
   , name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
   , index_{init_data.index_}
+  , hidden_{init_data.hidden_}
   , active_sheet_{init_data.active_sheet_}
   , first_sheet_{init_data.first_sheet_}
+  , max_url_length_{init_data.max_url_length_}
   , default_url_format_{init_data.default_url_format_}
   , use_1904_epoch_{init_data.use_1904_epoch_}
-  , max_url_length_{init_data.max_url_length_}
-  , hidden_{init_data.hidden_}
   , header_footer_objs_{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt}
 {
   col_formats_.resize(COL_META_MAX);
@@ -925,7 +925,7 @@ void worksheet_t::write_table_column_data(const table_obj_t& table_obj)
     last_data_row--;
   }
 
-  for(size_t i = 0; const auto& column: table_obj.columns_)
+  for(col_num_t i = 0; const auto& column: table_obj.columns_)
   {
     col_num_t col = first_col + i;
 
@@ -1698,7 +1698,7 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
   }
 }
 
-int32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
+uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
 {
   col_options_t* col_opt = nullptr;
   uint32_t pixels        = 0;
@@ -1751,7 +1751,7 @@ int32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
  * hasn't been set by the user we use the default value. If the row is hidden
  * it has a value of zero.
  */
-int32_t worksheet_t::size_row(row_num_t row_num, object_position_t anchor)
+uint32_t worksheet_t::size_row(row_num_t row_num, object_position_t anchor)
 {
   uint32_t pixels = 0;
 
@@ -1825,7 +1825,6 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   double height  = object_props.height_;        // Height of object frame.
   uint32_t x_abs = 0;                           // Abs. distance to left side of object.
   uint32_t y_abs = 0;                           // Abs. distance to top  side of object.
-  uint32_t i;
   object_position_t anchor        = static_cast<object_position_t>(drawing_object.anchor_);
   object_position_t ignore_anchor = object_position_t::DEFAULT;
 
@@ -1857,7 +1856,7 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   // Calculate the absolute x offset of the top-left vertex.
   if(col_size_changed_)
   {
-    for(i = 0; i < col_start; i++)
+    for(col_num_t i = 0; i < col_start; i++)
     {
       x_abs += size_col(i, ignore_anchor);
     }
@@ -1873,7 +1872,7 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   // Store the column change to allow optimizations.
   if(row_size_changed_)
   {
-    for(i = 0; i < row_start; i++)
+    for(row_num_t i = 0; i < row_start; i++)
     {
       y_abs += size_row(i, ignore_anchor);
     }
@@ -1886,14 +1885,14 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   y_abs += y1;
 
   // Adjust start col for offsets that are greater than the col width.
-  while(x1 >= size_col(col_start, anchor))
+  while(x1 >= static_cast<int32_t>(size_col(col_start, anchor)))
   {
     x1 -= size_col(col_start, ignore_anchor);
     col_start++;
   }
 
   // Adjust start row for offsets that are greater than the row height.
-  while(y1 >= size_row(row_start, anchor))
+  while(y1 >= static_cast<int32_t>(size_row(row_start, anchor)))
   {
     y1 -= size_row(row_start, ignore_anchor);
     row_start++;
@@ -2291,9 +2290,9 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
 {
   uint32_t comment_count = 0;
 
-  for(auto& [index, row]: comments_.rbh_root_)
+  for(auto& [i, row]: comments_.rbh_root_)
   {
-    for(auto& [index, cell]: row.cells_)
+    for(auto& [j, cell]: row.cells_)
     {
       // Calculate the worksheet position of the comment.
       position_vml_object(cell.comment_.value());
@@ -2916,8 +2915,7 @@ void worksheet_t::set_header_footer_image(const std::string& filename, image_pos
   // Copy other options or set defaults.
   object_props.filename_    = filename;
   // Use the filename as the default description, like Excel.
-  object_props.description_ = std::filesystem::path(filename).filename();
-  ;
+  object_props.description_ = std::filesystem::path(filename).filename().string();
 
   // Set VML image position string based on the header/footer/position.
   object_props.image_position_ = get_vml_image_position(image_position);
@@ -3487,9 +3485,9 @@ std::string worksheet_t::write_hyperlinks()
 
   // Write the hyperlink elements.
   std::string xml_data = xml_start_tag("hyperlinks");
-  for(const auto& [index, row]: hyperlinks_.rbh_root_)
+  for(const auto& [i, row]: hyperlinks_.rbh_root_)
   {
-    for(const auto& [index, link]: row.cells_)
+    for(const auto& [j, link]: row.cells_)
     {
       if(link.type_ == cell_types_t::HYPERLINK_URL || link.type_ == cell_types_t::HYPERLINK_EXTERNAL)
       {
@@ -5381,7 +5379,8 @@ std::string worksheet_t::write_table_parts()
   std::string xml_data = xml_start_tag("tableParts", {
                                                          {"count", std::to_string(table_objs_.size())}
   });
-  for(const auto& table_obj: table_objs_)
+
+  for(size_t i = 0; i < table_objs_.size(); i++)
   {
     rel_count_++;
 
@@ -7178,7 +7177,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   }
 
   // Use the filename as the default description, like Excel.
-  std::string description = std::filesystem::path(filename).filename();
+  std::string description = std::filesystem::path(filename).filename().string();
 
   // Create a new object to hold the image properties.
   object_properties_t object_props;
@@ -7914,7 +7913,7 @@ void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std:
   button.col_ = col_num;
 
   // Set user and default parameters for the button.
-  get_button_params(button, 1 + button_objs_.size(), options);
+  get_button_params(button, static_cast<uint16_t>(1 + button_objs_.size()), options);
 
   // Calculate the worksheet position of the button.
   position_vml_object(button);

@@ -651,7 +651,7 @@ struct chart_line_t
   bool none_ = false;
 
   /** Width of the line in increments of 0.25. Default is 2.25. */
-  float width_ = 0.;
+  double width_ = 0.;
 
   /** The line dash type. See #lxw_chart_line_dash_type. */
   chart_line_dash_type_t dash_type_ = chart_line_dash_type_t::DASH_SOLID;

@@ -32,8 +32,8 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Start from the first cell. Rows and columns are zero indexed.
-  int row = 0;
-  int col = 0;
+  xwpp::row_num_t row = 0;
+  xwpp::col_num_t col = 0;
 
   // Iterate over the data and write it out element by element.
   for(row = 0; row < 4; row++)

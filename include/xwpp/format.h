@@ -1201,7 +1201,7 @@ private:
   std::string num_format_;
   std::string font_name_;
   std::string font_scheme_;
-  int32_t num_format_index_          = 0;
+  uint16_t num_format_index_          = 0;
   int32_t font_index_                = PROPERTY_UNSET;
   bool has_font_                     = false;
   bool has_dxf_font_                 = false;

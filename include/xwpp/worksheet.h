@@ -71,10 +71,10 @@ const size_t BREAKS_MAX = 1023;
 const double DEF_COL_WIDTH = 8.43;
 
 /** Default Excel column width in pixels. */
-const double DEF_COL_WIDTH_PIXELS = 64;
+const uint32_t DEF_COL_WIDTH_PIXELS = 64;
 
 /** Default Excel column height in pixels. */
-const double DEF_ROW_HEIGHT_PIXELS = 20;
+const uint32_t DEF_ROW_HEIGHT_PIXELS = 20;
 
 /** Default Excel row height in character units. */
 const double DEF_ROW_HEIGHT = 15.0;
@@ -815,7 +815,7 @@ struct table_rows_t
 {
   row_t& get_row_list(row_num_t row_num);
 
-  std::map<col_num_t, row_t> rbh_root_; // NOLINT(misc-non-private-member-variables-in-classes)
+  std::map<row_num_t, row_t> rbh_root_; // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /**
@@ -2057,7 +2057,7 @@ struct rich_string_tuple_t
 struct worksheet_init_data_t
 {
   uint16_t index_;
-  uint8_t hidden_; // TODO bool ?
+  bool hidden_ = false;
   uint16_t* active_sheet_ = nullptr;
   uint16_t* first_sheet_  = nullptr;
   shared_strings_t* sst_;
@@ -5650,8 +5650,8 @@ private:
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
-  [[nodiscard]] int32_t size_col(col_num_t col_num, object_position_t anchor);
-  [[nodiscard]] int32_t size_row(row_num_t row_num, object_position_t anchor);
+  [[nodiscard]] uint32_t size_col(col_num_t col_num, object_position_t anchor);
+  [[nodiscard]] uint32_t size_row(row_num_t row_num, object_position_t anchor);
   [[nodiscard]] const row_t* find_row(row_num_t row_num) const;
   [[nodiscard]] const cell_t* find_cell_in_row(const row_t* row, col_num_t col_num) const;
   void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object);

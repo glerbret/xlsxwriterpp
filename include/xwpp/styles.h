@@ -54,7 +54,7 @@ private:
   [[nodiscard]] std::string write_sub_border(const std::string& type, format_borders_t style, color_t color) const;
   [[nodiscard]] std::string write_border(const format_t* format, bool is_dxf) const;
   [[nodiscard]] std::string write_borders() const;
-  [[nodiscard]] std::string write_style_xf(bool has_hyperlink, uint16_t font_id) const;
+  [[nodiscard]] std::string write_style_xf(bool has_hyperlink, int32_t font_id) const;
   [[nodiscard]] std::string write_cell_style_xfs() const;
   [[nodiscard]] std::string write_cell_xfs() const;
   [[nodiscard]] std::string write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id) const;
@@ -79,7 +79,7 @@ private:
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
   bool has_hyperlink_         = false;
-  uint16_t hyperlink_font_id_ = 0;
+  int32_t hyperlink_font_id_  = 0;
   bool has_comments_          = false;
 };
 

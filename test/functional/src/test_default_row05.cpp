@@ -20,12 +20,12 @@ int main()
   worksheet.write_string(CELL("A10"), "Bar");
   worksheet.write_string(CELL("A20"), "Baz");
 
-  for(size_t row = 1; row <= 8; row++)
+  for(xwpp::row_num_t row = 1; row <= 8; row++)
   {
     worksheet.set_row(row, 24);
   }
 
-  for(size_t row = 10; row <= 19; row++)
+  for(xwpp::row_num_t row = 10; row <= 19; row++)
   {
     worksheet.set_row(row, 24);
   }
