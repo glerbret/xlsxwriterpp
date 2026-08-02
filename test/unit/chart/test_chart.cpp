@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(chart)
 BOOST_AUTO_TEST_CASE(assemble_xml_file)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<c:lang val=\"en-US\"/>"
@@ -132,13 +132,13 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   series1.values_.ignore_cache_    = true;
   series1.values_.num_data_points_ = 5;
   series1.values_.data_cache_      = {
-      {.number_ = 1}, {.number_ = 2}, {.number_ = 3}, {.number_ = 4}, {.number_ = 5},
+    {.number_ = 1}, {.number_ = 2}, {.number_ = 3}, {.number_ = 4}, {.number_ = 5},
   };
   xwpp::chart_series_t& series2    = chart.add_series("", "Sheet1!$B$1:$B$5");
   series2.values_.ignore_cache_    = true;
   series2.values_.num_data_points_ = 5;
   series2.values_.data_cache_      = {
-      {.number_ = 2}, {.number_ = 4}, {.number_ = 6}, {.number_ = 8}, {.number_ = 10},
+    {.number_ = 2}, {.number_ = 4}, {.number_ = 6}, {.number_ = 8}, {.number_ = 10},
   };
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());

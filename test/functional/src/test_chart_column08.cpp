@@ -16,11 +16,11 @@ int main()
   chart.set_axis_ids(68809856, 68811392);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -32,16 +32,16 @@ int main()
   }
 
   xwpp::chart_series_t& series1 =
-      chart.add_series("=(Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5)", "=(Sheet1!$B$1:$B$2,Sheet1!$B$4:$B$5)");
+    chart.add_series("=(Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5)", "=(Sheet1!$B$1:$B$2,Sheet1!$B$4:$B$5)");
 
   worksheet.insert_chart(CELL("E9"), &chart);
 
   /* Add the cached data for testing. */
   uint8_t test_data[4][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   xwpp::chart_add_data_cache(series1.categories_, test_data[0], 4, 3, 0);

@@ -16,9 +16,9 @@ int main()
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
 
   uint8_t data[3][2] = {
-      {2, 60},
-      {4, 30},
-      {6, 10},
+    {2, 60},
+    {4, 30},
+    {6, 10},
   };
 
   for(xwpp::row_num_t row = 0; row < 3; row++)

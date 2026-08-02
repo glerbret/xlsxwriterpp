@@ -21,14 +21,471 @@
 #include <functional>
 #include <string>
 
-#include <iostream>
-
 using namespace std::literals::chrono_literals;
-
-// TODO Add API to configure default format, in particular font
 
 namespace xwpp
 {
+
+workbook_t::workbook_t(bool use_zip64)
+  : use_zip64_{use_zip64}
+{
+  // Add the default cell format.
+  auto format = add_format();
+  // and initialize its index.
+  get_xf_index(format);
+
+  // Add the default hyperlink format.
+  default_url_format_ = add_format();
+  default_url_format_->set_hyperlink();
+}
+
+void workbook_t::save(std::string_view filename)
+{
+  // Add a default worksheet if none have been added.
+  if(num_sheets_ == 0)
+  {
+    add_worksheet();
+  }
+
+  // Ensure that at least one worksheet has been selected.
+  if(active_sheet_ == 0)
+  {
+    if(std::holds_alternative<worksheet_t>(sheets_.front()))
+    {
+      auto& sheet = std::get<worksheet_t>(sheets_.front());
+      sheet.select();
+    }
+  }
+
+  // Set the active sheet and check if a metadata file is needed.
+  for(auto& sheet: sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& worksheet = std::get<worksheet_t>(sheet);
+      if(worksheet.index_ == active_sheet_)
+      {
+        worksheet.active_ = true;
+      }
+
+      if(worksheet.has_dynamic_functions_)
+      {
+        has_metadata_          = true;
+        has_dynamic_functions_ = true;
+      }
+
+      if(!worksheet.embedded_image_props_.empty())
+      {
+        has_metadata_        = true;
+        has_embedded_images_ = true;
+      }
+    }
+  }
+
+  // Set workbook and worksheet VBA codenames if a macro has been added.
+  if(!vba_project_.empty())
+  {
+    if(vba_codename_.empty())
+    {
+      set_vba_name("ThisWorkbook");
+    }
+
+    for(auto& sheet: sheets_)
+    {
+      if(std::holds_alternative<worksheet_t>(sheet))
+      {
+        auto& ws = std::get<worksheet_t>(sheet);
+
+        if(ws.vba_codename_.empty())
+        {
+          ws.set_vba_name(std::format("Sheet{}", ws.get_sheet_index() + 1));
+        }
+      }
+    }
+  }
+
+  // Prepare the element to package.
+  prepare_vml();
+  prepare_defined_names();
+  prepare_drawings();
+  add_chart_cache_data();
+  prepare_tables();
+
+  // Create a packager object to assemble sub-elements into a zip file.
+  packager_t pkg(filename);
+
+  // Create the package.
+  pkg.create_package(*this);
+}
+
+void workbook_t::set_properties(const doc_properties_t& properties)
+{
+  properties_ = properties;
+}
+
+void workbook_t::set_custom_property(std::string_view name, const std::string& value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+  }
+
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(
+      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
+  }
+
+  if(value.size() > 255)
+  {
+    throw xwpp_out_of_range_t(
+      std::format("workbook_t::set_custom_property(): value of custom property '{}' is too long.", value));
+  }
+
+  custom_properties_.emplace_back(custom_property_types_t::STRING, std::string(name), std::string(value));
+}
+
+void workbook_t::set_custom_property(std::string_view name, const char* value)
+{
+  set_custom_property(name, std::string(value));
+}
+
+void workbook_t::set_custom_property(std::string_view name, int32_t value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+  }
+
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(
+      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
+  }
+
+  custom_properties_.emplace_back(custom_property_types_t::INTEGER, std::string(name), value);
+}
+
+void workbook_t::set_custom_property(std::string_view name, double value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+  }
+
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(
+      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
+  }
+
+  custom_properties_.emplace_back(custom_property_types_t::DOUBLE, std::string(name), value);
+}
+
+void workbook_t::set_custom_property(std::string_view name, bool value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+  }
+
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(
+      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
+  }
+
+  custom_properties_.emplace_back(custom_property_types_t::BOOLEAN, std::string(name), value);
+}
+
+void workbook_t::set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value)
+{
+  if(name.empty())
+  {
+    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
+  }
+
+  if(name.size() > 255)
+  {
+    throw xwpp_out_of_range_t(
+      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
+  }
+
+  if(value.time_since_epoch().count() == 0)
+  {
+    throw xwpp_exception_t("workbook_t::set_custom_property(): date is not set.");
+  }
+
+  custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
+}
+
+void workbook_t::set_custom_property(std::string_view name, const std::chrono::year_month_day& value)
+{
+  set_custom_property(name, std::chrono::sys_days{value} + 0h + 0min + 0s + 0ms);
+}
+
+void workbook_t::read_only_recommended()
+{
+  read_only_ = 2;
+}
+
+void workbook_t::use_1904_epoch()
+{
+  use_1904_epoch_ = true;
+}
+
+void workbook_t::set_max_url_length(uint16_t max_url_length)
+{
+  max_url_length_ = max_url_length;
+}
+
+void workbook_t::set_size(uint16_t width, uint16_t height)
+{
+  // Convert the width/height to twips at 96 dpi.
+  if(width)
+  {
+    window_width_ = width * 1440 / 96;
+  }
+
+  if(height)
+  {
+    window_height_ = height * 1440 / 96;
+  }
+}
+
+worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
+{
+  // Check that the worksheet name is valid.
+  validate_sheetname(sheetname);
+
+  const worksheet_init_data_t init_data{
+    .index_              = num_sheets_,
+    .hidden_             = 0,
+    .active_sheet_       = &active_sheet_,
+    .first_sheet_        = &first_sheet_,
+    .sst_                = &sst_,
+    .name_               = std::string{sheetname},
+    .quoted_name_        = quote_sheetname(sheetname),
+    .default_url_format_ = default_url_format_,
+    .max_url_length_     = max_url_length_,
+    .use_1904_epoch_     = use_1904_epoch_,
+  };
+
+  sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1),
+                                   std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1)});
+  num_worksheets_++;
+  num_sheets_++;
+
+  worksheet_names_[to_lower(init_data.name_)] = &std::get<worksheet_t>(sheets_.back());
+
+  return std::get<worksheet_t>(sheets_.back());
+}
+
+worksheet_t& workbook_t::add_worksheet()
+{
+  const std::string sheetname = "Sheet" + std::to_string(num_worksheets_ + 1);
+  return add_worksheet(sheetname);
+}
+
+chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
+{
+  // Check that the worksheet name is valid.
+  validate_sheetname(sheetname);
+
+  const worksheet_init_data_t init_data{
+    .index_              = num_sheets_,
+    .hidden_             = 0,
+    .active_sheet_       = &active_sheet_,
+    .first_sheet_        = &first_sheet_,
+    .sst_                = &sst_,
+    .name_               = std::string{sheetname},
+    .quoted_name_        = quote_sheetname(sheetname),
+    .default_url_format_ = default_url_format_,
+    .max_url_length_     = max_url_length_,
+    .use_1904_epoch_     = use_1904_epoch_,
+  };
+
+  sheets_.emplace_back(chartsheet_t{init_data});
+  num_chartsheets_++;
+  num_sheets_++;
+
+  chartsheet_names_[to_lower(init_data.name_)] = &std::get<chartsheet_t>(sheets_.back());
+
+  return std::get<chartsheet_t>(sheets_.back());
+}
+
+chartsheet_t& workbook_t::add_chartsheet()
+{
+  const std::string sheetname = "Chart" + std::to_string(num_chartsheets_ + 1);
+  return add_chartsheet(sheetname);
+}
+
+const worksheet_t* workbook_t::get_worksheet_by_name(std::string_view name) const
+{
+  if(name.empty())
+  {
+    return nullptr;
+  }
+
+  const auto it = worksheet_names_.find(to_lower(std::string{name}));
+  if(it != std::end(worksheet_names_))
+  {
+    return it->second;
+  }
+
+  return nullptr;
+}
+
+const chartsheet_t* workbook_t::get_chartsheet_by_name(std::string_view name) const
+{
+  if(name.empty())
+  {
+    return nullptr;
+  }
+
+  const auto it = chartsheet_names_.find(to_lower(std::string{name}));
+  if(it != std::end(chartsheet_names_))
+  {
+    return it->second;
+  }
+
+  return nullptr;
+}
+
+void workbook_t::validate_sheetname(std::string_view sheetname) const
+{
+  // Check for empty worksheet name.
+  if(sheetname.empty())
+  {
+    throw xwpp_exception_t("workbook_t::validate_sheetname(): sheetname is empty.");
+  }
+
+  // Check the length of the worksheet name.
+  if(sheetname.size() > XWPP_SHEETNAME_MAX)
+  {
+    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' is too long.", sheetname));
+  }
+
+  // Check that the worksheet name doesn't contain invalid characters.
+  if(sheetname.find_first_of("[]:*?/\\") != std::string::npos)
+  {
+    throw xwpp_exception_t(
+      std::format("workbook_t::validate_sheetname(): sheetname '{}' contains invalid characters.", sheetname));
+  }
+
+  // Check that the worksheet doesn't start or end with an apostrophe.
+  if(sheetname[0] == '\'' || sheetname[sheetname.size() - 1] == '\'')
+  {
+    throw xwpp_exception_t(
+      std::format("workbook_t::validate_sheetname(): sheetname '{}' contains unbalanced single quote.", sheetname));
+  }
+
+  // Check if the worksheet name is already in use.
+  if(get_worksheet_by_name(sheetname) != nullptr)
+  {
+    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used.", sheetname));
+  }
+
+  // Check if the chartsheet name is already in use.
+  if(get_chartsheet_by_name(sheetname) != nullptr)
+  {
+    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used.", sheetname));
+  }
+}
+
+// TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
+// TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship).
+format_t* workbook_t::add_format()
+{
+  formats_.emplace_back(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
+
+  return &formats_.back();
+}
+
+format_t* workbook_t::get_default_url_format() const
+{
+  return default_url_format_;
+}
+
+void workbook_t::unset_default_url_format()
+{
+  default_url_format_->hyperlink_ = false;
+  default_url_format_->xf_id_     = 0;
+  default_url_format_->underline_ = format_underlines_t::NONE;
+  default_url_format_->theme_     = 0;
+}
+
+// TODO No need to create chart through workbook. Can be autonomous object and be added
+// to worksheet with insert_chart API (without duplication check).
+chart_t& workbook_t::add_chart(chart_type_t chart_type)
+{
+  if(chart_type == chart_type_t::NONE)
+  {
+    throw xwpp_exception_t("workbook_t::add_chart: chart type set to 'none'.");
+  }
+
+  chart_t chart(chart_type);
+
+  charts_.emplace_back(chart);
+  return charts_.back();
+}
+
+void workbook_t::add_vba_project(const std::string& filename)
+{
+  if(filename.empty())
+  {
+    throw xwpp_exception_t("workbook_t::add_vba_project(): project filename must be specified.");
+  }
+
+  // Check that the VBA file exists and can be opened.
+  {
+    std::ifstream vba_stream(filename);
+    if(!vba_stream)
+    {
+      throw xwpp_exception_t(
+        std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened.", filename));
+    }
+  }
+
+  vba_project_ = filename;
+}
+
+void workbook_t::add_signed_vba_project(const std::string& vba_project, const std::string& signature)
+{
+  add_vba_project(vba_project);
+
+  if(signature.empty())
+  {
+    throw xwpp_exception_t("workbook_t::add_signed_vba_project(): signature filename must be specified.");
+  }
+
+  // Check that the vbaProjectSignature file exists and can be opened.
+  {
+    std::ifstream signature_file(signature);
+    if(!signature_file)
+    {
+      throw xwpp_exception_t(std::format(
+        "workbook_t::add_signed_vba_project(): signature file {} doesn't exist or can't be opened.", signature));
+    }
+  }
+
+  vba_project_signature_ = signature;
+}
+
+void workbook_t::set_vba_name(const std::string& name)
+{
+  if(name.empty())
+  {
+    throw xwpp_exception_t("workbook_t::set_vba_name(): 'name' cannot be an empty string.");
+  }
+
+  vba_codename_ = name;
+}
+
+void workbook_t::define_name(const std::string& name, const std::string& formula)
+{
+  store_defined_name(name, "", formula, -1, false);
+}
 
 void workbook_t::set_default_xf_indices()
 {
@@ -46,11 +503,95 @@ void workbook_t::set_default_xf_indices()
   }
 }
 
+std::string workbook_t::assemble_xml_file()
+{
+  // Prepare workbook and sub-objects for writing.
+  prepare_workbook();
+
+  std::string xml_data = xml_declaration();
+  xml_data += write_workbook();
+  xml_data += write_file_version();
+  xml_data += write_file_sharing();
+  xml_data += write_workbook_pr();
+  xml_data += write_book_views();
+  xml_data += write_sheets();
+  xml_data += write_defined_names();
+  xml_data += write_calc_pr();
+  xml_data += xml_end_tag("workbook");
+
+  return xml_data;
+}
+
+int32_t workbook_t::get_xf_index(format_t* format)
+{
+  // Format already has an index number so return it.
+  if(format->xf_index_ != format_t::PROPERTY_UNSET)
+  {
+    return format->xf_index_;
+  }
+
+  for(const auto fmt: used_xf_formats_)
+  {
+    if(fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
+       fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
+       fmt->num_format_index_ == format->num_format_index_ && fmt->font_index_ == format->font_index_ &&
+       fmt->has_font_ == format->has_font_ && fmt->has_dxf_font_ == format->has_dxf_font_ &&
+       fmt->font_size_ == format->font_size_ && fmt->bold_ == format->bold_ && fmt->italic_ == format->italic_ &&
+       fmt->font_color_ == format->font_color_ && fmt->underline_ == format->underline_ &&
+       fmt->font_strikeout_ == format->font_strikeout_ && fmt->font_outline_ == format->font_outline_ &&
+       fmt->font_shadow_ == format->font_shadow_ && fmt->font_script_ == format->font_script_ &&
+       fmt->font_family_ == format->font_family_ && fmt->font_charset_ == format->font_charset_ &&
+       fmt->font_condense_ == format->font_condense_ && fmt->font_extend_ == format->font_extend_ &&
+       fmt->theme_ == format->theme_ && fmt->hyperlink_ == format->hyperlink_ && fmt->hidden_ == format->hidden_ &&
+       fmt->locked_ == format->locked_ && fmt->text_h_align_ == format->text_h_align_ &&
+       fmt->text_wrap_ == format->text_wrap_ && fmt->text_v_align_ == format->text_v_align_ &&
+       fmt->text_justlast_ == format->text_justlast_ && fmt->rotation_ == format->rotation_ &&
+       fmt->fg_color_ == format->fg_color_ && fmt->bg_color_ == format->bg_color_ &&
+       fmt->dxf_fg_color_ == format->dxf_fg_color_ && fmt->dxf_bg_color_ == format->dxf_bg_color_ &&
+       fmt->pattern_ == format->pattern_ && fmt->has_fill_ == format->has_fill_ &&
+       fmt->has_dxf_fill_ == format->has_dxf_fill_ && fmt->fill_index_ == format->fill_index_ &&
+       fmt->fill_count_ == format->fill_count_ && fmt->border_index_ == format->border_index_ &&
+       fmt->has_border_ == format->has_border_ && fmt->has_dxf_border_ == format->has_dxf_border_ &&
+       fmt->border_count_ == format->border_count_ && fmt->bottom_ == format->bottom_ &&
+       fmt->diag_border_ == format->diag_border_ && fmt->diag_type_ == format->diag_type_ &&
+       fmt->left_ == format->left_ && fmt->right_ == format->right_ && fmt->top_ == format->top_ &&
+       fmt->bottom_color_ == format->bottom_color_ && fmt->diag_color_ == format->diag_color_ &&
+       fmt->left_color_ == format->left_color_ && fmt->right_color_ == format->right_color_ &&
+       fmt->top_color_ == format->top_color_ && fmt->indent_ == format->indent_ && fmt->shrink_ == format->shrink_ &&
+       fmt->merge_range_ == format->merge_range_ && fmt->reading_order_ == format->reading_order_ &&
+       fmt->just_distrib_ == format->just_distrib_ && fmt->color_indexed_ == format->color_indexed_ &&
+       fmt->font_only_ == format->font_only_ && fmt->quote_prefix_ == format->quote_prefix_)
+    {
+      return fmt->xf_index_;
+    }
+  }
+
+  format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
+  used_xf_formats_.push_back(format);
+
+  return format->xf_index_;
+}
+
+int32_t workbook_t::get_dxf_index(format_t* format)
+{
+  // Format already has an index number so return it.
+  if(format->dxf_index_ != format_t::PROPERTY_UNSET)
+  {
+    return format->dxf_index_;
+  }
+
+  // TODO Add search to be sure there is no duplication.
+  format->dxf_index_ = static_cast<int32_t>(used_dxf_formats_.size());
+  used_dxf_formats_.push_back(format);
+
+  return format->dxf_index_;
+}
+
 void workbook_t::prepare_fonts()
 {
   std::vector<format_t*> fonts;
 
-  // TODO Use unordered_set to optimise this search
+  // TODO Use unordered_set to optimise this search.
   for(const auto format: used_xf_formats_)
   {
     for(const auto font: fonts)
@@ -91,134 +632,11 @@ void workbook_t::prepare_fonts()
   font_count_ = static_cast<uint16_t>(fonts.size());
 }
 
-void workbook_t::prepare_borders()
-{
-  std::vector<format_t*> borders;
-
-  // TODO Use unordered_set to optimise this search
-  for(const auto format: used_xf_formats_)
-  {
-    for(const auto border: borders)
-    {
-      if(format->bottom_ == border->bottom_ && format->left_ == border->left_ && format->right_ == border->right_ &&
-         format->top_ == border->top_ && format->diag_border_ == border->diag_border_ &&
-         format->diag_type_ == border->diag_type_ && format->bottom_color_ == border->bottom_color_ &&
-         format->left_color_ == border->left_color_ && format->right_color_ == border->right_color_ &&
-         format->top_color_ == border->top_color_ && format->diag_color_ == border->diag_color_)
-      {
-        // Font has already been used.
-        format->border_index_ = border->border_index_;
-        format->has_border_   = false;
-      }
-    }
-
-    if(format->border_index_ == format_t::PROPERTY_UNSET)
-    {
-      format->border_index_ = static_cast<int32_t>(borders.size());
-      format->has_border_   = true;
-      borders.push_back(format);
-    }
-  }
-
-  // For DXF formats we only need to check if the properties have changed.
-  for(const auto format: used_dxf_formats_)
-  {
-    if(format->left_ != format_borders_t::NONE || format->right_ != format_borders_t::NONE ||
-       format->top_ != format_borders_t::NONE || format->bottom_ != format_borders_t::NONE)
-    {
-      format->has_dxf_border_ = true;
-    }
-  }
-
-  border_count_ = static_cast<uint16_t>(borders.size());
-}
-
-void workbook_t::prepare_fills()
-{
-  std::vector<format_t*> fills;
-
-  // Add the default fills.
-  format_t default_fill_1(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
-  default_fill_1.fg_color_   = color_t::UNSET;
-  default_fill_1.bg_color_   = color_t::UNSET;
-  default_fill_1.pattern_    = format_patterns_t::NONE;
-  default_fill_1.fill_index_ = 0;
-  fills.push_back(&default_fill_1);
-  format_t default_fill_2(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
-  default_fill_2.fg_color_   = color_t::UNSET;
-  default_fill_2.bg_color_   = color_t::UNSET;
-  default_fill_2.pattern_    = format_patterns_t::GRAY_125;
-  default_fill_2.fill_index_ = 1;
-  fills.push_back(&default_fill_2);
-
-  // For DXF formats we only need to check if the properties have changed.
-  for(auto format: used_dxf_formats_)
-  {
-    if(format->pattern_ != format_patterns_t::NONE || format->bg_color_ != color_t::UNSET ||
-       format->fg_color_ != color_t::UNSET)
-    {
-      format->has_dxf_fill_ = true;
-      format->dxf_bg_color_ = format->bg_color_;
-      format->dxf_fg_color_ = format->fg_color_;
-    }
-  }
-
-  // TODO Use unordered_set to optimise this search
-  for(auto format: used_xf_formats_)
-  {
-    /* The following logical statements jointly take care of special */
-    /* cases in relation to cell colors and patterns:                */
-    /* 1. For a solid fill (pattern == 1) Excel reverses the role of */
-    /*    foreground and background colors, and                      */
-    /* 2. If the user specifies a foreground or background color     */
-    /*    without a pattern they probably wanted a solid fill, so    */
-    /*    we fill in the defaults.
-     */
-    if(format->pattern_ == format_patterns_t::SOLID && format->bg_color_ != color_t::UNSET &&
-       format->fg_color_ != color_t::UNSET)
-    {
-      std::swap(format->bg_color_, format->fg_color_);
-    }
-    else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
-            format->bg_color_ != color_t::UNSET && format->fg_color_ == color_t::UNSET)
-    {
-      std::swap(format->bg_color_, format->fg_color_);
-      format->pattern_ = format_patterns_t::SOLID;
-    }
-    else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
-            format->bg_color_ == color_t::UNSET && format->fg_color_ != color_t::UNSET)
-    {
-      format->pattern_ = format_patterns_t::SOLID;
-    }
-
-    for(const auto fill: fills)
-    {
-      if(format->bg_color_ == fill->bg_color_ && format->fg_color_ == fill->fg_color_ &&
-         format->pattern_ == fill->pattern_)
-      {
-        // Font has already been used.
-        format->fill_index_ = fill->fill_index_;
-        format->has_fill_   = false;
-      }
-    }
-
-    if(format->fill_index_ == format_t::PROPERTY_UNSET)
-    {
-      format->fill_index_ = static_cast<int32_t>(fills.size());
-      format->has_fill_   = true;
-      fills.push_back(format);
-    }
-  }
-
-  fill_count_ = static_cast<uint16_t>(fills.size());
-  ;
-}
-
 void workbook_t::prepare_num_formats()
 {
   std::vector<format_t*> num_formats;
 
-  // TODO Use unordered_set to optimise this search
+  // TODO Use unordered_set to optimise this search.
   for(const auto format: used_xf_formats_)
   {
     // Format already has a number format index.
@@ -281,12 +699,96 @@ void workbook_t::prepare_num_formats()
   }
 }
 
-void workbook_t::prepare_workbook()
+void workbook_t::prepare_borders()
 {
-  prepare_fonts();
-  prepare_num_formats();
-  prepare_borders();
-  prepare_fills();
+  std::vector<format_t*> borders;
+
+  // TODO Use unordered_set to optimise this search.
+  for(const auto format: used_xf_formats_)
+  {
+    for(const auto border: borders)
+    {
+      if(format->bottom_ == border->bottom_ && format->left_ == border->left_ && format->right_ == border->right_ &&
+         format->top_ == border->top_ && format->diag_border_ == border->diag_border_ &&
+         format->diag_type_ == border->diag_type_ && format->bottom_color_ == border->bottom_color_ &&
+         format->left_color_ == border->left_color_ && format->right_color_ == border->right_color_ &&
+         format->top_color_ == border->top_color_ && format->diag_color_ == border->diag_color_)
+      {
+        // Font has already been used.
+        format->border_index_ = border->border_index_;
+        format->has_border_   = false;
+      }
+    }
+
+    if(format->border_index_ == format_t::PROPERTY_UNSET)
+    {
+      format->border_index_ = static_cast<int32_t>(borders.size());
+      format->has_border_   = true;
+      borders.push_back(format);
+    }
+  }
+
+  // For DXF formats we only need to check if the properties have changed.
+  for(const auto format: used_dxf_formats_)
+  {
+    if(format->left_ != format_borders_t::NONE || format->right_ != format_borders_t::NONE ||
+       format->top_ != format_borders_t::NONE || format->bottom_ != format_borders_t::NONE)
+    {
+      format->has_dxf_border_ = true;
+    }
+  }
+
+  border_count_ = static_cast<uint16_t>(borders.size());
+}
+
+void workbook_t::prepare_vml()
+{
+  uint32_t comment_id     = 0;
+  uint32_t vml_drawing_id = 0;
+  uint32_t vml_data_id    = 1;
+  uint32_t vml_header_id  = 0;
+  uint32_t vml_shape_id   = 1024;
+  uint32_t comment_count  = 0;
+
+  for(auto& sheet: sheets_)
+  {
+    if(std::holds_alternative<worksheet_t>(sheet))
+    {
+      auto& ws = std::get<worksheet_t>(sheet);
+
+      if(!ws.has_vml_ && !ws.has_header_vml_)
+      {
+        continue;
+      }
+
+      if(ws.has_vml_)
+      {
+        has_vml_ = true;
+        if(ws.has_comments_)
+        {
+          comment_count_++;
+          comment_id++;
+          has_comments_ = true;
+        }
+
+        vml_drawing_id++;
+
+        comment_count = ws.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
+
+        // Each VML should start with a shape id incremented by 1024.
+        vml_data_id += 1 * ((1024 + comment_count) / 1024);
+        vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
+      }
+
+      if(ws.has_header_vml_)
+      {
+        has_vml_ = true;
+        vml_drawing_id++;
+        vml_header_id++;
+        ws.prepare_header_vml_objects(vml_header_id, vml_drawing_id);
+      }
+    }
+  }
 }
 
 /*
@@ -299,7 +801,7 @@ void workbook_t::prepare_workbook()
 void workbook_t::store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
                                     int16_t index, bool hidden)
 {
-  // Do some checks on the input data
+  // Do some checks on the input data.
   if(name.empty() || formula.empty())
   {
     throw xwpp_exception_t("workbook_t::store_defined_name(): 'name' and 'formula' cannot be empty");
@@ -359,7 +861,7 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
     if(defined_name.index_ == -1)
     {
       throw xwpp_exception_t(
-          std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
+        std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
     }
 
     defined_name.name_ = tmp_str;
@@ -422,194 +924,84 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
     }
   }
 
-  // Insert at the end otherwise
+  // Insert at the end otherwise.
   defined_names_.push_back(defined_name);
 }
 
-/*
- * Populate the data cache of a chart data series by reading the data from the
- * relevant worksheet and adding it to the cached in the range object as a
- * list of points.
- *
- * Note, the data cache isn't strictly required by Excel but it helps if the
- * chart is embedded in another application such as PowerPoint and it also
- * helps with comparison testing.
- */
-void workbook_t::populate_range_data_cache(series_range_t& range)
+void workbook_t::prepare_defined_names()
 {
-  uint16_t num_data_points = 0;
-
-  // If ignore_cache is set then don't try to populate the cache. This flag
-  // may be set manually, for testing, or due to a case where the cache can't be calculated.
-  if(range.ignore_cache_)
+  for(auto& sheet: sheets_)
   {
-    return;
-  }
-
-  // Currently we only handle 2D ranges so ensure either the rows or cols are the same.
-  if(range.first_row_ != range.last_row_ && range.first_col_ != range.last_col_)
-  {
-    range.ignore_cache_ = true;
-    return;
-  }
-
-  // Check that the sheetname exists.
-  const worksheet_t* worksheet = get_worksheet_by_name(range.sheetname_);
-  if(worksheet == nullptr)
-  {
-    range.ignore_cache_ = true;
-    throw xwpp_exception_t(
-        std::format("workbook_t::populate_range_data_cache(): sheetname '{}' in chart formula '{}' doesn't exist",
-                    range.sheetname_, range.formula_));
-  }
-
-  // Iterate through the worksheet data and populate the range cache.
-  for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
-  {
-    const row_t* row_obj = worksheet->find_row(row_num);
-    for(col_num_t col_num = range.first_col_; col_num <= range.last_col_; col_num++)
+    if(std::holds_alternative<worksheet_t>(sheet))
     {
-      series_data_point_t data_point;
-      const cell_t* cell_obj = worksheet->find_cell_in_row(row_obj, col_num);
+      auto& ws = std::get<worksheet_t>(sheet);
 
-      if(cell_obj)
+      // Check for autofilter settings and store them.
+      if(ws.autofilter_.in_use_)
       {
-        if(cell_obj->type_ == cell_types_t::NUMBER_CELL)
-        {
-          data_point.number_ = std::get<double>(cell_obj->data_);
-        }
+        std::string area = rowcol_to_range_abs(ws.autofilter_.first_row_, ws.autofilter_.first_col_,
+                                               ws.autofilter_.last_row_, ws.autofilter_.last_col_);
 
-        if(cell_obj->type_ == cell_types_t::STRING_CELL)
-        {
-          data_point.str_         = cell_obj->sst_string_;
-          data_point.is_string_   = true;
-          range.has_string_cache_ = true;
-        }
-      }
-      else
-      {
-        data_point.no_data_ = true;
+        // Autofilters are the only defined name to set the hidden flag.
+        store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", ws.quoted_name_),
+                           std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
       }
 
-      range.data_cache_.push_back(data_point);
-      num_data_points++;
-    }
-  }
-  range.num_data_points_ = num_data_points;
-}
-
-/* Convert a chart range such as Sheet1!$A$1:$A$5 to a sheet name and row-col
- * dimensions, or vice-versa. This gives us the dimensions to read data back
- * from the worksheet.
- */
-void workbook_t::populate_range_dimensions(series_range_t& range)
-{
-  // If neither the range formula or sheetname is defined then this probably
-  // isn't a valid range.
-  if(range.formula_.empty() && range.sheetname_.empty())
-  {
-    range.ignore_cache_ = true;
-    return;
-  }
-
-  // If the sheetname is already defined it was already set via
-  // chart_series_set_categories() or  chart_series_set_values().
-  if(!range.sheetname_.empty())
-  {
-    return;
-  }
-
-  // Ignore non-contiguous range like (Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5)
-  if(range.formula_[0] == '(')
-  {
-    range.ignore_cache_ = true;
-    return;
-  }
-
-  // Create a copy of the formula to modify and parse into parts.
-  std::string formula = range.formula_;
-
-  // Check for valid formula. Note, This needs stronger validation.
-  size_t found_string = formula.find('!');
-  if(found_string == std::string::npos)
-  {
-    range.ignore_cache_ = true;
-    return;
-  }
-  else
-  {
-    // Split the formulas into sheetname and row-col data.
-    std::string sheetname = formula.substr(0, found_string);
-    std::string tmp_str   = formula.substr(found_string + 1);
-
-    if(tmp_str.empty() || sheetname.empty())
-    {
-      range.ignore_cache_ = true;
-      return;
-    }
-
-    // Remove any worksheet quoting.
-    if(sheetname.front() == '\'')
-    {
-      sheetname = sheetname.substr(1);
-    }
-    if(sheetname.back() == '\'')
-    {
-      sheetname.pop_back();
-    }
-
-    // Check that the sheetname exists.
-    if(get_worksheet_by_name(sheetname) == nullptr)
-    {
-      throw xwpp_exception_t(
-          std::format("workbook_t::populate_range_dimensions(): sheetname '{}' in chart formula '{}' doesn't exist",
-                      sheetname, range.formula_));
-    }
-
-    range.sheetname_ = sheetname;
-    range.first_row_ = name_to_row(tmp_str.c_str());
-    range.first_col_ = name_to_col(tmp_str.c_str());
-
-    found_string = formula.find(':');
-    if(found_string == std::string::npos)
-    {
-      // 1D range.
-      range.last_row_ = range.first_row_;
-      range.last_col_ = range.first_col_;
-    }
-    else
-    {
-      // 2D range.
-      range.last_row_ = name_to_row_2(tmp_str.c_str());
-      range.last_col_ = name_to_col_2(tmp_str.c_str());
-    }
-  }
-}
-
-void workbook_t::populate_range(series_range_t& range)
-{
-  populate_range_dimensions(range);
-  populate_range_data_cache(range);
-}
-
-void workbook_t::add_chart_cache_data()
-{
-  for(auto chart: ordered_charts_)
-  {
-    populate_range(chart->title_.range_);
-    populate_range(chart->x_axis_.title_.range_);
-    populate_range(chart->y_axis_.title_.range_);
-
-    for(auto& series: chart->series_list_)
-    {
-      populate_range(series.categories_);
-      populate_range(series.values_);
-      populate_range(series.title_.range_);
-      for(auto& data_label: series.data_labels_)
+      // Check for Print Area settings and store them.
+      if(ws.print_area_.in_use_)
       {
-        if(data_label.range_)
+        std::string area;
+
+        // Check for print area that is the max row range.
+        if(ws.print_area_.first_row_ == 0 && ws.print_area_.last_row_ == worksheet_t::ROW_MAX - 1)
         {
-          populate_range(*data_label.range_);
+          const std::string first_col = col_to_name(ws.print_area_.first_col_, false);
+          const std::string last_col  = col_to_name(ws.print_area_.last_col_, false);
+          area                        = std::format("${}:${}", first_col, last_col);
+        }
+        // Check for print area that is the max column range.
+        else if(ws.print_area_.first_col_ == 0 && ws.print_area_.last_col_ == worksheet_t::COL_MAX - 1)
+        {
+          area = std::format("${}:${}", ws.print_area_.first_row_ + 1, ws.print_area_.last_row_ + 1);
+        }
+        else
+        {
+          area = rowcol_to_range_abs(ws.print_area_.first_row_, ws.print_area_.first_col_, ws.print_area_.last_row_,
+                                     ws.print_area_.last_col_);
+        }
+
+        const std::string app_name = std::format("{}!Print_Area", ws.quoted_name_);
+        const std::string range    = std::format("{}!{}", ws.quoted_name_, area);
+        store_defined_name("_xlnm.Print_Area", app_name, range, ws.index_, false);
+      }
+
+      // Check for repeat rows/cols. aka, Print Titles and store them.
+      if(ws.repeat_rows_.in_use_ || ws.repeat_cols_.in_use_)
+      {
+        if(ws.repeat_rows_.in_use_ && ws.repeat_cols_.in_use_)
+        {
+          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
+          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
+          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
+          const std::string range =
+            std::format("{}!${}:${},{}!${}:${}", ws.quoted_name_, first_col, last_col, ws.quoted_name_,
+                        ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+        }
+        else if(ws.repeat_rows_.in_use_)
+        {
+          const std::string app_name = std::format("{}!Print_Titles", ws.quoted_name_);
+          const std::string range =
+            std::format("{}!${}:${}", ws.quoted_name_, ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+        }
+        else if(ws.repeat_cols_.in_use_)
+        {
+          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
+          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
+          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
+          const std::string range     = std::format("{}!${}:${}", ws.quoted_name_, first_col, last_col);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
         }
       }
     }
@@ -783,130 +1175,190 @@ void workbook_t::prepare_drawings()
   drawing_count_ = static_cast<uint16_t>(drawing_id);
 }
 
-void workbook_t::prepare_vml()
+/* Convert a chart range such as Sheet1!$A$1:$A$5 to a sheet name and row-col
+ * dimensions, or vice-versa. This gives us the dimensions to read data back
+ * from the worksheet.
+ */
+void workbook_t::populate_range_dimensions(series_range_t& range)
 {
-  uint32_t comment_id     = 0;
-  uint32_t vml_drawing_id = 0;
-  uint32_t vml_data_id    = 1;
-  uint32_t vml_header_id  = 0;
-  uint32_t vml_shape_id   = 1024;
-  uint32_t comment_count  = 0;
-
-  for(auto& sheet: sheets_)
+  // If neither the range formula or sheetname is defined then this probably
+  // isn't a valid range.
+  if(range.formula_.empty() && range.sheetname_.empty())
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    range.ignore_cache_ = true;
+    return;
+  }
+
+  // If the sheetname is already defined it was already set via
+  // chart_series_set_categories() or  chart_series_set_values().
+  if(!range.sheetname_.empty())
+  {
+    return;
+  }
+
+  // Ignore non-contiguous range like (Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5).
+  if(range.formula_[0] == '(')
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
+
+  // Create a copy of the formula to modify and parse into parts.
+  std::string formula = range.formula_;
+
+  // Check for valid formula. Note, This needs stronger validation.
+  size_t found_string = formula.find('!');
+  if(found_string == std::string::npos)
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
+  else
+  {
+    // Split the formulas into sheetname and row-col data.
+    std::string sheetname = formula.substr(0, found_string);
+    std::string tmp_str   = formula.substr(found_string + 1);
+
+    if(tmp_str.empty() || sheetname.empty())
     {
-      auto& ws = std::get<worksheet_t>(sheet);
+      range.ignore_cache_ = true;
+      return;
+    }
 
-      if(!ws.has_vml_ && !ws.has_header_vml_)
-      {
-        continue;
-      }
+    // Remove any worksheet quoting.
+    if(sheetname.front() == '\'')
+    {
+      sheetname = sheetname.substr(1);
+    }
+    if(sheetname.back() == '\'')
+    {
+      sheetname.pop_back();
+    }
 
-      if(ws.has_vml_)
-      {
-        has_vml_ = true;
-        if(ws.has_comments_)
-        {
-          comment_count_++;
-          comment_id++;
-          has_comments_ = true;
-        }
+    // Check that the sheetname exists.
+    if(get_worksheet_by_name(sheetname) == nullptr)
+    {
+      throw xwpp_exception_t(
+        std::format("workbook_t::populate_range_dimensions(): sheetname '{}' in chart formula '{}' doesn't exist.",
+                    sheetname, range.formula_));
+    }
 
-        vml_drawing_id++;
+    range.sheetname_ = sheetname;
+    range.first_row_ = name_to_row(tmp_str.c_str());
+    range.first_col_ = name_to_col(tmp_str.c_str());
 
-        comment_count = ws.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
-
-        // Each VML should start with a shape id incremented by 1024.
-        vml_data_id += 1 * ((1024 + comment_count) / 1024);
-        vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
-      }
-
-      if(ws.has_header_vml_)
-      {
-        has_vml_ = true;
-        vml_drawing_id++;
-        vml_header_id++;
-        ws.prepare_header_vml_objects(vml_header_id, vml_drawing_id);
-      }
+    found_string = formula.find(':');
+    if(found_string == std::string::npos)
+    {
+      // 1D range.
+      range.last_row_ = range.first_row_;
+      range.last_col_ = range.first_col_;
+    }
+    else
+    {
+      // 2D range.
+      range.last_row_ = name_to_row_2(tmp_str.c_str());
+      range.last_col_ = name_to_col_2(tmp_str.c_str());
     }
   }
 }
 
-void workbook_t::prepare_defined_names()
+/*
+ * Populate the data cache of a chart data series by reading the data from the
+ * relevant worksheet and adding it to the cached in the range object as a
+ * list of points.
+ *
+ * Note, the data cache isn't strictly required by Excel but it helps if the
+ * chart is embedded in another application such as PowerPoint and it also
+ * helps with comparison testing.
+ */
+void workbook_t::populate_range_data_cache(series_range_t& range)
 {
-  for(auto& sheet: sheets_)
+  uint16_t num_data_points = 0;
+
+  // If ignore_cache is set then don't try to populate the cache. This flag
+  // may be set manually, for testing, or due to a case where the cache can't be calculated.
+  if(range.ignore_cache_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    return;
+  }
+
+  // Currently we only handle 2D ranges so ensure either the rows or cols are the same.
+  if(range.first_row_ != range.last_row_ && range.first_col_ != range.last_col_)
+  {
+    range.ignore_cache_ = true;
+    return;
+  }
+
+  // Check that the sheetname exists.
+  const worksheet_t* worksheet = get_worksheet_by_name(range.sheetname_);
+  if(worksheet == nullptr)
+  {
+    range.ignore_cache_ = true;
+    throw xwpp_exception_t(
+      std::format("workbook_t::populate_range_data_cache(): sheetname '{}' in chart formula '{}' doesn't exist.",
+                  range.sheetname_, range.formula_));
+  }
+
+  // Iterate through the worksheet data and populate the range cache.
+  for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
+  {
+    const row_t* row_obj = worksheet->find_row(row_num);
+    for(col_num_t col_num = range.first_col_; col_num <= range.last_col_; col_num++)
     {
-      auto& ws = std::get<worksheet_t>(sheet);
+      series_data_point_t data_point;
+      const cell_t* cell_obj = worksheet->find_cell_in_row(row_obj, col_num);
 
-      // Check for autofilter settings and store them.
-      if(ws.autofilter_.in_use_)
+      if(cell_obj)
       {
-        std::string area = rowcol_to_range_abs(ws.autofilter_.first_row_, ws.autofilter_.first_col_,
-                                               ws.autofilter_.last_row_, ws.autofilter_.last_col_);
+        if(cell_obj->type_ == cell_types_t::NUMBER_CELL)
+        {
+          data_point.number_ = std::get<double>(cell_obj->data_);
+        }
 
-        // Autofilters are the only defined name to set the hidden flag.
-        store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", ws.quoted_name_),
-                           std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
+        if(cell_obj->type_ == cell_types_t::STRING_CELL)
+        {
+          data_point.str_         = cell_obj->sst_string_;
+          data_point.is_string_   = true;
+          range.has_string_cache_ = true;
+        }
+      }
+      else
+      {
+        data_point.no_data_ = true;
       }
 
-      // Check for Print Area settings and store them.
-      if(ws.print_area_.in_use_)
+      range.data_cache_.push_back(data_point);
+      num_data_points++;
+    }
+  }
+  range.num_data_points_ = num_data_points;
+}
+
+void workbook_t::populate_range(series_range_t& range)
+{
+  populate_range_dimensions(range);
+  populate_range_data_cache(range);
+}
+
+void workbook_t::add_chart_cache_data()
+{
+  for(auto chart: ordered_charts_)
+  {
+    populate_range(chart->title_.range_);
+    populate_range(chart->x_axis_.title_.range_);
+    populate_range(chart->y_axis_.title_.range_);
+
+    for(auto& series: chart->series_list_)
+    {
+      populate_range(series.categories_);
+      populate_range(series.values_);
+      populate_range(series.title_.range_);
+      for(auto& data_label: series.data_labels_)
       {
-        std::string area;
-
-        // Check for print area that is the max row range.
-        if(ws.print_area_.first_row_ == 0 && ws.print_area_.last_row_ == worksheet_t::ROW_MAX - 1)
+        if(data_label.range_)
         {
-          const std::string first_col = col_to_name(ws.print_area_.first_col_, false);
-          const std::string last_col  = col_to_name(ws.print_area_.last_col_, false);
-          area                        = std::format("${}:${}", first_col, last_col);
-        }
-        // Check for print area that is the max column range.
-        else if(ws.print_area_.first_col_ == 0 && ws.print_area_.last_col_ == worksheet_t::COL_MAX - 1)
-        {
-          area = std::format("${}:${}", ws.print_area_.first_row_ + 1, ws.print_area_.last_row_ + 1);
-        }
-        else
-        {
-          area = rowcol_to_range_abs(ws.print_area_.first_row_, ws.print_area_.first_col_, ws.print_area_.last_row_,
-                                     ws.print_area_.last_col_);
-        }
-
-        const std::string app_name = std::format("{}!Print_Area", ws.quoted_name_);
-        const std::string range    = std::format("{}!{}", ws.quoted_name_, area);
-        store_defined_name("_xlnm.Print_Area", app_name, range, ws.index_, false);
-      }
-
-      // Check for repeat rows/cols. aka, Print Titles and store them.
-      if(ws.repeat_rows_.in_use_ || ws.repeat_cols_.in_use_)
-      {
-        if(ws.repeat_rows_.in_use_ && ws.repeat_cols_.in_use_)
-        {
-          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
-          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
-          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
-          const std::string range =
-              std::format("{}!${}:${},{}!${}:${}", ws.quoted_name_, first_col, last_col, ws.quoted_name_,
-                          ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
-        }
-        else if(ws.repeat_rows_.in_use_)
-        {
-          const std::string app_name = std::format("{}!Print_Titles", ws.quoted_name_);
-          const std::string range =
-              std::format("{}!${}:${}", ws.quoted_name_, ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
-        }
-        else if(ws.repeat_cols_.in_use_)
-        {
-          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
-          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
-          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
-          const std::string range     = std::format("{}!${}:${}", ws.quoted_name_, first_col, last_col);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+          populate_range(*data_label.range_);
         }
       }
     }
@@ -932,22 +1384,110 @@ void workbook_t::prepare_tables()
   }
 }
 
+void workbook_t::prepare_fills()
+{
+  std::vector<format_t*> fills;
+
+  // Add the default fills.
+  format_t default_fill_1(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
+  default_fill_1.fg_color_   = color_t::UNSET;
+  default_fill_1.bg_color_   = color_t::UNSET;
+  default_fill_1.pattern_    = format_patterns_t::NONE;
+  default_fill_1.fill_index_ = 0;
+  fills.push_back(&default_fill_1);
+  format_t default_fill_2(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
+  default_fill_2.fg_color_   = color_t::UNSET;
+  default_fill_2.bg_color_   = color_t::UNSET;
+  default_fill_2.pattern_    = format_patterns_t::GRAY_125;
+  default_fill_2.fill_index_ = 1;
+  fills.push_back(&default_fill_2);
+
+  // For DXF formats we only need to check if the properties have changed.
+  for(auto format: used_dxf_formats_)
+  {
+    if(format->pattern_ != format_patterns_t::NONE || format->bg_color_ != color_t::UNSET ||
+       format->fg_color_ != color_t::UNSET)
+    {
+      format->has_dxf_fill_ = true;
+      format->dxf_bg_color_ = format->bg_color_;
+      format->dxf_fg_color_ = format->fg_color_;
+    }
+  }
+
+  // TODO Use unordered_set to optimise this search.
+  for(auto format: used_xf_formats_)
+  {
+    /* The following logical statements jointly take care of special */
+    /* cases in relation to cell colors and patterns:                */
+    /* 1. For a solid fill (pattern == 1) Excel reverses the role of */
+    /*    foreground and background colors, and                      */
+    /* 2. If the user specifies a foreground or background color     */
+    /*    without a pattern they probably wanted a solid fill, so    */
+    /*    we fill in the defaults.
+     */
+    if(format->pattern_ == format_patterns_t::SOLID && format->bg_color_ != color_t::UNSET &&
+       format->fg_color_ != color_t::UNSET)
+    {
+      std::swap(format->bg_color_, format->fg_color_);
+    }
+    else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
+            format->bg_color_ != color_t::UNSET && format->fg_color_ == color_t::UNSET)
+    {
+      std::swap(format->bg_color_, format->fg_color_);
+      format->pattern_ = format_patterns_t::SOLID;
+    }
+    else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
+            format->bg_color_ == color_t::UNSET && format->fg_color_ != color_t::UNSET)
+    {
+      format->pattern_ = format_patterns_t::SOLID;
+    }
+
+    for(const auto fill: fills)
+    {
+      if(format->bg_color_ == fill->bg_color_ && format->fg_color_ == fill->fg_color_ &&
+         format->pattern_ == fill->pattern_)
+      {
+        // Font has already been used.
+        format->fill_index_ = fill->fill_index_;
+        format->has_fill_   = false;
+      }
+    }
+
+    if(format->fill_index_ == format_t::PROPERTY_UNSET)
+    {
+      format->fill_index_ = static_cast<int32_t>(fills.size());
+      format->has_fill_   = true;
+      fills.push_back(format);
+    }
+  }
+
+  fill_count_ = static_cast<uint16_t>(fills.size());
+}
+
+void workbook_t::prepare_workbook()
+{
+  prepare_fonts();
+  prepare_num_formats();
+  prepare_borders();
+  prepare_fills();
+}
+
 std::string workbook_t::write_workbook() const
 {
   return xml_start_tag("workbook", {
-                                       {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"      },
-                                       {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/"
-                                                   "relationships"},
+                                     {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"    },
+                                     {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/"
+                                                 "relationships"},
   });
 }
 
 std::string workbook_t::write_file_version() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
-      {"appName",      "xl"  },
-      {"lastEdited",   "4"   },
-      {"lowestEdited", "4"   },
-      {"rupBuild",     "4505"},
+    {"appName",      "xl"  },
+    {"lastEdited",   "4"   },
+    {"lowestEdited", "4"   },
+    {"rupBuild",     "4505"},
   };
 
   if(!vba_project_.empty())
@@ -966,7 +1506,7 @@ std::string workbook_t::write_file_sharing() const
   }
 
   return xml_empty_tag("fileSharing", {
-                                          {"readOnlyRecommended", "1"}
+                                        {"readOnlyRecommended", "1"}
   });
 }
 
@@ -992,10 +1532,10 @@ std::string workbook_t::write_workbook_pr() const
 std::string workbook_t::write_workbook_view() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
-      {"xWindow",      "240"                         },
-      {"yWindow",      "15"                          },
-      {"windowWidth",  std::to_string(window_width_) },
-      {"windowHeight", std::to_string(window_height_)},
+    {"xWindow",      "240"                         },
+    {"yWindow",      "15"                          },
+    {"windowWidth",  std::to_string(window_width_) },
+    {"windowHeight", std::to_string(window_height_)},
   };
 
   if(first_sheet_)
@@ -1023,8 +1563,8 @@ std::string workbook_t::write_book_views() const
 std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id, bool hidden) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
-      {"name", std::string(name)},
-      {"sheetId", std::format("{}", sheet_id)},
+    {"name", std::string(name)},
+    {"sheetId", std::format("{}", sheet_id)},
   };
 
   if(hidden)
@@ -1057,18 +1597,10 @@ std::string workbook_t::write_sheets() const
   return xml_data;
 }
 
-std::string workbook_t::write_calc_pr() const
-{
-  return xml_empty_tag("calcPr", {
-                                     {"calcId",         "124519"},
-                                     {"fullCalcOnLoad", "1"     },
-  });
-}
-
 std::string workbook_t::write_defined_name(const defined_name_t& defined_name) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
-      {"name", defined_name.name_}
+    {"name", defined_name.name_}
   };
 
   if(defined_name.index_ != -1)
@@ -1101,547 +1633,12 @@ std::string workbook_t::write_defined_names() const
   return xml_data;
 }
 
-std::string workbook_t::assemble_xml_file()
+std::string workbook_t::write_calc_pr() const
 {
-  // Prepare workbook and sub-objects for writing.
-  prepare_workbook();
-
-  std::string xml_data = xml_declaration();
-  xml_data += write_workbook();
-  xml_data += write_file_version();
-  xml_data += write_file_sharing();
-  xml_data += write_workbook_pr();
-  xml_data += write_book_views();
-  xml_data += write_sheets();
-  xml_data += write_defined_names();
-  xml_data += write_calc_pr();
-  xml_data += xml_end_tag("workbook");
-
-  return xml_data;
-}
-
-workbook_t::workbook_t(bool use_zip64)
-  : use_zip64_{use_zip64}
-{
-  // Add the default cell format.
-  auto format = add_format();
-  // Initialize its index.
-  get_xf_index(format);
-
-  // Add the default hyperlink format.
-  default_url_format_ = add_format();
-  default_url_format_->set_hyperlink();
-}
-
-worksheet_t& workbook_t::add_worksheet()
-{
-  const std::string sheetname = "Sheet" + std::to_string(num_worksheets_ + 1);
-  return add_worksheet(sheetname);
-}
-
-worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
-{
-  // Check that the worksheet name is valid.
-  validate_sheetname(sheetname);
-
-  const worksheet_init_data_t init_data{
-      .index_              = num_sheets_,
-      .hidden_             = 0,
-      .active_sheet_       = &active_sheet_,
-      .first_sheet_        = &first_sheet_,
-      .sst_                = &sst_,
-      .name_               = std::string{sheetname},
-      .quoted_name_        = quote_sheetname(sheetname),
-      .default_url_format_ = default_url_format_,
-      .max_url_length_     = max_url_length_,
-      .use_1904_epoch_     = use_1904_epoch_,
-  };
-
-  sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1),
-                                   std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1)});
-  num_worksheets_++;
-  num_sheets_++;
-
-  worksheet_names_[to_lower(init_data.name_)] = &std::get<worksheet_t>(sheets_.back());
-
-  return std::get<worksheet_t>(sheets_.back());
-}
-
-chartsheet_t& workbook_t::add_chartsheet()
-{
-  const std::string sheetname = "Chart" + std::to_string(num_chartsheets_ + 1);
-  return add_chartsheet(sheetname);
-}
-
-chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
-{
-  // Check that the worksheet name is valid.
-  validate_sheetname(sheetname);
-
-  const worksheet_init_data_t init_data{
-      .index_              = num_sheets_,
-      .hidden_             = 0,
-      .active_sheet_       = &active_sheet_,
-      .first_sheet_        = &first_sheet_,
-      .sst_                = &sst_,
-      .name_               = std::string{sheetname},
-      .quoted_name_        = quote_sheetname(sheetname),
-      .default_url_format_ = default_url_format_,
-      .max_url_length_     = max_url_length_,
-      .use_1904_epoch_     = use_1904_epoch_,
-  };
-
-  sheets_.emplace_back(chartsheet_t{init_data});
-  num_chartsheets_++;
-  num_sheets_++;
-
-  chartsheet_names_[to_lower(init_data.name_)] = &std::get<chartsheet_t>(sheets_.back());
-
-  return std::get<chartsheet_t>(sheets_.back());
-}
-
-// TODO No need to create chart through workbook. Can be autonomous object and be added
-// to worksheet with insert_chart API (without duplication check)
-chart_t& workbook_t::add_chart(chart_type_t chart_type)
-{
-  if(chart_type == chart_type_t::NONE)
-  {
-    throw xwpp_exception_t("workbook_t::add_chart: chart type set to 'none'");
-  }
-
-  chart_t chart(chart_type);
-
-  charts_.emplace_back(chart);
-  return charts_.back();
-}
-
-// TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
-// TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship)
-format_t* workbook_t::add_format()
-{
-  formats_.emplace_back(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
-
-  return &formats_.back();
-}
-
-int32_t workbook_t::get_xf_index(format_t* format)
-{
-  // Format already has an index number so return it.
-  if(format->xf_index_ != format_t::PROPERTY_UNSET)
-  {
-    return format->xf_index_;
-  }
-
-  for(const auto fmt: used_xf_formats_)
-  {
-    if(fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
-       fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
-       fmt->num_format_index_ == format->num_format_index_ && fmt->font_index_ == format->font_index_ &&
-       fmt->has_font_ == format->has_font_ && fmt->has_dxf_font_ == format->has_dxf_font_ &&
-       fmt->font_size_ == format->font_size_ && fmt->bold_ == format->bold_ && fmt->italic_ == format->italic_ &&
-       fmt->font_color_ == format->font_color_ && fmt->underline_ == format->underline_ &&
-       fmt->font_strikeout_ == format->font_strikeout_ && fmt->font_outline_ == format->font_outline_ &&
-       fmt->font_shadow_ == format->font_shadow_ && fmt->font_script_ == format->font_script_ &&
-       fmt->font_family_ == format->font_family_ && fmt->font_charset_ == format->font_charset_ &&
-       fmt->font_condense_ == format->font_condense_ && fmt->font_extend_ == format->font_extend_ &&
-       fmt->theme_ == format->theme_ && fmt->hyperlink_ == format->hyperlink_ && fmt->hidden_ == format->hidden_ &&
-       fmt->locked_ == format->locked_ && fmt->text_h_align_ == format->text_h_align_ &&
-       fmt->text_wrap_ == format->text_wrap_ && fmt->text_v_align_ == format->text_v_align_ &&
-       fmt->text_justlast_ == format->text_justlast_ && fmt->rotation_ == format->rotation_ &&
-       fmt->fg_color_ == format->fg_color_ && fmt->bg_color_ == format->bg_color_ &&
-       fmt->dxf_fg_color_ == format->dxf_fg_color_ && fmt->dxf_bg_color_ == format->dxf_bg_color_ &&
-       fmt->pattern_ == format->pattern_ && fmt->has_fill_ == format->has_fill_ &&
-       fmt->has_dxf_fill_ == format->has_dxf_fill_ && fmt->fill_index_ == format->fill_index_ &&
-       fmt->fill_count_ == format->fill_count_ && fmt->border_index_ == format->border_index_ &&
-       fmt->has_border_ == format->has_border_ && fmt->has_dxf_border_ == format->has_dxf_border_ &&
-       fmt->border_count_ == format->border_count_ && fmt->bottom_ == format->bottom_ &&
-       fmt->diag_border_ == format->diag_border_ && fmt->diag_type_ == format->diag_type_ &&
-       fmt->left_ == format->left_ && fmt->right_ == format->right_ && fmt->top_ == format->top_ &&
-       fmt->bottom_color_ == format->bottom_color_ && fmt->diag_color_ == format->diag_color_ &&
-       fmt->left_color_ == format->left_color_ && fmt->right_color_ == format->right_color_ &&
-       fmt->top_color_ == format->top_color_ && fmt->indent_ == format->indent_ && fmt->shrink_ == format->shrink_ &&
-       fmt->merge_range_ == format->merge_range_ && fmt->reading_order_ == format->reading_order_ &&
-       fmt->just_distrib_ == format->just_distrib_ && fmt->color_indexed_ == format->color_indexed_ &&
-       fmt->font_only_ == format->font_only_ && fmt->quote_prefix_ == format->quote_prefix_)
-    {
-      return fmt->xf_index_;
-    }
-  }
-
-  format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
-  used_xf_formats_.push_back(format);
-
-  return format->xf_index_;
-}
-
-int32_t workbook_t::get_dxf_index(format_t* format)
-{
-  // Format already has an index number so return it.
-  if(format->dxf_index_ != format_t::PROPERTY_UNSET)
-  {
-    return format->dxf_index_;
-  }
-
-  // TODO Add search to be sure there is no duplication.
-  format->dxf_index_ = static_cast<int32_t>(used_dxf_formats_.size());
-  used_dxf_formats_.push_back(format);
-
-  return format->dxf_index_;
-}
-
-void workbook_t::save(std::string_view filename)
-{
-  // Add a default worksheet if non have been added.
-  if(num_sheets_ == 0)
-  {
-    add_worksheet();
-  }
-
-  // Ensure that at least one worksheet has been selected.
-  if(active_sheet_ == 0)
-  {
-    if(std::holds_alternative<worksheet_t>(sheets_.front()))
-    {
-      auto& sheet = std::get<worksheet_t>(sheets_.front());
-      sheet.select();
-    }
-  }
-
-  // Set the active sheet and check if a metadata file is needed.
-  for(auto& sheet: sheets_)
-  {
-    if(std::holds_alternative<worksheet_t>(sheet))
-    {
-      auto& worksheet = std::get<worksheet_t>(sheet);
-      if(worksheet.index_ == active_sheet_)
-      {
-        worksheet.active_ = true;
-      }
-
-      if(worksheet.has_dynamic_functions_)
-      {
-        has_metadata_          = true;
-        has_dynamic_functions_ = true;
-      }
-
-      if(!worksheet.embedded_image_props_.empty())
-      {
-        has_metadata_        = true;
-        has_embedded_images_ = true;
-      }
-    }
-  }
-
-  // Set workbook and worksheet VBA codenames if a macro has been added.
-  if(!vba_project_.empty())
-  {
-    if(vba_codename_.empty())
-    {
-      set_vba_name("ThisWorkbook");
-    }
-
-    for(auto& sheet: sheets_)
-    {
-      if(std::holds_alternative<worksheet_t>(sheet))
-      {
-        auto& ws = std::get<worksheet_t>(sheet);
-
-        if(ws.vba_codename_.empty())
-        {
-          ws.set_vba_name(std::format("Sheet{}", ws.get_sheet_index() + 1));
-        }
-      }
-    }
-  }
-
-  // Prepare the worksheet VML elements such as comments.
-  prepare_vml();
-
-  // Set the defined names for the worksheets such as Print Titles.
-  prepare_defined_names();
-
-  // Prepare the drawings, charts and images.
-  prepare_drawings();
-
-  // Add cached data to charts.
-  add_chart_cache_data();
-
-  // Set the table ids for the worksheet tables.
-  prepare_tables();
-
-  // Create a packager object to assemble sub-elements into a zip file.
-  packager_t pkg(filename);
-
-  pkg.create_package(*this);
-}
-
-void workbook_t::define_name(const std::string& name, const std::string& formula)
-{
-  store_defined_name(name, "", formula, -1, false);
-}
-
-void workbook_t::set_properties(const doc_properties_t& properties)
-{
-  properties_ = properties;
-}
-
-void workbook_t::set_custom_property(std::string_view name, const std::string& value)
-{
-  if(name.empty())
-  {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_out_of_range_t(
-        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
-  }
-
-  if(value.size() > 255)
-  {
-    throw xwpp_out_of_range_t(
-        std::format("workbook_t::set_custom_property(): value of custom property '{}' is too long", value));
-  }
-
-  custom_properties_.emplace_back(custom_property_types_t::STRING, std::string(name), std::string(value));
-}
-
-void workbook_t::set_custom_property(std::string_view name, const char* value)
-{
-  set_custom_property(name, std::string(value));
-}
-
-void workbook_t::set_custom_property(std::string_view name, int32_t value)
-{
-  if(name.empty())
-  {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_out_of_range_t(
-        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
-  }
-
-  custom_properties_.emplace_back(custom_property_types_t::INTEGER, std::string(name), value);
-}
-
-void workbook_t::set_custom_property(std::string_view name, double value)
-{
-  if(name.empty())
-  {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_out_of_range_t(
-        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
-  }
-
-  custom_properties_.emplace_back(custom_property_types_t::DOUBLE, std::string(name), value);
-}
-
-void workbook_t::set_custom_property(std::string_view name, bool value)
-{
-  if(name.empty())
-  {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_out_of_range_t(
-        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
-  }
-
-  custom_properties_.emplace_back(custom_property_types_t::BOOLEAN, std::string(name), value);
-}
-
-void workbook_t::set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value)
-{
-  if(name.empty())
-  {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_out_of_range_t(
-        std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long", name));
-  }
-
-  if(value.time_since_epoch().count() == 0)
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): date is not set");
-  }
-
-  custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
-}
-
-void workbook_t::set_custom_property(std::string_view name, const std::chrono::year_month_day& value)
-{
-  set_custom_property(name, std::chrono::sys_days{value} + 0h + 0min + 0s + 0ms);
-}
-
-const worksheet_t* workbook_t::get_worksheet_by_name(std::string_view name) const
-{
-  if(name.empty())
-  {
-    return nullptr;
-  }
-
-  const auto it = worksheet_names_.find(to_lower(std::string{name}));
-  if(it != std::end(worksheet_names_))
-  {
-    return it->second;
-  }
-
-  return nullptr;
-}
-
-const chartsheet_t* workbook_t::get_chartsheet_by_name(std::string_view name) const
-{
-  if(name.empty())
-  {
-    return nullptr;
-  }
-
-  const auto it = chartsheet_names_.find(to_lower(std::string{name}));
-  if(it != std::end(chartsheet_names_))
-  {
-    return it->second;
-  }
-
-  return nullptr;
-}
-
-format_t* workbook_t::get_default_url_format() const
-{
-  return default_url_format_;
-}
-
-void workbook_t::unset_default_url_format()
-{
-  default_url_format_->hyperlink_ = false;
-  default_url_format_->xf_id_     = 0;
-  default_url_format_->underline_ = format_underlines_t::NONE;
-  default_url_format_->theme_     = 0;
-}
-
-void workbook_t::validate_sheetname(std::string_view sheetname) const
-{
-  // Check for empty worksheet name.
-  if(sheetname.empty())
-  {
-    throw xwpp_exception_t("workbook_t::validate_sheetname(): sheetname is empty");
-  }
-
-  // Check the length of the worksheet name.
-  if(sheetname.size() > XWPP_SHEETNAME_MAX)
-  {
-    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' is too long", sheetname));
-  }
-
-  // Check that the worksheet name doesn't contain invalid characters.
-  if(sheetname.find_first_of("[]:*?/\\") != std::string::npos)
-  {
-    throw xwpp_exception_t(
-        std::format("workbook_t::validate_sheetname(): sheetname '{}' contains invalid characters", sheetname));
-  }
-
-  // Check that the worksheet doesn't start or end with an apostrophe.
-  if(sheetname[0] == '\'' || sheetname[sheetname.size() - 1] == '\'')
-  {
-    throw xwpp_exception_t(
-        std::format("workbook_t::validate_sheetname(): sheetname '{}' contains unbalanced single quote", sheetname));
-  }
-
-  // Check if the worksheet name is already in use.
-  if(get_worksheet_by_name(sheetname) != nullptr)
-  {
-    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used", sheetname));
-  }
-
-  // Check if the chartsheet name is already in use.
-  if(get_chartsheet_by_name(sheetname) != nullptr)
-  {
-    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used", sheetname));
-  }
-}
-
-void workbook_t::add_vba_project(const std::string& filename)
-{
-  if(filename.empty())
-  {
-    throw xwpp_exception_t("workbook_t::add_vba_project(): project filename must be specified");
-  }
-
-  // Check that the image file exists and can be opened.
-  {
-    std::ifstream vba_stream(filename);
-    if(!vba_stream)
-    {
-      throw xwpp_exception_t(
-          std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened", filename));
-    }
-  }
-
-  vba_project_ = filename;
-}
-
-void workbook_t::add_signed_vba_project(const std::string& vba_project, const std::string& signature)
-{
-  add_vba_project(vba_project);
-
-  if(signature.empty())
-  {
-    throw xwpp_exception_t("workbook_t::add_signed_vba_project(): signature filename must be specified.");
-  }
-
-  // Check that the vbaProjectSignature file exists and can be opened.
-  {
-    std::ifstream signature_file(signature);
-    if(!signature_file)
-    {
-      throw xwpp_exception_t(std::format(
-          "workbook_t::add_signed_vba_project(): signature file doesn't exist or can't be opened{}", signature));
-    }
-  }
-
-  vba_project_signature_ = signature;
-}
-
-void workbook_t::set_vba_name(const std::string& name)
-{
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_vba_name(): 'name' cannot be an empty string");
-  }
-
-  vba_codename_ = name;
-}
-
-void workbook_t::read_only_recommended()
-{
-  read_only_ = 2;
-}
-
-void workbook_t::use_1904_epoch()
-{
-  use_1904_epoch_ = true;
-}
-
-void workbook_t::set_size(uint16_t width, uint16_t height)
-{
-  // Convert the width/height to twips at 96 dpi.
-  if (width)
-    window_width_ = width * 1440 / 96;
-
-  if (height)
-    window_height_ = height * 1440 / 96;
+  return xml_empty_tag("calcPr", {
+                                   {"calcId",         "124519"},
+                                   {"fullCalcOnLoad", "1"     },
+  });
 }
 
 }

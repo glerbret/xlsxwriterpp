@@ -78,9 +78,9 @@ private:
   uint32_t fill_count_;
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
-  bool has_hyperlink_         = false;
-  int32_t hyperlink_font_id_  = 0;
-  bool has_comments_          = false;
+  bool has_hyperlink_        = false;
+  int32_t hyperlink_font_id_ = 0;
+  bool has_comments_         = false;
 };
 
 }

@@ -16,11 +16,11 @@ int main()
   chart.set_axis_ids(68810240, 68811776);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -37,10 +37,10 @@ int main()
 
   /* Add the cached data for testing. */
   uint8_t test_data[4][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   xwpp::chart_add_data_cache(series1.values_, test_data[0], 4, 3, 0);

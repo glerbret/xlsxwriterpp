@@ -73,20 +73,20 @@ int main()
   chart2.title_set_name("Doughnut Chart with user defined colors");
 
   // Add for fills for use in the chart.
-  xwpp::chart_fill_t fill1 = {.color_ = static_cast<xwpp::color_t>(0xFA58D0)};
-  xwpp::chart_fill_t fill2 = {.color_ = static_cast<xwpp::color_t>(0x61210B)};
-  xwpp::chart_fill_t fill3 = {.color_ = static_cast<xwpp::color_t>(0xF5F6CE)};
+  xwpp::chart_fill_t fill1{.color_ = static_cast<xwpp::color_t>(0xFA58D0)};
+  xwpp::chart_fill_t fill2{.color_ = static_cast<xwpp::color_t>(0x61210B)};
+  xwpp::chart_fill_t fill3{.color_ = static_cast<xwpp::color_t>(0xF5F6CE)};
 
   // Add some points with the above fills.
-  xwpp::chart_point_t point1 = {.fill_ = fill1};
-  xwpp::chart_point_t point2 = {.fill_ = fill2};
-  xwpp::chart_point_t point3 = {.fill_ = fill3};
+  xwpp::chart_point_t point1{.fill_ = fill1};
+  xwpp::chart_point_t point2{.fill_ = fill2};
+  xwpp::chart_point_t point3{.fill_ = fill3};
 
   // Create an array of the point objects.
   std::vector<xwpp::chart_point_t> points{
-      point1,
-      point2,
-      point3,
+    point1,
+    point2,
+    point3,
   };
 
   // Add/override the points/segments of the chart.

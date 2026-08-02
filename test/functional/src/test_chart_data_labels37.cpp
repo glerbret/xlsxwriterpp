@@ -19,11 +19,11 @@ int main()
   chart.set_axis_ids(48498944, 48508928);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -39,7 +39,7 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   xwpp::chart_line_t line = {
-      .color_ = xwpp::color_t::RED, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH};
+    .color_ = xwpp::color_t::RED, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH};
   xwpp::chart_fill_t fill = {.color_ = xwpp::color_t(0x00B050)};
   xwpp::chart_series_set_labels(series);
   xwpp::chart_series_set_labels_line(series, line);

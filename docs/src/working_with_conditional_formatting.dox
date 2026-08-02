@@ -1,0 +1,1215 @@
+/**
+@page working_with_conditional_formatting Working with Conditional Formatting
+
+@tableofcontents
+
+Conditional formatting is a feature of Excel that allows you to apply a format
+to a cell, or a range of cells, based on definable criteria. For example you
+might format cells that are >= 50 in red and cells that < 50 in green. Like
+this:
+
+@image html conditional_format1.png
+
+There are also types of conditional formats such as color scales and data bars
+that highlight the relative difference of cells in a range:
+
+@image html conditional_format2.png
+
+`Xlsxwriter++` supports almost all of Excel's conditional formatting types and
+options, which are explained in the sections below.
+
+@section ww_cond_format_start Getting started with conditional formatting
+
+Conditional formatting is a feature in Excel that allows you to format cells
+based on criteria such as greater than or less than, top or bottom 10 items,
+or items that are above the average for the range.
+
+The best place to start with conditional formats is in Excel. Create an
+example of the type for conditional format that you want and then translate
+that into an `Xlsxwriter++` program using the
+`worksheet_t::conditional_format_cell()` or
+`worksheet_t::conditional_format_range()` functions and the
+`conditional_format_t` structure. We will walk through an example of this
+below.
+
+@subsection ww_cond_format_translate Convert an Excel conditional format to `Xlsxwriter++`
+
+Say you wanted to highlight in red all the cells in the range `"B1:B9"`
+that have a value less than 33. To do this in Excel you would select the
+range, click on "Conditional Formatting" and create a rule like this:
+
+@image html conditional_format11.png
+
+In the image above we see the "type" which is "Cell", the "Criteria" which is
+"less than", the "Value" which is 33 and the "Custom Format" which is red
+text. To replicate this in `Xlsxwriter++` we will start by creating the
+format.
+
+We do this in the same way we create any worksheet format to use in
+`Xlsxwriter++` by creating a `format_t` object using workbook_add_format():
+
+@code
+  // Add a format with red text.
+  xwpp::format_t* custom_format = workbook.add_format();
+  custom_format->set_font_color(xwpp::color_t::RED);
+@endcode
+
+The formats used for conditional formats are the same as any other worksheet
+format, apart from the fact that Excel restricts some of the available
+properties. We will look at that below in @ref ww_cond_format_format.
+
+Next we create a `conditional_format_t` object. We will use this to set the
+properties of the conditional format.
+
+We then set the "Type", "Criteria" and "Value" like in the Excel dialog above:
+
+@code
+  // Create a conditional format object.
+  xwpp::conditional_format_t conditional_format{
+    .type_     = xwpp::conditional_format_types_t::CELL,
+    .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
+    .value_    = 33,
+  };
+@endcode
+
+We then add the format we created earlier which, again, this is like the Excel
+dialog:
+
+@code
+  // Set the format to use if the criteria/value applies:
+  conditional_format.format_ = custom_format;
+@endcode
+
+And finally we apply the conditional format to the desired range:
+
+@code
+  // Now apply the format to data range.
+  worksheet.conditional_format_range(RANGE("B1:B9"), conditional_format);
+@endcode
+
+After we compile and run the program the output would look like this:
+
+@image html conditional_format12.png
+
+The complete version of this example is shown in @ref
+conditional_format1.cpp. There is also another example that shows more advanced
+conditional formatting options, see @ref conditional_format2.cpp.
+
+@subsection ww_cond_format_struct Defining a conditional format in `Xlsxwriter++`
+
+The `conditional_format_t` struct is used to define a conditional format in
+`Xlsxwriter++`. It has number of fields, most of which are optional. The main
+ones are explained here, as an introduction, and in more detail in the
+sections below. For reference here is our example from the previous section:
+
+@code
+  conditional_format.type_     = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::LESS_THAN;
+  conditional_format.value_    = 33;
+  conditional_format.format_   = custom_format;
+@endcode
+
+The `%type_` field in is a required parameter and it has no default value. This
+defines which type of Excel conditional format will be used.
+
+The `%criteria_` field defines the criteria used to evaluate the conditional
+format.  Most conditional formats will have a `%criteria_`, in which case it is
+a required field, but some types such as `%duplicate_` or `%blanks_` don't need to
+specify one since it is implicit in the type.
+
+The `%value_` or `%value_string_` field sets the value to which the criteria is
+applied.  Most conditional formats will have a value, or range of values, to
+which the `%criteria_` is applied, but some types or criteria don't need one.
+
+Finally, the `%format_` field defines the `format_t` that will be applied if
+the conditional format matches.  Most conditional formats will used the
+`%format_` field, since that is somewhat the point. However, it isn't actually
+required, in Excel or in `Xlsxwriter++`, and conditional format types such as
+Color Scale or Data Bars don't need it since they rely on simpler color
+definitions.
+
+The allowable `%type_` values withe their descriptive and enum values are shown
+in the following table along with their associated parameters.
+
+| Type          |  Enum value                                   | Parameters                      |
+| :------------ | :-------------------------------------------- | :------------------------------ |
+| cell          | conditional_format_types_t::CELL              | criteria                        |
+| ^             | ^                                             | value                           |
+| ^             | ^                                             | value_string                    |
+| ^             | ^                                             | min_value                       |
+| ^             | ^                                             | max_value                       |
+| ^             | ^                                             | min_value_string                |
+| ^             | ^                                             | max_value_string                |
+| ^             | ^                                             | format                          |
+| text          | conditional_format_types_t::TEXT              | criteria                        |
+| ^             | ^                                             | value                           |
+| ^             | ^                                             | value_string                    |
+| ^             | ^                                             | format                          |
+| time_period   | conditional_format_types_t::TIME_PERIOD       | criteria                        |
+| ^             | ^                                             | format                          |
+| average       | conditional_format_types_t::AVERAGE           | criteria                        |
+| ^             | ^                                             | format                          |
+| duplicate     | conditional_format_types_t::DUPLICATE         | format                          |
+| unique        | conditional_format_types_t::UNIQUE            | format                          |
+| top           | conditional_format_types_t::TOP               | criteria                        |
+| ^             | ^                                             | value                           |
+| ^             | ^                                             | value_string                    |
+| ^             | ^                                             | format                          |
+| bottom        | conditional_format_types_t::BOTTOM            | criteria                        |
+| ^             | ^                                             | value                           |
+| ^             | ^                                             | value_string                    |
+| ^             | ^                                             | format                          |
+| blanks        | conditional_format_types_t::BLANKS            | format                          |
+| no_blanks     | conditional_format_types_t::NO_BLANKS         | format                          |
+| errors        | conditional_format_types_t::ERRORS            | format                          |
+| no_errors     | conditional_format_types_t::NO_ERRORS         | format                          |
+| formula       | conditional_format_types_t::FORMULA           | value                           |
+| ^             | ^                                             | value_string                    |
+| ^             | ^                                             | format                          |
+| 2_color_scale | conditional_format_types_t::TWO_COLOR_SCALE   | min_rule_type                   |
+| ^             | ^                                             | max_rule_type                   |
+| ^             | ^                                             | min_value                       |
+| ^             | ^                                             | max_value                       |
+| ^             | ^                                             | min_value_string                |
+| ^             | ^                                             | max_value_string                |
+| ^             | ^                                             | min_color                       |
+| ^             | ^                                             | max_color                       |
+| 3_color_scale | conditional_format_types_t::THREE_COLOR_SCALE | min_rule_type                   |
+| ^             | ^                                             | mid_rule_type                   |
+| ^             | ^                                             | max_rule_type                   |
+| ^             | ^                                             | min_value                       |
+| ^             | ^                                             | mid_value                       |
+| ^             | ^                                             | max_value                       |
+| ^             | ^                                             | min_value_string                |
+| ^             | ^                                             | mid_value_string                |
+| ^             | ^                                             | max_value_string                |
+| ^             | ^                                             | min_color                       |
+| ^             | ^                                             | mid_color                       |
+| ^             | ^                                             | max_color                       |
+| data_bar      | conditional_format_types_t::DATA_BAR          | min_rule_type                   |
+| ^             | ^                                             | max_rule_type                   |
+| ^             | ^                                             | min_value                       |
+| ^             | ^                                             | max_value                       |
+| ^             | ^                                             | min_value_string                |
+| ^             | ^                                             | max_value_string                |
+| ^             | ^                                             | bar_only                        |
+| ^             | ^                                             | bar_color                       |
+| ^             | ^                                             | bar_solid*                      |
+| ^             | ^                                             | bar_negative_color*             |
+| ^             | ^                                             | bar_border_color*               |
+| ^             | ^                                             | bar_negative_border_color*      |
+| ^             | ^                                             | bar_negative_color_same*        |
+| ^             | ^                                             | bar_negative_border_color_same* |
+| ^             | ^                                             | bar_no_border*                  |
+| ^             | ^                                             | bar_direction*                  |
+| ^             | ^                                             | bar_axis_position*              |
+| ^             | ^                                             | bar_axis_color*                 |
+| ^             | ^                                             | data_bar_2010*                  |
+| icon_set      | conditional_format_types_t::ICON_SETS         | icon_style                      |
+| ^             | ^                                             | reverse_icons                   |
+| ^             | ^                                             | icons_only                      |
+
+@note Data bar parameters marked with `*` are only available in Excel 2010 and
+later. Files that use these properties can still be opened in Excel 2007
+but the data bars will be displayed without them.
+
+Each conditional format type is explained in more detail in the sections below.
+
+@section ww_cond_format_type Conditional Formatting Types
+
+@subsection ww_cond_format_type_cell type: cell
+
+This is the most common conditional formatting type. It is used when a format
+is applied to a cell, or range of cells, based on a simple criterion.
+
+For example using a single value and the "greater than" criteria:
+
+@code
+  conditional_format.type_     = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::GREATER_THAN;
+  conditional_format.value_    = 5;
+  conditional_format.format_   = format;
+
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+Or, using 2 values and the `between` criteria:
+
+@code
+  conditional_format.type_       = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_   = xwpp::conditional_criteria_t::BETWEEN;
+  conditional_format.min_value_  = 20;
+  conditional_format.max_value_  = 30;
+  conditional_format.format_     = format;
+
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+If the `criteria` is "equal to" and the `value_string` is a text string (but
+not a cell range) then Excel requires that the text string is double quoted:
+
+@code
+  conditional_format.type_         = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::EQUAL_TO;
+  conditional_format.value_string_ = "\"string to match\"";
+@endcode
+
+The criteria that apply to Cell conditional formats are:
+
+- `conditional_criteria_t::EQUAL_TO`: Format cells equal to a value.
+
+- `conditional_criteria_t::NOT_EQUAL_TO`: Format cells not equal to a value.
+
+- `conditional_criteria_t::GREATER_THAN`: Format cells greater than a value.
+
+- `conditional_criteria_t::LESS_THAN`: Format cells less than a value.
+
+- `conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO`: Format cells greater
+  than or equal to a value.
+
+- `conditional_criteria_t::LESS_THAN_OR_EQUAL_TO`: Format cells less than or
+  equal to a value.
+
+- `conditional_criteria_t::BETWEEN`: Format cells between two values.
+
+- `conditional_criteria_t::NOT_BETWEEN`: Format cells that is not between two
+  values.
+
+@subsection ww_cond_format_type_time_period type: time_period
+
+The `time_period` type is used to specify Excel's "Dates Occurring" style
+conditional format:
+
+@code
+  conditional_format.type_     = xwpp::conditional_format_types_t::PERIOD;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_YESTERDAY;
+  conditional_format.format_   = format1;
+  worksheet_conditional_format_range(worksheet, RANGE("A1:A4"), conditional_format);
+
+  conditional_format.type_     = xwpp::conditional_format_types_t::PERIOD;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS;
+  conditional_format.format_   = format2;
+  worksheet_conditional_format_range(worksheet, RANGE("A1:A4"), conditional_format);
+@endcode
+
+The period is set in the `criteria` and can have one of the following values:
+
+- `conditional_criteria_t::TIME_PERIOD_YESTERDAY`: Format cells with a date of
+  yesterday.
+
+- `conditional_criteria_t::TIME_PERIOD_TODAY`: Format cells with a date of
+  today.
+
+- `conditional_criteria_t::TIME_PERIOD_TOMORROW`: Format cells with a date of
+  tomorrow.
+
+- `conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS`: Format cells with a date
+  in the last 7 days.
+
+- `conditional_criteria_t::TIME_PERIOD_LAST_WEEK`: Format cells with a date in
+  the last week.
+
+- `conditional_criteria_t::TIME_PERIOD_THIS_WEEK`: Format cells with a date in
+  the current week.
+
+- `conditional_criteria_t::TIME_PERIOD_NEXT_WEEK`: Format cells with a date in
+  the next week.
+
+- `conditional_criteria_t::TIME_PERIOD_LAST_MONTH`: Format cells with a date
+  in the last month.
+
+- `conditional_criteria_t::TIME_PERIOD_THIS_MONTH`: Format cells with a date
+  in the current month.
+
+- `conditional_criteria_t::TIME_PERIOD_NEXT_MONTH`: Format cells with a date
+  in the next month.
+
+@subsection ww_cond_format_type_text type: text
+
+The `text` type is used to specify Excel's "Specific Text" style conditional
+format. It is used to do simple string matching using the `%criteria_` and
+`%value_` parameters:
+
+@code
+  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_CONTAINING;
+  conditional_format.value_string_ = "foo";
+  conditional_format.format_       = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+
+  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_NOT_CONTAINING;
+  conditional_format.value_string_ = "bar";
+  conditional_format.format_       = format2;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+
+  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_BEGINS_WITH;
+  conditional_format.value_string_ = "a";
+  conditional_format.format_       = format2;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+
+  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_ENDS_WITH;
+  conditional_format.value_string_ = "t";
+  conditional_format.format_       = format4;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+The `%value_string_` parameter should be a string with one or more characters.
+
+The `%criteria_` for Text conditional formats can have one of the following values:
+
+- `conditional_criteria_t::TEXT_CONTAINING`: Format cells that contain the
+  specified text.
+
+- `conditional_criteria_t::TEXT_NOT_CONTAINING`: Format cells that don't
+  contain the specified text.
+
+- `conditional_criteria_t::TEXT_BEGINS_WITH`: Format cells that begin with the
+  specified text.
+
+- `conditional_criteria_t::TEXT_ENDS_WITH`: Format cells that end with the
+  specified text.
+
+@subsection ww_cond_format_type_average type: average
+
+The `average` type is used to specify Excel's "Average" style conditional
+format:
+
+@code
+  conditional_format.type_     = xwpp::conditional_format_types_t::AVERAGE;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_ABOVE;
+  conditional_format.format_   = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+
+  conditional_format.type_     = xwpp::conditional_format_types_t::AVERAGE;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_1_STD_DEV_ABOVE;
+  conditional_format.format_   = format2;
+  worksheet.conditional_format_range(RANGE("B1:B4"), conditional_format);
+@endcode
+
+The type of average for the conditional format range is specified by the
+`%criteria_`:
+
+- `conditional_criteria_t::AVERAGE_ABOVE`: Format cells above the average for
+  the range.
+
+- `conditional_criteria_t::AVERAGE_BELOW`: Format cells below the average for
+  the range.
+
+- `conditional_criteria_t::AVERAGE_ABOVE_OR_EQUAL`: Format cells above or
+  equal to the average for the range.
+
+- `conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL`: Format cells below or
+  equal to the average for the range.
+
+- `conditional_criteria_t::AVERAGE_1_STD_DEV_ABOVE`: Format cells 1 standard
+  deviation above the average for the range.
+
+- `conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW`: Format cells 1 standard
+  deviation below the average for the range.
+
+- `conditional_criteria_t::AVERAGE_2_STD_DEV_ABOVE`: Format cells 2 standard
+  deviation above the average for the range.
+
+- `conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW`: Format cells 2 standard
+  deviation below the average for the range.
+
+- `conditional_criteria_t::AVERAGE_3_STD_DEV_ABOVE`: Format cells 3 standard
+  deviation above the average for the range.
+
+- `conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW`: Format cells
+  3 standard deviation below the average for the range.
+
+@subsection ww_cond_format_type_duplicate type: duplicate
+
+The `duplicate` type is used to highlight duplicate cells in a range. It
+doesn't take a criteria:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::DUPLICATE;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_unique type: unique
+
+The `unique` type is used to highlight unique cells in a range. It doesn't
+take a criteria:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::UNIQUE;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_top type: top
+
+The `top` type is used to specify the top `n` values by number or
+percentage in a range:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::TOP;
+  conditional_format.value_  = 10;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+The `criteria` can be used to indicate that a percentage condition is
+required:
+
+@code
+  conditional_format.type_     = xwpp::conditional_format_types_t::TOP;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::TOP_OR_BOTTOM_PERCENT;
+  conditional_format.value_    = 10;
+  conditional_format.format_   = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_bottom type: bottom
+
+The `bottom` type is used to specify the bottom `n` values by number or
+percentage in a range.
+
+It takes the same parameters as `top`, see above.
+
+@subsection ww_cond_format_type_blanks type: blanks
+
+The `blanks` type is used to highlight blank cells in a range:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::BLANKS;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_no_blanks type: no_blanks
+
+The `no_blanks` type is used to highlight non blank cells in a range. It doesn't take a criteria:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::NO_BLANKS;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_errors type: errors
+
+The `errors` type is used to highlight error cells in a range. It doesn't take a criteria:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::ERRORS;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_no_errors type: no_errors
+
+The `no_errors` type is used to highlight non error cells in a range. It doesn't take a criteria:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::NO_ERRORS;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_type_formula type: formula
+
+The `formula` type is used to specify a conditional format based on a user
+defined formula:
+
+@code
+  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string_ = "=$A$1>5";
+  conditional_format.format_       = format1;
+  worksheet_conditional_format_range(worksheet, RANGE("A1:A4"), conditional_format);
+
+  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string_ = "=$A$2<80";
+  conditional_format.format_       = format2;
+  worksheet_conditional_format_range(worksheet, RANGE("B1:B4"), conditional_format);
+
+  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string_ = "=$A$3>$A$4";
+  conditional_format.format_       = format3;
+  worksheet_conditional_format_range(worksheet, RANGE("C1:C4"), conditional_format);
+@endcode
+
+Formulas must be written with the US style separator/range operator which is a
+comma (not semi-colon) and should follow the same rules as
+`worksheet_t::write_formula()`. See @ref ww_formulas_non_us for a full
+explanation:
+
+@code
+  // This formula will cause an Excel error on load due to non-English
+  // language and use of semi-colons.
+  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string_ = "=ODER($B2<$C2;UND($B2="";$C2>HEUTE()))";
+
+  // This is the correct syntax.
+  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string_ = "=OR($B2<$C2,AND($B2="",$C2>TODAY()))";
+@endcode
+
+@note Conditional formatting formulas require some knowledge of how cell
+references work in Excel. For example the formulas `"$A$1=5"` and `"A1=5"`
+will give different results when applied to a range. It is best to verify the
+formula in Excel before transferring it to `Xlsxwriter++`.
+
+@subsection ww_cond_format_type_2_color_scale type: 2_color_scale
+
+The `2_color_scale` type is used to specify Excel's "2 Color Scale" style
+conditional format:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::TWO_COLOR_SCALE;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
+@endcode
+
+@image html conditional_format4.png
+
+This conditional type can be modified with additional parameters:
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE;
+  conditional_format.min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER;
+  conditional_format.max_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER;
+  conditional_format.min_value_     = 20;
+  conditional_format.max_value_     = 80;
+  conditional_format.min_color_     = xwpp::color_t(0xFF7128);
+  conditional_format.max_color_     = xwpp::color_t(0xFFEF9C);
+  conditional_format.format_        = format1;
+@endcode
+
+See the following sections below for more information:
+
+- @ref ww_cond_format_min_value
+- @ref ww_cond_format_max_value
+- @ref ww_cond_format_min_rule_type
+- @ref ww_cond_format_max_rule_type
+- @ref ww_cond_format_min_color
+- @ref ww_cond_format_max_color
+
+@subsection ww_cond_format_type_3_color_scale type: 3_color_scale
+
+The `3_color_scale` type is used to specify Excel's "3 Color Scale" style
+conditional format:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::THREE_COLOR_SCALE;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
+@endcode
+
+This conditional type can be modified with additional parameters:
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::THREE_COLOR_SCALE;
+  conditional_format.min_value_     = 10;
+  conditional_format.mid_value_     = 52;
+  conditional_format.max_value_     = 99;
+  conditional_format.min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER;
+  conditional_format.mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT;
+  conditional_format.max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE;
+  conditional_format.min_color_     = xwpp::color_t(0xC5D9F1);
+  conditional_format.mid_color_     = xwpp::color_t(0x8DB4E3);
+  conditional_format.max_color_     = xwpp::color_t(0x538ED5);
+  conditional_format.format_        = format1;
+@endcode
+
+See the following sections below for more information:
+
+- @ref ww_cond_format_min_value
+- @ref ww_cond_format_mid_value
+- @ref ww_cond_format_max_value
+- @ref ww_cond_format_min_rule_type
+- @ref ww_cond_format_mid_rule_type
+- @ref ww_cond_format_max_rule_type
+- @ref ww_cond_format_min_color
+- @ref ww_cond_format_mid_color
+- @ref ww_cond_format_max_color
+
+@subsection ww_cond_format_type_data_bar type: data_bar
+
+The `data_bar` type is used to specify Excel's "Data Bar" style conditional
+format:
+
+@code
+  conditional_format.type_   = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.format_ = format1;
+  worksheet.conditional_format_rangeRANGE("A1:A12"), conditional_format);
+@endcode
+
+@image html conditional_format7.png
+
+This conditional type can be modified with the following parameters, which are
+explained in the sections below. These properties were available in the
+original xlsx file specification used in Excel 2007:
+
+- @ref ww_cond_format_min_value
+- @ref ww_cond_format_max_value
+- @ref ww_cond_format_min_rule_type
+- @ref ww_cond_format_max_rule_type
+- @ref ww_cond_format_bar_color
+- @ref ww_cond_format_bar_only
+
+Additional data bar properties were added in Excel 2010 such as solid
+(non-gradient) bars and control over how negative values are displayed. These
+properties can be set using the following parameters:
+
+- @ref ww_cond_format_bar_solid
+- @ref ww_cond_format_bar_negative_color
+- @ref ww_cond_format_bar_border_color
+- @ref ww_cond_format_bar_negative_border_color
+- @ref ww_cond_format_bar_negative_color_same
+- @ref ww_cond_format_bar_negative_border_color_same
+- @ref ww_cond_format_bar_no_border
+- @ref ww_cond_format_bar_direction
+- @ref ww_cond_format_bar_axis_position
+- @ref ww_cond_format_bar_axis_color
+- @ref ww_cond_format_data_bar_2010
+
+For example:
+
+@image html conditional_format6.png
+
+Files that use these Excel 2010 properties can still be opened in Excel 2007
+but the data bars will be displayed without them.
+
+@subsection ww_cond_format_type_icon_set type: icon_set
+
+The `icon_set` type is used to specify a conditional format with a set of
+icons such as traffic lights or arrows:
+
+@code
+  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED;
+  conditional_format.format_     = format1;
+  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+@endcode
+
+The icon set style is specified by the `%icon_style_` parameter. Valid options are:
+
+- `conditional_icon_types_t::THREE_ARROWS_COLORED`: Icon style: 3 colored arrows showing up, sideways and down.
+
+- `conditional_icon_types_t::THREE_ARROWS_GRAY`: Icon style: 3 gray arrows showing up, sideways and down.
+
+- `conditional_icon_types_t::THREE_FLAGS`: Icon style: 3 colored flags in red, yellow and green.
+
+- `conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED`: Icon style: 3 traffic lights - rounded.
+
+- `conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_RIMMED`: Icon style: 3 traffic lights with a rim - squarish.
+
+- `conditional_icon_types_t::THREE_SIGNS`: Icon style: 3 colored shapes - a circle, triangle and diamond.
+
+- `conditional_icon_types_t::THREE_SYMBOLS_CIRCLED`: Icon style: 3 circled symbols with tick mark, exclamation and cross.
+
+- `conditional_icon_types_t::THREE_SYMBOLS_UNCIRCLED`: Icon style: 3 symbols with tick mark, exclamation and cross.
+
+- `conditional_icon_types_t::FOUR_ARROWS_COLORED`: Icon style: 3 colored arrows showing up, diagonal up, diagonal down and down.
+
+- `conditional_icon_types_t::FOUR_ARROWS_GRAY`: Icon style: 3 gray arrows showing up, diagonal up, diagonal down and down.
+
+- `conditional_icon_types_t::FOUR_RED_TO_BLACK`: Icon style: 4 circles in 4 colors going from red to black.
+
+- `conditional_icon_types_t::FOUR_RATINGS`: Icon style: 4 histogram ratings.
+
+- `conditional_icon_types_t::FOUR_TRAFFIC_LIGHTS`: Icon style: 4 traffic lights.
+
+- `conditional_icon_types_t::FIVE_ARROWS_COLORED`: Icon style: 5 colored arrows showing up, diagonal up, sideways, diagonal down and down.
+
+- `conditional_icon_types_t::FIVE_ARROWS_GRAY`: Icon style: 5 gray arrows showing up, diagonal up, sideways, diagonal down and down.
+
+- `conditional_icon_types_t::FIVE_RATINGS`: Icon style: 5 histogram ratings.
+
+- `conditional_icon_types_t::FIVE_QUARTERS`: Icon style: 5 quarters, from 0 to 4 quadrants filled.
+
+@image html conditional_format5.png
+
+The order of Icon Sets icons can be reversed by setting `%reverse_icons_` to true.
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style_    = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED;
+  conditional_format.reverse_icons_ = true;
+
+  worksheet.conditional_format_range(worksheet, RANGE("B4:D4"), conditional_format);
+@endcode
+
+The icons can be displayed without the cell value by settings the `%icons_only_`
+parameter to true:
+
+@code
+  conditional_format.type_       = xwpp::conditional_format_types_t::SETS;
+  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED;
+  conditional_format.icons_only_ = true;
+
+  worksheet.conditional_format_range(RANGE("B5:D5"), conditional_format);
+@endcode
+
+@section ww_cond_format_other_properties Conditional Format Parameters
+
+The fields/options in the the `%conditional_format_` are used to define a
+worksheet conditional format. The `%type_` field was explained in the previous
+section. The sections below explain the other options.
+
+@subsection ww_cond_format_criteria parameter: criteria
+
+The `%criteria_` parameter is used to set the criteria by which the cell data
+will be evaluated. It is defined in `%conditional_criteria_` and has no
+default value. Some conditional format types such as `%duplicate_` or `%blanks_`
+don't need to specify as criteria since it is implicit in the type.
+
+The values for different conditional format types are shown in
+`conditional_criteria_t` and in the `%type_` sections to which they apply,
+above.
+
+@subsection ww_cond_format_value parameter: value and value_string
+
+The `%value_` parameter is generally used along with `%criteria_` to set the rule
+by which the cell data will be evaluated:
+
+@code
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::EQUAL_TO;
+  conditional_format.value_    = 10;
+@endcode
+
+The `value_string` parameter is used for non-numeric values. In conditional
+formats this will generally be a cell reference like the following:
+
+@code
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::EQUAL_TO;
+  conditional_format.value_string_ = "$B$1";
+
+  // Or like this.
+  conditional_format.value_string_ = "=$B$1";
+@endcode
+
+In general any `%value_string_` property that refers to a cell reference should
+use an absolute cell reference, like `$B$1`, especially if the conditional
+formatting is applied to a range of values. Without an absolute cell reference
+the conditional format will not be applied correctly by Excel, apart from the
+first cell in the formatted range. Double check in Excel if you don't get the
+result that you expect.
+
+If the `%type_` is Cell, the `%criteria_` is "equal to" and the `%value_string_` is
+a text string (but not a cell range) then Excel requires that the text string
+is double quoted:
+
+@code
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::EQUAL_TO;
+  conditional_format.value_string_ = "\"string to match\"";
+@endcode
+
+@subsection ww_cond_format_format parameter: format
+
+The `%format_` parameter is used to specify the format that will be applied to
+the cell when the conditional formatting criterion is met. The format is
+created using the `workbook_t::add_format()` function in the same way as cell
+formats:
+
+@code
+  xwpp::format_t* format = workbook_t::add_format();
+  format_set_bold(format);
+  format_set_italic(format);
+
+  conditional_format.type_     = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_ = xwpp::conditional_criteria_t::GREATER_THAN;
+  conditional_format.value_    = 20;
+  conditional_format.format_   = format;
+@endcode
+
+Most conditional formats will have a `format_t` `%format_`, since that is
+somewhat the point. However, it isn't actually required, in Excel or in
+`Xlsxwriter++`. Color Scale and Data Bar conditional format types use defined
+colors instead of a format.
+
+@note In Excel, a conditional format is superimposed over the existing cell format
+and <b>not all cell format properties can be modified in a conditional
+format</b>. Properties that cannot be modified in a conditional format in
+Excel are: font name, font size, superscript and subscript, diagonal borders,
+all alignment properties and all protection properties.
+
+@note Excel specifies some default formats when using the conditional formatting
+dialog such as red, yellow and green. These can be replicated using the
+following `Xlsxwriter++` formats:
+
+@code
+  // Light red fill with dark red text.
+  xwpp::format_t* format1 = workbook.add_format();
+  format1->set_bg_color(xwpp:color_t(0xFFC7CE));
+  format1->set_font_color(xwpp:color_t(0x9C0006));
+
+  // Light yellow fill with dark yellow text.
+  xwpp::format_t* format2 = workbook.add_format();
+  format2->set_bg_color(xwpp::color_t(0xFFEB9C));
+  format2->set_font_color(xwpp::color_t(0x9C6500));
+
+  // Green fill with dark green text.
+  xwpp::format_t* format3 = workbook.add_format();
+  format3->set_bg_color(xwpp::color_t(0xC6EFCE));
+  format3->set_font_color(xwpp::color_t(0x006100));
+@endcode
+
+See also `format_t` and @ref working_with_formats.
+
+@subsection ww_cond_format_min_value parameter: min_value and min_value_string
+
+The `%min_value_` parameter is used to set the lower limiting value for Cell,
+Color Scale and Data Bar conditional formats.
+
+For cell formats it is usually used when the `%criteria_` is either
+`xwpp::xwpp::conditional_criteria_t::BETWEEN` or `xwpp::xwpp::conditional_criteria_t::NOT_BETWEEN`:
+
+@code
+  conditional_format.type_      = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_  = xwpp::conditional_criteria_t::BETWEEN;
+  conditional_format.min_value_ = 2;
+  conditional_format.max_value_ = 6;
+@endcode
+
+The `min_value_string` parameter is used for non-numeric values. In conditional
+formats this will generally be a cell reference like `$B$1`:
+
+@code
+  conditional_format.type_             = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_         = xwpp::conditional_criteria_t::BETWEEN;
+  conditional_format.min_value_string_ = "$B$1;
+  conditional_format.max_value_string_ = "$B$2";
+@endcode
+
+@subsection ww_cond_format_mid_value parameter: mid_value and mid_value_string
+
+The `%mid_value_` parameter is used to set the middle limit for Color Scale and
+Data Bar conditional formats.
+
+See @ref ww_cond_format_min_value above.
+
+@subsection ww_cond_format_max_value parameter: max_value and max_value_string
+
+The `%max_value_` parameter is used to set the lower limiting value for Cell,
+Color Scale and Data Bar conditional formats.
+
+See @ref ww_cond_format_min_value above.
+
+@subsection ww_cond_format_min_rule_type parameter: min_rule_type
+
+The `%min_rule_type_` and `%max_rule_type_` properties are used when the
+conditional formatting type is `2_color_scale`, `3_color_scale` or
+`data_bar`. The `%mid_rule_type_` is used with `3_color_scale`. The properties
+are used as follows:
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE;
+  conditional_format.min_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT;
+  conditional_format.max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT;
+  conditional_format.min_value_     = 20;
+  conditional_format.max_value_     = 80;
+  worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
+@endcode
+
+The available min/mid/max rule types are defined in
+`conditional_format_rule_types_t`:
+
+- `conditional_format_rule_types_t::MINIMUM`: Conditional format rule type: matches the minimum values in the range. Can only be applied to min_rule_type.
+
+- `conditional_format_rule_types_t::NUMBER`: Conditional format rule type: use a number to set the bound.
+
+- `conditional_format_rule_types_t::PERCENT`: Conditional format rule type: use a percentage to set the bound.
+
+- `conditional_format_rule_types_t::PERCENTILE`: Conditional format rule type: use a percentile to set the bound.
+
+- `conditional_format_rule_types_t::FORMULA`: Conditional format rule type: use a formula to set the bound.
+
+- `conditional_format_rule_types_t::MAXIMUM`: Conditional format rule type: matches the maximum values in the range. Can only be applied to max_rule_type.
+
+@subsection ww_cond_format_mid_rule_type parameter: mid_rule_type
+
+Used for `3_color_scale`. Same as `%min_rule_type_`, see above.
+
+@subsection ww_cond_format_max_rule_type parameter: max_rule_type
+
+Same as `%min_rule_type_`, see above.
+
+@subsection ww_cond_format_min_color parameter: min_color
+
+The `%min_color_` and `%max_color_` properties are available when the conditional
+formatting type is `2_color_scale` or `3_color_scale`. The `%mid_color_` is
+available for `3_color_scale`. The properties are used as follows:
+
+@code
+  conditional_format.type_      = xwpp::conditional_format_types_t::TWO_COLOR_SCALE;
+  conditional_format.min_color_ = xwpp::color_t(0xFF7128);
+  conditional_format.max_color_ = xwpp::color_t(0xFFEF9C);
+  worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
+@endcode
+
+The color can be a Html style `RRGGBB` hex number or a limited number of named
+colors, see @ref working_with_colors.
+
+@subsection ww_cond_format_mid_color parameter: mid_color
+
+Used for `3_color_scale`. Same as `%min_color_`, see above.
+
+@subsection ww_cond_format_max_color parameter: max_color
+
+Same as `%min_color_`, see above.
+
+@subsection ww_cond_format_bar_color parameter: bar_color
+
+The `%bar_color_` parameter sets the fill color for data bars:
+
+@code
+  conditional_format.type_      = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_color_ = xwpp::color_t(0x63C384);
+@endcode
+
+@image html conditional_format7.png
+
+The color can be a Html style `RRGGBB` hex number or a limited number of named
+colors, see @ref working_with_colors.
+
+@subsection ww_cond_format_bar_only parameter: bar_only
+
+The `%bar_only_` property displays a bar data but not the data in the cells:
+
+@code
+  conditional_format.type_     = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_only_ = true;
+  worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
+@endcode
+
+@see The image above.
+
+@subsection ww_cond_format_bar_solid parameter: bar_solid
+
+The `%bar_solid_` property turns on a solid (non-gradient) fill for data
+bars:
+
+@code
+  conditional_format.type_      = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_solid_ = true;
+  worksheet-conditional_format_range(RANGE("A1:A12"), conditional_format);
+@endcode
+
+@see The image above.
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_negative_color parameter: bar_negative_color
+
+The `%bar_negative_color_` property sets the color fill for the negative
+portion of a data bar:
+
+@code
+  conditional_format.type_               = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_negative_color_ = xwpp::color_t(0xFFFF00);
+  worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
+@endcode
+
+The color can be a Html style `RRGGBB` hex number or a limited number of named
+colors, see @ref working_with_colors.
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_border_color parameter: bar_border_color
+
+The `%bar_border_color_` property sets the color for the border line of a data
+bar:
+
+@code
+  conditional_format.type_             = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_color_        = xwpp::color_t(0xFF555A);
+  conditional_format.bar_border_color_ = xwpp::color_t(0xFF0000);
+  worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
+@endcode
+
+The color can be a Html style `RRGGBB` hex number or a limited number of named
+colors, see @ref working_with_colors.
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_negative_border_color parameter: bar_negative_border_color
+
+The `%bar_negative_border_color_` property sets the color for the border of
+the negative portion of a data bar:
+
+@code
+  conditional_format.type_                      = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_negative_border_color_ = xwpp::color_t(0x92D050);
+  worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
+@endcode
+
+The color can be a Html style `RRGGBB` hex number or a limited number of named
+colors, see @ref working_with_colors.
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_negative_color_same parameter: bar_negative_color_same
+
+The `%bar_negative_color_same_` property sets the fill color for the negative
+portion of a data bar to be the same as the fill color for the positive
+portion of the data bar:
+
+@code
+  conditional_format.type_                    = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_negative_color_same_ = true;
+  worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
+@endcode
+
+@image html conditional_format6.png
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_negative_border_color_same parameter: bar_negative_border_color_same
+
+The `%bar_negative_border_color_same_` property sets the border color for the
+negative portion of a data bar to be the same as the border color for the
+positive portion of the data bar:
+
+@code
+  conditional_format.type_                           = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_negative_border_color_same_ = true;
+  worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
+@endcode
+
+See The image above.
+
+Note, this property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_no_border parameter: bar_no_border
+
+The `%bar_no_border_` property turns off the border for data bars:
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_no_border_ = true;
+  worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
+@endcode
+
+Note, this property is only visible in Excel 2010 and later, however the
+default in Excel 2007 is to not have a border.
+
+@subsection ww_cond_format_bar_direction parameter: bar_direction
+
+The `%bar_direction_` property sets the direction for data bars. This property
+can be either one of the values from `conditional_format_bar_direction_t`
+shown below. If the property isn't set then Excel will adjust the position
+automatically based on the context. The available options are:
+
+- `conditional_format_bar_direction_t::CONTEXT`: Data bar direction is set by Excel
+  based on the context of the data displayed.
+
+- `conditional_format_bar_direction_t::RIGHT_TO_LEFT`: Data bar direction is from
+  right to left.
+
+- `conditional_format_bar_direction_t::LEFT_TO_RIGHT`: Data bar direction is from
+  left to right.
+
+Here is an example:
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_direction_ = xwpp::conditional_format_bar_direction_t::RIGHT_TO_LEFT;
+  worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
+@endcode
+
+@image html conditional_format6.png
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_axis_position parameter: bar_axis_position
+
+The `%bar_axis_position_` property sets the position of the axis that is shown
+in data bars when there are negative values to display. The property can be
+either `midpoint` or `none`.
+
+@code
+  conditional_format.type_              = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_axis_position_ = xwpp::conditional_bar_axis_position_t::MIDPOINT;
+  worksheet.conditional_format_range(RANGE("A2:B12"), conditional_format);
+@endcode
+
+If the property isn't set then Excel will position the axis based on the range
+of positive and negative values. The setting are defined in
+`conditional_bar_axis_position_t`:
+
+- `conditional_bar_axis_position_t::AUTOMATIC`: Data bar axis position is set by Excel based on the context of the data displayed.
+
+- `conditional_bar_axis_position_t::MIDPOINT`: Data bar axis position is set at the midpoint.
+
+- `conditional_bar_axis_position_t::NONE`: Data bar axis is turned off.
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_bar_axis_color parameter: bar_axis_color
+
+The `%bar_axis_color_` property sets the color for the axis that is shown in
+data bars when there are negative values to display:
+
+@code
+  conditional_format.type_           = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.bar_axis_color_ = xwpp::color_t(0x0070C0);
+  worksheet.conditional_format_range(RANGE("A3:C13"), conditional_format);
+@endcode
+
+@note This property is only visible in Excel 2010 and later.
+
+@subsection ww_cond_format_data_bar_2010 parameter: data_bar_2010
+
+The `%data_bar_2010_` property sets Excel 2010 style data bars even when Excel
+2010 specific properties aren't used. This can be used for ensure conformity
+across all the data bar formatting in a worksheet:
+
+@code
+  conditional_format.type_          = xwpp::conditional_format_types_t::DATA_BAR;
+  conditional_format.data_bar_2010_ = true;
+  worksheet.conditional_format_range(RANGE("A3:C13"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_stop_if_true parameter: stop_if_true
+
+The `%stop_if_true_` parameter can be used to set the "stop if true" feature
+of a conditional formatting rule when more than one rule is applied to a cell
+or a range of cells. When this parameter is set then subsequent rules are not
+evaluated if the current rule is true:
+
+@code
+  conditional_format.type_         = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_     = xwpp::conditional_criteria_t::GREATER_THAN;
+  conditional_format.value_        = 5;
+  conditional_format.stop_if_true_ = true;
+  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+@endcode
+
+@subsection ww_cond_format_multi_range parameter: multi_range
+
+The `%multi_range_` option is used to extend a conditional format over
+non-contiguous ranges.
+
+It is possible to apply the conditional format to different cell ranges in a
+worksheet using multiple calls to `worksheet_t::conditional_format()`. However,
+as a minor optimization it is also possible in Excel to apply the same
+conditional format to different non-contiguous cell ranges.
+
+This is replicated in `worksheet_t::conditional_format()` using the `multi_range`
+option. The range must contain the primary range for the conditional format
+and any others separated by spaces.
+
+For example to apply one conditional format to two ranges, `B3:K6` and
+`B9:K12`:
+
+@code
+  conditional_format.type_        = xwpp::conditional_format_types_t::CELL;
+  conditional_format.criteria_    = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+  conditional_format.value_       = 50;
+  conditional_format.format_      = format1;
+  conditional_format.multi_range_ = "B3:K6 B9:K12";
+  worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format);
+@endcode
+
+Next: @ref working_with_tables
+
+*/

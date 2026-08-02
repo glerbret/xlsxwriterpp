@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(worksheet)
 BOOST_AUTO_TEST_CASE(condtional_format23)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A8\"/>"
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE(condtional_format23)
   worksheet.write_number(CELL("A8"), 8);
 
   xwpp::conditional_format_t conditional_format{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_GRAY,
+    .type_       = xwpp::conditional_format_types_t::ICON_SETS,
+    .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_GRAY,
   };
   worksheet.conditional_format_cell(CELL("A1"), conditional_format);
 

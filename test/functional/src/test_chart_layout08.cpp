@@ -19,11 +19,11 @@ int main()
   chart.set_axis_ids(46317568, 46319488);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -39,8 +39,8 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   xwpp::chart_layout_t layout = {
-      .x_ = 0.359652668416448,
-      .y_ = 0.162037037037037,
+    .x_ = 0.359652668416448,
+    .y_ = 0.162037037037037,
   };
 
   chart.title_set_name_range("Sheet1", 0, 0);

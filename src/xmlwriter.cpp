@@ -127,37 +127,6 @@ std::string xml_rich_si_element(std::string_view str)
   return std::format("<si>{}</si>", str);
 }
 
-// Escape XML characters in data sections of tags.
-// Note, this is different from _escape_attributes() in that double quotes are not escaped by Excel.
-std::string escape_data(std::string_view data)
-{
-  std::string encoded;
-  encoded.reserve(data.size() * 2);
-
-  for(auto c: data)
-  {
-    switch(c)
-    {
-      case '&':
-        encoded += XML_AMP;
-        break;
-
-      case '<':
-        encoded += XML_LT;
-        break;
-
-      case '>':
-        encoded += XML_GT;
-        break;
-
-      default:
-        encoded.push_back(c);
-    }
-  }
-
-  return encoded;
-}
-
 // Escape control characters in strings with _xHHHH_.
 std::string escape_control_characters(std::string_view str)
 {
@@ -256,6 +225,37 @@ std::string escape_url_characters(const std::string& str, bool escape_hash)
       default:
         encoded.push_back(str[i]);
         break;
+    }
+  }
+
+  return encoded;
+}
+
+// Escape XML characters in data sections of tags.
+// Note, this is different from _escape_attributes() in that double quotes are not escaped by Excel.
+std::string escape_data(std::string_view data)
+{
+  std::string encoded;
+  encoded.reserve(data.size() * 2);
+
+  for(auto c: data)
+  {
+    switch(c)
+    {
+      case '&':
+        encoded += XML_AMP;
+        break;
+
+      case '<':
+        encoded += XML_LT;
+        break;
+
+      case '>':
+        encoded += XML_GT;
+        break;
+
+      default:
+        encoded.push_back(c);
     }
   }
 

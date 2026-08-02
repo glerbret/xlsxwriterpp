@@ -25,6 +25,17 @@ comment_t::comment_t(const std::vector<vml_obj_t>& comment_objs, const std::stri
 {
 }
 
+std::string comment_t::assemble_xml_file()
+{
+  std::string xml_data = xml_declaration();
+  xml_data += write_comments();
+  xml_data += write_authors();
+  xml_data += write_comment_list();
+  xml_data += xml_end_tag("comments");
+
+  return xml_data;
+}
+
 bool comment_t::check_author(const std::string& author) const
 {
   if(author.empty())
@@ -50,102 +61,11 @@ uint32_t comment_t::get_author_index(const std::string& author)
   return author_id_ - 1;
 }
 
-std::string comment_t::write_text_t(const vml_obj_t& comment) const
+[[nodiscard]] std::string comment_t::write_comments() const
 {
-  return xml_data_element("t", comment.text_);
-}
-
-std::string comment_t::write_family(const vml_obj_t& comment) const
-{
-  return xml_empty_tag("family", {
-                                     {"val", std::to_string(comment.font_family_)}
+  return xml_start_tag("comments", {
+                                     {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
   });
-}
-
-std::string comment_t::write_r_font(const vml_obj_t& comment) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(!comment.font_name_.empty())
-  {
-    attributes.emplace_back("val", comment.font_name_);
-  }
-  else
-  {
-    attributes.emplace_back("val", "Tahoma");
-  }
-
-  return xml_empty_tag("rFont", attributes);
-}
-
-std::string comment_t::write_color() const
-{
-  return xml_empty_tag("color", {
-                                    {"indexed", "81"}
-  });
-}
-
-std::string comment_t::write_sz(const vml_obj_t& comment) const
-{
-  return xml_empty_tag("sz", {
-                                 {"val", std::format("{}", comment.font_size_)}
-  });
-}
-
-std::string comment_t::write_r_pr(const vml_obj_t& comment) const
-{
-  std::string xml_data = xml_start_tag("rPr");
-  xml_data += write_sz(comment);
-  xml_data += write_color();
-  xml_data += write_r_font(comment);
-  xml_data += write_family(comment);
-  xml_data += xml_end_tag("rPr");
-
-  return xml_data;
-}
-
-std::string comment_t::write_r(const vml_obj_t& comment) const
-{
-  std::string xml_data = xml_start_tag("r");
-  xml_data += write_r_pr(comment);
-  xml_data += write_text_t(comment);
-  xml_data += xml_end_tag("r");
-
-  return xml_data;
-}
-
-std::string comment_t::write_text(const vml_obj_t& comment) const
-{
-  std::string xml_data = xml_start_tag("text");
-  xml_data += write_r(comment);
-  xml_data += xml_end_tag("text");
-
-  return xml_data;
-}
-
-std::string comment_t::write_comment(const vml_obj_t& comment) const
-{
-  const std::string ref = rowcol_to_cell(comment.row_, comment.col_);
-  std::string xml_data  = xml_start_tag("comment", {
-                                                      {"ref",      ref                               },
-                                                      {"authorId", std::to_string(comment.author_id_)},
-  });
-  xml_data += write_text(comment);
-  xml_data += xml_end_tag("comment");
-
-  return xml_data;
-}
-
-std::string comment_t::write_comment_list() const
-{
-  std::string xml_data = xml_start_tag("commentList");
-  for(const auto& comment: comment_objs_)
-  {
-    xml_data += write_comment(comment);
-  }
-  xml_data += xml_end_tag("commentList");
-
-  return xml_data;
 }
 
 std::string comment_t::write_author(const std::string& author) const
@@ -187,20 +107,100 @@ std::string comment_t::write_authors()
   return xml_data;
 }
 
-[[nodiscard]] std::string comment_t::write_comments() const
+std::string comment_t::write_text_t(const vml_obj_t& comment) const
 {
-  return xml_start_tag("comments", {
-                                       {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+  return xml_data_element("t", comment.text_);
+}
+
+std::string comment_t::write_family(const vml_obj_t& comment) const
+{
+  return xml_empty_tag("family", {
+                                   {"val", std::to_string(comment.font_family_)}
   });
 }
 
-std::string comment_t::assemble_xml_file()
+std::string comment_t::write_r_font(const vml_obj_t& comment) const
 {
-  std::string xml_data = xml_declaration();
-  xml_data += write_comments();
-  xml_data += write_authors();
-  xml_data += write_comment_list();
-  xml_data += xml_end_tag("comments");
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(!comment.font_name_.empty())
+  {
+    attributes.emplace_back("val", comment.font_name_);
+  }
+  else
+  {
+    attributes.emplace_back("val", "Tahoma");
+  }
+
+  return xml_empty_tag("rFont", attributes);
+}
+
+std::string comment_t::write_color() const
+{
+  return xml_empty_tag("color", {
+                                  {"indexed", "81"}
+  });
+}
+
+std::string comment_t::write_sz(const vml_obj_t& comment) const
+{
+  return xml_empty_tag("sz", {
+                               {"val", std::format("{}", comment.font_size_)}
+  });
+}
+
+std::string comment_t::write_r_pr(const vml_obj_t& comment) const
+{
+  std::string xml_data = xml_start_tag("rPr");
+  xml_data += write_sz(comment);
+  xml_data += write_color();
+  xml_data += write_r_font(comment);
+  xml_data += write_family(comment);
+  xml_data += xml_end_tag("rPr");
+
+  return xml_data;
+}
+
+std::string comment_t::write_r(const vml_obj_t& comment) const
+{
+  std::string xml_data = xml_start_tag("r");
+  xml_data += write_r_pr(comment);
+  xml_data += write_text_t(comment);
+  xml_data += xml_end_tag("r");
+
+  return xml_data;
+}
+
+std::string comment_t::write_text(const vml_obj_t& comment) const
+{
+  std::string xml_data = xml_start_tag("text");
+  xml_data += write_r(comment);
+  xml_data += xml_end_tag("text");
+
+  return xml_data;
+}
+
+std::string comment_t::write_comment(const vml_obj_t& comment) const
+{
+  const std::string ref = rowcol_to_cell(comment.row_, comment.col_);
+  std::string xml_data  = xml_start_tag("comment", {
+                                                    {"ref",      ref                               },
+                                                    {"authorId", std::to_string(comment.author_id_)},
+  });
+  xml_data += write_text(comment);
+  xml_data += xml_end_tag("comment");
+
+  return xml_data;
+}
+
+std::string comment_t::write_comment_list() const
+{
+  std::string xml_data = xml_start_tag("commentList");
+  for(const auto& comment: comment_objs_)
+  {
+    xml_data += write_comment(comment);
+  }
+  xml_data += xml_end_tag("commentList");
 
   return xml_data;
 }

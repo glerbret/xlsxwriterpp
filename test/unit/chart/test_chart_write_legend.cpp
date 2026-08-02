@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(chart)
 BOOST_AUTO_TEST_CASE(legend_default)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(legend_default)
 BOOST_AUTO_TEST_CASE(legend_right)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(legend_right)
 BOOST_AUTO_TEST_CASE(legend_top)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(legend_top)
 BOOST_AUTO_TEST_CASE(legend_left)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(legend_left)
 BOOST_AUTO_TEST_CASE(legend_bottom)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(legend_bottom)
 BOOST_AUTO_TEST_CASE(legend_none)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(legend_none)
 BOOST_AUTO_TEST_CASE(legend_overlay_right)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE(legend_overlay_right)
 BOOST_AUTO_TEST_CASE(legend_overlay_left)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<c:chartSpace xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<c:lang val=\"en-US\"/>"

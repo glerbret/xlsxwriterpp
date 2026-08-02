@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(worksheet)
 BOOST_AUTO_TEST_CASE(spans01)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"B3\"/>"
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(spans01)
 BOOST_AUTO_TEST_CASE(spans02)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1048576\"/>"
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(spans02)
 BOOST_AUTO_TEST_CASE(spans03)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"XFD1\"/>"
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(spans03)
 BOOST_AUTO_TEST_CASE(spans04)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"XFD1048576\"/>"
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(spans04)
 BOOST_AUTO_TEST_CASE(spans05)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:T20\"/>"
@@ -264,7 +264,8 @@ BOOST_AUTO_TEST_CASE(spans05)
 
   for(size_t i = 0; i < 20; i++)
   {
-    worksheet.write_number(static_cast<xwpp::row_num_t>(i), static_cast<xwpp::col_num_t>(i), static_cast<double>(i + 1));
+    worksheet.write_number(static_cast<xwpp::row_num_t>(i), static_cast<xwpp::col_num_t>(i),
+                           static_cast<double>(i + 1));
   }
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

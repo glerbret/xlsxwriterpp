@@ -20,8 +20,8 @@ int main()
   worksheet.write_number(CELL("A4"), 40);
 
   xwpp::conditional_format_t conditional_format{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
+    .type_       = xwpp::conditional_format_types_t::ICON_SETS,
+    .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
   };
 
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);

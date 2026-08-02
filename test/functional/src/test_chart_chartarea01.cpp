@@ -16,11 +16,11 @@ int main()
   chart.set_axis_ids(82933248, 82952960);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -37,7 +37,7 @@ int main()
 
   xwpp::chart_line_t line1 = {.none_ = true};
   xwpp::chart_line_t line2 = {
-      .color_ = xwpp::color_t::YELLOW, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH};
+    .color_ = xwpp::color_t::YELLOW, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH};
 
   xwpp::chart_fill_t fill1 = {.color_ = xwpp::color_t::RED};
   xwpp::chart_fill_t fill2 = {.color_ = xwpp::color_t(0x92D050)};

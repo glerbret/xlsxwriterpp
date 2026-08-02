@@ -1,0 +1,269 @@
+/**
+@page working_with_comments Working with Cell Comments
+
+Cell comments are a way of adding notation to cells in Excel. For example:
+
+@code
+  #include "xlsxwriterpp.h"
+
+  int main()
+  {
+    xwpp::workbook_t workbook;
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+    worksheet.write_string(0, 0, "Hello");
+    worksheet.write_comment(0, 0, "This is a comment");
+
+    workbook.save("comments1.xlsx");
+  }
+@endcode
+
+@image html comments1.png
+
+@section ww_comments_properties Setting Comment Properties
+
+The properties of the cell comment can be modified by passing an optional
+`comment_options_t` struct to `worksheet_t::write_comment()` control the
+format of the comment. For example:
+
+@code
+  xwpp::comment_options_t options{
+    .x_scale_ = 1.2,
+    .y_scale_ = 0.5,
+  };
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+The following options are available in `comment_options_t`:
+
+- `%author_`
+- `%visible_`
+- `%width_`
+- `%height_`
+- `%x_scale_`
+- `%y_scale_`
+- `%color_`
+- `%font_name_`
+- `%font_size_`
+- `%start_row_`
+- `%start_col_`
+- `%x_offset_`
+- `%y_offset_`
+
+The options are explained in detail below and shown in @ref comments2.cpp.
+
+@subsection ww_comments_author Cell comments: `%author_`
+
+This `%author_` option is used to indicate who is the author of the cell
+comment. Excel displays the author of the comment in the status bar at the
+bottom of the worksheet. This is usually of interest in corporate environments
+where several people might review and provide comments to a workbook:
+
+@code
+  xwpp::comment_options_t options{.author_ = "Ian McEwan"};
+
+  worksheet.write_comment(CELL("C6"), "Atonement", options);
+@endcode
+
+The default author for all cell comments in a worksheet can be set using
+the `worksheet_t::set_comments_author()` function:
+
+@code
+  worksheet.set_comments_author("John Doe")
+@endcode
+
+@subsection ww_comments_visible Cell comments: `%visible_`
+
+The `%visible_` option is used to make a cell comment visible when the worksheet
+is opened. The default behavior in Excel is that comments are initially
+hidden. However, it is also possible in Excel to make individual comments or
+all comments visible. In `Xlsxwriter++` individual comments can be made visible as
+follows:
+
+@code
+  xwpp::comment_options_t options{.visible_ = xwpp::comment_display_t::VISIBLE};
+
+  worksheet.write_comment(CELL("C6"), "Hello.", options);
+@endcode
+
+The `%visible_` property should be set with one of the enum values from
+`comment_display_types_t`.
+
+It is possible to make all comments in a worksheet visible using the
+`worksheet_t::show_comments()` worksheet function. Alternatively, if all of the
+cell comments have been made visible you can hide individual comments:
+
+@code
+  xwpp::comment_options_t options{.visible_ = xwpp::comment_display_t::HIDDEN};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+@subsection ww_comments_width Cell comments: `%width_`
+
+The `%width_` option is used to set the width of the cell comment box explicitly
+in pixels:
+
+@code
+  xwpp::comment_options_t options{.width_ = 200};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+The width and height can be adjusted together:
+
+@code
+  xwpp::comment_options_t options{.width_ = 200, .height_ = 50};
+@endcode
+
+@subsection ww_comments_height Cell comments: `%height_`
+
+The `%height_` option is used to set the height of the cell comment box
+explicitly in pixels:
+
+@code
+  xwpp::comment_options_t options{.height_ = 50};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+The width and height can be adjusted together:
+
+@code
+  xwpp::comment_options_t options{.width_ = 200, .height_ = 50};
+@endcode
+
+@subsection ww_comments_x_scale Cell comments: `%x_scale_`
+
+The `%x_scale_` option is used to set the width of the cell comment box
+as a factor of the default width:
+
+@code
+  xwpp::comment_options_t options{.x_scale_ = 2.0};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+@subsection ww_comments_y_scale Cell comments: `%y_scale_`
+
+The `%y_scale_` option is used to set the height of the cell comment box
+as a factor of the default height:
+
+@code
+  xwpp::comment_options_t options{.y_scale_ = 2.0};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+@subsection ww_comments_color Cell comments: `%color_`
+
+The `%color_` option is used to set the background color of cell comment
+box. The color should be an RGB integer value, see @ref
+working_with_colors.
+
+@code
+  xwpp::comment_options_t options1{.color_ = xwpp::color_t::GREEN};
+  xwpp::comment_options_t options2{.color_ = xwpp::color_t(0xFF6600)};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options1);
+  worksheet.write_comment(CELL("C7"), "Hello", options2);
+@endcode
+
+@subsection ww_comments_font_name Cell comments: `%font_name_`
+
+The `%font_name_` option is used to set the font for the comment:
+
+@code
+  xwpp::comment_options_ options{.font_name_ = "Courier"};
+@endcode
+
+The default font is 'Tahoma'.
+
+@subsection ww_comments_font_size Cell comments: `%font_size_`
+
+The `%font_size_` option is used to set the font size for the comment:
+
+@code
+  xwpp::comment_options_t options{.font_name_ = "Courier", .font_size_ = 10};
+@endcode
+
+The  default font size is 8.
+
+@subsection ww_comments_start_row Cell comments: `%start_row_`
+
+The `%start_row_` option is used to set the row in which the comment will
+appear. By default Excel displays comments one cell to the right and one cell
+above the cell to which the comment relates.  The row is zero indexed:
+
+@code
+  xwpp::comment_options_t options{.start_row_ = 3, .start_col_ = 4};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+See @ref ww_comments_notes
+
+@subsection ww_comments_start_col Cell comments: `%start_col_`
+
+The `%start_col_` option is used to set the column in which the comment will
+appear. By default Excel displays comments one cell to the right and one cell
+above the cell to which the comment relates. The column is zero indexed:
+
+@code
+  xwpp::comment_options_t options{.start_row_ = 3, .start_col_ = 4};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+See @ref ww_comments_notes
+
+@subsection ww_comments_x_offset Cell comments: `%x_offset_`
+
+The `%x_offset_` option is used to change the x offset, in pixels, of a
+comment within a cell:
+
+@code
+  xwpp::comment_options_t options{.x_offset_ = 30, .y_offset_ = 12};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+See @ref ww_comments_notes
+
+@subsection ww_comments_y_offset Cell comments: `%y_offset_`
+
+The `%y_offset_` option is used to change the y offset, in pixels, of a
+comment within a cell:
+
+@code
+  xwpp::comment_options_t options{.x_offset_ = 30, .y_offset_ = 12};
+
+  worksheet.write_comment(CELL("C6"), "Hello", options);
+@endcode
+
+See @ref ww_comments_notes
+
+@subsection ww_comments_notes Notes on scaling of cell comments
+
+<b>Note on options that move a cell position:</b>
+
+Excel only displays offset cell comments when they are displayed as
+`visible`. Excel does **not** display hidden cells as displaced when you mouse
+over them. Please note this when using options that adjust the position of the
+cell comment such as `start_row`, `start_col`, `x_offset` and `y_offset`.
+
+<b>Note on row height and comments:</b>
+
+If you specify the height of a row that contains a comment then `Xlsxwriter++`
+will adjust the height of the comment to maintain the default or user
+specified dimensions. However, the height of a row can also be adjusted
+automatically by Excel if the text wrap property is set or large fonts are
+used in the cell. This means that the height of the row is unknown to the
+library at run time and thus the comment box is stretched with the row. Use
+the `worksheet_set_row()` function to specify the row height explicitly and
+avoid this problem. See Example 8 of @ref comments2.cpp.
+
+Next: @ref working_with_outlines
+
+*/

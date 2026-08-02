@@ -21,11 +21,11 @@ int main()
   worksheet.write_string(CELL("E1"), "Column]");
 
   std::vector<xwpp::table_column_t> columns = {
-      {.header_ = "Column1", .total_string_ = "Total"                             },
-      {.header_ = "Column'", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Column#", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Column[", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Column]", .total_function_ = xwpp::table_total_functions_t::SUM}
+    {.header_ = "Column1", .total_string_ = "Total"                             },
+    {.header_ = "Column'", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Column#", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Column[", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Column]", .total_function_ = xwpp::table_total_functions_t::SUM}
   };
   xwpp::table_options_t options = {.total_row_ = true, .columns_ = columns};
 

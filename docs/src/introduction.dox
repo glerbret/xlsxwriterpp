@@ -1,0 +1,27 @@
+/**
+
+@page introduction Introduction
+
+`Xlsxwriter++` is a C++ library for writing files in the Excel 2007+ XLSX
+file format.
+
+It can be used to write text, numbers, formulas and hyperlinks to multiple
+worksheets, to draw several charts and it supports features such as formatting.
+
+The main advantages of using `Xlsxwriter++` are:
+
+- It has a high degree of fidelity with files produced by Excel. In
+  most cases the files produced are 100% equivalent to files
+  produced by Excel.
+- It has extensive documentation, example files and tests.
+
+However:
+
+- It can only create **new files**. It cannot read or modify
+  existing files.
+
+`Xlsxwriter++` is a C++ port of [libxlsxwriter](https://github.com/jmcnamara/libxlsxwriter) from John McNamara.
+
+Next: @ref getting_started
+
+*/

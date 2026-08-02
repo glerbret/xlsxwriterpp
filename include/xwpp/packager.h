@@ -70,7 +70,6 @@ private:
   void add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename);
 
   [[nodiscard]] uint32_t get_drawing_count(const workbook_t& workbook) const;
-  [[nodiscard]] uint32_t get_chart_count(const workbook_t& workbook) const;
   [[nodiscard]] uint32_t get_table_count(const workbook_t& workbook) const;
 
   zipFile zipfile_ = nullptr;

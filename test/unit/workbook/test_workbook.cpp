@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(workbook)
 BOOST_AUTO_TEST_CASE(workbook01)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<fileVersion appName=\"xl\" lastEdited=\"4\" lowestEdited=\"4\" rupBuild=\"4505\"/>"
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(workbook01)
 BOOST_AUTO_TEST_CASE(workbook02)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<fileVersion appName=\"xl\" lastEdited=\"4\" lowestEdited=\"4\" rupBuild=\"4505\"/>"
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(workbook02)
 BOOST_AUTO_TEST_CASE(workbook03)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<fileVersion appName=\"xl\" lastEdited=\"4\" lowestEdited=\"4\" rupBuild=\"4505\"/>"

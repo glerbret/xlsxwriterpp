@@ -13,15 +13,21 @@
 namespace xwpp
 {
 
-std::string rich_value_t::write_v(const std::string& value) const
+std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
 {
-  return xml_data_element("v", value);
+  std::string xml_data = xml_declaration();
+  xml_data += write_rv_data(workbook);
+  xml_data += write_images(workbook);
+  xml_data += xml_end_tag("rvData");
+
+  return xml_data;
 }
 
-std::string rich_value_t::write_rv() const
+std::string rich_value_t::write_rv_data(const workbook_t& workbook) const
 {
-  return xml_start_tag("rv", {
-                                 {"s", "0"}
+  return xml_start_tag("rvData", {
+                                   {"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata"},
+                                   {"count", std::to_string(workbook.num_embedded_images_)                    },
   });
 }
 
@@ -65,22 +71,16 @@ std::string rich_value_t::write_images(const workbook_t& workbook) const
   return xml_data;
 }
 
-std::string rich_value_t::write_rv_data(const workbook_t& workbook) const
+std::string rich_value_t::write_rv() const
 {
-  return xml_start_tag("rvData", {
-                                     {"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata"},
-                                     {"count", std::to_string(workbook.num_embedded_images_)                    },
+  return xml_start_tag("rv", {
+                               {"s", "0"}
   });
 }
 
-std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
+std::string rich_value_t::write_v(const std::string& value) const
 {
-  std::string xml_data = xml_declaration();
-  xml_data += write_rv_data(workbook);
-  xml_data += write_images(workbook);
-  xml_data += xml_end_tag("rvData");
-
-  return xml_data;
+  return xml_data_element("v", value);
 }
 
 }

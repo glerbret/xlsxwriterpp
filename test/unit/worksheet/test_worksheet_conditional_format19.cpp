@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(worksheet)
 BOOST_AUTO_TEST_CASE(condtional_format19)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -120,15 +120,15 @@ BOOST_AUTO_TEST_CASE(condtional_format19)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-      .min_value_     = 5,
-      .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
-      // Mid values should be ignored.
-      .mid_value_     = 52,
-      .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
-      .max_value_     = 90,
-      .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
-      .bar_color_     = xwpp::color_t(0x8DB4E3),
+    .type_          = xwpp::conditional_format_types_t::DATA_BAR,
+    .min_value_     = 5,
+    .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
+    // Mid values should be ignored.
+    .mid_value_     = 52,
+    .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
+    .max_value_     = 90,
+    .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
+    .bar_color_     = xwpp::color_t(0x8DB4E3),
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 

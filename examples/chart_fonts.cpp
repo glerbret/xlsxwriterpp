@@ -30,13 +30,13 @@ int main()
   chart.add_series("", "Sheet1!$A$1:$A$6");
 
   // Create some fonts to use in the chart.
-  xwpp::chart_font_t font1 = {.name_ = "Calibri", .color_ = xwpp::color_t::BLUE};
-  xwpp::chart_font_t font2 = {.name_ = "Courier", .color_ = static_cast<xwpp::color_t>(0x92D050)};
-  xwpp::chart_font_t font3 = {.name_ = "Arial", .color_ = static_cast<xwpp::color_t>(0x00B0F0)};
-  xwpp::chart_font_t font4 = {.name_ = "Century", .color_ = xwpp::color_t::RED};
-  xwpp::chart_font_t font5 = {.rotation_ = -30};
-  xwpp::chart_font_t font6 = {
-      .bold_ = true, .italic_ = true, .underline_ = true, .color_ = static_cast<xwpp::color_t>(0x7030A0)};
+  xwpp::chart_font_t font1{.name_ = "Calibri", .color_ = xwpp::color_t::BLUE};
+  xwpp::chart_font_t font2{.name_ = "Courier", .color_ = static_cast<xwpp::color_t>(0x92D050)};
+  xwpp::chart_font_t font3{.name_ = "Arial", .color_ = static_cast<xwpp::color_t>(0x00B0F0)};
+  xwpp::chart_font_t font4{.name_ = "Century", .color_ = xwpp::color_t::RED};
+  xwpp::chart_font_t font5{.rotation_ = -30};
+  xwpp::chart_font_t font6{
+    .bold_ = true, .italic_ = true, .underline_ = true, .color_ = static_cast<xwpp::color_t>(0x7030A0)};
 
   // Write the chart title with a font.
   chart.title_set_name("Test Results");

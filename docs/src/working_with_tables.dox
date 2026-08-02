@@ -1,0 +1,458 @@
+/**
+@page working_with_tables Working with Worksheet Tables
+
+@tableofcontents
+
+Tables in Excel are a way of grouping a range of cells into a single entity
+that has common formatting or that can be referenced from formulas. Tables can
+have column headers, autofilters, total rows, column formulas and default
+formatting.
+
+@image html tables12.png
+
+For a general introduction to this Excel feature see [An Overview of Excel
+Tables](http://office.microsoft.com/en-us/excel-help/overview-of-excel-tables-HA010048546.aspx)
+in the Microsoft Office documentation.
+
+@section ww_tables_add_table Adding a table to a worksheet
+
+Tables are added to a worksheet using the `worksheet_t::add_table()` function:
+
+@code
+  worksheet.add_table( 2, 1, 6, 5);
+@endcode
+
+Or more explicitly using the `RANGE()` macro:
+
+@code
+  worksheet.add_table(RANGE("B3:F7")); //Same as above.
+@endcode
+
+@image html tables1.png
+
+The `worksheet_t::add_table()` `options` parameter should be a
+`table_options_t` struct with the parameters that describe the table options:
+
+@code
+  worksheet.add_table(2, 1, 6, 5, options);
+@endcode
+
+These options are explained in the sections below.
+
+You should take care not to overlap worksheet tables as this is not allowed by
+Excel and will cause an error when the file is loaded.
+
+@subsection ww_tables_header_row Parameter: `%no_header_row_`
+
+The `%no_header_row_` parameter can be used to turn off the header row in the
+table. It is on by default:
+
+@code
+  xwpp::table_options_t options{.no_header_row_ = true};
+
+  worksheet.add_table(RANGE("B4:F7"), options);
+@endcode
+
+@image html tables4.png
+
+Without this option the header row will contain default captions such as
+`Column 1`, `Column 2`, etc. These captions can be overridden using the
+`columns` parameter shown below.
+
+@subsection ww_tables_autofilter Parameter: `%no_autofilter_`
+
+The `%no_autofilter_` parameter can be used to turn off the autofilter in the
+header row. It is on by default:
+
+@code
+  xwpp::table_options_t options{.no_autofilter_ = true};
+
+  worksheet.add_table(RANGE("B3:F7"), options);
+@endcode
+
+@image html tables3.png
+
+The autofilter is only shown if the `%no_header_row_` parameter is off (the
+default). Filter conditions within the table are not supported.
+
+@subsection ww_tables_banded_rows Parameter: `%no_banded_rows_`
+
+The `%no_banded_rows_` parameter can be used to turn off the rows of alternating
+color in the table. It is on by default:
+
+@code
+  xwpp::table_options_t options{.no_banded_rows_ = true};
+
+  worksheet.add_table(RANGE("B3:F7"), options);
+@endcode
+
+@image html tables6.png
+
+@subsection ww_tables_banded_columns Parameter: `%banded_columns_`
+
+The `%banded_columns_` parameter can be used to used to create columns of
+alternating color in the table. It is off by default:
+
+@code
+  xwpp::table_options_t options{.banded_columns_ = true};
+
+  worksheet.add_table(RANGE("B3:F7"), options);
+@endcode
+
+The banded columns formatting is shown in the image in the previous section
+above.
+
+@subsection ww_tables_first_column Parameter: `%first_column_`
+
+The `%first_column_` parameter can be used to highlight the first column of the
+table. The type of highlighting will depend on the `style_type` of the table.
+It may be bold text or a different color. It is off by default:
+
+@code
+  xwpp::table_options_t options{
+    .first_column_ = true,
+    .last_column_ = true,
+  };
+
+  worksheet.add_table(RANGE("B3:F7"), options);
+@endcode
+
+@image html tables5.png
+
+@subsection ww_tables_last_column Parameter: `%last_column_`
+
+The `%last_column_` parameter can be used to highlight the last column of the
+table. The type of highlighting will depend on the `style` of the table. It
+may be bold text or a different color. It is off by default:
+
+@code
+  xwpp::table_options_t options{
+    .first_column_ = true,
+    .last_column_ = true,
+  };
+
+  worksheet.add_table(RANGE("B3:F7"), options);
+@endcode
+
+The `%last_column_` formatting is shown in the image in the previous section
+above.
+
+@subsection ww_tables_style Parameter: `%style_type_` and `%style_type_number_`
+
+The `%style_type_` parameter can be used to set the style of the table, in
+conjunction with the `style_type_number` parameter:
+
+@code
+  xwpp::table_options_t options{
+    .style_type_        = xwpp::table_style_type_t::LIGHT,
+    .style_type_number_ = 11,
+  };
+
+  worksheet.add_table(RANGE("B3:G8"), options);
+@endcode
+
+@image html tables11.png
+
+There are three types of table style in Excel: Light, Medium and Dark which
+are represented using the `table_style_type_t` enum values:
+
+- `table_style_type_t::LIGHT`
+
+- `table_style_type_t::MEDIUM`
+
+- `table_style_type_t::DARK`
+
+Within those ranges there are between 11 and 28 other style types which can be
+set with `%style_type_number_` (depending on the style type). Check Excel to
+find the style that you want. The dialog with the options laid out in numeric
+order are shown below:
+
+@image html tables14.png
+
+The default table style in Excel is 'Table Style Medium 9' (highlighted with
+a green border in the image above), which is set by default in `Xlsxwriter++`
+as:
+
+@code
+  xwpp::table_options_t options{
+    .style_type_        = xwpp::table_style_type_t::MEDIUM,
+    .style_type_number_ = 9,
+  };
+@endcode
+
+You can also turn the table style off by setting it to Light 0:
+
+@code
+  xwpp::table_options_t options{
+    .style_type_        = xwpp::table_style_type_t::LIGHT,
+    .style_type_number_ = 0,
+  };
+@endcode
+
+@image html tables13.png
+
+@subsection ww_tables_name Parameter: `%name_`
+
+The `%name_` parameter is used to set the name of the table. This parameter is
+optional and by default tables are named `Table1`, `Table2`, etc. in the
+worksheet order that they are added.
+
+@code
+  xwpp::table_options_t options{.name_ = "Sales"};
+
+  worksheet.add_table(RANGE("B3:G8"), options);
+@endcode
+
+If you override the table name you must ensure that it doesn't clash with an
+existing table name and that it follows Excel's requirements for table names,
+see the Microsoft Office documentation on [Naming an Excel
+Table](https://support.microsoft.com/en-us/office/rename-an-excel-table-fbf49a4f-82a3-43eb-8ba2-44d21233b114).
+
+@subsection ww_tables_total_row Parameter: `%total_row_`
+
+The `%total_row_` parameter can be used to turn on the total row in the last
+row of a table. It is distinguished from the other rows by a different
+formatting and also with dropdown `SUBTOTAL` functions:
+
+@code
+  xwpp::table_options_t options{.total_row_ = true};
+
+  worksheet.add_table(RANGE("B3:G8"), options);
+@endcode
+
+@image html tables9.png
+
+The default total row doesn't have any captions or functions. These must by
+specified via the `%columns_` parameter below.
+
+@subsection ww_tables_columns Parameter: `%columns_`
+
+The `%columns_` parameter can be used to set properties for columns within the
+table.
+
+@image html tables7.png
+
+The sub-properties of `table_column_t` that can be set are:
+
+- `table_column_t::header_`
+- `table_column_t::header_format_`
+- `table_column_t::formula_`
+- `table_column_t::total_string_`
+- `table_column_t::total_function_`
+- `table_column_t::total_value_`
+- `table_column_t::format_`
+
+The `%columns_` parameter should be a Nvector of
+`table_column_t` pointers. For example to override the default 'Column n'
+style table headers:
+
+@code
+  std::vector<xwpp::table_column_t> columns{
+    {.header_ = "Product"},
+    {.header_ = "Quarter 1"},
+    {.header_ = "Quarter 2"},
+    {.header_ = "Quarter 3"},
+    {.header_ = "Quarter 4"},
+  };
+  xwpp::table_options_t options{.columns_ = columns};
+
+  worksheet.add_table(RANGE("B3:F7"), options);
+@endcode
+
+If you don't wish to specify properties for a specific column you can pass an
+empty `table_column_t` and the defaults will be applied:
+
+@code
+  std::vector<xwpp::table_column_t> columns{
+    {.header_ = "Product"},
+    {.header_ = "Quarter 1"},
+    {},                       // Defaults to Column3.
+    {.header_ = "Quarter 3"},
+    {.header_ = "Quarter 4"},
+  };
+@endcode
+
+Column formulas can by applied using the column `formula` property:
+
+@code
+  std::vector<xwpp::table_column_t> columns{
+    {.header_ = "Product"},
+    {.header_ = "Quarter 1"},
+    {.header_ = "Quarter 2"},
+    {.header_ = "Quarter 3"},
+    {.header_ = "Quarter 4"},
+    {.header_ = "Year", .formula_ = "=SUM(Table8[@[Quarter 1]:[Quarter 4]])"},
+
+  };
+  xwpp::table_options_t options{.columns_ = columns};
+
+  worksheet.add_table(RANGE("B3:G7"), options);
+@endcode
+
+@image html tables8.png
+
+The Excel 2007 style `"#This Row"` and Excel 2010 style `"@"` structural
+references are supported within the formula. However, other Excel 2010
+additions to structural references aren't supported and formulas should
+conform to Excel 2007 style formulas. See the Microsoft documentation on
+[Using structured references with Excel tables](http://office.microsoft.com/en-us/excel-help/using-structured-references-with-excel-tables-HA010155686.aspx)
+for details.
+
+As stated above the `total_row` table parameter turns on the "Total" row in
+the table but it doesn't populate it with any defaults. Total captions and
+functions must be specified via the `columns` property and the `total_string`
+and `total_function` sub properties:
+
+@code
+  std::vector<xwpp::table_column_t> columns{
+    {
+      .header_         = "Product",
+      .total_string_   = "Totals"
+    },
+    {
+      .header_         = "Quarter 1",
+      .total_function_ = xwpp::table_total_functions_t::SUM,
+    },
+    {
+      .header_         = "Quarter 2",
+      .total_function_ = xwpp::table_total_functions_t::SUM,
+    },
+    {
+      .header_         = "Quarter 3",
+      .total_function_ = xwpp::table_total_functions_t::SUM,
+    },
+    {
+      .header_         = "Quarter 4",
+      .total_function_ = xwpp::table_total_functions_t::SUM,
+    },
+    {
+      .header_         = "Year",
+      .formula_        = "=SUM(Table10[@[Quarter 1]:[Quarter 4]])",
+      .total_function_ = xwpp::table_total_functions_t::SUM,
+    },
+  };
+  xwpp::table_options_t options{
+    .total_row_ = true,
+    .columns    = columns,
+  };
+
+  worksheet.add_table(RANGE("B3:G8"), options);
+@endcode
+
+The supported totals row `SUBTOTAL` functions are defined in
+`table_total_functions_t`:
+
+- `table_total_functions_t::AVERAGE`
+- `table_total_functions_t::COUNT_NUMS`
+- `table_total_functions_t::COUNT`
+- `table_total_functions_t::MAX`
+- `table_total_functions_t::MIN`
+- `table_total_functions_t::STD_DEV`
+- `table_total_functions_t::SUM`
+- `table_total_functions_t::VAR`
+
+User defined functions or formulas aren't supported.
+
+It is also possible to set a calculated value for the `%total_function_` using
+the `%total_value_` sub property. This is only necessary when creating workbooks
+for applications that cannot calculate the value of formulas automatically.
+This is similar to setting the `result` property in
+`worksheet_t::write_formula_num()`. See also @ref ww_formulas_results.
+
+Formatting can also be applied to columns using the `%format_` and to the header
+using `%header_format_` (although you will also need to add it to the data in
+the column, see the next section):
+
+@code
+  std::vector<xwpp::table_column_t> columns{
+    {
+      .header         = "Product",
+      .total_string   = "Totals",
+    },
+    {
+      .header         = "Quarter 1",
+      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .format         = currency_format,
+    },
+    {
+      .header         = "Quarter 2",
+      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .format         = currency_format,
+    },
+    {
+      .header         = "Quarter 3",
+      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .format         = currency_format,
+    },
+    {
+      .header         = "Quarter 4",
+      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .format         = currency_format,
+    },
+    {
+      .header         = "Year",
+      .formula        = "=SUM(Table13[@[Quarter 1]:[Quarter 4]])",
+      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .format         = currency_format,
+    },
+  };
+
+  xwpp::table_options_t options{
+    .total_row_ = true,
+    .columns_   = columns,
+  };
+
+  worksheet.add_table(RANGE("B3:G8"), options);
+@endcode
+
+@image html tables12.png
+
+Standard `Xlsxwriter++` `format_t` objects are used for this formatting.
+However, they should be limited to numerical formats for the columns and
+simple formatting like text wrap for the headers. Overriding other table
+formatting may produce inconsistent results. You will also need to apply the
+same format to any data you write to the column in the table, see the next
+section.
+
+@section ww_tables_data Adding data to the table
+
+Once you create a worksheet table you will also need to fill in the data in
+the rows and columns. This is done with the standard worksheet `%write()`
+functions. For example the data in the examples above was written as follows:
+
+@code
+  worksheet.write_string(3, 1, "Apples");
+  worksheet.write_string(4, 1, "Pears");
+  worksheet.write_string(5, 1, "Bananas");
+  worksheet.write_string(6, 1, "Oranges");
+
+  worksheet.write_number(3, 2, 10000,  format);
+  worksheet.write_number(4, 2,  2000,  format);
+  worksheet.write_number(5, 2,  6000,  format);
+  worksheet.write_number(6, 2,   500,  format);
+
+  worksheet.write_number(3, 3,  5000,  format);
+  worksheet.write_number(4, 3,  3000,  format);
+  worksheet.write_number(5, 3,  6000,  format);
+  worksheet.write_number(6, 3,   300,  format);
+
+  worksheet.write_number(3, 4,  8000,  format);
+  worksheet.write_number(4, 4,  4000,  format);
+  worksheet.write_number(5, 4,  6500,  format);
+  worksheet.write_number(6, 4,   200,  format);
+
+  worksheet.write_number(3, 5,  6000,  format);
+  worksheet.write_number(4, 5,  5000,  format);
+  worksheet.write_number(5, 5,  6000,  format);
+  worksheet.write_number(6, 5,   700,  format);
+@endcode
+
+@image html tables2.png
+
+@section ww_tables_Example Example
+
+All of the images shown above are taken from @ref tables.cpp.
+
+Next: @ref working_with_comments
+
+*/

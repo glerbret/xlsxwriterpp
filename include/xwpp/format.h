@@ -11,7 +11,7 @@
  * applied to a cell including: fonts, colors, patterns,
  * borders, alignment and number formatting.
  *
- * See @ref format.h for full details of the functionality.
+ * @see @ref format.h for full details of the functionality.
  *
  * @file
  *
@@ -25,37 +25,24 @@
  *
  * @image html formats_intro.png
  *
- * Formats in `Xlsxwriter++` are accessed via the lxw_format
- * struct. Throughout this document these will be referred to simply as
+ * Formats in `Xlsxwriter++` are accessed via the `format_t`
+ * class. Throughout this document these will be referred to simply as
  * *Formats*.
  *
- * Formats are created by calling the workbook_add_format() method as
+ * Formats are created by calling the `workbook_t::add_format()` method as
  * follows:
  *
  * @code
- *     lxw_format *format = workbook_add_format(workbook);
+ *  // Create the Format.
+ *  xwpp::format_t* format = workbook.add_format();
+ *
+ *  // Set some of the format properties.
+ *  format->set_bold();
+ *  format->set_font_color(xwpp::color_t::RED);
+ *
+ *  // Use the format to change the text format in a cell.
+ *  worksheet.write_string(0, 0, "Hello", format);
  * @endcode
- *
- * The members of the lxw_format struct aren't modified directly. Instead the
- * format properties are set by calling the functions shown in this section.
- * For example:
- *
- * @code
- *    // Create the Format.
- *    lxw_format *format = workbook_add_format(workbook);
- *
- *    // Set some of the format properties.
- *    format_set_bold(format);
- *    format_set_font_color(format, LXW_COLOR_RED);
- *
- *    // Use the format to change the text format in a cell.
- *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
- *
- * @endcode
- *
- * The full range of formatting options that can be applied using
- * `Xlsxwriter++` are shown below.
- *
  */
 
 #ifndef XWPP_FORMAT_H
@@ -65,35 +52,59 @@
 #include <functional>
 #include <string>
 
+/// @cond
 namespace xwpp
 {
+/// @endcond
 
-// TODO Add rgb function to build color_t
 /**
- * @brief The type for RGB colors in Xlsxwriter++.
+ * @brief The type for RGB colors in `Xlsxwriter++`.
  *
- * The type for RGB colors in Xlsxwriter++. The valid range is `0x000000`
- * (black) to `0xFFFFFF` (white). See @ref working_with_colors.
+ * The type for RGB colors in `Xlsxwriter++`. The valid range is `0x000000`
+ * (black) to `0xFFFFFF` (white).
+ *
+ * @see @ref working_with_colors.
  *
  * Few predefined colors are provided through enumerates.
+ *
+ * @todo Replace by a class or struct.
+ * @todo With predefined value in an enum class, function to build `%color_t`, ...
+ *
+ * @showenumvalues
  */
 enum class color_t : uint32_t
 {
+  /** <span style="color:#000000">Black.</span>*/
   BLACK   = 0x000000,
+  /** <span style="color:#0000FF">Blue.</span>*/
   BLUE    = 0x0000FF,
+  /** <span style="color:#800000">Brown.</span>*/
   BROWN   = 0x800000,
+  /** <span style="color:#00FFFF">Cyan.</span>*/
   CYAN    = 0x00FFFF,
+  /** <span style="color:#808080">Gray.</span>*/
   GRAY    = 0x808080,
+  /** <span style="color:#008000">Green.</span>*/
   GREEN   = 0x008000,
+  /** <span style="color:#00FF00">Lime.</span>*/
   LIME    = 0x00FF00,
+  /** <span style="color:#FF00FF">Magenta.</span>*/
   MAGENTA = 0xFF00FF,
+  /** <span style="color:#000080">Navy.</span>*/
   NAVY    = 0x000080,
+  /** <span style="color:#FF6600">Orange.</span>*/
   ORANGE  = 0xFF6600,
+  /** <span style="color:#FF00FF">Pink.</span>*/
   PINK    = 0xFF00FF,
+  /** <span style="color:#800080">Purple.</span>*/
   PURPLE  = 0x800080,
+  /** <span style="color:#FF0000">Red.</span>*/
   RED     = 0xFF0000,
+  /** <span style="color:#C0C0C0">Silver.</span>*/
   SILVER  = 0xC0C0C0,
+  /** <span style="color:#FFFFFF">White.</span>*/
   WHITE   = 0xFFFFFF,
+  /** <span style="color:#FFFF00">Yellow.</span>*/
   YELLOW  = 0xFFFF00,
 
   // Special value
@@ -104,85 +115,100 @@ const uint32_t COLOR_MASK = 0xFFFFFF;
 const double MIN_FONT_SIZE = 1.0;
 const double MAX_FONT_SIZE = 409.0;
 
-// TODO Complete the list
-// Format underline values for format_set_underline().
+/**
+ * @brief Option for underline format.
+ *
+ * Format underline values for `format_t::set_underline()`.
+ *
+ * @todo Complete the list
+ */
 enum class format_underlines_t
 {
   NONE = 0,
 
-  // Single underline
+  /** Single underline. */
   SINGLE,
 
-  // Double underline
+  /** Double underline. */
   DOUBLE,
 
-  // Single accounting underline
-
+  /** Single accounting underline. */
   SINGLE_ACCOUNTING,
 
-  // Double accounting underline
+  /** Double accounting underline. */
   DOUBLE_ACCOUNTING
 };
 
-/** Superscript and subscript values for format_set_font_script(). */
+/**
+ * @brief Option for superscript and subscript.
+ *
+ * Superscript and subscript values for `format_t::set_font_script()`.
+ */
 enum class format_scripts_t
 {
-  /** No script */
+  /** No script. */
   NONE,
 
-  /** Superscript font */
+  /** Superscript font. */
   SUPERSCRIPT,
 
-  /** Subscript font */
+  /** Subscript font. */
   SUBSCRIPT
 };
 
-// Alignment values for format_set_align().
+/**
+ * @brief Alignment options.
+ *
+ * Alignment values for `format_t::set_align()`.
+ *
+ * @todo Separate vertical / horizontal alignment option?
+ */
 enum class format_alignments_t
 {
-  // No alignment. Cell will use Excel's default for the data type
+  /** No alignment. Cell will use Excel's default for the data type. */
   NONE = 0,
 
-  // Left horizontal alignment
+  /** Left horizontal alignment. */
   HORIZONTAL_LEFT,
 
-  // Center horizontal alignment
+  /** Center horizontal alignment. */
   HORIZONTAL_CENTER,
 
-  // Right horizontal alignment
+  /** Right horizontal alignment. */
   HORIZONTAL_RIGHT,
 
-  // Cell fill horizontal alignment
+  /** Cell fill horizontal alignment. */
   HORIZONTAL_FILL,
 
-  // Justify horizontal alignment
+  /** Justify horizontal alignment. */
   HORIZONTAL_JUSTIFY,
 
-  // Center Across horizontal alignment
+  /** Center Across horizontal alignment. */
   HORIZONTAL_CENTER_ACROSS,
 
-  // Left horizontal alignment
+  /** Left horizontal alignment. */
   HORIZONTAL_DISTRIBUTED,
 
-  // Top vertical alignment
+  /** Top vertical alignment. */
   VERTICAL_TOP,
 
-  // Bottom vertical alignment
+  /** Bottom vertical alignment. */
   VERTICAL_BOTTOM,
 
-  // Center vertical alignment
+  /** Center vertical alignment. */
   VERTICAL_CENTER,
 
-  // Justify vertical alignment
+  /** Justify vertical alignment. */
   VERTICAL_JUSTIFY,
 
-  // Distributed vertical alignment
+  /** Distributed vertical alignment. */
   VERTICAL_DISTRIBUTED
 };
 
 /**
- * Diagonal border types.
+ * @brief Diagonal border types.
  *
+ * Diagonal border types.
  */
 enum class format_diagonal_types_t
 {
@@ -198,137 +224,143 @@ enum class format_diagonal_types_t
   BORDER_UP_DOWN
 };
 
-// Pattern value for use with format_set_pattern().
+/**
+ * @brief Pattern options.
+ *
+ * Pattern value for use with `format_t::set_pattern()`.
+ */
 enum class format_patterns_t
 {
-  // Empty pattern
+  /** Empty pattern. */
   NONE = 0,
 
-  // Solid pattern
+  /** Solid pattern. */
   SOLID,
 
-  // Medium gray pattern
+  /** Medium gray pattern. */
   MEDIUM_GRAY,
 
-  // Dark gray pattern
+  /** Dark gray pattern. */
   DARK_GRAY,
 
-  // Light gray pattern
+  /** Light gray pattern. */
   LIGHT_GRAY,
 
-  // Dark horizontal line pattern
+  /** Dark horizontal line pattern. */
   DARK_HORIZONTAL,
 
-  // Dark vertical line pattern
+  /** Dark vertical line pattern. */
   DARK_VERTICAL,
 
-  // Dark diagonal stripe pattern
+  /** Dark diagonal stripe pattern. */
   DARK_DOWN,
 
-  // Reverse dark diagonal stripe pattern
+  /** Reverse dark diagonal stripe pattern. */
   DARK_UP,
 
-  // Dark grid pattern
+  /** Dark grid pattern. */
   DARK_GRID,
 
-  // Dark trellis pattern
+  /** Dark trellis pattern. */
   DARK_TRELLIS,
 
-  // Light horizontal Line pattern
+  /** Light horizontal Line pattern. */
   LIGHT_HORIZONTAL,
 
-  // Light vertical line pattern
+  /** Light vertical line pattern. */
   LIGHT_VERTICAL,
 
-  // Light diagonal stripe pattern
+  /** Light diagonal stripe pattern. */
   LIGHT_DOWN,
 
-  // Reverse light diagonal stripe pattern
+  /** Reverse light diagonal stripe pattern. */
   LIGHT_UP,
 
-  // Light grid pattern
+  /** Light grid pattern. */
   LIGHT_GRID,
 
-  // Light trellis pattern
+  /** Light trellis pattern. */
   LIGHT_TRELLIS,
 
-  // 12.5% gray pattern
+  /** 12.5% gray pattern. */
   GRAY_125,
 
-  // 6.25% gray pattern
+  /** 6.25% gray pattern. */
   GRAY_0625
 };
 
-// Cell border styles for use with format_set_border().
+/**
+ * @brief Cell border styles.
+ *
+ * Cell border styles for use with `format_t::set_border()`.
+ */
 enum class format_borders_t
 {
-  // No border
+  /** No border. */
   NONE,
 
-  // Thin border style
+  /** Thin border style. */
   THIN,
 
-  // Medium border style
+  /** Medium border style. */
   MEDIUM,
 
-  // Dashed border style
+  /** Dashed border style. */
   DASHED,
 
-  // Dotted border style
+  /** Dotted border style. */
   DOTTED,
 
-  // Thick border style
+  /** Thick border style. */
   THICK,
 
-  // Double border style
+  /** Double border style. */
   DOUBLE,
 
-  // Hair border style
+  /** Hair border style. */
   HAIR,
 
-  // Medium dashed border style
+  /** Medium dashed border style. */
   MEDIUM_DASHED,
 
-  // Dash-dot border style
+  /** Dash-dot border style. */
   DASH_DOT,
 
-  // Medium dash-dot border style
+  /** Medium dash-dot border style. */
   MEDIUM_DASH_DOT,
 
-  // Dash-dot-dot border style
+  /** Dash-dot-dot border style. */
   DASH_DOT_DOT,
 
-  // Medium dash-dot-dot border style
+  /** Medium dash-dot-dot border style. */
   MEDIUM_DASH_DOT_DOT,
 
-  // Slant dash-dot border style
+  /** Slant dash-dot border style. */
   SLANT_DASH_DOT
 };
 
 /**
  * @brief Representation the formatting properties of an Excel format.
  *
- * The members of the format_t struct aren't modified directly. Instead the
- * format properties are set by calling the functions shown in format.h.
- *
- * For example:
+ * Representation the formatting properties of an Excel format with API to
+ * change it.
  *
  * @code
- *    // Create the Format.
- *    format_t *format = workbook_add_format(workbook);
+ *  // Create the Format.
+ *  xwpp::format_t* format = workbook.add_format();
  *
- *    // Set some of the format properties.
- *    format_set_bold(format);
- *    format_set_font_color(format, LXW_COLOR_RED);
+ *  // Set some of the format properties.
+ *  format->set_bold();
+ *  format->set_font_color(xwpp::color_t::RED);
  *
- *    // Use the format to change the text format in a cell.
- *    worksheet_write_string(worksheet, 0, 0, "Hello", format);
- *
+ *  // Use the format to change the text format in a cell.
+ *  worksheet.write_string(0, 0, "Hello", format);
  * @endcode
  *
+ * @todo Rework this to improve format (builder, encapsulation in higher-level class,
+ * independent class, manage it through std::shared_ptr, ...).
+ * @todo Add builder API.
  */
-// TODO After creation of higher level class, this should become a struct with all field public
-// TODO Or more simplen use std::shared_ptr to exchange with caller
 class format_t
 {
 public:
@@ -337,7 +369,6 @@ public:
   /**
    * @brief Set the number format for a cell.
    *
-   * @param format      Pointer to a Format instance.
    * @param num_format The cell number format string.
    *
    * This method is used to define the numerical format of a number in
@@ -349,13 +380,13 @@ public:
    * string:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_num_format(format, "d mmm yyyy");
+   *  xwpp::format_t* format = workbook.add_format();
+   *  format->set_num_format("d mmm yyyy");
    * @endcode
    *
    * Format strings can control any aspect of number formatting allowed by Excel:
    *
-   * @dontinclude format_num_format.c
+   * @dontinclude format_num_format.cpp
    * @skipline set_num_format
    * @until 1209
    *
@@ -375,15 +406,13 @@ public:
   /**
    * @brief Turn on bold for the format font.
    *
-   * @param format Pointer to a Format instance.
-   *
    * Set the bold property of the font:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_bold(format);
+   *  format = workbook.add_format();
+   *  format->set_bold();
    *
-   *     worksheet_write_string(worksheet, 0, 0, "Bold Text", format);
+   *  worksheet.write_string(0, 0, "Bold Text", format);
    * @endcode
    *
    * @image html format_font_bold.png
@@ -393,15 +422,13 @@ public:
   /**
    * @brief Turn on italic for the format font.
    *
-   * @param format Pointer to a Format instance.
-   *
    * Set the italic property of the font:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_italic(format);
+   *  format = workbook.add_format();
+   *  format->set_italic();
    *
-   *     worksheet_write_string(worksheet, 0, 0, "Italic Text", format);
+   *  worksheet.write_string(0, 0, "Italic Text", format);
    * @endcode
    *
    * @image html format_font_italic.png
@@ -411,115 +438,137 @@ public:
   /**
    * @brief Set the alignment for data in the cell.
    *
-   * @param format    Pointer to a Format instance.
-   * @param alignment The horizontal and or vertical alignment direction.
+   * @param alignment The horizontal and / or vertical alignment direction.
    *
    * This method is used to set the horizontal and vertical text alignment within
    * a cell. The following are the available horizontal alignments:
    *
-   * - #LXW_ALIGN_LEFT
-   * - #LXW_ALIGN_CENTER
-   * - #LXW_ALIGN_RIGHT
-   * - #LXW_ALIGN_FILL
-   * - #LXW_ALIGN_JUSTIFY
-   * - #LXW_ALIGN_CENTER_ACROSS
-   * - #LXW_ALIGN_DISTRIBUTED
+   * - `%format_alignments_t::HORIZONTAL_LEFT`
+   * - `%format_alignments_t::HORIZONTAL_CENTER`
+   * - `%format_alignments_t::HORIZONTAL_RIGHT`
+   * - `%format_alignments_t::HORIZONTAL_FILL`
+   * - `%format_alignments_t::HORIZONTAL_JUSTIFY`
+   * - `%format_alignments_t::HORIZONTAL_CENTER_ACROSS`
+   * - `%format_alignments_t::HORIZONTAL_DISTRIBUTED`
    *
    * The following are the available vertical alignments:
    *
-   * - #LXW_ALIGN_VERTICAL_TOP
-   * - #LXW_ALIGN_VERTICAL_BOTTOM
-   * - #LXW_ALIGN_VERTICAL_CENTER
-   * - #LXW_ALIGN_VERTICAL_JUSTIFY
-   * - #LXW_ALIGN_VERTICAL_DISTRIBUTED
+   * - `%format_alignments_t::VERTICAL_TOP`
+   * - `%format_alignments_t::VERTICAL_BOTTOM`
+   * - `%format_alignments_t::VERTICAL_CENTER`
+   * - `%format_alignments_t::VERTICAL_JUSTIFY`
+   * - `%format_alignments_t::VERTICAL_DISTRIBUTED`
    *
    * As in Excel, vertical and horizontal alignments can be combined:
    *
    * @code
-   *     format = workbook_add_format(workbook);
+   *  format = workbook.add_format();
    *
-   *     format_set_align(format, LXW_ALIGN_CENTER);
-   *     format_set_align(format, LXW_ALIGN_VERTICAL_CENTER);
+   *  format_set_align(format, xwpp::format_alignments_t::HORIZONTAL_CENTER);
+   *  format_set_align(format, xwpp::format_alignments_t::VERTICAL_CENTER);
    *
-   *     worksheet_set_row(0, 30);
-   *     worksheet_write_string(worksheet, 0, 0, "Some Text", format);
+   *  worksheet.set_row(0, 30);
+   *  worksheet.write_string(0, 0, "Some Text", format);
    * @endcode
    *
    * @image html format_font_align.png
    *
    * Text can be aligned across two or more adjacent cells using the
-   * center_across property. However, for genuine merged cells it is better to
-   * use the worksheet_merge_range() worksheet method.
+   * `%center_across` property. However, for genuine merged cells it is better to
+   * use the worksheet_t::merge_range() worksheet method.
    *
    * The vertical justify option can be used to provide automatic text wrapping
    * in a cell. The height of the cell will be adjusted to accommodate the
    * wrapped text. To specify where the text wraps use the
-   * format_set_text_wrap() method.
+   * `set_text_wrap()` method.
+   *
+   * @todo Split in two functions or a two-paramters function.
    */
   void set_align(format_alignments_t alignment);
 
   /**
    * @brief Set the color of the font used in the cell.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell font color.
-   *
+   * @param color The cell font color.
    *
    * Set the font color:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_font_color(format, LXW_COLOR_RED);
+   *  format = workbook.add_format();
+   *  format->set_font_color(xwpp::color_t::RED);
    *
-   *     worksheet_write_string(worksheet, 0, 0, "Wheelbarrow", format);
+   *  worksheet.write_string(0, 0, "Wheelbarrow", format);
    * @endcode
    *
    * @image html format_font_color.png
    *
    * The color should be an RGB integer value, see @ref working_with_colors.
    *
-   * @note
-   * The format_set_font_color() method is used to set the font color in a
-   * cell. To set the color of a cell background use the format_set_bg_color()
-   * and format_set_pattern() methods.
+   * @note The `%set_font_color()` method is used to set the font color in a
+   * cell. To set the color of a cell background use the `set_bg_color()`
+   * and `set_pattern()` methods.
    */
   void set_font_color(color_t color);
 
   /**
    * @brief Set the pattern foreground color for a cell.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell pattern foreground  color.
+   * @param color The cell pattern foreground  color.
    *
-   * The format_set_fg_color() method can be used to set the foreground color of
+   * The `%set_fg_color()` method can be used to set the foreground color of
    * a pattern.
    *
    * The color should be an RGB integer value, see @ref working_with_colors.
-   *
    */
   void set_fg_color(color_t color);
 
   /**
-   * @brief Turn on underline for the format:
+   * @brief Set the pattern background color for a cell.
    *
-   * @param format Pointer to a Format instance.
+   * @param color The cell pattern background color.
+   *
+   * The `%set_bg_color()` method can be used to set the background color of
+   * a pattern. Patterns are defined via the `set_pattern()` method. If a
+   * pattern hasn't been defined then a solid fill pattern is used as the
+   * default.
+   *
+   * Here is an example of how to set up a solid fill in a cell:
+   *
+   * @code
+   *  format = workbook.add_format();
+   *  format->set_pattern(xwpp::format_patterns_t::SOLID);
+   *  format->set_bg_color(xwpp::color_t::GREEN);
+   *
+   *  worksheet.write_string(0, 0, "Ray", format);
+   * @endcode
+   *
+   * @image html formats_set_bg_color.png
+   *
+   * The color should be an RGB integer value, see @ref working_with_colors.
+   */
+  void set_bg_color(color_t color);
+
+  /**
+   * @brief Turn on underline for the format.
+   *
    * @param style Underline style.
    *
    * Set the underline property of the format:
    *
    * @code
-   *     format_set_underline(format, LXW_UNDERLINE_SINGLE);
+   *  format->set_underline(xwpp::format_underlines_t::SINGLE);
    * @endcode
    *
    * @image html format_font_underlined.png
    *
    * The available underline styles are:
    *
-   * - #LXW_UNDERLINE_SINGLE
-   * - #LXW_UNDERLINE_DOUBLE
-   * - #LXW_UNDERLINE_SINGLE_ACCOUNTING
-   * - #LXW_UNDERLINE_DOUBLE_ACCOUNTING
+   * - `%format_underlines_t::SINGLE`
+   * - `%format_underlines_t::DOUBLE`
+   * - `%format_underlines_t::SINGLE_ACCOUNTING`
+   * - `%format_underlines_t::DOUBLE_ACCOUNTING`
    *
+   * @todo Check if overline is available on, if needed, add it.
    */
   void set_underline(format_underlines_t style);
 
@@ -529,210 +578,174 @@ public:
    * Turn text wrapping on for text in a cell.
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_text_wrap(format);
+   *  format = workbook.add_format();
+   *  format->set_text_wrap();
    *
-   *     worksheet_write_string(worksheet, 0, 0, "Some long text to wrap in a
-   * cell", format);
+   *  worksheet.write_string(0, 0, "Some long text to wrap in a cell", format);
    * @endcode
    *
    * If you wish to control where the text is wrapped you can add newline
    * characters to the string:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_text_wrap(format);
+   *  format = workbook.add_format();
+   *  format->set_text_wrap(format);
    *
-   *     worksheet_write_string(worksheet, 0, 0, "It's\na bum\nwrap", format);
+   *  worksheet.write_string(0, 0, "It's\na bum\nwrap", format);
    * @endcode
    *
    * @image html format_font_text_wrap.png
    *
    * Excel will adjust the height of the row to accommodate the wrapped text. A
    * similar effect can be obtained without newlines using the
-   * format_set_align() function with #LXW_ALIGN_VERTICAL_JUSTIFY.
+   * `set_align()` function with `%format_alignments_t::VERTICAL_JUSTIFY`.
    */
   void set_text_wrap();
-
-  void set_hyperlink();
 
   /**
    * @brief Set the cell border style.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  Border style index.
+   * @param style Border style index.
    *
    * Set the cell border style:
    *
    * @code
-   *     format_set_border(format, LXW_BORDER_THIN);
+   *  format->set_border(format_borders_t::THIN);
    * @endcode
    *
    * Individual border elements can be configured using the following functions
    * with the same parameters:
    *
-   * - format_set_bottom()
-   * - format_set_top()
-   * - format_set_left()
-   * - format_set_right()
+   * - `set_bottom()`
+   * - `set_top()`
+   * - `set_left()`
+   * - `set_right()`
    *
    * A cell border is comprised of a border on the bottom, top, left and right.
-   * These can be set to the same value using format_set_border() or
+   * These can be set to the same value using `%set_border()` or
    * individually using the relevant method calls shown above.
    *
    * The following border styles are available:
    *
-   * - #LXW_BORDER_THIN
-   * - #LXW_BORDER_MEDIUM
-   * - #LXW_BORDER_DASHED
-   * - #LXW_BORDER_DOTTED
-   * - #LXW_BORDER_THICK
-   * - #LXW_BORDER_DOUBLE
-   * - #LXW_BORDER_HAIR
-   * - #LXW_BORDER_MEDIUM_DASHED
-   * - #LXW_BORDER_DASH_DOT
-   * - #LXW_BORDER_MEDIUM_DASH_DOT
-   * - #LXW_BORDER_DASH_DOT_DOT
-   * - #LXW_BORDER_MEDIUM_DASH_DOT_DOT
-   * - #LXW_BORDER_SLANT_DASH_DOT
+   * - `%format_borders_t::THIN`
+   * - `%format_borders_t::MEDIUM`
+   * - `%format_borders_t::DASHED`
+   * - `%format_borders_t::DOTTED`
+   * - `%format_borders_t::THICK`
+   * - `%format_borders_t::DOUBLE`
+   * - `%format_borders_t::HAIR`
+   * - `%format_borders_t::MEDIUM_DASHED`
+   * - `%format_borders_t::DASH_DOT`
+   * - `%format_borders_t::MEDIUM_DASH_DOT`
+   * - `%format_borders_t::DASH_DOT_DOT`
+   * - `%format_borders_t::MEDIUM_DASH_DOT_DOT`
+   * - `%format_borders_t::SLANT_DASH_DOT`
    *
-   *  The most commonly used style is the `thin` style.
+   * The most commonly used style is the `thin` style.
    */
   void set_border(format_borders_t style);
 
   /**
    * @brief Set the cell bottom border style.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  Border style index.
+   * @param style Border style index.
    *
-   * Set the cell bottom border style. See format_set_border() for details on the
-   * border styles.
+   * Set the cell bottom border style.
+   *
+   * @see `set_border()` for details on the border styles.
    */
   void set_bottom(format_borders_t style);
 
   /**
    * @brief Set the cell top border style.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  Border style index.
+   * @param style Border style index.
    *
-   * Set the cell top border style. See format_set_border() for details on the
-   * border styles.
+   * Set the cell top border style.
+   *
+   * @see `set_border()` for details on the border styles.
    */
   void set_top(format_borders_t style);
 
   /**
    * @brief Set the cell left border style.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  Border style index.
+   * @param style Border style index.
    *
-   * Set the cell left border style. See format_set_border() for details on the
-   * border styles.
+   * Set the cell left border style.
+   *
+   * @see `set_border()` for details on the border styles.
    */
   void set_left(format_borders_t style);
 
   /**
    * @brief Set the cell right border style.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  Border style index.
+   * @param style Border style index.
    *
-   * Set the cell right border style. See format_set_border() for details on the
-   * border styles.
+   * Set the cell right border style.
+   *
+   * @see `set_border()` for details on the border styles.
    */
   void set_right(format_borders_t style);
 
   /**
-   * @brief Set the pattern background color for a cell.
+   * @brief Set the background fill pattern for a cell.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell pattern background color.
-   *
-   * The format_set_bg_color() method can be used to set the background color of
-   * a pattern. Patterns are defined via the format_set_pattern() method. If a
-   * pattern hasn't been defined then a solid fill pattern is used as the
-   * default.
-   *
-   * Here is an example of how to set up a solid fill in a cell:
-   *
-   * @code
-   *     format = workbook_add_format(workbook);
-   *
-   *     format_set_pattern (format, LXW_PATTERN_SOLID);
-   *     format_set_bg_color(format, LXW_COLOR_GREEN);
-   *
-   *     worksheet_write_string(worksheet, 0, 0, "Ray", format);
-   * @endcode
-   *
-   * @image html formats_set_bg_color.png
-   *
-   * The color should be an RGB integer value, see @ref working_with_colors.
-   *
-   */
-  void set_bg_color(color_t color);
-
-  /**
-   * @brief Set the background fill pattern for a cell
-   *
-   * @param format Pointer to a Format instance.
-   * @param index  Pattern index.
+   * @param pattern Pattern index.
    *
    * Set the background pattern for a cell.
    *
    * The most common pattern is a solid fill of the background color:
    *
    * @code
-   *     format = workbook_add_format(workbook);
+   *  format = workbook.add_format();
    *
-   *     format_set_pattern (format, LXW_PATTERN_SOLID);
-   *     format_set_bg_color(format, LXW_COLOR_YELLOW);
+   *  format->set_pattern(xwpp::format_patterns_t::SOLID);
+   *  format->set_bg_color(xwpp::color_t::YELLOW);
    * @endcode
    *
    * The available fill patterns are:
    *
    *    Fill Type                     | Define
-   *    ----------------------------- | -----------------------------
-   *    Solid                         | #LXW_PATTERN_SOLID
-   *    Medium gray                   | #LXW_PATTERN_MEDIUM_GRAY
-   *    Dark gray                     | #LXW_PATTERN_DARK_GRAY
-   *    Light gray                    | #LXW_PATTERN_LIGHT_GRAY
-   *    Dark horizontal line          | #LXW_PATTERN_DARK_HORIZONTAL
-   *    Dark vertical line            | #LXW_PATTERN_DARK_VERTICAL
-   *    Dark diagonal stripe          | #LXW_PATTERN_DARK_DOWN
-   *    Reverse dark diagonal stripe  | #LXW_PATTERN_DARK_UP
-   *    Dark grid                     | #LXW_PATTERN_DARK_GRID
-   *    Dark trellis                  | #LXW_PATTERN_DARK_TRELLIS
-   *    Light horizontal line         | #LXW_PATTERN_LIGHT_HORIZONTAL
-   *    Light vertical line           | #LXW_PATTERN_LIGHT_VERTICAL
-   *    Light diagonal stripe         | #LXW_PATTERN_LIGHT_DOWN
-   *    Reverse light diagonal stripe | #LXW_PATTERN_LIGHT_UP
-   *    Light grid                    | #LXW_PATTERN_LIGHT_GRID
-   *    Light trellis                 | #LXW_PATTERN_LIGHT_TRELLIS
-   *    12.5% gray                    | #LXW_PATTERN_GRAY_125
-   *    6.25% gray                    | #LXW_PATTERN_GRAY_0625
-   *
+   *    ----------------------------- | --------------------------------------
+   *    Solid                         |  `%format_patterns_t::SOLID`
+   *    Medium gray                   |  `%format_patterns_t::MEDIUM_GRAY`
+   *    Dark gray                     |  `%format_patterns_t::DARK_GRAY`
+   *    Light gray                    |  `%format_patterns_t::LIGHT_GRAY`
+   *    Dark horizontal line          |  `%format_patterns_t::DARK_HORIZONTAL`
+   *    Dark vertical line            |  `%format_patterns_t::DARK_VERTICAL`
+   *    Dark diagonal stripe          |  `%format_patterns_t::DARK_DOWN`
+   *    Reverse dark diagonal stripe  |  `%format_patterns_t::DARK_UP`
+   *    Dark grid                     |  `%format_patterns_t::DARK_GRID`
+   *    Dark trellis                  |  `%format_patterns_t::DARK_TRELLIS`
+   *    Light horizontal line         |  `%format_patterns_t::LIGHT_HORIZONTAL`
+   *    Light vertical line           |  `%format_patterns_t::LIGHT_VERTICAL`
+   *    Light diagonal stripe         |  `%format_patterns_t::LIGHT_DOWN`
+   *    Reverse light diagonal stripe |  `%format_patterns_t::LIGHT_UP`
+   *    Light grid                    |  `%format_patterns_t::LIGHT_GRID`
+   *    Light trellis                 |  `%format_patterns_t::LIGHT_TRELLIS`
+   *    12.5% gray                    |  `%format_patterns_t::GRAY_125`
+   *    6.25% gray                    |  `%format_patterns_t::GRAY_0625`
    */
   void set_pattern(format_patterns_t pattern);
 
   /**
    * @brief Set the color of the cell border.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell border color.
+   * @param color The cell border color.
    *
    * Individual border elements can be configured using the following methods with
    * the same parameters:
    *
-   * - format_set_bottom_color()
-   * - format_set_top_color()
-   * - format_set_left_color()
-   * - format_set_right_color()
+   * - `set_bottom_color()`
+   * - `set_top_color()`
+   * - `set_left_color()`
+   * - `set_right_color()`
    *
    * Set the color of the cell borders. A cell border is comprised of a border
    * on the bottom, top, left and right. These can be set to the same color
-   * using format_set_border_color() or individually using the relevant method
+   * using `set_border_color()` or individually using the relevant method
    * calls shown above.
    *
    * The color should be an RGB integer value, see @ref working_with_colors.
@@ -742,132 +755,122 @@ public:
   /**
    * @brief Set the color of the bottom cell border.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell border color.
+   * @param color The cell border color.
    *
-   * See format_set_border_color() for details on the border colors.
+   * @see `set_border_color()` for details on the border colors.
    */
   void set_bottom_color(color_t color);
 
   /**
    * @brief Set the color of the top cell border.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell border color.
+   * @param color The cell border color.
    *
-   * See format_set_border_color() for details on the border colors.
+   * @see `set_border_color()` for details on the border colors.
    */
   void set_top_color(color_t color);
 
   /**
    * @brief Set the color of the left cell border.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell border color.
+   * @param color The cell border color.
    *
-   * See format_set_border_color() for details on the border colors.
+   * @see `set_border_color()` for details on the border colors.
    */
   void set_left_color(color_t color);
 
   /**
    * @brief Set the color of the right cell border.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell border color.
+   * @param color The cell border color.
    *
-   * See format_set_border_color() for details on the border colors.
+   * @see `set_border_color()` for details on the border colors.
    */
   void set_right_color(color_t color);
 
   /**
    * @brief Set the diagonal cell border type.
    *
-   * @param format Pointer to a Format instance.
-   * @param type   The #lxw_format_diagonal_types diagonal border type.
+   * @param type The `format_diagonal_types` diagonal border type.
    *
    * Set the diagonal cell border type:
    *
    * @code
-   *     lxw_format *format1 = workbook_add_format(workbook);
-   *     format_set_diag_type(  format1, LXW_DIAGONAL_BORDER_UP);
+   *  xwpp::format_t* format1 = workbook.add_format();
+   *  format1->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP);
    *
-   *     lxw_format *format2 = workbook_add_format(workbook);
-   *     format_set_diag_type(  format2, LXW_DIAGONAL_BORDER_DOWN);
+   *  xwpp::format_t* format2 = workbook.add_format();
+   *  format2->set_diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN);
    *
-   *     lxw_format *format3 = workbook_add_format(workbook);
-   *     format_set_diag_type(  format3, LXW_DIAGONAL_BORDER_UP_DOWN);
+   *  xwpp::format_t* format3 = workbook.add_format();
+   *  format3->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
    *
-   *     lxw_format *format4 = workbook_add_format(workbook);
-   *     format_set_diag_type(  format4, LXW_DIAGONAL_BORDER_UP_DOWN);
-   *     format_set_diag_border(format4, LXW_BORDER_HAIR);
-   *     format_set_diag_color( format4, LXW_COLOR_RED);
+   *  xwpp::format_t* format4 = workbook.add_format();
+   *  format4->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
+   *  format4->set_diag_border(xwpp::format_borders_t::HAIR);
+   *  format4->set_diag_color(xwpp::color_t::RED);
    *
-   *     worksheet_write_string(worksheet, CELL("B3"),  "Text", format1);
-   *     worksheet_write_string(worksheet, CELL("B6"),  "Text", format2);
-   *     worksheet_write_string(worksheet, CELL("B9"),  "Text", format3);
-   *     worksheet_write_string(worksheet, CELL("B12"), "Text", format4);
+   *  worksheet.write_string(CELL("B3"), "Text", format1);
+   *  worksheet.write_string(CELL("B6"), "Text", format2);
+   *  worksheet.write_string(CELL("B9"), "Text", format3);
+   *  worksheet.write_string(CELL("B12"), "Text", format4);
    * @endcode
    *
    * @image html diagonal_border.png
    *
-   * The allowable border types are defined in #lxw_format_diagonal_types:
+   * The allowable border types are defined in `format_diagonal_types_t`:
    *
-   * - #LXW_DIAGONAL_BORDER_UP: Cell diagonal border from bottom left to top
+   * - `%format_diagonal_types_t::BORDER_UP`: Cell diagonal border from bottom left to top
    *   right.
    *
-   * - #LXW_DIAGONAL_BORDER_DOWN: Cell diagonal border from top left to bottom
+   * - `%format_diagonal_types_t::BORDER_DOWN`: Cell diagonal border from top left to bottom
    *   right.
    *
-   * - #LXW_DIAGONAL_BORDER_UP_DOWN: Cell diagonal border from top left to
+   * - `%format_diagonal_types_t::BORDER_UP_DOWN`: Cell diagonal border from top left to
    *   bottom right. A combination of the 2 previous types.
    *
-   * If the border style isn't specified with `format_set_diag_border()` then it
-   * will default to #LXW_BORDER_THIN.
+   * If the border style isn't specified with `set_diag_border()` then it
+   * will default to `format_borders_t::THIN`.
    */
   void set_diag_type(format_diagonal_types_t type);
 
   /**
    * @brief Set the diagonal cell border style.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  The #lxw_format_borders style.
+   * @param style The `format_borders_t` style.
    *
-   * Set the diagonal border style. This should be a #lxw_format_borders value.
-   * See the example above.
-   *
+   * Set the diagonal border style. This should be a `format_borders_t` value.
    */
   void set_diag_border(format_borders_t style);
 
   /**
    * @brief Set the diagonal cell border color.
    *
-   * @param format Pointer to a Format instance.
-   * @param color  The cell diagonal border color.
+   * @param color The cell diagonal border color.
    *
    * Set the diagonal border color. The color should be an RGB integer value,
-   * see @ref working_with_colors and the above example.
+   *
+   * @see @ref working_with_colors and the above example.
    */
   void set_diag_color(color_t color);
 
   /**
    * @brief Set the Excel built-in number format for a cell.
    *
-   * @param format Pointer to a Format instance.
-   * @param index  The built-in number format index for the cell.
+   * @param index The built-in number format index for the cell.
    *
-   * This function is similar to format_set_num_format() except that it takes an
+   * This function is similar to `%set_num_format()` except that it takes an
    * index to a limited number of Excel's built-in number formats instead of a
    * user defined format string:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_num_format_index(format, 0x0F); // d-mmm-yy
+   *  format = workbook.add_format();
+   *  format->set_num_format_index(0x0F); // d-mmm-yy
    * @endcode
    *
-   * @note
-   * Unless you need to specifically access one of Excel's built-in number
-   * formats the format_set_num_format() function above is a better
-   * solution. The format_set_num_format_index() function is mainly included for
+   * @note Unless you need to specifically access one of Excel's built-in number
+   * formats the `set_num_format()` function above is a better solution.
+   * The `%set_num_format_index()` function is mainly included for
    * backward compatibility and completeness.
    *
    * The Excel built-in number formats as shown in the table below:
@@ -913,27 +916,28 @@ public:
    *   | 49    | 0x31  | `@`                                                  |
    *
    * @note
-   *  -  Numeric formats 23 to 36 are not documented by Microsoft and may differ
-   *     in international versions. The listed date and currency formats may also
-   *     vary depending on system settings.
+   *  - Numeric formats 23 to 36 are not documented by Microsoft and may differ
+   *    in international versions. The listed date and currency formats may also
+   *    vary depending on system settings.
    *  - The dollar sign in the above format appears as the defined local currency
    *    symbol.
-   *  - These formats can also be set via format_set_num_format().
-   *  - See also @ref ww_formats_categories.
+   *  - These formats can also be set via `set_num_format()`.
+   *
+   * @see also @ref ww_formats_categories.
+   *
+   * @todo Use dedicated enum.
    */
-  // TODO Use dedicated type ?
   void set_num_format_index(uint8_t index);
 
   /**
    * @brief Set the font used in the cell.
    *
-   * @param format    Pointer to a Format instance.
    * @param font_name Cell font name.
    *
    * Specify the font used used in the cell format:
    *
    * @code
-   *     format_set_font_name(format, "Avenir Black Oblique");
+   *  format->set_font_name("Avenir Black Oblique");
    * @endcode
    *
    * @image html format_set_font_name.png
@@ -942,121 +946,183 @@ public:
    * running on. Therefore it is generally best to use the fonts that come as
    * standard with Excel such as Calibri, Times New Roman and Courier New.
    *
-   * The default font in Excel 2007, and later, is Calibri.
+   * The default font in Excel 2007, and later, is `Calibri`.
    */
   void set_font_name(const std::string& font_name);
 
   /**
    * @brief Set the size of the font used in the cell.
    *
-   * @param format Pointer to a Format instance.
-   * @param size   The cell font size.
+   * @param size The cell font size.
    *
    * Set the font size of the cell format:
    *
    * @code
-   *     format_set_font_size(format, 30);
+   *  format->set_font_size(30);
    * @endcode
    *
    * @image html format_font_size.png
    *
    * Excel adjusts the height of a row to accommodate the largest font
    * size in the row. You can also explicitly specify the height of a
-   * row using the worksheet_set_row() function.
+   * row using the `worksheet_t::set_row()` function.
    */
   void set_font_size(double size);
 
   /**
    * @brief Set the strikeout property of the font.
    *
-   * @param format Pointer to a Format instance.
-   *
    * @image html format_font_strikeout.png
    *
+   * @todo Check if there is strike type in Excel. And
+   * add parameter if available.
    */
   void set_font_strikeout();
 
   /**
    * @brief Set the superscript/subscript property of the font.
    *
-   * @param format Pointer to a Format instance.
-   * @param style  Superscript or subscript style.
+   * @param style Superscript or subscript style.
    *
-   * Set the superscript o subscript property of the font.
+   * Set the superscript or subscript property of the font.
    *
    * @image html format_font_script.png
    *
    * The available script styles are:
    *
-   * - #LXW_FONT_SUPERSCRIPT
-   * - #LXW_FONT_SUBSCRIPT
+   * - `format_scripts_t::SUPERSCRIPT`
+   * - `format_scripts_t::SUBSCRIPT`
    */
   void set_font_script(format_scripts_t style);
 
   /**
    * @brief Set the Format font family property.
    *
-   * @param format Pointer to a Format instance.
-   * @param value  The font family index.
+   * @param value The font family index.
    *
-   * Set the font family. This is usually an integer in the range 1-4. This
-   * function is implemented for completeness but is rarely used in practice.
+   * Set the font family. This is usually an integer in the range 1-4.
    *
    * @code
-   *     format_set_font_family(format, 178);
+   *  format->set_font_family(178);
    * @endcode
-   *
    */
   void set_font_family(uint8_t value);
 
   /**
    * @brief Set the Format font character set property.
    *
-   * @param format Pointer to a Format instance.
-   * @param value  The font character set.
+   * @param value The font character set.
    *
-   * Set the font character set property. This function is implemented for
-   * completeness but is rarely used in practice.
+   * Set the font character set property.
    *
    * @code
-   *     format_set_font_charset(format, 178);
+   *  format->set_font_charset(178);
    * @endcode
-   *
    */
   void set_font_charset(uint8_t value);
 
+  /**
+   * @brief Set the Format font outline property.
+   *
+   * Set the font outline property.
+   *
+   * @code
+   *  format->set_font_outline();
+   * @endcode
+   *
+   * @todo Add image in description.
+   */
   void set_font_outline();
-  void set_font_shadow();
-  void set_font_scheme(const std::string& font_scheme);
-  void set_font_condense();
-  void set_font_extend();
-  void set_font_only();
 
-  // TODO Refactor this point to not have it in several places
-  std::function<int32_t(format_t*)> get_dxf_index_;
+  /**
+   * @brief Set the Format font shadow property.
+   *
+   * Set the font shadow property.
+   *
+   * @code
+   *  format->set_font_shadow();
+   * @endcode
+   *
+   * @todo Add image in description.
+   */
+  void set_font_shadow();
+
+  /**
+   * @brief Set the Format font scheme property.
+   *
+   * @param font_scheme The font scheme.
+   *
+   * Set the font scheme property.
+   *
+   * @code
+   *  format->set_font_scheme("fs");
+   * @endcode
+   *
+   * @todo Add image in description.
+   * @todo Add an example (and fix example here).
+   */
+  void set_font_scheme(const std::string& font_scheme);
+
+  /**
+   * @brief Set the Format font condense property.
+   *
+   * Set the font condense property.
+   *
+   * @code
+   *  format->set_font_condense();
+   * @endcode
+   *
+   * @todo Add image in description.
+   */
+  void set_font_condense();
+
+  /**
+   * @brief Set the Format font extend property.
+   *
+   * Set the font extend property.
+   *
+   * @code
+   *  format->set_font_extend();
+   * @endcode
+   *
+   * @todo Add image in description.
+   */
+  void set_font_extend();
+
+  /**
+   * @brief Set the Format font only property.
+   *
+   * Set the font only property.
+   *
+   * @code
+   *  format->set_font_only();
+   * @endcode
+   *
+   * @todo Add image in description.
+   * @todo Add an example (and fix example here).
+   */
+  void set_font_only();
 
   /**
    * @brief Set the cell unlocked state.
    *
-   * @param format Pointer to a Format instance.
-   *
    * This property can be used to allow modification of a cell in a protected
    * worksheet. In Excel, cell locking is turned on by default for all
    * cells. However, it only has an effect if the worksheet has been protected
-   * using the worksheet worksheet_protect() function:
+   * using the worksheet `worksheet_t::protect()` function:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_unlocked(format);
+   *  format = workbook.add_format();
+   *  format->set_unlocked();
    *
-   *     // Enable worksheet protection, without password or options.
-   *     worksheet_protect(worksheet, NULL, NULL);
+   *  // Enable worksheet protection, without password or options.
+   *  worksheet.protect();
    *
-   *     // This cell cannot be edited.
-   *     worksheet_write_formula(worksheet, 0, 0, "=1+2", NULL);
+   *  // This cell cannot be edited.
+   *  worksheet.write_formula(0, 0, "=1+2");
    *
-   *     // This cell can be edited.
-   *     worksheet_write_formula(worksheet, 1, 0, "=1+2", format);
+   *  // This cell can be edited.
+   *  worksheet.write_formula(1, 0, "=1+2", format);
    * @endcode
    */
   void set_unlocked();
@@ -1064,23 +1130,21 @@ public:
   /**
    * @brief Hide formulas in a cell.
    *
-   * @param format Pointer to a Format instance.
-   *
    * This property is used to hide a formula while still displaying its
    * result. This is generally used to hide complex calculations from end users
    * who are only interested in the result. It only has an effect if the
-   * worksheet has been protected using the worksheet worksheet_protect()
+   * worksheet has been protected using the worksheet `worksheet_t::protect()`
    * function:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_hidden(format);
+   *  format = workbook.add_format();
+   *  format->set_hidden();
    *
-   *     // Enable worksheet protection, without password or options.
-   *     worksheet_protect(worksheet, NULL, NULL);
+   *  // Enable worksheet protection, without password or options.
+   *  worksheet.protect();
    *
-   *     // The formula in this cell isn't visible.
-   *     worksheet_write_formula(worksheet, 0, 0, "=1+2", format);
+   *  // The formula in this cell isn't visible.
+   *  worksheet.write_formula(0, 0, "=1+2", format);
    * @endcode
    */
   void set_hidden();
@@ -1088,51 +1152,49 @@ public:
   /**
    * @brief Set the rotation of the text in a cell.
    *
-   * @param format Pointer to a Format instance.
-   * @param angle  Rotation angle in the range -90 to 90 and 270.
+   * @param angle Rotation angle in the range -90 to 90 and 270.
    *
    * Set the rotation of the text in a cell. The rotation can be any angle in the
    * range -90 to 90 degrees:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_rotation(format, 30);
+   *  format = workbook.add_format();
+   *  format->set_rotation(30);
    *
-   *     worksheet_write_string(worksheet, 0, 0, "This text is rotated", format);
+   *  worksheet.write_string(0, 0, "This text is rotated", format);
    * @endcode
    *
    * @image html format_font_text_rotated.png
    *
    * The angle 270 is also supported. This indicates text where the letters run
    * from top to bottom.
+   *
+   * @todo Add specific API for 270.
    */
   void set_rotation(int16_t angle);
 
   /**
    * @brief Set the cell text indentation level.
    *
-   * @param format Pointer to a Format instance.
-   * @param level  Indentation level.
+   * @param level Indentation level.
    *
    * This method can be used to indent text in a cell. The argument, which should
    * be an integer, is taken as the level of indentation:
    *
    * @code
-   *     format1 = workbook_add_format(workbook);
-   *     format2 = workbook_add_format(workbook);
+   *  format1 = workbook.add_format();
+   *  format2 = workbook.add_format();
    *
-   *     format_set_indent(format1, 1);
-   *     format_set_indent(format2, 2);
+   *  format1->set_indent(1);
+   *  format2->set_indent(2);
    *
-   *     worksheet_write_string(worksheet, 0, 0, "This text is indented 1 level",
-   * format1); worksheet_write_string(worksheet, 1, 0, "This text is indented 2
-   * levels", format2);
+   *  worksheet.write_string(0, 0, "This text is indented 1 level", format1);
+   *  worksheet_write_string(1, 0, "This text is indented 2 levels", format2);
    * @endcode
    *
    * @image html text_indent.png
    *
-   * @note
-   * Indentation is a horizontal alignment property. It will override any other
+   * @note Indentation is a horizontal alignment property. It will override any other
    * horizontal properties but it can be used in conjunction with vertical
    * properties.
    */
@@ -1141,31 +1203,94 @@ public:
   /**
    * @brief Turn on the text "shrink to fit" for a cell.
    *
-   * @param format Pointer to a Format instance.
-   *
    * This method can be used to shrink text so that it fits in a cell:
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_shrink(format);
+   *  format = workbook.add_format();
+   *  format->set_shrink();
    *
-   *     worksheet_write_string(worksheet, 0, 0, "Honey, I shrunk the text!",
-   * format);
+   *  worksheet.write_string(0, 0, "Honey, I shrunk the text!", format);
    * @endcode
    */
   void set_shrink();
 
+  // TODO Useless, to check (missing parameter? Remove?)
   void set_text_justlast();
+
+  /**
+   * @brief Set the vertical alignment.
+   *
+   * @param alignment A `format_alignments_t` indicating the vertical alignment.
+   *
+   * @code
+   *  format = workbook.add_format();
+   *  format->set_valign(xwpp::format_alignments_t::VERTICAL_BOTTOM);
+   *
+   *  worksheet.write_string(0, 0, "Bottom alignment", format);
+   * @endcode
+   *
+   * @todo Add image in documentation.
+   * @todo Add example.
+   */
   void set_valign(format_alignments_t alignment);
+
+  /**
+   * @brief Set the horizontal alignment.
+   *
+   * @param alignment A `format_alignments_t` indicating the horizontal alignment.
+   *
+   * @code
+   *  format = workbook.add_format();
+   *  format->set_halign(xwpp::format_alignments_t::HORIZONTAL_RIGHT);
+   *
+   *  worksheet.write_string(0, 0, "Right alignment", format);
+   * @endcode
+   *
+   * @todo Add image in documentation.
+   * @todo Add example.
+   */
   void set_halign(format_alignments_t alignment);
+
+  /**
+   * @brief Set reading order.
+   *
+   * @param value The reading order.
+   *
+   * Set the reading order.
+   *
+   * @todo Add image in documentation.
+   * @todo Add enum for reading order.
+   */
   void set_reading_order(uint8_t value);
+
+  /**
+   * @brief Set the theme.
+   *
+   * @param value The theme.
+   *
+   * Set the theme.
+   *
+   * @todo Add image in documentation.
+   * @todo Add enum for theme.
+   * @todo Add example.
+   */
   void set_theme(uint8_t value);
+
+  /**
+   * @brief Set the indexed color.
+   *
+   * @param value The indexed color.
+   *
+   * Set the indexed color.
+   *
+   * @todo Add image in documentation.
+   * @todo Add enum for theme.
+   * @todo Add example.
+   */
   void set_color_indexed(uint8_t value);
 
   /**
    * @brief Turn on quote prefix for the format.
-   *
-   * @param format Pointer to a Format instance.
    *
    * Set the quote prefix property of a format to ensure a string is treated
    * as a string after editing. This is the same as prefixing the string with
@@ -1173,17 +1298,28 @@ public:
    * string but you do need to add the format.
    *
    * @code
-   *     format = workbook_add_format(workbook);
-   *     format_set_quote_prefix(format);
+   *  format = workbook.add_format();
+   *  format->set_quote_prefix();
    *
-   *     worksheet_write_string(worksheet, 0, 0, "=Foo", format);
+   *  worksheet.write_string(0, 0, "=Foo", format);
    * @endcode
-   *
    */
   void set_quote_prefix();
 
+  /**
+   * @brief Set the format as hyperlink format.
+   *
+   * Set the format as hyperlink format.
+   *
+   * @todo Add image.
+   */
+  void set_hyperlink();
+
   static const int32_t PROPERTY_UNSET = -1;
   static const std::string DEFAULT_FONT_NAME;
+
+  // TODO Refactor this point to not have it in several places
+  std::function<int32_t(format_t*)> get_dxf_index_;
 
 private:
   // TODO friend up to refactoring with struct / class
@@ -1201,7 +1337,7 @@ private:
   std::string num_format_;
   std::string font_name_;
   std::string font_scheme_;
-  uint16_t num_format_index_          = 0;
+  uint16_t num_format_index_         = 0;
   int32_t font_index_                = PROPERTY_UNSET;
   bool has_font_                     = false;
   bool has_dxf_font_                 = false;
@@ -1261,6 +1397,8 @@ private:
   bool quote_prefix_                 = false;
 };
 
+/// @cond
 }
+/// @endcond
 
 #endif

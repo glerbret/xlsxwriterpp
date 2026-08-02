@@ -23,11 +23,11 @@ struct expense
   std::chrono::system_clock::time_point datetime;
 };
 
-struct expense expenses[] = {
-    {"Rent", 1000, std::chrono::sys_days{2013y / std::chrono::January / 13d} + 0h + 0min + 0s},
-    {"Gas",  100,  std::chrono::sys_days{2013y / std::chrono::January / 14d} + 0h + 0min + 0s},
-    {"Food", 300,  std::chrono::sys_days{2013y / std::chrono::January / 16d} + 0h + 0min + 0s},
-    {"Gym",  50,   std::chrono::sys_days{2013y / std::chrono::January / 20d} + 0h + 0min + 0s},
+struct expense expenses[]{
+  {"Rent", 1000, std::chrono::sys_days{2013y / std::chrono::January / 13d} + 0h + 0min + 0s},
+  {"Gas",  100,  std::chrono::sys_days{2013y / std::chrono::January / 14d} + 0h + 0min + 0s},
+  {"Food", 300,  std::chrono::sys_days{2013y / std::chrono::January / 16d} + 0h + 0min + 0s},
+  {"Gym",  50,   std::chrono::sys_days{2013y / std::chrono::January / 20d} + 0h + 0min + 0s},
 };
 
 int main()
@@ -38,7 +38,6 @@ int main()
 
   xwpp::row_num_t row = 0;
   xwpp::col_num_t col = 0;
-  int i;
 
   // Add a bold format to use to highlight cells.
   xwpp::format_t* bold = workbook.add_format();
@@ -60,7 +59,7 @@ int main()
   worksheet.write_string(row, col + 1, "Cost", bold);
 
   // Iterate over the data and write it out element by element.
-  for(i = 0; i < 4; i++)
+  for(int i = 0; i < 4; i++)
   {
     // Write from the first cell below the headers.
     row = i + 1;

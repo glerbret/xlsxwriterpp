@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_SUITE(app)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">"
         "<Application>Microsoft Excel</Application>"
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">"
         "<Application>Microsoft Excel</Application>"
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_3)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">"
         "<Application>Microsoft Excel</Application>"

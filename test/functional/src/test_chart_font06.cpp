@@ -19,11 +19,11 @@ int main()
   chart.set_axis_ids(49407488, 53740288);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -40,7 +40,7 @@ int main()
 
   xwpp::chart_font_t font1 = {.name_ = "Calibri", .color_ = xwpp::color_t::YELLOW, .pitch_family_ = 34, .charset_ = 0};
   xwpp::chart_font_t font2 = {
-      .name_ = "Courier New", .color_ = xwpp::color_t(0x92D050), .pitch_family_ = 49, .charset_ = 0};
+    .name_ = "Courier New", .color_ = xwpp::color_t(0x92D050), .pitch_family_ = 49, .charset_ = 0};
   xwpp::chart_font_t font3 = {.name_ = "Arial", .color_ = xwpp::color_t(0x00B0F0), .pitch_family_ = 34, .charset_ = 0};
   xwpp::chart_font_t font4 = {.name_ = "Century", .color_ = xwpp::color_t::RED, .pitch_family_ = 18, .charset_ = 0};
   xwpp::chart_font_t font5 = {.bold_ = true, .italic_ = true, .underline_ = true, .color_ = xwpp::color_t(0x7030A0)};

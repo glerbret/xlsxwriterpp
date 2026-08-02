@@ -1,0 +1,10 @@
+/**
+@page changes Changes
+
+## 0.1.0 June 8 2014
+
+- First release.
+
+@warning This version is a 'work in progress' without backward compatibility guarantee.
+
+*/

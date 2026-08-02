@@ -26,10 +26,10 @@ int main()
   worksheet.write_number(CELL("A4"), 40);
 
   xwpp::conditional_format_t conditional_format{
-      .type_     = xwpp::conditional_format_types_t::CELL,
-      .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
-      .value_    = 5,
-      .format_   = format,
+    .type_     = xwpp::conditional_format_types_t::CELL,
+    .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value_    = 5,
+    .format_   = format,
   };
 
   worksheet.conditional_format_cell(CELL("A1"), conditional_format);

@@ -15,9 +15,9 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::data_validation_t data_validation{
-      .validate_      = xwpp::validation_types_t::ANY,
-      .input_title_   = "This is the input title",
-      .input_message_ = "This is the input message",
+    .validate_      = xwpp::validation_types_t::ANY,
+    .input_title_   = "This is the input title",
+    .input_message_ = "This is the input message",
   };
 
   worksheet.data_validation_cell(CELL("C2"), data_validation);

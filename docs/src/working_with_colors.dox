@@ -1,0 +1,40 @@
+/**
+@page working_with_colors Working with Colors
+
+Throughout `Xlsxwriter++` colors are specified using a Html style RGB
+integer value. For example with a Format object:
+
+@code
+  format->set_font_color(xwpp::color_t(0x3030E0));
+@endcode
+
+For convenience a limited number of color names are supported:
+
+@code
+  format->set_font_color(xwpp::color_t::RED);
+@endcode
+
+The color names and corresponding `RRGGBB` value are shown below:
+
+| Color                                       | Define                | Value         |
+| ------------------------------------------- | --------------------- | ------------- |
+| <span style="color:#000000">Black</span>    | `%color_t::BLACK`     | `0x000000`    |
+| <span style="color:#0000FF">Blue</span>     | `%color_t::BLUE`      | `0x0000FF`    |
+| <span style="color:#800000">Brown</span>    | `%color_t::BROWN`     | `0x800000`    |
+| <span style="color:#00FFFF">Cyan</span>     | `%color_t::CYAN`      | `0x00FFFF`    |
+| <span style="color:#808080">Gray</span>     | `%color_t::GRAY`      | `0x808080`    |
+| <span style="color:#008000">Green</span>    | `%color_t::GREEN`     | `0x008000`    |
+| <span style="color:#00FF00">Lime</span>     | `%color_t::LIME`      | `0x00FF00`    |
+| <span style="color:#FF00FF">Magenta</span>  | `%color_t::MAGENTA`   | `0xFF00FF`    |
+| <span style="color:#000080">Navy</span>     | `%color_t::NAVY`      | `0x000080`    |
+| <span style="color:#FF6600">Orange</span>   | `%color_t::ORANGE`    | `0xFF6600`    |
+| <span style="color:#FF00FF">Pink</span>     | `%color_t::PINK`      | `0xFF00FF`    |
+| <span style="color:#800080">Purple</span>   | `%color_t::PURPLE`    | `0x800080`    |
+| <span style="color:#FF0000">Red</span>      | `%color_t::RED`       | `0xFF0000`    |
+| <span style="color:#C0C0C0">Silver</span>   | `%color_t::SILVER`    | `0xC0C0C0`    |
+| <span style="color:#FFFFFF">White</span>    | `%color_t::WHITE`     | `0xFFFFFF`    |
+| <span style="color:#FFFF00">Yellow</span>   | `%color_t::YELLOW`    | `0xFFFF00`    |
+
+Next: @ref working_with_formulas
+
+*/

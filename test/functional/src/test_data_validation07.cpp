@@ -16,8 +16,8 @@ int main()
   const std::vector<std::string> list = {"coffee", "café"};
 
   xwpp::data_validation_t data_validation{
-      .validate_   = xwpp::validation_types_t::LIST,
-      .value_list_ = list,
+    .validate_   = xwpp::validation_types_t::LIST,
+    .value_list_ = list,
   };
 
   worksheet.data_validation_cell(CELL("C2"), data_validation);

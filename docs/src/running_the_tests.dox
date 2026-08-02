@@ -1,0 +1,71 @@
+/**
+@page running_the_tests Running the Test Suite
+
+@tableofcontents
+
+This section shows how to set up and run the test suite for `Xlsxwriter++`.
+
+@section tests_functional Functional Tests
+
+The functional tests compare the output from `Xlsxwriter++` against xlsx files
+created in Excel.
+
+The functional tests use the Python module [pytest](http://pytest.org/) as a
+test runner.
+
+Install the `pytest` module using one of the following methods:
+
+@code
+  sudo apt-get install -y python-pytest
+  # or
+  sudo pip install pytest
+@endcode
+
+The functional tests can then be run:
+
+@code
+  $ cd xlsxwriterpp
+
+  $ make test_functional
+
+  =========================== test session starts ===========================
+  collected 773 items
+
+  test/functional/test_array_formula.py::TestCompareXLSXFiles::test_array_formula01 PASSED [  0%]
+  test/functional/test_array_formula.py::TestCompareXLSXFiles::test_array_formula02 PASSED [  0%]
+  test/functional/test_array_formula.py::TestCompareXLSXFiles::test_array_formula03 PASSED [  0%]
+  test/functional/test_array_formula.py::TestCompareXLSXFiles::test_array_formula04 PASSED [  1%]
+  test/functional/test_autofilter.py::TestCompareXLSXFiles::test_autofilter00 PASSED       [  1%]
+  test/functional/test_autofilter.py::TestCompareXLSXFiles::test_autofilter01 PASSED       [  1%]
+  ...
+  test/functional/test_write_data.py::TestCompareXLSXFiles::test_data05 PASSED             [ 99%]
+  test/functional/test_write_data.py::TestCompareXLSXFiles::test_data06 PASSED             [ 99%]
+  test/functional/test_write_data.py::TestCompareXLSXFiles::test_data07 PASSED             [ 99%]
+  test/functional/test_write_data.py::TestCompareXLSXFiles::test_data08 PASSED             [ 99%]
+  test/functional/test_write_data.py::TestCompareXLSXFiles::test_data09 PASSED             [100%]
+  =========================== 773 passed in 155.90s (0:02:35) ===============================
+@endcode
+
+@section tests_ Unit Tests
+
+The unit tests test the components of the library at the level of individual
+functions or compilation units.
+
+The unit tests uses the [Boost.Test](https://www.boost.org/doc/libs/latest/libs/test/doc/html/index.html) test
+framework.
+
+The unit tests can then be run as follows:
+
+@code
+  mkdir build
+  cd build
+
+  cmake .. -DBUILD_TESTS=ON
+  cmake --build .
+
+  for f in test/unit/*; do ./$f; done
+@endcode
+
+Next: @ref faq
+
+*/

@@ -31,77 +31,7 @@ chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data)
   worksheet_.orientation_       = drawing_orientation_t::LANDSCAPE;
 }
 
-std::string chartsheet_t::get_sheet_name() const
-{
-  return name_;
-}
-
-uint16_t chartsheet_t::get_sheet_index() const
-{
-  return index_;
-}
-
-std::string chartsheet_t::write_chartsheet() const
-{
-  return xml_start_tag("chartsheet",
-                       {
-                           {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"          },
-                           {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
-  });
-}
-
-std::string chartsheet_t::write_sheet_pr() const
-{
-  return worksheet_.write_sheet_pr();
-}
-
-std::string chartsheet_t::write_sheet_views()
-{
-  return worksheet_.write_sheet_views();
-}
-
-std::string chartsheet_t::write_page_margins() const
-{
-  return worksheet_.write_page_margins();
-}
-
-std::string chartsheet_t::write_drawings()
-{
-  return worksheet_.write_drawings();
-}
-
-std::string chartsheet_t::write_sheet_protection(const protection_obj_t& protection) const
-{
-  return worksheet_.write_sheet_protection(protection);
-}
-
-std::string chartsheet_t::write_page_setup() const
-{
-  return worksheet_.write_page_setup();
-}
-
-std::string chartsheet_t::write_header_footer() const
-{
-  return worksheet_.write_header_footer();
-}
-
-[[nodiscard]] std::string chartsheet_t::assemble_xml_file()
-{
-  std::string xml_data = xml_declaration();
-  xml_data += write_chartsheet();
-  xml_data += write_sheet_pr();
-  xml_data += write_sheet_views();
-  xml_data += write_sheet_protection(protection_);
-  xml_data += write_page_margins();
-  xml_data += write_page_setup();
-  xml_data += write_header_footer();
-  xml_data += write_drawings();
-  xml_data += xml_end_tag("chartsheet");
-
-  return xml_data;
-}
-
-void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& user_options)
+void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& options)
 {
   if(!chart)
   {
@@ -111,7 +41,7 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   if(chart->in_use_)
   {
     throw xwpp_exception_t(
-        "chartsheet_t::set_chart(): the same chart object cannot be inserted in a worksheet more than once");
+      "chartsheet_t::set_chart(): the same chart object cannot be inserted in a worksheet more than once");
   }
 
   if(chart->series_list_.empty())
@@ -120,12 +50,12 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   }
 
   object_properties_t object_props;
-  if(user_options)
+  if(options)
   {
-    object_props.x_offset_ = user_options->x_offset_;
-    object_props.y_offset_ = user_options->y_offset_;
-    object_props.x_scale_  = user_options->x_scale_;
-    object_props.y_scale_  = user_options->y_scale_;
+    object_props.x_offset_ = options->x_offset_;
+    object_props.y_offset_ = options->y_offset_;
+    object_props.x_scale_  = options->x_scale_;
+    object_props.y_scale_  = options->y_scale_;
   }
 
   object_props.width_  = 480;
@@ -157,15 +87,6 @@ void chartsheet_t::set_chart(chart_t* chart)
   set_chart(chart, std::nullopt);
 }
 
-// TODO Add test
-void chartsheet_t::select()
-{
-  worksheet_.selected_ = true;
-
-  // Selected worksheet can't be hidden.
-  worksheet_.hidden_ = false;
-}
-
 void chartsheet_t::activate()
 {
   worksheet_.selected_ = true;
@@ -175,54 +96,6 @@ void chartsheet_t::activate()
   worksheet_.hidden_ = false;
 
   *active_sheet_ = index_;
-}
-
-// TODO Add test
-void chartsheet_t::set_first_sheet()
-{
-  // Active worksheet can't be hidden.
-  worksheet_.hidden_ = false;
-
-  *first_sheet_ = index_;
-}
-
-void chartsheet_t::hide()
-{
-  hidden_ = true;
-
-  // A hidden worksheet shouldn't be active or selected.
-  worksheet_.selected_ = false;
-
-  // If this is active_sheet or first_sheet reset the workbook value.
-  if(*first_sheet_ == index_)
-  {
-    *first_sheet_ = 0;
-  }
-
-  if(*active_sheet_ == index_)
-  {
-    *active_sheet_ = 0;
-  }
-}
-
-void chartsheet_t::set_tab_color(color_t color)
-{
-  worksheet_.tab_color_ = color;
-}
-
-void chartsheet_t::protect(const std::string& password)
-{
-  protect(password, std::nullopt);
-}
-
-void chartsheet_t::protect(std::optional<protection_t> options)
-{
-  protect("", options);
-}
-
-void chartsheet_t::protect()
-{
-  protect("", std::nullopt);
 }
 
 void chartsheet_t::protect(const std::string& password, std::optional<protection_t> options)
@@ -266,25 +139,19 @@ void chartsheet_t::protect(const std::string& password, std::optional<protection
   }
 }
 
-void chartsheet_t::set_zoom(uint16_t scale)
+void chartsheet_t::protect(const std::string& password)
 {
-  // Confine the scale to Excel"s range
-  if(scale < 10 || scale > 400)
-  {
-    throw xwpp_out_of_range_t("chartsheet_t::set_zoom(): Zoom factor scale outside range: 10 <= zoom <= 400.");
-  }
-
-  worksheet_.zoom_ = scale;
+  protect(password, std::nullopt);
 }
 
-void chartsheet_t::set_portrait()
+void chartsheet_t::protect(std::optional<protection_t> options)
 {
-  worksheet_.set_portrait();
+  protect("", options);
 }
 
-void chartsheet_t::set_landscape()
+void chartsheet_t::protect()
 {
-  worksheet_.set_landscape();
+  protect("", std::nullopt);
 }
 
 void chartsheet_t::set_paper(uint8_t paper_size)
@@ -302,14 +169,14 @@ void chartsheet_t::set_header(const std::string& str, const std::optional<header
   worksheet_.set_header(str, options);
 }
 
-void chartsheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
-{
-  worksheet_.set_footer(str, options);
-}
-
 void chartsheet_t::set_header(const std::string& str)
 {
   set_header(str, std::nullopt);
+}
+
+void chartsheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
+{
+  worksheet_.set_footer(str, options);
 }
 
 void chartsheet_t::set_footer(const std::string& str)
@@ -320,6 +187,139 @@ void chartsheet_t::set_footer(const std::string& str)
 void chartsheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
 {
   worksheet_.set_dpi(horizontal_dpi, vertical_dpi);
+}
+
+void chartsheet_t::hide()
+{
+  hidden_ = true;
+
+  // A hidden worksheet shouldn't be active or selected.
+  worksheet_.selected_ = false;
+
+  // If this is active_sheet or first_sheet reset the workbook value.
+  if(*first_sheet_ == index_)
+  {
+    *first_sheet_ = 0;
+  }
+
+  if(*active_sheet_ == index_)
+  {
+    *active_sheet_ = 0;
+  }
+}
+
+void chartsheet_t::set_zoom(uint16_t scale)
+{
+  // Confine the scale to Excel"s range
+  if(scale < 10 || scale > 400)
+  {
+    throw xwpp_out_of_range_t("chartsheet_t::set_zoom(): Zoom factor scale outside range: 10 <= zoom <= 400.");
+  }
+
+  worksheet_.zoom_ = scale;
+}
+
+void chartsheet_t::set_tab_color(color_t color)
+{
+  worksheet_.tab_color_ = color;
+}
+
+void chartsheet_t::set_landscape()
+{
+  worksheet_.set_landscape();
+}
+
+void chartsheet_t::set_portrait()
+{
+  worksheet_.set_portrait();
+}
+
+// TODO Add test
+void chartsheet_t::select()
+{
+  worksheet_.selected_ = true;
+
+  // Selected worksheet can't be hidden.
+  worksheet_.hidden_ = false;
+}
+
+// TODO Add test
+void chartsheet_t::set_first_sheet()
+{
+  // Active worksheet can't be hidden.
+  worksheet_.hidden_ = false;
+
+  *first_sheet_ = index_;
+}
+
+[[nodiscard]] std::string chartsheet_t::assemble_xml_file()
+{
+  std::string xml_data = xml_declaration();
+  xml_data += write_chartsheet();
+  xml_data += write_sheet_pr();
+  xml_data += write_sheet_views();
+  xml_data += write_sheet_protection(protection_);
+  xml_data += write_page_margins();
+  xml_data += write_page_setup();
+  xml_data += write_header_footer();
+  xml_data += write_drawings();
+  xml_data += xml_end_tag("chartsheet");
+
+  return xml_data;
+}
+
+std::string chartsheet_t::get_sheet_name() const
+{
+  return name_;
+}
+
+uint16_t chartsheet_t::get_sheet_index() const
+{
+  return index_;
+}
+
+std::string chartsheet_t::write_chartsheet() const
+{
+  return xml_start_tag("chartsheet",
+                       {
+                         {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"          },
+                         {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
+  });
+}
+
+std::string chartsheet_t::write_sheet_pr() const
+{
+  return worksheet_.write_sheet_pr();
+}
+
+std::string chartsheet_t::write_sheet_views()
+{
+  return worksheet_.write_sheet_views();
+}
+
+std::string chartsheet_t::write_sheet_protection(const protection_obj_t& protection) const
+{
+  return worksheet_.write_sheet_protection(protection);
+}
+
+std::string chartsheet_t::write_page_margins() const
+{
+  return worksheet_.write_page_margins();
+}
+
+std::string chartsheet_t::write_page_setup() const
+{
+  return worksheet_.write_page_setup();
+}
+
+std::string chartsheet_t::write_header_footer() const
+{
+  return worksheet_.write_header_footer();
+}
+
+std::string chartsheet_t::write_drawings()
+{
+  return worksheet_.write_drawings();
 }
 
 }

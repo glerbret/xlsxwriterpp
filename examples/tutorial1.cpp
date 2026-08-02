@@ -18,11 +18,11 @@ struct expense
   int cost;
 };
 
-struct expense expenses[] = {
-    {"Rent", 1000},
-    {"Gas",  100 },
-    {"Food", 300 },
-    {"Gym",  50  },
+struct expense expenses[]{
+  {"Rent", 1000},
+  {"Gas",  100 },
+  {"Food", 300 },
+  {"Gym",  50  },
 };
 
 int main()

@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(relationships)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
       "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/>"
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
   "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
   "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"www.foo.com\" TargetMode=\"External\"/>"

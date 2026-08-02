@@ -14,16 +14,16 @@
 void write_worksheet_data(xwpp::worksheet_t& worksheet)
 {
   uint8_t data[10][10] = {
-      {34, 72,  38, 30, 75, 48, 75, 66, 84, 86},
-      {6,  24,  1,  84, 54, 62, 60, 3,  26, 59},
-      {28, 79,  97, 13, 85, 93, 93, 22, 5,  14},
-      {27, 71,  40, 17, 18, 79, 90, 93, 29, 47},
-      {88, 25,  33, 23, 67, 1,  59, 79, 47, 36},
-      {24, 100, 20, 88, 29, 33, 38, 54, 54, 88},
-      {6,  57,  88, 28, 10, 26, 37, 7,  41, 48},
-      {52, 78,  1,  96, 26, 45, 47, 33, 96, 36},
-      {60, 54,  81, 66, 81, 90, 80, 93, 12, 55},
-      {70, 5,   46, 14, 71, 19, 66, 36, 41, 21},
+    {34, 72,  38, 30, 75, 48, 75, 66, 84, 86},
+    {6,  24,  1,  84, 54, 62, 60, 3,  26, 59},
+    {28, 79,  97, 13, 85, 93, 93, 22, 5,  14},
+    {27, 71,  40, 17, 18, 79, 90, 93, 29, 47},
+    {88, 25,  33, 23, 67, 1,  59, 79, 47, 36},
+    {24, 100, 20, 88, 29, 33, 38, 54, 54, 88},
+    {6,  57,  88, 28, 10, 26, 37, 7,  41, 48},
+    {52, 78,  1,  96, 26, 45, 47, 33, 96, 36},
+    {60, 54,  81, 66, 81, 90, 80, 93, 12, 55},
+    {70, 5,   46, 14, 71, 19, 66, 36, 41, 21},
   };
 
   for(xwpp::row_num_t row = 0; row < 10; row++)
@@ -154,7 +154,7 @@ int main()
   write_worksheet_data(worksheet6);
 
   worksheet6.write_string(
-      CELL("A1"), "Cells with values >= 50 are in light red.Values < 50 are in light green. Non-contiguous ranges.");
+    CELL("A1"), "Cells with values >= 50 are in light red.Values < 50 are in light green. Non-contiguous ranges.");
 
   conditional_format              = xwpp::conditional_format_t{};
   conditional_format.type_        = xwpp::conditional_format_types_t::CELL;

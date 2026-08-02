@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(chartsheet)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_no_password)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_password)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_password)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_password)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_no_content)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_content)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object_no_content)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object_no_content)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object_no_content_password)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object_no_content_password)
 BOOST_AUTO_TEST_CASE(write_sheet_protection_other_options)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"
@@ -168,21 +168,21 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_other_options)
   xwpp::workbook_t workbook;
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
   xwpp::protection_t options     = {
-          .no_select_locked_cells_   = true,
-          .no_select_unlocked_cells_ = true,
-          .format_cells_             = true,
-          .format_columns_           = true,
-          .format_rows_              = true,
-          .insert_columns_           = true,
-          .insert_rows_              = true,
-          .insert_hyperlinks_        = true,
-          .delete_columns_           = true,
-          .delete_rows_              = true,
-          .sort_                     = true,
-          .autofilter_               = true,
-          .pivot_tables_             = true,
-          .scenarios_                = true,
-          .objects_                  = true,
+        .no_select_locked_cells_   = true,
+        .no_select_unlocked_cells_ = true,
+        .format_cells_             = true,
+        .format_columns_           = true,
+        .format_rows_              = true,
+        .insert_columns_           = true,
+        .insert_rows_              = true,
+        .insert_hyperlinks_        = true,
+        .delete_columns_           = true,
+        .delete_rows_              = true,
+        .sort_                     = true,
+        .autofilter_               = true,
+        .pivot_tables_             = true,
+        .scenarios_                = true,
+        .objects_                  = true,
   };
   chartsheet.protect("password", options);
 

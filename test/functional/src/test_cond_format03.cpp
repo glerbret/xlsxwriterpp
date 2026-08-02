@@ -30,11 +30,11 @@ int main()
   worksheet.write_number(CELL("A4"), 40);
 
   xwpp::conditional_format_t conditional_format{
-      .type_      = xwpp::conditional_format_types_t::CELL,
-      .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
-      .format_    = format1,
-      .min_value_ = 2,
-      .max_value_ = 6,
+    .type_      = xwpp::conditional_format_types_t::CELL,
+    .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
+    .format_    = format1,
+    .min_value_ = 2,
+    .max_value_ = 6,
   };
   worksheet.conditional_format_cell(CELL("A1"), conditional_format);
 

@@ -16,10 +16,10 @@ int main()
   const std::vector<std::string> list = {"Foo", "Bar", "Baz"};
 
   xwpp::data_validation_t data_validation{
-      .validate_      = xwpp::validation_types_t::LIST,
-      .value_list_    = list,
-      .input_title_   = "This is the input title",
-      .input_message_ = "This is the input message",
+    .validate_      = xwpp::validation_types_t::LIST,
+    .value_list_    = list,
+    .input_title_   = "This is the input title",
+    .input_message_ = "This is the input message",
   };
 
   worksheet.data_validation_cell(CELL("C2"), data_validation);

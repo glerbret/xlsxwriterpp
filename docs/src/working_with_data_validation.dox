@@ -1,0 +1,462 @@
+/**
+@page working_with_data_validation Working with Data Validation
+
+@tableofcontents
+
+Data validation is a feature of Excel which allows restrictions to be placed
+on the data that a user enters in a cell and to display associated help and
+warning messages. It can also be used to restrict input to values in a drop
+down list.
+
+A typical use case might be to restrict data in a cell to integer values in a
+certain range, to provide a help message to indicate the required value and to
+issue a warning if the input data doesn't meet the stated criteria. In
+`Xlsxwriter++` this can be done as follows:
+
+@code
+  xwpp::data_validation_t data_validation{
+    .validate_       = xwpp::validation_types_t::INTEGER
+    .criteria_       = xwpp::validation_criteria_t::BETWEEN
+    .minimum_number_ = 1
+    .maximum_number_ = 10
+  };
+
+  worksheet.data_validation_cell(CELL("B3"), data_validation);
+@endcode
+
+@image html data_validate1.png
+
+If the user inputs a value that doesn't match the specified criteria an error
+message is displayed:
+
+@image html data_validate4.png
+
+For more information on data validation see the Microsoft support article
+[Description and examples of data validation in Excel](http://support.microsoft.com/kb/211485).
+
+The following sections describe how to use the
+`worksheet_t::data_validation_cell()` and `worksheet_t::data_validation_range()`
+functions and the various options of `data_validation_t`.
+
+@section ww_data_validate_functions The data validation functions
+
+The `worksheet_t::data_validation_cell()` and `worksheet_t::data_validation_range()`
+functions are used to construct an Excel data validation.
+
+The data validation can be applied to a single cell or a range of cells:
+
+@code
+  worksheet.data_validation_cell(2, 1, data_validation);
+  worksheet.data_validation_range(2, 1, 4, 1, data_validation);
+
+  // Same as above using the CELL() and RANGE() macros.
+  worksheet.data_validation_cell(CELL("B3"), data_validation);
+  worksheet.data_validation_range(RANGE("B3:B5"), data_validation);
+@endcode
+
+The `data_validation_t` struct used in these functions is explained below.
+
+@section ww_data_validate_struct The `data_validation_t` struct
+
+The `data_validation_t` struct is used to set the properties of a data
+validation. A typical usage would look something like this:
+
+@code
+  xwpp::data_validation_t data_validation{
+    .validate_     = xwpp::validation_types_t::INTEGER,
+    .criteria_     = xwpp::validation_criteria_t::GREATER_THAN,
+    .value_number_ = 10,
+    .show_input_   = xwpp::validation_boolean_t::OFF,
+  };
+@endcode
+
+This example shows the main properties of `data_validation_t` and Excel data
+validations:
+
+- `%validate_`: The type of data to restrict the validation to. In this case it
+  is whole numbers.
+
+- `%criteria_`: The criteria by which the data will be evaluated. In this case
+  whether the input is greater than a value.
+
+- `%value_`: The value that the criteria applies to. This has several different
+  versions for different types of data. This could also be a `%minimum_` and
+  `%maximum_` value if the criteria used is a "BETWEEN" criteria. This is
+  explained in the @ref ww_data_validate_value section below.
+
+- Other options such as `%show_input_` or `%input_message_`. These parameters are
+  explained in the @ref ww_data_validate_options section.
+
+@subsection ww_data_validate_validate `%validate_`
+
+The `%validate_` parameter is used to set the type of data that you wish to
+validate:
+
+@code
+  data_validation.validate_ = xwpp::validation_types_t::INTEGER;
+@endcode
+
+It is always required and it has no default value. In Excel the validate
+parameters are:
+
+- Whole
+- Decimal
+- List
+- Date
+- Time
+- Text Length
+- Custom
+- Any
+
+The equivalent parameters in `Xlsxwriter++` are defined in
+`validation_types_t`:
+
+- `validation_types_t::INTEGER`: Restrict cell input to whole/integer numbers
+  only.
+
+- `validation_types_t::INTEGER_FORMULA`: Restrict cell input to whole/integer
+  numbers only, using a cell reference.
+
+- `validation_types_t::DECIMAL`: Restrict cell input to decimal numbers only.
+
+- `validation_types_t::DECIMAL_FORMULA`: Restrict cell input to decimal
+  numbers only, using a cell reference.
+
+- `validation_types_t::LIST`: Restrict cell input to a list of strings in a
+  dropdown.
+
+- `validation_types_t::LIST_FORMULA`: Restrict cell input to a list of strings
+  in a dropdown, using a cell range.
+
+- `validation_types_t::DATE`: Restrict cell input to date values only, using a
+  lxw_datetime type.
+
+- `validation_types_t::DATE_FORMULA`: Restrict cell input to date values only,
+  using a cell reference.
+
+- `validation_types_t::TIME`: Restrict cell input to time values only, using a
+  lxw_datetime type.
+
+- `validation_types_t::TIME_FORMULA`: Restrict cell input to time values only,
+  using a cell reference.
+
+- `validation_types_t::LENGTH`: Restrict cell input to strings of defined
+  length, using a cell reference.
+
+- `validation_types_t::LENGTH_FORMULA`: Restrict cell input to strings of
+  defined length, using a cell reference.
+
+- `validation_types_t::CUSTOM_FORMULA`: Restrict cell to input controlled by a
+  custom formula that returns `TRUE/FALSE`.
+
+- `validation_types_t::ANY`: Allow any type of input. Mainly only useful for
+  pop-up messages.
+
+@subsection ww_data_validate_criteria `%criteria_`
+
+The `criteria` parameter is used to set the criteria by which the data in the
+cell is validated. It is almost always required except for the `list`,
+`custom` and `any` validate options. It has no default value:
+
+@code
+  data_validation->criteria_ = xwpp::validation_criteria_t::GREATER_THAN;
+@endcode
+
+Allowable values are defined in `validation_criteria_t`:
+
+- `validation_criteria_t::BETWEEN`: Select data between two values.
+
+- `validation_criteria_t::NOT_BETWEEN`: Select data that is not between two values.
+
+- `validation_criteria_t::EQUAL_TO`: Select data equal to a value.
+
+- `validation_criteria_t::NOT_EQUAL_TO`: Select data not equal to a value.
+
+- `validation_criteria_t::GREATER_THAN`: Select data greater than a value.
+
+- `validation_criteria_t::LESS_THAN`: Select data less than a value.
+
+- `validation_criteria_t::GREATER_THAN_OR_EQUAL_TO`: Select data greater than or equal to a value.
+
+- `validation_criteria_t::LESS_THAN_OR_EQUAL_TO`: Select data less than or equal to a value.
+
+The `list`, `custom` and `any` validate options don't require a
+`criteria`. If you specify one it will be ignored.
+
+@subsection ww_data_validate_value `%value_`, `Mminimum_`, `%maximum_`
+
+The `%value_` parameters are used to set the limiting value to which the
+`%criteria_` is applied. It is always required and it has no default
+value. There are different types of `%value_` parameter associated with
+different types of data. They are:
+
+The `%value_number_` parameter is used to set the limiting value
+to which the criteria is applied using a whole or decimal number. It is
+typically used with `xwpp::validation_types_t::INTEGER` and
+`xwpp::validation_types_t::DECIMAL` and `xwpp::validation_types_t::LENGTH`.
+
+@code
+  data_validation.validate_     = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_     = xwpp::validation_criteria_t::GREATER_THAN;
+  data_validation.value_number_ = 0;
+
+  data_validation.validate_     = xwpp::validation_types_t::DECIMAL;
+  data_validation.criteria_     = xwpp::validation_criteria_t::GREATER_THAN;
+  data_validation.value_number_ = 10.5;
+
+  data_validation.validate_     = xwpp::validation_types_t::LENGTH;
+  data_validation.criteria_     = xwpp::validation_criteria_t::GREATER_THAN;
+  data_validation.value_number_ = 3;
+@endcode
+
+The `%value_formula_` parameter is used to set the limiting value to which the
+criteria is applied using a cell reference. It is valid for any of the
+`validation_types_t` types that end in `_FORMULA`:
+
+@code
+  data_validation.validate_      = xwpp::validation_types_t::INTEGER_FORMULA;
+  data_validation.criteria_      = xwpp::validation_criteria_t::GREATER_THAN;
+  data_validation.value_formula_ = "=E3";
+
+  data_validation.validate_      = xwpp::validation_types_t::TIME_FORMULA;
+  data_validation.criteria_      = xwpp::validation_criteria_t::EQUAL;
+  data_validation.value_formula_ = "=H1";
+
+  data_validation.validate_      = xwpp::validation_types_t::LIST_FORMULA;
+  data_validation.value_formula_ = "=$E$4:$G$4";
+@endcode
+
+The `%value_list_` parameter is used to set a list of strings for a dropdown
+list:
+
+@code
+  std::vector<std::string>list{"open", "high", "close"};
+
+  data_validation.validate_   = xwpp::validation_types_t::LIST;
+  data_validation.value_list_ = list;
+@endcode
+
+Note, when using the `validation_types_t::LIST` validation with a list of
+strings, like in the last example above, Excel stores the strings internally
+as a Comma Separated Variable string. The total length for this string,
+including commas, cannot exceed the Excel limit of 255 characters. For longer
+sets of data you should use a range reference like the previous example above.
+
+The `%value_datetime_` parameter is used to set the limiting value to which the
+`validation_types_t::DATE` or `validation_types_t::TIME` criteria is applied
+using a `std::chrono::system_clock::time_point`:
+
+@code
+  data_validation.validate_       = xwpp::validation_types_t::DATE;
+  data_validation.criteria_       = xwpp::validation_criteria_t::EQUAL;
+  data_validation.value_datetime_ = std::chrono::sys_days{2017y / std::chrono::September / 25d} + 0h + 0min + 0s;
+
+  data_validation.validate_       = xwpp::validation_types_t::TIME;
+  data_validation.criteria_       = xwpp::validation_criteria_t::EQUAL;
+  data_validation.value_datetime_ = std::chrono::system_clock::time_point{12h + 30min + 0s};
+@endcode
+
+The `%minimum_` and `%maximum_` parameters are used to set the lower and upper
+limiting values when the `%criteria_` is either `validation_criteria_t::BETWEEN`
+or `validation_criteria_t::NOT_BETWEEN`. The parameters are:
+
+- `%minimum_number_`
+- `%minimum_formula_`
+- `%minimum_datetime_`
+- `%maximum_number_`
+- `%maximum_formula_`
+- `%maximum_datetime_`
+
+They are similar to the `%value_` parameters described above. For example:
+
+@code
+  data_validation.validate_         = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_   = 1;
+  data_validation.maximum_number_   = 10;
+
+  data_validation.validate_         = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_         = xwpp::validation_criteria_t::NOT_BETWEEN;
+  data_validation.minimum_formula_  = "=E3";
+  data_validation.maximum_formula_  = "=F3";
+
+  data_validation.validate_         = xwpp::validation_types_t::DATE;
+  data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_datetime_ = std::chrono::sys_days{2024y / std::chrono::January / 1d} + 0h + 0min + 0s;
+  data_validation.maximum_datetime_ = std::chrono::sys_days{2024y / std::chrono::December / 12d} + 0h + 0min + 0s;
+@endcode
+
+@section ww_data_validate_options Data validation options
+
+@subsection ww_data_validate_ignore_blank `%ignore_blank_`
+
+The `%ignore_blank_` parameter is used to toggle on and off the 'Ignore blank'
+option in the Excel data validation dialog. When the option is on the data
+validation is not applied to blank data in the cell. It is on by default:
+
+@code
+  data_validation.validate_       = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_       = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_ = 1;
+  data_validation.maximum_number_ = 10;
+  data_validation.ignore_blank_   = xwpp::validation_boolean_t::OFF;
+@endcode
+
+@subsection ww_data_validate_dropdown `%dropdown_`
+
+The `%dropdown_` parameter is used to toggle on and off the 'In-cell dropdown'
+option in the Excel data validation dialog. When the option is on a dropdown
+list will be shown for `list` validations. It is on by default.
+
+@code
+  data_validation.validate_   = xwpp::validation_types_t::LIST;
+  data_validation.value_list_ = list;
+  data_validation.dropdown_   = xwpp::validation_boolean_t::OFF;
+@endcode
+
+@subsection ww_data_validate_input_title `%input_title_`
+
+The `%input_title_` parameter is used to set the title of the input message that
+is displayed when a cell is entered. It has no default value and is only
+displayed if the input message is also displayed. See the `%input_message_`
+parameter below.
+
+The maximum title length is 32 characters.
+
+@subsection ww_data_validate_input_message input_message
+
+The `%input_message_` parameter is used to set the input message that is
+displayed when a cell is entered. It has no default value:
+
+@code
+  data_validation.validate_       = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_       = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_ = 1;
+  data_validation.maximum_number_ = 100;
+  data_validation.input_title_    = "Enter an integer:";
+  data_validation.input_message_  = "between 1 and 100";
+@endcode
+
+The input message generated from the above example is:
+
+@image html data_validate3.png
+
+The message can be split over several lines using newlines. The maximum message
+length is 255 characters.
+
+@subsection ww_data_validate_show_input `%show_input_`
+
+The `%show_input_` parameter is used to toggle on and off the 'Show input
+message when cell is selected' option in the Excel data validation dialog.
+When the option is off an input message is not displayed even if it has been
+set using `input_message`. It is on by default.
+
+@subsection ww_data_validate_error_title `%error_title_`
+
+The `%error_title_` parameter is used to set the title of the error message
+that is displayed when the data validation criteria is not met. The default
+error title is 'Microsoft Excel'. The maximum title length is 32 characters.
+
+@subsection ww_data_validate_error_message `%error_message_`
+
+The `%error_message_` parameter is used to set the error message that is
+displayed when a cell is entered. The default error message is "The value you
+entered is not valid. A user has restricted values that can be entered into
+the cell". A non-default error message can be displayed as follows:
+
+@code
+  data_validation.validate_       = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_       = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_ = 1;
+  data_validation.maximum_number_ = 100;
+  data_validation.input_title_    = "Enter an integer:";
+  data_validation.input_message_  = "between 1 and 100";
+  data_validation.error_title_    = "Input value is not valid!";
+  data_validation.error_message_  = "It should be an integer between 1 and 100";
+@endcode
+
+Which give the following message:
+
+@image html data_validate2.png
+
+The message can be split over several lines using newlines. The maximum message
+length is 255 characters.
+
+@subsection ww_data_validate_error_type `%error_type_`
+
+The `%error_type_` parameter is used to specify the type of error dialog that is
+displayed. There are 3 `validation_error_types_t` options:
+
+- `validation_error_types_t::STOP`, the default.
+- `validation_error_types_t::WARNING`
+- `validation_error_types_t::INFORMATION`
+
+@subsection ww_data_validate_show_error `%show_error_`
+
+The `%show_error_` parameter is used to toggle on and off the 'Show error alert
+after invalid data is entered' option in the Excel data validation dialog.
+When the option is off an error message is not displayed even if it has been
+set using `error_message`. It is on by default.
+
+@section ww_data_validate_examples Examples
+
+@code
+  // Restrict input to an integer between 1 and 10.
+  data_validation.validate_         = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_   = 1;
+  data_validation.maximum_number_   = 10;
+
+  // Restrict input to an integer not between 1 and 10 (using cell references).
+  data_validation.validate_         = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_         = xwpp::validation_criteria_t::NOT_BETWEEN;
+  data_validation.minimum_formula_  = "=E3";
+  data_validation.maximum_formula_  = "=F3";
+
+  // Restrict input to a decimal between 0.1 and 0.5.
+  data_validation.validate_         = xwpp::validation_types_t::DECIMAL;
+  data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_   = 0.1;
+  data_validation.maximum_number_   = 0.5;
+
+  // Select a value from a dropdown list.
+  std::vector<std::string> list{"open", "high", "close"};
+
+  data_validation.validate_         = xwpp::validation_types_t::LIST;
+  data_validation.value_list_       = list;
+
+  // Select a value from a dropdown list (using a cell range).
+  data_validation.validate_         = xwpp::validation_types_t::LIST;
+  data_validation.value_formula_    = "=$E$4:$G$4";
+
+  // Restrict input to a date between 1/1/2008 and 12/12/2008.
+  data_validation.validate_         = xwpp::validation_types_t::DATE;
+  data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_datetime_ = std::chrono::sys_days{2008y / std::chrono::January / 1d} + 0h + 0min + 0s;
+  data_validation.maximum_datetime_ = std::chrono::sys_days{2008y / std::chrono::December / 12d} + 0h + 0min + 0s;
+
+  // Restrict input to a string longer than 3 characters.
+  data_validation.validate_         = xwpp::validation_types_t::LENGTH;
+  data_validation.criteria_         = xwpp::validation_criteria_t::GREATER_THAN;
+  data_validation.value_number_     = 3;
+
+  // Restrict input to a value if a formula is true.
+  data_validation.validate_         = xwpp::validation_types_t::CUSTOM_FORMULA;
+  data_validation.value_formula_    = "=AND(F5=50,G5=60)";
+
+  // Display a custom info message when integer isn't between 1 and 100.
+  data_validation.validate_         = xwpp::validation_types_t::INTEGER;
+  data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
+  data_validation.minimum_number_   = 1;
+  data_validation.maximum_number_   = 100;
+  data_validation.input_title_      = "Enter an integer:";
+  data_validation.input_message_    = "between 1 and 100";
+  data_validation.error_title_      = "Input value is not valid!";
+  data_validation.error_message_    = "It should be an integer between 1 and 100";
+@endcode
+
+For a full example see @ref data_validate.cpp.
+
+Next: @ref working_with_conditional_formatting
+
+*/

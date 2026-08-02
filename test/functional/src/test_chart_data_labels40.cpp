@@ -19,11 +19,11 @@ int main()
   chart.set_axis_ids(61191680, 61193600);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -38,7 +38,7 @@ int main()
 
   xwpp::chart_line_t line                           = {.color_ = xwpp::color_t::RED};
   std::vector<xwpp::chart_data_label_t> data_labels = {
-      {.value_ = "33", .line_ = line}
+    {.value_ = "33", .line_ = line}
   };
   xwpp::chart_series_set_labels_custom(series, data_labels);
 

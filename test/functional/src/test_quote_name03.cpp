@@ -11,15 +11,15 @@ int main()
   xwpp::workbook_t workbook;
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   std::vector<std::string> sheetnames{
-      "Sheet<1", "Sheet>2", "Sheet=3", "Sheet@4", "Sheet^5", "Sheet`6", "Sheet_7", "Sheet~8",
+    "Sheet<1", "Sheet>2", "Sheet=3", "Sheet@4", "Sheet^5", "Sheet`6", "Sheet_7", "Sheet~8",
   };
 
   for(const auto& name: sheetnames)

@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(worksheet)
 BOOST_AUTO_TEST_CASE(condtional_format02a)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:B4\"/>"
@@ -72,9 +72,9 @@ BOOST_AUTO_TEST_CASE(condtional_format02a)
   worksheet.write_number(CELL("B1"), 5);
 
   xwpp::conditional_format_t conditional_format{
-      .type_         = xwpp::conditional_format_types_t::CELL,
-      .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
-      .value_string_ = "$B$1",
+    .type_         = xwpp::conditional_format_types_t::CELL,
+    .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value_string_ = "$B$1",
   };
   worksheet.conditional_format_cell(CELL("A1"), conditional_format);
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(condtional_format02a)
 BOOST_AUTO_TEST_CASE(condtional_format02b)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:B4\"/>"
@@ -137,9 +137,9 @@ BOOST_AUTO_TEST_CASE(condtional_format02b)
   worksheet.write_number(CELL("B1"), 5);
 
   xwpp::conditional_format_t conditional_format{
-      .type_         = xwpp::conditional_format_types_t::CELL,
-      .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
-      .value_string_ = "$B$1",
+    .type_         = xwpp::conditional_format_types_t::CELL,
+    .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value_string_ = "$B$1",
   };
   worksheet.conditional_format_cell(CELL("A1"), conditional_format);
 

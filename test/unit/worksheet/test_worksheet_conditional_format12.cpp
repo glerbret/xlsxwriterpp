@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(worksheet)
 BOOST_AUTO_TEST_CASE(condtional_format12a)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(condtional_format12a)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_ = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .type_ = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(condtional_format12a)
 BOOST_AUTO_TEST_CASE(condtional_format12b)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -233,11 +233,11 @@ BOOST_AUTO_TEST_CASE(condtional_format12b)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-      .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
-      .min_color_     = xwpp::color_t(0xFF7128),
-      .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
-      .max_color_     = xwpp::color_t(0xFFEF9C),
+    .type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
+    .min_color_     = xwpp::color_t(0xFF7128),
+    .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
+    .max_color_     = xwpp::color_t(0xFFEF9C),
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(condtional_format12b)
 BOOST_AUTO_TEST_CASE(condtional_format12c)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -349,11 +349,11 @@ BOOST_AUTO_TEST_CASE(condtional_format12c)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-      .min_value_     = 20,
-      .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
-      .max_value_     = 80,
-      .max_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
+    .type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .min_value_     = 20,
+    .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
+    .max_value_     = 80,
+    .max_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(condtional_format12c)
 BOOST_AUTO_TEST_CASE(condtional_format12d)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -465,11 +465,11 @@ BOOST_AUTO_TEST_CASE(condtional_format12d)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_             = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-      .min_value_string_ = "$D$1",
-      .min_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
-      .max_value_string_ = "$D$2",
-      .max_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
+    .type_             = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .min_value_string_ = "$D$1",
+    .min_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
+    .max_value_string_ = "$D$2",
+    .max_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 

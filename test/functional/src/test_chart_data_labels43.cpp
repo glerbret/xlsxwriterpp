@@ -19,11 +19,11 @@ int main()
   chart.set_axis_ids(56185600, 56187520);
 
   uint8_t data[5][3] = {
-      {1, 2,  3 },
-      {2, 4,  6 },
-      {3, 6,  9 },
-      {4, 8,  12},
-      {5, 10, 15}
+    {1, 2,  3 },
+    {2, 4,  6 },
+    {3, 6,  9 },
+    {4, 8,  12},
+    {5, 10, 15}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -40,7 +40,7 @@ int main()
   xwpp::chart_font_t font = {.bold_ = true, .italic_ = true, .color_ = xwpp::color_t::RED, .baseline_ = -1};
 
   std::vector<xwpp::chart_data_label_t> data_labels = {
-      {.font_ = font, .line_ = line}
+    {.font_ = font, .line_ = line}
   };
 
   xwpp::chart_series_set_labels_custom(series, data_labels);

@@ -92,7 +92,7 @@ int main()
   worksheet3.write_string(CELL("B1"), "Table without default autofilter.");
 
   // Set the table options.
-  xwpp::table_options_t options3 = {.no_autofilter_ = true};
+  xwpp::table_options_t options3{.no_autofilter_ = true};
 
   // Add a table to the worksheet.
   worksheet3.add_table(RANGE("B3:F7"), options3);
@@ -108,7 +108,7 @@ int main()
   worksheet4.write_string(CELL("B1"), "Table without default header row.");
 
   // Set the table options.
-  xwpp::table_options_t options4 = {.no_header_row_ = true};
+  xwpp::table_options_t options4{.no_header_row_ = true};
 
   // Add a table to the worksheet.
   worksheet4.add_table(RANGE("B4:F7"), options4);
@@ -124,7 +124,10 @@ int main()
   worksheet5.write_string(CELL("B1"), "Default table with \"First Column\" and \"Last Column\" options.");
 
   // Set the table options.
-  xwpp::table_options_t options5 = {.first_column_ = true, .last_column_ = true};
+  xwpp::table_options_t options5{
+    .first_column_ = true,
+    .last_column_  = true,
+  };
 
   // Add a table to the worksheet.
   worksheet5.add_table(RANGE("B3:F7"), options5);
@@ -158,8 +161,8 @@ int main()
   // Set the table options.
 
   std::vector<xwpp::table_column_t> columns7{
-      {.header_ = "Product"},   {.header_ = "Quarter 1"}, {.header_ = "Quarter 2"},
-      {.header_ = "Quarter 3"}, {.header_ = "Quarter 4"},
+    {.header_ = "Product"},   {.header_ = "Quarter 1"}, {.header_ = "Quarter 2"},
+    {.header_ = "Quarter 3"}, {.header_ = "Quarter 4"},
   };
 
   xwpp::table_options_t options7 = {.columns_ = columns7};
@@ -179,12 +182,12 @@ int main()
 
   // Set the table options.
   std::vector<xwpp::table_column_t> columns8{
-      {.header_ = "Product"},
-      {.header_ = "Quarter 1"},
-      {.header_ = "Quarter 2"},
-      {.header_ = "Quarter 3"},
-      {.header_ = "Quarter 4"},
-      {.header_ = "Year", .formula_ = "=SUM(Table8[@[Quarter 1]:[Quarter 4]])"},
+    {.header_ = "Product"},
+    {.header_ = "Quarter 1"},
+    {.header_ = "Quarter 2"},
+    {.header_ = "Quarter 3"},
+    {.header_ = "Quarter 4"},
+    {.header_ = "Year", .formula_ = "=SUM(Table8[@[Quarter 1]:[Quarter 4]])"},
   };
 
   xwpp::table_options_t options8 = {.columns_ = columns8};
@@ -204,15 +207,17 @@ int main()
 
   // Set the table options.
   std::vector<xwpp::table_column_t> columns9{
-      {.header_ = "Product"},
-      {.header_ = "Quarter 1"},
-      {.header_ = "Quarter 2"},
-      {.header_ = "Quarter 3"},
-      {.header_ = "Quarter 4"},
-      {.header_ = "Year", .formula_ = "=SUM(Table9[@[Quarter 1]:[Quarter 4]])"},
+    {.header_ = "Product"},
+    {.header_ = "Quarter 1"},
+    {.header_ = "Quarter 2"},
+    {
+     .header_ = "Quarter 3",
+     },
+    {.header_ = "Quarter 4"},
+    {.header_ = "Year", .formula_ = "=SUM(Table9[@[Quarter 1]:[Quarter 4]])"},
   };
 
-  xwpp::table_options_t options9 = {.total_row_ = true, .columns_ = columns9};
+  xwpp::table_options_t options9{.total_row_ = true, .columns_ = columns9};
 
   // Add a table to the worksheet.
   worksheet9.add_table(RANGE("B3:G8"), options9);
@@ -228,15 +233,15 @@ int main()
   worksheet10.write_string(CELL("B1"), "Table with totals row with user captions and functions.");
 
   // Set the table options.
-  std::vector<xwpp::table_column_t> columns10 = {
-      {.header_ = "Product", .total_string_ = "Totals"},
-      {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_         = "Year",
-       .formula_        = "=SUM(Table10[@[Quarter 1]:[Quarter 4]])",
-       .total_function_ = xwpp::table_total_functions_t::SUM},
+  std::vector<xwpp::table_column_t> columns10{
+    {.header_ = "Product", .total_string_ = "Totals"},
+    {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_         = "Year",
+     .formula_        = "=SUM(Table10[@[Quarter 1]:[Quarter 4]])",
+     .total_function_ = xwpp::table_total_functions_t::SUM},
   };
 
   xwpp::table_options_t options10 = {.total_row_ = true, .columns_ = columns10};
@@ -256,20 +261,22 @@ int main()
 
   // Set the table options.
   std::vector<xwpp::table_column_t> columns11{
-      {.header_ = "Product", .total_string_ = "Totals"},
-      {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_         = "Year",
-       .formula_        = "=SUM(Table11[@[Quarter 1]:[Quarter 4]])",
-       .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Product", .total_string_ = "Totals"},
+    {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_         = "Year",
+     .formula_        = "=SUM(Table11[@[Quarter 1]:[Quarter 4]])",
+     .total_function_ = xwpp::table_total_functions_t::SUM},
   };
 
-  xwpp::table_options_t options11 = {.style_type_        = xwpp::table_style_type_t::LIGHT,
-                                     .style_type_number_ = 11,
-                                     .total_row_         = true,
-                                     .columns_           = columns11};
+  xwpp::table_options_t options11{
+    .style_type_        = xwpp::table_style_type_t::LIGHT,
+    .style_type_number_ = 11,
+    .total_row_         = true,
+    .columns_           = columns11,
+  };
 
   // Add a table to the worksheet.
   worksheet11.add_table(RANGE("B3:G8"), options11);
@@ -286,20 +293,22 @@ int main()
 
   // Set the table options.
   std::vector<xwpp::table_column_t> columns12{
-      {.header_ = "Product", .total_string_ = "Totals"},
-      {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM},
-      {.header_         = "Year",
-       .formula_        = "=SUM(Table12[@[Quarter 1]:[Quarter 4]])",
-       .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Product", .total_string_ = "Totals"},
+    {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM},
+    {.header_         = "Year",
+     .formula_        = "=SUM(Table12[@[Quarter 1]:[Quarter 4]])",
+     .total_function_ = xwpp::table_total_functions_t::SUM},
   };
 
-  xwpp::table_options_t options12 = {.style_type_        = xwpp::table_style_type_t::LIGHT,
-                                     .style_type_number_ = 0,
-                                     .total_row_         = true,
-                                     .columns_           = columns12};
+  xwpp::table_options_t options12{
+    .style_type_        = xwpp::table_style_type_t::LIGHT,
+    .style_type_number_ = 0,
+    .total_row_         = true,
+    .columns_           = columns12,
+  };
 
   // Add a table to the worksheet.
   worksheet12.add_table(RANGE("B3:G8"), options12);
@@ -317,18 +326,18 @@ int main()
   // Set the table options.
 
   std::vector<xwpp::table_column_t> columns13{
-      {.header_ = "Product", .total_string_ = "Totals"},
-      {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
-      {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
-      {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
-      {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
-      {.header_         = "Year",
-       .formula_        = "=SUM(Table13[@[Quarter 1]:[Quarter 4]])",
-       .total_function_ = xwpp::table_total_functions_t::SUM,
-       .format_         = currency_format},
+    {.header_ = "Product", .total_string_ = "Totals"},
+    {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
+    {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
+    {.header_ = "Quarter 3", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
+    {.header_ = "Quarter 4", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
+    {.header_         = "Year",
+     .formula_        = "=SUM(Table13[@[Quarter 1]:[Quarter 4]])",
+     .total_function_ = xwpp::table_total_functions_t::SUM,
+     .format_         = currency_format},
   };
 
-  xwpp::table_options_t options13 = {.total_row_ = true, .columns_ = columns13};
+  xwpp::table_options_t options13{.total_row_ = true, .columns_ = columns13};
 
   // Add a table to the worksheet.
   worksheet13.add_table(RANGE("B3:G8"), options13);

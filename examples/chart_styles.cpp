@@ -13,10 +13,10 @@
 int main()
 {
   const std::vector<std::tuple<xwpp::chart_type_t, std::string>> chart_descs{
-      {xwpp::chart_type_t::COLUMN, "Column"},
-      {xwpp::chart_type_t::AREA,   "Area"  },
-      {xwpp::chart_type_t::LINE,   "Line"  },
-      {xwpp::chart_type_t::PIE,    "Pie"   },
+    {xwpp::chart_type_t::COLUMN, "Column"},
+    {xwpp::chart_type_t::AREA,   "Area"  },
+    {xwpp::chart_type_t::LINE,   "Line"  },
+    {xwpp::chart_type_t::PIE,    "Pie"   },
   };
 
   // Create a new workbook and add a worksheet.

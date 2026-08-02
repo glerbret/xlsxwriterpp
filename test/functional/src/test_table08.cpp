@@ -20,7 +20,7 @@ int main()
   worksheet.write_string(CELL("E1"), "Total");
 
   std::vector<xwpp::table_column_t> columns = {
-      {.total_string_ = "Total"}, {}, {}, {.total_function_ = xwpp::table_total_functions_t::COUNT}};
+    {.total_string_ = "Total"}, {}, {}, {.total_function_ = xwpp::table_total_functions_t::COUNT}};
 
   xwpp::table_options_t options = {.total_row_ = true, .columns_ = columns};
 

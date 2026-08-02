@@ -17,20 +17,31 @@
 #include <tuple>
 #include <vector>
 
-#include <iostream>
-
 namespace xwpp
 {
+
 table_t::table_t(const table_obj_t table_obj)
   : table_obj_{table_obj}
 {
 }
 
+std::string table_t::assemble_xml_file()
+{
+  std::string xml_data = xml_declaration();
+  xml_data += write_table();
+  xml_data += write_auto_filter();
+  xml_data += write_table_columns();
+  xml_data += write_table_style_info();
+  xml_data += xml_end_tag("table");
+
+  return xml_data;
+}
+
 std::string table_t::write_table()
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
-      {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
-      {"id",    std::to_string(table_obj_.id_)                             },
+    {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
+    {"id",    std::to_string(table_obj_.id_)                             },
   };
 
   if(!table_obj_.name_.empty())
@@ -71,15 +82,15 @@ std::string table_t::write_auto_filter()
   }
 
   return xml_empty_tag("autoFilter", {
-                                         {"ref", table_obj_.filter_sqref_}
+                                       {"ref", table_obj_.filter_sqref_}
   });
 }
 
 std::string table_t::write_table_column(uint16_t id, const table_column_t& column)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
-      {"id",   std::to_string(id)},
-      {"name", column.header_    }
+    {"id",   std::to_string(id)},
+    {"name", column.header_    }
   };
 
   if(!column.total_string_.empty())
@@ -145,7 +156,7 @@ std::string table_t::write_table_column(uint16_t id, const table_column_t& colum
 std::string table_t::write_table_columns()
 {
   std::string xml_data = xml_start_tag("tableColumns", {
-                                                           {"count", std::to_string(table_obj_.columns_.size())}
+                                                         {"count", std::to_string(table_obj_.columns_.size())}
   });
   for(uint16_t i = 0; const auto& column: table_obj_.columns_)
   {
@@ -218,18 +229,6 @@ std::string table_t::write_table_style_info()
   }
 
   return xml_empty_tag("tableStyleInfo", attributes);
-}
-
-std::string table_t::assemble_xml_file()
-{
-  std::string xml_data = xml_declaration();
-  xml_data += write_table();
-  xml_data += write_auto_filter();
-  xml_data += write_table_columns();
-  xml_data += write_table_style_info();
-  xml_data += xml_end_tag("table");
-
-  return xml_data;
 }
 
 }

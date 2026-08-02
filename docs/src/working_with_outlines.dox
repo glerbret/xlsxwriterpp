@@ -1,0 +1,151 @@
+/**
+@page working_with_outlines Working with Outlines and Grouping
+
+Excel allows you to group rows or columns so that they can be hidden or
+displayed with a single mouse click. This feature is referred to as Outlines
+and Grouping.
+
+Outlines can reduce complex data down to a few salient sub-totals or
+summaries. For example the following is a worksheet with three outlines.
+
+@image html outline1.png
+
+Rows 2 to 11 are grouped at level 1 and rows 2 to 5 and 7 to 10 are grouped at
+level 2. The lines at the left hand side are called "outline level" bars and
+the level is shown by the small numeral above the outline.
+
+Clicking the minus sign on each of the level 2 outlines will collapse and hide
+the data as shown below.
+
+@image html outline5.png
+
+The minus sign changes to a plus sign to indicate that the data in the outline
+is hidden. This shows the usefulness of outlines: with 2 mouse clicks we have
+reduced the amount of visual data down to 2 sub-totals and a master total.
+
+Finally, clicking on the minus sign on the level 1 outline will collapse the
+remaining rows as follows:
+
+@image html outline6.png
+
+@section ww_outlines_grouping Outlines and Grouping in Xlsxwriter++
+
+Grouping in `Xlsxwriter++` is achieved by setting the outline level via the
+`worksheet_t::set_row()` and `worksheet_t::set_column()` worksheet
+functions:
+
+Adjacent row or columns with the same outline level are grouped together into a
+single outline.
+
+The `options` parameter is a `row_col_options_t` struct. It has the following
+members:
+
+- `%hidden_`
+- `%level_`
+- `%collapsed_`
+
+Options can be set as follows, for example to set up an outline for rows:
+
+@code
+  // The option structs with the outline level set.
+  xwpp::row_col_options_t options1{
+    .hidden_    = false,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options2{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false
+  };
+
+  // Set the row options with the outline level.
+  worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+
+  worksheet.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+@endcode
+
+@image html outline1.png
+
+Or an outline for columns:
+
+@code
+  xwpp::row_col_options_t options{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+
+  worksheet.set_column(COLS("B:G"), 5, nullptr, options1);
+@endcode
+
+@image html outline8.png
+
+The following example sets an outline level of 1 for rows 1 to 4
+(zero-indexed) and columns B to G. The parameters `%height`, `%width` and
+`%cell_format` are assigned default values:
+
+@code
+  xwpp::row_col_options_ options{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+
+  worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+
+  worksheet.set_column(COLS("B:G"), xwpp::DEF_COL_WIDTH, nullptr, options);
+@endcode
+
+@image html outline3.png
+
+Rows and columns can be collapsed by setting the `%hidden_` member for the
+hidden rows/columns and setting the `%collapsed_` member for the row/column that
+has the collapsed `'+'` symbol:
+
+@code
+  xwpp::row_col_options_t options1{
+    .hidden_    = true,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options2{
+    .hidden_    = false,
+    .level_     = 0,
+    .collapsed_ = true,
+  };
+
+  worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+  worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+
+  worksheet.set_column(COLS("B:G"), xwpp::DEF_COL_WIDTH, nullptr, options1);
+  worksheet.set_column(COLS("H:H"), xwpp::DEF_COL_WIDTH, nullptr, options2);
+@endcode
+
+@image html outline7.png
+
+Excel allows up to 7 outline levels. Therefore the `level` parameter should
+be in the range `0 <= level <= 7`.
+
+@image html outline4.png
+
+Some additional outline properties can be set via the
+`worksheet_t::outline_settings()` worksheet function.
+
+Next: @ref working_with_macros
+
+*/

@@ -15,65 +15,12 @@
 #include <tuple>
 #include <vector>
 
-#include <iostream>
-
 namespace xwpp
 {
 
-std::string shared_strings_t::write_t(const std::string& str) const
+bool shared_strings_t::has_string() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
-  // Add attribute to preserve leading or trailing whitespace.
-  if(std::isspace(str.front()) != 0 || std::isspace(str.back()) != 0)
-  {
-    attributes.emplace_back("xml:space", "preserve");
-  }
-
-  return xml_data_element("t", str, attributes);
-}
-
-std::string shared_strings_t::write_si(const std::string& str) const
-{
-  const std::string encoded = escape_control_characters(str);
-
-  std::string xml_data = xml_start_tag("si");
-  xml_data += write_t(encoded);
-  xml_data += xml_end_tag("si");
-
-  return xml_data;
-}
-
-std::string shared_strings_t::write_rich_si(const std::string& str) const
-{
-  return xml_rich_si_element(str);
-}
-
-std::string shared_strings_t::write_sst() const
-{
-  return xml_start_tag("sst", {
-                                  {"xmlns",       "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
-                                  {"count",       std::to_string(string_count_)                              },
-                                  {"uniqueCount", std::to_string(unique_count_)                              },
-  });
-}
-
-std::string shared_strings_t::write_sst_strings() const
-{
-  std::string xml_data;
-
-  for(const auto& elm: order_list_)
-  {
-    if(elm.is_rich_string_)
-    {
-      xml_data += write_rich_si(elm.string_);
-    }
-    else
-    {
-      xml_data += write_si(elm.string_);
-    }
-  }
-
-  return xml_data;
+  return string_count_ != 0;
 }
 
 std::string shared_strings_t::assemble_xml_file() const
@@ -97,9 +44,9 @@ shared_strings_element_t shared_strings_t::get_index(const std::string& str, boo
   }
 
   const shared_strings_element_t elt{
-      .index_          = unique_count_,
-      .string_         = str,
-      .is_rich_string_ = is_rich_string,
+    .index_          = unique_count_,
+    .string_         = str,
+    .is_rich_string_ = is_rich_string,
   };
 
   const size_t id = order_list_.size();
@@ -111,9 +58,60 @@ shared_strings_element_t shared_strings_t::get_index(const std::string& str, boo
   return elt;
 }
 
-bool shared_strings_t::has_string() const
+std::string shared_strings_t::write_sst() const
 {
-  return string_count_ != 0;
+  return xml_start_tag("sst", {
+                                {"xmlns",       "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
+                                {"count",       std::to_string(string_count_)                              },
+                                {"uniqueCount", std::to_string(unique_count_)                              },
+  });
+}
+
+std::string shared_strings_t::write_sst_strings() const
+{
+  std::string xml_data;
+
+  for(const auto& elm: order_list_)
+  {
+    if(elm.is_rich_string_)
+    {
+      xml_data += write_rich_si(elm.string_);
+    }
+    else
+    {
+      xml_data += write_si(elm.string_);
+    }
+  }
+
+  return xml_data;
+}
+
+std::string shared_strings_t::write_si(const std::string& str) const
+{
+  const std::string encoded = escape_control_characters(str);
+
+  std::string xml_data = xml_start_tag("si");
+  xml_data += write_t(encoded);
+  xml_data += xml_end_tag("si");
+
+  return xml_data;
+}
+
+std::string shared_strings_t::write_rich_si(const std::string& str) const
+{
+  return xml_rich_si_element(str);
+}
+
+std::string shared_strings_t::write_t(const std::string& str) const
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  // Add attribute to preserve leading or trailing whitespace.
+  if(std::isspace(str.front()) != 0 || std::isspace(str.back()) != 0)
+  {
+    attributes.emplace_back("xml:space", "preserve");
+  }
+
+  return xml_data_element("t", str, attributes);
 }
 
 }

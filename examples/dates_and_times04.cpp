@@ -22,20 +22,20 @@ int main()
   // Examples date and time formats. In the output file compare how changing
   // the format strings changes the appearance of the date.
   const std::vector<std::string> date_formats{
-      "dd/mm/yy",
-      "mm/dd/yy",
-      "dd m yy",
-      "d mm yy",
-      "d mmm yy",
-      "d mmmm yy",
-      "d mmmm yyy",
-      "d mmmm yyyy",
-      "dd/mm/yy hh:mm",
-      "dd/mm/yy hh:mm:ss",
-      "dd/mm/yy hh:mm:ss.000",
-      "hh:mm",
-      "hh:mm:ss",
-      "hh:mm:ss.000",
+    "dd/mm/yy",
+    "mm/dd/yy",
+    "dd m yy",
+    "d mm yy",
+    "d mmm yy",
+    "d mmmm yy",
+    "d mmmm yyy",
+    "d mmmm yyyy",
+    "dd/mm/yy hh:mm",
+    "dd/mm/yy hh:mm:ss",
+    "dd/mm/yy hh:mm:ss.000",
+    "hh:mm",
+    "hh:mm:ss",
+    "hh:mm:ss.000",
   };
 
   // Create a new workbook and add a worksheet.

@@ -8,7 +8,6 @@
  * @file
  *
  * Xlsxwriter++ - A C++ library for creating Excel XLSX files.
- *
  */
 
 #ifndef XLSXWRITERPP_H

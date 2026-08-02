@@ -1,0 +1,155 @@
+/**
+@page working_with_object_positioning Working with Object Positioning
+
+`Xlsxwriter++` positions worksheet objects such as images and charts in
+worksheets by calculating precise co-ordinates based on the object size, it's
+DPI (for images) and any scaling that the user specifies. It also takes into
+account the heights and widths of the rows and columns that the object
+crosses. In this way objects maintain their original sizes even if the rows or
+columns underneath change size or are hidden.
+
+For example:
+
+@code
+  #include "xlsxwriterpp.h"
+
+  int main()
+  {
+    xwpp::workbook_t workbook;
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+    // Original image.
+    worksheet.insert_image(CELL("B2"), "logo.png");
+
+    // Same as original, despite row/col changes.
+    worksheet.insert_image(CELL("E8"), "logo.png");
+
+    // Make column F narrower.
+    worksheet.set_column(COLS("F:F"), 2);
+
+    // Hide row 12 (zero indexed).
+    xwpp::row_col_options_t row_options = {.hidden_ = true};
+    worksheet.set_row(11, xwpp::DEF_ROW_HEIGHT, nullptr, row_options);
+
+    workbook_save("images.xlsx");
+  }
+@endcode
+
+@image html object_position1.png
+
+As can be seen the inserted images are the same size even though the second
+image crosses changed rows and columns.
+
+However, there are two cases where the image scale may change with row or
+columns changes. These are explained in the next two sections.
+
+@section ww_object_position_scaling Object scaling due to automatic row height adjustment
+
+The scaling of a image may be affected if is crosses a row that has its
+default height changed due to a font that is larger than the default font size
+or that has text wrapping turned on. In these cases Excel will automatically
+calculate a row height based on the text when it loads the file. Since this
+row height isn't available to `Xlsxwriter++` when it creates the file the object
+may appear as if it is sized incorrectly. For example::
+
+@code
+  #include "xlsxwriterpp.h"
+
+  int main()
+  {
+    xwpp::workbook_t workbook;
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+    xwpp::format_t* wrap = workbook.add_format();
+    wrap->set_text_wrap();
+
+    worksheet.write_string(CELL("A10"), "Some text that wraps", wrap);
+
+    worksheet.insert_image(CELL("B1"),  "logo.png");
+    worksheet.insert_image(CELL("B10"), "logo.png");
+
+    workbook_save("images.xlsx");
+  }
+@endcode
+
+@image html object_position2.png
+
+As can be seen the second inserted image is distorted, compared to the first,
+due to the row being scaled automatically. To avoid this you should explicitly
+set the height of the row using `worksheet_t::set_row()` if it crosses an
+inserted object.
+
+@section ww_object_position_options Object Positioning with Cell Moving and Sizing
+
+Excel supports three options for "Object Positioning" within a worksheet:
+
+@image html object_position3.png
+
+Image and chart objects in `Xlsxwriter++` emulate these options using the
+`object_position_t` parameter in `image_options_t` and `chart_options_t`:
+
+@code
+  xwpp::image_options_t options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE};
+  worksheet.insert_image(CELL("E9"), "red.png", options);
+@endcode
+
+Where `%object_position_` has one of the following allowable values from
+`object_position_t`:
+
+1. `object_position_t::MOVE_AND_SIZE`: Move and size with cells. This is the Excel
+  default for charts.
+
+2. `object_position_t::MOVE_DONT_SIZE`: Move but don’t size with cells. This is the
+  Excel default for images.
+
+3. `object_position_t::DONT_MOVE_DONT_SIZE`: Don’t move or size with cells.
+
+4. `object_position_t::MOVE_AND_SIZE_AFTER`: Same as Option 1 to "move and size with
+  cells" except `Xlsxwriter++` applies hidden cells after the object is
+  inserted.
+
+Option 4 appears in Excel as Option 1. However, the worksheet object is sized
+to take hidden rows or columns into account. This allows the user to hide an
+image in a cell, possibly as part of an autofilter. For example:
+
+@code
+  #include "xlsxwriterpp.h"
+
+  int main()
+  {
+    xwpp::workbook_t workbook;
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+    xwpp::image_options_t image_options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
+
+    worksheet.insert_image(CELL("B4"), "logo.png");
+    worksheet.insert_image(CELL("B13"), "logo.png", image_options);
+
+    // Hide the rows that contain the images.
+    xwpp::row_col_options_t row_options{.hidden_ = true};
+    for(xwpp::row_num_t row_num = 1; row_num < 22; row_num++)
+      worksheet.set_row(row_num, xwpp::DEF_ROW_HEIGHT, nullptr, row_options);
+
+    workbook.save("images.xlsx");
+  }
+@endcode
+
+@image html object_position4.png
+
+In this example the first inserted image is visible over the hidden rows
+whilst the second image is hidden with the rows. Unhiding the rows in Excel
+would reveal the second image.
+
+@section ww_object_position_sizing Image sizing and DPI
+
+When an image is imported into Excel the DPI (dots per inch) resolution of the
+image is taken into account. Excel sizes the image according to a base DPI of
+96 dpi. Therefore an image with a DPI of 72 may appear slightly larger when
+imported into Excel while an image with a DPI of 200 may appear twice as
+small. `Xlsxwriter++` also reads the DPI of the images that the user inserts
+into a worksheet and stores the image dimensions in the same way that Excel
+does. If it cannot determine the DPI of the image it uses a default of 96.
+
+Next: @ref working_with_autofilters
+
+*/

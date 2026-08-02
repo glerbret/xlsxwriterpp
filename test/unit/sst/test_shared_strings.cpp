@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(shared_strings)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"3\">"
         "<si>"
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"3\" uniqueCount=\"3\">"
         "<si>"

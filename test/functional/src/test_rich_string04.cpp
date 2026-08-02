@@ -21,8 +21,8 @@ int main()
   worksheet.write_string(CELL("A2"), "Bar", italic);
 
   std::vector<xwpp::rich_string_tuple_t> rich_strings = {
-      {.format_ = bold,   .str_ = "abc" },
-      {.format_ = italic, .str_ = "defg"}
+    {.format_ = bold,   .str_ = "abc" },
+    {.format_ = italic, .str_ = "defg"}
   };
   worksheet.write_rich_string(CELL("A3"), rich_strings, nullptr);
 

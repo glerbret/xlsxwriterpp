@@ -21,23 +21,23 @@ int main()
   worksheet.write_string(CELL("A2"), "Bar", italic);
 
   std::vector<xwpp::rich_string_tuple_t> rich_strings1 = {
-      {.str_ = "a"},
-      {.format_ = bold, .str_ = "bc"},
-      {.str_ = "defg"}
+    {.str_ = "a"},
+    {.format_ = bold, .str_ = "bc"},
+    {.str_ = "defg"}
   };
   std::vector<xwpp::rich_string_tuple_t> rich_strings2 = {
-      {.str_ = "a"},
-      {.format_ = bold, .str_ = "bcdef"},
-      {.str_ = "g"}
+    {.str_ = "a"},
+    {.format_ = bold, .str_ = "bcdef"},
+    {.str_ = "g"}
   };
   std::vector<xwpp::rich_string_tuple_t> rich_strings3 = {
-      {.str_ = "abc"},
-      {.format_ = italic, .str_ = "de"},
-      {.str_ = "fg"}
+    {.str_ = "abc"},
+    {.format_ = italic, .str_ = "de"},
+    {.str_ = "fg"}
   };
   std::vector<xwpp::rich_string_tuple_t> rich_strings4 = {
-      {.format_ = italic, .str_ = "abcd"},
-      {.str_ = "efg"}
+    {.format_ = italic, .str_ = "abcd"},
+    {.str_ = "efg"}
   };
 
   worksheet.write_rich_string(CELL("A3"), rich_strings1, nullptr);

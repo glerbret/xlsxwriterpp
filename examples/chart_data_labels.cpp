@@ -147,7 +147,7 @@ int main()
 
   // Create some custom labels.
   std::vector<xwpp::chart_data_label_t> data_labels5 = {
-      {.value_ = "Amy"}, {.value_ = "Bea"}, {.value_ = "Eva"}, {.value_ = "Fay"}, {.value_ = "Liv"}, {.value_ = "Una"},
+    {.value_ = "Amy"}, {.value_ = "Bea"}, {.value_ = "Eva"}, {.value_ = "Fay"}, {.value_ = "Liv"}, {.value_ = "Una"},
   };
 
   // Set the custom labels.
@@ -173,8 +173,8 @@ int main()
 
   // Create some custom labels.
   std::vector<xwpp::chart_data_label_t> data_labels6 = {
-      {.value_ = "=Sheet1!$C$2"}, {.value_ = "=Sheet1!$C$3"}, {.value_ = "=Sheet1!$C$4"},
-      {.value_ = "=Sheet1!$C$5"}, {.value_ = "=Sheet1!$C$6"}, {.value_ = "=Sheet1!$C$7"},
+    {.value_ = "=Sheet1!$C$2"}, {.value_ = "=Sheet1!$C$3"}, {.value_ = "=Sheet1!$C$4"},
+    {.value_ = "=Sheet1!$C$5"}, {.value_ = "=Sheet1!$C$6"}, {.value_ = "=Sheet1!$C$7"},
   };
 
   // Set the custom labels.
@@ -202,10 +202,10 @@ int main()
 
   // Create some custom labels.
   std::vector<xwpp::chart_data_label_t> data_labels7 = {
-      {.value_ = "=Sheet1!$C$2", .font_ = font2},
-      {},
-      {.value_ = "=Sheet1!$C$4", .font_ = font2},
-      {.value_ = "=Sheet1!$C$5", .font_ = font2},
+    {.value_ = "=Sheet1!$C$2", .font_ = font2},
+    {},
+    {.value_ = "=Sheet1!$C$4", .font_ = font2},
+    {.value_ = "=Sheet1!$C$5", .font_ = font2},
   };
 
   // Set the custom labels.
@@ -233,7 +233,7 @@ int main()
   xwpp::chart_data_label_t hide                      = {.hide_ = true};
   xwpp::chart_data_label_t keep                      = {.hide_ = false};
   std::vector<xwpp::chart_data_label_t> data_labels8 = {
-      hide, keep, hide, hide, keep, hide,
+    hide, keep, hide, hide, keep, hide,
   };
 
   // Set the custom labels.
@@ -258,23 +258,23 @@ int main()
   xwpp::chart_series_set_labels(series9);
 
   // Set the border/line and fill for the data labels.
-  xwpp::chart_line_t line2 = {.color_ = xwpp::color_t::RED};
-  xwpp::chart_fill_t fill2 = {.color_ = xwpp::color_t::YELLOW};
-  xwpp::chart_line_t line3 = {.color_ = xwpp::color_t::BLUE};
-  xwpp::chart_fill_t fill3 = {.color_ = xwpp::color_t::GREEN};
+  xwpp::chart_line_t line2{.color_ = xwpp::color_t::RED};
+  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::YELLOW};
+  xwpp::chart_line_t line3{.color_ = xwpp::color_t::BLUE};
+  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::GREEN};
 
   // Set the default formatting for the data labels in the series.
   xwpp::chart_series_set_labels_line(series9, line2);
   xwpp::chart_series_set_labels_fill(series9, fill2);
 
   // Create some custom labels.
-  std::vector<xwpp::chart_data_label_t> data_labels9 = {
-      {.value_ = "Amy", .line_ = line3},
-      {.value_ = "Bea"},
-      {.value_ = "Eva"},
-      {.value_ = "Fay"},
-      {.value_ = "Liv"},
-      {.value_ = "Una", .fill_ = fill3},
+  std::vector<xwpp::chart_data_label_t> data_labels9{
+    {.value_ = "Amy", .line_ = line3},
+    {.value_ = "Bea"},
+    {.value_ = "Eva"},
+    {.value_ = "Fay"},
+    {.value_ = "Liv"},
+    {.value_ = "Una", .fill_ = fill3},
   };
 
   // Set the custom labels.

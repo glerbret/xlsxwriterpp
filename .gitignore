@@ -72,5 +72,8 @@ Testing/
 __pycache__/
 *.pyc
 
+# Generaterd HTML pages
+docs/html
+
 # Others
 .vs/*

@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(chartsheet)
 BOOST_AUTO_TEST_CASE(assemble_xml_file)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
       "<chartsheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
         "<sheetPr/>"

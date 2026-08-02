@@ -46,24 +46,24 @@ int main()
   xwpp::chart_axis_set_name(chart.y_axis_, "Number of houses");
 
   // Configure an add the chart series patterns.
-  xwpp::chart_pattern_t pattern1 = {
-      .fg_color_ = static_cast<xwpp::color_t>(0x804000),
-      .bg_color_ = static_cast<xwpp::color_t>(0XC68C53),
-      .type_     = xwpp::chart_pattern_type_t::SHINGLE,
+  xwpp::chart_pattern_t pattern1{
+    .fg_color_ = static_cast<xwpp::color_t>(0x804000),
+    .bg_color_ = static_cast<xwpp::color_t>(0XC68C53),
+    .type_     = xwpp::chart_pattern_type_t::SHINGLE,
   };
 
-  xwpp::chart_pattern_t pattern2 = {
-      .fg_color_ = static_cast<xwpp::color_t>(0XB30000),
-      .bg_color_ = static_cast<xwpp::color_t>(0XFF6666),
-      .type_     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
+  xwpp::chart_pattern_t pattern2{
+    .fg_color_ = static_cast<xwpp::color_t>(0XB30000),
+    .bg_color_ = static_cast<xwpp::color_t>(0XFF6666),
+    .type_     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
   };
 
   xwpp::chart_series_set_pattern(series1, pattern1);
   xwpp::chart_series_set_pattern(series2, pattern2);
 
   // Configure and set the chart series borders.
-  xwpp::chart_line_t line1 = {.color_ = static_cast<xwpp::color_t>(0x804000)};
-  xwpp::chart_line_t line2 = {.color_ = static_cast<xwpp::color_t>(0xb30000)};
+  xwpp::chart_line_t line1{.color_ = static_cast<xwpp::color_t>(0x804000)};
+  xwpp::chart_line_t line2{.color_ = static_cast<xwpp::color_t>(0xb30000)};
 
   xwpp::chart_series_set_line(series1, line1);
   xwpp::chart_series_set_line(series2, line2);

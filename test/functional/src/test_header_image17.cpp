@@ -12,10 +12,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::header_footer_options_t header_options1 = {
-      .image_left_ = "images/red.jpg", .image_center_ = "images/blue.jpg", .image_right_ = "images/red.jpg"};
+    .image_left_ = "images/red.jpg", .image_center_ = "images/blue.jpg", .image_right_ = "images/red.jpg"};
 
   xwpp::header_footer_options_t header_options2 = {
-      .image_left_ = "images/blue.jpg", .image_center_ = "images/red.jpg", .image_right_ = "images/blue.jpg"};
+    .image_left_ = "images/blue.jpg", .image_center_ = "images/red.jpg", .image_right_ = "images/blue.jpg"};
 
   worksheet.set_header("&L&G&C&G&R&G", header_options1);
   worksheet.set_footer("&L&G&C&G&R&G", header_options2);

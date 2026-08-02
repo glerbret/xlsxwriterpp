@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(worksheet)
 BOOST_AUTO_TEST_CASE(condtional_format13a)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(condtional_format13a)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_ = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+    .type_ = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(condtional_format13a)
 BOOST_AUTO_TEST_CASE(condtional_format13b)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
       "<dimension ref=\"A1:A12\"/>"
@@ -237,14 +237,14 @@ BOOST_AUTO_TEST_CASE(condtional_format13b)
   worksheet.write_number(CELL("A12"), 12);
 
   xwpp::conditional_format_t conditional_format{
-      .type_          = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-      .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
-      .min_color_     = xwpp::color_t(0xF8696B),
-      .mid_value_     = 50,
-      .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
-      .mid_color_     = xwpp::color_t(0xFFEB84),
-      .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
-      .max_color_     = xwpp::color_t(0x63BE7B),
+    .type_          = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+    .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
+    .min_color_     = xwpp::color_t(0xF8696B),
+    .mid_value_     = 50,
+    .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
+    .mid_color_     = xwpp::color_t(0xFFEB84),
+    .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
+    .max_color_     = xwpp::color_t(0x63BE7B),
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 

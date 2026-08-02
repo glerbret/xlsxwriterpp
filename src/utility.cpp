@@ -16,21 +16,44 @@
 #include <format>
 #include <vector>
 
-#include <iostream>
-
 namespace xwpp
 {
 
-std::string dup_formula(const std::string& formula)
+std::string lxw_version()
 {
-  if(formula[0] == '=')
+  return XWPP_VERSION;
+}
+
+// Create a quoted version of the worksheet name, or return an unmodified
+// copy if it doesn't required quoting.
+std::string quote_sheetname(std::string_view sheetname)
+{
+  // Don't quote the sheetname if it is already quoted.
+  if(sheetname[0] == '\'')
   {
-    return formula.substr(1);
+    return std::string{sheetname};
   }
-  else
+
+  // Check if the sheetname contains any characters that require it
+  // to be quoted. Also check for single quotes within the string.
+  if(std::ranges::all_of(sheetname, [](char c) { return isalnum(c) != 0 || c == '_' || c == '.'; }))
   {
-    return formula;
+    return std::string{sheetname};
   }
+
+  // Add single quotes to the start and end of the string.
+  std::string quoted_name = "'";
+  for(auto c: sheetname)
+  {
+    quoted_name.push_back(c);
+    // Escape single quotes in name.
+    if(c == '\'')
+    {
+      quoted_name.push_back('\'');
+    }
+  }
+  quoted_name.push_back('\'');
+  return quoted_name;
 }
 
 std::string col_to_name(col_num_t col_num, bool absolute)
@@ -254,6 +277,132 @@ uint16_t name_to_col_2(const char* col_str)
   }
 }
 
+std::string dup_formula(const std::string& formula)
+{
+  if(formula[0] == '=')
+  {
+    return formula.substr(1);
+  }
+  else
+  {
+    return formula;
+  }
+}
+
+double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
+{
+  const auto dp = std::chrono::floor<std::chrono::days>(datetime);
+  const std::chrono::year_month_day ymd{dp};
+  const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - dp)};
+  int year         = static_cast<int>(ymd.year());
+  int month        = static_cast<unsigned int>(ymd.month());
+  int day          = static_cast<unsigned int>(ymd.day());
+  const int hour   = time.hours().count();
+  const int min    = time.minutes().count();
+  const double sec = time.seconds().count() + time.subseconds().count() / 1000.0;
+  const int epoch  = use_1904_epoch ? 1904 : 1900;
+  const int offset = use_1904_epoch ? 4 : 0;
+  const int norm   = 300;
+  // Set month days and check for leap year.
+  std::vector<int> mdays{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  int leap = 0;
+  int days = 0;
+
+  // For times without dates (i.e. set to epoch) set the default date for the Excel epoch.
+  if(year == 1970 && month == 1 && day == 1)
+  {
+    if(!use_1904_epoch)
+    {
+      year  = 1899;
+      month = 12;
+      day   = 31;
+    }
+    else
+    {
+      year  = 1904;
+      month = 1;
+      day   = 1;
+    }
+  }
+
+  // Convert the Excel seconds to a fraction of the seconds in 24 hours.
+  const double seconds = (hour * 60 * 60 + min * 60 + sec) / (24 * 60 * 60.0);
+
+  // Special cases for Excel dates in the 1900 epoch.
+  if(!use_1904_epoch)
+  {
+    // Excel 1900 epoch.
+    if(year == 1899 && month == 12 && day == 31)
+    {
+      return seconds;
+    }
+
+    // Excel 1900 epoch.
+    if(year == 1900 && month == 1 && day == 0)
+    {
+      return seconds;
+    }
+
+    // Excel false leapday.
+    if(year == 1900 && month == 2 && day == 29)
+    {
+      return 60 + seconds;
+    }
+  }
+
+  /* We calculate the date by calculating the number of days since the
+     epoch and adjust for the number of leap days. We calculate the
+     number of leap days by normalizing the year in relation to the
+     epoch. Thus the year 2000 becomes 100 for 4-year and 100-year
+     leapdays and 400 for 400-year leapdays. */
+  const int range = year - epoch;
+
+  if(year % 4 == 0 && (year % 100 > 0 || year % 400 == 0))
+  {
+    leap     = 1;
+    mdays[2] = 29;
+  }
+
+  // Calculate the serial date by accumulating the number of days
+  //  since the epoch.
+
+  if(month > 12)
+  {
+    throw xwpp_exception_t(std::format("datetime_to_excel_date_with_epoch(): invalid month '{}'", month));
+  }
+
+  // Add days for previous months.
+  for(size_t i = 0; i < static_cast<size_t>(month) && i < mdays.size(); i++)
+  {
+    days += mdays[i];
+  }
+  // Add days for current month.
+  days += day;
+  // Add days for all previous years.
+  days += range * 365;
+  // Add 4 year leapdays.
+  days += range / 4;
+  // Remove 100 year leapdays.
+  days -= (range + offset) / 100;
+  // Add 400 year leapdays.
+  days += (range + offset + norm) / 400;
+  // Remove leap days already counted.
+  days -= leap;
+
+  // Adjust for Excel erroneously treating 1900 as a leap year.
+  if(!use_1904_epoch && days > 59)
+  {
+    days++;
+  }
+
+  return days + seconds;
+}
+
+double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime)
+{
+  return datetime_to_excel_date_with_epoch(datetime, false);
+}
+
 // lxw_error
 // lxw_datetime_validate(lxw_datetime *datetime)
 // {
@@ -317,133 +466,6 @@ uint16_t name_to_col_2(const char* col_str)
 //     return LXW_NO_ERROR;
 // }
 
-// TODO Note about range of std::chrono::system_clock::time_point(up to 2062)
-// TODO Add overload with other date /time type (included lxw_datetime)
-double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
-{
-  const auto dp = std::chrono::floor<std::chrono::days>(datetime);
-  const std::chrono::year_month_day ymd{dp};
-  const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - dp)};
-  int year         = static_cast<int>(ymd.year());
-  int month        = static_cast<unsigned int>(ymd.month());
-  int day          = static_cast<unsigned int>(ymd.day());
-  const int hour   = time.hours().count();
-  const int min    = time.minutes().count();
-  const double sec = time.seconds().count() + time.subseconds().count() / 1000.0;
-  const int epoch  = use_1904_epoch ? 1904 : 1900;
-  const int offset = use_1904_epoch ? 4 : 0;
-  const int norm   = 300;
-  // Set month days and check for leap year.
-  std::vector<int> mdays {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  int leap         = 0;
-  int days         = 0;
-
-  // For times without dates (i.e. set to epoch) set the default date for the Excel epoch.
-  if(year == 1970 && month == 1 && day == 1)
-  {
-    if(!use_1904_epoch)
-    {
-      year  = 1899;
-      month = 12;
-      day   = 31;
-    }
-    else
-    {
-      year  = 1904;
-      month = 1;
-      day   = 1;
-    }
-  }
-
-  // Convert the Excel seconds to a fraction of the seconds in 24 hours.
-  const double seconds = (hour * 60 * 60 + min * 60 + sec) / (24 * 60 * 60.0);
-
-  // Special cases for Excel dates in the 1900 epoch.
-  if(!use_1904_epoch)
-  {
-    // Excel 1900 epoch.
-    if(year == 1899 && month == 12 && day == 31)
-    {
-      return seconds;
-    }
-
-    // Excel 1900 epoch.
-    if(year == 1900 && month == 1 && day == 0)
-    {
-      return seconds;
-    }
-
-    // Excel false leapday
-    if(year == 1900 && month == 2 && day == 29)
-    {
-      return 60 + seconds;
-    }
-  }
-
-  /* We calculate the date by calculating the number of days since the
-     epoch and adjust for the number of leap days. We calculate the
-     number of leap days by normalizing the year in relation to the
-     epoch. Thus the year 2000 becomes 100 for 4-year and 100-year
-     leapdays and 400 for 400-year leapdays. */
-  const int range = year - epoch;
-
-  if(year % 4 == 0 && (year % 100 > 0 || year % 400 == 0))
-  {
-    leap     = 1;
-    mdays[2] = 29;
-  }
-
-  // Calculate the serial date by accumulating the number of days
-  //  since the epoch.
-
-  if(month > 12)
-  {
-    throw xwpp_exception_t(std::format("datetime_to_excel_date_with_epoch(): invalid month '{}'", month));
-  }
-
-  // Add days for previous months.
-  for(size_t i = 0; i < static_cast<size_t>(month) && i < mdays.size(); i++)
-  {
-    days += mdays[i];
-  }
-  // Add days for current month.
-  days += day;
-  // Add days for all previous years.
-  days += range * 365;
-  // Add 4 year leapdays.
-  days += range / 4;
-  // Remove 100 year leapdays.
-  days -= (range + offset) / 100;
-  // Add 400 year leapdays.
-  days += (range + offset + norm) / 400;
-  // Remove leap days already counted.
-  days -= leap;
-
-  // Adjust for Excel erroneously treating 1900 as a leap year.
-  if(!use_1904_epoch && days > 59)
-  {
-    days++;
-  }
-
-  return days + seconds;
-}
-
-double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime)
-{
-  return datetime_to_excel_date_with_epoch(datetime, false);
-}
-
-/*
- * Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
- * 1900 epoch.
- */
-double unixtime_to_excel_date(int64_t unixtime)
-{
-  return unixtime_to_excel_date_with_epoch(unixtime, false);
-}
-
-// Convert a unix datetime (1970/01/01 epoch) to an Excel serial date, with a
-// 1900 or 1904 epoch.
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 {
   double excel_datetime = 0.0;
@@ -458,48 +480,12 @@ double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 
   return excel_datetime;
 }
-// Create a quoted version of the worksheet name, or return an unmodified
-// copy if it doesn't required quoting.
-std::string quote_sheetname(std::string_view sheetname)
+
+double unixtime_to_excel_date(int64_t unixtime)
 {
-  // Don't quote the sheetname if it is already quoted.
-  if(sheetname[0] == '\'')
-  {
-    return std::string{sheetname};
-  }
-
-  // Check if the sheetname contains any characters that require it
-  // to be quoted. Also check for single quotes within the string.
-  if(std::ranges::all_of(sheetname, [](char c) { return isalnum(c) != 0 || c == '_' || c == '.'; }))
-  {
-    return std::string{sheetname};
-  }
-
-  // Add single quotes to the start and end of the string.
-  std::string quoted_name = "'";
-  for(auto c: sheetname)
-  {
-    quoted_name.push_back(c);
-    // Escape single quotes in name
-    if(c == '\'')
-    {
-      quoted_name.push_back('\'');
-    }
-  }
-  quoted_name.push_back('\'');
-  return quoted_name;
+  return unixtime_to_excel_date_with_epoch(unixtime, false);
 }
 
-std::string lxw_version()
-{
-  return XWPP_VERSION;
-}
-
-/*
- * Hash a worksheet password. Based on the algorithm in ECMA-376-4:2016,
- * Office Open XML File Formats - Transitional Migration Features,
- * Additional attributes for workbookProtection element (Part 1, §18.2.29).
- */
 uint16_t hash_password(const std::string& password)
 {
   if(password.empty())

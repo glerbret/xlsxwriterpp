@@ -1,0 +1,93 @@
+/**
+@mainpage Creating Excel files with C++ and Xlsxwriter++
+
+`Xlsxwriter++` is a C++ library for creating Excel XLSX files.
+
+@image html demo.png
+
+@ref demo.cpp "(Sample code to create the above spreadsheet.)"
+
+@section mainpage_intro Xlsxwriter++
+
+`Xlsxwriter++` is a C++20 library that can be used to write text, numbers, formulas
+and hyperlinks to multiple worksheets in an Excel 2007+ XLSX file. It supports
+features such as:
+
+- 100% compatible Excel XLSX files.
+- Full Excel formatting.
+- Merged cells.
+- Defined names.
+- Autofilters.
+- Charts.
+- Data validation and dropdown lists.
+- Conditional formatting.
+- Worksheet BMP/PNG/JPEG/GIF images.
+- Cell comments.
+- Support for adding Macros.
+- Memory optimization mode for writing large files.
+- Source code available on [GitHub](https://github.com/glerbret/xlsxwriterpp).
+- FreeBSD @ref license.
+- C++20.
+- Tested with GCC 15.2, Clang 21, MSVC 2026.
+- Tested on Linux and Windows.
+- The only dependency is on `zlib`, `openssl` and, for unit test only, `Boost`.
+
+This document explains how to use the `Xlsxwriter++` library. See the
+following sections for more information:
+
+- @ref introduction
+
+- @ref getting_started
+
+- @ref tutorial01
+- @ref tutorial02
+- @ref tutorial03
+
+- @ref workbook.h   "The Workbook object"
+- @ref worksheet.h  "The Worksheet object"
+- @ref format.h     "The Format object"
+- @ref chart.h      "The Chart object"
+- @ref chartsheet.h "The Chartsheet object"
+- @ref utility.h    "Utility functions and macros"
+- @ref exception.h  "Exceptions"
+
+- @ref working_with_formats
+- @ref working_with_colors
+- @ref working_with_formulas
+- @ref working_with_dates
+- @ref working_with_charts
+- @ref working_with_object_positioning
+- @ref working_with_autofilters
+- @ref working_with_data_validation
+- @ref working_with_conditional_formatting
+- @ref working_with_tables
+- @ref working_with_comments
+- @ref working_with_outlines
+- @ref working_with_macros
+
+- @ref examples
+- @ref running_the_tests
+- @ref faq
+- @ref bugs
+- @ref author
+- @ref license
+- @ref changes
+*/
+
+/**
+ * @namespace xwpp
+ *
+ * @brief Namespace of Xlsxwriter++.
+ */
+
+/**
+ * @dir include
+ *
+ * @brief Main include directory.
+ */
+
+/**
+ * @dir include/xwpp
+ *
+ * @brief Include of Xlsxwriter++.
+ */

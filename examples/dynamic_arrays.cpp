@@ -21,23 +21,23 @@ struct worksheet_data
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* header)
 {
-  worksheet_data data[160] = {
-      {"East",  "Tom",    "Apple",  6380},
-      {"West",  "Fred",   "Grape",  5619},
-      {"North", "Amy",    "Pear",   4565},
-      {"South", "Sal",    "Banana", 5323},
-      {"East",  "Fritz",  "Apple",  4394},
-      {"West",  "Sravan", "Grape",  7195},
-      {"North", "Xi",     "Pear",   5231},
-      {"South", "Hector", "Banana", 2427},
-      {"East",  "Tom",    "Banana", 4213},
-      {"West",  "Fred",   "Pear",   3239},
-      {"North", "Amy",    "Grape",  6520},
-      {"South", "Sal",    "Apple",  1310},
-      {"East",  "Fritz",  "Banana", 6274},
-      {"West",  "Sravan", "Pear",   4894},
-      {"North", "Xi",     "Grape",  7580},
-      {"South", "Hector", "Apple",  9814},
+  worksheet_data data[16]{
+    {"East",  "Tom",    "Apple",  6380},
+    {"West",  "Fred",   "Grape",  5619},
+    {"North", "Amy",    "Pear",   4565},
+    {"South", "Sal",    "Banana", 5323},
+    {"East",  "Fritz",  "Apple",  4394},
+    {"West",  "Sravan", "Grape",  7195},
+    {"North", "Xi",     "Pear",   5231},
+    {"South", "Hector", "Banana", 2427},
+    {"East",  "Tom",    "Banana", 4213},
+    {"West",  "Fred",   "Pear",   3239},
+    {"North", "Amy",    "Grape",  6520},
+    {"South", "Sal",    "Apple",  1310},
+    {"East",  "Fritz",  "Banana", 6274},
+    {"West",  "Sravan", "Pear",   4894},
+    {"North", "Xi",     "Grape",  7580},
+    {"South", "Hector", "Apple",  9814},
   };
 
   worksheet.write_string(CELL("A1"), "Region", header);

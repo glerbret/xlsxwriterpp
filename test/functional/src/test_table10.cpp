@@ -47,18 +47,18 @@ int main()
   worksheet.write_number(4, 10, 0);
 
   std::vector<xwpp::table_column_t> columns = {
-      {.total_string_ = "Total"},
-      {},
-      {.total_function_ = xwpp::table_total_functions_t::AVERAGE},
-      {.total_function_ = xwpp::table_total_functions_t::COUNT},
-      {.total_function_ = xwpp::table_total_functions_t::COUNT_NUMS},
-      {.total_function_ = xwpp::table_total_functions_t::MAX},
-      {.total_function_ = xwpp::table_total_functions_t::MIN},
-      {.total_function_ = xwpp::table_total_functions_t::SUM},
-      {.total_function_ = xwpp::table_total_functions_t::STD_DEV},
-      {.formula_        = "SUM(Table1[[#This Row],[Column1]:[Column3]])",
-       .total_function_ = xwpp::table_total_functions_t::VAR,
-       .format_         = format}
+    {.total_string_ = "Total"},
+    {},
+    {.total_function_ = xwpp::table_total_functions_t::AVERAGE},
+    {.total_function_ = xwpp::table_total_functions_t::COUNT},
+    {.total_function_ = xwpp::table_total_functions_t::COUNT_NUMS},
+    {.total_function_ = xwpp::table_total_functions_t::MAX},
+    {.total_function_ = xwpp::table_total_functions_t::MIN},
+    {.total_function_ = xwpp::table_total_functions_t::SUM},
+    {.total_function_ = xwpp::table_total_functions_t::STD_DEV},
+    {.formula_        = "SUM(Table1[[#This Row],[Column1]:[Column3]])",
+     .total_function_ = xwpp::table_total_functions_t::VAR,
+     .format_         = format}
   };
 
   xwpp::table_options_t options = {.total_row_ = true, .columns_ = columns};

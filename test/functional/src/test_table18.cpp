@@ -18,10 +18,10 @@ int main()
   worksheet.set_row(2, 39);
 
   std::vector<xwpp::table_column_t> columns = {
-      {},
-      {},
-      {},
-      {.header_ = "Column\n4", .header_format_ = wrap}
+    {},
+    {},
+    {},
+    {.header_ = "Column\n4", .header_format_ = wrap}
   };
   xwpp::table_options_t options = {.columns_ = columns};
 

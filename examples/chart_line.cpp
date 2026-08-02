@@ -11,12 +11,12 @@
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   uint8_t data[6][3] = {
-      {2, 10, 30},
-      {3, 40, 60},
-      {4, 50, 70},
-      {5, 20, 50},
-      {6, 10, 40},
-      {7, 50, 30}
+    {2, 10, 30},
+    {3, 40, 60},
+    {4, 50, 70},
+    {5, 20, 50},
+    {6, 10, 40},
+    {7, 50, 30}
   };
 
   worksheet.write_string(CELL("A1"), "Number", bold);

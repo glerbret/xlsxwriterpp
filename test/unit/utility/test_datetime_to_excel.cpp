@@ -18,8 +18,8 @@ BOOST_AUTO_TEST_SUITE(utility)
 
 BOOST_AUTO_TEST_CASE(datetime_to_excel_datetime, *boost::unit_test::tolerance(0.00001))
 {
-  BOOST_TEST(0 == xwpp::datetime_to_excel_datetime(std::chrono::sys_days{1899y / std::chrono::December / 31d} + 0h +
-                                                   0min + 0s));
+  BOOST_TEST(
+    0 == xwpp::datetime_to_excel_datetime(std::chrono::sys_days{1899y / std::chrono::December / 31d} + 0h + 0min + 0s));
   BOOST_TEST(30188.010650613425 ==
              xwpp::datetime_to_excel_datetime(std::chrono::sys_days{1982y / std::chrono::August / 25d} + 0h + 15min +
                                               20s + 213ms));
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(datetime_date_only_1904, *boost::unit_test::tolerance(0.000
   BOOST_TEST(34879 ==
              xwpp::datetime_to_excel_date_with_epoch(std::chrono::sys_days{1999y / std::chrono::June / 30d}, true));
   BOOST_TEST(35702 == xwpp::datetime_to_excel_date_with_epoch(
-                          std::chrono::sys_days{2001y / std::chrono::September / 30d}, true));
+                        std::chrono::sys_days{2001y / std::chrono::September / 30d}, true));
   BOOST_TEST(58914 ==
              xwpp::datetime_to_excel_date_with_epoch(std::chrono::sys_days{2065y / std::chrono::April / 19d}, true));
 }

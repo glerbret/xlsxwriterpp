@@ -37,8 +37,16 @@ int main()
    */
 
   // The option structs with the outline level set.
-  xwpp::row_col_options_t options1 = {.hidden_ = false, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options2 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
+  xwpp::row_col_options_t options1{
+    .hidden_    = false,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options2{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
 
   // Set the column width for clarity.
   worksheet1.set_column(COLS("A:A"), 20);
@@ -94,9 +102,21 @@ int main()
    */
 
   // The option structs with the outline level and collapsed property set.
-  xwpp::row_col_options_t options3 = {.hidden_ = true, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options4 = {.hidden_ = true, .level_ = 1, .collapsed_ = false};
-  xwpp::row_col_options_t options5 = {.hidden_ = false, .level_ = 0, .collapsed_ = true};
+  xwpp::row_col_options_t options3{
+    .hidden_    = true,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options4{
+    .hidden_    = true,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options5{
+    .hidden_    = false,
+    .level_     = 0,
+    .collapsed_ = true,
+  };
 
   // Set the column width for clarity.
   worksheet2.set_column(COLS("A:A"), 20);
@@ -146,7 +166,11 @@ int main()
   worksheet2.write_formula(CELL("B12"), "=SUBTOTAL(9,B2:B10)", bold);
 
   // Example 3: Create a worksheet with outlined columns.
-  xwpp::row_col_options_t options6 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
+  xwpp::row_col_options_t options6{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
 
   // Add data and formulas to the worksheet.
   worksheet3.write_string(CELL("A1"), "Month");
@@ -205,13 +229,41 @@ int main()
   worksheet3.set_column(COLS("H:H"), 10);
 
   // Example 4: Show all possible outline levels.
-  xwpp::row_col_options_t level1 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
-  xwpp::row_col_options_t level2 = {.hidden_ = false, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t level3 = {.hidden_ = false, .level_ = 3, .collapsed_ = false};
-  xwpp::row_col_options_t level4 = {.hidden_ = false, .level_ = 4, .collapsed_ = false};
-  xwpp::row_col_options_t level5 = {.hidden_ = false, .level_ = 5, .collapsed_ = false};
-  xwpp::row_col_options_t level6 = {.hidden_ = false, .level_ = 6, .collapsed_ = false};
-  xwpp::row_col_options_t level7 = {.hidden_ = false, .level_ = 7, .collapsed_ = false};
+  xwpp::row_col_options_t level1{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t level2{
+    .hidden_    = false,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t level3{
+    .hidden_    = false,
+    .level_     = 3,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t level4{
+    .hidden_    = false,
+    .level_     = 4,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t level5{
+    .hidden_    = false,
+    .level_     = 5,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t level6{
+    .hidden_    = false,
+    .level_     = 6,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t level7{
+    .hidden_    = false,
+    .level_     = 7,
+    .collapsed_ = false,
+  };
 
   worksheet4.write_string(0, 0, "Level 1");
   worksheet4.write_string(1, 0, "Level 2");

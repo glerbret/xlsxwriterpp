@@ -53,50 +53,19 @@ void content_types_t::add_worksheet_name(std::string_view name)
   add_override(name, APP_DOCUMENT + "spreadsheetml.worksheet+xml");
 }
 
-std::string content_types_t::assemble_xml_file() const
-{
-  std::string xml_data = xml_declaration();
-  xml_data += xml_start_tag("Types", {
-                                         {"xmlns", SCHEMA_CONTENT}
-  });
-
-  for(const auto& [key, value]: default_types_)
-  {
-    xml_data += xml_empty_tag("Default", {
-                                             {"Extension",   key  },
-                                             {"ContentType", value}
-    });
-  }
-
-  for(const auto& [key, value]: overrides_)
-  {
-    xml_data += xml_empty_tag("Override", {
-                                              {"PartName",    key  },
-                                              {"ContentType", value}
-    });
-  }
-  xml_data += xml_end_tag("Types");
-  return xml_data;
-}
-
 void content_types_t::add_chartsheet_name(std::string_view name)
 {
   add_override(name, APP_DOCUMENT + "spreadsheetml.chartsheet+xml");
 }
 
-void content_types_t::add_chart_name(std::string_view name)
+void content_types_t::add_shared_strings()
 {
-  add_override(name, APP_DOCUMENT + "drawingml.chart+xml");
+  add_override("/xl/sharedStrings.xml", APP_DOCUMENT + "spreadsheetml.sharedStrings+xml");
 }
 
-void content_types_t::add_drawing_name(std::string_view name)
+void content_types_t::add_custom_properties()
 {
-  add_override(name, APP_DOCUMENT + "drawing+xml");
-}
-
-void content_types_t::add_table_name(std::string_view name)
-{
-  add_override(name, APP_DOCUMENT + "spreadsheetml.table+xml");
+  add_override("/docProps/custom.xml", APP_DOCUMENT + "custom-properties+xml");
 }
 
 void content_types_t::add_vml_name()
@@ -109,19 +78,9 @@ void content_types_t::add_comment_name(std::string_view name)
   add_override(name, APP_DOCUMENT + "spreadsheetml.comments+xml");
 }
 
-void content_types_t::add_shared_strings()
+void content_types_t::add_drawing_name(std::string_view name)
 {
-  add_override("/xl/sharedStrings.xml", APP_DOCUMENT + "spreadsheetml.sharedStrings+xml");
-}
-
-void content_types_t::add_calc_chain()
-{
-  add_override("/xl/calcChain.xml", APP_DOCUMENT + "spreadsheetml.calcChain+xml");
-}
-
-void content_types_t::add_custom_properties()
-{
-  add_override("/docProps/custom.xml", APP_DOCUMENT + "custom-properties+xml");
+  add_override(name, APP_DOCUMENT + "drawing+xml");
 }
 
 void content_types_t::add_metadata()
@@ -135,6 +94,47 @@ void content_types_t::add_rich_value()
   add_override("/xl/richData/rdrichvalue.xml", APP_MSEXCEL + "rdrichvalue+xml");
   add_override("/xl/richData/rdrichvaluestructure.xml", APP_MSEXCEL + "rdrichvaluestructure+xml");
   add_override("/xl/richData/richValueRel.xml", APP_MSEXCEL + "richvaluerel+xml");
+}
+
+void content_types_t::add_chart_name(std::string_view name)
+{
+  add_override(name, APP_DOCUMENT + "drawingml.chart+xml");
+}
+
+void content_types_t::add_table_name(std::string_view name)
+{
+  add_override(name, APP_DOCUMENT + "spreadsheetml.table+xml");
+}
+
+void content_types_t::add_calc_chain()
+{
+  add_override("/xl/calcChain.xml", APP_DOCUMENT + "spreadsheetml.calcChain+xml");
+}
+
+std::string content_types_t::assemble_xml_file() const
+{
+  std::string xml_data = xml_declaration();
+  xml_data += xml_start_tag("Types", {
+                                       {"xmlns", SCHEMA_CONTENT}
+  });
+
+  for(const auto& [key, value]: default_types_)
+  {
+    xml_data += xml_empty_tag("Default", {
+                                           {"Extension",   key  },
+                                           {"ContentType", value}
+    });
+  }
+
+  for(const auto& [key, value]: overrides_)
+  {
+    xml_data += xml_empty_tag("Override", {
+                                            {"PartName",    key  },
+                                            {"ContentType", value}
+    });
+  }
+  xml_data += xml_end_tag("Types");
+  return xml_data;
 }
 
 const std::string content_types_t::APP_PACKAGE{"application/vnd.openxmlformats-package."};

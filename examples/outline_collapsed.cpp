@@ -126,8 +126,16 @@ int main()
    */
 
   // The option structs with the outline level set.
-  xwpp::row_col_options_t options1 = {.hidden_ = false, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options2 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
+  xwpp::row_col_options_t options1{
+    .hidden_    = false,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options2{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
 
   // Set the row outline properties set.
   worksheet1.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
@@ -149,9 +157,21 @@ int main()
   // This is the same as the example 1  except that the all rows are collapsed.
 
   // The option structs with the outline properties set.
-  xwpp::row_col_options_t options3 = {.hidden_ = true, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options4 = {.hidden_ = true, .level_ = 1, .collapsed_ = false};
-  xwpp::row_col_options_t options5 = {.hidden_ = false, .level_ = 0, .collapsed_ = true};
+  xwpp::row_col_options_t options3{
+    .hidden_    = true,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options4{
+    .hidden_    = true,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options5{
+    .hidden_    = false,
+    .level_     = 0,
+    .collapsed_ = true,
+  };
 
   // Set the row options with the outline level.
   worksheet2.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
@@ -172,8 +192,16 @@ int main()
 
   // Example 3: Create a worksheet with collapsed outlined rows. Same as the
   // example 1 except that the two sub-totals are collapsed.
-  xwpp::row_col_options_t options6 = {.hidden_ = true, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options7 = {.hidden_ = false, .level_ = 1, .collapsed_ = true};
+  xwpp::row_col_options_t options6{
+    .hidden_    = true,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options7{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = true,
+  };
 
   // Set the row options with the outline level.
   worksheet3.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
@@ -193,9 +221,21 @@ int main()
 
   // Example 4: Create a worksheet with outlined rows. Same as the example 1
   // except that the two sub-totals are collapsed.
-  xwpp::row_col_options_t options8  = {.hidden_ = true, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options9  = {.hidden_ = true, .level_ = 1, .collapsed_ = true};
-  xwpp::row_col_options_t options10 = {.hidden_ = false, .level_ = 0, .collapsed_ = true};
+  xwpp::row_col_options_t options8{
+    .hidden_    = true,
+    .level_     = 2,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options9{
+    .hidden_    = true,
+    .level_     = 1,
+    .collapsed_ = true,
+  };
+  xwpp::row_col_options_t options10{
+    .hidden_    = false,
+    .level_     = 0,
+    .collapsed_ = true,
+  };
 
   // Set the row options with the outline level.
   worksheet4.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
@@ -217,7 +257,11 @@ int main()
 
   // Example 5: Create a worksheet with outlined columns.
 
-  xwpp::row_col_options_t options11 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
+  xwpp::row_col_options_t options11{
+    .hidden_    = false,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
 
   // Write the sub-total data that is common to the column examples.
   create_col_example_data(worksheet5, bold);
@@ -231,8 +275,16 @@ int main()
   worksheet5.set_column(COLS("H:H"), 10);
 
   // Example 6: Create a worksheet with outlined columns.
-  xwpp::row_col_options_t options12 = {.hidden_ = true, .level_ = 1, .collapsed_ = false};
-  xwpp::row_col_options_t options13 = {.hidden_ = false, .level_ = 0, .collapsed_ = true};
+  xwpp::row_col_options_t options12{
+    .hidden_    = true,
+    .level_     = 1,
+    .collapsed_ = false,
+  };
+  xwpp::row_col_options_t options13{
+    .hidden_    = false,
+    .level_     = 0,
+    .collapsed_ = true,
+  };
 
   // Write the sub-total data that is common to the column examples.
   create_col_example_data(worksheet6, bold);

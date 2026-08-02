@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   /* xwpp::worksheet_t& worksheet =*/workbook.add_worksheet();
   xwpp::doc_properties_t properties{
-      .hyperlink_base_ = "C:\\",
+    .hyperlink_base_ = "C:\\",
   };
 
   workbook.set_properties(properties);

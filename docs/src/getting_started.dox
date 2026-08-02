@@ -1,0 +1,320 @@
+/**
+@page getting_started Getting Started with Xlsxwriter++
+
+@tableofcontents
+
+Here are some instructions to get you up and running with the `Xlsxwriter++`
+library on different OS.
+
+@section gsg_quick_start Quick-start on Linux
+
+If you prefer to assemble Ikea furniture first and only read the instructions
+when you have parts left over then the following minimal set of commands
+should get you up and running on a Debian like system:
+
+@code
+  sudo apt-get install -y zlib1g-dev libssl-dev
+
+  git clone https://github.com/glerbret/xlsxwriterpp.git
+  cd xlsxwriterpp
+
+  mkdir build
+  cd build
+
+  cmake .. -DCMAKE_BUILD_TYPE=Release
+
+  cmake --build . --target install
+@endcode
+
+If you read the instructions first and then assemble the furniture you will
+know how to proceed.
+
+@section gsg_linux Installation on Linux
+
+@subsection gsg_dependencies Install the dependencies
+
+The only non-optional dependencies when building `Xlsxwriter++` are [Zlib](http://www.zlib.net) and [openSSL](https://www.openssl.org/).
+
+You can install `zlib` and `openSSL` from your OS packager. For example:
+
+@code
+  sudo apt-get install -y zlib1g-dev libssl-dev
+@endcode
+
+The `zlib` version must be at least 1.2.8 to avoid compilation issues.
+
+@note There are optional dependencies that can be installed for testing.
+See @ref running_the_tests.
+
+@subsection gsg_git Get the source code
+
+To get the latest version of the source code you can clone the `Xlsxwriter++`
+repository from GitHub:
+
+@code
+  git clone https://github.com/glerbret/xlsxwriterpp.git
+@endcode
+
+Alternatively you can get a tarball of the latest source code as follows:
+
+@code
+  curl -O -L https://github.com/glerbret/xlsxwriterpp/archive/master.tar.gz
+@endcode
+
+@subsection gsg_build Build the source code
+
+Build the source code as follows:
+
+@code
+  mkdir build
+  cd build
+
+  cmake .. -DCMAKE_BUILD_TYPE=Release
+  cmake --build .
+@endcode
+
+This will create a static or dynamic library.
+
+@subsection gsg_examples Build the examples
+
+If there weren't any warnings or errors in the previous step (and there
+shouldn't have been) then you can build the programs in the `examples`
+directory and try one of them out:
+
+@code
+  mkdir build
+  cd build
+
+  cmake .. -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
+  cmake --build .
+
+  # Then:
+  ./examples/hello
+@endcode
+
+This will create a `hello_world.xlsx` file in your current directory. Open the
+file in a spreadsheet application. The output should look like this: @image
+html hello01.png
+
+@subsection gsg_install Install the library
+
+You can install the library `Xlsxwriter++` with cmake as follows:
+
+@code
+  mkdir build
+  cd build
+
+  cmake ..
+  cmake --build . --target install
+@endcode
+
+@subsection gsg_using Using the library
+
+Using your source code editor create a file like the following called
+`myexcel.c`:
+
+@code
+  #include "xlsxwriterpp.h"
+
+  int main()
+  {
+    xwpp::workbook_t workbook;
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+    worksheet.write_string(0, 0, "Hello me!");
+
+    workbook.save("myexcel.xlsx");
+  }
+@endcode
+
+If you executed the install commands in the previous section then you
+should be able to compile the program as follows:
+
+@code
+  g++ myexcel.cpp -o myexcel -lxlsxwriterpp
+@endcode
+
+In some OS environments, or if you changed the `PREFIX` location, you may
+have to provide explicit `include` and `lib` paths:
+
+@code
+  g++ myexcel.cpp -o myexcel -I/usr/local/include -L/usr/local/lib -lxlsxwriterpp
+@endcode
+
+This will create an executable that you can run to generate an Excel
+spreadsheet:
+
+@code
+  ./myexcel
+  xdg-open myexcel.xlsx
+@endcode
+
+If the installation didn't work for you then you can link against the static
+library you created in the "Build the source code" step:
+
+@code
+  g++ myexcel.cpp -o myexcel -I /path/to/xlsxwriterpp/include \
+                                /path/to/xlsxwriterpp/lib/libxlsxwriterpp.a -lz -lssl
+@endcode
+
+@section gsg_windows Installation on Windows
+
+@subsection gsg_cmake_app Using CMake for Microsoft Visual Studio
+
+For a more manual installation, and for older versions of Microsoft Visual
+Studio or Windows, you can use CMake as shown below.
+
+Open a Windows CMD or Command Window and build `Xlsxwriter++` library:
+
+@code
+  mkdir build
+  cd build
+
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="C:\Program Files\Microsoft Visual Studio\18\Community\VC\vcpkg\scripts\buildsystems\vcpkg.cmake" -A x64 -DVCPKG_CRT_LINKAGE=dynamic
+
+  cmake --build . --config Release --target install
+@endcode
+
+Create a new Win32 Console (or other C/C++) application in Visual Studio:
+
+@code
+  File
+    -> New
+      -> Project
+
+  Visual C++
+    -> Win32
+      -> Win32 Console Application
+@endcode
+
+Change the ARCH in the main Dialog to "x64" and the Configuration to "Release"
+(or to match the parameters to cmake).
+
+Replace the empty main with a `Xlsxwriter++` example from the distro:
+
+@code
+  #include "xlsxwriterpp.h"
+
+  int main()
+  {
+    xwpp::workbook_t workbook;
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+
+    worksheet.write_string(0, 0, "Hello me!");
+
+    workbook.save("myexcel.xlsx");
+  }
+@endcode
+
+Edit the application properties:
+
+@code
+  Project
+    -> ConsoleApplication Properties
+@endcode
+
+Set the `Xlsxwriter++` include path to match the path used above:
+
+@code
+  Configuration Properties
+    -> C/C++
+      -> General
+        -> Additional Include Directories
+@endcode
+
+Set the linker directories to match the path created above:
+
+@code
+  Configuration Properties
+    -> Linker
+      -> General
+        -> Additional Library Directories
+@endcode
+
+Set the linker additional libraries to match the `zlib`, `openSSL` and `Xlsxwriter++` libs
+created above:
+
+@code
+  Configuration Properties
+    -> Linker
+      -> Input
+        -> Additional Dependencies
+
+  Add the following:
+
+  xlsxwriter.lib
+  zlib.lib
+  ssl.lib
+@endcode
+
+Build the solution and run the output executable. It should create a
+`hello_world.xlsx` file in the same directory you ran it from.
+
+@section gsg_compilation_options Compilation Options
+
+As shown in the previous sections `Xlsxwriter++` provides both a Make and
+CMake based build system. The Make build is a straightforward system for
+building the library and running tests on Unix like systems. The CMake system
+offers support for more operating systems, cross compilation, and integration
+with larger CMake builds. In particular it enables building on Windows.
+
+The following are various compilation targets and options for both build systems:
+
+| CMake                                      | Description                        |
+| :----------------------------------------- | :----------------------------------|
+| `-DBUILD_EXAMPLES=ON`                      | Build the example                  |
+| `-DBUILD_TESTS=ON`                         | Build the tests                    |
+| `-DUSE_SYSTEM_MINIZIP=ON`                  | Use system minzip library          |
+| `-DBUILD_SHARED_LIBS=ON`                   | Build shared library               |
+| `-DUSE_STATIC_MSVC_RUNTIME=ON`             | Use static msvc runtime library    |
+| `-DCMAKE_BUILD_TYPE=Release`               | Set the build type.                |
+
+The compilation options would be used as follows:
+
+@code
+  mkdir build
+  cd build
+
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON
+  cmake --build . --config Release
+@endcode
+
+Each of the options are explained below:
+
+- `BUILD_EXAMPLES`: Builds the @ref examples "example programs".
+
+- `BUILD_TESTS`: Builds the tests (see @ref running_the_tests).
+
+- `USE_SYSTEM_MINIZIP`: Uses a system `minizip` library, rather than the
+  included copy, to create the xlsx zip container. See @ref gsg_minizip.
+
+- `BUILD_SHARED_LIBS`: Builds a dynamically loading version of the library
+  (`.so`, `.dll` or `.dylib` depending on the operating system).
+
+- `USE_STATIC_MSVC_RUNTIME`: Sets flags for Microsoft Visual C++ to use a static
+  MSVC runtime.
+
+- `CMAKE_BUILD_TYPE`: Sets the build type (generally `Release` or `Debug`).
+
+@subsection gsg_minizip Linking against system minizip
+
+`Xlsxwriter++` uses the `minizip` component of [Zlib](http://www.zlib.net) to
+create the xlsx zip file container. The source files for `minizip` are
+included in the src tree of `Xlsxwriter++` and are statically linked by
+default.
+
+If you have a `lminizip` library already installed on your system and prefer
+to dynamically link against that you can use the following compilation option:
+
+@code
+  cmake .. -DUSE_SYSTEM_MINIZIP=ON
+@endcode
+
+@section gsg_next Next steps
+
+Once you get `Xlsxwriter++` built and working the next sections will show you
+how to create some more in-depth examples.
+
+Next: @ref tutorial01
+
+*/

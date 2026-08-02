@@ -19,11 +19,11 @@ int main()
   chart.set_axis_ids(48497792, 48499712);
 
   uint8_t data[5][4] = {
-      {1, 2,  3,  10},
-      {2, 4,  6,  20},
-      {3, 6,  9,  30},
-      {4, 8,  12, 40},
-      {5, 10, 15, 50}
+    {1, 2,  3,  10},
+    {2, 4,  6,  20},
+    {3, 6,  9,  30},
+    {4, 8,  12, 40},
+    {5, 10, 15, 50}
   };
 
   for(xwpp::row_num_t row = 0; row < 5; row++)
@@ -38,7 +38,7 @@ int main()
 
   xwpp::chart_font_t font1 = {.bold_ = true, .italic_ = true, .color_ = xwpp::color_t::RED, .baseline_ = -1};
   std::vector<xwpp::chart_data_label_t> data_labels = {
-      {.value_ = "=Sheet1!$D$1", .font_ = font1}
+    {.value_ = "=Sheet1!$D$1", .font_ = font1}
   };
   xwpp::chart_series_set_labels_custom(series, data_labels);
 

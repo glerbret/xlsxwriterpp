@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(drawing)
 BOOST_AUTO_TEST_CASE(assemble_xml_file)
 {
   const std::string expected =
-      // clang-format off
+    // clang-format off
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
     "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\">"
       "<xdr:twoCellAnchor editAs=\"oneCell\">"
@@ -64,16 +64,16 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
 
   xwpp::drawing_t drawing;
   const xwpp::drawing_object_t drawing_object{
-      .type_         = xwpp::drawing_types_t::IMAGE,
-      .anchor_       = static_cast<uint8_t>(xwpp::object_position_t::MOVE_DONT_SIZE),
-      .from_         = {.col_ = 2, .row_ = 1, .col_offset_ = 0,      .row_offset_ = 0     },
-      .to_           = {.col_ = 3, .row_ = 6, .col_offset_ = 533257, .row_offset_ = 190357},
-      .col_absolute_ = 1219200,
-      .row_absolute_ = 190500,
-      .width_        = 1142857,
-      .height_       = 1142857,
-      .rel_index_    = 1,
-      .description_  = "republic.png",
+    .type_         = xwpp::drawing_types_t::IMAGE,
+    .anchor_       = static_cast<uint8_t>(xwpp::object_position_t::MOVE_DONT_SIZE),
+    .from_         = {.col_ = 2, .row_ = 1, .col_offset_ = 0,      .row_offset_ = 0     },
+    .to_           = {.col_ = 3, .row_ = 6, .col_offset_ = 533257, .row_offset_ = 190357},
+    .col_absolute_ = 1219200,
+    .row_absolute_ = 190500,
+    .width_        = 1142857,
+    .height_       = 1142857,
+    .rel_index_    = 1,
+    .description_  = "republic.png",
   };
   drawing.add_drawing_object(drawing_object);
 

@@ -41,60 +41,60 @@ int main()
     std::string month;
   };
 
-  std::vector<row> data = {
-      {"East",  "Apple",  9000,  "July"     },
-      {"East",  "Apple",  5000,  "July"     },
-      {"South", "Orange", 9000,  "September"},
-      {"North", "Apple",  2000,  "November" },
-      {"West",  "Apple",  9000,  "November" },
-      {"South", "Pear",   7000,  "October"  },
-      {"North", "Pear",   9000,  "August"   },
-      {"West",  "Orange", 1000,  "December" },
-      {"West",  "Grape",  1000,  "November" },
-      {"South", "Pear",   10000, "April"    },
-      {"West",  "Grape",  6000,  "January"  },
-      {"South", "Orange", 3000,  "May"      },
-      {"North", "Apple",  3000,  "December" },
-      {"South", "Apple",  7000,  "February" },
-      {"West",  "Grape",  1000,  "December" },
-      {"East",  "Grape",  8000,  "February" },
-      {"South", "Grape",  10000, "June"     },
-      {"West",  "Pear",   7000,  "December" },
-      {"South", "Apple",  2000,  "October"  },
-      {"East",  "Grape",  7000,  "December" },
-      {"North", "Grape",  6000,  "April"    },
-      {"East",  "Pear",   8000,  "February" },
-      {"North", "Apple",  7000,  "August"   },
-      {"North", "Orange", 7000,  "July"     },
-      {"North", "Apple",  6000,  "June"     },
-      {"South", "Grape",  8000,  "September"},
-      {"West",  "Apple",  3000,  "October"  },
-      {"South", "Orange", 10000, "November" },
-      {"West",  "Grape",  4000,  "July"     },
-      {"North", "Orange", 5000,  "August"   },
-      {"East",  "Orange", 1000,  "November" },
-      {"East",  "Orange", 4000,  "October"  },
-      {"North", "Grape",  5000,  "August"   },
-      {"East",  "Apple",  1000,  "December" },
-      {"South", "Apple",  10000, "March"    },
-      {"East",  "Grape",  7000,  "October"  },
-      {"West",  "Grape",  1000,  "September"},
-      {"East",  "Grape",  10000, "October"  },
-      {"South", "Orange", 8000,  "March"    },
-      {"North", "Apple",  4000,  "July"     },
-      {"South", "Orange", 5000,  "July"     },
-      {"West",  "Apple",  4000,  "June"     },
-      {"East",  "Apple",  5000,  "April"    },
-      {"North", "Pear",   3000,  "August"   },
-      {"East",  "Grape",  9000,  "November" },
-      {"North", "Orange", 8000,  "October"  },
-      {"East",  "Apple",  10000, "June"     },
-      {"South", "Pear",   1000,  "December" },
-      {"North", "Grape",  10000, "July"     },
-      {"East",  "Grape",  6000,  "February" }
+  std::vector<row> data{
+    {"East",  "Apple",  9000,  "July"     },
+    {"East",  "Apple",  5000,  "July"     },
+    {"South", "Orange", 9000,  "September"},
+    {"North", "Apple",  2000,  "November" },
+    {"West",  "Apple",  9000,  "November" },
+    {"South", "Pear",   7000,  "October"  },
+    {"North", "Pear",   9000,  "August"   },
+    {"West",  "Orange", 1000,  "December" },
+    {"West",  "Grape",  1000,  "November" },
+    {"South", "Pear",   10000, "April"    },
+    {"West",  "Grape",  6000,  "January"  },
+    {"South", "Orange", 3000,  "May"      },
+    {"North", "Apple",  3000,  "December" },
+    {"South", "Apple",  7000,  "February" },
+    {"West",  "Grape",  1000,  "December" },
+    {"East",  "Grape",  8000,  "February" },
+    {"South", "Grape",  10000, "June"     },
+    {"West",  "Pear",   7000,  "December" },
+    {"South", "Apple",  2000,  "October"  },
+    {"East",  "Grape",  7000,  "December" },
+    {"North", "Grape",  6000,  "April"    },
+    {"East",  "Pear",   8000,  "February" },
+    {"North", "Apple",  7000,  "August"   },
+    {"North", "Orange", 7000,  "July"     },
+    {"North", "Apple",  6000,  "June"     },
+    {"South", "Grape",  8000,  "September"},
+    {"West",  "Apple",  3000,  "October"  },
+    {"South", "Orange", 10000, "November" },
+    {"West",  "Grape",  4000,  "July"     },
+    {"North", "Orange", 5000,  "August"   },
+    {"East",  "Orange", 1000,  "November" },
+    {"East",  "Orange", 4000,  "October"  },
+    {"North", "Grape",  5000,  "August"   },
+    {"East",  "Apple",  1000,  "December" },
+    {"South", "Apple",  10000, "March"    },
+    {"East",  "Grape",  7000,  "October"  },
+    {"West",  "Grape",  1000,  "September"},
+    {"East",  "Grape",  10000, "October"  },
+    {"South", "Orange", 8000,  "March"    },
+    {"North", "Apple",  4000,  "July"     },
+    {"South", "Orange", 5000,  "July"     },
+    {"West",  "Apple",  4000,  "June"     },
+    {"East",  "Apple",  5000,  "April"    },
+    {"North", "Pear",   3000,  "August"   },
+    {"East",  "Grape",  9000,  "November" },
+    {"North", "Orange", 8000,  "October"  },
+    {"East",  "Apple",  10000, "June"     },
+    {"South", "Pear",   1000,  "December" },
+    {"North", "Grape",  10000, "July"     },
+    {"East",  "Grape",  6000,  "February" }
   };
 
-  xwpp::row_col_options_t hidden = {.hidden_ = true};
+  xwpp::row_col_options_t hidden{.hidden_ = true};
 
   xwpp::format_t* header = workbook.add_format();
   header->set_bold();
@@ -158,7 +158,10 @@ int main()
   worksheet2.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule2 = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
+  xwpp::filter_rule_t filter_rule2{
+    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string_ = "East",
+  };
   worksheet2.filter_column(0, filter_rule2);
 
   // Example 3. Autofilter with a dual filter condition in one of the columns.
@@ -189,9 +192,15 @@ int main()
   worksheet3.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule3a = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
+  xwpp::filter_rule_t filter_rule3a{
+    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string_ = "East",
+  };
 
-  xwpp::filter_rule_t filter_rule3b = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "South"};
+  xwpp::filter_rule_t filter_rule3b{
+    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string_ = "South",
+  };
 
   worksheet3.filter_column2(0, filter_rule3a, filter_rule3b, xwpp::filter_operator_t::OR);
 
@@ -223,11 +232,20 @@ int main()
   worksheet4.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule4a = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
+  xwpp::filter_rule_t filter_rule4a{
+    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string_ = "East",
+  };
 
-  xwpp::filter_rule_t filter_rule4b = {.criteria_ = xwpp::filter_criteria_t::GREATER_THAN, .value_ = 3000};
+  xwpp::filter_rule_t filter_rule4b{
+    .criteria_ = xwpp::filter_criteria_t::GREATER_THAN,
+    .value_    = 3000,
+  };
 
-  xwpp::filter_rule_t filter_rule4c = {.criteria_ = xwpp::filter_criteria_t::LESS_THAN, .value_ = 8000};
+  xwpp::filter_rule_t filter_rule4c{
+    .criteria_ = xwpp::filter_criteria_t::LESS_THAN,
+    .value_    = 8000,
+  };
 
   worksheet4.filter_column(0, filter_rule4a);
   worksheet4.filter_column2(2, filter_rule4b, filter_rule4c, xwpp::filter_operator_t::AND);
@@ -260,7 +278,7 @@ int main()
   worksheet5.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  const std::vector<std::string> list = {"East", "North", "South"};
+  const std::vector<std::string> list{"East", "North", "South"};
   worksheet5.filter_list(0, list);
 
   // Example 6. Autofilter with filter for blanks.
@@ -293,7 +311,7 @@ int main()
   worksheet6.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule6 = {.criteria_ = xwpp::filter_criteria_t::BLANKS};
+  xwpp::filter_rule_t filter_rule6{.criteria_ = xwpp::filter_criteria_t::BLANKS};
   worksheet6.filter_column(0, filter_rule6);
 
   // Example 7. Autofilter with filter for non-blanks.

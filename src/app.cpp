@@ -14,11 +14,61 @@
 namespace xwpp
 {
 
+void app_t::add_part_name(const std::string& name)
+{
+  if(name.empty())
+  {
+    return;
+  }
+
+  part_names_.emplace_back(name);
+}
+
+void app_t::add_heading_pair(const std::string& key, const std::string& value)
+{
+  if(key.empty() || value.empty())
+  {
+    return;
+  }
+
+  heading_pairs_.emplace_back(key, value);
+}
+
+void app_t::set_properties(const doc_properties_t& properties)
+{
+  properties_ = properties;
+}
+
+void app_t::set_doc_security(uint8_t doc_security)
+{
+  doc_security_ = doc_security;
+}
+
+std::string app_t::assemble_xml_file() const
+{
+  std::string xml_data = xml_declaration();
+  xml_data += write_properties();
+  xml_data += write_application();
+  xml_data += write_doc_security();
+  xml_data += write_scale_crop();
+  xml_data += write_heading_pairs();
+  xml_data += write_titles_of_parts();
+  xml_data += write_manager();
+  xml_data += write_company();
+  xml_data += write_links_up_to_date();
+  xml_data += write_shared_doc();
+  xml_data += write_hyperlink_base();
+  xml_data += write_hyperlinks_changed();
+  xml_data += write_app_version();
+  xml_data += xml_end_tag("Properties");
+  return xml_data;
+}
+
 std::string app_t::write_properties() const
 {
   return xml_start_tag("Properties", {
-                                         {"xmlns",    SCHEMA_OFFICEDOC + "/extended-properties"},
-                                         {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"     },
+                                       {"xmlns",    SCHEMA_OFFICEDOC + "/extended-properties"},
+                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"     },
   });
 }
 
@@ -44,61 +94,6 @@ std::string app_t::write_doc_security() const
 std::string app_t::write_scale_crop() const
 {
   return xml_data_element("ScaleCrop", "false");
-}
-
-std::string app_t::write_vt_lpstr(const std::string& str) const
-{
-  return xml_data_element("vt:lpstr", str);
-}
-
-std::string app_t::write_vt_i4(const std::string& value) const
-{
-  return xml_data_element("vt:i4", value);
-}
-
-std::string app_t::write_vt_variant(const std::string& key, const std::string& value) const
-{
-  std::string xml_data = xml_start_tag("vt:variant");
-  xml_data += write_vt_lpstr(key);
-  xml_data += xml_end_tag("vt:variant");
-
-  xml_data += xml_start_tag("vt:variant");
-  xml_data += write_vt_i4(value);
-  xml_data += xml_end_tag("vt:variant");
-
-  return xml_data;
-}
-
-std::string app_t::write_vt_vector_heading_pairs() const
-{
-  std::string xml_data = xml_start_tag("vt:vector", {
-                                                        {"size",     std::to_string(heading_pairs_.size() * 2)},
-                                                        {"baseType", "variant"                                },
-  });
-
-  for(const auto& [key, value]: heading_pairs_)
-  {
-    xml_data += write_vt_variant(key, value);
-  }
-
-  xml_data += xml_end_tag("vt:vector");
-  return xml_data;
-}
-
-std::string app_t::write_vt_vector_lpstr_named_parts() const
-{
-  std::string xml_data = xml_start_tag("vt:vector", {
-                                                        {"size",     std::to_string(part_names_.size())},
-                                                        {"baseType", "lpstr"                           },
-  });
-
-  for(const auto& part_name: part_names_)
-  {
-    xml_data += write_vt_lpstr(part_name.name_);
-  }
-  xml_data += xml_end_tag("vt:vector");
-
-  return xml_data;
 }
 
 std::string app_t::write_heading_pairs() const
@@ -176,54 +171,59 @@ std::string app_t::write_app_version() const
   return xml_data_element("AppVersion", "12.0000");
 }
 
-std::string app_t::assemble_xml_file() const
+std::string app_t::write_vt_vector_heading_pairs() const
 {
-  std::string xml_data = xml_declaration();
-  xml_data += write_properties();
-  xml_data += write_application();
-  xml_data += write_doc_security();
-  xml_data += write_scale_crop();
-  xml_data += write_heading_pairs();
-  xml_data += write_titles_of_parts();
-  xml_data += write_manager();
-  xml_data += write_company();
-  xml_data += write_links_up_to_date();
-  xml_data += write_shared_doc();
-  xml_data += write_hyperlink_base();
-  xml_data += write_hyperlinks_changed();
-  xml_data += write_app_version();
-  xml_data += xml_end_tag("Properties");
+  std::string xml_data = xml_start_tag("vt:vector", {
+                                                      {"size",     std::to_string(heading_pairs_.size() * 2)},
+                                                      {"baseType", "variant"                                },
+  });
+
+  for(const auto& [key, value]: heading_pairs_)
+  {
+    xml_data += write_vt_variant(key, value);
+  }
+
+  xml_data += xml_end_tag("vt:vector");
   return xml_data;
 }
 
-void app_t::add_part_name(const std::string& name)
+std::string app_t::write_vt_vector_lpstr_named_parts() const
 {
-  if(name.empty())
+  std::string xml_data = xml_start_tag("vt:vector", {
+                                                      {"size",     std::to_string(part_names_.size())},
+                                                      {"baseType", "lpstr"                           },
+  });
+
+  for(const auto& part_name: part_names_)
   {
-    return;
+    xml_data += write_vt_lpstr(part_name.name_);
   }
+  xml_data += xml_end_tag("vt:vector");
 
-  part_names_.emplace_back(name);
+  return xml_data;
 }
 
-void app_t::add_heading_pair(const std::string& key, const std::string& value)
+std::string app_t::write_vt_lpstr(const std::string& str) const
 {
-  if(key.empty() || value.empty())
-  {
-    return;
-  }
-
-  heading_pairs_.emplace_back(key, value);
+  return xml_data_element("vt:lpstr", str);
 }
 
-void app_t::set_properties(const doc_properties_t& properties)
+std::string app_t::write_vt_variant(const std::string& key, const std::string& value) const
 {
-  properties_ = properties;
+  std::string xml_data = xml_start_tag("vt:variant");
+  xml_data += write_vt_lpstr(key);
+  xml_data += xml_end_tag("vt:variant");
+
+  xml_data += xml_start_tag("vt:variant");
+  xml_data += write_vt_i4(value);
+  xml_data += xml_end_tag("vt:variant");
+
+  return xml_data;
 }
 
-void app_t::set_doc_security(uint8_t doc_security)
+std::string app_t::write_vt_i4(const std::string& value) const
 {
-  doc_security_ = doc_security;
+  return xml_data_element("vt:i4", value);
 }
 
 }
