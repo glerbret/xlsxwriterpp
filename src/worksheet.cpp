@@ -3875,6 +3875,12 @@ std::string worksheet_t::assemble_xml_file()
   return xml_data;
 }
 
+const size_t worksheet_t::MAX_NUMBER_URLS = 65530;
+const row_num_t worksheet_t::ROW_MAX      = 1048576;
+const col_num_t worksheet_t::COL_MAX      = 16384;
+const size_t worksheet_t::STR_MAX         = 32767;
+const col_num_t worksheet_t::COL_META_MAX = 128;
+
 std::string worksheet_t::get_sheet_name() const
 {
   return name_;
