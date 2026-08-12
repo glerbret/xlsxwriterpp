@@ -11,10 +11,10 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::row_col_options_t col_options = {.hidden_ = true};
+  const xwpp::row_col_options_t col_options{.hidden_ = true};
   worksheet.set_column(COLS("B:B"), xwpp::DEF_COL_WIDTH, nullptr, col_options);
 
-  xwpp::image_options_t image_options = {.x_offset_ = 192};
+  const xwpp::image_options_t image_options{.x_offset_ = 192};
   worksheet.insert_image(CELL("A9"), "images/red.png", image_options);
 
   workbook.save("test_object_position16.xlsx");

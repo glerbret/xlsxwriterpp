@@ -18,7 +18,7 @@ namespace xwpp
 class rich_value_t
 {
 public:
-  std::string assemble_xml_file(const workbook_t& workbook) const;
+  [[nodiscard]] std::string assemble_xml_file(const workbook_t& workbook) const;
 
 private:
   [[nodiscard]] std::string write_rv_data(const workbook_t& workbook) const;

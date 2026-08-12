@@ -36,11 +36,13 @@
 
 #include "xlsxwriterpp.h"
 
+#include <string>
+
 int main()
 {
   xwpp::workbook_t workbook;
 
-  std::string preview = "Select Print Preview to see the header and footer";
+  const std::string preview = "Select Print Preview to see the header and footer";
 
   // A simple example to start
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet("Simple");
@@ -79,8 +81,8 @@ int main()
   // This example shows how to use more than one font.
   xwpp::worksheet_t& worksheet4 = workbook.add_worksheet("Mixed fonts");
 
-  worksheet4.set_header("&C&\"Courier New,Bold\"Hello &\"Arial,Italic\"World");
-  worksheet4.set_footer("&C&\"Symbol\"e&\"Arial\" = mc&X2");
+  worksheet4.set_header(R"(&C&"Courier New,Bold"Hello &"Arial,Italic"World)");
+  worksheet4.set_footer(R"(&C&"Symbol"e&"Arial" = mc&X2)");
 
   worksheet4.set_column(0, 0, 50);
   worksheet4.write_string(0, 0, preview);

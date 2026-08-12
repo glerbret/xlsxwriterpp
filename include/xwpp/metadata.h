@@ -21,7 +21,7 @@ class metadata_t
 public:
   metadata_t(bool has_dynamic_functions, bool has_embedded_images, uint32_t num_embedded_images);
 
-  std::string assemble_xml_file() const;
+  [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
   [[nodiscard]] std::string write_metadata() const;

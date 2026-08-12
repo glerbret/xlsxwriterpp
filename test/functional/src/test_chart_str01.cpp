@@ -6,9 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;
@@ -36,7 +33,7 @@ int main()
   worksheet.write_number(3, 2, 12);
   worksheet.write_number(4, 2, 15);
 
-  worksheet.write_string(CELL("A6"), "Foo", NULL);
+  worksheet.write_string(CELL("A6"), "Foo");
 
   chart.add_series("", "=Sheet1!$A$1:$A$5");
   chart.add_series("", "=Sheet1!$B$1:$B$5");

@@ -10,9 +10,9 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(condtional_format13a)
   worksheet.write_number(CELL("A11"), 11);
   worksheet.write_number(CELL("A12"), 12);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_ = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(condtional_format13b)
   worksheet.write_number(CELL("A11"), 11);
   worksheet.write_number(CELL("A12"), 12);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_          = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
     .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
     .min_color_     = xwpp::color_t(0xF8696B),

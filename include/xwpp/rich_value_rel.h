@@ -20,7 +20,7 @@ namespace xwpp
 class rich_value_rel_t
 {
 public:
-  rich_value_rel_t(uint32_t num_embedded_images);
+  explicit rich_value_rel_t(uint32_t num_embedded_images);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 

@@ -15,7 +15,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Get the default url format (used in the overwriting examples below).
-  xwpp::format_t* url_format = workbook.get_default_url_format();
+  const xwpp::format_t* url_format = workbook.get_default_url_format();
 
   // Create a user defined link format.
   xwpp::format_t* red_format = workbook.add_format();

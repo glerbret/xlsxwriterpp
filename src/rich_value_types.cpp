@@ -51,7 +51,7 @@ std::string rich_value_types_t::write_key(const std::string& name) const
 
 std::string rich_value_types_t::write_key_flags() const
 {
-  std::vector<std::tuple<std::string, std::string, std::string>> key_flags{
+  const std::vector<std::tuple<std::string, std::string, std::string>> key_flags{
     {"_Self",                   "ExcludeFromFile",           "ExcludeFromCalcComparison"},
     {"_DisplayString",          "ExcludeFromCalcComparison", ""                         },
     {"_Flags",                  "ExcludeFromCalcComparison", ""                         },

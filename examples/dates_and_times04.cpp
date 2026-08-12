@@ -9,6 +9,7 @@
 #include "xlsxwriterpp.h"
 
 #include <chrono>
+#include <vector>
 
 using namespace std::literals::chrono_literals;
 
@@ -17,7 +18,7 @@ int main()
   // A datetime to display.
   const auto datetime = std::chrono::sys_days{2013y / std::chrono::January / 23d} + 12h + 30min + 5s + 123ms;
   uint32_t row        = 0;
-  uint16_t col        = 0;
+  const uint16_t col  = 0;
 
   // Examples date and time formats. In the output file compare how changing
   // the format strings changes the appearance of the date.

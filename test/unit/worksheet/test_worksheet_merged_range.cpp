@@ -10,9 +10,9 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(merged_range01)
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
-  xwpp::format_t* format = workbook.add_format();
+  const xwpp::format_t* format = workbook.add_format();
 
   worksheet.merge_range(2, 1, 2, 2, "Foo", format);
 

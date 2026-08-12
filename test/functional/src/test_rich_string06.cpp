@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <vector>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -18,7 +20,7 @@ int main()
   worksheet.write_string(CELL("A1"), "Foo", red_format);
   worksheet.write_string(CELL("A2"), "Bar", nullptr);
 
-  std::vector<xwpp::rich_string_tuple_t> rich_strings = {
+  const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "ab"},
     {.format_ = red_format, .str_ = "cde"},
     {.str_ = "fg"}

@@ -6,7 +6,7 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
+#include <array>
 #include <vector>
 
 int main()
@@ -18,28 +18,26 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(70329856, 71246976);
 
-  uint8_t data[5][4] = {
-    {1, 2,  3,  10},
-    {2, 4,  6,  20},
-    {3, 6,  9,  30},
-    {4, 8,  12, 40},
-    {5, 10, 15, 50}
+  const std::array<std::array<uint8_t, 4>, 5> data{
+    {{1, 2, 3, 10}, {2, 4, 6, 20}, {3, 6, 9, 30}, {4, 8, 12, 40}, {5, 10, 15, 50}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 4; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
 
-  xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED};
-  xwpp::chart_fill_t fill = {.color_ = xwpp::color_t(0x00B050)};
+  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED};
+  const xwpp::chart_fill_t fill = {.color_ = xwpp::color_t(0x00B050)};
 
-  std::vector<xwpp::chart_data_label_t> data_labels = {
+  const std::vector<xwpp::chart_data_label_t> data_labels = {
     {.value_ = "=Sheet1!$D$1", .line_ = line, .fill_ = fill}
   };
 

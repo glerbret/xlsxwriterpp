@@ -37,7 +37,7 @@ int main()
   xwpp::chart_fill_t green_fill{.color_ = xwpp::color_t::GREEN};
 
   // Add the fills to the point objects.
-  std::vector<xwpp::chart_point_t> points{
+  const std::vector<xwpp::chart_point_t> points{
     {.fill_ = green_fill},
     {.fill_ = red_fill},
   };

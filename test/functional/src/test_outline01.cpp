@@ -14,8 +14,8 @@ int main()
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  xwpp::row_col_options_t options1 = {.hidden_ = false, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options2 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
+  const xwpp::row_col_options_t options1{.hidden_ = false, .level_ = 2, .collapsed_ = false};
+  const xwpp::row_col_options_t options2{.hidden_ = false, .level_ = 1, .collapsed_ = false};
 
   worksheet.set_column(COLS("A:A"), 20);
 

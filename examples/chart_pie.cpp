@@ -14,6 +14,11 @@
 
 #include "xlsxwriterpp.h"
 
+#include <array>
+
+namespace
+{
+
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   worksheet.write_string(CELL("A1"), "Category", bold);
@@ -25,6 +30,8 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write_number(CELL("B2"), 60);
   worksheet.write_number(CELL("B3"), 30);
   worksheet.write_number(CELL("B4"), 10);
+}
+
 }
 
 int main()

@@ -13,8 +13,8 @@ int main()
 
   worksheet.set_margins(-1, -1, 0.7, 0.7);
 
-  xwpp::header_footer_options_t header_options = {.image_left_ = "images/red.jpg"};
-  xwpp::header_footer_options_t footer_options = {.image_left_ = "images/blue.jpg"};
+  const xwpp::header_footer_options_t header_options{.image_left_ = "images/red.jpg"};
+  const xwpp::header_footer_options_t footer_options{.image_left_ = "images/blue.jpg"};
 
   worksheet.set_header("&L&G", header_options);
   worksheet.set_footer("&L&G", footer_options);

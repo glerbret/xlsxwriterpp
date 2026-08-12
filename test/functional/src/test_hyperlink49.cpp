@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options = {.url_ = "https://github.com/jmcnamara"};
+  const xwpp::image_options_t options{.url_ = "https://github.com/jmcnamara"};
 
   worksheet.write_url(CELL("A1"), "https://github.com/jmcnamara");
 

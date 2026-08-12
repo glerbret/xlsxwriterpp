@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <vector>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -46,7 +48,7 @@ int main()
   worksheet.write_number(4, 9, 0);
   worksheet.write_number(4, 10, 0);
 
-  std::vector<xwpp::table_column_t> columns = {
+  const std::vector<xwpp::table_column_t> columns{
     {.total_string_ = "Total"},
     {},
     {.total_function_ = xwpp::table_total_functions_t::AVERAGE},
@@ -61,7 +63,7 @@ int main()
      .format_         = format}
   };
 
-  xwpp::table_options_t options = {.total_row_ = true, .columns_ = columns};
+  const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
 
   worksheet.add_table(RANGE("B3:K6"), options);
 

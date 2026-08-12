@@ -16,6 +16,9 @@
 
 #include <vector>
 
+namespace
+{
+
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   worksheet.write_string(CELL("A1"), "Category", bold);
@@ -27,6 +30,8 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write_number(CELL("B2"), 50);
   worksheet.write_number(CELL("B3"), 35);
   worksheet.write_number(CELL("B4"), 15);
+}
+
 }
 
 int main()
@@ -78,12 +83,12 @@ int main()
   xwpp::chart_fill_t fill3{.color_ = static_cast<xwpp::color_t>(0xF5F6CE)};
 
   // Add some points with the above fills.
-  xwpp::chart_point_t point1{.fill_ = fill1};
-  xwpp::chart_point_t point2{.fill_ = fill2};
-  xwpp::chart_point_t point3{.fill_ = fill3};
+  const xwpp::chart_point_t point1{.fill_ = fill1};
+  const xwpp::chart_point_t point2{.fill_ = fill2};
+  const xwpp::chart_point_t point3{.fill_ = fill3};
 
   // Create an array of the point objects.
-  std::vector<xwpp::chart_point_t> points{
+  const std::vector<xwpp::chart_point_t> points{
     point1,
     point2,
     point3,

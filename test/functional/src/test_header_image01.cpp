@@ -16,7 +16,7 @@ int main()
   // TODO Error conditions. Throw exception not ignored as C libxlsxwriter
   // Disable for the moment, dedicated tests must be added
   /*
-    // Test NULL string.
+    // Test empty string.
     worksheet.set_header("");
     worksheet.set_footer("");
 
@@ -38,7 +38,7 @@ int main()
     worksheet.set_footer("&L&G", options3);
   */
   // Write a non-error header.
-  xwpp::header_footer_options_t header_options = {.image_left_ = "images/red.jpg"};
+  const xwpp::header_footer_options_t header_options{.image_left_ = "images/red.jpg"};
 
   worksheet.set_header("&L&G", header_options);
 

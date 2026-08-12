@@ -21,8 +21,8 @@ namespace xwpp
 class vml_t
 {
 public:
-  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& comment_objs, uint32_t vml_shape_id);
-  vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& image_objs,
+  vml_t(std::string vml_data_id_str, const std::vector<vml_obj_t>& image_objs, uint32_t vml_shape_id);
+  vml_t(std::string vml_data_id_str, const std::vector<vml_obj_t>& comment_objs,
         const std::vector<vml_obj_t>& button_objs, uint32_t vml_shape_id, comment_display_t comment_display_default);
 
   [[nodiscard]] std::string assemble_xml_file();
@@ -74,8 +74,8 @@ private:
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> image_objs_;
   std::string vml_data_id_str_;
-  uint32_t vml_shape_id_;
-  comment_display_t comment_display_default_;
+  uint32_t vml_shape_id_                     = 0;
+  comment_display_t comment_display_default_ = comment_display_t::DEFAULT;
 };
 
 }

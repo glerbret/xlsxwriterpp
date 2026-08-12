@@ -17,6 +17,7 @@
 
 #include <openssl/md5.h>
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -26,6 +27,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 using namespace std::literals;
@@ -36,22 +38,20 @@ namespace xwpp
 namespace
 {
 
-/*
- * Calculate the "spans" attribute of the <row> tag. This is an XLSX
- * optimization and isn't strictly required. However, it makes comparing
- * files easier.
- *
- * The span is the same for each block of 16 rows.
- */
+// Calculate the "spans" attribute of the <row> tag. This is an XLSX
+// optimization and isn't strictly required. However, it makes comparing
+// files easier.
+//
+// The span is the same for each block of 16 rows.
 std::string calculate_spans(std::map<row_num_t, row_t>::const_iterator it,
                             std::map<row_num_t, row_t>::const_iterator end, int32_t& block_num)
 {
   col_num_t span_col_min = std::numeric_limits<col_num_t>::max();
   col_num_t span_col_max = std::numeric_limits<col_num_t>::max();
 
-  block_num = it->second.row_num_ / 16;
+  block_num = static_cast<int32_t>(it->second.row_num_) / 16;
 
-  for(; it != end && static_cast<int32_t>(it->second.row_num_ / 16) == block_num; it++)
+  for(; it != end && std::cmp_equal((it->second.row_num_ / 16), block_num); it++)
   {
     if(!it->second.cells_.empty())
     {
@@ -80,6 +80,7 @@ cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id,
   cell.row_num_    = row_num;
   cell.col_num_    = col_num;
   cell.type_       = cell_types_t::STRING_CELL;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_     = const_cast<format_t*>(format);
   cell.data_       = string_id;
   cell.sst_string_ = sst_string;
@@ -94,6 +95,7 @@ cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const
   cell.row_num_ = row_num;
   cell.col_num_ = col_num;
   cell.type_    = cell_types_t::NUMBER_CELL;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_  = const_cast<format_t*>(format);
   cell.data_    = value;
 
@@ -134,6 +136,7 @@ cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* form
   cell.row_num_ = row_num;
   cell.col_num_ = col_num;
   cell.type_    = cell_types_t::BLANK_CELL;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_  = const_cast<format_t*>(format);
 
   return cell;
@@ -146,6 +149,7 @@ cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, cons
   cell.row_num_ = row_num;
   cell.col_num_ = col_num;
   cell.type_    = cell_types_t::ERROR_CELL;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_  = const_cast<format_t*>(format);
   cell.data_    = value;
 
@@ -160,6 +164,7 @@ cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string&
   cell.row_num_        = row_num;
   cell.col_num_        = col_num;
   cell.type_           = cell_types_t::FORMULA_CELL;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_         = const_cast<format_t*>(format);
   cell.data_           = formula;
   cell.formula_result_ = result;
@@ -175,6 +180,7 @@ cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string&
   cell.row_num_    = row_num;
   cell.col_num_    = col_num;
   cell.type_       = cell_types_t::FORMULA_CELL;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_     = const_cast<format_t*>(format);
   cell.data_       = formula;
   cell.user_data2_ = result;
@@ -189,6 +195,7 @@ cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, const std::s
 
   cell.row_num_    = row_num;
   cell.col_num_    = col_num;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_     = const_cast<format_t*>(format);
   cell.data_       = formula;
   cell.user_data1_ = range;
@@ -208,35 +215,31 @@ cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, const std::s
 // This function handles the additional optional parameters to
 // write_comment() as well as calculating the comment object
 // position and vertices.
-void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> options)
+void get_comment_params(vml_obj_t& comment, const std::optional<comment_options_t>& options)
 {
-  row_num_t start_row;
-  col_num_t start_col;
-  int32_t x_offset;
-  int32_t y_offset;
-  uint32_t height = 74;
-  uint32_t width  = 128;
-  double x_scale  = 1.0;
-  double y_scale  = 1.0;
-  row_num_t row   = comment.row_;
-  col_num_t col   = comment.col_;
+  row_num_t start_row     = 0;
+  col_num_t start_col     = 0;
+  int32_t x_offset        = 0;
+  int32_t y_offset        = 0;
+  uint32_t height         = 74;
+  uint32_t width          = 128;
+  double x_scale          = 1.0;
+  double y_scale          = 1.0;
+  const row_num_t row_num = comment.row_;
+  const col_num_t col_num = comment.col_;
 
   // Set the default start cell and offsets for the comment. These are
   // generally fixed in relation to the parent cell. However there are some
   // edge cases for cells at the, well yes, edges.
-  if(row == 0)
+  if(row_num == 0)
   {
     y_offset = 2;
   }
-  else if(row == worksheet_t::ROW_MAX - 3)
+  else if(row_num == worksheet_t::ROW_MAX - 3 || row_num == worksheet_t::ROW_MAX - 2)
   {
     y_offset = 16;
   }
-  else if(row == worksheet_t::ROW_MAX - 2)
-  {
-    y_offset = 16;
-  }
-  else if(row == worksheet_t::ROW_MAX - 1)
+  else if(row_num == worksheet_t::ROW_MAX - 1)
   {
     y_offset = 14;
   }
@@ -245,15 +248,7 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
     y_offset = 10;
   }
 
-  if(col == worksheet_t::COL_MAX - 3)
-  {
-    x_offset = 49;
-  }
-  else if(col == worksheet_t::COL_MAX - 2)
-  {
-    x_offset = 49;
-  }
-  else if(col == worksheet_t::COL_MAX - 1)
+  if(col_num == worksheet_t::COL_MAX - 3 || col_num == worksheet_t::COL_MAX - 2 || col_num == worksheet_t::COL_MAX - 1)
   {
     x_offset = 49;
   }
@@ -262,42 +257,42 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
     x_offset = 15;
   }
 
-  if(row == 0)
+  if(row_num == 0)
   {
     start_row = 0;
   }
-  else if(row == worksheet_t::ROW_MAX - 3)
+  else if(row_num == worksheet_t::ROW_MAX - 3)
   {
     start_row = worksheet_t::ROW_MAX - 7;
   }
-  else if(row == worksheet_t::ROW_MAX - 2)
+  else if(row_num == worksheet_t::ROW_MAX - 2)
   {
     start_row = worksheet_t::ROW_MAX - 6;
   }
-  else if(row == worksheet_t::ROW_MAX - 1)
+  else if(row_num == worksheet_t::ROW_MAX - 1)
   {
     start_row = worksheet_t::ROW_MAX - 5;
   }
   else
   {
-    start_row = row - 1;
+    start_row = row_num - 1;
   }
 
-  if(col == worksheet_t::COL_MAX - 3)
+  if(col_num == worksheet_t::COL_MAX - 3)
   {
     start_col = worksheet_t::COL_MAX - 6;
   }
-  else if(col == worksheet_t::COL_MAX - 2)
+  else if(col_num == worksheet_t::COL_MAX - 2)
   {
     start_col = worksheet_t::COL_MAX - 5;
   }
-  else if(col == worksheet_t::COL_MAX - 1)
+  else if(col_num == worksheet_t::COL_MAX - 1)
   {
     start_col = worksheet_t::COL_MAX - 4;
   }
   else
   {
-    start_col = col + 1;
+    start_col = col_num + 1;
   }
 
   // Set the default font properties.
@@ -361,8 +356,8 @@ void get_comment_params(vml_obj_t& comment, std::optional<comment_options_t> opt
 
   // Scale the width/height to the default/user scale and round to the
   // nearest pixel.
-  width  = (uint32_t)(0.5 + x_scale * width);
-  height = (uint32_t)(0.5 + y_scale * height);
+  width  = static_cast<uint32_t>(0.5 + (x_scale * width));
+  height = static_cast<uint32_t>(0.5 + (y_scale * height));
 
   comment.width_     = width;
   comment.height_    = height;
@@ -379,6 +374,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
   cell.type_    = cell_types_t::BOOLEAN_CELL;
   cell.row_num_ = row_num;
   cell.col_num_ = col_num;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_  = const_cast<format_t*>(format);
   cell.data_    = static_cast<uint32_t>(value);
 
@@ -561,8 +557,10 @@ std::string expand_table_formula(const std::string& formula)
 void set_custom_table_columns(table_obj_t& table_obj, const std::optional<table_options_t>& user_options)
 {
   // TODO Check size consistency, and if possible use algorithm.
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   for(size_t i = 0; i < user_options->columns_.size(); i++)
   {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     const table_column_t& user_column = user_options->columns_[i];
     table_column_t& table_column      = table_obj.columns_[i];
 
@@ -590,11 +588,11 @@ void set_custom_table_columns(table_obj_t& table_obj, const std::optional<table_
   }
 }
 
-void check_table_rows(row_num_t first_row, row_num_t last_row, const std::optional<table_options_t> user_options)
+void check_table_rows(row_num_t first_row, row_num_t last_row, const std::optional<table_options_t>& user_options)
 {
   row_num_t num_non_header_rows = last_row - first_row;
 
-  if(user_options && user_options->no_header_row_ == true)
+  if(user_options && user_options->no_header_row_)
   {
     num_non_header_rows++;
   }
@@ -605,7 +603,7 @@ void check_table_rows(row_num_t first_row, row_num_t last_row, const std::option
   }
 }
 
-void check_table_name(const std::optional<table_options_t> user_options)
+void check_table_name(const std::optional<table_options_t>& user_options)
 {
   if(!user_options)
   {
@@ -726,8 +724,8 @@ void get_button_params(vml_obj_t& button, uint16_t button_number, const std::opt
 
   // Scale the width/height to the default/user scale and round to the
   // nearest pixel.
-  width  = static_cast<uint32_t>(0.5 + x_scale * width);
-  height = static_cast<uint32_t>(0.5 + y_scale * height);
+  width  = static_cast<uint32_t>(0.5 + (x_scale * width));
+  height = static_cast<uint32_t>(0.5 + (y_scale * height));
 
   button.width_     = width;
   button.height_    = height;
@@ -745,36 +743,36 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
   double y_dpi    = 96;
 
   // Start after header.
-  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  auto it = std::begin(data);
   it += (4 + 4);
 
-  while(it + 3 * 4 < std::end(data))
+  while(it + static_cast<std::vector<unsigned char>::const_iterator::difference_type>(3 * 4) < std::end(data))
   {
     // Read the PNG length and type fields for the sub-section.
-    const uint32_t length = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+    const uint32_t length = (it[0] << 24U) + (it[1] << 16U) + (it[2] << 8U) + it[3];
     it += 4;
 
-    std::string type{it, it + 4};
+    const std::string type{it, it + 4};
     it += 4;
 
     if(it + length < std::end(data))
     {
       if(type == "IHDR")
       {
-        width = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        width = (it[0] << 24U) + (it[1] << 16U) + (it[2] << 8U) + it[3];
         it += 4;
 
-        height = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        height = (it[0] << 24U) + (it[1] << 16U) + (it[2] << 8U) + it[3];
         it += 4;
 
-        it += length - 2 * 4;
+        it += length - (2 * 4);
       }
       else if(type == "pHYs")
       {
-        const uint32_t x_ppu = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        const uint32_t x_ppu = (it[0] << 24U) + (it[1] << 16U) + (it[2] << 8U) + it[3];
         it += 4;
 
-        const uint32_t y_ppu = (it[0] << 24) + (it[1] << 16) + (it[2] << 8) + it[3];
+        const uint32_t y_ppu = (it[0] << 24U) + (it[1] << 16U) + (it[2] << 8U) + it[3];
         it += 4;
 
         const uint8_t units = it[0];
@@ -811,8 +809,8 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
   image_props.image_type_ = image_types_t::PNG;
   image_props.width_      = width;
   image_props.height_     = height;
-  image_props.x_dpi_      = x_dpi ? x_dpi : 96;
-  image_props.y_dpi_      = y_dpi ? y_dpi : 96;
+  image_props.x_dpi_      = (x_dpi != 0.) ? x_dpi : 96;
+  image_props.y_dpi_      = (y_dpi != 0.) ? y_dpi : 96;
   image_props.extension_  = "png";
 }
 
@@ -824,16 +822,16 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
   double y_dpi    = 96;
 
   // Start after header.
-  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  auto it = std::begin(data);
   it += 2;
 
   // Search through the image data and read the JPEG markers.
   while(it + 4 < std::end(data))
   {
     // Read the JPEG marker and length fields for the sub-section.
-    uint16_t marker = *it * 0x100 + *(it + 1);
+    const uint16_t marker = (*it * 0x100) + *(it + 1);
     it += 2;
-    uint16_t length = *it * 0x100 + *(it + 1);
+    const uint16_t length = (*it * 0x100) + *(it + 1);
     it += 2;
 
     // The offset for next fseek() is the field length + type length.
@@ -841,16 +839,16 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
 
     // Read the height and width in the 0xFFCn elements (except C4, C8
     // and CC which aren't SOF markers).
-    if((marker & 0xFFF0) == 0xFFC0 && marker != 0xFFC4 && marker != 0xFFC8 && marker != 0xFFCC)
+    if((marker & 0xFFF0U) == 0xFFC0U && marker != 0xFFC4U && marker != 0xFFC8U && marker != 0xFFCCU)
     {
       if(it + 5 < std::end(data))
       {
         // Skip 1 byte to height and width.
         it++;
 
-        height = *it * 0x100 + *(it + 1);
+        height = (*it * 0x100) + *(it + 1);
         it += 2;
-        width = *it * 0x100 + *(it + 1);
+        width = (*it * 0x100) + *(it + 1);
         it += 2;
         offset -= 5;
       }
@@ -862,11 +860,11 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
       if(it + 12 < std::end(data))
       {
         it += 7;
-        uint8_t units = *it;
+        const uint8_t units = *it;
         it++;
-        uint16_t x_density = *it * 0x100 + *(it + 1);
+        const uint16_t x_density = (*it * 0x100) + *(it + 1);
         it += 2;
-        uint16_t y_density = *it * 0x100 + *(it + 1);
+        const uint16_t y_density = (*it * 0x100) + *(it + 1);
         it += 2;
 
         if(units == 1)
@@ -902,24 +900,24 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
   image_props.image_type_ = image_types_t::JPEG;
   image_props.width_      = width;
   image_props.height_     = height;
-  image_props.x_dpi_      = x_dpi ? x_dpi : 96;
-  image_props.y_dpi_      = y_dpi ? y_dpi : 96;
+  image_props.x_dpi_      = (x_dpi != 0.) ? x_dpi : 96;
+  image_props.y_dpi_      = (y_dpi != 0.) ? y_dpi : 96;
   image_props.extension_  = "jpeg";
 }
 
 void process_bmp(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
-  double x_dpi = 96;
-  double y_dpi = 96;
+  const double x_dpi = 96;
+  const double y_dpi = 96;
 
   // Skip 18 bytes to the start of the BMP height/width.
-  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  auto it = std::begin(data);
   it += 18;
 
-  uint32_t width = *(it + 3) * 0x1000000 + *(it + 2) * 0x10000 + *(it + 1) * 0x100 + *it;
+  const uint32_t width = (*(it + 3) * 0x1000000) + (*(it + 2) * 0x10000) + (*(it + 1) * 0x100) + *it;
   it += 4;
 
-  uint32_t height = *(it + 3) * 0x1000000 + *(it + 2) * 0x10000 + *(it + 1) * 0x100 + *it;
+  const uint32_t height = (*(it + 3) * 0x1000000) + (*(it + 2) * 0x10000) + (*(it + 1) * 0x100) + *it;
   it += 4;
 
   // Set the image metadata.
@@ -933,17 +931,17 @@ void process_bmp(object_properties_t& image_props, const std::vector<unsigned ch
 
 void process_gif(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
-  double x_dpi = 96;
-  double y_dpi = 96;
+  const double x_dpi = 96;
+  const double y_dpi = 96;
 
   // Skip 6 bytes to the start of the GIF height/width.
-  std::vector<unsigned char>::const_iterator it = std::begin(data);
+  auto it = std::begin(data);
   it += 6;
 
-  uint16_t width = *(it + 1) * 0x100 + *it;
+  const uint16_t width = (*(it + 1) * 0x100) + *it;
   it += 2;
 
-  uint16_t height = *(it + 1) * 0x100 + *it;
+  const uint16_t height = (*(it + 1) * 0x100) + *it;
   it += 2;
 
   // Set the image metadata.
@@ -981,10 +979,11 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
   // Calculate an MD5 checksum for the image so that we can remove duplicate
   // images to reduce the xlsx file size.
   MD5_CTX md5_context;
-  unsigned char md5_checksum[MD5_SIZE];
+  std::array<unsigned char, MD5_SIZE> md5_checksum{};
   MD5_Init(&md5_context);
   MD5_Update(&md5_context, buffer.data(), buffer.size());
-  MD5_Final(md5_checksum, &md5_context);
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+  MD5_Final(md5_checksum.data(), &md5_context);
   for(const auto b: md5_checksum)
   {
     image_props.md5_ += std::format("{:02X}", b);
@@ -997,7 +996,7 @@ void get_image_properties(object_properties_t& image_props)
   {
     // Read image.
     std::ifstream image_stream(image_props.filename_, std::ios::binary);
-    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+    const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
     process_image(image_props, buffer);
   }
   else
@@ -1017,9 +1016,9 @@ void validate_conditional_icons(const conditional_format_t& user)
 
 void validate_conditional_scale(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
 {
-  conditional_format_rule_types_t min_rule_type = user_options.min_rule_type_;
-  conditional_format_rule_types_t mid_rule_type = user_options.mid_rule_type_;
-  conditional_format_rule_types_t max_rule_type = user_options.max_rule_type_;
+  const conditional_format_rule_types_t min_rule_type = user_options.min_rule_type_;
+  const conditional_format_rule_types_t mid_rule_type = user_options.mid_rule_type_;
+  const conditional_format_rule_types_t max_rule_type = user_options.max_rule_type_;
 
   if(min_rule_type > conditional_format_rule_types_t::MINIMUM &&
      min_rule_type < conditional_format_rule_types_t::MAXIMUM)
@@ -1302,9 +1301,9 @@ const size_t VALIDATION_MAX_STRING_LENGTH = 255;
 
 double pixels_to_width(double pixels)
 {
-  double max_digit_width = 7.0;
-  double padding         = 5.0;
-  double width;
+  const double max_digit_width = 7.0;
+  const double padding         = 5.0;
+  double width                 = 0.;
 
   if(pixels == DEF_COL_WIDTH_PIXELS)
   {
@@ -1347,14 +1346,10 @@ row_t& table_rows_t::get_row_list(row_num_t row_num)
   return row;
 }
 
-worksheet_t::worksheet_t()
-{
-}
-
 worksheet_t::worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
                          std::function<int32_t(format_t*)> get_dxf_index)
-  : get_xf_index_{get_xf_index}
-  , get_dxf_index_{get_dxf_index}
+  : get_xf_index_{std::move(get_xf_index)}
+  , get_dxf_index_{std::move(get_dxf_index)}
   , sst_{init_data.sst_}
   , name_{init_data.name_}
   , quoted_name_{init_data.quoted_name_}
@@ -1415,20 +1410,15 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   }
 
   // Ensure the level is <= 7).
-  if(level > 7)
-  {
-    level = 7;
-  }
+  level = std::min<uint8_t>(level, 7);
 
-  if(level > outline_col_level_)
-  {
-    outline_col_level_ = level;
-  }
+  outline_col_level_ = std::max(level, outline_col_level_);
 
   // Set the column properties.
   col_options_[first_col].firstcol_  = first_col;
   col_options_[first_col].lastcol_   = last_col;
   col_options_[first_col].width_     = width;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   col_options_[first_col].format_    = const_cast<format_t*>(format);
   col_options_[first_col].hidden_    = hidden;
   col_options_[first_col].level_     = level;
@@ -1437,6 +1427,7 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   // Store the column formats for use when writing cell data.
   for(col_num_t col_num = first_col; col_num <= last_col; col_num++)
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     col_formats_[col_num] = const_cast<format_t*>(format);
   }
 
@@ -1479,19 +1470,14 @@ void worksheet_t::set_row(row_num_t row_num, double height, const format_t* form
   }
 
   // Ensure the level is <= 7).
-  if(level > 7)
-  {
-    level = 7;
-  }
+  level = std::min<uint8_t>(level, 7);
 
-  if(level > outline_row_level_)
-  {
-    outline_row_level_ = level;
-  }
+  outline_row_level_ = std::max(level, outline_row_level_);
 
   // Store the row properties.
   row_t& row       = get_row(row_num);
   row.height_      = height;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   row.format_      = const_cast<format_t*>(format);
   row.hidden_      = hidden;
   row.level_       = level;
@@ -1624,7 +1610,7 @@ void worksheet_t::write_boolean(row_num_t row_num, col_num_t col_num, bool value
 {
   check_dimensions(row_num, col_num, false, false);
 
-  cell_t cell = new_boolean_cell(row_num, col_num, value, format);
+  const cell_t cell = new_boolean_cell(row_num, col_num, value, format);
 
   insert_cell(row_num, col_num, cell);
 }
@@ -1644,7 +1630,7 @@ void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format
 
   check_dimensions(row_num, col_num, false, false);
 
-  cell_t cell = new_blank_cell(row_num, col_num, format);
+  const cell_t cell = new_blank_cell(row_num, col_num, format);
   insert_cell(row_num, col_num, cell);
 }
 
@@ -1670,7 +1656,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   }
 
   style_t style;
-  format_t default_format(get_dxf_index_);
+  const format_t default_format(get_dxf_index_);
   std::string rich_string;
 
   // Iterate through the rich string fragments and write each one out.
@@ -1781,7 +1767,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
   }
 
   // Split url into the link and optional anchor/location.
-  size_t found_string = url_copy.find("#");
+  size_t found_string = url_copy.find('#');
   if(found_string != std::string::npos)
   {
     url_string = url_copy.substr(found_string + 1);
@@ -1871,7 +1857,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
 }
 
 void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std::string& text,
-                                std::optional<comment_options_t> options)
+                                const std::optional<comment_options_t>& options)
 {
   check_dimensions(row_num, col_num, false, false);
 
@@ -1894,7 +1880,7 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
   // Set user and default parameters for the comment.
   get_comment_params(comment, options);
 
-  cell_t cell = new_comment_cell(row_num, col_num, comment);
+  const cell_t cell = new_comment_cell(row_num, col_num, comment);
   insert_comment(row_num, col_num, cell);
 
   has_vml_      = true;
@@ -1943,7 +1929,7 @@ void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const 
     formula_copy = formula;
   }
 
-  cell_t cell = new_formula_cell(row_num, col_num, formula_copy, format, result);
+  const cell_t cell = new_formula_cell(row_num, col_num, formula_copy, format, result);
 
   insert_cell(row_num, col_num, cell);
 }
@@ -1975,7 +1961,7 @@ void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const 
     formula_copy = formula;
   }
 
-  cell_t cell = new_formula_cell(row_num, col_num, formula_copy, format, result);
+  const cell_t cell = new_formula_cell(row_num, col_num, formula_copy, format, result);
 
   insert_cell(row_num, col_num, cell);
 }
@@ -1983,7 +1969,7 @@ void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const 
 void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula,
                                     const std::string& result)
 {
-  return write_formula_str(row_num, col_num, formula, nullptr, result);
+  write_formula_str(row_num, col_num, formula, nullptr, result);
 }
 
 void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
@@ -2064,7 +2050,7 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
   check_dimensions(last_row, last_col, false, false);
 
   // Store the merge range.
-  merged_range_t merged_range{
+  const merged_range_t merged_range{
     .first_row_ = first_row,
     .last_row_  = last_row,
     .first_col_ = first_col,
@@ -2105,7 +2091,7 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   // Check that column number is valid and store the max value.
   check_dimensions(last_row, last_col, true, true);
 
-  col_num_t num_cols = last_col - first_col + 1;
+  const col_num_t num_cols = last_col - first_col + 1;
 
   // Check that there are sufficient data rows.
   check_table_rows(first_row, last_row, user_options);
@@ -2114,7 +2100,7 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   check_table_name(user_options);
 
   table_obj_t table_obj;
-  std::vector<table_column_t> columns(num_cols);
+  const std::vector<table_column_t> columns(num_cols);
 
   table_obj.columns_   = columns;
   table_obj.num_cols_  = num_cols;
@@ -2180,7 +2166,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
 
   // Check that the image file exists and can be opened.
   {
-    std::ifstream image_stream(filename);
+    const std::ifstream image_stream(filename);
     if(!image_stream)
     {
       throw xwpp_exception_t(
@@ -2299,7 +2285,7 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
 
   // Check that the image file exists and can be opened.
   {
-    std::ifstream image_stream(filename);
+    const std::ifstream image_stream(filename);
     if(!image_stream)
     {
       throw xwpp_exception_t(
@@ -2570,7 +2556,7 @@ void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
 {
   filter_rule_obj_t rule_obj;
 
-  if(autofilter_.in_use_ == false)
+  if(!autofilter_.in_use_)
   {
     throw xwpp_exception_t("worksheet_t::filter_column(): worksheet autofilter range hasn't been defined. Use "
                            "worksheet::autofilter() first.");
@@ -2583,7 +2569,7 @@ void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
                   col_num, autofilter_.first_col_, autofilter_.last_col_));
   }
 
-  uint16_t rule_index = col_num - autofilter_.first_col_;
+  const uint16_t rule_index = col_num - autofilter_.first_col_;
 
   rule_obj.col_num_   = rule_index;
   rule_obj.type_      = filter_type_t::SINGLE;
@@ -2617,7 +2603,7 @@ void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, 
 {
   filter_rule_obj_t rule_obj;
 
-  if(autofilter_.in_use_ == false)
+  if(!autofilter_.in_use_)
   {
     throw xwpp_exception_t("worksheet_t::filter_column2(): worksheet autofilter range hasn't been defined. Use "
                            "worksheet::autofilter() first.");
@@ -2630,7 +2616,7 @@ void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, 
                   col_num, autofilter_.first_col_, autofilter_.last_col_));
   }
 
-  uint16_t rule_index = col_num - autofilter_.first_col_;
+  const uint16_t rule_index = col_num - autofilter_.first_col_;
 
   if(and_or == filter_operator_t::AND)
   {
@@ -2696,7 +2682,7 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
     throw xwpp_exception_t("worksheet_t::filter_list(): list parameter cannot be empty.");
   }
 
-  if(autofilter_.in_use_ == false)
+  if(!autofilter_.in_use_)
   {
     throw xwpp_exception_t("worksheet_t::filter_list(): worksheet autofilter range hasn't been defined. Use "
                            "worksheet::autofilter() first.");
@@ -2728,7 +2714,7 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
     throw xwpp_exception_t("worksheet_t::filter_list(): list must have at least 1 non-blanks item.");
   }
 
-  uint16_t rule_index = col_num - autofilter_.first_col_;
+  const uint16_t rule_index = col_num - autofilter_.first_col_;
 
   rule_obj.is_custom_  = false;
   rule_obj.col_num_    = rule_index;
@@ -2801,7 +2787,7 @@ void worksheet_t::set_selection(row_num_t first_row, col_num_t first_col, row_nu
 
   // Set the cell range selection. Do this before swapping max/min to
   // allow the selection direction to be reversed.
-  std::string active_cell = rowcol_to_cell(first_row, first_col);
+  const std::string active_cell = rowcol_to_cell(first_row, first_col);
 
   // Swap last row/col with first row/col as necessary.
   if(first_row > last_row)
@@ -2841,7 +2827,7 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
                                            col_num_t last_col, const conditional_format_t& conditional_format)
 {
   // TODO Add a conversion function.
-  const std::string type_strings[] = {
+  const std::vector<std::string> type_strings{
     "none",
     "cellIs",
     "containsText",
@@ -3100,7 +3086,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
 
   if(validation.validate_ == validation_types_t::LIST)
   {
-    size_t length = validation_list_length(validation.value_list_);
+    const size_t length = validation_list_length(validation.value_list_);
 
     if(length == 0)
     {
@@ -3145,7 +3131,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   copy.validate_     = validation.validate_;
   copy.value_number_ = validation.value_number_;
   copy.error_type_   = validation.error_type_;
-  copy.dropdown_     = validation.dropdown_ == validation_boolean_t::OFF ? false : true;
+  copy.dropdown_     = validation.dropdown_ != validation_boolean_t::OFF;
 
   if(has_criteria)
   {
@@ -3198,9 +3184,9 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   }
 
   // These options are on by default so we can't take plain booleans.
-  copy.ignore_blank_ = validation.ignore_blank_ == validation_boolean_t::OFF ? false : true;
-  copy.show_input_   = validation.show_input_ == validation_boolean_t::OFF ? false : true;
-  copy.show_error_   = validation.show_error_ == validation_boolean_t::OFF ? false : true;
+  copy.ignore_blank_ = validation.ignore_blank_ != validation_boolean_t::OFF;
+  copy.show_input_   = validation.show_input_ != validation_boolean_t::OFF;
+  copy.show_error_   = validation.show_error_ != validation_boolean_t::OFF;
 
   data_validations_.push_back(copy);
 }
@@ -3266,13 +3252,11 @@ void worksheet_t::set_header(const std::string& str, const std::optional<header_
       std::format("worksheet_t::set_header(): header '{}' is too long (max: '{}').", str, HEADER_FOOTER_MAX));
   }
 
-  std::string tmp_header = str;
-
   // Count &G placeholders and ensure there are sufficient images.
   uint8_t placeholder_count = 0;
-  for(size_t i = 0; i < tmp_header.size() - 1; ++i)
+  for(size_t i = 0; i < str.size() - 1; ++i)
   {
-    if(tmp_header[i] == '&' && tmp_header[i + 1] == 'G')
+    if(str[i] == '&' && str[i + 1] == 'G')
     {
       placeholder_count++;
     }
@@ -3319,7 +3303,7 @@ void worksheet_t::set_header(const std::string& str, const std::optional<header_
     set_header_footer_image(options->image_right_, image_position_t::HEADER_RIGHT);
   }
 
-  header_                = tmp_header;
+  header_                = str;
   header_footer_changed_ = true;
 }
 
@@ -3342,13 +3326,11 @@ void worksheet_t::set_footer(const std::string& str, const std::optional<header_
       std::format("worksheet_t::set_footer(): footer '{}' is too long (max: '{}').", str, HEADER_FOOTER_MAX));
   }
 
-  std::string tmp_footer = str;
-
   // Count &G placeholders and ensure there are sufficient images.
   uint8_t placeholder_count = 0;
-  for(size_t i = 0; i < tmp_footer.size() - 1; ++i)
+  for(size_t i = 0; i < str.size() - 1; ++i)
   {
-    if(tmp_footer[i] == '&' && tmp_footer[i + 1] == 'G')
+    if(str[i] == '&' && str[i + 1] == 'G')
     {
       placeholder_count++;
     }
@@ -3395,7 +3377,7 @@ void worksheet_t::set_footer(const std::string& str, const std::optional<header_
     set_header_footer_image(options->image_right_, image_position_t::FOOTER_RIGHT);
   }
 
-  footer_                = tmp_footer;
+  footer_                = str;
   header_footer_changed_ = true;
 }
 
@@ -3474,7 +3456,7 @@ void worksheet_t::set_background(const std::string& filename)
 
   // Check that the image file exists and can be opened.
   {
-    std::ifstream image_stream(filename);
+    const std::ifstream image_stream(filename);
     if(!image_stream)
     {
       throw xwpp_exception_t(
@@ -3697,12 +3679,12 @@ void worksheet_t::gridlines(gridlines_t option)
     screen_gridlines_ = false;
   }
 
-  if(option & gridlines_t::SHOW_SCREEN_GRIDLINES)
+  if((option & gridlines_t::SHOW_SCREEN_GRIDLINES) != 0)
   {
     screen_gridlines_ = true;
   }
 
-  if(option & gridlines_t::SHOW_PRINT_GRIDLINES)
+  if((option & gridlines_t::SHOW_PRINT_GRIDLINES) != 0)
   {
     print_gridlines_       = true;
     print_options_changed_ = true;
@@ -3834,10 +3816,10 @@ void worksheet_t::set_start_page(uint16_t start_page)
 
 void worksheet_t::set_error_cell(const object_properties_t& object_props, uint32_t ref_id)
 {
-  row_num_t row_num = object_props.row_;
-  col_num_t col_num = object_props.col_;
+  const row_num_t row_num = object_props.row_;
+  const col_num_t col_num = object_props.col_;
 
-  cell_t cell = new_error_cell(row_num, col_num, ref_id, object_props.format_);
+  const cell_t cell = new_error_cell(row_num, col_num, ref_id, object_props.format_);
   insert_cell(row_num, col_num, cell);
 }
 
@@ -3959,8 +3941,7 @@ void worksheet_t::insert_cell_placeholder(row_num_t row_num, col_num_t col_num)
   row_t& row = get_row(row_num);
   if(row.cells_.find(col_num) == std::end(row.cells_))
   {
-    cell_t cell         = new_blank_cell(row_num, col_num, nullptr);
-    row.cells_[col_num] = cell;
+    row.cells_[col_num] = new_blank_cell(row_num, col_num, nullptr);
   }
 }
 
@@ -4072,8 +4053,8 @@ void worksheet_t::store_conditional_format_object(const cond_format_obj_t& cond_
 void worksheet_t::validate_conditional_data_bar(cond_format_obj_t& cond_format,
                                                 const conditional_format_t& user_options)
 {
-  conditional_format_rule_types_t min_rule_type = user_options.min_rule_type_;
-  conditional_format_rule_types_t max_rule_type = user_options.max_rule_type_;
+  const conditional_format_rule_types_t min_rule_type = user_options.min_rule_type_;
+  const conditional_format_rule_types_t max_rule_type = user_options.max_rule_type_;
 
   if(user_options.data_bar_2010_ || user_options.bar_solid_ || user_options.bar_no_border_ ||
      user_options.bar_direction_ != conditional_format_bar_direction_t::CONTEXT ||
@@ -4180,11 +4161,11 @@ void worksheet_t::validate_conditional_data_bar(cond_format_obj_t& cond_format,
 
 void worksheet_t::write_table_column_data(const table_obj_t& table_obj)
 {
-  row_num_t first_row      = table_obj.first_row_;
-  col_num_t first_col      = table_obj.first_col_;
-  row_num_t last_row       = table_obj.last_row_;
-  row_num_t first_data_row = first_row;
-  row_num_t last_data_row  = last_row;
+  const row_num_t first_row = table_obj.first_row_;
+  const col_num_t first_col = table_obj.first_col_;
+  const row_num_t last_row  = table_obj.last_row_;
+  row_num_t first_data_row  = first_row;
+  row_num_t last_data_row   = last_row;
 
   if(!table_obj.no_header_row_)
   {
@@ -4198,26 +4179,26 @@ void worksheet_t::write_table_column_data(const table_obj_t& table_obj)
 
   for(col_num_t i = 0; const auto& column: table_obj.columns_)
   {
-    col_num_t col = first_col + i;
+    const col_num_t col_num = first_col + i;
 
     if(!table_obj.no_header_row_)
     {
-      write_string(first_row, col, column.header_, column.header_format_);
+      write_string(first_row, col_num, column.header_, column.header_format_);
     }
 
     if(!column.total_string_.empty())
     {
-      write_string(last_row, col, column.total_string_);
+      write_string(last_row, col_num, column.total_string_);
     }
 
     if(column.total_function_ != table_total_functions_t::NONE)
     {
-      write_column_function(last_row, col, column);
+      write_column_function(last_row, col_num, column);
     }
 
     if(!column.formula_.empty())
     {
-      write_column_formula(first_data_row, last_data_row, col, column);
+      write_column_formula(first_data_row, last_data_row, col_num, column);
     }
 
     i++;
@@ -4267,25 +4248,25 @@ void worksheet_t::write_column_formula(row_num_t first_row, row_num_t last_row, 
 
 uint32_t worksheet_t::calculate_x_split_width(double x_split) const
 {
-  uint32_t pixels;
-  double max_digit_width = 7.0; // For Calabri 11.
-  double padding         = 5.0;
+  uint32_t pixels              = 0;
+  const double max_digit_width = 7.0; // For Calabri 11.
+  const double padding         = 5.0;
 
   // Convert to pixels.
   if(x_split < 1.0)
   {
-    pixels = static_cast<uint32_t>(x_split * (max_digit_width + padding) + 0.5);
+    pixels = static_cast<uint32_t>((x_split * (max_digit_width + padding)) + 0.5);
   }
   else
   {
-    pixels = static_cast<uint32_t>(x_split * max_digit_width + 0.5) + 5;
+    pixels = static_cast<uint32_t>((x_split * max_digit_width) + 0.5) + 5;
   }
 
   // Convert to points.
-  uint32_t points = (pixels * 3) / 4;
+  const uint32_t points = (pixels * 3) / 4;
 
   // Convert to twips (twentieths of a point).
-  uint32_t twips = points * 20;
+  const uint32_t twips = points * 20;
 
   // Add offset/padding.
   return twips + 390;
@@ -4302,7 +4283,7 @@ void worksheet_t::set_header_footer_image(const std::string& filename, image_pos
 
   // Check that the image file exists and can be opened.
   {
-    std::ifstream image_stream(filename);
+    const std::ifstream image_stream(filename);
     if(!image_stream)
     {
       throw xwpp_exception_t(std::format(
@@ -4323,6 +4304,7 @@ void worksheet_t::set_header_footer_image(const std::string& filename, image_pos
 
   get_image_properties(object_props);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
   header_footer_objs_[static_cast<size_t>(image_position)] = object_props;
   has_header_vml_                                          = true;
 }
@@ -4336,12 +4318,15 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
   {
     for(auto& [j, cell]: row.cells_)
     {
-      // Calculate the worksheet position of the comment.
-      position_vml_object(cell.comment_.value());
+      if(cell.comment_.has_value())
+      {
+        // Calculate the worksheet position of the comment.
+        position_vml_object(cell.comment_.value());
 
-      // Store comment in a simple list for use by packager.
-      comment_objs_.push_back(cell.comment_.value());
-      comment_count++;
+        // Store comment in a simple list for use by packager.
+        comment_objs_.push_back(cell.comment_.value());
+        comment_count++;
+      }
     }
   }
 
@@ -4374,16 +4359,16 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
 
 uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
 {
-  col_options_t* col_opt = nullptr;
-  uint32_t pixels        = 0;
+  const col_options_t* col_opt = nullptr;
+  uint32_t pixels              = 0;
 
   // Search for the col number in the array of col_options. Each col_option
   // entry contains the start and end column for a range.
-  for(col_num_t col_index = 0; col_index < col_options_.size(); col_index++)
+  for(auto& item: col_options_)
   {
-    col_opt = &col_options_[col_index];
-    if(col_num >= col_opt->firstcol_ && col_num <= col_opt->lastcol_)
+    if(col_num >= item.firstcol_ && col_num <= item.lastcol_)
     {
+      col_opt = &item;
       break;
     }
     else
@@ -4394,7 +4379,7 @@ uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
 
   if(col_opt)
   {
-    double width                 = col_opt->width_;
+    const double width           = col_opt->width_;
     const double max_digit_width = 7.0; // For Calabri 11.
     const double padding         = 5.0;
 
@@ -4405,11 +4390,11 @@ uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
     }
     else if(width < 1.0)
     {
-      pixels = (uint32_t)(width * (max_digit_width + padding) + 0.5);
+      pixels = static_cast<uint32_t>((width * (max_digit_width + padding)) + 0.5);
     }
     else
     {
-      pixels = (uint32_t)(width * max_digit_width + 0.5) + 5;
+      pixels = static_cast<uint32_t>((width * max_digit_width) + 0.5) + 5;
     }
   }
   else
@@ -4532,45 +4517,38 @@ void worksheet_t::position_object_emus(const object_properties_t& image, drawing
  */
 void worksheet_t::position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object)
 {
-  col_num_t col_start = object_props.col_;                // Column containing upper left corner.
-  int32_t x1          = object_props.x_offset_;           // Distance to left side of object.
-  row_num_t row_start = object_props.row_;                // Row containing top left corner.
-  int32_t y1          = object_props.y_offset_;           // Distance to top of object.
-  col_num_t col_end;                                      // Column containing lower right corner.
-  double x2;                                              // Distance to right side of object.
-  row_num_t row_end;                                      // Row containing bottom right corner.
-  double y2;                                              // Distance to bottom of object.
-  double width                    = object_props.width_;  // Width of object frame.
-  double height                   = object_props.height_; // Height of object frame.
-  uint32_t x_abs                  = 0;                    // Abs. distance to left side of object.
-  uint32_t y_abs                  = 0;                    // Abs. distance to top  side of object.
-  object_position_t anchor        = static_cast<object_position_t>(drawing_object.anchor_);
-  object_position_t ignore_anchor = object_position_t::DEFAULT;
+  col_num_t col_start      = object_props.col_;      // Column containing upper left corner.
+  int32_t x1               = object_props.x_offset_; // Distance to left side of object.
+  row_num_t row_start      = object_props.row_;      // Row containing top left corner.
+  int32_t y1               = object_props.y_offset_; // Distance to top of object.
+  col_num_t col_end        = 0;                      // Column containing lower right corner.
+  double x2                = 0.;                     // Distance to right side of object.
+  row_num_t row_end        = 0;                      // Row containing bottom right corner.
+  double y2                = 0.;                     // Distance to bottom of object.
+  double width             = object_props.width_;    // Width of object frame.
+  double height            = object_props.height_;   // Height of object frame.
+  uint32_t x_abs           = 0;                      // Abs. distance to left side of object.
+  uint32_t y_abs           = 0;                      // Abs. distance to top  side of object.
+  const auto anchor        = static_cast<object_position_t>(drawing_object.anchor_);
+  const auto ignore_anchor = object_position_t::DEFAULT;
 
   // Adjust start column for negative offsets.
   while(x1 < 0 && col_start > 0)
   {
-    x1 += size_col(col_start - 1, ignore_anchor);
+    x1 += static_cast<int32_t>(size_col(col_start - 1, ignore_anchor));
     col_start--;
   }
 
   // Adjust start row for negative offsets.
   while(y1 < 0 && row_start > 0)
   {
-    y1 += size_row(row_start - 1, ignore_anchor);
+    y1 += static_cast<int32_t>(size_row(row_start - 1, ignore_anchor));
     row_start--;
   }
 
   // Ensure that the image isn't shifted off the page at top left.
-  if(x1 < 0)
-  {
-    x1 = 0;
-  }
-
-  if(y1 < 0)
-  {
-    y1 = 0;
-  }
+  x1 = std::max(x1, 0);
+  y1 = std::max(y1, 0);
 
   // Calculate the absolute x offset of the top-left vertex.
   if(col_size_changed_)
@@ -4604,16 +4582,16 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   y_abs += y1;
 
   // Adjust start col for offsets that are greater than the col width.
-  while(x1 >= static_cast<int32_t>(size_col(col_start, anchor)))
+  while(std::cmp_greater_equal(x1, static_cast<int32_t>(size_col(col_start, anchor))))
   {
-    x1 -= size_col(col_start, ignore_anchor);
+    x1 -= static_cast<int32_t>(size_col(col_start, ignore_anchor));
     col_start++;
   }
 
   // Adjust start row for offsets that are greater than the row height.
-  while(y1 >= static_cast<int32_t>(size_row(row_start, anchor)))
+  while(std::cmp_greater_equal(y1, static_cast<int32_t>(size_row(row_start, anchor))))
   {
-    y1 -= size_row(row_start, ignore_anchor);
+    y1 -= static_cast<int32_t>(size_row(row_start, ignore_anchor));
     row_start++;
   }
 
@@ -4833,12 +4811,12 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
   position_object_emus(object_props, drawing_object);
 
   // Convert from pixels to emus.
-  drawing_object.width_  = static_cast<uint32_t>(0.5 + width * 9525);
-  drawing_object.height_ = static_cast<uint32_t>(0.5 + height * 9525);
+  drawing_object.width_  = static_cast<uint32_t>(0.5 + (width * 9525));
+  drawing_object.height_ = static_cast<uint32_t>(0.5 + (height * 9525));
 
   if(!object_props.url_.empty())
   {
-    std::string url = object_props.url_;
+    const std::string url = object_props.url_;
 
     // Check the link type. Default to external hyperlinks.
     // TODO Remove this useless variable.
@@ -4861,7 +4839,7 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
     }
     else if(link_type == cell_types_t::HYPERLINK_EXTERNAL)
     {
-      std::string url_copy = url.substr(sizeof("external"));
+      const std::string url_copy = url.substr(sizeof("external"));
 
       // Look for Windows style "C:/" link or Windows share "\\" link.
       size_t found_string = url_copy.find(':');
@@ -4911,6 +4889,7 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
   }
 
   drawing_object.rel_index_ = get_drawing_rel_index(object_props.md5_);
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   drawing_->add_drawing_object(drawing_object);
 }
 
@@ -4988,8 +4967,8 @@ void worksheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, obje
   drawing_object.decorative_    = object_props.decorative_;
 
   // Scale to user scale.
-  double width  = object_props.width_ * object_props.x_scale_;
-  double height = object_props.height_ * object_props.y_scale_;
+  const double width  = object_props.width_ * object_props.x_scale_;
+  const double height = object_props.height_ * object_props.y_scale_;
 
   // Convert to the nearest pixel.
   object_props.width_  = width;
@@ -4998,9 +4977,10 @@ void worksheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, obje
   position_object_emus(object_props, drawing_object);
 
   // Convert from pixels to emus.
-  drawing_object.width_  = static_cast<uint32_t>(0.5 + width * 9525);
-  drawing_object.height_ = static_cast<uint32_t>(0.5 + height * 9525);
+  drawing_object.width_  = static_cast<uint32_t>(0.5 + (width * 9525));
+  drawing_object.height_ = static_cast<uint32_t>(0.5 + (height * 9525));
 
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   drawing_->add_drawing_object(drawing_object);
   drawing_links_.emplace_back("/chart", std::format("../charts/chart{}.xml", chart_ref_id), "");
 }
@@ -5275,18 +5255,22 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
 
   // TODO To get same size as example of libxslxwrter, to check if we keep it
   // Convert column width from user units to character width.
-  double max_digit_width = 7.0; // For Calabri 11.
-  double padding         = 5.0;
+  const double max_digit_width = 7.0; // For Calabri 11.
+  const double padding         = 5.0;
 
   if(width > 0)
   {
     if(width < 1)
     {
-      width = (uint16_t)(((uint16_t)(width * (max_digit_width + padding) + 0.5)) / max_digit_width * 256.0) / 256.0;
+      width = static_cast<uint16_t>((static_cast<uint16_t>((width * (max_digit_width + padding)) + 0.5)) /
+                                    max_digit_width * 256.0) /
+              256.0;
     }
     else
     {
-      width = (uint16_t)(((uint16_t)(width * max_digit_width + 0.5) + padding) / max_digit_width * 256.0) / 256.0;
+      width = static_cast<uint16_t>((static_cast<uint16_t>((width * max_digit_width) + 0.5) + padding) /
+                                    max_digit_width * 256.0) /
+              256.0;
     }
   }
 
@@ -5294,7 +5278,7 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   attributes.emplace_back("max", std::to_string(options.lastcol_ + 1));
   attributes.emplace_back("width", std::format("{}", width));
 
-  if(xf_index)
+  if(xf_index != 0)
   {
     attributes.emplace_back("style", std::to_string(xf_index));
   }
@@ -5460,8 +5444,6 @@ std::string worksheet_t::write_print_options() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  std::string xml_data;
-
   if(!print_options_changed_)
   {
     return "";
@@ -5566,7 +5548,7 @@ std::string worksheet_t::write_page_setup() const
   }
 
   // Set start page active flag.
-  if(page_start_)
+  if(page_start_ != 0)
   {
     attributes.emplace_back("useFirstPageNumber", "1");
   }
@@ -5825,7 +5807,7 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
     attributes.emplace_back("spans", spans);
   }
 
-  if(xf_index)
+  if(xf_index != 0)
   {
     attributes.emplace_back("s", std::to_string(xf_index));
   }
@@ -5905,7 +5887,7 @@ std::string worksheet_t::write_rows() const
     else
     {
       // Row and cell data.
-      if(static_cast<int32_t>(row.row_num_ / 16) > block_num)
+      if(std::cmp_greater(row.row_num_ / 16, block_num))
       {
         spans = calculate_spans(it, std::end(table_.rbh_root_), block_num);
       }
@@ -6628,7 +6610,7 @@ std::string worksheet_t::write_cf_rule(cond_format_obj_t& cond_format)
 std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format) const
 {
   // TODO Add conversion function
-  const std::string operators[] = {
+  const std::vector<std::string> operators{
     "none",    "equal",      "notEqual", "greaterThan", "lessThan", "greaterThanOrEqual", "lessThanOrEqual",
     "between", "notBetween",
   };
@@ -6682,14 +6664,14 @@ std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   // TODO Add conversion function
-  const std::string operators[] = {
+  const std::vector<std::string> operators{
     "containsText",
     "notContains",
     "beginsWith",
     "endsWith",
   };
-  conditional_criteria_t criteria = cond_format.criteria_;
 
+  const conditional_criteria_t criteria = cond_format.criteria_;
   if(criteria == conditional_criteria_t::TEXT_CONTAINING)
   {
     attributes.emplace_back("type", "containsText");
@@ -6719,7 +6701,7 @@ std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format
     attributes.emplace_back("stopIfTrue", "1");
   }
 
-  size_t pos = static_cast<size_t>(criteria) - static_cast<size_t>(conditional_criteria_t::TEXT_CONTAINING);
+  const size_t pos = static_cast<size_t>(criteria) - static_cast<size_t>(conditional_criteria_t::TEXT_CONTAINING);
   attributes.emplace_back("operator", operators[pos]);
 
   attributes.emplace_back("text", cond_format.min_value_string_);
@@ -6820,7 +6802,7 @@ std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_for
 
 std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond_format) const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  const std::vector<std::tuple<std::string, std::string>> attributes{
     {"type",     cond_format.type_string_                 },
     {"priority", std::to_string(cond_format.dxf_priority_)}
   };
@@ -6874,7 +6856,7 @@ std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond
 
 std::string worksheet_t::write_cf_rule_data_bar(cond_format_obj_t& cond_format)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  const std::vector<std::tuple<std::string, std::string>> attributes{
     {"type",     cond_format.type_string_                 },
     {"priority", std::to_string(cond_format.dxf_priority_)}
   };
@@ -6944,7 +6926,7 @@ std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_forma
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
   };
-  const std::string time_periods[] = {
+  const std::vector<std::string> time_periods{
     "yesterday", "today",    "tomorrow",  "last7Days", "lastWeek",
     "thisWeek",  "nextWeek", "lastMonth", "thisMonth", "nextMonth",
   };
@@ -6956,7 +6938,7 @@ std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_forma
 
   attributes.emplace_back("priority", std::to_string(cond_format.dxf_priority_));
 
-  size_t pos =
+  const size_t pos =
     static_cast<size_t>(cond_format.criteria_) - static_cast<size_t>(conditional_criteria_t::TIME_PERIOD_YESTERDAY);
   attributes.emplace_back("timePeriod", time_periods[pos]);
 
@@ -7138,7 +7120,7 @@ std::string worksheet_t::write_cf_rule_top(cond_format_obj_t& cond_format) const
 
 std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format) const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  const std::vector<std::tuple<std::string, std::string>> attributes{
     {"type",     cond_format.type_string_                 },
     {"priority", std::to_string(cond_format.dxf_priority_)}
   };
@@ -7155,7 +7137,7 @@ std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  const std::string icon_set[] = {
+  const std::vector<std::string> icon_set{
     "3Arrows",        "3ArrowsGray", "3Flags",      "3TrafficLights", "3TrafficLights2", "3Signs",
     "3Symbols",       "3Symbols2",   "4Arrows",     "4ArrowsGray",    "4RedToBlack",     "4Rating",
     "4TrafficLights", "5Arrows",     "5ArrowsGray", "5Rating",        "5Quarters",
@@ -7166,12 +7148,12 @@ std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format) const
     attributes.emplace_back("iconSet", icon_set[static_cast<size_t>(cond_format.icon_style_)]);
   }
 
-  if(cond_format.reverse_icons_ == true)
+  if(cond_format.reverse_icons_)
   {
     attributes.emplace_back("reverse", "1");
   }
 
-  if(cond_format.icons_only_ == true)
+  if(cond_format.icons_only_)
   {
     attributes.emplace_back("showValue", "0");
   }
@@ -7650,7 +7632,6 @@ std::string worksheet_t::write_panes()
   switch(panes_.type_)
   {
     case pane_types_t::FREEZE_PANES:
-      return write_freeze_panes();
     case pane_types_t::FREEZE_SPLIT_PANES:
       return write_freeze_panes();
     case pane_types_t::SPLIT_PANES:
@@ -7663,10 +7644,10 @@ std::string worksheet_t::write_panes()
 
 std::string worksheet_t::write_freeze_panes()
 {
-  row_num_t row      = panes_.first_row_;
-  col_num_t col      = panes_.first_col_;
-  row_num_t top_row  = panes_.top_row_;
-  col_num_t left_col = panes_.left_col_;
+  const row_num_t row_num  = panes_.first_row_;
+  const col_num_t col_num  = panes_.first_col_;
+  const row_num_t top_row  = panes_.top_row_;
+  const col_num_t left_col = panes_.left_col_;
 
   // If there is a user selection we remove it from the list and use it.
   selection_t user_selection;
@@ -7676,16 +7657,16 @@ std::string worksheet_t::write_freeze_panes()
     selections_.pop_front();
   }
 
-  std::string top_left_cell = rowcol_to_cell(top_row, left_col);
+  const std::string top_left_cell = rowcol_to_cell(top_row, left_col);
   std::string active_pane;
 
   // Set the active pane.
-  if(row != 0 && col != 0)
+  if(row_num != 0 && col_num != 0)
   {
     active_pane = "bottomRight";
 
-    std::string row_cell = rowcol_to_cell(row, 0);
-    std::string col_cell = rowcol_to_cell(0, col);
+    const std::string row_cell = rowcol_to_cell(row_num, 0);
+    const std::string col_cell = rowcol_to_cell(0, col_num);
 
     selection_t selection;
     selection.pane_        = "topRight";
@@ -7703,7 +7684,7 @@ std::string worksheet_t::write_freeze_panes()
     selection.sqref_       = user_selection.sqref_;
     selections_.push_back(selection);
   }
-  else if(col != 0)
+  else if(col_num != 0)
   {
     active_pane = "topRight";
 
@@ -7725,14 +7706,14 @@ std::string worksheet_t::write_freeze_panes()
   }
 
   std::vector<std::tuple<std::string, std::string>> attributes;
-  if(col != 0)
+  if(col_num != 0)
   {
-    attributes.emplace_back("xSplit", std::to_string(col));
+    attributes.emplace_back("xSplit", std::to_string(col_num));
   }
 
-  if(row != 0)
+  if(row_num != 0)
   {
-    attributes.emplace_back("ySplit", std::to_string(row));
+    attributes.emplace_back("ySplit", std::to_string(row_num));
   }
 
   attributes.emplace_back("topLeftCell", top_left_cell);
@@ -7752,13 +7733,13 @@ std::string worksheet_t::write_freeze_panes()
 
 std::string worksheet_t::write_split_panes()
 {
-  row_num_t row      = panes_.first_row_;
-  col_num_t col      = panes_.first_col_;
-  row_num_t top_row  = panes_.top_row_;
-  col_num_t left_col = panes_.left_col_;
-  double x_split     = panes_.x_split_;
-  double y_split     = panes_.y_split_;
-  bool has_selection = false;
+  const row_num_t row_num = panes_.first_row_;
+  const col_num_t col_num = panes_.first_col_;
+  row_num_t top_row       = panes_.top_row_;
+  col_num_t left_col      = panes_.left_col_;
+  double x_split          = panes_.x_split_;
+  double y_split          = panes_.y_split_;
+  bool has_selection      = false;
 
   // If there is a user selection we remove it from the list and use it.
   selection_t user_selection;
@@ -7772,7 +7753,7 @@ std::string worksheet_t::write_split_panes()
   // Convert the row and col to 1/20 twip units with padding.
   if(y_split > 0.0)
   {
-    y_split = static_cast<uint32_t>(20 * y_split + 300);
+    y_split = static_cast<uint32_t>((20 * y_split) + 300);
   }
 
   if(x_split > 0.0)
@@ -7783,13 +7764,13 @@ std::string worksheet_t::write_split_panes()
   // For non-explicit topLeft definitions, estimate the cell offset based on
   // the pixels dimensions. This is only a workaround and doesn't take
   // adjusted cell dimensions into account.
-  if(top_row == row && left_col == col)
+  if(top_row == row_num && left_col == col_num)
   {
-    top_row  = static_cast<row_num_t>(0.5 + (y_split - 300.0) / 20.0 / 15.0);
-    left_col = static_cast<col_num_t>(0.5 + (x_split - 390.0) / 20.0 / 3.0 / 16.0);
+    top_row  = static_cast<row_num_t>(0.5 + ((y_split - 300.0) / 20.0 / 15.0));
+    left_col = static_cast<col_num_t>(0.5 + ((x_split - 390.0) / 20.0 / 3.0 / 16.0));
   }
 
-  std::string top_left_cell = rowcol_to_cell(top_row, left_col);
+  const std::string top_left_cell = rowcol_to_cell(top_row, left_col);
 
   // If there is no selection set the active cell to the top left cell.
   if(!has_selection)
@@ -7804,8 +7785,8 @@ std::string worksheet_t::write_split_panes()
   {
     active_pane = "bottomRight";
 
-    std::string row_cell = rowcol_to_cell(top_row, 0);
-    std::string col_cell = rowcol_to_cell(0, left_col);
+    const std::string row_cell = rowcol_to_cell(top_row, 0);
+    const std::string col_cell = rowcol_to_cell(0, left_col);
 
     selection_t selection;
     selection.pane_        = "topRight";

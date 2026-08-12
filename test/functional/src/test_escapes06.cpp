@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   xwpp::format_t* num_format   = workbook.add_format();
 
-  num_format->set_num_format("[Red]0.0%\\ \"a\"");
+  num_format->set_num_format(R"([Red]0.0%\ "a")");
 
   worksheet.set_column(0, 0, 14);
 

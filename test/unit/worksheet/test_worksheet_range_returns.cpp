@@ -11,20 +11,20 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
 BOOST_AUTO_TEST_CASE(bound_checks)
 {
-  xwpp::row_num_t MAX_ROW = 1048576;
-  xwpp::col_num_t MAX_COL = 16384;
+  const xwpp::row_num_t MAX_ROW = 1048576;
+  const xwpp::col_num_t MAX_COL = 16384;
 
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::format_t* format       = workbook.add_format();
+  const xwpp::format_t* format = workbook.add_format();
   worksheet.select();
 
   BOOST_CHECK_THROW(worksheet.write_number(0, MAX_COL, 123), xwpp::xwpp_exception_t);

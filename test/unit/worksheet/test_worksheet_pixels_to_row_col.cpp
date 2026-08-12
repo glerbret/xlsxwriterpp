@@ -10,25 +10,28 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
+namespace
+{
+
 uint32_t width_to_pixels(double width)
 {
-  double max_digit_width = 7.0;
-  double padding         = 5.0;
-  double pixels;
+  const double max_digit_width = 7.0;
+  const double padding         = 5.0;
+  double pixels                = 0.;
 
   if(width < 1.0)
   {
-    pixels = static_cast<uint32_t>(width * (max_digit_width + padding) + 0.5);
+    pixels = static_cast<uint32_t>((width * (max_digit_width + padding)) + 0.5);
   }
   else
   {
-    pixels = static_cast<uint32_t>(width * max_digit_width + 0.5) + 5;
+    pixels = static_cast<uint32_t>((width * max_digit_width + 0.5)) + 5;
   }
 
   return static_cast<uint32_t>(pixels);
@@ -37,6 +40,8 @@ uint32_t width_to_pixels(double width)
 uint32_t height_to_pixels(double height)
 {
   return static_cast<uint32_t>(height / 0.75);
+}
+
 }
 
 BOOST_AUTO_TEST_CASE(pixel_to_width, *boost::unit_test::tolerance(0.00001))

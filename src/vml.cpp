@@ -19,19 +19,19 @@
 namespace xwpp
 {
 
-vml_t::vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& image_objs, uint32_t vml_shape_id)
+vml_t::vml_t(std::string vml_data_id_str, const std::vector<vml_obj_t>& image_objs, uint32_t vml_shape_id)
   : image_objs_{image_objs}
-  , vml_data_id_str_{vml_data_id_str}
+  , vml_data_id_str_{std::move(vml_data_id_str)}
   , vml_shape_id_{vml_shape_id}
 {
 }
 
-vml_t::vml_t(const std::string& vml_data_id_str, const std::vector<vml_obj_t>& comment_objs,
+vml_t::vml_t(std::string vml_data_id_str, const std::vector<vml_obj_t>& comment_objs,
              const std::vector<vml_obj_t>& button_objs, uint32_t vml_shape_id,
              comment_display_t comment_display_default)
   : button_objs_{button_objs}
   , comment_objs_{comment_objs}
-  , vml_data_id_str_{vml_data_id_str}
+  , vml_data_id_str_{std::move(vml_data_id_str)}
   , vml_shape_id_{vml_shape_id}
   , comment_display_default_{comment_display_default}
 {
@@ -104,7 +104,7 @@ std::string vml_t::write_shapelayout() const
 
 std::string vml_t::write_idmap() const
 {
-  return std::format("<o:idmap v:ext=\"edit\" data=\"{}\"/>", vml_data_id_str_);
+  return std::format(R"(<o:idmap v:ext="edit" data="{}"/>)", vml_data_id_str_);
 }
 
 std::string vml_t::write_comment_shapetype() const
@@ -164,7 +164,8 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
                                                      "width:{}pt;"
                                                      "height:{}pt;"
                                                      "z-index:{};"
-                                                     "visibility:{}", vml_obj.col_absolute_ * 0.75, vml_obj.row_absolute_ * 0.75,
+                                                     "visibility:{}", static_cast<double>(vml_obj.col_absolute_) * 0.75,
+                                static_cast<double>(vml_obj.row_absolute_) * 0.75,
                                 vml_obj.width_ * 0.75, vml_obj.height_ * 0.75, z_index, visible)},
                                {"fillcolor", fillcolor},
                                {"o:insetmode", "auto"},
@@ -345,8 +346,8 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
   double height = image_obj.height_ * (72.0 / image_obj.y_dpi_);
 
   // Excel uses a rounding based around 72 and 96 dpi.
-  width  = 72.0 / 96.0 * static_cast<uint32_t>(width * 96.0 / 72 + 0.25);
-  height = 72.0 / 96.0 * static_cast<uint32_t>(height * 96.0 / 72 + 0.25);
+  width  = 72.0 / 96.0 * static_cast<uint32_t>((width * 96.0 / 72) + 0.25);
+  height = 72.0 / 96.0 * static_cast<uint32_t>((height * 96.0 / 72) + 0.25);
 
   std::string xml_data = xml_start_tag(
     "v:shape", {
@@ -429,8 +430,8 @@ std::string vml_t::write_button_shape(uint32_t vml_shape_id, uint32_t z_index, c
     "style",
     std::format(
       "position:absolute;margin-left:{}pt;margin-top:{}pt;width:{}pt;height:{}pt;z-index:{};mso-wrap-style:tight",
-      vml_obj.col_absolute_ * 0.75, vml_obj.row_absolute_ * 0.75, vml_obj.width_ * 0.75, vml_obj.height_ * 0.75,
-      z_index));
+      static_cast<double>(vml_obj.col_absolute_) * 0.75, static_cast<double>(vml_obj.row_absolute_) * 0.75,
+      static_cast<double>(vml_obj.width_) * 0.75, static_cast<double>(vml_obj.height_) * 0.75, z_index));
   attributes.emplace_back("o:button", "t");
   attributes.emplace_back("fillcolor", "buttonFace [67]");
   attributes.emplace_back("strokecolor", "windowText [64]");

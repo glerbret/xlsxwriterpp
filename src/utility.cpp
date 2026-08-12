@@ -14,12 +14,13 @@
 #include <algorithm>
 #include <chrono>
 #include <format>
+#include <ranges>
 #include <vector>
 
 namespace xwpp
 {
 
-std::string lxw_version()
+std::string version()
 {
   return XWPP_VERSION;
 }
@@ -130,7 +131,7 @@ std::string rowcol_to_range(row_num_t first_row, col_num_t first_col, row_num_t 
 std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   // Add the first cell to the range.
-  std::string range = rowcol_to_cell_abs(first_row, first_col, 1, 1);
+  std::string range = rowcol_to_cell_abs(first_row, first_col, true, true);
 
   // If the start and end cells are the same just return a single cell.
   if(first_row == last_row && first_col == last_col)
@@ -142,7 +143,7 @@ std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_nu
   range += ':';
 
   // Add the first cell to the range.
-  range += rowcol_to_cell_abs(last_row, last_col, 1, 1);
+  range += rowcol_to_cell_abs(last_row, last_col, true, true);
 
   return range;
 }
@@ -173,29 +174,25 @@ std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_
   return formula;
 }
 
-// TODO string
-row_num_t name_to_row(const char* row_str)
+row_num_t name_to_row(std::string_view row_str)
 {
   row_num_t row_num = 0;
 
-  if(!row_str)
+  if(row_str.empty())
   {
     return row_num;
   }
 
   // Skip the column letters and absolute symbol of the A1 cell.
-  while(*row_str && !isdigit((unsigned char)*row_str))
-  {
-    row_str++;
-  }
+  const auto found = row_str.find_first_of("0123456789");
 
   // Convert the row part of the A1 cell to a number.
-  if(*row_str)
+  if(found != std::string_view::npos)
   {
-    row_num = atoi(row_str);
+    row_num = std::stoul(std::string{row_str.substr(found)});
   }
 
-  if(row_num)
+  if(row_num != 0)
   {
     row_num--;
   }
@@ -203,22 +200,18 @@ row_num_t name_to_row(const char* row_str)
   return row_num;
 }
 
-uint32_t name_to_row_2(const char* row_str)
+uint32_t name_to_row_2(std::string_view row_str)
 {
-  if(!row_str)
+  if(row_str.empty())
   {
     return 0;
   }
 
   // Find the : separator in the range.
-  while(*row_str && *row_str != ':')
+  const auto found = row_str.find_first_of(':');
+  if(found != std::string_view::npos)
   {
-    row_str++;
-  }
-
-  if(*row_str)
-  {
-    return name_to_row(++row_str);
+    return name_to_row(row_str.substr(found + 1));
   }
   else
   {
@@ -226,27 +219,33 @@ uint32_t name_to_row_2(const char* row_str)
   }
 }
 
-// TODO String
-col_num_t name_to_col(const char* col_str)
+col_num_t name_to_col(std::string_view col_str)
 {
   col_num_t col_num = 0;
 
-  if(!col_str)
+  if(col_str.empty())
   {
     return col_num;
   }
 
-  // Convert leading column letters of A1 cell. Ignore absolute $ marker.
-  while(*col_str && (isupper((unsigned char)*col_str) || *col_str == '$'))
+  for(const auto c: col_str)
   {
-    if(*col_str != '$')
+    if(isupper(c) != 0)
     {
-      col_num = (col_num * 26) + (*col_str - 'A' + 1);
+      col_num = (col_num * 26) + (c - 'A' + 1);
     }
-    col_str++;
+    else if(c == '$')
+    {
+      // NOP
+    }
+    else
+    {
+      // Stop the reading
+      break;
+    }
   }
 
-  if(col_num)
+  if(col_num != 0)
   {
     col_num--;
   }
@@ -254,22 +253,18 @@ col_num_t name_to_col(const char* col_str)
   return col_num;
 }
 
-uint16_t name_to_col_2(const char* col_str)
+uint16_t name_to_col_2(std::string_view col_str)
 {
-  if(!col_str)
+  if(col_str.empty())
   {
     return 0;
   }
 
   // Find the : separator in the range.
-  while(*col_str && *col_str != ':')
+  const auto found = col_str.find_first_of(':');
+  if(found != std::string_view::npos)
   {
-    col_str++;
-  }
-
-  if(*col_str)
-  {
-    return name_to_col(++col_str);
+    return name_to_col(col_str.substr(found + 1));
   }
   else
   {
@@ -291,15 +286,15 @@ std::string dup_formula(const std::string& formula)
 
 double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
 {
-  const auto dp = std::chrono::floor<std::chrono::days>(datetime);
-  const std::chrono::year_month_day ymd{dp};
-  const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - dp)};
-  int year         = static_cast<int>(ymd.year());
-  int month        = static_cast<unsigned int>(ymd.month());
-  int day          = static_cast<unsigned int>(ymd.day());
-  const int hour   = time.hours().count();
-  const int min    = time.minutes().count();
-  const double sec = time.seconds().count() + time.subseconds().count() / 1000.0;
+  const auto date = std::chrono::floor<std::chrono::days>(datetime);
+  const std::chrono::year_month_day ymd{date};
+  const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - date)};
+  auto year        = static_cast<int>(ymd.year());
+  auto month       = static_cast<unsigned int>(ymd.month());
+  auto day         = static_cast<unsigned int>(ymd.day());
+  const int hour   = static_cast<int>(time.hours().count());
+  const int min    = static_cast<int>(time.minutes().count());
+  const double sec = static_cast<double>(time.seconds().count()) + (static_cast<double>(time.subseconds().count()) / 1000.0);
   const int epoch  = use_1904_epoch ? 1904 : 1900;
   const int offset = use_1904_epoch ? 4 : 0;
   const int norm   = 300;
@@ -377,7 +372,7 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
     days += mdays[i];
   }
   // Add days for current month.
-  days += day;
+  days += static_cast<int>(day);
   // Add days for all previous years.
   days += range * 365;
   // Add 4 year leapdays.
@@ -468,10 +463,8 @@ double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& d
 
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 {
-  double excel_datetime = 0.0;
-  double epoch          = use_1904_epoch ? 24107.0 : 25568.0;
-
-  excel_datetime = epoch + (unixtime / (24 * 60 * 60.0));
+  const double epoch    = use_1904_epoch ? 24107.0 : 25568.0;
+  double excel_datetime = epoch + (static_cast<double>(unixtime) / (24 * 60 * 60.0));
 
   if(!use_1904_epoch && excel_datetime >= 60.0)
   {
@@ -494,15 +487,15 @@ uint16_t hash_password(const std::string& password)
   }
 
   uint16_t hash = 0;
-  for(auto it = std::crbegin(password); it != std::crend(password); ++it)
+  for(const unsigned char c : std::ranges::reverse_view(password))
   {
-    hash = ((hash >> 14) & 0x01) | ((hash << 1) & 0x7fff);
-    hash ^= *it & 0xFF;
+    hash = (static_cast<uint16_t>(hash >> 14U) & 0x01U) | (static_cast<uint16_t>(hash << 1U) & 0x7fffU);
+    hash ^= c & 0xFFU;
   }
 
-  hash = ((hash >> 14) & 0x01) | ((hash << 1) & 0x7fff);
+  hash = (static_cast<uint16_t>(hash >> 14U) & 0x01U) | (static_cast<uint16_t>(hash << 1U) & 0x7fffU);
   hash ^= password.size();
-  hash ^= 0xCE4B;
+  hash ^= 0xCE4BU;
 
   return hash;
 }
@@ -511,7 +504,7 @@ std::string to_lower(const std::string& str)
 {
   std::string lower_str;
 
-  std::transform(std::begin(str), std::end(str), std::back_inserter(lower_str),
+  std::ranges::transform(str, std::back_inserter(lower_str),
                  [](unsigned char c) { return std::tolower(c); });
 
   return lower_str;

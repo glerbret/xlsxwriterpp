@@ -43,7 +43,7 @@ int main()
   worksheet04.freeze_panes(CELL("C1"));
   worksheet05.freeze_panes(CELL("B2"));
   worksheet06.freeze_panes(CELL("G4"));
-  worksheet07.freeze_panes(3, 6, 3, 6, 1);
+  worksheet07.freeze_panes(3, 6, 3, 6, true);
   worksheet08.split_panes(15, 0);
   worksheet09.split_panes(30, 0);
   worksheet10.split_panes(0, 8.46);

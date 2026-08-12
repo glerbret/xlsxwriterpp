@@ -10,9 +10,9 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(condtional_format03a)
   worksheet.write_number(CELL("A3"), 30);
   worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format1{
+  const xwpp::conditional_format_t conditional_format1{
     .type_      = xwpp::conditional_format_types_t::CELL,
     .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
     .min_value_ = 20,
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(condtional_format03a)
   };
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format1);
 
-  xwpp::conditional_format_t conditional_format2{
+  const xwpp::conditional_format_t conditional_format2{
     .type_      = xwpp::conditional_format_types_t::CELL,
     .criteria_  = xwpp::conditional_criteria_t::NOT_BETWEEN,
     .min_value_ = 20,
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(condtional_format03b)
   worksheet.write_number(CELL("A3"), 30);
   worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format1{
+  const xwpp::conditional_format_t conditional_format1{
     .type_             = xwpp::conditional_format_types_t::CELL,
     .criteria_         = xwpp::conditional_criteria_t::BETWEEN,
     .min_value_string_ = "$B$1",
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(condtional_format03b)
   };
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format1);
 
-  xwpp::conditional_format_t conditional_format2{
+  const xwpp::conditional_format_t conditional_format2{
     .type_             = xwpp::conditional_format_types_t::CELL,
     .criteria_         = xwpp::conditional_criteria_t::NOT_BETWEEN,
     .min_value_string_ = "$B$1",

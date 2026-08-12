@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options = {.description_ = "Some text"};
+  const xwpp::image_options_t options{.description_ = "Some text"};
 
   worksheet.insert_image(CELL("E9"), "images/red.png", options);
 

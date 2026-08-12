@@ -30,7 +30,7 @@ To do this we can extend our program as follows:
 @until }
 
 The main difference between this and the previous program is that we have
-added a new xwpp::format_t object for dates and we have additional
+added a new `format_t` object for dates and we have additional
 handling for the date information.
 
 We have also extended the data that we are going to write to include a
@@ -44,30 +44,30 @@ shortly.
 
 Excel treats different types of input data, such as strings and numbers,
 differently although it generally does it transparently to the user.
-`Xlsxwriter++` tries to emulate this in the `xwpp::worksheet_t::write_*()` functions by
+`Xlsxwriter++` tries to emulate this in the `worksheet_t::write_*()` functions by
 mapping C++ data types to types that Excel supports.
 
-- xwpp::worksheet_t::write_string()
-- xwpp::worksheet_t::write_number()
-- xwpp::worksheet_t::write_formula()
-- xwpp::worksheet_t::write_datetime()
-- xwpp::worksheet_t::write_blank()
+- `worksheet_t::write_string()`
+- `worksheet_t::write_number()`
+- `worksheet_t::write_formula()`
+- `worksheet_t::write_datetime()`
+- `worksheet_t::write_blank()`
 
 In this version of our program we have used some of these functions for
 different types of data:
 
 @dontinclude tutorial3.cpp
-@skipline expenses[i].item
-@until    expenses[i].cost
+@skipline value.item
+@until    value.cost
 
 The handling of dates is also new to our program.
 
 Dates and times in Excel are floating point numbers that have a number format
 applied to display them in the correct format. `Xlsxwriter++` provides the
-xwpp::worksheet_t::write_datetime() and the lxw_datetime struct help to convert dates
+`worksheet_t::write_datetime()` and the lxw_datetime struct help to convert dates
 and times into Excel date and time numbers.
 
-The xwpp::worksheet_t::write_datetime() function converts the lxw_datetime struct to a
+The `worksheet_t::write_datetime()` function converts the lxw_datetime struct to a
 number that represents an Excel date but we also need to add the number format
 to ensure that Excel displays it as as date:
 

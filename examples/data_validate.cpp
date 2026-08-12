@@ -19,6 +19,9 @@
 
 using namespace std::literals::chrono_literals;
 
+namespace
+{
+
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* format)
 {
   worksheet.write_string(CELL("A1"), "Some examples of data validation in Xlsxwriter++", format);
@@ -38,6 +41,8 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* fo
   worksheet.write_formula(CELL("E5"), "=AND(F5=50,G5=60)");
   worksheet.write_number(CELL("F5"), 50);
   worksheet.write_number(CELL("G5"), 60);
+}
+
 }
 
 int main()

@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options = {.x_scale_ = 0.5, .y_scale_ = 0.5};
+  const xwpp::image_options_t options{.x_scale_ = 0.5, .y_scale_ = 0.5};
 
   worksheet.insert_image(CELL("B3"), "images/grey.png", options);
 

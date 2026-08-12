@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <vector>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -17,13 +19,13 @@ int main()
   worksheet.set_column(COLS("C:F"), 10.288);
   worksheet.set_row(2, 39);
 
-  std::vector<xwpp::table_column_t> columns = {
+  const std::vector<xwpp::table_column_t> columns{
     {},
     {},
     {},
     {.header_ = "Column\n4", .header_format_ = wrap}
   };
-  xwpp::table_options_t options = {.columns_ = columns};
+  const xwpp::table_options_t options{.columns_ = columns};
 
   worksheet.add_table(RANGE("C3:F13"), options);
 

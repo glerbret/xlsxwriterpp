@@ -6,9 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;
@@ -24,7 +21,7 @@ int main()
   worksheet.write_comment(CELL("E10"), "Some text");
   worksheet.write_comment(CELL("G14"), "Some text");
 
-  /* Repeat above to check for overwrite leaks. */
+  // Repeat above to check for overwrite leaks.
   worksheet.write_string(CELL("A1"), "Foo");
   worksheet.write_string(CELL("C7"), "Bar");
   worksheet.write_string(CELL("G14"), "Baz");

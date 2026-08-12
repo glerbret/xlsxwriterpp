@@ -6,17 +6,14 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::comment_options_t options = {.color_ = xwpp::color_t(0x98FE97)};
+  const xwpp::comment_options_t options{.color_ = xwpp::color_t(0x98FE97)};
 
-  worksheet.write_string(CELL("A1"), "Foo", NULL);
+  worksheet.write_string(CELL("A1"), "Foo");
   worksheet.write_comment(CELL("B2"), "Some text", options);
 
   worksheet.set_comments_author("John");

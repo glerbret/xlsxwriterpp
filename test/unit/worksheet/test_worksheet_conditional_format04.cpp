@@ -10,9 +10,9 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
@@ -66,12 +66,12 @@ BOOST_AUTO_TEST_CASE(condtional_format04)
   worksheet.write_number(CELL("A3"), 30);
   worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format1{
+  const xwpp::conditional_format_t conditional_format1{
     .type_ = xwpp::conditional_format_types_t::DUPLICATE,
   };
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format1);
 
-  xwpp::conditional_format_t conditional_format2{
+  const xwpp::conditional_format_t conditional_format2{
     .type_ = xwpp::conditional_format_types_t::UNIQUE,
   };
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format2);

@@ -491,6 +491,7 @@ std::string drawing_t::write_ext(uint32_t cx, uint32_t cy) const
   });
 }
 
+// NOLINTNEXTLINE(readability-identifier-length)
 std::string drawing_t::write_pos(int32_t x, int32_t y) const
 {
   return xml_empty_tag("xdr:pos", {

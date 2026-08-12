@@ -146,7 +146,7 @@ int main()
   xwpp::chart_series_set_labels(series5);
 
   // Create some custom labels.
-  std::vector<xwpp::chart_data_label_t> data_labels5 = {
+  const std::vector<xwpp::chart_data_label_t> data_labels5 = {
     {.value_ = "Amy"}, {.value_ = "Bea"}, {.value_ = "Eva"}, {.value_ = "Fay"}, {.value_ = "Liv"}, {.value_ = "Una"},
   };
 
@@ -172,7 +172,7 @@ int main()
   xwpp::chart_series_set_labels(series6);
 
   // Create some custom labels.
-  std::vector<xwpp::chart_data_label_t> data_labels6 = {
+  const std::vector<xwpp::chart_data_label_t> data_labels6 = {
     {.value_ = "=Sheet1!$C$2"}, {.value_ = "=Sheet1!$C$3"}, {.value_ = "=Sheet1!$C$4"},
     {.value_ = "=Sheet1!$C$5"}, {.value_ = "=Sheet1!$C$6"}, {.value_ = "=Sheet1!$C$7"},
   };
@@ -201,7 +201,7 @@ int main()
   xwpp::chart_series_set_labels(series7);
 
   // Create some custom labels.
-  std::vector<xwpp::chart_data_label_t> data_labels7 = {
+  const std::vector<xwpp::chart_data_label_t> data_labels7 = {
     {.value_ = "=Sheet1!$C$2", .font_ = font2},
     {},
     {.value_ = "=Sheet1!$C$4", .font_ = font2},
@@ -230,9 +230,9 @@ int main()
   xwpp::chart_series_set_labels(series8);
 
   // Create some custom labels.
-  xwpp::chart_data_label_t hide                      = {.hide_ = true};
-  xwpp::chart_data_label_t keep                      = {.hide_ = false};
-  std::vector<xwpp::chart_data_label_t> data_labels8 = {
+  const xwpp::chart_data_label_t hide                      = {.hide_ = true};
+  const xwpp::chart_data_label_t keep                      = {.hide_ = false};
+  const std::vector<xwpp::chart_data_label_t> data_labels8 = {
     hide, keep, hide, hide, keep, hide,
   };
 
@@ -268,7 +268,7 @@ int main()
   xwpp::chart_series_set_labels_fill(series9, fill2);
 
   // Create some custom labels.
-  std::vector<xwpp::chart_data_label_t> data_labels9{
+  const std::vector<xwpp::chart_data_label_t> data_labels9{
     {.value_ = "Amy", .line_ = line3},
     {.value_ = "Bea"},
     {.value_ = "Eva"},

@@ -16,7 +16,7 @@ int main()
   worksheet.set_column(COLS("A:A"), 30);
   worksheet.write_string(2, 0, "Press the button to say hello.");
 
-  xwpp::button_options_t options = {.caption_ = "Press Me", .macro_ = "say_hello", .width_ = 80, .height_ = 30};
+  const xwpp::button_options_t options{.caption_ = "Press Me", .macro_ = "say_hello", .width_ = 80, .height_ = 30};
 
   worksheet.insert_button(2, 1, options);
 

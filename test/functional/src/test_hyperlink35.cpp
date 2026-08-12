@@ -11,10 +11,10 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options1 = {.url_ = "https://github.com/foo"};
-  xwpp::image_options_t options2 = {.url_ = "https://github.com/bar"};
-  xwpp::image_options_t options3 = {.url_ = "https://github.com/baz"};
-  xwpp::image_options_t options4 = {.url_ = "https://github.com/boo"};
+  const xwpp::image_options_t options1{.url_ = "https://github.com/foo"};
+  const xwpp::image_options_t options2{.url_ = "https://github.com/bar"};
+  const xwpp::image_options_t options3{.url_ = "https://github.com/baz"};
+  const xwpp::image_options_t options4{.url_ = "https://github.com/boo"};
 
   worksheet.insert_image(CELL("A1"), "images/blue.png", options1);
   worksheet.insert_image(CELL("B3"), "images/red.jpg", options2);

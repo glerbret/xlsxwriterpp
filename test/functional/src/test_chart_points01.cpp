@@ -6,7 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
 #include <vector>
 
 int main()
@@ -24,8 +23,8 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$6");
 
-  xwpp::chart_fill_t fill1                = {.color_ = xwpp::color_t::RED};
-  std::vector<xwpp::chart_point_t> points = {{.fill_ = fill1}};
+  const xwpp::chart_fill_t fill1{.color_ = xwpp::color_t::RED};
+  const std::vector<xwpp::chart_point_t> points{{.fill_ = fill1}};
 
   series_set_points(series, points);
 

@@ -36,10 +36,10 @@ enum class image_types_t
 // Coordinates used in a drawing object.
 struct drawing_coords_t
 {
-  uint32_t col_;
-  uint32_t row_;
-  double col_offset_;
-  double row_offset_;
+  uint32_t col_      = 0;
+  uint32_t row_      = 0;
+  double col_offset_ = 0.;
+  double row_offset_ = 0.;
 };
 
 // Object to represent the properties of a drawing.
@@ -49,16 +49,16 @@ struct drawing_object_t
   uint8_t anchor_       = 0; // TODO Use object_position_t (but crossed inclusion for the moment)
   drawing_coords_t from_;
   drawing_coords_t to_;
-  uint64_t col_absolute_;
-  uint64_t row_absolute_;
-  uint32_t width_;
-  uint32_t height_;
+  uint64_t col_absolute_  = 0;
+  uint64_t row_absolute_  = 0;
+  uint32_t width_         = 0;
+  uint32_t height_        = 0;
   // TODO ?     uint8_t shape;
-  uint32_t rel_index_;
-  uint32_t url_rel_index_;
+  uint32_t rel_index_     = 0;
+  uint32_t url_rel_index_ = 0;
   std::string description_;
   std::string tip_;
-  bool decorative_;
+  bool decorative_ = false;
 };
 
 class drawing_t
@@ -116,6 +116,7 @@ private:
   [[nodiscard]] std::string write_graphic_frame(uint32_t index, uint32_t rel_index,
                                                 const std::optional<drawing_object_t>& drawing_object) const;
   [[nodiscard]] std::string write_ext(uint32_t cx, uint32_t cy) const;
+  // NOLINTNEXTLINE(readability-identifier-length)
   [[nodiscard]] std::string write_pos(int32_t x, int32_t y) const;
 
   bool embedded_                     = true;

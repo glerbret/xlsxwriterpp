@@ -14,9 +14,9 @@ int main()
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  xwpp::row_col_options_t options3 = {.hidden_ = true, .level_ = 2, .collapsed_ = false};
-  xwpp::row_col_options_t options4 = {.hidden_ = true, .level_ = 1, .collapsed_ = false};
-  xwpp::row_col_options_t options5 = {.hidden_ = false, .level_ = 0, .collapsed_ = true};
+  const xwpp::row_col_options_t options3{.hidden_ = true, .level_ = 2, .collapsed_ = false};
+  const xwpp::row_col_options_t options4{.hidden_ = true, .level_ = 1, .collapsed_ = false};
+  const xwpp::row_col_options_t options5{.hidden_ = false, .level_ = 0, .collapsed_ = true};
 
   worksheet.set_column(COLS("A:A"), 20);
   worksheet.set_selection(RANGE("A14:A14"));

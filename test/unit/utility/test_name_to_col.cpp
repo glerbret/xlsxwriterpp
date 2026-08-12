@@ -14,7 +14,6 @@ BOOST_AUTO_TEST_SUITE(utility)
 
 BOOST_AUTO_TEST_CASE(name_to_col)
 {
-  BOOST_CHECK_EQUAL(0, xwpp::name_to_col(nullptr));
   BOOST_CHECK_EQUAL(0, xwpp::name_to_col(""));
   BOOST_CHECK_EQUAL(0, xwpp::name_to_col("1"));
   BOOST_CHECK_EQUAL(0, xwpp::name_to_col("A"));
@@ -37,7 +36,6 @@ BOOST_AUTO_TEST_CASE(name_to_col)
 
 BOOST_AUTO_TEST_CASE(name_to_col_2)
 {
-  BOOST_CHECK_EQUAL(0, xwpp::name_to_col_2(nullptr));
   BOOST_CHECK_EQUAL(0, xwpp::name_to_col_2(""));
   BOOST_CHECK_EQUAL(0, xwpp::name_to_col_2("AAA"));
   BOOST_CHECK_EQUAL(0, xwpp::name_to_col_2("AAA:"));

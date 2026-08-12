@@ -141,10 +141,10 @@ void packager_t::create_package(workbook_t& workbook)
 void packager_t::write_content_types_file(const workbook_t& workbook)
 {
   content_types_t content_types;
-  uint32_t worksheet_index  = 1;
-  uint32_t chartsheet_index = 1;
-  uint32_t drawing_count    = get_drawing_count(workbook);
-  uint32_t table_count      = get_table_count(workbook);
+  uint32_t worksheet_index     = 1;
+  uint32_t chartsheet_index    = 1;
+  const uint32_t drawing_count = get_drawing_count(workbook);
+  const uint32_t table_count   = get_table_count(workbook);
 
   if(workbook.has_png_)
   {
@@ -185,7 +185,7 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_override("/xl/vbaProjectSignature.bin", "application/vnd.ms-office.vbaProjectSignature");
   }
 
-  for(auto sheet: workbook.sheets_)
+  for(const auto& sheet: workbook.sheets_)
   {
     if(std::holds_alternative<chartsheet_t>(sheet))
     {
@@ -415,8 +415,8 @@ void packager_t::write_app_file(const workbook_t& workbook)
   uint32_t named_range_count = 0;
   for(const auto& defined_name: workbook.defined_names_)
   {
-    bool has_range  = defined_name.formula_.find('!') != std::string::npos;
-    bool autofilter = defined_name.app_name_.find("_FilterDatabase") != std::string::npos;
+    const bool has_range  = defined_name.formula_.find('!') != std::string::npos;
+    const bool autofilter = defined_name.app_name_.find("_FilterDatabase") != std::string::npos;
 
     // Only store defined names with ranges (except for autofilters).
     if(has_range && !autofilter)
@@ -620,10 +620,10 @@ void packager_t::write_comment_files(const workbook_t& workbook)
 
 void packager_t::write_drawing_files(const workbook_t& workbook)
 {
-  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  for(size_t index = 1; const auto& sheet: workbook.sheets_)
   {
-    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
-                                                                 : std::get<chartsheet_t>(sheet).worksheet_;
+    const auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
+                                                                       : std::get<chartsheet_t>(sheet).worksheet_;
     if(worksheet.drawing_)
     {
       const std::string xml_data = worksheet.drawing_->assemble_xml_file();
@@ -635,10 +635,10 @@ void packager_t::write_drawing_files(const workbook_t& workbook)
 
 void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 {
-  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  for(size_t index = 1; const auto& sheet: workbook.sheets_)
   {
-    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
-                                                                 : std::get<chartsheet_t>(sheet).worksheet_;
+    const auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
+                                                                       : std::get<chartsheet_t>(sheet).worksheet_;
     if(!worksheet.drawing_links_.empty())
     {
       relationships_t relationships;
@@ -656,11 +656,11 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 
 void packager_t::write_image_files(const workbook_t& workbook)
 {
-  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  for(size_t index = 1; const auto& sheet: workbook.sheets_)
   {
     if(std::holds_alternative<worksheet_t>(sheet))
     {
-      auto& worksheet = std::get<worksheet_t>(sheet);
+      const auto& worksheet = std::get<worksheet_t>(sheet);
 
       if(!worksheet.image_props_.empty() || !worksheet.embedded_image_props_.empty())
       {
@@ -672,7 +672,7 @@ void packager_t::write_image_files(const workbook_t& workbook)
             {
               // Read image.
               std::ifstream image_stream(object_props.filename_, std::ios::binary);
-              std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+              const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
               add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
             }
             else
@@ -692,7 +692,7 @@ void packager_t::write_image_files(const workbook_t& workbook)
             {
               // Read image.
               std::ifstream image_stream(object_props.filename_, std::ios::binary);
-              std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+              const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
               add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
             }
             else
@@ -758,7 +758,8 @@ void packager_t::write_metadata_file(const workbook_t& workbook)
 {
   if(workbook.has_metadata_)
   {
-    metadata_t metadata{workbook.has_dynamic_functions_, workbook.has_embedded_images_, workbook.num_embedded_images_};
+    const metadata_t metadata{workbook.has_dynamic_functions_, workbook.has_embedded_images_,
+                              workbook.num_embedded_images_};
 
     const std::string xml_data = metadata.assemble_xml_file();
     add_buffer_to_zip(xml_data, "xl/metadata.xml");
@@ -772,7 +773,8 @@ void packager_t::write_rich_value_file(const workbook_t& workbook)
     return;
   }
 
-  rich_value_t rich_value;
+  const rich_value_t rich_value;
+
   const std::string xml_data = rich_value.assemble_xml_file(workbook);
   add_buffer_to_zip(xml_data, "xl/richData/rdrichvalue.xml");
 }
@@ -781,7 +783,7 @@ void packager_t::write_rich_value_rel_file(const workbook_t& workbook)
 {
   if(workbook.has_embedded_images_)
   {
-    rich_value_rel_t rich_value_rel{workbook.num_embedded_images_};
+    const rich_value_rel_t rich_value_rel{workbook.num_embedded_images_};
 
     const std::string xml_data = rich_value_rel.assemble_xml_file();
     add_buffer_to_zip(xml_data, "xl/richData/richValueRel.xml");
@@ -792,7 +794,8 @@ void packager_t::write_rich_value_structure_file(const workbook_t& workbook)
 {
   if(workbook.has_embedded_images_)
   {
-    rich_value_structure_t rich_value_structure{workbook.has_embedded_image_descriptions_};
+    const rich_value_structure_t rich_value_structure{workbook.has_embedded_image_descriptions_};
+
     const std::string xml_data = rich_value_structure.assemble_xml_file();
     add_buffer_to_zip(xml_data, "xl/richData/rdrichvaluestructure.xml");
   }
@@ -802,7 +805,7 @@ void packager_t::write_rich_value_types_file(const workbook_t& workbook)
 {
   if(workbook.has_embedded_images_)
   {
-    rich_value_types_t rich_value_types;
+    const rich_value_types_t rich_value_types;
 
     const std::string xml_data = rich_value_types.assemble_xml_file();
     add_buffer_to_zip(xml_data, "xl/richData/rdRichValueTypes.xml");
@@ -830,9 +833,9 @@ void packager_t::write_table_files(const workbook_t& workbook)
       {
         for(const auto& table_obj: ws.table_objs_)
         {
-          table_t table{table_obj};
+          const table_t table{table_obj};
 
-          std::string xml_data = table.assemble_xml_file();
+          const std::string xml_data = table.assemble_xml_file();
           add_buffer_to_zip(xml_data, std::format("xl/tables/table{}.xml", index));
           index++;
         }
@@ -849,7 +852,7 @@ void packager_t::add_vba_project(const workbook_t& workbook)
   }
 
   std::ifstream vba_stream(workbook.vba_project_, std::ios::binary);
-  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_stream), {});
+  const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_stream), {});
   add_buffer_to_zip(buffer, "xl/vbaProject.bin");
 }
 
@@ -862,7 +865,7 @@ void packager_t::add_vba_project_signature(const workbook_t& workbook)
 
   // Check that the image file exists and can be opened.
   std::ifstream vba_signature_stream(workbook.vba_project_signature_, std::ios::binary);
-  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_signature_stream), {});
+  const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_signature_stream), {});
   add_buffer_to_zip(buffer, "xl/vbaProjectSignature.bin");
 }
 
@@ -885,12 +888,12 @@ void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& f
 {
   if(zipOpenNewFileInZip4_64(zipfile_, filename.c_str(), &zip_fileinfo_, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED,
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
-                             use_zip64_) != ZIP_OK)
+                             static_cast<int>(use_zip64_)) != ZIP_OK)
   {
     throw xwpp_exception_t(std::format("packager_t::add_buffer_to_zip(): error adding '{}' to zipfile", filename));
   }
 
-  if(zipWriteInFileInZip(zipfile_, buffer.data(), static_cast<unsigned long>(buffer.size())) < 0)
+  if(zipWriteInFileInZip(zipfile_, buffer.data(), static_cast<unsigned int>(buffer.size())) < 0)
   {
     throw xwpp_exception_t(
       std::format("packager_t::add_buffer_to_zip(): error in writing member '{}' to zipfile", filename));
@@ -907,13 +910,13 @@ void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std:
 {
   if(zipOpenNewFileInZip4_64(zipfile_, filename.c_str(), &zip_fileinfo_, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED,
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,
-                             use_zip64_) != ZIP_OK)
+                             static_cast<int>(use_zip64_)) != ZIP_OK)
   {
     throw xwpp_exception_t(
       std::format("packager_t::add_buffer_to_zip(): error adding member '{}' to zipfile", filename));
   }
 
-  if(zipWriteInFileInZip(zipfile_, buffer.data(), static_cast<unsigned long>(buffer.size())) < 0)
+  if(zipWriteInFileInZip(zipfile_, buffer.data(), static_cast<unsigned int>(buffer.size())) < 0)
   {
     throw xwpp_exception_t(
       std::format("packager_t::add_buffer_to_zip(): error in writing member '{}' to zipfile", filename));

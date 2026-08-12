@@ -6,8 +6,7 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
+#include <array>
 
 int main()
 {
@@ -18,27 +17,25 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(43495808, 43497728);
 
-  uint8_t data[5][3] = {
-    {1, 8,  3 },
-    {2, 7,  6 },
-    {3, 6,  9 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 8, 3}, {2, 7, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  xwpp::chart_layout_t layout_x = {
+  const xwpp::chart_layout_t layout_x = {
     .x_ = 0.346203193350831,
     .y_ = 0.850902595508894,
   };
@@ -46,7 +43,7 @@ int main()
   chart_axis_set_name(chart.x_axis_, "XXX");
   chart_axis_set_name_layout(chart.x_axis_, layout_x);
 
-  xwpp::chart_layout_t layout_y = {
+  const xwpp::chart_layout_t layout_y = {
     .x_ = 0.213888888888888,
     .y_ = 0.263499198016914,
   };

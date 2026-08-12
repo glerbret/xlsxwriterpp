@@ -20,23 +20,25 @@ int main()
     "Foobbl", "Foobbm", "Foobbn", "Foobbo", "Foobbp", "Foobbq", "Foobbr", "Foobbs", "Foobbt", "Foobbu",
     "Foobbv", "Foobbw", "Foobbx", "Foobby", "Foobbz", "Foobca", "End"};
 
-  xwpp::data_validation_t data_validation{
+  const xwpp::data_validation_t data_validation1{
     .validate_      = xwpp::validation_types_t::LIST,
     .value_list_    = list1,
     .input_title_   = "This is the input title",
     .input_message_ = "This is the input message",
   };
-  worksheet.data_validation_cell(CELL("C2"), data_validation);
+  worksheet.data_validation_cell(CELL("C2"), data_validation1);
 
-  data_validation.validate_    = xwpp::validation_types_t::LIST;
-  data_validation.value_list_  = list2;
-  // Next string exceeds Excel's limit so validation should be ignored.
-  data_validation.input_title_ = "This is the longest input title12";
-  data_validation.input_message_ =
-    "This is the longest input message "
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-  worksheet.data_validation_cell(CELL("D6"), data_validation);
+  const xwpp::data_validation_t data_validation2{
+    .validate_    = xwpp::validation_types_t::LIST,
+    .value_list_  = list2,
+    // Next string exceeds Excel's limit so validation should be ignored.
+    .input_title_ = "This is the longest input title12",
+    .input_message_ =
+      "This is the longest input message "
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  };
+  worksheet.data_validation_cell(CELL("D6"), data_validation2);
 
   workbook.save("test_data_validation04.xlsx");
 }

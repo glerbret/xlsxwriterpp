@@ -16,11 +16,11 @@ int main()
   /* xwpp::worksheet_t& worksheet2 = */ workbook.add_worksheet();
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
 
-  for(xwpp::row_num_t row = 0; row <= 127; row++)
+  for(xwpp::row_num_t row_num = 0; row_num <= 127; row_num++)
   {
-    for(xwpp::col_num_t col = 0; col <= 15; col++)
+    for(xwpp::col_num_t col_num = 0; col_num <= 15; col_num++)
     {
-      worksheet1.write_comment(row, col, "Some text");
+      worksheet1.write_comment(row_num, col_num, "Some text");
     }
   }
 

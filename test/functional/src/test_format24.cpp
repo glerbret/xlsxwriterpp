@@ -13,13 +13,6 @@ int main()
 
   xwpp::format_t* format = workbook.add_format();
 
-  /*
-      'rotation': 270,
-      'indent': 1,
-      'align': "center",
-      'valign': "top"
-  */
-
   format->set_rotation(270);
   format->set_indent(1);
   format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);

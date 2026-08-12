@@ -10,6 +10,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <vector>
+
 int main()
 {
   const std::vector<std::tuple<xwpp::chart_type_t, std::string>> chart_descs{

@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <array>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -18,21 +20,19 @@ int main()
   chart1.set_axis_ids(64446848, 64448384);
   chart2.set_axis_ids(85389696, 85391232);
 
-  uint8_t data[5][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {3, 6,  9 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet1.write_number(row, col, data[row][col]);
-      worksheet2.write_number(row, col, data[row][col]);
+      worksheet1.write_number(row_num, col_num, value);
+      worksheet2.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   xwpp::chart_series_t& series1 = chart1.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
@@ -48,14 +48,14 @@ int main()
   worksheet2.insert_chart(CELL("E9"), &chart2);
 
   /* Add cache data for testing. */
-  xwpp::chart_add_data_cache(series1.categories_, data[0], 5, 3, 0);
-  xwpp::chart_add_data_cache(series2.categories_, data[0], 5, 3, 0);
-  xwpp::chart_add_data_cache(series1.values_, data[0], 5, 3, 1);
-  xwpp::chart_add_data_cache(series2.values_, data[0], 5, 3, 2);
-  xwpp::chart_add_data_cache(series3.categories_, data[0], 5, 3, 0);
-  xwpp::chart_add_data_cache(series4.categories_, data[0], 5, 3, 0);
-  xwpp::chart_add_data_cache(series3.values_, data[0], 5, 3, 1);
-  xwpp::chart_add_data_cache(series4.values_, data[0], 5, 3, 2);
+  xwpp::chart_add_data_cache(series1.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series2.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series1.values_, data[0].data(), 5, 3, 1);
+  xwpp::chart_add_data_cache(series2.values_, data[0].data(), 5, 3, 2);
+  xwpp::chart_add_data_cache(series3.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series4.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series3.values_, data[0].data(), 5, 3, 1);
+  xwpp::chart_add_data_cache(series4.values_, data[0].data(), 5, 3, 2);
 
   workbook.save("test_chart_bar54.xlsx");
 }

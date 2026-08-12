@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
+#include <string>
 
 using namespace std::literals::chrono_literals;
 

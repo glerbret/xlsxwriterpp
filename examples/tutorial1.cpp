@@ -12,39 +12,42 @@
 
 #include "xlsxwriterpp.h"
 
-struct expense
-{
-  char item[32];
-  int cost;
-};
-
-struct expense expenses[]{
-  {"Rent", 1000},
-  {"Gas",  100 },
-  {"Food", 300 },
-  {"Gym",  50  },
-};
+#include <string>
+#include <vector>
 
 int main()
 {
+  struct expense
+  {
+    std::string item_;
+    int cost_;
+  };
+
+  const std::vector<expense> expenses{
+    {.item_ = "Rent", .cost_ = 1000},
+    {.item_ = "Gas",  .cost_ = 100 },
+    {.item_ = "Food", .cost_ = 300 },
+    {.item_ = "Gym",  .cost_ = 50  },
+  };
+
   // Create a workbook and add a worksheet.
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  // Start from the first cell. Rows and columns are zero indexed.
-  xwpp::row_num_t row = 0;
-  xwpp::col_num_t col = 0;
+  // Start from the first cell.
+  xwpp::row_num_t row_num = 0;
 
   // Iterate over the data and write it out element by element.
-  for(row = 0; row < 4; row++)
+  for(const auto& value: expenses)
   {
-    worksheet.write_string(row, col, expenses[row].item);
-    worksheet.write_number(row, col + 1, expenses[row].cost);
+    worksheet.write_string(row_num, 0, value.item_);
+    worksheet.write_number(row_num, 1, value.cost_);
+    row_num++;
   }
 
   // Write a total using a formula.
-  worksheet.write_string(row, col, "Total");
-  worksheet.write_formula(row, col + 1, "=SUM(B1:B4)");
+  worksheet.write_string(row_num, 0, "Total");
+  worksheet.write_formula(row_num, 1, "=SUM(B1:B4)");
 
   workbook.save("tutorial01.xlsx");
 }

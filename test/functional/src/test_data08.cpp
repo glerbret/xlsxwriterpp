@@ -6,9 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;

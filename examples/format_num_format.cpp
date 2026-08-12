@@ -40,7 +40,7 @@ int main()
   format06->set_num_format("mmm d yyyy");
   format07->set_num_format("d mmmm yyyy");
   format08->set_num_format("dd/mm/yyyy hh:mm AM/PM");
-  format09->set_num_format("0 \"dollar and\" .00 \"cents\"");
+  format09->set_num_format(R"(0 "dollar and" .00 "cents")");
 
   worksheet.write_number(2, 0, 123);
 

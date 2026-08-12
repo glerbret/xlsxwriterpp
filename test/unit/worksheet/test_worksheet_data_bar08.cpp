@@ -10,9 +10,9 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(data_bar08)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::DATA_BAR,
     .bar_only_ = true,
   };

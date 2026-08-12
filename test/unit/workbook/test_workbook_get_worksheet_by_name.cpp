@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_SUITE(workbook)
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_default_name)
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+  const xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   BOOST_CHECK_EQUAL(&worksheet, workbook.get_worksheet_by_name("Sheet1"));
 }
@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(get_worksheet_by_name_default_name)
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_provided_name)
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet = workbook.add_worksheet("FOO");
+  const xwpp::worksheet_t& worksheet = workbook.add_worksheet("FOO");
 
   BOOST_CHECK_EQUAL(&worksheet, workbook.get_worksheet_by_name("FOO"));
 }
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(get_worksheet_by_name_different_name)
 
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_no_sheetname)
 {
-  xwpp::workbook_t workbook;
+  const xwpp::workbook_t workbook;
 
   BOOST_TEST(workbook.get_worksheet_by_name("FOO") == nullptr);
 }

@@ -19,7 +19,7 @@ namespace xwpp
 class rich_value_structure_t
 {
 public:
-  rich_value_structure_t(bool has_embedded_image_descriptions);
+  explicit rich_value_structure_t(bool has_embedded_image_descriptions);
 
   [[nodiscard]] std::string assemble_xml_file() const;
 

@@ -26,7 +26,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t image_options = {.description_ = "Some alt text"};
+  const xwpp::image_options_t image_options{.description_ = "Some alt text"};
 
   worksheet.embed_image_buffer(0, 0, image_buffer, image_options);
 

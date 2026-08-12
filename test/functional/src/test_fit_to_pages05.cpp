@@ -15,7 +15,7 @@ int main()
   worksheet.set_paper(9);
   worksheet.set_dpi(0, 200);
 
-  worksheet.write_string(CELL("A1"), "Foo", NULL);
+  worksheet.write_string(CELL("A1"), "Foo");
 
   workbook.save("test_fit_to_pages05.xlsx");
 }

@@ -364,7 +364,7 @@ enum class format_borders_t
 class format_t
 {
 public:
-  format_t(std::function<int32_t(format_t*)> get_dxf_index);
+  explicit format_t(std::function<int32_t(format_t*)> get_dxf_index);
 
   /**
    * @brief Set the number format for a cell.
@@ -1319,6 +1319,7 @@ public:
   static const std::string DEFAULT_FONT_NAME;
 
   // TODO Refactor this point to not have it in several places
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
   std::function<int32_t(format_t*)> get_dxf_index_;
 
 private:
@@ -1351,7 +1352,7 @@ private:
   bool font_shadow_                  = false;
   format_scripts_t font_script_      = format_scripts_t::NONE;
   uint8_t font_family_               = DEFAULT_FONT_FAMILY;
-  bool font_charset_                 = false;
+  uint8_t font_charset_              = 0;
   bool font_condense_                = false;
   bool font_extend_                  = false;
   uint8_t theme_                     = 0;

@@ -6,9 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;
@@ -20,12 +17,12 @@ int main()
   format->set_font_condense();
   format->set_font_extend();
 
-  worksheet.write_number(CELL("A1"), 10, NULL);
-  worksheet.write_number(CELL("A2"), 20, NULL);
-  worksheet.write_number(CELL("A3"), 30, NULL);
-  worksheet.write_number(CELL("A4"), 40, NULL);
+  worksheet.write_number(CELL("A1"), 10);
+  worksheet.write_number(CELL("A2"), 20);
+  worksheet.write_number(CELL("A3"), 30);
+  worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,
     .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
     .value_    = 5,

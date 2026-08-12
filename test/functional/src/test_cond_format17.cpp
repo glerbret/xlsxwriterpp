@@ -6,9 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;
@@ -19,7 +16,7 @@ int main()
   worksheet.write_number(CELL("A3"), 30);
   worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_       = xwpp::conditional_format_types_t::ICON_SETS,
     .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
   };

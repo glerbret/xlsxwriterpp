@@ -20,7 +20,7 @@ namespace xwpp
 class style_t
 {
 public:
-  style_t();
+  style_t() = default;
   style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count, bool has_comments,
           const std::vector<format_t*>& xf_formats, const std::vector<format_t*>& dxf_formats);
 
@@ -72,10 +72,10 @@ private:
   [[nodiscard]] std::string write_fg_color(color_t color) const;
   [[nodiscard]] std::string write_bg_color(color_t color, format_patterns_t pattern) const;
 
-  uint32_t font_count_;
-  uint32_t num_format_count_;
-  uint32_t border_count_;
-  uint32_t fill_count_;
+  uint32_t font_count_       = 0;
+  uint32_t num_format_count_ = 0;
+  uint32_t border_count_     = 0;
+  uint32_t fill_count_       = 0;
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
   bool has_hyperlink_        = false;

@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <vector>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -19,10 +21,10 @@ int main()
   worksheet.write_string(CELL("D1"), "Column4");
   worksheet.write_string(CELL("E1"), "Total");
 
-  std::vector<xwpp::table_column_t> columns = {
+  const std::vector<xwpp::table_column_t> columns{
     {.total_string_ = "Total"}, {}, {}, {.total_function_ = xwpp::table_total_functions_t::COUNT}};
 
-  xwpp::table_options_t options = {.total_row_ = true, .columns_ = columns};
+  const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
 
   worksheet.add_table(RANGE("C3:F14"), options);
 

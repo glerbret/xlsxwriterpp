@@ -10,9 +10,10 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <chrono>
+#include <string>
 
 using namespace std::literals::chrono_literals;
 
@@ -69,7 +70,7 @@ BOOST_AUTO_TEST_CASE(condtional_format10)
   worksheet.write_number(CELL("A3"), 30);
   worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,
     .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
     .value_ =

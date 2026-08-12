@@ -1261,10 +1261,10 @@ struct chart_axis_t
   chart_axis_display_unit_t display_units_ = chart_axis_display_unit_t::NONE;
   bool display_units_visible_              = false;
 
-  bool has_crossing_    = false;
-  uint8_t crossing_min_ = 0;
-  uint8_t crossing_max_ = 0;
-  double crossing_      = 0.;
+  bool has_crossing_ = false;
+  bool crossing_min_ = false;
+  bool crossing_max_ = false;
+  double crossing_   = 0.;
 };
 
 /**
@@ -1276,7 +1276,7 @@ class chart_t
 {
 public:
   // TODO Constructor should not be public but only used by `workbook_t`.
-  chart_t(chart_type_t type);
+  explicit chart_t(chart_type_t type);
 
   /**
    * @brief Add a data series to a chart.
@@ -2161,16 +2161,18 @@ public:
   void chartarea_set_pattern(const std::optional<chart_pattern_t>& pattern);
 
   // TODO Only used by packager, should be private.
-  std::string assemble_xml_file();
+  [[nodiscard]] std::string assemble_xml_file();
 
   // TODO For test
   void set_axis_ids(uint32_t axis_id_1, uint32_t axis_id_2);
 
   // TODO Set to public as chart_axis_set_name access to it.
   // To be set private again, and chart_axis_set_name reworked
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
   chart_axis_t x_axis_{.default_num_format_ = "General",
                        .major_gridlines_    = {.visible_ = false},
                        .axis_position_      = chart_position_t::BOTTOM};
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
   chart_axis_t y_axis_{
     .default_num_format_ = "General", .major_gridlines_ = {.visible_ = true}, .axis_position_ = chart_position_t::LEFT};
 
@@ -2301,12 +2303,12 @@ private:
   [[nodiscard]] static std::string write_number_format(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_cross_between(const chart_t& chart, chart_axis_tick_position_t position);
   [[nodiscard]] std::string write_legend_pos(const std::string& position);
-  [[nodiscard]] std::string write_legend_entry(uint16_t index);
+  [[nodiscard]] std::string write_legend_entry(size_t index);
   [[nodiscard]] std::string write_legend();
-  [[nodiscard]] std::string write_plot_vis_only();
+  [[nodiscard]] std::string write_plot_vis_only() const;
   [[nodiscard]] static std::string write_drop_lines(const chart_t& chart);
   [[nodiscard]] static std::string write_d_lbls(const chart_series_t& series);
-  [[nodiscard]] static std::string write_custom_label_str(const chart_series_t series,
+  [[nodiscard]] static std::string write_custom_label_str(const chart_series_t& series,
                                                           const chart_custom_label_t& data_label);
   [[nodiscard]] static std::string write_custom_labels(const chart_series_t& series);
   [[nodiscard]] static std::string write_d_lbl_pos(chart_label_position_t position);
@@ -2331,9 +2333,9 @@ private:
   [[nodiscard]] static std::string write_up_down_bars(const chart_t& chart);
   [[nodiscard]] static std::string write_marker_value();
   [[nodiscard]] static std::string write_up_bars(const std::optional<chart_line_t>& line,
-                                                 const std::optional<chart_fill_t> fill);
+                                                 const std::optional<chart_fill_t>& fill);
   [[nodiscard]] static std::string write_down_bars(const std::optional<chart_line_t>& line,
-                                                   const std::optional<chart_fill_t> fill);
+                                                   const std::optional<chart_fill_t>& fill);
   [[nodiscard]] static std::string write_symbol(chart_marker_type_t type);
   [[nodiscard]] static std::string write_marker_size(uint8_t size);
   [[nodiscard]] static std::string write_error_bars(const chart_series_t& series);
@@ -2710,7 +2712,7 @@ void chart_series_set_marker_pattern(chart_series_t& series, const std::optional
  *
  * @see @ref chart_points
  */
-void series_set_points(chart_series_t& series, const std::vector<chart_point_t> points);
+void series_set_points(chart_series_t& series, const std::vector<chart_point_t>& points);
 
 /**
  * @brief Smooth a line or scatter chart series.
@@ -4086,7 +4088,7 @@ void chart_axis_major_gridlines_set_line(chart_axis_t& axis, const std::optional
 void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
 
 // TODO To rework (or remove). For test
-void chart_add_data_cache(series_range_t& range, uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
+void chart_add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
 
 /// @cond
 }

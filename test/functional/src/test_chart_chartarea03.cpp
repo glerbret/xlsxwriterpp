@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <array>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -15,31 +17,29 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(46210048, 46208512);
 
-  uint8_t data[5][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {3, 6,  9 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  xwpp::chart_line_t line1 = {.dash_type_ = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT};
-  xwpp::chart_line_t line2 = {.dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT};
+  const xwpp::chart_line_t line1 = {.dash_type_ = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT};
+  const xwpp::chart_line_t line2 = {.dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT};
 
-  xwpp::chart_fill_t fill1 = {.color_ = xwpp::color_t(0x9999FF)};
-  xwpp::chart_fill_t fill2 = {.color_ = xwpp::color_t(0xFFC000)};
+  const xwpp::chart_fill_t fill1 = {.color_ = xwpp::color_t(0x9999FF)};
+  const xwpp::chart_fill_t fill2 = {.color_ = xwpp::color_t(0xFFC000)};
 
   chart.chartarea_set_line(line1);
   chart.chartarea_set_fill(fill1);

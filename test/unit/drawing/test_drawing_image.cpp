@@ -9,9 +9,9 @@
 #include "xwpp/drawing.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(drawing)
 

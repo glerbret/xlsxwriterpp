@@ -20,12 +20,12 @@
 namespace xwpp
 {
 
-table_t::table_t(const table_obj_t table_obj)
-  : table_obj_{table_obj}
+table_t::table_t(table_obj_t table_obj)
+  : table_obj_{std::move(table_obj)}
 {
 }
 
-std::string table_t::assemble_xml_file()
+std::string table_t::assemble_xml_file() const
 {
   std::string xml_data = xml_declaration();
   xml_data += write_table();
@@ -37,7 +37,7 @@ std::string table_t::assemble_xml_file()
   return xml_data;
 }
 
-std::string table_t::write_table()
+std::string table_t::write_table() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
@@ -74,7 +74,7 @@ std::string table_t::write_table()
   return xml_start_tag("table", attributes);
 }
 
-std::string table_t::write_auto_filter()
+std::string table_t::write_auto_filter() const
 {
   if(table_obj_.no_autofilter_)
   {
@@ -86,7 +86,7 @@ std::string table_t::write_auto_filter()
   });
 }
 
-std::string table_t::write_table_column(uint16_t id, const table_column_t& column)
+std::string table_t::write_table_column(uint16_t id, const table_column_t& column) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"id",   std::to_string(id)},
@@ -135,7 +135,7 @@ std::string table_t::write_table_column(uint16_t id, const table_column_t& colum
 
   if(column.format_)
   {
-    int32_t dfx_id = column.format_->get_dxf_index_(column.format_);
+    const int32_t dfx_id = column.format_->get_dxf_index_(column.format_);
     attributes.emplace_back("dataDxfId", std::to_string(dfx_id));
   }
 
@@ -153,7 +153,7 @@ std::string table_t::write_table_column(uint16_t id, const table_column_t& colum
   }
 }
 
-std::string table_t::write_table_columns()
+std::string table_t::write_table_columns() const
 {
   std::string xml_data = xml_start_tag("tableColumns", {
                                                          {"count", std::to_string(table_obj_.columns_.size())}
@@ -168,7 +168,7 @@ std::string table_t::write_table_columns()
   return xml_data;
 }
 
-std::string table_t::write_table_style_info()
+std::string table_t::write_table_style_info() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 

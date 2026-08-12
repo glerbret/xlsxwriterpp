@@ -19,6 +19,7 @@
 #include <format>
 #include <fstream>
 #include <functional>
+#include <ranges>
 #include <string>
 
 using namespace std::literals::chrono_literals;
@@ -30,11 +31,12 @@ workbook_t::workbook_t(bool use_zip64)
   : use_zip64_{use_zip64}
 {
   // Add the default cell format.
-  auto format = add_format();
+  auto* format = add_format();
   // and initialize its index.
   get_xf_index(format);
 
   // Add the default hyperlink format.
+  // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
   default_url_format_ = add_format();
   default_url_format_->set_hyperlink();
 }
@@ -242,12 +244,12 @@ void workbook_t::set_max_url_length(uint16_t max_url_length)
 void workbook_t::set_size(uint16_t width, uint16_t height)
 {
   // Convert the width/height to twips at 96 dpi.
-  if(width)
+  if(width != 0)
   {
     window_width_ = width * 1440 / 96;
   }
 
-  if(height)
+  if(height != 0)
   {
     window_height_ = height * 1440 / 96;
   }
@@ -260,7 +262,7 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
 
   const worksheet_init_data_t init_data{
     .index_              = num_sheets_,
-    .hidden_             = 0,
+    .hidden_             = false,
     .active_sheet_       = &active_sheet_,
     .first_sheet_        = &first_sheet_,
     .sst_                = &sst_,
@@ -271,8 +273,10 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
     .use_1904_epoch_     = use_1904_epoch_,
   };
 
+  // NOLINTBEGIN(modernize-avoid-bind)
   sheets_.emplace_back(worksheet_t{init_data, std::bind(&workbook_t::get_xf_index, this, std::placeholders::_1),
                                    std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1)});
+  // NOLINTEND(modernize-avoid-bind)
   num_worksheets_++;
   num_sheets_++;
 
@@ -294,7 +298,7 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
 
   const worksheet_init_data_t init_data{
     .index_              = num_sheets_,
-    .hidden_             = 0,
+    .hidden_             = false,
     .active_sheet_       = &active_sheet_,
     .first_sheet_        = &first_sheet_,
     .sst_                = &sst_,
@@ -397,6 +401,7 @@ void workbook_t::validate_sheetname(std::string_view sheetname) const
 // TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship).
 format_t* workbook_t::add_format()
 {
+  // NOLINTNEXTLINE(modernize-avoid-bind)
   formats_.emplace_back(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
 
   return &formats_.back();
@@ -424,7 +429,7 @@ chart_t& workbook_t::add_chart(chart_type_t chart_type)
     throw xwpp_exception_t("workbook_t::add_chart: chart type set to 'none'.");
   }
 
-  chart_t chart(chart_type);
+  const chart_t chart(chart_type);
 
   charts_.emplace_back(chart);
   return charts_.back();
@@ -439,7 +444,7 @@ void workbook_t::add_vba_project(const std::string& filename)
 
   // Check that the VBA file exists and can be opened.
   {
-    std::ifstream vba_stream(filename);
+    const std::ifstream vba_stream(filename);
     if(!vba_stream)
     {
       throw xwpp_exception_t(
@@ -461,7 +466,7 @@ void workbook_t::add_signed_vba_project(const std::string& vba_project, const st
 
   // Check that the vbaProjectSignature file exists and can be opened.
   {
-    std::ifstream signature_file(signature);
+    const std::ifstream signature_file(signature);
     if(!signature_file)
     {
       throw xwpp_exception_t(std::format(
@@ -530,7 +535,7 @@ int32_t workbook_t::get_xf_index(format_t* format)
     return format->xf_index_;
   }
 
-  for(const auto fmt: used_xf_formats_)
+  for(const auto* fmt: used_xf_formats_)
   {
     if(fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
        fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
@@ -592,9 +597,9 @@ void workbook_t::prepare_fonts()
   std::vector<format_t*> fonts;
 
   // TODO Use unordered_set to optimise this search.
-  for(const auto format: used_xf_formats_)
+  for(auto* format: used_xf_formats_)
   {
-    for(const auto font: fonts)
+    for(const auto* font: fonts)
     {
       if(format->font_name_ == font->font_name_ && format->font_size_ == font->font_size_ &&
          format->bold_ == font->bold_ && format->italic_ == font->italic_ && format->underline_ == font->underline_ &&
@@ -618,7 +623,7 @@ void workbook_t::prepare_fonts()
   }
 
   // For DXF formats we only need to check if the properties have changed.
-  for(auto format: used_dxf_formats_)
+  for(auto* format: used_dxf_formats_)
   {
     // The only font properties that can change for a DXF format are:
     // color, bold, italic, underline and strikethrough.
@@ -637,7 +642,7 @@ void workbook_t::prepare_num_formats()
   std::vector<format_t*> num_formats;
 
   // TODO Use unordered_set to optimise this search.
-  for(const auto format: used_xf_formats_)
+  for(auto* format: used_xf_formats_)
   {
     // Format already has a number format index.
     if(format->num_format_index_ != 0)
@@ -648,7 +653,7 @@ void workbook_t::prepare_num_formats()
     // Check if there is a user defined number format string.
     if(!format->num_format_.empty())
     {
-      for(const auto num_format: num_formats)
+      for(const auto* num_format: num_formats)
       {
         if(format->num_format_ == num_format->num_format_)
         {
@@ -669,7 +674,7 @@ void workbook_t::prepare_num_formats()
   // Don't update num_format_count for DXF formats.
   num_format_count_ = static_cast<uint16_t>(num_formats.size());
 
-  for(const auto format: used_dxf_formats_)
+  for(auto* format: used_dxf_formats_)
   {
     // Format already has a number format index.
     if(format->num_format_index_ != 0)
@@ -680,7 +685,7 @@ void workbook_t::prepare_num_formats()
     // Check if there is a user defined number format string.
     if(!format->num_format_.empty())
     {
-      for(const auto num_format: num_formats)
+      for(const auto* num_format: num_formats)
       {
         if(format->num_format_ == num_format->num_format_)
         {
@@ -704,9 +709,9 @@ void workbook_t::prepare_borders()
   std::vector<format_t*> borders;
 
   // TODO Use unordered_set to optimise this search.
-  for(const auto format: used_xf_formats_)
+  for(auto* format: used_xf_formats_)
   {
-    for(const auto border: borders)
+    for(const auto* border: borders)
     {
       if(format->bottom_ == border->bottom_ && format->left_ == border->left_ && format->right_ == border->right_ &&
          format->top_ == border->top_ && format->diag_border_ == border->diag_border_ &&
@@ -729,7 +734,7 @@ void workbook_t::prepare_borders()
   }
 
   // For DXF formats we only need to check if the properties have changed.
-  for(const auto format: used_dxf_formats_)
+  for(auto* format: used_dxf_formats_)
   {
     if(format->left_ != format_borders_t::NONE || format->right_ != format_borders_t::NONE ||
        format->top_ != format_borders_t::NONE || format->bottom_ != format_borders_t::NONE)
@@ -825,7 +830,7 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
     // The name is worksheet local. We need to extract the sheet name
     // and map it to a sheet index.
     std::string worksheet_name = name.substr(0, found_string);
-    std::string tmp_str        = name.substr(found_string + 1);
+    const std::string tmp_str  = name.substr(found_string + 1);
 
     if(tmp_str.empty() || worksheet_name.empty())
     {
@@ -851,7 +856,7 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
 
         if(worksheet_name == ws.name_)
         {
-          defined_name.index_                = ws.index_;
+          defined_name.index_                = static_cast<int16_t>(ws.index_);
           defined_name.normalised_sheetname_ = worksheet_name;
         }
       }
@@ -890,10 +895,10 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
     defined_name.normalised_name_ = defined_name.name_.substr(found_string + 6);
   }
 
-  std::transform(std::begin(defined_name.normalised_name_), std::end(defined_name.normalised_name_),
-                 std::begin(defined_name.normalised_name_), [](char c) { return std::tolower(c); });
-  std::transform(std::begin(defined_name.normalised_sheetname_), std::end(defined_name.normalised_sheetname_),
-                 std::begin(defined_name.normalised_sheetname_), [](char c) { return std::tolower(c); });
+  std::ranges::transform(defined_name.normalised_name_, std::begin(defined_name.normalised_name_),
+                         [](char c) { return std::tolower(c); });
+  std::ranges::transform(defined_name.normalised_sheetname_, std::begin(defined_name.normalised_sheetname_),
+                         [](char c) { return std::tolower(c); });
 
   // Strip leading "=" from the formula.
   if(formula[0] == '=')
@@ -944,7 +949,7 @@ void workbook_t::prepare_defined_names()
 
         // Autofilters are the only defined name to set the hidden flag.
         store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", ws.quoted_name_),
-                           std::format("{}!{}", ws.quoted_name_, area), ws.index_, true);
+                           std::format("{}!{}", ws.quoted_name_, area), static_cast<int16_t>(ws.index_), true);
       }
 
       // Check for Print Area settings and store them.
@@ -972,7 +977,7 @@ void workbook_t::prepare_defined_names()
 
         const std::string app_name = std::format("{}!Print_Area", ws.quoted_name_);
         const std::string range    = std::format("{}!{}", ws.quoted_name_, area);
-        store_defined_name("_xlnm.Print_Area", app_name, range, ws.index_, false);
+        store_defined_name("_xlnm.Print_Area", app_name, range, static_cast<int16_t>(ws.index_), false);
       }
 
       // Check for repeat rows/cols. aka, Print Titles and store them.
@@ -986,14 +991,14 @@ void workbook_t::prepare_defined_names()
           const std::string range =
             std::format("{}!${}:${},{}!${}:${}", ws.quoted_name_, first_col, last_col, ws.quoted_name_,
                         ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, static_cast<int16_t>(ws.index_), false);
         }
         else if(ws.repeat_rows_.in_use_)
         {
           const std::string app_name = std::format("{}!Print_Titles", ws.quoted_name_);
           const std::string range =
             std::format("{}!${}:${}", ws.quoted_name_, ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, static_cast<int16_t>(ws.index_), false);
         }
         else if(ws.repeat_cols_.in_use_)
         {
@@ -1001,7 +1006,7 @@ void workbook_t::prepare_defined_names()
           const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
           const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
           const std::string range     = std::format("{}!${}:${}", ws.quoted_name_, first_col, last_col);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, ws.index_, false);
+          store_defined_name("_xlnm.Print_Titles", app_name, range, static_cast<int16_t>(ws.index_), false);
         }
       }
     }
@@ -1036,13 +1041,12 @@ void workbook_t::prepare_drawings()
   uint32_t chart_ref_id = 0;
   uint32_t image_ref_id = 0;
   uint32_t drawing_id   = 0;
-  bool is_chartsheet;
 
   for(auto& sheet: sheets_)
   {
-    auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
-                                                                 : std::get<chartsheet_t>(sheet).worksheet_;
-    is_chartsheet   = std::holds_alternative<chartsheet_t>(sheet);
+    auto& worksheet          = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
+                                                                          : std::get<chartsheet_t>(sheet).worksheet_;
+    const bool is_chartsheet = std::holds_alternative<chartsheet_t>(sheet);
 
     if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() && worksheet.chart_data_.empty() &&
        !worksheet.has_header_vml_ && !worksheet.has_background_image_)
@@ -1064,8 +1068,8 @@ void workbook_t::prepare_drawings()
       }
 
       // Check for duplicate images and only store the first instance.
-      uint32_t ref_id;
-      const auto it = embedded_image_md5_.find(object_props.md5_);
+      uint32_t ref_id = 0;
+      const auto it   = embedded_image_md5_.find(object_props.md5_);
       if(it != std::end(embedded_image_md5_))
       {
         ref_id                     = it->second;
@@ -1088,8 +1092,8 @@ void workbook_t::prepare_drawings()
       object_properties_t object_props = worksheet.background_image_.value();
       store_image_type(object_props.image_type_);
 
-      uint32_t ref_id;
-      const auto it = background_md5_.find(object_props.md5_);
+      uint32_t ref_id = 0;
+      const auto it   = background_md5_.find(object_props.md5_);
       if(it != std::end(background_md5_))
       {
         ref_id                     = it->second;
@@ -1117,8 +1121,8 @@ void workbook_t::prepare_drawings()
       store_image_type(object_props.image_type_);
 
       // Check for duplicate images and only store the first instance.
-      uint32_t ref_id;
-      const auto it = image_md5_.find(object_props.md5_);
+      uint32_t ref_id = 0;
+      const auto it   = image_md5_.find(object_props.md5_);
       if(it != std::end(image_md5_))
       {
         ref_id                     = it->second;
@@ -1153,8 +1157,8 @@ void workbook_t::prepare_drawings()
         store_image_type(object_props->image_type_);
 
         // Check for duplicate images and only store the first instance.
-        uint32_t ref_id;
-        const auto it = header_image_md5_.find(object_props->md5_);
+        uint32_t ref_id = 0;
+        const auto it   = header_image_md5_.find(object_props->md5_);
         if(it != std::end(header_image_md5_))
         {
           ref_id                      = it->second;
@@ -1179,7 +1183,7 @@ void workbook_t::prepare_drawings()
  * dimensions, or vice-versa. This gives us the dimensions to read data back
  * from the worksheet.
  */
-void workbook_t::populate_range_dimensions(series_range_t& range)
+void workbook_t::populate_range_dimensions(series_range_t& range) const
 {
   // If neither the range formula or sheetname is defined then this probably
   // isn't a valid range.
@@ -1204,7 +1208,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
   }
 
   // Create a copy of the formula to modify and parse into parts.
-  std::string formula = range.formula_;
+  const std::string formula = range.formula_;
 
   // Check for valid formula. Note, This needs stronger validation.
   size_t found_string = formula.find('!');
@@ -1216,8 +1220,8 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
   else
   {
     // Split the formulas into sheetname and row-col data.
-    std::string sheetname = formula.substr(0, found_string);
-    std::string tmp_str   = formula.substr(found_string + 1);
+    std::string sheetname     = formula.substr(0, found_string);
+    const std::string tmp_str = formula.substr(found_string + 1);
 
     if(tmp_str.empty() || sheetname.empty())
     {
@@ -1244,8 +1248,8 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
     }
 
     range.sheetname_ = sheetname;
-    range.first_row_ = name_to_row(tmp_str.c_str());
-    range.first_col_ = name_to_col(tmp_str.c_str());
+    range.first_row_ = name_to_row(tmp_str);
+    range.first_col_ = name_to_col(tmp_str);
 
     found_string = formula.find(':');
     if(found_string == std::string::npos)
@@ -1257,8 +1261,8 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
     else
     {
       // 2D range.
-      range.last_row_ = name_to_row_2(tmp_str.c_str());
-      range.last_col_ = name_to_col_2(tmp_str.c_str());
+      range.last_row_ = name_to_row_2(tmp_str);
+      range.last_col_ = name_to_col_2(tmp_str);
     }
   }
 }
@@ -1272,7 +1276,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range)
  * chart is embedded in another application such as PowerPoint and it also
  * helps with comparison testing.
  */
-void workbook_t::populate_range_data_cache(series_range_t& range)
+void workbook_t::populate_range_data_cache(series_range_t& range) const
 {
   uint16_t num_data_points = 0;
 
@@ -1343,7 +1347,7 @@ void workbook_t::populate_range(series_range_t& range)
 
 void workbook_t::add_chart_cache_data()
 {
-  for(auto chart: ordered_charts_)
+  for(auto* chart: ordered_charts_)
   {
     populate_range(chart->title_.range_);
     populate_range(chart->x_axis_.title_.range_);
@@ -1389,12 +1393,14 @@ void workbook_t::prepare_fills()
   std::vector<format_t*> fills;
 
   // Add the default fills.
+  // NOLINTNEXTLINE(modernize-avoid-bind)
   format_t default_fill_1(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
   default_fill_1.fg_color_   = color_t::UNSET;
   default_fill_1.bg_color_   = color_t::UNSET;
   default_fill_1.pattern_    = format_patterns_t::NONE;
   default_fill_1.fill_index_ = 0;
   fills.push_back(&default_fill_1);
+  // NOLINTNEXTLINE(modernize-avoid-bind)
   format_t default_fill_2(std::bind(&workbook_t::get_dxf_index, this, std::placeholders::_1));
   default_fill_2.fg_color_   = color_t::UNSET;
   default_fill_2.bg_color_   = color_t::UNSET;
@@ -1403,7 +1409,7 @@ void workbook_t::prepare_fills()
   fills.push_back(&default_fill_2);
 
   // For DXF formats we only need to check if the properties have changed.
-  for(auto format: used_dxf_formats_)
+  for(auto* format: used_dxf_formats_)
   {
     if(format->pattern_ != format_patterns_t::NONE || format->bg_color_ != color_t::UNSET ||
        format->fg_color_ != color_t::UNSET)
@@ -1415,7 +1421,7 @@ void workbook_t::prepare_fills()
   }
 
   // TODO Use unordered_set to optimise this search.
-  for(auto format: used_xf_formats_)
+  for(auto* format: used_xf_formats_)
   {
     /* The following logical statements jointly take care of special */
     /* cases in relation to cell colors and patterns:                */
@@ -1442,7 +1448,7 @@ void workbook_t::prepare_fills()
       format->pattern_ = format_patterns_t::SOLID;
     }
 
-    for(const auto fill: fills)
+    for(const auto* fill: fills)
     {
       if(format->bg_color_ == fill->bg_color_ && format->fg_color_ == fill->fg_color_ &&
          format->pattern_ == fill->pattern_)
@@ -1538,12 +1544,12 @@ std::string workbook_t::write_workbook_view() const
     {"windowHeight", std::to_string(window_height_)},
   };
 
-  if(first_sheet_)
+  if(first_sheet_ != 0)
   {
     attributes.emplace_back("firstSheet", std::to_string(first_sheet_));
   }
 
-  if(active_sheet_)
+  if(active_sheet_ != 0)
   {
     attributes.emplace_back("activeTab", std::to_string(active_sheet_));
   }
