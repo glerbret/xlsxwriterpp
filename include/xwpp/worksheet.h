@@ -1978,8 +1978,8 @@ struct object_properties_t
   int32_t y_offset_ = 0;
   double x_scale_   = 1.;
   double y_scale_   = 1.;
-  row_num_t row_;
-  col_num_t col_;
+  row_num_t row_    = 0;
+  col_num_t col_    = 0;
   std::string filename_;
   std::string description_;
   std::string url_;
@@ -5510,11 +5510,11 @@ public:
   // TODO Only used by packager, should be private.
   [[nodiscard]] std::string assemble_xml_file();
 
-  static const size_t MAX_NUMBER_URLS = 65530;
-  static const row_num_t ROW_MAX      = 1048576;
-  static const col_num_t COL_MAX      = 16384;
-  static const size_t STR_MAX         = 32767;
-  static const col_num_t COL_META_MAX = 128;
+  static const size_t MAX_NUMBER_URLS;
+  static const row_num_t ROW_MAX;
+  static const col_num_t COL_MAX;
+  static const size_t STR_MAX;
+  static const col_num_t COL_META_MAX;
 
 private:
   // TODO To be reworked

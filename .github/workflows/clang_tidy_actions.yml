@@ -1,0 +1,25 @@
+---
+name: Clang-tidy
+
+on: [push, pull_request]
+permissions: {}
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt-get -y install libboost-dev libboost-test-dev
+
+    - name: Run clang-tidy
+      run: |
+        clang-tidy --version
+        cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=on
+        clang-tidy $(find -name *.cpp | grep -v CompilerId) -extra-arg=-std=c++20

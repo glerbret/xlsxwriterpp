@@ -296,8 +296,8 @@ void format_t::set_text_justlast()
 
 void format_t::set_valign(format_alignments_t alignment)
 {
-  if(alignment == format_alignments_t::VERTICAL_TOP && alignment == format_alignments_t::VERTICAL_BOTTOM &&
-     alignment == format_alignments_t::VERTICAL_CENTER && alignment == format_alignments_t::VERTICAL_JUSTIFY &&
+  if(alignment == format_alignments_t::VERTICAL_TOP || alignment == format_alignments_t::VERTICAL_BOTTOM ||
+     alignment == format_alignments_t::VERTICAL_CENTER || alignment == format_alignments_t::VERTICAL_JUSTIFY ||
      alignment == format_alignments_t::VERTICAL_DISTRIBUTED)
   {
     text_v_align_ = alignment;
@@ -311,10 +311,10 @@ void format_t::set_valign(format_alignments_t alignment)
 
 void format_t::set_halign(format_alignments_t alignment)
 {
-  if(alignment == format_alignments_t::HORIZONTAL_LEFT && alignment == format_alignments_t::HORIZONTAL_CENTER &&
-     alignment == format_alignments_t::HORIZONTAL_RIGHT && alignment == format_alignments_t::HORIZONTAL_FILL &&
-     alignment == format_alignments_t::HORIZONTAL_JUSTIFY &&
-     alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS &&
+  if(alignment == format_alignments_t::HORIZONTAL_LEFT || alignment == format_alignments_t::HORIZONTAL_CENTER ||
+     alignment == format_alignments_t::HORIZONTAL_RIGHT || alignment == format_alignments_t::HORIZONTAL_FILL ||
+     alignment == format_alignments_t::HORIZONTAL_JUSTIFY ||
+     alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS ||
      alignment == format_alignments_t::HORIZONTAL_DISTRIBUTED)
   {
     text_h_align_ = alignment;

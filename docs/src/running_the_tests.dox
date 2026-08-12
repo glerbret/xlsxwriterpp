@@ -43,7 +43,7 @@ The functional tests can then be run:
   test/functional/test_write_data.py::TestCompareXLSXFiles::test_data07 PASSED             [ 99%]
   test/functional/test_write_data.py::TestCompareXLSXFiles::test_data08 PASSED             [ 99%]
   test/functional/test_write_data.py::TestCompareXLSXFiles::test_data09 PASSED             [100%]
-  =========================== 773 passed in 155.90s (0:02:35) ===============================
+  =========================== 773 passed in 6.53s ===============================
 @endcode
 
 @section tests_ Unit Tests
@@ -65,6 +65,12 @@ The unit tests can then be run as follows:
 
   for f in test/unit/*; do ./$f; done
 @endcode
+
+@section tests_ci GitHub Actions Continuous Integration
+
+Xlsxwriter++ is configured to run all these tests with [GitHub Actions
+Continuous Integration](https://github.com/glerbret/xlsxwriterpp/actions)
+for each commit.
 
 Next: @ref faq
 
