@@ -12,6 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         cxx: [g++, clang++]
+        make_flags: ["",
+                     "-DUSE_SYSTEM_MINIZIP=ON",
+                     "-DBUILD_SHARED_LIBS=ON"]
+
     runs-on: ubuntu-latest
     env:
       CXX: ${{ matrix.cxx }}
@@ -40,7 +44,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON -DUSE_SYSTEM_MINIZIP=ON -DCMAKE_BUILD_TYPE=Release
+        cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON ${{ matrix.cmake_flags }} -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
       run: |
