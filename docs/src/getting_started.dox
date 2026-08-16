@@ -73,7 +73,7 @@ Build the source code as follows:
   cmake --build .
 @endcode
 
-This will create a static or dynamic library.
+This will create a static library (or a dynamic one if the `BUILD_SHARED_LIBS` option is set).
 
 @subsection gsg_examples Build the examples
 
