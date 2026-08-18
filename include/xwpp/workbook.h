@@ -531,7 +531,7 @@ public:
    * @todo Use reference instead of pointer (like `add_worksheet`).
    * @todo Add non-const overload?
    */
-  const worksheet_t* get_worksheet_by_name(std::string_view name) const;
+  [[nodiscard]] const worksheet_t* get_worksheet_by_name(std::string_view name) const;
 
   /**
    * @brief Get a chartsheet object from its name.
@@ -549,7 +549,7 @@ public:
    * @todo Use reference instead of pointer (like `add_chartsheet`).
    * @todo Add non-const overload?
    */
-  const chartsheet_t* get_chartsheet_by_name(std::string_view name) const;
+  [[nodiscard]] const chartsheet_t* get_chartsheet_by_name(std::string_view name) const;
 
   /**
    * @brief Validate a worksheet or chartsheet name.
@@ -634,7 +634,7 @@ public:
    * This format is only ever required when overwriting a string URL with
    * data of a different type. See the example below.
    */
-  format_t* get_default_url_format() const;
+  [[nodiscard]] format_t* get_default_url_format() const;
 
   /**
    * @brief Unset the default URL format.
@@ -700,7 +700,7 @@ public:
    *
    * See @ref chart.h for details.
    */
-  chart_t& add_chart(chart_type_t chart_type);
+  [[nodiscard]] chart_t& add_chart(chart_type_t chart_type);
 
   /**
    * @brief Add a vbaProject binary to the Excel workbook.
@@ -866,8 +866,8 @@ private:
   void prepare_defined_names();
   void store_image_type(image_types_t image_type);
   void prepare_drawings();
-  void populate_range_dimensions(series_range_t& range);
-  void populate_range_data_cache(series_range_t& range);
+  void populate_range_dimensions(series_range_t& range) const;
+  void populate_range_data_cache(series_range_t& range) const;
   void populate_range(series_range_t& range);
   void add_chart_cache_data();
   void prepare_tables();

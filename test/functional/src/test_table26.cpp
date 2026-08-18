@@ -17,7 +17,7 @@ int main()
   // Add some valid tables.
   worksheet.add_table(RANGE("C2:D3"));
 
-  xwpp::table_options_t options1 = {.name_ = "Table2", .no_header_row_ = true};
+  const xwpp::table_options_t options1{.name_ = "Table2", .no_header_row_ = true};
   worksheet.add_table(RANGE("F3:G3"), options1);
 
   // Test incorrect tables. These should be ignored with a warning.

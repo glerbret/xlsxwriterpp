@@ -8,6 +8,9 @@
 
 #include "xlsxwriterpp.h"
 
+namespace
+{
+
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   worksheet.write_string(0, 0, "Types", bold);
@@ -41,6 +44,8 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write_number(3, 4, 2000);
   worksheet.write_number(4, 4, 6500);
   worksheet.write_number(5, 4, 200);
+}
+
 }
 
 int main()

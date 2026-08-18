@@ -24,9 +24,9 @@ int main()
     0x08, 0x2a, 0x18, 0x4d, 0x45, 0x03, 0x1f, 0x44, 0x00, 0xaa, 0x35, 0xdd, 0x4e, 0xe6, 0xd5, 0xa1, 0x22, 0x00, 0x00,
     0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82};
 
-  xwpp::image_options_t options = {.description_ = "red.png", .url_ = "https://github.com/jmcnamara"};
+  const xwpp::image_options_t options{.description_ = "red.png", .url_ = "https://github.com/jmcnamara"};
 
-  worksheet.write_url(CELL("A1"), "https://github.com/jmcnamara", NULL);
+  worksheet.write_url(CELL("A1"), "https://github.com/jmcnamara");
 
   worksheet.insert_image_buffer(CELL("E9"), image_buffer, options);
 

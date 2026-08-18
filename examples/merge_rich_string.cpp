@@ -30,7 +30,7 @@ int main()
 
   // Create the fragments for the rich string.
 
-  std::vector<xwpp::rich_string_tuple_t> rich_string{
+  const std::vector<xwpp::rich_string_tuple_t> rich_string{
     {.str_ = "This is "},
     {.format_ = red, .str_ = "red"},
     {.str_ = " and this is "},

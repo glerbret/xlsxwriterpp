@@ -20,16 +20,16 @@ namespace xwpp
 class table_t
 {
 public:
-  table_t(const table_obj_t table_obj);
+  explicit table_t(table_obj_t table_obj);
 
-  [[nodiscard]] std::string assemble_xml_file();
+  [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
-  [[nodiscard]] std::string write_table();
-  [[nodiscard]] std::string write_auto_filter();
-  [[nodiscard]] std::string write_table_column(uint16_t id, const table_column_t& column);
-  [[nodiscard]] std::string write_table_columns();
-  [[nodiscard]] std::string write_table_style_info();
+  [[nodiscard]] std::string write_table() const;
+  [[nodiscard]] std::string write_auto_filter() const;
+  [[nodiscard]] std::string write_table_column(uint16_t id, const table_column_t& column) const;
+  [[nodiscard]] std::string write_table_columns() const;
+  [[nodiscard]] std::string write_table_style_info() const;
 
   table_obj_t table_obj_;
 };

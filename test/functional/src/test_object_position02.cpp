@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options = {.object_position_ = xwpp::object_position_t::MOVE_DONT_SIZE};
+  const xwpp::image_options_t options{.object_position_ = xwpp::object_position_t::MOVE_DONT_SIZE};
   worksheet.insert_image(CELL("E9"), "images/red.png", options);
 
   workbook.save("test_object_position02.xlsx");

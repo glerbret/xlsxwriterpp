@@ -14,7 +14,7 @@ int main()
 
   format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
 
-  worksheet.write_string(CELL("A1"), "Perl Home", NULL);
+  worksheet.write_string(CELL("A1"), "Perl Home");
 
   worksheet.merge_range(RANGE("C4:E5"), "http://www.perl.org/", format);
   worksheet.write_url(CELL("C4"), "http://www.perl.org/", format, "Perl Home", "");

@@ -6,7 +6,7 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
+#include <array>
 #include <vector>
 
 int main()
@@ -18,25 +18,23 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(67858816, 67863296);
 
-  uint8_t data[5][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {3, 6,  9 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
 
-  std::vector<xwpp::chart_data_label_t> data_labels = {{.hide_ = true}};
+  const std::vector<xwpp::chart_data_label_t> data_labels = {{.hide_ = true}};
   xwpp::chart_series_set_labels_custom(series, data_labels);
 
   chart.add_series("", "=Sheet1!$B$1:$B$5");

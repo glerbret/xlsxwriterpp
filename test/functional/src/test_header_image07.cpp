@@ -13,7 +13,7 @@ int main()
 
   worksheet.insert_image(CELL("B3"), "images/red.jpg");
 
-  xwpp::header_footer_options_t header_options = {.image_left_ = "images/blue.jpg"};
+  const xwpp::header_footer_options_t header_options{.image_left_ = "images/blue.jpg"};
 
   worksheet.set_header("&L&G", header_options);
 

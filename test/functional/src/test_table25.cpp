@@ -13,7 +13,7 @@ int main()
 
   worksheet.set_column(COLS("C:F"), 10.288, nullptr);
 
-  xwpp::table_options_t options = {.style_type_ = xwpp::table_style_type_t::LIGHT, .style_type_number_ = 0};
+  const xwpp::table_options_t options{.style_type_ = xwpp::table_style_type_t::LIGHT, .style_type_number_ = 0};
 
   worksheet.add_table(RANGE("C3:F13"), options);
 

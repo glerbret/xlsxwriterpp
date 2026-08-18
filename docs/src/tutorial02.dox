@@ -26,7 +26,7 @@ To do this we can extend our program as follows:
 @until }
 
 The main difference between this and the previous program is that we have
-added two xwpp::format_t objects that we can use to format cells in
+added two `format_t` objects that we can use to format cells in
 the spreadsheet.
 
 Format objects represent all of the formatting properties that can be applied
@@ -41,7 +41,7 @@ amount of the format functionality to add some simple formatting:
 @skipline bold
 @until num_format
 
-We can then pass these formats as a parameter to the `xwpp::worksheet_t::write_*()`
+We can then pass these formats as a parameter to the `worksheet_t::write_*()`
 functions to format the data in the cell:
 
 @dontinclude tutorial2.cpp

@@ -9,6 +9,12 @@
 
 #include "xlsxwriterpp.h"
 
+#include <string>
+#include <vector>
+
+namespace
+{
+
 void write_worksheet_header(xwpp::worksheet_t& worksheet, const xwpp::format_t* header)
 {
   // Make the columns wider for clarity.
@@ -20,6 +26,8 @@ void write_worksheet_header(xwpp::worksheet_t& worksheet, const xwpp::format_t* 
   worksheet.write_string(0, 1, "Item");
   worksheet.write_string(0, 2, "Volume");
   worksheet.write_string(0, 3, "Month");
+}
+
 }
 
 int main()
@@ -94,7 +102,7 @@ int main()
     {"East",  "Grape",  6000,  "February" }
   };
 
-  xwpp::row_col_options_t hidden{.hidden_ = true};
+  const xwpp::row_col_options_t hidden{.hidden_ = true};
 
   xwpp::format_t* header = workbook.add_format();
   header->set_bold();
@@ -158,7 +166,7 @@ int main()
   worksheet2.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule2{
+  const xwpp::filter_rule_t filter_rule2{
     .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
     .value_string_ = "East",
   };
@@ -192,12 +200,12 @@ int main()
   worksheet3.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule3a{
+  const xwpp::filter_rule_t filter_rule3a{
     .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
     .value_string_ = "East",
   };
 
-  xwpp::filter_rule_t filter_rule3b{
+  const xwpp::filter_rule_t filter_rule3b{
     .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
     .value_string_ = "South",
   };
@@ -232,17 +240,17 @@ int main()
   worksheet4.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule4a{
+  const xwpp::filter_rule_t filter_rule4a{
     .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
     .value_string_ = "East",
   };
 
-  xwpp::filter_rule_t filter_rule4b{
+  const xwpp::filter_rule_t filter_rule4b{
     .criteria_ = xwpp::filter_criteria_t::GREATER_THAN,
     .value_    = 3000,
   };
 
-  xwpp::filter_rule_t filter_rule4c{
+  const xwpp::filter_rule_t filter_rule4c{
     .criteria_ = xwpp::filter_criteria_t::LESS_THAN,
     .value_    = 8000,
   };
@@ -311,7 +319,7 @@ int main()
   worksheet6.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule6{.criteria_ = xwpp::filter_criteria_t::BLANKS};
+  const xwpp::filter_rule_t filter_rule6{.criteria_ = xwpp::filter_criteria_t::BLANKS};
   worksheet6.filter_column(0, filter_rule6);
 
   // Example 7. Autofilter with filter for non-blanks.
@@ -341,7 +349,7 @@ int main()
   worksheet7.autofilter(0, 0, 50, 3);
 
   // Add the filter criteria.
-  xwpp::filter_rule_t filter_rule7 = {.criteria_ = xwpp::filter_criteria_t::NON_BLANKS};
+  const xwpp::filter_rule_t filter_rule7 = {.criteria_ = xwpp::filter_criteria_t::NON_BLANKS};
   worksheet7.filter_column(0, filter_rule7);
 
   workbook.save("autofilter.xlsx");

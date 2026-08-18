@@ -16,7 +16,7 @@ namespace xwpp
 {
 
 format_t::format_t(std::function<int32_t(format_t*)> get_dxf_index)
-  : get_dxf_index_{get_dxf_index}
+  : get_dxf_index_{std::move(get_dxf_index)}
 {
 }
 
@@ -178,9 +178,9 @@ void format_t::set_diag_border(format_borders_t style)
   diag_border_ = style;
 }
 
-void format_t::set_num_format_index(uint8_t value)
+void format_t::set_num_format_index(uint8_t index)
 {
-  num_format_index_ = value;
+  num_format_index_ = index;
 }
 
 void format_t::set_font_name(const std::string& font_name)
@@ -267,6 +267,7 @@ void format_t::set_rotation(int16_t angle)
   {
     if(angle < 0)
     {
+      // NOLINTNEXTLINE(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
       angle = -angle + 90;
     }
 
@@ -279,9 +280,9 @@ void format_t::set_rotation(int16_t angle)
   }
 }
 
-void format_t::set_indent(uint8_t value)
+void format_t::set_indent(uint8_t level)
 {
-  indent_ = value;
+  indent_ = level;
 }
 
 void format_t::set_shrink()

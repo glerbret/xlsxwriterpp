@@ -13,6 +13,9 @@
 
 #include <vector>
 
+namespace
+{
+
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* format)
 {
   worksheet.write_string(CELL("B4"), "Apples");
@@ -39,6 +42,8 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* fo
   worksheet.write_number(CELL("F5"), 5000, format);
   worksheet.write_number(CELL("F6"), 6000, format);
   worksheet.write_number(CELL("F7"), 700, format);
+}
+
 }
 
 int main()
@@ -121,10 +126,10 @@ int main()
   worksheet5.set_column(COLS("B:G"), 12);
 
   // Write the worksheet caption to explain the example.
-  worksheet5.write_string(CELL("B1"), "Default table with \"First Column\" and \"Last Column\" options.");
+  worksheet5.write_string(CELL("B1"), R"(Default table with "First Column" and "Last Column" options.)");
 
   // Set the table options.
-  xwpp::table_options_t options5{
+  const xwpp::table_options_t options5{
     .first_column_ = true,
     .last_column_  = true,
   };
@@ -143,7 +148,7 @@ int main()
   worksheet6.write_string(CELL("B1"), "Table with banded columns but without default banded rows.");
 
   // Set the table options.
-  xwpp::table_options_t options6 = {.no_banded_rows_ = true, .banded_columns_ = true};
+  const xwpp::table_options_t options6 = {.no_banded_rows_ = true, .banded_columns_ = true};
 
   // Add a table to the worksheet.
   worksheet6.add_table(RANGE("B3:F7"), options6);
@@ -160,12 +165,12 @@ int main()
 
   // Set the table options.
 
-  std::vector<xwpp::table_column_t> columns7{
+  const std::vector<xwpp::table_column_t> columns7{
     {.header_ = "Product"},   {.header_ = "Quarter 1"}, {.header_ = "Quarter 2"},
     {.header_ = "Quarter 3"}, {.header_ = "Quarter 4"},
   };
 
-  xwpp::table_options_t options7 = {.columns_ = columns7};
+  const xwpp::table_options_t options7 = {.columns_ = columns7};
 
   // Add a table to the worksheet.
   worksheet7.add_table(RANGE("B3:F7"), options7);
@@ -181,7 +186,7 @@ int main()
   worksheet8.write_string(CELL("B1"), "Table with user defined column headers.");
 
   // Set the table options.
-  std::vector<xwpp::table_column_t> columns8{
+  const std::vector<xwpp::table_column_t> columns8{
     {.header_ = "Product"},
     {.header_ = "Quarter 1"},
     {.header_ = "Quarter 2"},
@@ -190,7 +195,7 @@ int main()
     {.header_ = "Year", .formula_ = "=SUM(Table8[@[Quarter 1]:[Quarter 4]])"},
   };
 
-  xwpp::table_options_t options8 = {.columns_ = columns8};
+  const xwpp::table_options_t options8 = {.columns_ = columns8};
 
   // Add a table to the worksheet.
   worksheet8.add_table(RANGE("B3:G7"), options8);
@@ -206,7 +211,7 @@ int main()
   worksheet9.write_string(CELL("B1"), "Table with totals row (but no caption or totals).");
 
   // Set the table options.
-  std::vector<xwpp::table_column_t> columns9{
+  const std::vector<xwpp::table_column_t> columns9{
     {.header_ = "Product"},
     {.header_ = "Quarter 1"},
     {.header_ = "Quarter 2"},
@@ -217,7 +222,7 @@ int main()
     {.header_ = "Year", .formula_ = "=SUM(Table9[@[Quarter 1]:[Quarter 4]])"},
   };
 
-  xwpp::table_options_t options9{.total_row_ = true, .columns_ = columns9};
+  const xwpp::table_options_t options9{.total_row_ = true, .columns_ = columns9};
 
   // Add a table to the worksheet.
   worksheet9.add_table(RANGE("B3:G8"), options9);
@@ -233,7 +238,7 @@ int main()
   worksheet10.write_string(CELL("B1"), "Table with totals row with user captions and functions.");
 
   // Set the table options.
-  std::vector<xwpp::table_column_t> columns10{
+  const std::vector<xwpp::table_column_t> columns10{
     {.header_ = "Product", .total_string_ = "Totals"},
     {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
     {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
@@ -244,7 +249,7 @@ int main()
      .total_function_ = xwpp::table_total_functions_t::SUM},
   };
 
-  xwpp::table_options_t options10 = {.total_row_ = true, .columns_ = columns10};
+  const xwpp::table_options_t options10 = {.total_row_ = true, .columns_ = columns10};
 
   // Add a table to the worksheet.
   worksheet10.add_table(RANGE("B3:G8"), options10);
@@ -260,7 +265,7 @@ int main()
   worksheet11.write_string(CELL("B1"), "Table with alternative Excel style.");
 
   // Set the table options.
-  std::vector<xwpp::table_column_t> columns11{
+  const std::vector<xwpp::table_column_t> columns11{
     {.header_ = "Product", .total_string_ = "Totals"},
     {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
     {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
@@ -271,7 +276,7 @@ int main()
      .total_function_ = xwpp::table_total_functions_t::SUM},
   };
 
-  xwpp::table_options_t options11{
+  const xwpp::table_options_t options11{
     .style_type_        = xwpp::table_style_type_t::LIGHT,
     .style_type_number_ = 11,
     .total_row_         = true,
@@ -292,7 +297,7 @@ int main()
   worksheet12.write_string(CELL("B1"), "Table with Excel style removed.");
 
   // Set the table options.
-  std::vector<xwpp::table_column_t> columns12{
+  const std::vector<xwpp::table_column_t> columns12{
     {.header_ = "Product", .total_string_ = "Totals"},
     {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM},
     {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM},
@@ -303,7 +308,7 @@ int main()
      .total_function_ = xwpp::table_total_functions_t::SUM},
   };
 
-  xwpp::table_options_t options12{
+  const xwpp::table_options_t options12{
     .style_type_        = xwpp::table_style_type_t::LIGHT,
     .style_type_number_ = 0,
     .total_row_         = true,
@@ -325,7 +330,7 @@ int main()
 
   // Set the table options.
 
-  std::vector<xwpp::table_column_t> columns13{
+  const std::vector<xwpp::table_column_t> columns13{
     {.header_ = "Product", .total_string_ = "Totals"},
     {.header_ = "Quarter 1", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},
     {.header_ = "Quarter 2", .total_function_ = xwpp::table_total_functions_t::SUM, .format_ = currency_format},

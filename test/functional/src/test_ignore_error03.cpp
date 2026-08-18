@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  for(xwpp::row_num_t row = 0; row < 10; row++)
+  for(xwpp::row_num_t row_num = 0; row_num < 10; row_num++)
   {
-    worksheet.write_string(row, 0, "123", NULL);
+    worksheet.write_string(row_num, 0, "123");
   }
 
   worksheet.ignore_errors(xwpp::ignore_errors_t::NUMBER_STORED_AS_TEXT, "A1:A10");

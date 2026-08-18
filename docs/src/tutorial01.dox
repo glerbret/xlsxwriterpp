@@ -47,14 +47,14 @@ the input data might come from a database or a file.
 @until };
 @until };
 
-The next step is to create a xwpp::worksheet_t object in a `main` block or
+The next step is to create a `worksheet_t` object in a `main` block or
 function:
 
 @dontinclude tutorial1.cpp
 @skipline xwpp::workbook_t
 
 The workbook object is then used to add a new worksheet via the
-xwpp::workbook_t::add_worksheet() function:
+`workbook_t::add_worksheet()` function:
 
 @dontinclude tutorial1.cpp
 @skipline add_worksheet
@@ -70,7 +70,7 @@ also specify a name:
 @endcode
 
 We can then use the worksheet object to write data via the
-xwpp::worksheet_t::write_string() and xwpp::worksheet_t::write_number() functions:
+`worksheet_t::write_string()` and `worksheet_t::write_number()` functions:
 
 @code
   worksheet.write_string(0, 0, "Hello");
@@ -93,7 +93,7 @@ column:
 @dontinclude tutorial1.cpp
 @skipline write_formula
 
-Finally, we save the Excel file via the xwpp::workbook_t::save() method:
+Finally, we save the Excel file via the `workbook_t::save()` method:
 
 @dontinclude tutorial1.cpp
 @skipline save

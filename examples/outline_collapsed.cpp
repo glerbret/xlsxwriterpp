@@ -11,6 +11,9 @@
 
 #include "xlsxwriterpp.h"
 
+namespace
+{
+
 // This function will generate the same data and sub-totals on each worksheet.
 // Used in the examples 1-4.
 void create_row_example_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
@@ -100,6 +103,8 @@ void create_col_example_data(xwpp::worksheet_t& worksheet, const xwpp::format_t*
   worksheet.write_formula(CELL("H5"), "=SUM(B5:G5)");
 
   worksheet.write_formula(CELL("H6"), "=SUM(H2:H5)", bold);
+}
+
 }
 
 int main()

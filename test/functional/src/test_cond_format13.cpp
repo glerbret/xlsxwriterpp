@@ -6,9 +6,6 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
-
 int main()
 {
   xwpp::workbook_t workbook;
@@ -24,24 +21,26 @@ int main()
   format2->get_dxf_index_(format2);
   format1->get_dxf_index_(format1);
 
-  worksheet.write_number(CELL("A1"), 10, NULL);
-  worksheet.write_number(CELL("A2"), 20, NULL);
-  worksheet.write_number(CELL("A3"), 30, NULL);
-  worksheet.write_number(CELL("A4"), 40, NULL);
+  worksheet.write_number(CELL("A1"), 10);
+  worksheet.write_number(CELL("A2"), 20);
+  worksheet.write_number(CELL("A3"), 30);
+  worksheet.write_number(CELL("A4"), 40);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format1{
     .type_     = xwpp::conditional_format_types_t::CELL,
     .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
     .value_    = 2,
     .format_   = format1,
   };
-  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+  worksheet.conditional_format_cell(CELL("A1"), conditional_format1);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::CELL;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::LESS_THAN;
-  conditional_format.value_    = 8;
-  conditional_format.format_   = format2;
-  worksheet.conditional_format_cell(CELL("A2"), conditional_format);
+  const xwpp::conditional_format_t conditional_format2{
+    .type_     = xwpp::conditional_format_types_t::CELL,
+    .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
+    .value_    = 8,
+    .format_   = format2,
+  };
+  worksheet.conditional_format_cell(CELL("A2"), conditional_format2);
 
   workbook.save("test_cond_format13.xlsx");
 }

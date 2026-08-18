@@ -7,6 +7,10 @@
 #include "xlsxwriterpp.h"
 
 #include <string>
+#include <tuple>
+#include <vector>
+
+using namespace std::string_literals;
 
 int main()
 {
@@ -17,13 +21,19 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(45686144, 45722240);
 
-  std::string data_1[5] = {"A", "B", "C", "D", "E"};
-  uint8_t data_2[5]     = {1, 2, 3, 2, 1};
+  const std::vector<std::tuple<std::string, int>> data{
+    {"A"s, 1},
+    {"B"s, 2},
+    {"C"s, 3},
+    {"D"s, 2},
+    {"E"s, 1},
+  };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& value: data)
   {
-    worksheet.write_string(row, 0, data_1[row]);
-    worksheet.write_number(row, 1, data_2[row]);
+    worksheet.write_string(row_num, 0, std::get<std::string>(value));
+    worksheet.write_number(row_num, 1, std::get<int>(value));
+    row_num++;
   }
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");

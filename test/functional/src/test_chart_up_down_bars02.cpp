@@ -6,8 +6,7 @@
 
 #include "xlsxwriterpp.h"
 
-#include <string>
-#include <vector>
+#include <array>
 
 int main()
 {
@@ -18,31 +17,29 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(49019136, 49222016);
 
-  uint8_t data[5][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {3, 6,  5 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 5}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  xwpp::chart_line_t up_line   = {.color_ = xwpp::color_t::YELLOW};
-  xwpp::chart_fill_t up_fill   = {.color_ = xwpp::color_t::RED};
-  xwpp::chart_line_t down_line = {.color_     = xwpp::color_t(0x00B0F0),
-                                  .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT};
-  xwpp::chart_fill_t down_fill = {.color_ = xwpp::color_t(0x00B050)};
+  const xwpp::chart_line_t up_line{.color_ = xwpp::color_t::YELLOW};
+  const xwpp::chart_fill_t up_fill{.color_ = xwpp::color_t::RED};
+  const xwpp::chart_line_t down_line{.color_     = xwpp::color_t(0x00B0F0),
+                                     .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT};
+  const xwpp::chart_fill_t down_fill{.color_ = xwpp::color_t(0x00B050)};
 
   chart.set_up_down_bars_format(up_line, up_fill, down_line, down_fill);
 

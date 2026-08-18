@@ -6,6 +6,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <array>
+
 int main()
 {
   xwpp::workbook_t workbook;
@@ -15,20 +17,18 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(68809856, 68811392);
 
-  uint8_t data[5][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {3, 6,  9 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   xwpp::chart_series_t& series1 =
@@ -37,15 +37,12 @@ int main()
   worksheet.insert_chart(CELL("E9"), &chart);
 
   /* Add the cached data for testing. */
-  uint8_t test_data[4][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 4> test_data{
+    {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  xwpp::chart_add_data_cache(series1.categories_, test_data[0], 4, 3, 0);
-  xwpp::chart_add_data_cache(series1.values_, test_data[0], 4, 3, 1);
+  xwpp::chart_add_data_cache(series1.categories_, test_data[0].data(), 4, 3, 0);
+  xwpp::chart_add_data_cache(series1.values_, test_data[0].data(), 4, 3, 1);
 
   workbook.save("test_chart_column08.xlsx");
 }

@@ -11,8 +11,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <string>
-#include <tuple>
-#include <vector>
 
 using namespace std::string_literals;
 

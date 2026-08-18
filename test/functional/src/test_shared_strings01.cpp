@@ -6,17 +6,21 @@
 
 #include "xlsxwriterpp.h"
 
+#include "string"
+
+using namespace std::string_literals;
+
 int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  char c[] = {0x00, 0x00};
+  std::string c = "\0"s;
 
   worksheet.write_string(0, 0, "_x0000_");
   for(xwpp::row_num_t i = 1; i < 127; i++)
   {
-    (*c)++;
+    c[0]++;
     if(i != 34)
     {
       worksheet.write_string(i, 0, c);

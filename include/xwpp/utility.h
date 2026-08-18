@@ -43,6 +43,7 @@ namespace xwpp
  * @todo Replace by a constexpr function or overload of function using `%col_num`
  * and `%row_num`.
  */
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define CELL(cell) xwpp::name_to_row(cell), xwpp::name_to_col(cell)
 
 /**
@@ -62,6 +63,7 @@ namespace xwpp
  * @todo Replace by a constexpr function or overload of function using `%col_num`
  * and `%row_num`.
  */
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define COLS(cols) xwpp::name_to_col(cols), xwpp::name_to_col_2(cols)
 
 /**
@@ -83,6 +85,7 @@ namespace xwpp
  * @todo Replace by a constexpr function or overload of function using `%col_num`
  * and `%row_num`.
  */
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define RANGE(range)                                                                                                   \
   xwpp::name_to_row(range), xwpp::name_to_col(range), xwpp::name_to_row_2(range), xwpp::name_to_col_2(range)
 
@@ -112,11 +115,10 @@ std::string version();
 std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
                                   row_num_t last_row, col_num_t last_col);
 
-// TODO String
-uint32_t name_to_row(const char* row_str);
-uint32_t name_to_row_2(const char* row_str);
-uint16_t name_to_col(const char* col_str);
-uint16_t name_to_col_2(const char* col_str);
+uint32_t name_to_row(std::string_view row_str);
+uint32_t name_to_row_2(std::string_view row_str);
+uint16_t name_to_col(std::string_view col_str);
+uint16_t name_to_col_2(std::string_view col_str);
 
 std::string dup_formula(const std::string& formula);
 

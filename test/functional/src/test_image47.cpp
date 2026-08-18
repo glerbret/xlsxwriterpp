@@ -13,7 +13,7 @@ int main()
 
   worksheet.insert_image(CELL("E9"), "images/red.png");
 
-  xwpp::row_col_options_t options = {.hidden_ = true};
+  const xwpp::row_col_options_t options{.hidden_ = true};
   worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options);
 
   workbook.save("test_image47.xlsx");

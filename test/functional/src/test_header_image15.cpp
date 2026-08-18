@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
 
-  xwpp::header_footer_options_t header_options = {.image_left_ = "images/red.jpg"};
+  const xwpp::header_footer_options_t header_options{.image_left_ = "images/red.jpg"};
 
   worksheet1.set_header("&L&G", header_options);
   worksheet2.set_header("&L&G", header_options);

@@ -18,10 +18,6 @@
 namespace xwpp
 {
 
-style_t::style_t()
-{
-}
-
 style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count,
                  bool has_comments, const std::vector<format_t*>& xf_formats, const std::vector<format_t*>& dxf_formats)
   : font_count_{font_count}
@@ -58,7 +54,7 @@ std::string style_t::write_string_fragment(const std::string& str) const
   std::vector<std::tuple<std::string, std::string>> attributes;
 
   // Add attribute to preserve leading or trailing whitespace.
-  if(std::isspace(str[0]) || std::isspace(str.back()))
+  if((std::isspace(str[0]) != 0) || (std::isspace(str.back()) != 0))
   {
     attributes.emplace_back("xml:space", "preserve");
   }
@@ -93,9 +89,7 @@ std::string style_t::write_num_fmt(uint16_t num_fmt_id, const std::string& forma
                                         "0.00%",
                                         "0.00E+00",
                                         "# ?/?",
-                                        "# ?"
-                                        "?/?"
-                                        "?", /* Split string to avoid unintentional trigraph. */
+                                        "# ?\?/?\?", /* Split string to avoid unintentional trigraph. */
                                         "m/d/yy",
                                         "d-mmm-yy",
                                         "d-mmm",
@@ -164,7 +158,7 @@ std::string style_t::write_num_fmts() const
                                                     {"count", std::to_string(num_format_count_)}
   });
 
-  for(const auto format: xf_formats_)
+  for(const auto* format: xf_formats_)
   {
     // Ignore built-in number formats, i.e., < 0xA4.
     // TODO Add constantes for 0xA4
@@ -386,11 +380,11 @@ std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_ric
     xml_data += write_font_size(format->font_size_);
   }
 
-  if(format->theme_)
+  if(format->theme_ != 0)
   {
     xml_data += write_font_color_theme(format->theme_);
   }
-  else if(format->color_indexed_)
+  else if(format->color_indexed_ != 0)
   {
     xml_data += write_font_color_indexed(format->color_indexed_);
   }
@@ -409,7 +403,7 @@ std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_ric
     xml_data += write_font_name(format->font_name_, is_rich_string);
     xml_data += write_font_family(format->font_family_);
 
-    if(format->font_charset_)
+    if(format->font_charset_ != 0)
     {
       xml_data += write_font_charset(format->font_charset_);
     }
@@ -467,7 +461,7 @@ std::string style_t::write_fonts()
                                                   {"count", std::to_string(count)}
   });
 
-  for(const auto format: xf_formats_)
+  for(const auto* format: xf_formats_)
   {
     if(format->has_font_)
     {
@@ -656,7 +650,7 @@ std::string style_t::write_borders() const
                                                     {"count", std::to_string(border_count_)}
   });
 
-  for(const auto format: xf_formats_)
+  for(const auto* format: xf_formats_)
   {
     if(format->has_border_)
     {
@@ -739,7 +733,7 @@ std::string style_t::write_cell_xfs() const
   std::string xml_data = xml_start_tag("cellXfs", {
                                                     {"count", std::to_string(count)}
   });
-  for(const auto format: xf_formats_)
+  for(const auto* format: xf_formats_)
   {
     if(!format->font_only_)
     {
@@ -789,16 +783,16 @@ std::string style_t::write_cell_styles() const
 bool style_t::apply_alignment(const format_t* format) const
 {
   return format->text_h_align_ != format_alignments_t::NONE || format->text_v_align_ != format_alignments_t::NONE ||
-         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ != 0 || format->shrink_ != 0 ||
+         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
          format->reading_order_ != 0;
 }
 
 bool style_t::has_alignment(const format_t* format) const
 {
   return format->text_h_align_ != format_alignments_t::NONE ||
-         !(format->text_v_align_ == format_alignments_t::NONE ||
-           format->text_v_align_ == format_alignments_t::VERTICAL_BOTTOM) ||
-         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ != 0 || format->shrink_ != 0 ||
+         (format->text_v_align_ != format_alignments_t::NONE &&
+          format->text_v_align_ != format_alignments_t::VERTICAL_BOTTOM) ||
+         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
          format->reading_order_ != 0;
 }
 
@@ -813,7 +807,7 @@ std::string style_t::write_alignment(const format_t* format) const
   // Indent is only allowed for some alignment properties.
   // If it is defined for any other alignment or no alignment has been
   // set then default to left alignment.
-  if(format->indent_ && text_h_align != format_alignments_t::HORIZONTAL_LEFT &&
+  if(format->indent_ != 0 && text_h_align != format_alignments_t::HORIZONTAL_LEFT &&
      text_h_align != format_alignments_t::HORIZONTAL_RIGHT &&
      text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED &&
      format->text_v_align_ != format_alignments_t::VERTICAL_TOP &&
@@ -846,12 +840,12 @@ std::string style_t::write_alignment(const format_t* format) const
 
   if(text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED)
   {
-    just_distrib = 0;
+    just_distrib = false;
   }
 
-  if(format->indent_)
+  if(format->indent_ != 0)
   {
-    just_distrib = 0;
+    just_distrib = false;
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_LEFT)
@@ -923,13 +917,15 @@ std::string style_t::write_alignment(const format_t* format) const
     }
     else if(rotation < 0)
     {
+      // TODO Use more consistent type (int?)
+      // NOLINTNEXTLINE(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
       rotation = -rotation + 90;
     }
 
     attributes.emplace_back("textRotation", std::to_string(rotation));
   }
 
-  if(format->indent_)
+  if(format->indent_ != 0)
   {
     attributes.emplace_back("indent", std::to_string(format->indent_));
   }
@@ -982,7 +978,7 @@ std::string style_t::write_protection(const format_t* format) const
 
 std::string style_t::write_xf(const format_t* format) const
 {
-  const bool has_protection = (!format->locked_) | format->hidden_;
+  const bool has_protection = !format->locked_ || format->hidden_;
 
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"numFmtId", std::to_string(format->num_format_index_)},
@@ -1069,7 +1065,7 @@ std::string style_t::write_dxfs()
         xml_data += write_font(format, true, false);
       }
 
-      if(format->num_format_index_)
+      if(format->num_format_index_ != 0)
       {
         xml_data += write_num_fmt(format->num_format_index_, format->num_format_);
       }
@@ -1122,12 +1118,12 @@ std::string style_t::write_hyperlink_protection() const
 std::string style_t::write_fill(const format_t* format, bool is_dxf) const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
-  format_patterns_t pattern = format->pattern_;
-  color_t bg_color          = format->bg_color_;
-  color_t fg_color          = format->fg_color_;
+  const format_patterns_t pattern = format->pattern_;
+  color_t bg_color                = format->bg_color_;
+  color_t fg_color                = format->fg_color_;
 
   // TODO Add function of conversion
-  std::vector<std::string> patterns = {
+  const std::vector<std::string> patterns = {
     "none",     "solid",     "mediumGray",   "darkGray",    "lightGray",       "darkHorizontal", "darkVertical",
     "darkDown", "darkUp",    "darkGrid",     "darkTrellis", "lightHorizontal", "lightVertical",  "lightDown",
     "lightUp",  "lightGrid", "lightTrellis", "gray125",     "gray0625",
@@ -1149,7 +1145,7 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf) const
 
   // None/Solid patterns are handled differently for dxf formats.
   if(pattern != format_patterns_t::NONE &&
-     !(is_dxf && static_cast<uint32_t>(pattern) <= static_cast<uint32_t>(format_patterns_t::SOLID)))
+     (!is_dxf || static_cast<uint32_t>(pattern) > static_cast<uint32_t>(format_patterns_t::SOLID)))
   {
     attributes.emplace_back("patternType", patterns[static_cast<uint32_t>(pattern)]);
   }

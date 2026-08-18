@@ -32,7 +32,7 @@ int main()
   custom_format->set_font_color(xwpp::color_t::RED);
 
   // Create a conditional format object. A static object would also work.
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,
     .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
     .value_    = 33,

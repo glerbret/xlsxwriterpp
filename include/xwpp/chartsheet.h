@@ -207,7 +207,7 @@ public:
   /**
    * @brief Set the paper type for printing.
    *
-   * @param paper_type The Excel paper format type.
+   * @param paper_size The Excel paper format type.
    *
    * This function is used to set the paper format for the printed output of a
    * chartsheet:
@@ -222,9 +222,9 @@ public:
    *
    * @see `worksheet_t::set_paper()` for a full list of available paper sizes.
    *
-   * @todo Use enum for `%paper_type`.
+   * @todo Use enum for `%paper_size`.
    */
-  void set_paper(uint8_t paper_type);
+  void set_paper(uint8_t paper_size);
 
   /**
    * @brief Set the chartsheet margins for the printed page.

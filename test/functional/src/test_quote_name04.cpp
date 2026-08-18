@@ -6,27 +6,29 @@
 
 #include "xlsxwriterpp.h"
 
+#include <array>
+#include <string>
+#include <vector>
+
 int main()
 {
   xwpp::workbook_t workbook;
 
-  uint8_t data[5][3] = {
-    {1, 2,  3 },
-    {2, 4,  6 },
-    {3, 6,  9 },
-    {4, 8,  12},
-    {5, 10, 15}
+  const std::array<std::array<uint8_t, 3>, 5> data{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  std::string sheetname        = "Sheet 1";
+  const std::string sheetname  = "Sheet 1";
   xwpp::worksheet_t& worksheet = workbook.add_worksheet(sheetname);
 
-  for(xwpp::row_num_t row = 0; row < 5; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
 
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);

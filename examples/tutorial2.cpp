@@ -12,27 +12,27 @@
 
 #include "xlsxwriterpp.h"
 
-struct expense
-{
-  char item[32];
-  int cost;
-};
-
-struct expense expenses[]{
-  {"Rent", 1000},
-  {"Gas",  100 },
-  {"Food", 300 },
-  {"Gym",  50  },
-};
+#include <string>
+#include <vector>
 
 int main()
 {
+  struct expense
+  {
+    std::string item_;
+    int cost_;
+  };
+
+  const std::vector<expense> expenses{
+    {.item_ = "Rent", .cost_ = 1000},
+    {.item_ = "Gas",  .cost_ = 100 },
+    {.item_ = "Food", .cost_ = 300 },
+    {.item_ = "Gym",  .cost_ = 50  },
+  };
+
   // Create a workbook and add a worksheet.
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-
-  xwpp::row_num_t row = 0;
-  xwpp::col_num_t col = 0;
 
   // Add a bold format to use to highlight cells.
   xwpp::format_t* bold = workbook.add_format();
@@ -42,22 +42,25 @@ int main()
   xwpp::format_t* money = workbook.add_format();
   money->set_num_format("$#,##0");
 
+  xwpp::row_num_t row_num = 0;
+
   // Write some data header.
-  worksheet.write_string(row, col, "Item", bold);
-  worksheet.write_string(row, col + 1, "Cost", bold);
+  worksheet.write_string(row_num, 0, "Item", bold);
+  worksheet.write_string(row_num, 1, "Cost", bold);
+  row_num++;
 
   // Iterate over the data and write it out element by element.
-  for(int i = 0; i < 4; i++)
+  for(const auto& value: expenses)
   {
     // Write from the first cell below the headers.
-    row = i + 1;
-    worksheet.write_string(row, col, expenses[i].item);
-    worksheet.write_number(row, col + 1, expenses[i].cost, money);
+    worksheet.write_string(row_num, 0, value.item_);
+    worksheet.write_number(row_num, 1, value.cost_, money);
+    row_num++;
   }
 
   // Write a total using a formula.
-  worksheet.write_string(row + 1, col, "Total", bold);
-  worksheet.write_formula(row + 1, col + 1, "=SUM(B2:B5)", money);
+  worksheet.write_string(row_num, 0, "Total", bold);
+  worksheet.write_formula(row_num, 1, "=SUM(B2:B5)", money);
 
   workbook.save("tutorial02.xlsx");
 }

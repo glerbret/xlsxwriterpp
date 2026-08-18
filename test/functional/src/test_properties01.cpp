@@ -10,7 +10,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::doc_properties_t properties{
+  const xwpp::doc_properties_t properties{
     .title_        = "This is an example spreadsheet",
     .subject_      = "With document properties",
     .author_       = "Someone",

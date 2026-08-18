@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Sheet 1");
 
-  xwpp::image_options_t options = {.url_ = "internal:'Sheet 1'!A1"};
+  const xwpp::image_options_t options{.url_ = "internal:'Sheet 1'!A1"};
 
   worksheet.insert_image(CELL("E9"), "images/red.png", options);
 

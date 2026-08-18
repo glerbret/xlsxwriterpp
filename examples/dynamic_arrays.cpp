@@ -10,34 +10,40 @@
 
 #include "xlsxwriterpp.h"
 
+#include <string>
+#include <vector>
+
+namespace
+{
+
 // A simple function and data structure to populate some of the worksheets.
 struct worksheet_data
 {
-  char col1[10];
-  char col2[10];
-  char col3[10];
-  int col4;
+  std::string col1_;
+  std::string col2_;
+  std::string col3_;
+  int col4_;
 };
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* header)
 {
-  worksheet_data data[16]{
-    {"East",  "Tom",    "Apple",  6380},
-    {"West",  "Fred",   "Grape",  5619},
-    {"North", "Amy",    "Pear",   4565},
-    {"South", "Sal",    "Banana", 5323},
-    {"East",  "Fritz",  "Apple",  4394},
-    {"West",  "Sravan", "Grape",  7195},
-    {"North", "Xi",     "Pear",   5231},
-    {"South", "Hector", "Banana", 2427},
-    {"East",  "Tom",    "Banana", 4213},
-    {"West",  "Fred",   "Pear",   3239},
-    {"North", "Amy",    "Grape",  6520},
-    {"South", "Sal",    "Apple",  1310},
-    {"East",  "Fritz",  "Banana", 6274},
-    {"West",  "Sravan", "Pear",   4894},
-    {"North", "Xi",     "Grape",  7580},
-    {"South", "Hector", "Apple",  9814},
+  const std::vector<worksheet_data> data{
+    {.col1_ = "East",  .col2_ = "Tom",    .col3_ = "Apple",  .col4_ = 6380},
+    {.col1_ = "West",  .col2_ = "Fred",   .col3_ = "Grape",  .col4_ = 5619},
+    {.col1_ = "North", .col2_ = "Amy",    .col3_ = "Pear",   .col4_ = 4565},
+    {.col1_ = "South", .col2_ = "Sal",    .col3_ = "Banana", .col4_ = 5323},
+    {.col1_ = "East",  .col2_ = "Fritz",  .col3_ = "Apple",  .col4_ = 4394},
+    {.col1_ = "West",  .col2_ = "Sravan", .col3_ = "Grape",  .col4_ = 7195},
+    {.col1_ = "North", .col2_ = "Xi",     .col3_ = "Pear",   .col4_ = 5231},
+    {.col1_ = "South", .col2_ = "Hector", .col3_ = "Banana", .col4_ = 2427},
+    {.col1_ = "East",  .col2_ = "Tom",    .col3_ = "Banana", .col4_ = 4213},
+    {.col1_ = "West",  .col2_ = "Fred",   .col3_ = "Pear",   .col4_ = 3239},
+    {.col1_ = "North", .col2_ = "Amy",    .col3_ = "Grape",  .col4_ = 6520},
+    {.col1_ = "South", .col2_ = "Sal",    .col3_ = "Apple",  .col4_ = 1310},
+    {.col1_ = "East",  .col2_ = "Fritz",  .col3_ = "Banana", .col4_ = 6274},
+    {.col1_ = "West",  .col2_ = "Sravan", .col3_ = "Pear",   .col4_ = 4894},
+    {.col1_ = "North", .col2_ = "Xi",     .col3_ = "Grape",  .col4_ = 7580},
+    {.col1_ = "South", .col2_ = "Hector", .col3_ = "Apple",  .col4_ = 9814},
   };
 
   worksheet.write_string(CELL("A1"), "Region", header);
@@ -45,13 +51,16 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* he
   worksheet.write_string(CELL("C1"), "Product", header);
   worksheet.write_string(CELL("D1"), "Units", header);
 
-  for(int row = 0; row < 16; row++)
+  for(xwpp::row_num_t row_num = 1; const auto& value: data)
   {
-    worksheet.write_string(row + 1, 0, data[row].col1);
-    worksheet.write_string(row + 1, 1, data[row].col2);
-    worksheet.write_string(row + 1, 2, data[row].col3);
-    worksheet.write_number(row + 1, 3, data[row].col4);
+    worksheet.write_string(row_num, 0, value.col1_);
+    worksheet.write_string(row_num, 1, value.col2_);
+    worksheet.write_string(row_num, 2, value.col3_);
+    worksheet.write_number(row_num, 3, value.col4_);
+    row_num++;
   }
+}
+
 }
 
 int main()

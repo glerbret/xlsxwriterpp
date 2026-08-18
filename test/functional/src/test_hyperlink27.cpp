@@ -13,7 +13,7 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "external:\\\\Vboxsvr\\share\\foo bar.xlsx#'Some Sheet'!A1");
+  worksheet.write_url(CELL("A1"), R"(external:\\Vboxsvr\share\foo bar.xlsx#'Some Sheet'!A1)");
 
   workbook.save("test_hyperlink27.xlsx");
 }

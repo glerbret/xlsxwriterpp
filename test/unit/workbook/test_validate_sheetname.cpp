@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_3)
 
 BOOST_AUTO_TEST_CASE(validate_worksheet_empty_name)
 {
-  const std::string sheetname = "";
+  const std::string sheetname;
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);

@@ -9,28 +9,32 @@
 
 #include "xlsxwriterpp.h"
 
+#include <array>
+
+namespace
+{
+
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-  uint8_t data[6][3] = {
-    {2, 10, 30},
-    {3, 40, 60},
-    {4, 50, 70},
-    {5, 20, 50},
-    {6, 10, 40},
-    {7, 50, 30}
+  const std::array<std::array<uint8_t, 3>, 6> data{
+    {{2, 10, 30}, {3, 40, 60}, {4, 50, 70}, {5, 20, 50}, {6, 10, 40}, {7, 50, 30}}
   };
 
   worksheet.write_string(CELL("A1"), "Number", bold);
   worksheet.write_string(CELL("B1"), "Batch 1", bold);
   worksheet.write_string(CELL("C1"), "Batch 2", bold);
 
-  for(xwpp::row_num_t row = 0; row < 6; row++)
+  for(xwpp::row_num_t row_num = 0; const auto& row: data)
   {
-    for(xwpp::col_num_t col = 0; col < 3; col++)
+    for(xwpp::col_num_t col_num = 0; const auto value: row)
     {
-      worksheet.write_number(row + 1, col, data[row][col]);
+      worksheet.write_number(row_num, col_num, value);
+      col_num++;
     }
+    row_num++;
   }
+}
+
 }
 
 int main()

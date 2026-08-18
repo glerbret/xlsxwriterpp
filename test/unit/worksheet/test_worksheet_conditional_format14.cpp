@@ -10,9 +10,9 @@
 #include "xwpp/workbook.h"
 #include "xwpp/worksheet.h"
 
-#include <string>
-
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(worksheet)
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(condtional_format14)
   worksheet.write_number(CELL("A11"), 11);
   worksheet.write_number(CELL("A12"), 12);
 
-  xwpp::conditional_format_t conditional_format{
+  const xwpp::conditional_format_t conditional_format{
     .type_ = xwpp::conditional_format_types_t::DATA_BAR,
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);

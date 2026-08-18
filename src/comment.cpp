@@ -19,9 +19,9 @@
 namespace xwpp
 {
 
-comment_t::comment_t(const std::vector<vml_obj_t>& comment_objs, const std::string& comment_author)
+comment_t::comment_t(const std::vector<vml_obj_t>& comment_objs, std::string comment_author)
   : comment_objs_{comment_objs}
-  , comment_author_{comment_author}
+  , comment_author_{std::move(comment_author)}
 {
 }
 

@@ -9,6 +9,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <vector>
+
 int main()
 {
   // Simple array with some PNG data.

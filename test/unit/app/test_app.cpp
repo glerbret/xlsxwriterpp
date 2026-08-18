@@ -10,6 +10,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <string>
+
 BOOST_AUTO_TEST_SUITE(app)
 
 BOOST_AUTO_TEST_CASE(assemble_xml_file_1)

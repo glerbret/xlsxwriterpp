@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options = {.x_offset_ = -100, .y_offset_ = -100};
+  const xwpp::image_options_t options{.x_offset_ = -100, .y_offset_ = -100};
 
   worksheet.insert_image(CELL("B2"), "images/red.png", options);
 

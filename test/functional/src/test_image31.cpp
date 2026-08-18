@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options = {.x_offset_ = -2, .y_offset_ = -1};
+  const xwpp::image_options_t options{.x_offset_ = -2, .y_offset_ = -1};
 
   worksheet.set_column(3, 3, 3.86);
   worksheet.set_row(7, 7.5);

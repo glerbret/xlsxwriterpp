@@ -41,6 +41,7 @@
 #include "xwpp/format.h"
 #include "xwpp/shared_strings.h"
 
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -83,6 +84,7 @@ double pixels_to_width(double pixels);
  *
  * @todo Use `enum class`.
  */
+// NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
 enum gridlines_t
 {
   /** Hide screen and print gridlines. */
@@ -805,24 +807,24 @@ enum class image_position_t
 // Internal structure for VML object options.
 struct vml_obj_t
 {
-  row_num_t row_;
-  col_num_t col_;
-  row_num_t start_row_;
-  col_num_t start_col_;
-  int32_t x_offset_;
-  int32_t y_offset_;
-  uint64_t col_absolute_;
-  uint64_t row_absolute_;
-  uint32_t width_;
-  uint32_t height_;
-  double x_dpi_;
-  double y_dpi_;
-  color_t color_ = color_t::UNSET;
-  uint8_t font_family_;
+  row_num_t row_             = 0;
+  col_num_t col_             = 0;
+  row_num_t start_row_       = 0;
+  col_num_t start_col_       = 0;
+  int32_t x_offset_          = 0;
+  int32_t y_offset_          = 0;
+  uint64_t col_absolute_     = 0;
+  uint64_t row_absolute_     = 0;
+  uint32_t width_            = 0;
+  uint32_t height_           = 0;
+  double x_dpi_              = 0.;
+  double y_dpi_              = 0.;
+  color_t color_             = color_t::UNSET;
+  uint8_t font_family_       = 0;
   comment_display_t visible_ = comment_display_t::DEFAULT;
   uint32_t author_id_        = 0;
-  uint32_t rel_index_;
-  double font_size_;
+  uint32_t rel_index_        = 0;
+  double font_size_          = 0.;
   drawing_coords_t from_;
   drawing_coords_t to_;
   std::string author_;
@@ -841,7 +843,7 @@ struct cell_t
   format_t* format_  = nullptr;
   std::optional<vml_obj_t> comment_;
   std::variant<uint32_t, double, std::string> data_;
-  double formula_result_;
+  double formula_result_ = 0.;
   std::string user_data1_;
   std::string user_data2_;
   std::string sst_string_;
@@ -1554,12 +1556,12 @@ struct table_column_t
   /**
    * Set the format for the column header.
    */
-  format_t* header_format_;
+  format_t* header_format_ = nullptr;
 
   /**
    * Set the format for the data rows in the column.
    */
-  format_t* format_;
+  format_t* format_ = nullptr;
 
   /**
    * Set the formula value for the column total (not generally required).
@@ -1985,13 +1987,13 @@ struct object_properties_t
   std::string url_;
   std::string tip_;
   object_position_t object_position_ = object_position_t::DEFAULT;
-  image_types_t image_type_;
+  image_types_t image_type_          = image_types_t::UNKNOWN;
   std::vector<unsigned char> image_buffer_;
   double width_  = 0.;
   double height_ = 0.;
   std::string extension_;
-  double x_dpi_;
-  double y_dpi_;
+  double x_dpi_       = 0.;
+  double y_dpi_       = 0.;
   chart_t* chart_     = nullptr;
   bool is_duplicate_  = false;
   bool is_background_ = false;
@@ -2416,7 +2418,7 @@ class worksheet_t
 {
 public:
   // TODO Constructor should not be public but only used by `workbook_t`.
-  worksheet_t();
+  worksheet_t() = default;
   worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
               std::function<int32_t(format_t*)> get_dxf_index);
 
@@ -2711,7 +2713,7 @@ public:
    *
    * @code
    *  // Set the height of Row 1 to 20 pixels.
-   *  worksheet.set_row_pixels(0, 20, NULL);
+   *  worksheet.set_row_pixels(0, 20, nullptr);
    * @endcode
    *
    * If you wish to set the format of a row without changing the height you can
@@ -3206,7 +3208,7 @@ public:
    * section of the docs.
    */
   void write_comment(row_num_t row_num, col_num_t col_num, const std::string& text,
-                     std::optional<comment_options_t> options);
+                     const std::optional<comment_options_t>& options);
   /// @overload
   void write_comment(row_num_t row_num, col_num_t col_num, const std::string& text);
 
@@ -4176,8 +4178,8 @@ public:
   /**
    * @brief Split a worksheet into panes.
    *
-   * @param vertical   The position for the vertical split.
-   * @param horizontal The position for the horizontal split.
+   * @param y_split   The position for the vertical split.
+   * @param x_split   The position for the horizontal split.
    *
    * The `%split_panes()` function can be used to divide a worksheet
    * into horizontal or vertical regions known as panes. This function is
@@ -4201,10 +4203,10 @@ public:
    *
    * @todo Document the second API.
    */
-  void split_panes(double vertical, double horizontal);
+  void split_panes(double y_split, double x_split);
 
   /* split_panes() with infrequent options. Undocumented for now. */
-  void split_panes(double vertical, double horizontal, row_num_t top_row, col_num_t left_col);
+  void split_panes(double y_split, double x_split, row_num_t top_row, col_num_t left_col);
 
   /**
    * @brief Set the selected cell or cells in a worksheet:
@@ -4907,7 +4909,7 @@ public:
   /**
    * @brief Set the paper type for printing.
    *
-   * @param paper_type The Excel paper format type.
+   * @param paper_size The Excel paper format type.
    *
    * This function is used to set the paper format for the printed output of a
    * worksheet. The following paper styles are available:
@@ -4969,9 +4971,9 @@ public:
    * the end user since it will depend on the paper formats that the user's
    * printer supports. Therefore, it is best to stick to standard paper types:
    *
-   * @todo Use enum as `paper_type`.
+   * @todo Use enum as `paper_size`.
    */
-  void set_paper(uint8_t paper_type);
+  void set_paper(uint8_t paper_size);
 
   /**
    * @brief Set the page orientation as landscape.
@@ -5543,7 +5545,7 @@ private:
   void write_column_formula(row_num_t first_row, row_num_t last_row, col_num_t col, const table_column_t& column);
 
   // Function to prepare data before packaging.
-  uint32_t calculate_x_split_width(double x_split) const;
+  [[nodiscard]] uint32_t calculate_x_split_width(double x_split) const;
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
@@ -5774,13 +5776,13 @@ private:
   std::string top_left_cell_;
   protection_obj_t protection_;
   std::optional<drawing_t> drawing_;
-  format_t* default_url_format_;
-  bool has_vml_                = false;
-  bool has_comments_           = false;
-  bool has_header_vml_         = false;
-  bool has_background_image_   = false;
-  bool has_buttons_            = false;
-  bool storing_embedded_image_ = false;
+  format_t* default_url_format_ = nullptr;
+  bool has_vml_                 = false;
+  bool has_comments_            = false;
+  bool has_header_vml_          = false;
+  bool has_background_image_    = false;
+  bool has_buttons_             = false;
+  bool storing_embedded_image_  = false;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
@@ -5788,8 +5790,8 @@ private:
   std::string comment_author_;
   std::string vml_data_id_str_;
   std::string vml_header_id_str_;
-  uint32_t vml_shape_id_;
-  uint32_t vml_header_id_;
+  uint32_t vml_shape_id_                     = 0;
+  uint32_t vml_header_id_                    = 0;
   uint32_t dxf_priority_                     = 0;
   comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
   uint32_t data_bar_2010_index_              = 0;
@@ -5805,7 +5807,7 @@ private:
   std::string ignore_two_digit_text_year_;
   bool use_1904_epoch_    = false;
   uint16_t excel_version_ = 0;
-  std::optional<object_properties_t> header_footer_objs_[6];
+  std::array<std::optional<object_properties_t>, 6> header_footer_objs_;
   std::optional<object_properties_t> background_image_;
   std::vector<std::optional<filter_rule_obj_t>> filter_rules_;
   col_num_t num_filter_rules_ = 0;

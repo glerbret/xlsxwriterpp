@@ -21,7 +21,7 @@ namespace xwpp
 class comment_t
 {
 public:
-  comment_t(const std::vector<vml_obj_t>& comment_objs, const std::string& comment_author);
+  comment_t(const std::vector<vml_obj_t>& comment_objs, std::string comment_author);
 
   [[nodiscard]] std::string assemble_xml_file();
 

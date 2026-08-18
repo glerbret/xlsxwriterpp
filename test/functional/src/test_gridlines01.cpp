@@ -16,7 +16,7 @@ int main()
 
   worksheet.gridlines(xwpp::gridlines_t::HIDE_ALL_GRIDLINES);
 
-  worksheet.write_string(CELL("A1"), "Foo", NULL);
+  worksheet.write_string(CELL("A1"), "Foo");
 
   workbook.save("test_gridlines01.xlsx");
 }
