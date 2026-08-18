@@ -26,16 +26,7 @@ public:
 private:
   [[nodiscard]] std::string write_metadata() const;
   [[nodiscard]] std::string write_metadata_types() const;
-  [[nodiscard]] std::string write_cell_metadata_type() const;
-  [[nodiscard]] std::string write_value_metadata_type() const;
-  [[nodiscard]] std::string write_cell_future_metadata() const;
-  [[nodiscard]] std::string write_xda_dynamic_array_properties() const;
-  [[nodiscard]] std::string write_cell_ext() const;
-  [[nodiscard]] std::string write_xlrd_rvb(uint32_t index) const;
-  [[nodiscard]] std::string write_value_ext(uint32_t index) const;
   [[nodiscard]] std::string write_value_future_metadata() const;
-  [[nodiscard]] std::string write_rc(uint8_t type, uint32_t index) const;
-  [[nodiscard]] std::string write_cell_metadata() const;
   [[nodiscard]] std::string write_value_metadata() const;
 
   bool has_dynamic_functions_   = false;

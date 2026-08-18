@@ -15,6 +15,36 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] format_borders_t check_border(format_borders_t style)
+{
+  switch(style)
+  {
+    case format_borders_t::NONE:
+    case format_borders_t::THIN:
+    case format_borders_t::MEDIUM:
+    case format_borders_t::DASHED:
+    case format_borders_t::DOTTED:
+    case format_borders_t::THICK:
+    case format_borders_t::DOUBLE:
+    case format_borders_t::HAIR:
+    case format_borders_t::MEDIUM_DASHED:
+    case format_borders_t::DASH_DOT:
+    case format_borders_t::MEDIUM_DASH_DOT:
+    case format_borders_t::DASH_DOT_DOT:
+    case format_borders_t::MEDIUM_DASH_DOT_DOT:
+    case format_borders_t::SLANT_DASH_DOT:
+      return style;
+
+    default:
+      return format_borders_t::NONE;
+  }
+}
+
+}
+
 format_t::format_t(std::function<int32_t(format_t*)> get_dxf_index)
   : get_dxf_index_{std::move(get_dxf_index)}
 {
@@ -353,31 +383,6 @@ void format_t::set_hyperlink()
   xf_id_     = 1;
   underline_ = format_underlines_t::SINGLE;
   theme_     = 10;
-}
-
-format_borders_t format_t::check_border(format_borders_t style) const
-{
-  switch(style)
-  {
-    case format_borders_t::NONE:
-    case format_borders_t::THIN:
-    case format_borders_t::MEDIUM:
-    case format_borders_t::DASHED:
-    case format_borders_t::DOTTED:
-    case format_borders_t::THICK:
-    case format_borders_t::DOUBLE:
-    case format_borders_t::HAIR:
-    case format_borders_t::MEDIUM_DASHED:
-    case format_borders_t::DASH_DOT:
-    case format_borders_t::MEDIUM_DASH_DOT:
-    case format_borders_t::DASH_DOT_DOT:
-    case format_borders_t::MEDIUM_DASH_DOT_DOT:
-    case format_borders_t::SLANT_DASH_DOT:
-      return style;
-
-    default:
-      return format_borders_t::NONE;
-  }
 }
 
 const std::string format_t::DEFAULT_FONT_NAME = "Calibri";

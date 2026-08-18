@@ -18,6 +18,39 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_rich_si(const std::string& str)
+{
+  return xml_rich_si_element(str);
+}
+
+[[nodiscard]] std::string write_t(const std::string& str)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  // Add attribute to preserve leading or trailing whitespace.
+  if(std::isspace(str.front()) != 0 || std::isspace(str.back()) != 0)
+  {
+    attributes.emplace_back("xml:space", "preserve");
+  }
+
+  return xml_data_element("t", str, attributes);
+}
+
+[[nodiscard]] std::string write_si(const std::string& str)
+{
+  const std::string encoded = escape_control_characters(str);
+
+  std::string xml_data = xml_start_tag("si");
+  xml_data += write_t(encoded);
+  xml_data += xml_end_tag("si");
+
+  return xml_data;
+}
+
+}
+
 bool shared_strings_t::has_string() const
 {
   return string_count_ != 0;
@@ -84,34 +117,6 @@ std::string shared_strings_t::write_sst_strings() const
   }
 
   return xml_data;
-}
-
-std::string shared_strings_t::write_si(const std::string& str) const
-{
-  const std::string encoded = escape_control_characters(str);
-
-  std::string xml_data = xml_start_tag("si");
-  xml_data += write_t(encoded);
-  xml_data += xml_end_tag("si");
-
-  return xml_data;
-}
-
-std::string shared_strings_t::write_rich_si(const std::string& str) const
-{
-  return xml_rich_si_element(str);
-}
-
-std::string shared_strings_t::write_t(const std::string& str) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-  // Add attribute to preserve leading or trailing whitespace.
-  if(std::isspace(str.front()) != 0 || std::isspace(str.back()) != 0)
-  {
-    attributes.emplace_back("xml:space", "preserve");
-  }
-
-  return xml_data_element("t", str, attributes);
 }
 
 }

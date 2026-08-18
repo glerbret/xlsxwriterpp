@@ -32,7 +32,7 @@ int main()
   }
 
   const xwpp::chart_line_t line = {.color_     = xwpp::color_t::RED,
-                                   .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT};
+                                   .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
 
   chart.set_drop_lines(line);
 

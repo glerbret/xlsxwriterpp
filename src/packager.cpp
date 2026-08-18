@@ -169,10 +169,6 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
   if(!workbook.vba_project_.empty())
   {
     content_types.add_default("bin", "application/vnd.ms-office.vbaProject");
-  }
-
-  if(!workbook.vba_project_.empty())
-  {
     content_types.add_override("/xl/workbook.xml", content_types_t::APP_MSEXCEL + "sheet.macroEnabled.main+xml");
   }
   else
@@ -310,6 +306,7 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
   add_buffer_to_zip(xml_data, "xl/_rels/workbook.xml.rels");
 }
 
+// cppcheck-suppress constParameterReference
 void packager_t::write_worksheet_files(workbook_t& workbook)
 {
   // Use ref to modify worksheet (add relations in external_hyperlinks_)
@@ -326,6 +323,7 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
   }
 }
 
+// cppcheck-suppress constParameterReference
 void packager_t::write_chartsheet_files(workbook_t& workbook)
 {
   for(size_t index = 1; auto& sheet: workbook.sheets_)
@@ -373,9 +371,7 @@ void packager_t::write_shared_strings_file(const workbook_t& workbook)
 
 void packager_t::write_theme_file()
 {
-  const theme_t theme;
-
-  const std::string xml_data = theme.assemble_xml_file();
+  const std::string& xml_data = theme_t::assemble_xml_file();
   add_buffer_to_zip(xml_data, "xl/theme/theme1.xml");
 }
 
@@ -805,9 +801,7 @@ void packager_t::write_rich_value_types_file(const workbook_t& workbook)
 {
   if(workbook.has_embedded_images_)
   {
-    const rich_value_types_t rich_value_types;
-
-    const std::string xml_data = rich_value_types.assemble_xml_file();
+    const std::string xml_data = rich_value_types_t::assemble_xml_file();
     add_buffer_to_zip(xml_data, "xl/richData/rdRichValueTypes.xml");
   }
 }
@@ -906,7 +900,7 @@ void packager_t::add_buffer_to_zip(std::string_view buffer, const std::string& f
   }
 }
 
-void packager_t::add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename)
+void packager_t::add_buffer_to_zip(const std::vector<unsigned char>& buffer, const std::string& filename)
 {
   if(zipOpenNewFileInZip4_64(zipfile_, filename.c_str(), &zip_fileinfo_, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED,
                              Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 0, 0,

@@ -875,17 +875,14 @@ private:
   void prepare_workbook();
 
   // Functions to write XML content.
-  [[nodiscard]] std::string write_workbook() const;
   [[nodiscard]] std::string write_file_version() const;
   [[nodiscard]] std::string write_file_sharing() const;
   [[nodiscard]] std::string write_workbook_pr() const;
   [[nodiscard]] std::string write_workbook_view() const;
   [[nodiscard]] std::string write_book_views() const;
-  [[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id, bool hidden) const;
   [[nodiscard]] std::string write_sheets() const;
-  [[nodiscard]] std::string write_defined_name(const defined_name_t& defined_name) const;
+  [[nodiscard]] static std::string write_defined_name(const defined_name_t& defined_name);
   [[nodiscard]] std::string write_defined_names() const;
-  [[nodiscard]] std::string write_calc_pr() const;
 
   static const size_t XWPP_SHEETNAME_MAX = 31;
 

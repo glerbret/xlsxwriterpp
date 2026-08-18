@@ -13,6 +13,23 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_rv()
+{
+  return xml_start_tag("rv", {
+                               {"s", "0"}
+  });
+}
+
+[[nodiscard]] std::string write_v(const std::string& value)
+{
+  return xml_data_element("v", value);
+}
+
+}
+
 std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
 {
   std::string xml_data = xml_declaration();
@@ -23,7 +40,8 @@ std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
   return xml_data;
 }
 
-std::string rich_value_t::write_rv_data(const workbook_t& workbook) const
+// TODO Move in anonymous namespace after removing friendship with workbook_t
+std::string rich_value_t::write_rv_data(const workbook_t& workbook)
 {
   return xml_start_tag("rvData", {
                                    {"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata"},
@@ -69,18 +87,6 @@ std::string rich_value_t::write_images(const workbook_t& workbook) const
   }
 
   return xml_data;
-}
-
-std::string rich_value_t::write_rv() const
-{
-  return xml_start_tag("rv", {
-                               {"s", "0"}
-  });
-}
-
-std::string rich_value_t::write_v(const std::string& value) const
-{
-  return xml_data_element("v", value);
 }
 
 }

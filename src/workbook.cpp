@@ -27,6 +27,44 @@ using namespace std::literals::chrono_literals;
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_workbook()
+{
+  return xml_start_tag("workbook", {
+                                     {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"    },
+                                     {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/"
+                                                 "relationships"},
+  });
+}
+
+[[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id, bool hidden)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+    {"name", std::string(name)},
+    {"sheetId", std::format("{}", sheet_id)},
+  };
+
+  if(hidden)
+  {
+    attributes.emplace_back("state", "hidden");
+  }
+  attributes.emplace_back("r:id", std::format("rId{}", sheet_id));
+
+  return xml_empty_tag("sheet", attributes);
+}
+
+[[nodiscard]] std::string write_calc_pr()
+{
+  return xml_empty_tag("calcPr", {
+                                   {"calcId",         "124519"},
+                                   {"fullCalcOnLoad", "1"     },
+  });
+}
+
+}
+
 workbook_t::workbook_t(bool use_zip64)
   : use_zip64_{use_zip64}
 {
@@ -535,40 +573,44 @@ int32_t workbook_t::get_xf_index(format_t* format)
     return format->xf_index_;
   }
 
-  for(const auto* fmt: used_xf_formats_)
+  if(auto it = std::ranges::find_if(
+       used_xf_formats_,
+       [=](const auto* fmt) {
+         return fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
+                fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
+                fmt->num_format_index_ == format->num_format_index_ && fmt->font_index_ == format->font_index_ &&
+                fmt->has_font_ == format->has_font_ && fmt->has_dxf_font_ == format->has_dxf_font_ &&
+                fmt->font_size_ == format->font_size_ && fmt->bold_ == format->bold_ &&
+                fmt->italic_ == format->italic_ && fmt->font_color_ == format->font_color_ &&
+                fmt->underline_ == format->underline_ && fmt->font_strikeout_ == format->font_strikeout_ &&
+                fmt->font_outline_ == format->font_outline_ && fmt->font_shadow_ == format->font_shadow_ &&
+                fmt->font_script_ == format->font_script_ && fmt->font_family_ == format->font_family_ &&
+                fmt->font_charset_ == format->font_charset_ && fmt->font_condense_ == format->font_condense_ &&
+                fmt->font_extend_ == format->font_extend_ && fmt->theme_ == format->theme_ &&
+                fmt->hyperlink_ == format->hyperlink_ && fmt->hidden_ == format->hidden_ &&
+                fmt->locked_ == format->locked_ && fmt->text_h_align_ == format->text_h_align_ &&
+                fmt->text_wrap_ == format->text_wrap_ && fmt->text_v_align_ == format->text_v_align_ &&
+                fmt->text_justlast_ == format->text_justlast_ && fmt->rotation_ == format->rotation_ &&
+                fmt->fg_color_ == format->fg_color_ && fmt->bg_color_ == format->bg_color_ &&
+                fmt->dxf_fg_color_ == format->dxf_fg_color_ && fmt->dxf_bg_color_ == format->dxf_bg_color_ &&
+                fmt->pattern_ == format->pattern_ && fmt->has_fill_ == format->has_fill_ &&
+                fmt->has_dxf_fill_ == format->has_dxf_fill_ && fmt->fill_index_ == format->fill_index_ &&
+                fmt->fill_count_ == format->fill_count_ && fmt->border_index_ == format->border_index_ &&
+                fmt->has_border_ == format->has_border_ && fmt->has_dxf_border_ == format->has_dxf_border_ &&
+                fmt->border_count_ == format->border_count_ && fmt->bottom_ == format->bottom_ &&
+                fmt->diag_border_ == format->diag_border_ && fmt->diag_type_ == format->diag_type_ &&
+                fmt->left_ == format->left_ && fmt->right_ == format->right_ && fmt->top_ == format->top_ &&
+                fmt->bottom_color_ == format->bottom_color_ && fmt->diag_color_ == format->diag_color_ &&
+                fmt->left_color_ == format->left_color_ && fmt->right_color_ == format->right_color_ &&
+                fmt->top_color_ == format->top_color_ && fmt->indent_ == format->indent_ &&
+                fmt->shrink_ == format->shrink_ && fmt->merge_range_ == format->merge_range_ &&
+                fmt->reading_order_ == format->reading_order_ && fmt->just_distrib_ == format->just_distrib_ &&
+                fmt->color_indexed_ == format->color_indexed_ && fmt->font_only_ == format->font_only_ &&
+                fmt->quote_prefix_ == format->quote_prefix_;
+       });
+     it != std::end(used_xf_formats_))
   {
-    if(fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
-       fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
-       fmt->num_format_index_ == format->num_format_index_ && fmt->font_index_ == format->font_index_ &&
-       fmt->has_font_ == format->has_font_ && fmt->has_dxf_font_ == format->has_dxf_font_ &&
-       fmt->font_size_ == format->font_size_ && fmt->bold_ == format->bold_ && fmt->italic_ == format->italic_ &&
-       fmt->font_color_ == format->font_color_ && fmt->underline_ == format->underline_ &&
-       fmt->font_strikeout_ == format->font_strikeout_ && fmt->font_outline_ == format->font_outline_ &&
-       fmt->font_shadow_ == format->font_shadow_ && fmt->font_script_ == format->font_script_ &&
-       fmt->font_family_ == format->font_family_ && fmt->font_charset_ == format->font_charset_ &&
-       fmt->font_condense_ == format->font_condense_ && fmt->font_extend_ == format->font_extend_ &&
-       fmt->theme_ == format->theme_ && fmt->hyperlink_ == format->hyperlink_ && fmt->hidden_ == format->hidden_ &&
-       fmt->locked_ == format->locked_ && fmt->text_h_align_ == format->text_h_align_ &&
-       fmt->text_wrap_ == format->text_wrap_ && fmt->text_v_align_ == format->text_v_align_ &&
-       fmt->text_justlast_ == format->text_justlast_ && fmt->rotation_ == format->rotation_ &&
-       fmt->fg_color_ == format->fg_color_ && fmt->bg_color_ == format->bg_color_ &&
-       fmt->dxf_fg_color_ == format->dxf_fg_color_ && fmt->dxf_bg_color_ == format->dxf_bg_color_ &&
-       fmt->pattern_ == format->pattern_ && fmt->has_fill_ == format->has_fill_ &&
-       fmt->has_dxf_fill_ == format->has_dxf_fill_ && fmt->fill_index_ == format->fill_index_ &&
-       fmt->fill_count_ == format->fill_count_ && fmt->border_index_ == format->border_index_ &&
-       fmt->has_border_ == format->has_border_ && fmt->has_dxf_border_ == format->has_dxf_border_ &&
-       fmt->border_count_ == format->border_count_ && fmt->bottom_ == format->bottom_ &&
-       fmt->diag_border_ == format->diag_border_ && fmt->diag_type_ == format->diag_type_ &&
-       fmt->left_ == format->left_ && fmt->right_ == format->right_ && fmt->top_ == format->top_ &&
-       fmt->bottom_color_ == format->bottom_color_ && fmt->diag_color_ == format->diag_color_ &&
-       fmt->left_color_ == format->left_color_ && fmt->right_color_ == format->right_color_ &&
-       fmt->top_color_ == format->top_color_ && fmt->indent_ == format->indent_ && fmt->shrink_ == format->shrink_ &&
-       fmt->merge_range_ == format->merge_range_ && fmt->reading_order_ == format->reading_order_ &&
-       fmt->just_distrib_ == format->just_distrib_ && fmt->color_indexed_ == format->color_indexed_ &&
-       fmt->font_only_ == format->font_only_ && fmt->quote_prefix_ == format->quote_prefix_)
-    {
-      return fmt->xf_index_;
-    }
+    return (*it)->xf_index_;
   }
 
   format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
@@ -852,7 +894,7 @@ void workbook_t::store_defined_name(const std::string& name, const std::string& 
     {
       if(std::holds_alternative<worksheet_t>(sheet))
       {
-        auto& ws = std::get<worksheet_t>(sheet);
+        const auto& ws = std::get<worksheet_t>(sheet);
 
         if(worksheet_name == ws.name_)
         {
@@ -1478,15 +1520,6 @@ void workbook_t::prepare_workbook()
   prepare_fills();
 }
 
-std::string workbook_t::write_workbook() const
-{
-  return xml_start_tag("workbook", {
-                                     {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"    },
-                                     {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/"
-                                                 "relationships"},
-  });
-}
-
 std::string workbook_t::write_file_version() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
@@ -1566,22 +1599,6 @@ std::string workbook_t::write_book_views() const
   return xml_data;
 }
 
-std::string workbook_t::write_sheet(std::string_view name, uint32_t sheet_id, bool hidden) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"name", std::string(name)},
-    {"sheetId", std::format("{}", sheet_id)},
-  };
-
-  if(hidden)
-  {
-    attributes.emplace_back("state", "hidden");
-  }
-  attributes.emplace_back("r:id", std::format("rId{}", sheet_id));
-
-  return xml_empty_tag("sheet", attributes);
-}
-
 std::string workbook_t::write_sheets() const
 {
   std::string xml_data = xml_start_tag("sheets");
@@ -1603,7 +1620,7 @@ std::string workbook_t::write_sheets() const
   return xml_data;
 }
 
-std::string workbook_t::write_defined_name(const defined_name_t& defined_name) const
+std::string workbook_t::write_defined_name(const defined_name_t& defined_name)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"name", defined_name.name_}
@@ -1637,14 +1654,6 @@ std::string workbook_t::write_defined_names() const
   xml_data += xml_end_tag("definedNames");
 
   return xml_data;
-}
-
-std::string workbook_t::write_calc_pr() const
-{
-  return xml_empty_tag("calcPr", {
-                                   {"calcId",         "124519"},
-                                   {"fullCalcOnLoad", "1"     },
-  });
 }
 
 }

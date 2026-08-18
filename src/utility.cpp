@@ -289,12 +289,13 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   const auto date = std::chrono::floor<std::chrono::days>(datetime);
   const std::chrono::year_month_day ymd{date};
   const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - date)};
-  auto year        = static_cast<int>(ymd.year());
-  auto month       = static_cast<unsigned int>(ymd.month());
-  auto day         = static_cast<unsigned int>(ymd.day());
-  const int hour   = static_cast<int>(time.hours().count());
-  const int min    = static_cast<int>(time.minutes().count());
-  const double sec = static_cast<double>(time.seconds().count()) + (static_cast<double>(time.subseconds().count()) / 1000.0);
+  auto year      = static_cast<int>(ymd.year());
+  auto month     = static_cast<unsigned int>(ymd.month());
+  auto day       = static_cast<unsigned int>(ymd.day());
+  const int hour = static_cast<int>(time.hours().count());
+  const int min  = static_cast<int>(time.minutes().count());
+  const double sec =
+    static_cast<double>(time.seconds().count()) + (static_cast<double>(time.subseconds().count()) / 1000.0);
   const int epoch  = use_1904_epoch ? 1904 : 1900;
   const int offset = use_1904_epoch ? 4 : 0;
   const int norm   = 300;
@@ -487,7 +488,7 @@ uint16_t hash_password(const std::string& password)
   }
 
   uint16_t hash = 0;
-  for(const unsigned char c : std::ranges::reverse_view(password))
+  for(const unsigned char c: std::ranges::reverse_view(password))
   {
     hash = (static_cast<uint16_t>(hash >> 14U) & 0x01U) | (static_cast<uint16_t>(hash << 1U) & 0x7fffU);
     hash ^= c & 0xFFU;
@@ -504,8 +505,7 @@ std::string to_lower(const std::string& str)
 {
   std::string lower_str;
 
-  std::ranges::transform(str, std::back_inserter(lower_str),
-                 [](unsigned char c) { return std::tolower(c); });
+  std::ranges::transform(str, std::back_inserter(lower_str), [](unsigned char c) { return std::tolower(c); });
 
   return lower_str;
 }

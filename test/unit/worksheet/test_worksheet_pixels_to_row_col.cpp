@@ -31,7 +31,7 @@ uint32_t width_to_pixels(double width)
   }
   else
   {
-    pixels = static_cast<uint32_t>((width * max_digit_width + 0.5)) + 5;
+    pixels = static_cast<uint32_t>((width * max_digit_width) + 0.5) + 5;
   }
 
   return static_cast<uint32_t>(pixels);

@@ -23,7 +23,7 @@ int main()
   struct expense
   {
     std::string item_;
-    int cost_;
+    int cost_ = 0;
     std::chrono::system_clock::time_point datetime_;
   };
 

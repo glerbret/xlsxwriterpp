@@ -22,7 +22,7 @@ struct worksheet_data
   std::string col1_;
   std::string col2_;
   std::string col3_;
-  int col4_;
+  int col4_ = 0;
 };
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* header)

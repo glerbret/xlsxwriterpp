@@ -2203,7 +2203,7 @@ struct header_footer_options_t
    *
    * @see `worksheet_t::set_header()`.
    */
-  double margin_;
+  double margin_ = 0.;
 
   /**
    * The left header image filename, with path if required. This should
@@ -2380,16 +2380,16 @@ struct rich_string_tuple_t
 // Worksheet initialization data.
 struct worksheet_init_data_t
 {
-  uint16_t index_;
+  uint16_t index_         = 0;
   bool hidden_            = false;
   uint16_t* active_sheet_ = nullptr;
   uint16_t* first_sheet_  = nullptr;
-  shared_strings_t* sst_;
+  shared_strings_t* sst_  = nullptr;
   std::string name_;
   std::string quoted_name_;
-  format_t* default_url_format_;
-  uint16_t max_url_length_;
-  bool use_1904_epoch_ = false;
+  format_t* default_url_format_ = nullptr;
+  uint16_t max_url_length_      = 2079;
+  bool use_1904_epoch_          = false;
 };
 
 /**
@@ -5526,7 +5526,7 @@ private:
   friend class chartsheet_t;
 
   // Retrieve functions
-  [[nodiscard]] std::string get_sheet_name() const;
+  [[nodiscard]] const std::string& get_sheet_name() const;
   [[nodiscard]] uint16_t get_sheet_index() const;
   [[nodiscard]] row_t& get_row(row_num_t row_num);
 
@@ -5545,19 +5545,17 @@ private:
   void write_column_formula(row_num_t first_row, row_num_t last_row, col_num_t col, const table_column_t& column);
 
   // Function to prepare data before packaging.
-  [[nodiscard]] uint32_t calculate_x_split_width(double x_split) const;
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
   [[nodiscard]] uint32_t size_col(col_num_t col_num, object_position_t anchor);
   [[nodiscard]] uint32_t size_row(row_num_t row_num, object_position_t anchor);
   [[nodiscard]] const row_t* find_row(row_num_t row_num) const;
-  [[nodiscard]] const cell_t* find_cell_in_row(const row_t* row, col_num_t col_num) const;
+  [[nodiscard]] static const cell_t* find_cell_in_row(const row_t* row, col_num_t col_num);
   void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object);
   void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object);
   void position_vml_object(vml_obj_t& vml_obj);
   [[nodiscard]] uint32_t find_drawing_rel_index(const std::string& target);
-  [[nodiscard]] std::string get_vml_image_position(image_position_t image_position) const;
   [[nodiscard]] uint32_t find_vml_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t get_vml_drawing_rel_index(const std::string& target);
@@ -5594,7 +5592,6 @@ private:
   [[nodiscard]] std::string write_legacy_drawing();
   [[nodiscard]] std::string write_legacy_drawing_hf();
   [[nodiscard]] std::string write_picture();
-  [[nodiscard]] std::string write_table_part(uint16_t id);
   [[nodiscard]] std::string write_table_parts();
   [[nodiscard]] std::string write_ext_list();
   [[nodiscard]] std::string write_row(const row_t& row, const std::string& spans) const;
@@ -5603,71 +5600,46 @@ private:
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_cell(const cell_t& cell, format_t* row_format) const;
-  [[nodiscard]] std::string write_hyperlink_internal(row_num_t row_num, col_num_t col_num, const std::string& location,
-                                                     const std::string& display, const std::string& tooltip) const;
-  [[nodiscard]] std::string write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
-                                                     const std::string& tooltip, uint16_t id) const;
-  [[nodiscard]] std::string write_drawing(uint16_t id) const;
   [[nodiscard]] std::string write_odd_header() const;
   [[nodiscard]] std::string write_odd_footer() const;
-  [[nodiscard]] std::string write_brk(uint32_t id, uint32_t max) const;
   [[nodiscard]] std::string write_tab_color() const;
-  [[nodiscard]] std::string write_merge_cell(const merged_range_t& merged_range) const;
+  [[nodiscard]] static std::string write_merge_cell(const merged_range_t& merged_range);
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_boolean_cell(const cell_t& cell) const;
-  [[nodiscard]] std::string write_error_cell() const;
-  [[nodiscard]] std::string write_sheet_protection(const protection_obj_t& protection) const;
-  [[nodiscard]] std::string write_filter_column(const std::optional<filter_rule_obj_t>& filter) const;
-  [[nodiscard]] std::string write_filter(const std::string& str, double num, filter_criteria_t criteria) const;
-  [[nodiscard]] std::string write_filter_standard(const filter_rule_obj_t& filter) const;
-  [[nodiscard]] std::string write_custom_filter(const std::string& str, double num, filter_criteria_t criteria) const;
-  [[nodiscard]] std::string write_filter_list(const filter_rule_obj_t& filter) const;
-  [[nodiscard]] std::string write_filter_custom(const filter_rule_obj_t& filter) const;
+  [[nodiscard]] static std::string write_sheet_protection(const protection_obj_t& protection);
+  [[nodiscard]] static std::string write_filter_column(const std::optional<filter_rule_obj_t>& filter);
+  [[nodiscard]] static std::string write_filter_standard(const filter_rule_obj_t& filter);
+  [[nodiscard]] static std::string write_filter_list(const filter_rule_obj_t& filter);
+  [[nodiscard]] static std::string write_filter_custom(const filter_rule_obj_t& filter);
   [[nodiscard]] std::string write_array_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_conditional_formatting(const std::string& sqref,
                                                          std::vector<cond_format_obj_t>& cond_formats);
-  [[nodiscard]] std::string write_formula_str(const std::string& data) const;
-  [[nodiscard]] std::string write_formula_num(double num) const;
-  [[nodiscard]] std::string write_color(color_t color) const;
-  [[nodiscard]] std::string write_cfvo_str(conditional_format_rule_types_t rule_type, const std::string& value,
-                                           bool data_bar_2010) const;
-  [[nodiscard]] std::string write_cfvo_num(conditional_format_rule_types_t rule_type, double value,
-                                           bool data_bar_2010) const;
   [[nodiscard]] std::string write_cf_rule(cond_format_obj_t& cond_format);
-  [[nodiscard]] std::string write_cf_rule_cell(const cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_text(const cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_blanks(const cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_formula(const cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_color_scale(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] static std::string write_cf_rule_cell(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_text(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_blanks(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_formula(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_color_scale(const cond_format_obj_t& cond_format);
   [[nodiscard]] std::string write_cf_rule_data_bar(cond_format_obj_t& cond_format);
-  [[nodiscard]] std::string write_data_bar(const cond_format_obj_t& cond_format) const;
+  [[nodiscard]] static std::string write_data_bar(const cond_format_obj_t& cond_format);
   [[nodiscard]] std::string write_data_bar_ext(cond_format_obj_t& cond_format);
-  [[nodiscard]] std::string write_cf_rule_time_period(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_duplicate(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_average(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_top(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_cf_rule_icons(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_icon_set(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_ext(const std::string& uri) const;
+  [[nodiscard]] static std::string write_cf_rule_time_period(cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_duplicate(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_average(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_top(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_cf_rule_icons(cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_icon_set(cond_format_obj_t& cond_format);
   [[nodiscard]] std::string write_ext_list_data_bars();
-  [[nodiscard]] std::string write_conditional_formatting_2010(std::vector<cond_format_obj_t>& cond_formats) const;
-  [[nodiscard]] std::string write_x14_cf_rule(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_xm_sqref(const cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_x14_data_bar(cond_format_obj_t& cond_format) const;
-  [[nodiscard]] std::string write_x14_cfvo(conditional_format_rule_types_t rule_type, double number,
-                                           const std::string& str) const;
-  [[nodiscard]] std::string write_x14_color(const std::string& type, color_t color) const;
-  [[nodiscard]] std::string write_data_validation(const data_val_obj_t& validation) const;
-  [[nodiscard]] std::string write_formula1_num(double number) const;
-  [[nodiscard]] std::string write_formula2_num(double number) const;
-  [[nodiscard]] std::string write_formula1_str(const std::string& str) const;
-  [[nodiscard]] std::string write_formula2_str(const std::string& str) const;
-  [[nodiscard]] std::string write_ignored_error(const std::string& ignore_error, const std::string& range) const;
+  [[nodiscard]] static std::string write_conditional_formatting_2010(std::vector<cond_format_obj_t>& cond_formats);
+  [[nodiscard]] static std::string write_x14_cf_rule(cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_xm_sqref(const cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_x14_data_bar(cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_data_validation(const data_val_obj_t& validation);
   [[nodiscard]] std::string write_panes();
   [[nodiscard]] std::string write_freeze_panes();
   [[nodiscard]] std::string write_split_panes();
-  [[nodiscard]] std::string write_selection(const selection_t& selection) const;
+  [[nodiscard]] static std::string write_selection(const selection_t& selection);
   [[nodiscard]] std::string write_selections() const;
   [[nodiscard]] std::string write_page_set_up_pr() const;
   [[nodiscard]] std::string write_outline_pr() const;

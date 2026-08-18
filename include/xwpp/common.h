@@ -89,7 +89,7 @@ const std::string SCHEMA_CONTENT   = SCHEMA_ROOT + "/package/2006/content-types"
 // Define custom property used in workbook.c and custom.c.
 struct custom_property_t
 {
-  custom_property_types_t type_;
+  custom_property_types_t type_ = custom_property_types_t::NONE;
   std::string name_;
   std::variant<std::string, int32_t, double, bool, std::chrono::system_clock::time_point> value_;
 };

@@ -28,47 +28,14 @@ public:
   [[nodiscard]] std::string assemble_xml_file();
 
 private:
-  [[nodiscard]] std::string write_xml_namespace() const;
   [[nodiscard]] std::string write_shapelayout() const;
   [[nodiscard]] std::string write_idmap() const;
-  [[nodiscard]] std::string write_comment_shapetype() const;
-  [[nodiscard]] std::string write_stroke() const;
-  [[nodiscard]] std::string write_comment_path(bool has_gradient, const std::string& type) const;
   [[nodiscard]] std::string write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_comment_fill() const;
-  [[nodiscard]] std::string write_shadow() const;
-  [[nodiscard]] std::string write_comment_textbox() const;
-  [[nodiscard]] std::string write_comment_div() const;
-  [[nodiscard]] std::string write_comment_client_data(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_move_with_cells() const;
-  [[nodiscard]] std::string write_size_with_cells() const;
-  [[nodiscard]] std::string write_anchor(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_auto_fill() const;
-  [[nodiscard]] std::string write_row(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_column(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_visible() const;
-  [[nodiscard]] std::string write_image_shapetype() const;
-  [[nodiscard]] std::string write_formula(const std::string& equation) const;
-  [[nodiscard]] std::string write_formulas() const;
-  [[nodiscard]] std::string write_image_path() const;
-  [[nodiscard]] std::string write_aspect_ratio_lock() const;
-  [[nodiscard]] std::string write_image_shape(uint32_t vml_shape_id, uint32_t z_index,
-                                              const vml_obj_t& image_obj) const;
-  [[nodiscard]] std::string write_imagedata(uint32_t rel_index, const std::string& name) const;
-  [[nodiscard]] std::string write_rotation_lock() const;
-  [[nodiscard]] std::string write_button_shapetype() const;
-  [[nodiscard]] std::string write_button_path() const;
-  [[nodiscard]] std::string write_shapetype_lock() const;
-  [[nodiscard]] std::string write_button_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_button_fill() const;
-  [[nodiscard]] std::string write_button_textbox(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_button_client_data(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_button_div(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_font(const vml_obj_t& vml_obj) const;
-  [[nodiscard]] std::string write_print_object() const;
-  [[nodiscard]] std::string write_text_halign() const;
-  [[nodiscard]] std::string write_text_valign() const;
-  [[nodiscard]] std::string write_fmla_macro(const vml_obj_t& vml_obj) const;
+  [[nodiscard]] static std::string write_comment_client_data(const vml_obj_t& vml_obj);
+  [[nodiscard]] static std::string write_image_shape(uint32_t vml_shape_id, uint32_t z_index,
+                                                     const vml_obj_t& image_obj);
+  [[nodiscard]] static std::string write_button_shape(uint32_t vml_shape_id, uint32_t z_index,
+                                                      const vml_obj_t& vml_obj);
 
   std::vector<vml_obj_t> button_objs_;
   std::vector<vml_obj_t> comment_objs_;

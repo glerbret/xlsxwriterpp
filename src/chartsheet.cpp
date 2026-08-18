@@ -268,7 +268,7 @@ void chartsheet_t::set_first_sheet()
   return xml_data;
 }
 
-std::string chartsheet_t::get_sheet_name() const
+const std::string& chartsheet_t::get_sheet_name() const
 {
   return name_;
 }
@@ -278,7 +278,7 @@ uint16_t chartsheet_t::get_sheet_index() const
   return index_;
 }
 
-std::string chartsheet_t::write_chartsheet() const
+std::string chartsheet_t::write_chartsheet()
 {
   return xml_start_tag("chartsheet",
                        {

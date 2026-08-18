@@ -71,53 +71,13 @@ public:
 private:
   friend class worksheet_t;
 
-  [[nodiscard]] std::string write_drawing_workspace() const;
   [[nodiscard]] std::string write_absolute_anchor(uint32_t frame_index) const;
-  [[nodiscard]] std::string write_col(const std::string& data) const;
-  [[nodiscard]] std::string write_col_off(const std::string& data) const;
-  [[nodiscard]] std::string write_row(const std::string& data) const;
-  [[nodiscard]] std::string write_row_off(const std::string& data) const;
-  [[nodiscard]] std::string write_coords(const drawing_coords_t& coords) const;
-  [[nodiscard]] std::string write_from(const drawing_coords_t& coords) const;
-  [[nodiscard]] std::string write_to(const drawing_coords_t& coords) const;
   [[nodiscard]] std::string write_two_cell_anchor(uint32_t index, const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_pic(uint32_t index, const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_nv_pic_pr(uint32_t index, const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_c_nv_pr(const std::string& object_name, uint32_t index,
-                                          const std::optional<drawing_object_t>& drawing_object) const;
-  [[nodiscard]] std::string write_decorative() const;
-  [[nodiscard]] std::string write_uri_ext(const std::string& uri) const;
-  [[nodiscard]] std::string write_a16_creation_id() const;
-  [[nodiscard]] std::string write_adec_decorative() const;
-  [[nodiscard]] std::string write_a_hlink_click(uint32_t rel_index, const std::string& tip) const;
-  [[nodiscard]] std::string write_a_pic_locks() const;
-  [[nodiscard]] std::string write_c_nv_pic_pr() const;
-  [[nodiscard]] std::string write_a_blip(uint32_t index) const;
-  [[nodiscard]] std::string write_a_fill_rect() const;
-  [[nodiscard]] std::string write_a_stretch() const;
-  [[nodiscard]] std::string write_blip_fill(uint32_t index) const;
-  [[nodiscard]] std::string write_a_ext(const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_a_off(const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_a_xfrm(const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_a_av_lst() const;
-  [[nodiscard]] std::string write_a_prst_geom() const;
-  [[nodiscard]] std::string write_sp_pr(const drawing_object_t& drawing_object) const;
-  [[nodiscard]] std::string write_client_data() const;
-  [[nodiscard]] std::string write_a_graphic_frame_locks() const;
   [[nodiscard]] std::string write_c_nv_graphic_frame_pr() const;
   [[nodiscard]] std::string write_nv_graphic_frame_pr(uint32_t index,
                                                       const std::optional<drawing_object_t>& drawing_object) const;
-  [[nodiscard]] std::string write_xfrm_offset() const;
-  [[nodiscard]] std::string write_xfrm_extension() const;
-  [[nodiscard]] std::string write_xfrm() const;
-  [[nodiscard]] std::string write_chart(uint32_t index) const;
-  [[nodiscard]] std::string write_a_graphic_data(uint32_t index) const;
-  [[nodiscard]] std::string write_a_graphic(uint32_t index) const;
   [[nodiscard]] std::string write_graphic_frame(uint32_t index, uint32_t rel_index,
                                                 const std::optional<drawing_object_t>& drawing_object) const;
-  [[nodiscard]] std::string write_ext(uint32_t cx, uint32_t cy) const;
-  // NOLINTNEXTLINE(readability-identifier-length)
-  [[nodiscard]] std::string write_pos(int32_t x, int32_t y) const;
 
   bool embedded_                     = true;
   drawing_orientation_t orientation_ = drawing_orientation_t::LANDSCAPE;

@@ -86,7 +86,7 @@ std::string table_t::write_auto_filter() const
   });
 }
 
-std::string table_t::write_table_column(uint16_t id, const table_column_t& column) const
+std::string table_t::write_table_column(uint16_t id, const table_column_t& column)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"id",   std::to_string(id)},

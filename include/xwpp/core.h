@@ -24,7 +24,6 @@ public:
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
-  [[nodiscard]] std::string write_cp_core_properties() const;
   [[nodiscard]] std::string write_dc_title() const;
   [[nodiscard]] std::string write_dc_subject() const;
   [[nodiscard]] std::string write_dc_creator() const;

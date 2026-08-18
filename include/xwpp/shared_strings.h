@@ -22,7 +22,7 @@ struct shared_strings_element_t
 {
   uint32_t index_ = 0;
   std::string string_;
-  bool is_rich_string_;
+  bool is_rich_string_ = false;
 };
 
 class shared_strings_t
@@ -35,9 +35,6 @@ public:
 private:
   [[nodiscard]] std::string write_sst() const;
   [[nodiscard]] std::string write_sst_strings() const;
-  [[nodiscard]] std::string write_si(const std::string& str) const;
-  [[nodiscard]] std::string write_rich_si(const std::string& str) const;
-  [[nodiscard]] std::string write_t(const std::string& str) const;
 
   uint32_t string_count_ = 0;
   uint32_t unique_count_ = 0;

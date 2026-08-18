@@ -36,10 +36,10 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line1 = {
-    .color_ = xwpp::color_t::RED, .width_ = 0.5, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT};
+    .color_ = xwpp::color_t::RED, .width_ = 0.5, .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
 
   const xwpp::chart_line_t line2 = {.color_ = xwpp::color_t::YELLOW};
-  const xwpp::chart_line_t line3 = {.width_ = 1.25, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH};
+  const xwpp::chart_line_t line3 = {.width_ = 1.25, .dash_type_ = xwpp::chart_line_dash_type_t::DASH};
   const xwpp::chart_line_t line4 = {.color_ = xwpp::color_t(0x00B050)};
 
   chart_axis_major_gridlines_set_line(chart.x_axis_, line1);

@@ -1,5 +1,5 @@
 ---
-name: Test CMake build
+name: Build Linux
 
 on: [push, pull_request]
 permissions: {}
