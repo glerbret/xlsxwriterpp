@@ -74,7 +74,7 @@ if(MSVC)
   add_compile_options(/W4 /WX)
 else()
   # additional warnings
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-missing-field-initializers)
 endif()
 
 # -------------------
