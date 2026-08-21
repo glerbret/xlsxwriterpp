@@ -71,10 +71,10 @@ project(${XLSXPP_PROJECT_NAME} C CXX)
 
 if(MSVC)
   # warning level 4
-  add_compile_options(/W4)
+  add_compile_options(/W4 /WX)
 else()
   # additional warnings
-  add_compile_options(-Wall -Wextra -Wpedantic -Wno-comment -Wno-missing-field-initializers)
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
 # -------------------
