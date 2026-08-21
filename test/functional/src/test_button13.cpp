@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::button_options_t options = {.caption_ = "Hello", .macro_ = "say_hello"};
+  const xwpp::button_options_t options{.caption_ = "Hello", .macro_ = "say_hello"};
   workbook.set_vba_name("ThisWorkbook");
   worksheet.set_vba_name("Sheet1");
   worksheet.insert_button(CELL("C2"), options);

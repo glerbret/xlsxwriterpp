@@ -18,18 +18,18 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 {
   const std::string expected =
     // clang-format off
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-      "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"3\">"
-        "<si>"
-          "<t>Neptune</t>"
-        "</si>"
-        "<si>"
-          "<t>Mars</t>"
-        "</si>"
-        "<si>"
-          "<t>Venus</t>"
-        "</si>"
-      "</sst>";
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+    "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"3\">"
+      "<si>"
+        "<t>Neptune</t>"
+      "</si>"
+      "<si>"
+        "<t>Mars</t>"
+      "</si>"
+      "<si>"
+        "<t>Venus</t>"
+      "</si>"
+    "</sst>";
   // clang-format on
 
   xwpp::shared_strings_t sst;
@@ -48,18 +48,18 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
 {
   const std::string expected =
     // clang-format off
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-      "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"3\" uniqueCount=\"3\">"
-        "<si>"
-          "<t>abcdefg</t>"
-        "</si>"
-        "<si>"
-          "<t xml:space=\"preserve\">   abcdefg</t>"
-        "</si>"
-        "<si>"
-          "<t xml:space=\"preserve\">abcdefg   </t>"
-        "</si>"
-      "</sst>";
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+    "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"3\" uniqueCount=\"3\">"
+      "<si>"
+        "<t>abcdefg</t>"
+      "</si>"
+      "<si>"
+        "<t xml:space=\"preserve\">   abcdefg</t>"
+      "</si>"
+      "<si>"
+        "<t xml:space=\"preserve\">abcdefg   </t>"
+      "</si>"
+    "</sst>";
   // clang-format on
 
   xwpp::shared_strings_t sst;

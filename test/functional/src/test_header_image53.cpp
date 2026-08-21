@@ -16,7 +16,6 @@ int main()
     .image_center_ = "images/blue.jpg",
     .image_right_  = "images/yellow.jpg",
   };
-
   worksheet.set_header("&L&G&C&G&R&G", header_options);
 
   workbook.save("test_header_image53.xlsx");

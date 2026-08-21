@@ -11,8 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t image_options = {.url_ = "http://www.cpan.org/"};
-
+  const xwpp::image_options_t image_options{.url_ = "http://www.cpan.org/"};
   worksheet.embed_image(0, 0, "images/red.png", image_options);
 
   workbook.save("test_embed_image10.xlsx");

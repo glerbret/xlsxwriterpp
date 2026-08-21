@@ -37,8 +37,8 @@ int main()
 
   chart.title_set_name("Title");
 
-  const xwpp::chart_font_t font1 = {.size_ = 11, .bold_ = true, .italic_ = true};
-  const xwpp::chart_font_t font2 = {.size_ = 9, .italic_ = true};
+  const xwpp::chart_font_t font1{.size_ = 11, .bold_ = true, .italic_ = true};
+  const xwpp::chart_font_t font2{.size_ = 9, .italic_ = true};
 
   chart_axis_set_name(chart.x_axis_, "XXX");
   chart_axis_set_name(chart.y_axis_, "YYY");

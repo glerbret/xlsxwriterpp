@@ -18,7 +18,6 @@ int main()
   worksheet.write_string(CELL("A1"), "Column", nullptr);
 
   const std::vector<xwpp::table_column_t> columns{{.header_ = "Column"}};
-
   const xwpp::table_options_t options{.columns_ = columns};
 
   worksheet.add_table(RANGE("C3:D13"), options);

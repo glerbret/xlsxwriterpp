@@ -807,8 +807,8 @@ enum class image_position_t
 // Internal structure for VML object options.
 struct vml_obj_t
 {
-  row_num_t row_             = 0;
-  col_num_t col_             = 0;
+  row_num_t row_num_         = 0;
+  col_num_t col_num_         = 0;
   row_num_t start_row_       = 0;
   col_num_t start_col_       = 0;
   int32_t x_offset_          = 0;
@@ -1976,12 +1976,12 @@ struct chart_options_t
 // values as well as internal metadata.
 struct object_properties_t
 {
-  int32_t x_offset_ = 0;
-  int32_t y_offset_ = 0;
-  double x_scale_   = 1.;
-  double y_scale_   = 1.;
-  row_num_t row_    = 0;
-  col_num_t col_    = 0;
+  int32_t x_offset_  = 0;
+  int32_t y_offset_  = 0;
+  double x_scale_    = 1.;
+  double y_scale_    = 1.;
+  row_num_t row_num_ = 0;
+  col_num_t col_num_ = 0;
   std::string filename_;
   std::string description_;
   std::string url_;
@@ -3215,8 +3215,8 @@ public:
   /**
    * @brief Write a formula to a worksheet cell.
    *
-   * @param row     The zero indexed row number.
-   * @param col     The zero indexed column number.
+   * @param row_num The zero indexed row number.
+   * @param col_num The zero indexed column number.
    * @param formula Formula string to write to cell.
    * @param format  A pointer to a Format instance or `nullptr`.
    *
@@ -3262,16 +3262,16 @@ public:
    *
    * @todo Add overload with `%value` instead of other functions.
    */
-  void write_formula(row_num_t row, col_num_t col, const std::string& formula, const format_t* format);
+  void write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format);
   /// @overload
-  void write_formula(row_num_t row, col_num_t col, const std::string& formula);
+  void write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula);
 
   /**
    * @brief Write a formula to a worksheet cell with a user defined numeric
    * result.
    *
-   * @param row     The zero indexed row number.
-   * @param col     The zero indexed column number.
+   * @param row_num The zero indexed row number.
+   * @param col_num The zero indexed column number.
    * @param formula Formula string to write to cell.
    * @param format  A pointer to a Format instance or `nullptr`.
    * @param result  A user defined numeric result for the formula.
@@ -3309,17 +3309,17 @@ public:
    *
    * @see @ref working_with_formulas.
    */
-  void write_formula_num(row_num_t row, col_num_t col, const std::string& formula, const format_t* format,
+  void write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
                          double result);
   /// @overload
-  void write_formula_num(row_num_t row, col_num_t col, const std::string& formula, double result);
+  void write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula, double result);
 
   /**
    * @brief Write a formula to a worksheet cell with a user defined string
    * result.
    *
-   * @param row     The zero indexed row number.
-   * @param col     The zero indexed column number.
+   * @param row_num The zero indexed row number.
+   * @param col_num The zero indexed column number.
    * @param formula Formula string to write to cell.
    * @param format  A pointer to a Format instance or `nullptr`.
    * @param result  A user defined string result for the formula.
@@ -3352,10 +3352,10 @@ public:
    *
    * @see @ref working_with_formulas.
    */
-  void write_formula_str(row_num_t row, col_num_t col, const std::string& formula, const format_t* format,
+  void write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
                          const std::string& result);
   /// @overload
-  void write_formula_str(row_num_t row, col_num_t col, const std::string& formula, const std::string& result);
+  void write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula, const std::string& result);
 
   /**
    * @brief Write an array formula to a worksheet cell.

@@ -35,10 +35,10 @@ int main()
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_font_t font1 = {.rotation_ = -45, .baseline_ = -1};
+  const xwpp::chart_font_t font{.rotation_ = -45, .baseline_ = -1};
 
   chart.title_set_name("Title");
-  chart.title_set_name_font(font1);
+  chart.title_set_name_font(font);
 
   worksheet.insert_chart(CELL("E9"), &chart);
 

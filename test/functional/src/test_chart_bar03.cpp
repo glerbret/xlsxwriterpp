@@ -34,13 +34,11 @@ int main()
   }
 
   chart1.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-
   chart1.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart(CELL("E9"), &chart1);
 
   chart2.add_series("=Sheet1!$A$1:$A$4", "=Sheet1!$B$1:$B$4");
-
   chart2.add_series("=Sheet1!$A$1:$A$4", "=Sheet1!$C$1:$C$4");
 
   worksheet.insert_chart(CELL("F25"), &chart2);

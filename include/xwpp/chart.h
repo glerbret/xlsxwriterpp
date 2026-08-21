@@ -202,8 +202,6 @@ enum class chart_legend_position_t
  * The dash types are shown in the order that they appear in the Excel dialog.
  *
  * @see @ref chart_lines.
- *
- * @todo Remove `DASH_` in name.
  */
 enum class chart_line_dash_type_t
 {
@@ -1987,8 +1985,8 @@ public:
    * @brief Set a chart title formula using row and column values.
    *
    * @param sheetname The name of the worksheet that contains the cell range.
-   * @param row       The zero indexed row number of the range.
-   * @param col       The zero indexed column number of the range.
+   * @param row_num   The zero indexed row number of the range.
+   * @param col_num   The zero indexed column number of the range.
    *
    * The `%title_set_name_range()` function can be used to set a chart
    * title range and is an alternative to using `title_set_name()` and a
@@ -1998,7 +1996,7 @@ public:
    *  chart.title_set_name_range("Sheet1", 1, 0);
    * @endcode
    */
-  void title_set_name_range(const std::string& sheetname, row_num_t row, col_num_t col);
+  void title_set_name_range(const std::string& sheetname, row_num_t row_num, col_num_t col_num);
 
   /**
    * @brief Remove one or more series from the the legend.
@@ -2510,8 +2508,8 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
  *
  * @param series    A series object created via `chart_t::add_series()`.
  * @param sheetname The name of the worksheet that contains the cell range.
- * @param row       The zero indexed row number of the range.
- * @param col       The zero indexed column number of the range.
+ * @param row_num   The zero indexed row number of the range.
+ * @param col_num   The zero indexed column number of the range.
  *
  * The `%chart_series_set_name_range()` function can be used to set a series
  * name range and is an alternative to using `chart_series_set_name()` and a
@@ -2523,7 +2521,8 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
  *  chart_series_set_name_range(series, "Sheet1", 0, 2); // "=Sheet1!$C$1"
  * @endcode
  */
-void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row, col_num_t col);
+void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row_num,
+                                 col_num_t col_num);
 
 /**
  * @brief Set the line properties for a chart series.
@@ -3383,8 +3382,8 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  *
  * @param axis      A pointer to a chart `chart_axis_t` object.
  * @param sheetname The name of the worksheet that contains the cell range.
- * @param row       The zero indexed row number of the range.
- * @param col       The zero indexed column number of the range.
+ * @param row_num   The zero indexed row number of the range.
+ * @param col_num   The zero indexed column number of the range.
  *
  * The `%chart_axis_set_name_range()` function can be used to set an axis name
  * range and is an alternative to using `chart_axis_set_name()` and a string
@@ -3398,7 +3397,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row, col_num_t col);
+void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row_num, col_num_t col_num);
 
 /**
  * @brief Set the manual position of the chart axis name.

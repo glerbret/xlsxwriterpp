@@ -15,11 +15,7 @@ int main()
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
 
   const std::array<std::array<uint8_t, 2>, 3> data{
-    {
-     {2, 60},
-     {4, 30},
-     {6, 10},
-     }
+    {{2, 60}, {4, 30}, {6, 10}}
   };
 
   for(xwpp::row_num_t row_num = 0; const auto& row: data)
@@ -34,12 +30,12 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$3", "=Sheet1!$B$1:$B$3");
 
-  const xwpp::chart_line_t line1 = {.color_     = xwpp::color_t(0xFFFF00),
-                                    .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH};
-  const xwpp::chart_line_t line2 = {.dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
+  const xwpp::chart_line_t line1{.color_     = xwpp::color_t(0xFFFF00),
+                                 .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH};
+  const xwpp::chart_line_t line2{.dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
 
-  const xwpp::chart_fill_t fill1 = {.color_ = xwpp::color_t(0x92D050)};
-  const xwpp::chart_fill_t fill2 = {.color_ = xwpp::color_t(0xFF0000)};
+  const xwpp::chart_fill_t fill1{.color_ = xwpp::color_t(0x92D050)};
+  const xwpp::chart_fill_t fill2{.color_ = xwpp::color_t(0xFF0000)};
 
   chart.chartarea_set_line(line1);
   chart.chartarea_set_fill(fill1);

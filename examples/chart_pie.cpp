@@ -48,70 +48,76 @@ int main()
   write_worksheet_data(worksheet, bold);
 
   // Chart 1: Create a simple pie chart.
-  xwpp::chart_t& chart1 = workbook.add_chart(xwpp::chart_type_t::PIE);
+  {
+    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series1 = chart1.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
+    // Add the first series to the chart.
+    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
-  // Set the name for the series instead of the default "Series 1".
-  chart1.series_set_name(series1, "Pie sales data");
+    // Set the name for the series instead of the default "Series 1".
+    chart.series_set_name(series, "Pie sales data");
 
-  // Add a chart title.
-  chart1.title_set_name("Popular Pie Types");
+    // Add a chart title.
+    chart.title_set_name("Popular Pie Types");
 
-  // Set an Excel chart style.
-  chart1.set_style(10);
+    // Set an Excel chart style.
+    chart.set_style(10);
 
-  // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("D2"), &chart1);
+    // Insert the chart into the worksheet.
+    worksheet.insert_chart(CELL("D2"), &chart);
+  }
 
   // Chart 2: Create a pie chart with user defined segment colors.
-  xwpp::chart_t& chart2 = workbook.add_chart(xwpp::chart_type_t::PIE);
+  {
+    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series2 = chart2.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
+    // Add the first series to the chart.
+    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
-  // Set the name for the series instead of the default "Series 1".
-  chart2.series_set_name(series2, "Pie sales data");
+    // Set the name for the series instead of the default "Series 1".
+    chart.series_set_name(series, "Pie sales data");
 
-  // Add a chart title.
-  chart2.title_set_name("Pie Chart with user defined colors");
+    // Add a chart title.
+    chart.title_set_name("Pie Chart with user defined colors");
 
-  // Add for fills for use in the chart.
-  xwpp::chart_fill_t fill1{.color_ = static_cast<xwpp::color_t>(0x5ABA10)};
-  xwpp::chart_fill_t fill2{.color_ = static_cast<xwpp::color_t>(0xFE110E)};
-  xwpp::chart_fill_t fill3{.color_ = static_cast<xwpp::color_t>(0xCA5C05)};
+    // Add for fills for use in the chart.
+    xwpp::chart_fill_t fill1{.color_ = static_cast<xwpp::color_t>(0x5ABA10)};
+    xwpp::chart_fill_t fill2{.color_ = static_cast<xwpp::color_t>(0xFE110E)};
+    xwpp::chart_fill_t fill3{.color_ = static_cast<xwpp::color_t>(0xCA5C05)};
 
-  // Add some points with the above fills.
-  const std::vector<xwpp::chart_point_t> points{
-    {.fill_ = fill1},
-    {.fill_ = fill2},
-    {.fill_ = fill3},
-  };
+    // Add some points with the above fills.
+    const std::vector<xwpp::chart_point_t> points{
+      {.fill_ = fill1},
+      {.fill_ = fill2},
+      {.fill_ = fill3},
+    };
 
-  // Add/override the points/segments of the chart.
-  series_set_points(series2, points);
+    // Add/override the points/segments of the chart.
+    series_set_points(series, points);
 
-  // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("D18"), &chart2);
+    // Insert the chart into the worksheet.
+    worksheet.insert_chart(CELL("D18"), &chart);
+  }
 
   // Chart 3: Create a pie chart with rotation of the segments.
-  xwpp::chart_t& chart3 = workbook.add_chart(xwpp::chart_type_t::PIE);
+  {
+    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series3 = chart3.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
+    // Add the first series to the chart.
+    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
-  // Set the name for the series instead of the default "Series 1".
-  chart3.series_set_name(series3, "Pie sales data");
+    // Set the name for the series instead of the default "Series 1".
+    chart.series_set_name(series, "Pie sales data");
 
-  // Add a chart title.
-  chart3.title_set_name("Pie Chart with segment rotation");
+    // Add a chart title.
+    chart.title_set_name("Pie Chart with segment rotation");
 
-  // Change the angle/rotation of the first segment.
-  chart3.set_rotation(90);
+    // Change the angle/rotation of the first segment.
+    chart.set_rotation(90);
 
-  // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("D34"), &chart3);
+    // Insert the chart into the worksheet.
+    worksheet.insert_chart(CELL("D34"), &chart);
+  }
 
   workbook.save("chart_pie.xlsx");
 }

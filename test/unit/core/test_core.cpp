@@ -26,12 +26,12 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 {
   const std::string expected =
     // clang-format off
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-      "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-        "<dc:creator>A User</dc:creator>"
-        "<cp:lastModifiedBy/>"
-        "<dcterms:created xsi:type=\"dcterms:W3CDTF\">2010-01-01T00:00:00Z</dcterms:created>"
-      "</cp:coreProperties>";
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+    "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+      "<dc:creator>A User</dc:creator>"
+      "<cp:lastModifiedBy/>"
+      "<dcterms:created xsi:type=\"dcterms:W3CDTF\">2010-01-01T00:00:00Z</dcterms:created>"
+    "</cp:coreProperties>";
   // clang-format on
 
   const xwpp::doc_properties_t properties{
@@ -47,18 +47,18 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_2)
 {
   const std::string expected =
     // clang-format off
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-      "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-        "<dc:title>This is an example spreadsheet</dc:title>"
-        "<dc:subject>With document properties</dc:subject>"
-        "<dc:creator>A Person</dc:creator>"
-        "<cp:keywords>Sample, Example, Properties</cp:keywords>"
-        "<dc:description>Created with Xlsxwriter++</dc:description>"
-        "<cp:lastModifiedBy/>"
-        "<dcterms:created xsi:type=\"dcterms:W3CDTF\">2011-04-06T19:45:15Z</dcterms:created>"
-        "<cp:category>Example spreadsheets</cp:category>"
-        "<cp:contentStatus>Quo</cp:contentStatus>"
-      "</cp:coreProperties>";
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+    "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+      "<dc:title>This is an example spreadsheet</dc:title>"
+      "<dc:subject>With document properties</dc:subject>"
+      "<dc:creator>A Person</dc:creator>"
+      "<cp:keywords>Sample, Example, Properties</cp:keywords>"
+      "<dc:description>Created with Xlsxwriter++</dc:description>"
+      "<cp:lastModifiedBy/>"
+      "<dcterms:created xsi:type=\"dcterms:W3CDTF\">2011-04-06T19:45:15Z</dcterms:created>"
+      "<cp:category>Example spreadsheets</cp:category>"
+      "<cp:contentStatus>Quo</cp:contentStatus>"
+    "</cp:coreProperties>";
   // clang-format on
 
   const xwpp::doc_properties_t properties{

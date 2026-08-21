@@ -36,8 +36,8 @@ enum class image_types_t
 // Coordinates used in a drawing object.
 struct drawing_coords_t
 {
-  uint32_t col_      = 0;
-  uint32_t row_      = 0;
+  uint32_t col_num_  = 0;
+  uint32_t row_num_  = 0;
   double col_offset_ = 0.;
   double row_offset_ = 0.;
 };

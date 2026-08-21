@@ -35,8 +35,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_fill_t fill = {.color_ = xwpp::color_t(0xFF0000)};
-
+  const xwpp::chart_fill_t fill{.color_ = xwpp::color_t(0xFF0000)};
   chart_series_set_fill(series1, fill);
 
   worksheet.insert_chart(CELL("E9"), &chart);

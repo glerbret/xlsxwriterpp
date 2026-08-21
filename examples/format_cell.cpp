@@ -18,33 +18,43 @@ int main()
   // Widen the first column to make the text clearer.
   worksheet.set_column(1, 1, 30);
 
-  // Add some formats.
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp::color_t::YELLOW);
+  {
+    xwpp::format_t* format = workbook.add_format();
+    format->set_bg_color(xwpp::color_t::YELLOW);
 
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_border(xwpp::format_borders_t::MEDIUM);
-  format2->set_border_color(xwpp::color_t::RED);
+    worksheet.write_string(1, 1, "Yellow cell", format);
+  }
 
-  xwpp::format_t* format3 = workbook.add_format();
-  format3->set_bottom(xwpp::format_borders_t::DASHED);
-  format3->set_bottom_color(xwpp::color_t::YELLOW);
-  format3->set_top(xwpp::format_borders_t::DOTTED);
-  format3->set_top_color(xwpp::color_t::RED);
-  format3->set_left(xwpp::format_borders_t::THICK);
-  format3->set_left_color(xwpp::color_t::BLUE);
-  format3->set_right(xwpp::format_borders_t::DOUBLE);
-  format3->set_right_color(xwpp::color_t::GREEN);
+  {
+    xwpp::format_t* format = workbook.add_format();
+    format->set_border(xwpp::format_borders_t::MEDIUM);
+    format->set_border_color(xwpp::color_t::RED);
 
-  xwpp::format_t* format4 = workbook.add_format();
-  format4->set_diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN);
-  format4->set_diag_border(xwpp::format_borders_t::THICK);
-  format4->set_diag_color(xwpp::color_t::BLUE);
+    worksheet.write_string(3, 1, "Cell with red borders", format);
+  }
 
-  worksheet.write_string(1, 1, "Yellow cell", format1);
-  worksheet.write_string(3, 1, "Cell with red borders", format2);
-  worksheet.write_string(5, 1, "Cell with different borders", format3);
-  worksheet.write_string(7, 1, "Cell with diag", format4);
+  {
+    xwpp::format_t* format = workbook.add_format();
+    format->set_bottom(xwpp::format_borders_t::DASHED);
+    format->set_bottom_color(xwpp::color_t::YELLOW);
+    format->set_top(xwpp::format_borders_t::DOTTED);
+    format->set_top_color(xwpp::color_t::RED);
+    format->set_left(xwpp::format_borders_t::THICK);
+    format->set_left_color(xwpp::color_t::BLUE);
+    format->set_right(xwpp::format_borders_t::DOUBLE);
+    format->set_right_color(xwpp::color_t::GREEN);
+
+    worksheet.write_string(5, 1, "Cell with different borders", format);
+  }
+
+  {
+    xwpp::format_t* format = workbook.add_format();
+    format->set_diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN);
+    format->set_diag_border(xwpp::format_borders_t::THICK);
+    format->set_diag_color(xwpp::color_t::BLUE);
+
+    worksheet.write_string(7, 1, "Cell with diag", format);
+  }
 
   workbook.save("format_cell.xlsx");
 }

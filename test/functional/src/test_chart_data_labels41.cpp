@@ -32,10 +32,10 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series  = chart.add_series("", "=Sheet1!$A$1:$A$5");
-  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED};
+  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
 
-  const std::vector<xwpp::chart_data_label_t> data_labels = {
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
+  const std::vector<xwpp::chart_data_label_t> data_labels{
     {.value_ = "=Sheet1!$D$1", .line_ = line}
   };
   xwpp::chart_series_set_labels_custom(series, data_labels);

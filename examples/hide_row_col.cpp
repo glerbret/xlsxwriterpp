@@ -29,9 +29,9 @@ int main()
 
   // Set the height of empty rows that we want to display even if it is
   // the default height.
-  for(xwpp::row_num_t row = 1; row <= 6; row++)
+  for(xwpp::row_num_t row_num = 1; row_num <= 6; row_num++)
   {
-    worksheet.set_row(row, 15);
+    worksheet.set_row(row_num, 15);
   }
 
   // Columns can be hidden explicitly. This doesn't increase the file size.

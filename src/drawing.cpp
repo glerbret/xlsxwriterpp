@@ -196,9 +196,9 @@ namespace
 
 [[nodiscard]] std::string write_coords(const drawing_coords_t& coords)
 {
-  std::string xml_data = write_col(std::to_string(coords.col_));
+  std::string xml_data = write_col(std::to_string(coords.col_num_));
   xml_data += write_col_off(std::to_string(static_cast<uint32_t>(coords.col_offset_)));
-  xml_data += write_row(std::to_string(coords.row_));
+  xml_data += write_row(std::to_string(coords.row_num_));
   xml_data += write_row_off(std::to_string(static_cast<uint32_t>(coords.row_offset_)));
 
   return xml_data;

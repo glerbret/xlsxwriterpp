@@ -31,9 +31,7 @@ int main()
     row_num++;
   }
 
-  const xwpp::chart_line_t line = {.color_     = xwpp::color_t::RED,
-                                   .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
-
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED, .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
   chart.set_drop_lines(line);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");

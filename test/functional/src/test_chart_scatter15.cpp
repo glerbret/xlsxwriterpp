@@ -26,9 +26,9 @@ int main()
 
   chart.add_series("=Sheet1!$A$2:$A$3", "=Sheet1!$B$2:$B$3");
 
-  const xwpp::chart_font_t font1{.italic_ = true, .baseline_ = -1};
+  const xwpp::chart_font_t font{.italic_ = true, .baseline_ = -1};
   chart_axis_set_name_range(chart.x_axis_, "Sheet1", 0, 0);
-  chart_axis_set_name_font(chart.x_axis_, font1);
+  chart_axis_set_name_font(chart.x_axis_, font);
 
   chart_axis_set_name_range(chart.y_axis_, "Sheet1", 0, 1);
 

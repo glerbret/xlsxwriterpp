@@ -40,9 +40,9 @@ int main()
   chart.add_series("", "=Sheet1!$G$1:$G$3");
   chart.add_series("", "=Sheet1!$H$1:$H$3");
 
-  const xwpp::chart_pattern_t pattern = {.fg_color_ = xwpp::color_t::RED,
-                                         .bg_color_ = xwpp::color_t::YELLOW,
-                                         .type_     = xwpp::chart_pattern_type_t::PERCENT_5};
+  const xwpp::chart_pattern_t pattern{.fg_color_ = xwpp::color_t::RED,
+                                      .bg_color_ = xwpp::color_t::YELLOW,
+                                      .type_     = xwpp::chart_pattern_type_t::PERCENT_5};
 
   chart.plotarea_set_pattern(pattern);
 

@@ -26,20 +26,26 @@ int main()
   // Insert an image offset in the cell.
   worksheet.write_string(CELL("A12"), "Insert an offset image:");
 
-  xwpp::image_options_t options1 = {.x_offset_ = 15, .y_offset_ = 10};
-  worksheet.insert_image(CELL("B12"), "logo.png", options1);
+  {
+    const xwpp::image_options_t options{.x_offset_ = 15, .y_offset_ = 10};
+    worksheet.insert_image(CELL("B12"), "logo.png", options);
+  }
 
   // Insert an image with scaling.
   worksheet.write_string(CELL("A22"), "Insert a scaled image:");
 
-  xwpp::image_options_t options2 = {.x_scale_ = 0.5, .y_scale_ = 0.5};
-  worksheet.insert_image(CELL("B22"), "logo.png", options2);
+  {
+    const xwpp::image_options_t options{.x_scale_ = 0.5, .y_scale_ = 0.5};
+    worksheet.insert_image(CELL("B22"), "logo.png", options);
+  }
 
   // Insert an image with a hyperlink.
   worksheet.write_string(CELL("A32"), "Insert an image with a hyperlink:");
 
-  xwpp::image_options_t options3 = {.url_ = "https://github.com/glerbret"};
-  worksheet.insert_image(CELL("B32"), "logo.png", options3);
+  {
+    const xwpp::image_options_t options{.url_ = "https://github.com/glerbret"};
+    worksheet.insert_image(CELL("B32"), "logo.png", options);
+  }
 
   workbook.save("images.xlsx");
 }

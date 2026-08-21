@@ -81,15 +81,15 @@ int main()
   worksheet.write_string(2, 5, "Volume");
   worksheet.write_string(2, 6, "Month");
 
-  const xwpp::row_col_options_t hidden = {.hidden_ = true};
+  const xwpp::row_col_options_t hidden{.hidden_ = true};
 
   // Write the row data.
-  for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+  for(xwpp::row_num_t row_num = 3; const auto& [region, item, volume, month]: data)
   {
-    worksheet.write_string(i + 3, 3, region);
-    worksheet.write_string(i + 3, 4, item);
-    worksheet.write_number(i + 3, 5, volume);
-    worksheet.write_string(i + 3, 6, month);
+    worksheet.write_string(row_num, 3, region);
+    worksheet.write_string(row_num, 4, item);
+    worksheet.write_number(row_num, 5, volume);
+    worksheet.write_string(row_num, 6, month);
 
     if(region == "East")
     {
@@ -98,15 +98,15 @@ int main()
     else
     {
       // We need to hide rows that don't match the filter.
-      worksheet.set_row(i + 3, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+      worksheet.set_row(row_num, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
     }
 
-    i++;
+    row_num++;
   }
 
   worksheet.autofilter(2, 3, 52, 6);
 
-  const xwpp::filter_rule_t filter_rule1 = {.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
+  const xwpp::filter_rule_t filter_rule1{.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
   worksheet.filter_column(3, filter_rule1);
 
   workbook.save("test_autofilter07.xlsx");

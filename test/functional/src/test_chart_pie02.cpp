@@ -15,11 +15,7 @@ int main()
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
 
   const std::array<std::array<uint8_t, 2>, 3> data{
-    {
-     {2, 60},
-     {4, 30},
-     {6, 10},
-     }
+    {{2, 60}, {4, 30}, {6, 10}}
   };
 
   for(xwpp::row_num_t row_num = 0; const auto& row: data)
@@ -34,8 +30,8 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$3", "=Sheet1!$B$1:$B$3");
 
-  const xwpp::chart_font_t font1 = {.bold_ = true, .italic_ = true, .baseline_ = -1};
-  chart.legend_set_font(font1);
+  const xwpp::chart_font_t font{.bold_ = true, .italic_ = true, .baseline_ = -1};
+  chart.legend_set_font(font);
 
   worksheet.insert_chart(CELL("E9"), &chart);
 

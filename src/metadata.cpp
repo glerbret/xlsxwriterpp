@@ -82,7 +82,6 @@ namespace
   std::string xml_data = xml_start_tag("ext", {
                                                 {"uri", "{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}"}
   });
-
   xml_data += write_xda_dynamic_array_properties();
   xml_data += xml_end_tag("ext");
 
@@ -94,7 +93,6 @@ namespace
   std::string xml_data = xml_start_tag("ext", {
                                                 {"uri", "{3e2802c4-a4d2-4d8b-9148-e3be6c30e623}"}
   });
-
   xml_data += write_xlrd_rvb(index);
   xml_data += xml_end_tag("ext");
 
@@ -120,7 +118,6 @@ namespace
                                                            {"name",  "XLDAPR"},
                                                            {"count", "1"     },
   });
-
   xml_data += xml_start_tag("bk");
   xml_data += xml_start_tag("extLst");
   xml_data += write_cell_ext();
@@ -222,7 +219,6 @@ std::string metadata_t::write_value_future_metadata() const
                                                            {"name",  "XLRICHVALUE"                       },
                                                            {"count", std::to_string(num_embedded_images_)},
   });
-
   for(uint32_t i = 0; i < num_embedded_images_; i++)
   {
     xml_data += xml_start_tag("bk");
@@ -231,7 +227,6 @@ std::string metadata_t::write_value_future_metadata() const
     xml_data += xml_end_tag("extLst");
     xml_data += xml_end_tag("bk");
   }
-
   xml_data += xml_end_tag("futureMetadata");
 
   return xml_data;

@@ -172,15 +172,13 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
   return layout;
 }
 
-/*
- * Verify that a X/Y error bar property is supported for the chart type.
- * All chart types, except Bar have Y error bars. Only Bar and Scatter
- * support X error bars.
- */
+// Verify that a X/Y error bar property is supported for the chart type.
+// All chart types, except Bar have Y error bars. Only Bar and Scatter
+// support X error bars.
 void check_error_bars(const series_error_bars_t& error_bars, const std::string& property)
 {
-  /* Check that the error bar type has been set for all error bar
-   * functions except the one that is used to set the type. */
+  // Check that the error bar type has been set for all error bar
+  // functions except the one that is used to set the type.
   if(!property.empty() && !error_bars.is_set_)
   {
     throw xwpp_exception_t(
@@ -467,7 +465,7 @@ void chart_t::show_hidden_data()
   show_hidden_data_ = true;
 }
 
-void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row, col_num_t col)
+void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row_num, col_num_t col_num)
 {
   if(sheetname.empty())
   {
@@ -475,7 +473,7 @@ void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row, 
   }
 
   // Start and end row, col are the same for single cell range.
-  set_range(title_.range_, sheetname, row, col, row, col);
+  set_range(title_.range_, sheetname, row_num, col_num, row_num, col_num);
 }
 
 void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
@@ -4160,14 +4158,15 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
   range.formula_   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col);
 }
 
-void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row, col_num_t col)
+void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row_num,
+                                 col_num_t col_num)
 {
   if(sheetname.empty())
   {
     throw xwpp_exception_t("chart_series_set_name_range(): sheetname must be specified.");
   }
 
-  set_range(series.title_.range_, sheetname, row, col, row, col);
+  set_range(series.title_.range_, sheetname, row_num, col_num, row_num, col_num);
 }
 
 void chart_series_set_line(chart_series_t& series, const std::optional<chart_line_t>& line)
@@ -4520,7 +4519,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name)
   }
 }
 
-void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row, col_num_t col)
+void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row_num, col_num_t col_num)
 {
   if(sheetname.empty())
   {
@@ -4528,7 +4527,7 @@ void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname,
   }
 
   // Start and end row, col are the same for single cell range.
-  set_range(axis.title_.range_, sheetname, row, col, row, col);
+  set_range(axis.title_.range_, sheetname, row_num, col_num, row_num, col_num);
 }
 
 void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_layout_t>& layout)
