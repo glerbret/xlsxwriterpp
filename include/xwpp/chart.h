@@ -208,33 +208,33 @@ enum class chart_legend_position_t
 enum class chart_line_dash_type_t
 {
   /** Solid. */
-  DASH_SOLID = 0,
+  SOLID = 0,
 
   /** Round Dot. */
-  DASH_ROUND_DOT,
+  ROUND_DOT,
 
   /** Square Dot. */
-  DASH_SQUARE_DOT,
+  SQUARE_DOT,
 
   /** Dash. */
-  DASH_DASH,
+  DASH,
 
   /** Dash Dot. */
-  DASH_DASH_DOT,
+  DASH_DOT,
 
   /** Long Dash. */
-  DASH_LONG_DASH,
+  LONG_DASH,
 
   /** Long Dash Dot. */
-  DASH_LONG_DASH_DOT,
+  LONG_DASH_DOT,
 
   /** Long Dash Dot Dot. */
-  DASH_LONG_DASH_DOT_DOT,
+  LONG_DASH_DOT_DOT,
 
   /* These aren't available in the dialog but are used by Excel. */
-  DASH_DOT,
-  DASH_SYSTEM_DASH_DOT,
-  DASH_SYSTEM_DASH_DOT_DOT
+  DOT,
+  SYSTEM_DASH_DOT,
+  SYSTEM_DASH_DOT_DOT
 };
 
 /**
@@ -690,7 +690,7 @@ struct chart_line_t
    *
    * @see `chart_line_dash_type_t`.
    */
-  chart_line_dash_type_t dash_type_ = chart_line_dash_type_t::DASH_SOLID;
+  chart_line_dash_type_t dash_type_ = chart_line_dash_type_t::SOLID;
 
   /** Set the transparency of the line. 0 - 100. Default 0. */
   uint8_t transparency_ = 0;
@@ -877,7 +877,7 @@ struct chart_marker_t
 struct chart_legend_t
 {
   std::optional<chart_font_t> font_;
-  chart_legend_position_t position_;
+  chart_legend_position_t position_ = chart_legend_position_t::NONE;
   std::optional<chart_layout_t> layout_;
 };
 
@@ -1201,7 +1201,7 @@ struct chart_series_t
 // Struct for major/minor axis gridlines.
 struct chart_gridline_t
 {
-  bool visible_;
+  bool visible_ = false;
   std::optional<chart_line_t> line_;
 };
 
@@ -1573,7 +1573,7 @@ public:
    * @code
    *  xwpp::chart_line_t line{
    *    .color_     = xwpp::color_t::RED,
-   *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT,
+   *    .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
    *  chart.set_drop_lines(line);
@@ -1604,7 +1604,7 @@ public:
    * @code
    *  xwpp::chart_line_t line{
    *    .color_     = xwpp::color_t::RED,
-   *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT,
+   *    .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
    *  chart_set_high_low_lines(line);
@@ -1917,7 +1917,7 @@ public:
    *  xwpp::chart_line_t line{
    *    .color_     = xwpp::color_t::RED,
    *    .width_     = 2,
-   *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH,
+   *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH,
    *  };
    *  xwpp::chart_fill_t fill{
    *    .color_     = xwpp::color_t(0xFFFFC2)
@@ -2204,20 +2204,20 @@ private:
   [[nodiscard]] static std::string write_radar_chart(chart_t& chart);
   [[nodiscard]] static std::string write_scatter_plot_area(chart_t& chart);
   [[nodiscard]] static std::string write_scatter_chart(chart_t& chart);
-  [[nodiscard]] std::string write_chart_space() const;
-  [[nodiscard]] std::string write_lang() const;
+  [[nodiscard]] static std::string write_chart_space();
+  [[nodiscard]] static std::string write_lang();
   [[nodiscard]] std::string write_style() const;
-  [[nodiscard]] std::string write_protection() const;
-  [[nodiscard]] std::string write_print_settings() const;
-  [[nodiscard]] std::string write_header_footer() const;
-  [[nodiscard]] std::string write_page_margins() const;
-  [[nodiscard]] std::string write_page_setup() const;
+  [[nodiscard]] static std::string write_protection();
+  [[nodiscard]] static std::string write_print_settings();
+  [[nodiscard]] static std::string write_header_footer();
+  [[nodiscard]] static std::string write_page_margins();
+  [[nodiscard]] static std::string write_page_setup();
   [[nodiscard]] std::string write_chart();
   [[nodiscard]] std::string write_chart_title() const;
-  [[nodiscard]] std::string write_auto_title_deleted() const;
-  [[nodiscard]] std::string write_tx_pr_pie(bool is_horizontal, const std::optional<chart_font_t>& font) const;
-  [[nodiscard]] std::string write_a_p_pie(const std::optional<chart_font_t>& font) const;
-  [[nodiscard]] std::string write_a_p_pr_pie(const std::optional<chart_font_t>& font) const;
+  [[nodiscard]] static std::string write_auto_title_deleted();
+  [[nodiscard]] static std::string write_tx_pr_pie(bool is_horizontal, const std::optional<chart_font_t>& font);
+  [[nodiscard]] static std::string write_a_p_pie(const std::optional<chart_font_t>& font);
+  [[nodiscard]] static std::string write_a_p_pr_pie(const std::optional<chart_font_t>& font);
   [[nodiscard]] static std::string write_title(const chart_title_t& title);
   [[nodiscard]] static std::string write_title_rich(const chart_title_t& title);
   [[nodiscard]] static std::string write_tx_rich(const std::string& name, bool is_horizontal,
@@ -2281,7 +2281,7 @@ private:
   [[nodiscard]] static std::string write_log_base(uint16_t log_base);
   [[nodiscard]] static std::string write_orientation(bool reverse);
   [[nodiscard]] static std::string write_val(const chart_series_t& series);
-  [[nodiscard]] static std::string write_marker(chart_t& chart, std::optional<chart_marker_t>& marker);
+  [[nodiscard]] static std::string write_marker(const chart_t& chart, std::optional<chart_marker_t>& marker);
   [[nodiscard]] static std::string write_cat_axis(chart_t& chart);
   [[nodiscard]] static std::string write_delete();
   [[nodiscard]] static std::string write_axis_pos(chart_position_t position, bool reverse);
@@ -2302,7 +2302,7 @@ private:
   [[nodiscard]] static std::string write_label_offset();
   [[nodiscard]] static std::string write_number_format(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_cross_between(const chart_t& chart, chart_axis_tick_position_t position);
-  [[nodiscard]] std::string write_legend_pos(const std::string& position);
+  [[nodiscard]] static std::string write_legend_pos(const std::string& position);
   [[nodiscard]] std::string write_legend_entry(size_t index);
   [[nodiscard]] std::string write_legend();
   [[nodiscard]] std::string write_plot_vis_only() const;
@@ -3248,7 +3248,7 @@ void chart_series_set_trendline_name(chart_series_t& series, const std::string& 
  * @code
  *  xwpp::chart_line_t line{
  *    .color_     = xwpp::color_t::RED,
- *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH_LONG_DASH
+ *    .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH
  *  };
  *
  *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
@@ -4040,7 +4040,7 @@ void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible);
  *  xwpp::chart_line_t line1{
  *    .color_      = xwpp::color_t::RED,
  *    .width_      = 0.5,
- *    .dash_type_  = xwpp::xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT,
+ *    .dash_type_  = xwpp::xwpp::chart_line_dash_type_t::SQUARE_DOT,
  *  };
  *
  *  xwpp::chart_line_t line2{
@@ -4049,7 +4049,7 @@ void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible);
  *
  *  xwpp::chart_line_t line3{
  *    .width_      = 1.25,
- *    .dash_type   = xwpp::xwpp::chart_line_dash_type_t:DASH_DASH,
+ *    .dash_type   = xwpp::xwpp::chart_line_dash_type_t:DASH,
  *  };
  *
  *  xwpp::chart_line_t line4{

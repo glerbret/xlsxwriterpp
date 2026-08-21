@@ -26,7 +26,6 @@ public:
 private:
   [[nodiscard]] std::string write_rv_structures() const;
   [[nodiscard]] std::string write_s() const;
-  [[nodiscard]] std::string write_k(const std::string& name, const std::string& type) const;
 
   bool has_embedded_image_descriptions_;
 };

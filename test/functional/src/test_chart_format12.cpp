@@ -36,7 +36,7 @@ int main()
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line = {
-    .color_ = xwpp::color_t::RED, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_LONG_DASH};
+    .color_ = xwpp::color_t::RED, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH};
 
   series_set_trendline(series, xwpp::chart_trendline_type_t::AVERAGE, 2);
   series_set_trendline_line(series, line);

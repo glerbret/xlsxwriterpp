@@ -1,5 +1,5 @@
 ---
-name: Test Cmake build on Windows
+name: Build Windows
 
 on: [push, pull_request]
 permissions: {}

@@ -37,7 +37,7 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line = {
-    .color_ = xwpp::color_t::RED, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH_DASH};
+    .color_ = xwpp::color_t::RED, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH};
   const xwpp::chart_fill_t fill       = {.color_ = xwpp::color_t(0x00B050)};
   const xwpp::chart_pattern_t pattern = {.fg_color_ = xwpp::color_t(0x00B050),
                                          .type_     = xwpp::chart_pattern_type_t::LIGHT_VERTICAL};

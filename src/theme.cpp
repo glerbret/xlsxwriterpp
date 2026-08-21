@@ -13,7 +13,7 @@
 namespace xwpp
 {
 
-std::string theme_t::assemble_xml_file() const
+const std::string& theme_t::assemble_xml_file()
 {
   return THEME;
 }

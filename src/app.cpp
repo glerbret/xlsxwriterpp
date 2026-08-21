@@ -14,6 +14,73 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_properties()
+{
+  return xml_start_tag("Properties", {
+                                       {"xmlns",    SCHEMA_OFFICEDOC + "/extended-properties"},
+                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"     },
+  });
+}
+
+[[nodiscard]] std::string write_application()
+{
+  // TODO Check why name is important and which default are different following the case (e.g. chart_data_labels)
+  // Application name must be "Microsoft Excel", even some default change
+  return xml_data_element("Application", "Microsoft Excel");
+}
+
+[[nodiscard]] std::string write_scale_crop()
+{
+  return xml_data_element("ScaleCrop", "false");
+}
+
+[[nodiscard]] std::string write_links_up_to_date()
+{
+  return xml_data_element("LinksUpToDate", "false");
+}
+
+[[nodiscard]] std::string write_shared_doc()
+{
+  return xml_data_element("SharedDoc", "false");
+}
+
+[[nodiscard]] std::string write_hyperlinks_changed()
+{
+  return xml_data_element("HyperlinksChanged", "false");
+}
+
+[[nodiscard]] std::string write_app_version()
+{
+  return xml_data_element("AppVersion", "12.0000");
+}
+
+[[nodiscard]] std::string write_vt_lpstr(const std::string& str)
+{
+  return xml_data_element("vt:lpstr", str);
+}
+
+[[nodiscard]] std::string write_vt_i4(const std::string& value)
+{
+  return xml_data_element("vt:i4", value);
+}
+
+[[nodiscard]] std::string write_vt_variant(const std::string& key, const std::string& value)
+{
+  std::string xml_data = xml_start_tag("vt:variant");
+  xml_data += write_vt_lpstr(key);
+  xml_data += xml_end_tag("vt:variant");
+
+  xml_data += xml_start_tag("vt:variant");
+  xml_data += write_vt_i4(value);
+  xml_data += xml_end_tag("vt:variant");
+
+  return xml_data;
+}
+}
+
 void app_t::add_part_name(const std::string& name)
 {
   if(name.empty())
@@ -64,21 +131,6 @@ std::string app_t::assemble_xml_file() const
   return xml_data;
 }
 
-std::string app_t::write_properties() const
-{
-  return xml_start_tag("Properties", {
-                                       {"xmlns",    SCHEMA_OFFICEDOC + "/extended-properties"},
-                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"     },
-  });
-}
-
-std::string app_t::write_application() const
-{
-  // TODO Check why name is important and which default are different following the case (e.g. chart_data_labels)
-  // Application name must be "Microsoft Excel", even some default change
-  return xml_data_element("Application", "Microsoft Excel");
-}
-
 std::string app_t::write_doc_security() const
 {
   if(doc_security_ == 2)
@@ -89,11 +141,6 @@ std::string app_t::write_doc_security() const
   {
     return xml_data_element("DocSecurity", "0");
   }
-}
-
-std::string app_t::write_scale_crop() const
-{
-  return xml_data_element("ScaleCrop", "false");
 }
 
 std::string app_t::write_heading_pairs() const
@@ -139,16 +186,6 @@ std::string app_t::write_company() const
   }
 }
 
-std::string app_t::write_links_up_to_date() const
-{
-  return xml_data_element("LinksUpToDate", "false");
-}
-
-std::string app_t::write_shared_doc() const
-{
-  return xml_data_element("SharedDoc", "false");
-}
-
 std::string app_t::write_hyperlink_base() const
 {
   if(!properties_.hyperlink_base_.empty())
@@ -159,16 +196,6 @@ std::string app_t::write_hyperlink_base() const
   {
     return "";
   }
-}
-
-std::string app_t::write_hyperlinks_changed() const
-{
-  return xml_data_element("HyperlinksChanged", "false");
-}
-
-std::string app_t::write_app_version() const
-{
-  return xml_data_element("AppVersion", "12.0000");
 }
 
 std::string app_t::write_vt_vector_heading_pairs() const
@@ -201,29 +228,6 @@ std::string app_t::write_vt_vector_lpstr_named_parts() const
   xml_data += xml_end_tag("vt:vector");
 
   return xml_data;
-}
-
-std::string app_t::write_vt_lpstr(const std::string& str) const
-{
-  return xml_data_element("vt:lpstr", str);
-}
-
-std::string app_t::write_vt_variant(const std::string& key, const std::string& value) const
-{
-  std::string xml_data = xml_start_tag("vt:variant");
-  xml_data += write_vt_lpstr(key);
-  xml_data += xml_end_tag("vt:variant");
-
-  xml_data += xml_start_tag("vt:variant");
-  xml_data += write_vt_i4(value);
-  xml_data += xml_end_tag("vt:variant");
-
-  return xml_data;
-}
-
-std::string app_t::write_vt_i4(const std::string& value) const
-{
-  return xml_data_element("vt:i4", value);
 }
 
 }

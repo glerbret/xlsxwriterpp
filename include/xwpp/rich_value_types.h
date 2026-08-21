@@ -19,13 +19,7 @@ namespace xwpp
 class rich_value_types_t
 {
 public:
-  [[nodiscard]] std::string assemble_xml_file() const;
-
-private:
-  [[nodiscard]] std::string write_rv_types_info() const;
-  [[nodiscard]] std::string write_flag(const std::string& name) const;
-  [[nodiscard]] std::string write_key(const std::string& name) const;
-  [[nodiscard]] std::string write_key_flags() const;
+  [[nodiscard]] static std::string assemble_xml_file();
 };
 
 }

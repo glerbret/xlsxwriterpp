@@ -11,6 +11,7 @@
 
 #include <string_view>
 
+// cppcheck-suppress-begin missingInclude
 #ifdef USE_SYSTEM_MINIZIP
 #ifdef __GNUC__
 #pragma GCC system_header
@@ -19,6 +20,7 @@
 #else
 #include "third_party/zip.h"
 #endif
+// cppcheck-suppress-end missingInclude
 
 #include "workbook.h"
 
@@ -67,7 +69,7 @@ private:
   void write_vba_project_rels_file(const workbook_t& workbook);
 
   void add_buffer_to_zip(std::string_view buffer, const std::string& filename);
-  void add_buffer_to_zip(std::vector<unsigned char> buffer, const std::string& filename);
+  void add_buffer_to_zip(const std::vector<unsigned char>& buffer, const std::string& filename);
 
   [[nodiscard]] uint32_t get_drawing_count(const workbook_t& workbook) const;
   [[nodiscard]] uint32_t get_table_count(const workbook_t& workbook) const;

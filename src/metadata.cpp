@@ -14,6 +14,125 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_cell_metadata_type()
+{
+  return xml_empty_tag("metadataType", {
+                                         {"name",                "XLDAPR"},
+                                         {"minSupportedVersion", "120000"},
+                                         {"copy",                "1"     },
+                                         {"pasteAll",            "1"     },
+                                         {"pasteValues",         "1"     },
+                                         {"merge",               "1"     },
+                                         {"splitFirst",          "1"     },
+                                         {"rowColShift",         "1"     },
+                                         {"clearFormats",        "1"     },
+                                         {"clearComments",       "1"     },
+                                         {"assign",              "1"     },
+                                         {"coerce",              "1"     },
+                                         {"cellMeta",            "1"     },
+  });
+}
+
+[[nodiscard]] std::string write_value_metadata_type()
+{
+  return xml_empty_tag("metadataType", {
+                                         {"name",                "XLRICHVALUE"},
+                                         {"minSupportedVersion", "120000"     },
+                                         {"copy",                "1"          },
+                                         {"pasteAll",            "1"          },
+                                         {"pasteValues",         "1"          },
+                                         {"merge",               "1"          },
+                                         {"splitFirst",          "1"          },
+                                         {"rowColShift",         "1"          },
+                                         {"clearFormats",        "1"          },
+                                         {"clearComments",       "1"          },
+                                         {"assign",              "1"          },
+                                         {"coerce",              "1"          },
+  });
+}
+
+[[nodiscard]] std::string write_xda_dynamic_array_properties()
+{
+  return xml_empty_tag("xda:dynamicArrayProperties", {
+                                                       {"fDynamic",   "1"},
+                                                       {"fCollapsed", "0"},
+  });
+}
+
+[[nodiscard]] std::string write_xlrd_rvb(uint32_t index)
+{
+  return xml_empty_tag("xlrd:rvb", {
+                                     {"i", std::to_string(index)}
+  });
+}
+
+[[nodiscard]] std::string write_rc(uint8_t type, uint32_t index)
+{
+  return xml_empty_tag("rc", {
+                               {"t", std::to_string(type) },
+                               {"v", std::to_string(index)},
+  });
+}
+
+[[nodiscard]] std::string write_cell_ext()
+{
+  std::string xml_data = xml_start_tag("ext", {
+                                                {"uri", "{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}"}
+  });
+
+  xml_data += write_xda_dynamic_array_properties();
+  xml_data += xml_end_tag("ext");
+
+  return xml_data;
+}
+
+[[nodiscard]] std::string write_value_ext(uint32_t index)
+{
+  std::string xml_data = xml_start_tag("ext", {
+                                                {"uri", "{3e2802c4-a4d2-4d8b-9148-e3be6c30e623}"}
+  });
+
+  xml_data += write_xlrd_rvb(index);
+  xml_data += xml_end_tag("ext");
+
+  return xml_data;
+}
+
+[[nodiscard]] std::string write_cell_metadata()
+{
+  std::string xml_data = xml_start_tag("cellMetadata", {
+                                                         {"count", "1"}
+  });
+  xml_data += xml_start_tag("bk");
+  xml_data += write_rc(1, 0);
+  xml_data += xml_end_tag("bk");
+  xml_data += xml_end_tag("cellMetadata");
+
+  return xml_data;
+}
+
+[[nodiscard]] std::string write_cell_future_metadata()
+{
+  std::string xml_data = xml_start_tag("futureMetadata", {
+                                                           {"name",  "XLDAPR"},
+                                                           {"count", "1"     },
+  });
+
+  xml_data += xml_start_tag("bk");
+  xml_data += xml_start_tag("extLst");
+  xml_data += write_cell_ext();
+  xml_data += xml_end_tag("extLst");
+  xml_data += xml_end_tag("bk");
+  xml_data += xml_end_tag("futureMetadata");
+
+  return xml_data;
+}
+
+}
+
 metadata_t::metadata_t(bool has_dynamic_functions, bool has_embedded_images, uint32_t num_embedded_images)
   : has_dynamic_functions_{has_dynamic_functions}
   , has_embedded_images_{has_embedded_images}
@@ -97,99 +216,6 @@ std::string metadata_t::write_metadata_types() const
   return xml_data;
 }
 
-std::string metadata_t::write_cell_metadata_type() const
-{
-  return xml_empty_tag("metadataType", {
-                                         {"name",                "XLDAPR"},
-                                         {"minSupportedVersion", "120000"},
-                                         {"copy",                "1"     },
-                                         {"pasteAll",            "1"     },
-                                         {"pasteValues",         "1"     },
-                                         {"merge",               "1"     },
-                                         {"splitFirst",          "1"     },
-                                         {"rowColShift",         "1"     },
-                                         {"clearFormats",        "1"     },
-                                         {"clearComments",       "1"     },
-                                         {"assign",              "1"     },
-                                         {"coerce",              "1"     },
-                                         {"cellMeta",            "1"     },
-  });
-}
-
-std::string metadata_t::write_value_metadata_type() const
-{
-  return xml_empty_tag("metadataType", {
-                                         {"name",                "XLRICHVALUE"},
-                                         {"minSupportedVersion", "120000"     },
-                                         {"copy",                "1"          },
-                                         {"pasteAll",            "1"          },
-                                         {"pasteValues",         "1"          },
-                                         {"merge",               "1"          },
-                                         {"splitFirst",          "1"          },
-                                         {"rowColShift",         "1"          },
-                                         {"clearFormats",        "1"          },
-                                         {"clearComments",       "1"          },
-                                         {"assign",              "1"          },
-                                         {"coerce",              "1"          },
-  });
-}
-
-std::string metadata_t::write_cell_future_metadata() const
-{
-  std::string xml_data = xml_start_tag("futureMetadata", {
-                                                           {"name",  "XLDAPR"},
-                                                           {"count", "1"     },
-  });
-
-  xml_data += xml_start_tag("bk");
-  xml_data += xml_start_tag("extLst");
-  xml_data += write_cell_ext();
-  xml_data += xml_end_tag("extLst");
-  xml_data += xml_end_tag("bk");
-  xml_data += xml_end_tag("futureMetadata");
-
-  return xml_data;
-}
-
-std::string metadata_t::write_xda_dynamic_array_properties() const
-{
-  return xml_empty_tag("xda:dynamicArrayProperties", {
-                                                       {"fDynamic",   "1"},
-                                                       {"fCollapsed", "0"},
-  });
-}
-
-std::string metadata_t::write_cell_ext() const
-{
-  std::string xml_data = xml_start_tag("ext", {
-                                                {"uri", "{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}"}
-  });
-
-  xml_data += write_xda_dynamic_array_properties();
-  xml_data += xml_end_tag("ext");
-
-  return xml_data;
-}
-
-std::string metadata_t::write_xlrd_rvb(uint32_t index) const
-{
-  return xml_empty_tag("xlrd:rvb", {
-                                     {"i", std::to_string(index)}
-  });
-}
-
-std::string metadata_t::write_value_ext(uint32_t index) const
-{
-  std::string xml_data = xml_start_tag("ext", {
-                                                {"uri", "{3e2802c4-a4d2-4d8b-9148-e3be6c30e623}"}
-  });
-
-  xml_data += write_xlrd_rvb(index);
-  xml_data += xml_end_tag("ext");
-
-  return xml_data;
-}
-
 std::string metadata_t::write_value_future_metadata() const
 {
   std::string xml_data = xml_start_tag("futureMetadata", {
@@ -207,27 +233,6 @@ std::string metadata_t::write_value_future_metadata() const
   }
 
   xml_data += xml_end_tag("futureMetadata");
-
-  return xml_data;
-}
-
-std::string metadata_t::write_rc(uint8_t type, uint32_t index) const
-{
-  return xml_empty_tag("rc", {
-                               {"t", std::to_string(type) },
-                               {"v", std::to_string(index)},
-  });
-}
-
-std::string metadata_t::write_cell_metadata() const
-{
-  std::string xml_data = xml_start_tag("cellMetadata", {
-                                                         {"count", "1"}
-  });
-  xml_data += xml_start_tag("bk");
-  xml_data += write_rc(1, 0);
-  xml_data += xml_end_tag("bk");
-  xml_data += xml_end_tag("cellMetadata");
 
   return xml_data;
 }

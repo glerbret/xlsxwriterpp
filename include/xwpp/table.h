@@ -27,7 +27,7 @@ public:
 private:
   [[nodiscard]] std::string write_table() const;
   [[nodiscard]] std::string write_auto_filter() const;
-  [[nodiscard]] std::string write_table_column(uint16_t id, const table_column_t& column) const;
+  [[nodiscard]] static std::string write_table_column(uint16_t id, const table_column_t& column);
   [[nodiscard]] std::string write_table_columns() const;
   [[nodiscard]] std::string write_table_style_info() const;
 

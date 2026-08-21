@@ -25,9 +25,6 @@ public:
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
-  [[nodiscard]] std::string write_rel(uint32_t rel_index) const;
-  [[nodiscard]] std::string write_rich_value_rels() const;
-
   uint32_t num_embedded_images_;
 };
 

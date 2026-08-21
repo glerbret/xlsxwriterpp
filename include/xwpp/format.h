@@ -1328,8 +1328,6 @@ private:
   friend class worksheet_t; // TODO for debug
   friend class style_t;
 
-  [[nodiscard]] format_borders_t check_border(format_borders_t style) const;
-
   static const uint8_t DEFAULT_FONT_FAMILY = 2;
 
   int32_t xf_index_  = PROPERTY_UNSET;

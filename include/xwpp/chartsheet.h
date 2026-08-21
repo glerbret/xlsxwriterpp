@@ -455,11 +455,11 @@ private:
   friend class workbook_t;
 
   // Retrieve function
-  [[nodiscard]] std::string get_sheet_name() const;
+  [[nodiscard]] const std::string& get_sheet_name() const;
   [[nodiscard]] uint16_t get_sheet_index() const;
 
   // Functions to generate XML
-  [[nodiscard]] std::string write_chartsheet() const;
+  [[nodiscard]] static std::string write_chartsheet();
   [[nodiscard]] std::string write_sheet_pr() const;
   [[nodiscard]] std::string write_sheet_views();
   [[nodiscard]] std::string write_sheet_protection(const protection_obj_t& protection) const;

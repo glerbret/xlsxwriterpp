@@ -13,11 +13,14 @@
 #include <chrono>
 #include <format>
 
+namespace xwpp
+{
+
 namespace
 {
 
 // TODO Should be moved to utility
-std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point& time)
+[[nodiscard]] std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point& time)
 {
   if(time.time_since_epoch().count() == 0)
   {
@@ -28,10 +31,19 @@ std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point
   return std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(time));
 }
 
+[[nodiscard]] std::string write_cp_core_properties()
+{
+  return xml_start_tag("cp:coreProperties",
+                       {
+                         {"xmlns:cp",       "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"},
+                         {"xmlns:dc",       "http://purl.org/dc/elements/1.1/"                                       },
+                         {"xmlns:dcterms",  "http://purl.org/dc/terms/"                                              },
+                         {"xmlns:dcmitype", "http://purl.org/dc/dcmitype/"                                           },
+                         {"xmlns:xsi",      "http://www.w3.org/2001/XMLSchema-instance"                              },
+  });
 }
 
-namespace xwpp
-{
+}
 
 core_t::core_t(doc_properties_t properties)
   : properties_{std::move(properties)}
@@ -56,18 +68,6 @@ std::string core_t::assemble_xml_file() const
   xml_data += xml_end_tag("cp:coreProperties");
 
   return xml_data;
-}
-
-std::string core_t::write_cp_core_properties() const
-{
-  return xml_start_tag("cp:coreProperties",
-                       {
-                         {"xmlns:cp",       "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"},
-                         {"xmlns:dc",       "http://purl.org/dc/elements/1.1/"                                       },
-                         {"xmlns:dcterms",  "http://purl.org/dc/terms/"                                              },
-                         {"xmlns:dcmitype", "http://purl.org/dc/dcmitype/"                                           },
-                         {"xmlns:xsi",      "http://www.w3.org/2001/XMLSchema-instance"                              },
-  });
 }
 
 std::string core_t::write_dc_title() const

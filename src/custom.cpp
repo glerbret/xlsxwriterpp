@@ -19,37 +19,43 @@
 namespace xwpp
 {
 
-custom_t::custom_t(const std::vector<custom_property_t>& custom_properties)
-  : custom_properties_{custom_properties}
+namespace
 {
+
+[[nodiscard]] std::string write(const std::string& value)
+{
+  return xml_data_element("vt:lpwstr", value);
 }
 
-std::string custom_t::assemble_xml_file()
+[[nodiscard]] std::string write(double value)
 {
-  std::string xml_data = xml_declaration();
-  xml_data += write_custom_properties();
-  xml_data += xml_end_tag("Properties");
-
-  return xml_data;
+  return xml_data_element("vt:r8", std::format("{}", value));
 }
 
-std::string custom_t::write_custom_properties() const
+[[nodiscard]] std::string write(int32_t value)
 {
-  std::string xml_data = xml_start_tag("Properties", {
-                                                       {"xmlns",    SCHEMA_OFFICEDOC + "/custom-properties"},
-                                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"   },
-  });
+  return xml_data_element("vt:i4", std::to_string(value));
+}
 
-  for(size_t index = 1; const auto& property: custom_properties_)
+[[nodiscard]] std::string write(bool value)
+{
+  if(value)
   {
-    xml_data += write_custom_property(index, property);
-    index++;
+    return xml_data_element("vt:bool", "true");
   }
-
-  return xml_data;
+  else
+  {
+    return xml_data_element("vt:bool", "false");
+  }
 }
 
-std::string custom_t::write_custom_property(size_t pid, const custom_property_t& property) const
+[[nodiscard]] std::string write(const std::chrono::system_clock::time_point& value)
+{
+  return xml_data_element("vt:filetime",
+                          std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(value)));
+}
+
+[[nodiscard]] std::string write_custom_property(size_t pid, const custom_property_t& property)
 {
   const std::string fmtid = "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}";
 
@@ -85,37 +91,36 @@ std::string custom_t::write_custom_property(size_t pid, const custom_property_t&
   return xml_data;
 }
 
-std::string custom_t::write(const std::string& value) const
-{
-  return xml_data_element("vt:lpwstr", value);
 }
 
-std::string custom_t::write(double value) const
+custom_t::custom_t(const std::vector<custom_property_t>& custom_properties)
+  : custom_properties_{custom_properties}
 {
-  return xml_data_element("vt:r8", std::format("{}", value));
 }
 
-std::string custom_t::write(int32_t value) const
+std::string custom_t::assemble_xml_file()
 {
-  return xml_data_element("vt:i4", std::to_string(value));
+  std::string xml_data = xml_declaration();
+  xml_data += write_custom_properties();
+  xml_data += xml_end_tag("Properties");
+
+  return xml_data;
 }
 
-std::string custom_t::write(bool value) const
+std::string custom_t::write_custom_properties() const
 {
-  if(value)
+  std::string xml_data = xml_start_tag("Properties", {
+                                                       {"xmlns",    SCHEMA_OFFICEDOC + "/custom-properties"},
+                                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"   },
+  });
+
+  for(size_t index = 1; const auto& property: custom_properties_)
   {
-    return xml_data_element("vt:bool", "true");
+    xml_data += write_custom_property(index, property);
+    index++;
   }
-  else
-  {
-    return xml_data_element("vt:bool", "false");
-  }
-}
 
-std::string custom_t::write(const std::chrono::system_clock::time_point& value) const
-{
-  return xml_data_element("vt:filetime",
-                          std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(value)));
+  return xml_data;
 }
 
 }

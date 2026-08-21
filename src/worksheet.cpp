@@ -17,12 +17,14 @@
 
 #include <openssl/md5.h>
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <numeric>
 #include <span>
 #include <string>
 #include <string_view>
@@ -51,7 +53,7 @@ std::string calculate_spans(std::map<row_num_t, row_t>::const_iterator it,
 
   block_num = static_cast<int32_t>(it->second.row_num_) / 16;
 
-  for(; it != end && std::cmp_equal((it->second.row_num_ / 16), block_num); it++)
+  for(; it != end && std::cmp_equal((it->second.row_num_ / 16), block_num); ++it)
   {
     if(!it->second.cells_.empty())
     {
@@ -388,11 +390,8 @@ size_t validation_list_length(const std::vector<std::string>& list)
     return 0;
   }
 
-  size_t length = 0;
-  for(const auto& str: list)
-  {
-    length += str.size();
-  }
+  size_t length = std::accumulate(std::begin(list), std::end(list), size_t{0},
+                                  [](size_t len, const std::string& str) { return len + str.size(); });
 
   // Include commas in the length.
   length += list.size() - 1;
@@ -500,6 +499,7 @@ void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<tabl
   table_obj.style_type_number_ = user_options->style_type_number_;
 }
 
+// cppcheck-suppress constParameterReference
 void set_default_table_columns(table_obj_t& table_obj)
 {
   for(size_t i = 1; auto& column: table_obj.columns_)
@@ -511,16 +511,7 @@ void set_default_table_columns(table_obj_t& table_obj)
 
 std::string expand_table_formula(const std::string& formula)
 {
-  size_t ref_count = 0;
-  for(const auto c: formula)
-  {
-    if(c == '@')
-    {
-      ref_count++;
-    }
-  }
-
-  if(ref_count == 0)
+  if(std::ranges::count_if(formula, [](char c) { return c == '@'; }) == 0)
   {
     // String doesn't need to be expanded. Just copy it.
     return dup_formula(formula);
@@ -1293,6 +1284,399 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
   }
 }
 
+[[nodiscard]] uint32_t calculate_x_split_width(double x_split)
+{
+  uint32_t pixels              = 0;
+  const double max_digit_width = 7.0; // For Calabri 11.
+  const double padding         = 5.0;
+
+  // Convert to pixels.
+  if(x_split < 1.0)
+  {
+    pixels = static_cast<uint32_t>((x_split * (max_digit_width + padding)) + 0.5);
+  }
+  else
+  {
+    pixels = static_cast<uint32_t>((x_split * max_digit_width) + 0.5) + 5;
+  }
+
+  // Convert to points.
+  const uint32_t points = (pixels * 3) / 4;
+
+  // Convert to twips (twentieths of a point).
+  const uint32_t twips = points * 20;
+
+  // Add offset/padding.
+  return twips + 390;
+}
+
+[[nodiscard]] std::string get_vml_image_position(image_position_t image_position)
+{
+  switch(image_position)
+  {
+    case image_position_t::HEADER_LEFT:
+      return "LH";
+
+    case image_position_t::HEADER_CENTER:
+      return "CH";
+
+    case image_position_t::HEADER_RIGHT:
+      return "RH";
+
+    case image_position_t::FOOTER_LEFT:
+      return "LF";
+
+    case image_position_t::FOOTER_CENTER:
+      return "CF";
+
+    case image_position_t::FOOTER_RIGHT:
+      return "RF";
+  }
+
+  return "";
+}
+
+[[nodiscard]] std::string write_table_part(uint16_t id)
+{
+  return xml_empty_tag("tablePart", {
+                                      {"r:id", std::format("rId{}", id)}
+  });
+}
+
+[[nodiscard]] std::string write_hyperlink_internal(row_num_t row_num, col_num_t col_num, const std::string& location,
+                                                   const std::string& display, const std::string& tooltip)
+{
+  const std::string range = rowcol_to_cell(row_num, col_num);
+  std::vector<std::tuple<std::string, std::string>> attributes{
+    {"ref", range}
+  };
+
+  if(!location.empty())
+  {
+    attributes.emplace_back("location", location);
+  }
+
+  if(!tooltip.empty())
+  {
+    attributes.emplace_back("tooltip", tooltip);
+  }
+
+  if(!display.empty())
+  {
+    attributes.emplace_back("display", display);
+  }
+
+  return xml_empty_tag("hyperlink", attributes);
+}
+
+[[nodiscard]] std::string write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
+                                                   const std::string& tooltip, uint16_t id)
+{
+  const std::string range = rowcol_to_cell(row_num, col_num);
+  std::vector<std::tuple<std::string, std::string>> attributes{
+    {"ref", range},
+    {"r:id", std::format("rId{}", id)}
+  };
+
+  if(!location.empty())
+  {
+    attributes.emplace_back("location", location);
+  }
+
+  if(!tooltip.empty())
+  {
+    attributes.emplace_back("tooltip", tooltip);
+  }
+
+  return xml_empty_tag("hyperlink", attributes);
+}
+
+[[nodiscard]] std::string write_drawing(uint16_t id)
+{
+  return xml_empty_tag("drawing", {
+                                    {"r:id", std::format("rId{}", id)}
+  });
+}
+
+[[nodiscard]] std::string write_brk(uint32_t id, uint32_t max)
+{
+  return xml_empty_tag("brk", {
+                                {"id",  std::to_string(id) },
+                                {"max", std::to_string(max)},
+                                {"man", "1"                },
+  });
+}
+
+[[nodiscard]] std::string write_error_cell()
+{
+  return xml_data_element("v", "#VALUE!");
+}
+
+[[nodiscard]] std::string write_filter(const std::string& str, double num, filter_criteria_t criteria)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(criteria == filter_criteria_t::BLANKS)
+  {
+    return "";
+  }
+
+  if(!str.empty())
+  {
+    attributes.emplace_back("val", str);
+  }
+  else
+  {
+    attributes.emplace_back("val", std::format("{}", num));
+  }
+
+  return xml_empty_tag("filter", attributes);
+}
+
+[[nodiscard]] std::string write_custom_filter(const std::string& str, double num, filter_criteria_t criteria)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(criteria == filter_criteria_t::NOT_EQUAL_TO)
+  {
+    attributes.emplace_back("operator", "notEqual");
+  }
+  else if(criteria == filter_criteria_t::GREATER_THAN)
+  {
+    attributes.emplace_back("operator", "greaterThan");
+  }
+  else if(criteria == filter_criteria_t::GREATER_THAN_OR_EQUAL_TO)
+  {
+    attributes.emplace_back("operator", "greaterThanOrEqual");
+  }
+  else if(criteria == filter_criteria_t::LESS_THAN)
+  {
+    attributes.emplace_back("operator", "lessThan");
+  }
+  else if(criteria == filter_criteria_t::LESS_THAN_OR_EQUAL_TO)
+  {
+    attributes.emplace_back("operator", "lessThanOrEqual");
+  }
+
+  if(!str.empty())
+  {
+    attributes.emplace_back("val", str);
+  }
+  else
+  {
+    attributes.emplace_back("val", std::format("{}", num));
+  }
+
+  return xml_empty_tag("customFilter", attributes);
+}
+
+[[nodiscard]] std::string write_formula_str_xml(const std::string& data)
+{
+  return xml_data_element("formula", data);
+}
+
+[[nodiscard]] std::string write_formula_num_xml(double num)
+{
+  return xml_data_element("formula", std::format("{}", num));
+}
+
+[[nodiscard]] std::string write_color(color_t color)
+{
+  return xml_empty_tag("color", {
+                                  {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  });
+}
+
+[[nodiscard]] std::string write_cfvo_str(conditional_format_rule_types_t rule_type, const std::string& value,
+                                         bool data_bar_2010)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  {
+    attributes.emplace_back("type", "min");
+  }
+  else if(rule_type == conditional_format_rule_types_t::NUMBER)
+  {
+    attributes.emplace_back("type", "num");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENT)
+  {
+    attributes.emplace_back("type", "percent");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
+  {
+    attributes.emplace_back("type", "percentile");
+  }
+  else if(rule_type == conditional_format_rule_types_t::FORMULA)
+  {
+    attributes.emplace_back("type", "formula");
+  }
+  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
+  {
+    attributes.emplace_back("type", "max");
+  }
+
+  if(!data_bar_2010 ||
+     (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
+  {
+    attributes.emplace_back("val", value);
+  }
+
+  return xml_empty_tag("cfvo", attributes);
+}
+
+[[nodiscard]] std::string write_cfvo_num(conditional_format_rule_types_t rule_type, double value, bool data_bar_2010)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  {
+    attributes.emplace_back("type", "min");
+  }
+  else if(rule_type == conditional_format_rule_types_t::NUMBER)
+  {
+    attributes.emplace_back("type", "num");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENT)
+  {
+    attributes.emplace_back("type", "percent");
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
+  {
+    attributes.emplace_back("type", "percentile");
+  }
+  else if(rule_type == conditional_format_rule_types_t::FORMULA)
+  {
+    attributes.emplace_back("type", "formula");
+  }
+  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
+  {
+    attributes.emplace_back("type", "max");
+  }
+
+  if(!data_bar_2010 ||
+     (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
+  {
+    attributes.emplace_back("val", std::format("{}", value));
+  }
+
+  return xml_empty_tag("cfvo", attributes);
+}
+
+[[nodiscard]] std::string write_ext(const std::string& uri)
+{
+  return xml_start_tag("ext",
+                       {
+                         {"xmlns:x14", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"},
+                         {"uri",       uri                                                            }
+  });
+}
+
+[[nodiscard]] std::string write_x14_cfvo(conditional_format_rule_types_t rule_type, double number,
+                                         const std::string& str)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  bool has_value = false;
+
+  if(rule_type == conditional_format_rule_types_t::AUTO_MIN)
+  {
+    attributes.emplace_back("type", "autoMin");
+    has_value = false;
+  }
+  else if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  {
+    attributes.emplace_back("type", "min");
+    has_value = false;
+  }
+  else if(rule_type == conditional_format_rule_types_t::NUMBER)
+  {
+    attributes.emplace_back("type", "num");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENT)
+  {
+    attributes.emplace_back("type", "percent");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
+  {
+    attributes.emplace_back("type", "percentile");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::FORMULA)
+  {
+    attributes.emplace_back("type", "formula");
+    has_value = true;
+  }
+  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
+  {
+    attributes.emplace_back("type", "max");
+    has_value = false;
+  }
+  else if(rule_type == conditional_format_rule_types_t::AUTO_MAX)
+  {
+    attributes.emplace_back("type", "autoMax");
+    has_value = false;
+  }
+
+  if(has_value)
+  {
+    std::string xml_data = xml_start_tag("x14:cfvo", attributes);
+
+    if(!str.empty())
+    {
+      xml_data += xml_data_element("xm:f", str);
+    }
+    else
+    {
+      xml_data += xml_data_element("xm:f", std::format("{}", number));
+    }
+    xml_data += xml_end_tag("x14:cfvo");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("x14:cfvo", attributes);
+  }
+}
+
+[[nodiscard]] std::string write_x14_color(const std::string& type, color_t color)
+{
+  return xml_empty_tag(type, {
+                               {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  });
+}
+
+[[nodiscard]] std::string write_formula1_num(double number)
+{
+  return xml_data_element("formula1", std::format("{}", number));
+}
+
+[[nodiscard]] std::string write_formula2_num(double number)
+{
+  return xml_data_element("formula2", std::format("{}", number));
+}
+
+[[nodiscard]] std::string write_formula1_str(const std::string& str)
+{
+  return xml_data_element("formula1", str);
+}
+
+[[nodiscard]] std::string write_formula2_str(const std::string& str)
+{
+  return xml_data_element("formula2", str);
+}
+
+[[nodiscard]] std::string write_ignored_error(const std::string& ignore_error, const std::string& range)
+{
+  return xml_empty_tag("ignoredError", {
+                                         {"sqref",      range},
+                                         {ignore_error, "1"  },
+  });
+}
+
 const uint8_t PRINT_ACROSS                = 1;
 const size_t VALIDATION_MAX_TITLE_LENGTH  = 32;
 const size_t VALIDATION_MAX_STRING_LENGTH = 255;
@@ -1640,13 +2024,9 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   check_dimensions(row_num, col_num, false, false);
 
   // Iterate through rich string fragments to check for input errors.
-  for(const auto& rich_string_tuple: rich_strings)
+  if(std::ranges::any_of(rich_strings, [](const auto& rich_string_tuple) { return rich_string_tuple.str_.empty(); }))
   {
-    // Check for empty strings.
-    if(rich_string_tuple.str_.empty())
-    {
-      throw xwpp_exception_t("worksheet_t::write_rich_string(): string cannot be empty.");
-    }
+    throw xwpp_exception_t("worksheet_t::write_rich_string(): string cannot be empty.");
   }
 
   // If there are less than 2 fragments it isn't a rich string.
@@ -1771,7 +2151,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
   if(found_string != std::string::npos)
   {
     url_string = url_copy.substr(found_string + 1);
-    url_copy   = url_copy.substr(0, found_string);
+    url_copy.resize(found_string);
   }
 
   // Escape the URL.
@@ -1786,21 +2166,8 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
     // The URL will look something like "c:\temp\file.xlsx#Sheet!A1".
 
     // For external links change the dir separator from Unix to DOS.
-    for(auto& c: url_copy)
-    {
-      if(c == '/')
-      {
-        c = '\\';
-      }
-    }
-
-    for(auto& c: string_copy)
-    {
-      if(c == '/')
-      {
-        c = '\\';
-      }
-    }
+    std::ranges::replace(url_copy, '/', '\\');
+    std::ranges::replace(string_copy, '/', '\\');
 
     // Look for Windows style "C:/" link or Windows share "\\" link.
     found_string = url_copy.find(':');
@@ -3074,7 +3441,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
     }
   }
 
-  if(validation.error_message_.empty())
+  if(!validation.error_message_.empty())
   {
     if(validation.error_message_.size() > VALIDATION_MAX_STRING_LENGTH)
     {
@@ -3863,7 +4230,7 @@ const col_num_t worksheet_t::COL_MAX      = 16384;
 const size_t worksheet_t::STR_MAX         = 32767;
 const col_num_t worksheet_t::COL_META_MAX = 128;
 
-std::string worksheet_t::get_sheet_name() const
+const std::string& worksheet_t::get_sheet_name() const
 {
   return name_;
 }
@@ -3939,10 +4306,7 @@ void worksheet_t::insert_cell_placeholder(row_num_t row_num, col_num_t col_num)
 {
   // Only add a cell if one doesn't already exist.
   row_t& row = get_row(row_num);
-  if(row.cells_.find(col_num) == std::end(row.cells_))
-  {
-    row.cells_[col_num] = new_blank_cell(row_num, col_num, nullptr);
-  }
+  row.cells_.try_emplace(col_num, new_blank_cell(row_num, col_num, nullptr));
 }
 
 void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
@@ -4246,32 +4610,6 @@ void worksheet_t::write_column_formula(row_num_t first_row, row_num_t last_row, 
   }
 }
 
-uint32_t worksheet_t::calculate_x_split_width(double x_split) const
-{
-  uint32_t pixels              = 0;
-  const double max_digit_width = 7.0; // For Calabri 11.
-  const double padding         = 5.0;
-
-  // Convert to pixels.
-  if(x_split < 1.0)
-  {
-    pixels = static_cast<uint32_t>((x_split * (max_digit_width + padding)) + 0.5);
-  }
-  else
-  {
-    pixels = static_cast<uint32_t>((x_split * max_digit_width) + 0.5) + 5;
-  }
-
-  // Convert to points.
-  const uint32_t points = (pixels * 3) / 4;
-
-  // Convert to twips (twentieths of a point).
-  const uint32_t twips = points * 20;
-
-  // Add offset/padding.
-  return twips + 390;
-}
-
 // Process a header/footer image and store it in the correct slot.
 void worksheet_t::set_header_footer_image(const std::string& filename, image_position_t image_position)
 {
@@ -4443,7 +4781,7 @@ const row_t* worksheet_t::find_row(row_num_t row_num) const
   }
 }
 
-const cell_t* worksheet_t::find_cell_in_row(const row_t* row, col_num_t col_num) const
+const cell_t* worksheet_t::find_cell_in_row(const row_t* row, col_num_t col_num)
 {
   if(!row)
   {
@@ -4686,32 +5024,6 @@ uint32_t worksheet_t::find_drawing_rel_index(const std::string& target)
   }
 }
 
-std::string worksheet_t::get_vml_image_position(image_position_t image_position) const
-{
-  switch(image_position)
-  {
-    case image_position_t::HEADER_LEFT:
-      return "LH";
-
-    case image_position_t::HEADER_CENTER:
-      return "CH";
-
-    case image_position_t::HEADER_RIGHT:
-      return "RH";
-
-    case image_position_t::FOOTER_LEFT:
-      return "LF";
-
-    case image_position_t::FOOTER_CENTER:
-      return "CF";
-
-    case image_position_t::FOOTER_RIGHT:
-      return "RF";
-  }
-
-  return "";
-}
-
 uint32_t worksheet_t::find_vml_drawing_rel_index(const std::string& target)
 {
   if(target.empty())
@@ -4859,13 +5171,7 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
         std::string target = escape_url_characters(url.substr(sizeof("external")), true);
 
         // Switch backslash to forward slash.
-        for(auto& c: target)
-        {
-          if(c == '\\')
-          {
-            c = '/';
-          }
-        }
+        std::ranges::replace(target, '\\', '/');
         relation = std::make_tuple("/hyperlink", target, "External");
       }
     }
@@ -4908,7 +5214,6 @@ void worksheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_
   header_image_vml.height_         = static_cast<uint32_t>(object_props.height_);
   header_image_vml.x_dpi_          = object_props.x_dpi_;
   header_image_vml.y_dpi_          = object_props.y_dpi_;
-  header_image_vml.rel_index_      = 1;
   header_image_vml.image_position_ = object_props.image_position_;
   header_image_vml.name_           = object_props.description_;
 
@@ -5745,13 +6050,6 @@ std::string worksheet_t::write_picture()
   });
 }
 
-std::string worksheet_t::write_table_part(uint16_t id)
-{
-  return xml_empty_tag("tablePart", {
-                                      {"r:id", std::format("rId{}", id)}
-  });
-}
-
 std::string worksheet_t::write_table_parts()
 {
   if(table_objs_.empty())
@@ -6041,61 +6339,6 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   return "";
 }
 
-std::string worksheet_t::write_hyperlink_internal(row_num_t row_num, col_num_t col_num, const std::string& location,
-                                                  const std::string& display, const std::string& tooltip) const
-{
-  const std::string range = rowcol_to_cell(row_num, col_num);
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"ref", range}
-  };
-
-  if(!location.empty())
-  {
-    attributes.emplace_back("location", location);
-  }
-
-  if(!tooltip.empty())
-  {
-    attributes.emplace_back("tooltip", tooltip);
-  }
-
-  if(!display.empty())
-  {
-    attributes.emplace_back("display", display);
-  }
-
-  return xml_empty_tag("hyperlink", attributes);
-}
-
-std::string worksheet_t::write_hyperlink_external(row_num_t row_num, col_num_t col_num, const std::string& location,
-                                                  const std::string& tooltip, uint16_t id) const
-{
-  const std::string range = rowcol_to_cell(row_num, col_num);
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"ref", range},
-    {"r:id", std::format("rId{}", id)}
-  };
-
-  if(!location.empty())
-  {
-    attributes.emplace_back("location", location);
-  }
-
-  if(!tooltip.empty())
-  {
-    attributes.emplace_back("tooltip", tooltip);
-  }
-
-  return xml_empty_tag("hyperlink", attributes);
-}
-
-std::string worksheet_t::write_drawing(uint16_t id) const
-{
-  return xml_empty_tag("drawing", {
-                                    {"r:id", std::format("rId{}", id)}
-  });
-}
-
 std::string worksheet_t::write_odd_header() const
 {
   return xml_data_element("oddHeader", header_);
@@ -6104,15 +6347,6 @@ std::string worksheet_t::write_odd_header() const
 std::string worksheet_t::write_odd_footer() const
 {
   return xml_data_element("oddFooter", footer_);
-}
-
-std::string worksheet_t::write_brk(uint32_t id, uint32_t max) const
-{
-  return xml_empty_tag("brk", {
-                                {"id",  std::to_string(id) },
-                                {"max", std::to_string(max)},
-                                {"man", "1"                },
-  });
 }
 
 std::string worksheet_t::write_tab_color() const
@@ -6127,7 +6361,7 @@ std::string worksheet_t::write_tab_color() const
   });
 }
 
-std::string worksheet_t::write_merge_cell(const merged_range_t& merged_range) const
+std::string worksheet_t::write_merge_cell(const merged_range_t& merged_range)
 {
   // Convert the merge dimensions to a cell range.
   std::string ref =
@@ -6159,12 +6393,7 @@ std::string worksheet_t::write_boolean_cell(const cell_t& cell) const
   return xml_data_element("v", std::get<uint32_t>(cell.data_) == 0 ? "0" : "1");
 }
 
-std::string worksheet_t::write_error_cell() const
-{
-  return xml_data_element("v", "#VALUE!");
-}
-
-std::string worksheet_t::write_sheet_protection(const protection_obj_t& protection) const
+std::string worksheet_t::write_sheet_protection(const protection_obj_t& protection)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -6266,7 +6495,7 @@ std::string worksheet_t::write_sheet_protection(const protection_obj_t& protecti
   return xml_empty_tag("sheetProtection", attributes);
 }
 
-std::string worksheet_t::write_filter_column(const std::optional<filter_rule_obj_t>& filter) const
+std::string worksheet_t::write_filter_column(const std::optional<filter_rule_obj_t>& filter)
 {
   if(!filter)
   {
@@ -6293,28 +6522,7 @@ std::string worksheet_t::write_filter_column(const std::optional<filter_rule_obj
   return xml_data;
 }
 
-std::string worksheet_t::write_filter(const std::string& str, double num, filter_criteria_t criteria) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(criteria == filter_criteria_t::BLANKS)
-  {
-    return "";
-  }
-
-  if(!str.empty())
-  {
-    attributes.emplace_back("val", str);
-  }
-  else
-  {
-    attributes.emplace_back("val", std::format("{}", num));
-  }
-
-  return xml_empty_tag("filter", attributes);
-}
-
-std::string worksheet_t::write_filter_standard(const filter_rule_obj_t& filter) const
+std::string worksheet_t::write_filter_standard(const filter_rule_obj_t& filter)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -6345,44 +6553,7 @@ std::string worksheet_t::write_filter_standard(const filter_rule_obj_t& filter) 
   }
 }
 
-std::string worksheet_t::write_custom_filter(const std::string& str, double num, filter_criteria_t criteria) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(criteria == filter_criteria_t::NOT_EQUAL_TO)
-  {
-    attributes.emplace_back("operator", "notEqual");
-  }
-  else if(criteria == filter_criteria_t::GREATER_THAN)
-  {
-    attributes.emplace_back("operator", "greaterThan");
-  }
-  else if(criteria == filter_criteria_t::GREATER_THAN_OR_EQUAL_TO)
-  {
-    attributes.emplace_back("operator", "greaterThanOrEqual");
-  }
-  else if(criteria == filter_criteria_t::LESS_THAN)
-  {
-    attributes.emplace_back("operator", "lessThan");
-  }
-  else if(criteria == filter_criteria_t::LESS_THAN_OR_EQUAL_TO)
-  {
-    attributes.emplace_back("operator", "lessThanOrEqual");
-  }
-
-  if(!str.empty())
-  {
-    attributes.emplace_back("val", str);
-  }
-  else
-  {
-    attributes.emplace_back("val", std::format("{}", num));
-  }
-
-  return xml_empty_tag("customFilter", attributes);
-}
-
-std::string worksheet_t::write_filter_list(const filter_rule_obj_t& filter) const
+std::string worksheet_t::write_filter_list(const filter_rule_obj_t& filter)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -6403,7 +6574,7 @@ std::string worksheet_t::write_filter_list(const filter_rule_obj_t& filter) cons
   return xml_data;
 }
 
-std::string worksheet_t::write_filter_custom(const filter_rule_obj_t& filter) const
+std::string worksheet_t::write_filter_custom(const filter_rule_obj_t& filter)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -6454,101 +6625,6 @@ std::string worksheet_t::write_conditional_formatting(const std::string& sqref,
   xml_data += xml_end_tag("conditionalFormatting");
 
   return xml_data;
-}
-
-std::string worksheet_t::write_formula_str(const std::string& data) const
-{
-  return xml_data_element("formula", data);
-}
-
-std::string worksheet_t::write_formula_num(double num) const
-{
-  return xml_data_element("formula", std::format("{}", num));
-}
-
-std::string worksheet_t::write_color(color_t color) const
-{
-  return xml_empty_tag("color", {
-                                  {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-  });
-}
-
-std::string worksheet_t::write_cfvo_str(conditional_format_rule_types_t rule_type, const std::string& value,
-                                        bool data_bar_2010) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(rule_type == conditional_format_rule_types_t::MINIMUM)
-  {
-    attributes.emplace_back("type", "min");
-  }
-  else if(rule_type == conditional_format_rule_types_t::NUMBER)
-  {
-    attributes.emplace_back("type", "num");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENT)
-  {
-    attributes.emplace_back("type", "percent");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
-  {
-    attributes.emplace_back("type", "percentile");
-  }
-  else if(rule_type == conditional_format_rule_types_t::FORMULA)
-  {
-    attributes.emplace_back("type", "formula");
-  }
-  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
-  {
-    attributes.emplace_back("type", "max");
-  }
-
-  if(!data_bar_2010 ||
-     (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
-  {
-    attributes.emplace_back("val", value);
-  }
-
-  return xml_empty_tag("cfvo", attributes);
-}
-
-std::string worksheet_t::write_cfvo_num(conditional_format_rule_types_t rule_type, double value,
-                                        bool data_bar_2010) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(rule_type == conditional_format_rule_types_t::MINIMUM)
-  {
-    attributes.emplace_back("type", "min");
-  }
-  else if(rule_type == conditional_format_rule_types_t::NUMBER)
-  {
-    attributes.emplace_back("type", "num");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENT)
-  {
-    attributes.emplace_back("type", "percent");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
-  {
-    attributes.emplace_back("type", "percentile");
-  }
-  else if(rule_type == conditional_format_rule_types_t::FORMULA)
-  {
-    attributes.emplace_back("type", "formula");
-  }
-  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
-  {
-    attributes.emplace_back("type", "max");
-  }
-
-  if(!data_bar_2010 ||
-     (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
-  {
-    attributes.emplace_back("val", std::format("{}", value));
-  }
-
-  return xml_empty_tag("cfvo", attributes);
 }
 
 std::string worksheet_t::write_cf_rule(cond_format_obj_t& cond_format)
@@ -6607,7 +6683,7 @@ std::string worksheet_t::write_cf_rule(cond_format_obj_t& cond_format)
   return "";
 }
 
-std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format)
 {
   // TODO Add conversion function
   const std::vector<std::string> operators{
@@ -6636,22 +6712,22 @@ std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format
 
   if(!cond_format.min_value_string_.empty())
   {
-    xml_data += write_formula_str(cond_format.min_value_string_);
+    xml_data += write_formula_str_xml(cond_format.min_value_string_);
   }
   else
   {
-    xml_data += write_formula_num(cond_format.min_value_);
+    xml_data += write_formula_num_xml(cond_format.min_value_);
   }
 
   if(cond_format.has_max_)
   {
     if(!cond_format.max_value_string_.empty())
     {
-      xml_data += write_formula_str(cond_format.max_value_string_);
+      xml_data += write_formula_str_xml(cond_format.max_value_string_);
     }
     else
     {
-      xml_data += write_formula_num(cond_format.max_value_);
+      xml_data += write_formula_num_xml(cond_format.max_value_);
     }
   }
 
@@ -6660,7 +6736,7 @@ std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format
   return xml_data;
 }
 
-std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   // TODO Add conversion function
@@ -6710,30 +6786,30 @@ std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format
 
   if(criteria == conditional_criteria_t::TEXT_CONTAINING)
   {
-    xml_data += write_formula_str(
+    xml_data += write_formula_str_xml(
       std::format("NOT(ISERROR(SEARCH(\"{}\",{})))", cond_format.min_value_string_, cond_format.first_cell_));
   }
   else if(criteria == conditional_criteria_t::TEXT_NOT_CONTAINING)
   {
-    xml_data += write_formula_str(
+    xml_data += write_formula_str_xml(
       std::format("ISERROR(SEARCH(\"{}\",{}))", cond_format.min_value_string_, cond_format.first_cell_));
   }
   else if(criteria == conditional_criteria_t::TEXT_BEGINS_WITH)
   {
-    xml_data += write_formula_str(std::format("LEFT({},{})=\"{}\"", cond_format.first_cell_,
-                                              cond_format.min_value_string_.size(), cond_format.min_value_string_));
+    xml_data += write_formula_str_xml(std::format("LEFT({},{})=\"{}\"", cond_format.first_cell_,
+                                                  cond_format.min_value_string_.size(), cond_format.min_value_string_));
   }
   else if(criteria == conditional_criteria_t::TEXT_ENDS_WITH)
   {
-    xml_data += write_formula_str(std::format("RIGHT({},{})=\"{}\"", cond_format.first_cell_,
-                                              cond_format.min_value_string_.size(), cond_format.min_value_string_));
+    xml_data += write_formula_str_xml(std::format("RIGHT({},{})=\"{}\"", cond_format.first_cell_,
+                                                  cond_format.min_value_string_.size(), cond_format.min_value_string_));
   }
   xml_data += xml_end_tag("cfRule");
 
   return xml_data;
 }
 
-std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
@@ -6755,19 +6831,19 @@ std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_form
 
   if(cond_format.type_ == conditional_format_types_t::BLANKS)
   {
-    xml_data += write_formula_str(std::format("LEN(TRIM({}))=0", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("LEN(TRIM({}))=0", cond_format.first_cell_));
   }
   else if(cond_format.type_ == conditional_format_types_t::NO_BLANKS)
   {
-    xml_data += write_formula_str(std::format("LEN(TRIM({}))>0", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("LEN(TRIM({}))>0", cond_format.first_cell_));
   }
   else if(cond_format.type_ == conditional_format_types_t::ERRORS)
   {
-    xml_data += write_formula_str(std::format("ISERROR({})", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("ISERROR({})", cond_format.first_cell_));
   }
   else if(cond_format.type_ == conditional_format_types_t::NO_ERRORS)
   {
-    xml_data += write_formula_str(std::format("NOT(ISERROR({}))", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("NOT(ISERROR({}))", cond_format.first_cell_));
   }
 
   xml_data += xml_end_tag("cfRule");
@@ -6775,7 +6851,7 @@ std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_form
   return xml_data;
 }
 
-std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
@@ -6794,13 +6870,13 @@ std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_for
   }
 
   std::string xml_data = xml_start_tag("cfRule", attributes);
-  xml_data += write_formula_str(cond_format.min_value_string_);
+  xml_data += write_formula_str_xml(cond_format.min_value_string_);
   xml_data += xml_end_tag("cfRule");
 
   return xml_data;
 }
 
-std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond_format)
 {
   const std::vector<std::tuple<std::string, std::string>> attributes{
     {"type",     cond_format.type_string_                 },
@@ -6895,7 +6971,7 @@ std::string worksheet_t::write_cf_rule_data_bar(cond_format_obj_t& cond_format)
   return xml_data;
 }
 
-std::string worksheet_t::write_data_bar(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_data_bar(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -6921,7 +6997,7 @@ std::string worksheet_t::write_data_bar_ext(cond_format_obj_t& cond_format)
   return xml_data;
 }
 
-std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
@@ -6951,53 +7027,53 @@ std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_forma
 
   if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_YESTERDAY)
   {
-    xml_data += write_formula_str(std::format("FLOOR({0},1)=TODAY()-1", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("FLOOR({0},1)=TODAY()-1", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_TODAY)
   {
-    xml_data += write_formula_str(std::format("FLOOR({0},1)=TODAY()", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("FLOOR({0},1)=TODAY()", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_TOMORROW)
   {
-    xml_data += write_formula_str(std::format("FLOOR({0},1)=TODAY()+1", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("FLOOR({0},1)=TODAY()+1", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS)
   {
     xml_data +=
-      write_formula_str(std::format("AND(TODAY()-FLOOR({0},1)<=6,FLOOR({0},1)<=TODAY())", cond_format.first_cell_));
+      write_formula_str_xml(std::format("AND(TODAY()-FLOOR({0},1)<=6,FLOOR({0},1)<=TODAY())", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_WEEK)
   {
-    xml_data += write_formula_str(
+    xml_data += write_formula_str_xml(
       std::format("AND(TODAY()-ROUNDDOWN({0},0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN({0},0)<(WEEKDAY(TODAY())+7))",
                   cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_THIS_WEEK)
   {
-    xml_data += write_formula_str(
+    xml_data += write_formula_str_xml(
       std::format("AND(TODAY()-ROUNDDOWN({0},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN({0},0)-TODAY()<=7-WEEKDAY(TODAY()))",
                   cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_NEXT_WEEK)
   {
-    xml_data += write_formula_str(
+    xml_data += write_formula_str_xml(
       std::format("AND(ROUNDDOWN({0},0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN({0},0)-TODAY()<(15-WEEKDAY(TODAY())))",
                   cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_MONTH)
   {
-    xml_data += write_formula_str(std::format(
+    xml_data += write_formula_str_xml(std::format(
       "AND(MONTH({0})=MONTH(TODAY())-1,OR(YEAR({0})=YEAR(TODAY()),AND(MONTH({0})=1,YEAR(A1)=YEAR(TODAY())-1)))",
       cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_THIS_MONTH)
   {
-    xml_data +=
-      write_formula_str(std::format("AND(MONTH({0})=MONTH(TODAY()),YEAR({0})=YEAR(TODAY()))", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(
+      std::format("AND(MONTH({0})=MONTH(TODAY()),YEAR({0})=YEAR(TODAY()))", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_NEXT_MONTH)
   {
-    xml_data += write_formula_str(std::format(
+    xml_data += write_formula_str_xml(std::format(
       "AND(MONTH({0})=MONTH(TODAY())+1,OR(YEAR({0})=YEAR(TODAY()),AND(MONTH({0})=12,YEAR({0})=YEAR(TODAY())+1)))",
       cond_format.first_cell_));
   }
@@ -7007,7 +7083,7 @@ std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_forma
   return xml_data;
 }
 
-std::string worksheet_t::write_cf_rule_duplicate(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_duplicate(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
@@ -7023,7 +7099,7 @@ std::string worksheet_t::write_cf_rule_duplicate(cond_format_obj_t& cond_format)
   return xml_empty_tag("cfRule", attributes);
 }
 
-std::string worksheet_t::write_cf_rule_average(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_average(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
@@ -7077,7 +7153,7 @@ std::string worksheet_t::write_cf_rule_average(cond_format_obj_t& cond_format) c
   return xml_empty_tag("cfRule", attributes);
 }
 
-std::string worksheet_t::write_cf_rule_top(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_top(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"type", cond_format.type_string_}
@@ -7118,7 +7194,7 @@ std::string worksheet_t::write_cf_rule_top(cond_format_obj_t& cond_format) const
   return xml_empty_tag("cfRule", attributes);
 }
 
-std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format)
 {
   const std::vector<std::tuple<std::string, std::string>> attributes{
     {"type",     cond_format.type_string_                 },
@@ -7133,7 +7209,7 @@ std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format) con
   return xml_data;
 }
 
-std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -7193,15 +7269,6 @@ std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format) const
   return xml_data;
 }
 
-std::string worksheet_t::write_ext(const std::string& uri) const
-{
-  return xml_start_tag("ext",
-                       {
-                         {"xmlns:x14", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"},
-                         {"uri",       uri                                                            }
-  });
-}
-
 std::string worksheet_t::write_ext_list_data_bars()
 {
   std::string xml_data = write_ext("{78C0D931-6437-407d-A8EE-F0AAD7539E65}");
@@ -7217,7 +7284,7 @@ std::string worksheet_t::write_ext_list_data_bars()
   return xml_data;
 }
 
-std::string worksheet_t::write_conditional_formatting_2010(std::vector<xwpp::cond_format_obj_t>& cond_formats) const
+std::string worksheet_t::write_conditional_formatting_2010(std::vector<xwpp::cond_format_obj_t>& cond_formats)
 {
   std::string xml_data;
   for(auto& cond_format: cond_formats)
@@ -7239,7 +7306,7 @@ std::string worksheet_t::write_conditional_formatting_2010(std::vector<xwpp::con
   return xml_data;
 }
 
-std::string worksheet_t::write_x14_cf_rule(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_x14_cf_rule(cond_format_obj_t& cond_format)
 {
   std::string xml_data = xml_start_tag("x14:cfRule", {
                                                        {"type", "dataBar"        },
@@ -7250,12 +7317,12 @@ std::string worksheet_t::write_x14_cf_rule(cond_format_obj_t& cond_format) const
   return xml_data;
 }
 
-std::string worksheet_t::write_xm_sqref(const cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_xm_sqref(const cond_format_obj_t& cond_format)
 {
   return xml_data_element("xm:sqref", cond_format.sqref_);
 }
 
-std::string worksheet_t::write_x14_data_bar(cond_format_obj_t& cond_format) const
+std::string worksheet_t::write_x14_data_bar(cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"minLength", "0"  },
@@ -7341,83 +7408,7 @@ std::string worksheet_t::write_x14_data_bar(cond_format_obj_t& cond_format) cons
   return xml_data;
 }
 
-std::string worksheet_t::write_x14_cfvo(conditional_format_rule_types_t rule_type, double number,
-                                        const std::string& str) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-  bool has_value = false;
-
-  if(rule_type == conditional_format_rule_types_t::AUTO_MIN)
-  {
-    attributes.emplace_back("type", "autoMin");
-    has_value = false;
-  }
-  else if(rule_type == conditional_format_rule_types_t::MINIMUM)
-  {
-    attributes.emplace_back("type", "min");
-    has_value = false;
-  }
-  else if(rule_type == conditional_format_rule_types_t::NUMBER)
-  {
-    attributes.emplace_back("type", "num");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENT)
-  {
-    attributes.emplace_back("type", "percent");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
-  {
-    attributes.emplace_back("type", "percentile");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::FORMULA)
-  {
-    attributes.emplace_back("type", "formula");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
-  {
-    attributes.emplace_back("type", "max");
-    has_value = false;
-  }
-  else if(rule_type == conditional_format_rule_types_t::AUTO_MAX)
-  {
-    attributes.emplace_back("type", "autoMax");
-    has_value = false;
-  }
-
-  if(has_value)
-  {
-    std::string xml_data = xml_start_tag("x14:cfvo", attributes);
-
-    if(!str.empty())
-    {
-      xml_data += xml_data_element("xm:f", str);
-    }
-    else
-    {
-      xml_data += xml_data_element("xm:f", std::format("{}", number));
-    }
-    xml_data += xml_end_tag("x14:cfvo");
-
-    return xml_data;
-  }
-  else
-  {
-    return xml_empty_tag("x14:cfvo", attributes);
-  }
-}
-
-std::string worksheet_t::write_x14_color(const std::string& type, color_t color) const
-{
-  return xml_empty_tag(type, {
-                               {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-  });
-}
-
-std::string worksheet_t::write_data_validation(const data_val_obj_t& validation) const
+std::string worksheet_t::write_data_validation(const data_val_obj_t& validation)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   bool is_between = false;
@@ -7597,34 +7588,6 @@ std::string worksheet_t::write_data_validation(const data_val_obj_t& validation)
   }
 
   return xml_data;
-}
-
-std::string worksheet_t::write_formula1_num(double number) const
-{
-  return xml_data_element("formula1", std::format("{}", number));
-}
-
-std::string worksheet_t::write_formula2_num(double number) const
-{
-  return xml_data_element("formula2", std::format("{}", number));
-}
-
-std::string worksheet_t::write_formula1_str(const std::string& str) const
-{
-  return xml_data_element("formula1", str);
-}
-
-std::string worksheet_t::write_formula2_str(const std::string& str) const
-{
-  return xml_data_element("formula2", str);
-}
-
-std::string worksheet_t::write_ignored_error(const std::string& ignore_error, const std::string& range) const
-{
-  return xml_empty_tag("ignoredError", {
-                                         {"sqref",      range},
-                                         {ignore_error, "1"  },
-  });
 }
 
 std::string worksheet_t::write_panes()
@@ -7847,7 +7810,7 @@ std::string worksheet_t::write_split_panes()
   return xml_empty_tag("pane", attributes);
 }
 
-std::string worksheet_t::write_selection(const selection_t& selection) const
+std::string worksheet_t::write_selection(const selection_t& selection)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 

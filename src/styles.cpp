@@ -18,6 +18,415 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_style_sheet()
+{
+  return xml_start_tag("styleSheet", {
+                                       {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+  });
+}
+
+[[nodiscard]] std::string write_num_fmt(uint16_t num_fmt_id, const std::string& format_code)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+    {"numFmtId", std::to_string(num_fmt_id)}
+  };
+
+  if(num_fmt_id < 50)
+  {
+    const std::vector<std::string> format_codes{"General",
+                                                "0",
+                                                "0.00",
+                                                "#,##0",
+                                                "#,##0.00",
+                                                "($#,##0_);($#,##0)",
+                                                "($#,##0_);[Red]($#,##0)",
+                                                "($#,##0.00_);($#,##0.00)",
+                                                "($#,##0.00_);[Red]($#,##0.00)",
+                                                "0%",
+                                                "0.00%",
+                                                "0.00E+00",
+                                                "# ?/?",
+                                                "# ?\?/?\?", /* Split string to avoid unintentional trigraph. */
+                                                "m/d/yy",
+                                                "d-mmm-yy",
+                                                "d-mmm",
+                                                "mmm-yy",
+                                                "h:mm AM/PM",
+                                                "h:mm:ss AM/PM",
+                                                "h:mm",
+                                                "h:mm:ss",
+                                                "m/d/yy h:mm",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "General",
+                                                "(#,##0_);(#,##0)",
+                                                "(#,##0_);[Red](#,##0)",
+                                                "(#,##0.00_);(#,##0.00)",
+                                                "(#,##0.00_);[Red](#,##0.00)",
+                                                "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)",
+                                                "_($* #,##0_);_($* (#,##0);_($* \"-\"_);_(@_)",
+                                                "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)",
+                                                "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
+                                                "mm:ss",
+                                                "[h]:mm:ss",
+                                                "mm:ss.0",
+                                                "##0.0E+0",
+                                                "@"};
+
+    attributes.emplace_back("formatCode", format_codes[num_fmt_id]);
+  }
+  else if(num_fmt_id < 164)
+  {
+    attributes.emplace_back("formatCode", "General");
+  }
+  else
+  {
+    attributes.emplace_back("formatCode", format_code);
+  }
+
+  return xml_empty_tag("numFmt", attributes);
+}
+
+[[nodiscard]] std::string write_font_condense()
+{
+  return xml_empty_tag("condense", {
+                                     {"val", "0"}
+  });
+}
+
+[[nodiscard]] std::string write_font_extend()
+{
+  return xml_empty_tag("extend", {
+                                   {"val", "0"}
+  });
+}
+
+[[nodiscard]] std::string write_font_underline(format_underlines_t underline)
+{
+  switch(underline)
+  {
+    case format_underlines_t::SINGLE:
+      return xml_empty_tag("u");
+
+    case format_underlines_t::DOUBLE:
+      return xml_empty_tag("u", {
+                                  {"val", "double"}
+      });
+
+    case format_underlines_t::SINGLE_ACCOUNTING:
+      return xml_empty_tag("u", {
+                                  {"val", "singleAccounting"}
+      });
+
+    case format_underlines_t::DOUBLE_ACCOUNTING:
+      return xml_empty_tag("u", {
+                                  {"val", "doubleAccounting"}
+      });
+
+    case format_underlines_t::NONE:
+      return "";
+  }
+
+  return "";
+}
+
+[[nodiscard]] std::string write_font_vert_align(const std::string& align)
+{
+  return xml_empty_tag("vertAlign", {
+                                      {"val", align}
+  });
+}
+
+[[nodiscard]] std::string write_font_size(double font_size)
+{
+  return xml_empty_tag("sz", {
+                               {"val", std::format("{}", font_size)}
+  });
+}
+
+[[nodiscard]] std::string write_font_color_theme(uint8_t theme)
+{
+  return xml_empty_tag("color", {
+                                  {"theme", std::format("{:d}", theme)}
+  });
+}
+
+[[nodiscard]] std::string write_font_color_indexed(uint8_t index)
+{
+  return xml_empty_tag("color", {
+                                  {"indexed", std::format("{:d}", index)}
+  });
+}
+
+[[nodiscard]] std::string write_font_color_rgb(color_t rgb)
+{
+  return xml_empty_tag("color", {
+                                  {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(rgb) & COLOR_MASK)}
+  });
+}
+
+[[nodiscard]] std::string write_font_name(const std::string& font_name, bool is_rich_string)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(!font_name.empty())
+  {
+    attributes.emplace_back("val", font_name);
+  }
+  else
+  {
+    attributes.emplace_back("val", format_t::DEFAULT_FONT_NAME);
+  }
+
+  if(is_rich_string)
+  {
+    return xml_empty_tag("rFont", attributes);
+  }
+  else
+  {
+    return xml_empty_tag("name", attributes);
+  }
+}
+
+[[nodiscard]] std::string write_font_family(uint8_t font_family)
+{
+  return xml_empty_tag("family", {
+                                   {"val", std::format("{:d}", font_family)}
+  });
+}
+
+[[nodiscard]] std::string write_font_charset(uint8_t font_charset)
+{
+  return xml_empty_tag("charset", {
+                                    {"val", std::format("{:d}", font_charset)}
+  });
+}
+
+[[nodiscard]] std::string write_font_scheme(const std::string& font_scheme)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+  if(!font_scheme.empty())
+  {
+    attributes.emplace_back("val", font_scheme);
+  }
+  else
+  {
+    attributes.emplace_back("val", "minor");
+  }
+
+  return xml_empty_tag("scheme", attributes);
+}
+
+[[nodiscard]] std::string write_default_fill(const std::string& pattern)
+{
+  std::string xml_data = xml_start_tag("fill");
+  xml_data += xml_empty_tag("patternFill", {
+                                             {"patternType", pattern}
+  });
+  xml_data += xml_end_tag("fill");
+
+  return xml_data;
+}
+
+[[nodiscard]] std::string convert_format_borders_style(format_borders_t style)
+{
+  switch(style)
+  {
+    case format_borders_t::THIN:
+      return "thin";
+
+    case format_borders_t::MEDIUM:
+      return "medium";
+
+    case format_borders_t::DASHED:
+      return "dashed";
+
+    case format_borders_t::DOTTED:
+      return "dotted";
+
+    case format_borders_t::THICK:
+      return "thick";
+
+    case format_borders_t::DOUBLE:
+      return "double";
+
+    case format_borders_t::HAIR:
+      return "hair";
+
+    case format_borders_t::MEDIUM_DASHED:
+      return "mediumDashed";
+
+    case format_borders_t::DASH_DOT:
+      return "dashDot";
+
+    case format_borders_t::MEDIUM_DASH_DOT:
+      return "mediumDashDot";
+
+    case format_borders_t::DASH_DOT_DOT:
+      return "dashDotDot";
+
+    case format_borders_t::MEDIUM_DASH_DOT_DOT:
+      return "mediumDashDotDot";
+
+    case format_borders_t::SLANT_DASH_DOT:
+      return "slantDashDot";
+
+    case format_borders_t::NONE:
+      return "none";
+  }
+
+  return "none";
+}
+
+[[nodiscard]] std::string write_border_color(color_t color)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  if(color != color_t::UNSET)
+  {
+    attributes.emplace_back("rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK));
+  }
+  else
+  {
+    attributes.emplace_back("auto", "1");
+  }
+
+  return xml_empty_tag("color", attributes);
+}
+
+[[nodiscard]] std::string write_sub_border(const std::string& type, format_borders_t style, color_t color)
+{
+  if(style == format_borders_t::NONE)
+  {
+    return xml_empty_tag(type);
+  }
+
+  std::string xml_data = xml_start_tag(type, {
+                                               {"style", convert_format_borders_style(style)}
+  });
+  xml_data += write_border_color(color);
+  xml_data += xml_end_tag(type);
+
+  return xml_data;
+}
+
+[[nodiscard]] std::string write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id)
+{
+  return xml_empty_tag("cellStyle", {
+                                      {"name",      name                      },
+                                      {"xfId",      std::to_string(xf_id)     },
+                                      {"builtinId", std::to_string(builtin_id)},
+  });
+}
+
+[[nodiscard]] std::string write_table_styles()
+{
+  return xml_empty_tag("tableStyles", {
+                                        {"count",             "0"                },
+                                        {"defaultTableStyle", "TableStyleMedium9"},
+                                        {"defaultPivotStyle", "PivotStyleLight16"},
+  });
+}
+
+[[nodiscard]] std::string write_hyperlink_alignment()
+{
+  return xml_empty_tag("alignment", {
+                                      {"vertical", "top"}
+  });
+}
+
+[[nodiscard]] std::string write_hyperlink_protection()
+{
+  return xml_empty_tag("protection", {
+                                       {"locked", "0"}
+  });
+}
+
+[[nodiscard]] std::string write_fg_color(color_t color)
+{
+  return xml_empty_tag("fgColor", {
+                                    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+  });
+}
+
+[[nodiscard]] std::string write_bg_color(color_t color, format_patterns_t pattern)
+{
+  if(color == color_t::UNSET)
+  {
+    if(pattern == format_patterns_t::SOLID || pattern == format_patterns_t::NONE)
+    {
+      return xml_empty_tag("bgColor", {
+                                        {"indexed", "64"}
+      });
+    }
+  }
+  else
+  {
+    return xml_empty_tag("bgColor", {
+                                      {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
+    });
+  }
+
+  return "";
+}
+
+[[nodiscard]] std::string write_comment_font()
+{
+  std::string xml_data = xml_start_tag("font");
+  xml_data += write_font_size(8);
+  xml_data += write_font_color_indexed(81);
+  xml_data += write_font_name("Tahoma", false);
+  xml_data += write_font_family(2);
+  xml_data += xml_end_tag("font");
+
+  return xml_data;
+}
+
+[[nodiscard]] std::string write_style_xf(bool has_hyperlink, int32_t font_id)
+{
+  std::vector<std::tuple<std::string, std::string>> attributes{
+    {"numFmtId", "0"                    },
+    {"fontId",   std::to_string(font_id)},
+    {"fillId",   "0"                    },
+    {"borderId", "0"                    },
+  };
+
+  if(has_hyperlink)
+  {
+    attributes.emplace_back("applyNumberFormat", "0");
+    attributes.emplace_back("applyFill", "0");
+    attributes.emplace_back("applyBorder", "0");
+    attributes.emplace_back("applyAlignment", "0");
+    attributes.emplace_back("applyProtection", "0");
+
+    std::string xml_data = xml_start_tag("xf", attributes);
+    xml_data += write_hyperlink_alignment();
+    xml_data += write_hyperlink_protection();
+    xml_data += xml_end_tag("xf");
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("xf", attributes);
+  }
+}
+
+}
+
 style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count,
                  bool has_comments, const std::vector<format_t*>& xf_formats, const std::vector<format_t*>& dxf_formats)
   : font_count_{font_count}
@@ -49,7 +458,7 @@ std::string style_t::assemble_xml_file()
   return xml_data;
 }
 
-std::string style_t::write_string_fragment(const std::string& str) const
+std::string style_t::write_string_fragment(const std::string& str)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -65,85 +474,6 @@ std::string style_t::write_string_fragment(const std::string& str) const
 std::string style_t::write_rich_font(const format_t* format)
 {
   return write_font(format, false, true);
-}
-
-std::string style_t::write_style_sheet() const
-{
-  return xml_start_tag("styleSheet", {
-                                       {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-  });
-}
-
-std::string style_t::write_num_fmt(uint16_t num_fmt_id, const std::string& format_code) const
-{
-  std::vector<std::string> format_codes{"General",
-                                        "0",
-                                        "0.00",
-                                        "#,##0",
-                                        "#,##0.00",
-                                        "($#,##0_);($#,##0)",
-                                        "($#,##0_);[Red]($#,##0)",
-                                        "($#,##0.00_);($#,##0.00)",
-                                        "($#,##0.00_);[Red]($#,##0.00)",
-                                        "0%",
-                                        "0.00%",
-                                        "0.00E+00",
-                                        "# ?/?",
-                                        "# ?\?/?\?", /* Split string to avoid unintentional trigraph. */
-                                        "m/d/yy",
-                                        "d-mmm-yy",
-                                        "d-mmm",
-                                        "mmm-yy",
-                                        "h:mm AM/PM",
-                                        "h:mm:ss AM/PM",
-                                        "h:mm",
-                                        "h:mm:ss",
-                                        "m/d/yy h:mm",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "General",
-                                        "(#,##0_);(#,##0)",
-                                        "(#,##0_);[Red](#,##0)",
-                                        "(#,##0.00_);(#,##0.00)",
-                                        "(#,##0.00_);[Red](#,##0.00)",
-                                        "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)",
-                                        "_($* #,##0_);_($* (#,##0);_($* \"-\"_);_(@_)",
-                                        "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)",
-                                        "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
-                                        "mm:ss",
-                                        "[h]:mm:ss",
-                                        "mm:ss.0",
-                                        "##0.0E+0",
-                                        "@"};
-
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"numFmtId", std::to_string(num_fmt_id)}
-  };
-  if(num_fmt_id < 50)
-  {
-    attributes.emplace_back("formatCode", format_codes[num_fmt_id]);
-  }
-  else if(num_fmt_id < 164)
-  {
-    attributes.emplace_back("formatCode", "General");
-  }
-  else
-  {
-    attributes.emplace_back("formatCode", format_code);
-  }
-
-  return xml_empty_tag("numFmt", attributes);
 }
 
 std::string style_t::write_num_fmts() const
@@ -180,136 +510,6 @@ std::string style_t::write_num_fmts() const
   xml_data += xml_end_tag("numFmts");
 
   return xml_data;
-}
-
-std::string style_t::write_font_condense() const
-{
-  return xml_empty_tag("condense", {
-                                     {"val", "0"}
-  });
-}
-
-std::string style_t::write_font_extend() const
-{
-  return xml_empty_tag("extend", {
-                                   {"val", "0"}
-  });
-}
-
-std::string style_t::write_font_underline(format_underlines_t underline) const
-{
-  switch(underline)
-  {
-    case format_underlines_t::SINGLE:
-      return xml_empty_tag("u");
-
-    case format_underlines_t::DOUBLE:
-      return xml_empty_tag("u", {
-                                  {"val", "double"}
-      });
-
-    case format_underlines_t::SINGLE_ACCOUNTING:
-      return xml_empty_tag("u", {
-                                  {"val", "singleAccounting"}
-      });
-
-    case format_underlines_t::DOUBLE_ACCOUNTING:
-      return xml_empty_tag("u", {
-                                  {"val", "doubleAccounting"}
-      });
-
-    case format_underlines_t::NONE:
-      return "";
-  }
-
-  return "";
-}
-
-std::string style_t::write_font_vert_align(const std::string& align) const
-{
-  return xml_empty_tag("vertAlign", {
-                                      {"val", align}
-  });
-}
-
-std::string style_t::write_font_size(double font_size) const
-{
-  return xml_empty_tag("sz", {
-                               {"val", std::format("{}", font_size)}
-  });
-}
-
-std::string style_t::write_font_color_theme(uint8_t theme) const
-{
-  return xml_empty_tag("color", {
-                                  {"theme", std::format("{:d}", theme)}
-  });
-}
-
-std::string style_t::write_font_color_indexed(uint8_t index) const
-{
-  return xml_empty_tag("color", {
-                                  {"indexed", std::format("{:d}", index)}
-  });
-}
-
-std::string style_t::write_font_color_rgb(color_t rgb) const
-{
-  return xml_empty_tag("color", {
-                                  {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(rgb) & COLOR_MASK)}
-  });
-}
-
-std::string style_t::write_font_name(const std::string& font_name, bool is_rich_string) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(!font_name.empty())
-  {
-    attributes.emplace_back("val", font_name);
-  }
-  else
-  {
-    attributes.emplace_back("val", format_t::DEFAULT_FONT_NAME);
-  }
-
-  if(is_rich_string)
-  {
-    return xml_empty_tag("rFont", attributes);
-  }
-  else
-  {
-    return xml_empty_tag("name", attributes);
-  }
-}
-
-std::string style_t::write_font_family(uint8_t font_family) const
-{
-  return xml_empty_tag("family", {
-                                   {"val", std::format("{:d}", font_family)}
-  });
-}
-
-std::string style_t::write_font_charset(uint8_t font_charset) const
-{
-  return xml_empty_tag("charset", {
-                                    {"val", std::format("{:d}", font_charset)}
-  });
-}
-
-std::string style_t::write_font_scheme(const std::string& font_scheme) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-  if(!font_scheme.empty())
-  {
-    attributes.emplace_back("val", font_scheme);
-  }
-  else
-  {
-    attributes.emplace_back("val", "minor");
-  }
-
-  return xml_empty_tag("scheme", attributes);
 }
 
 std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_rich_string)
@@ -437,18 +637,6 @@ std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_ric
   return xml_data;
 }
 
-std::string style_t::write_comment_font() const
-{
-  std::string xml_data = xml_start_tag("font");
-  xml_data += write_font_size(8);
-  xml_data += write_font_color_indexed(81);
-  xml_data += write_font_name("Tahoma", false);
-  xml_data += write_font_family(2);
-  xml_data += xml_end_tag("font");
-
-  return xml_data;
-}
-
 std::string style_t::write_fonts()
 {
   uint32_t count = font_count_;
@@ -479,17 +667,6 @@ std::string style_t::write_fonts()
   return xml_data;
 }
 
-std::string style_t::write_default_fill(const std::string& pattern) const
-{
-  std::string xml_data = xml_start_tag("fill");
-  xml_data += xml_empty_tag("patternFill", {
-                                             {"patternType", pattern}
-  });
-  xml_data += xml_end_tag("fill");
-
-  return xml_data;
-}
-
 std::string style_t::write_fills() const
 {
   std::string xml_data = xml_start_tag("fills", {
@@ -513,89 +690,7 @@ std::string style_t::write_fills() const
   return xml_data;
 }
 
-std::string style_t::convert_format_borders_style(format_borders_t style) const
-{
-  switch(style)
-  {
-    case format_borders_t::THIN:
-      return "thin";
-
-    case format_borders_t::MEDIUM:
-      return "medium";
-
-    case format_borders_t::DASHED:
-      return "dashed";
-
-    case format_borders_t::DOTTED:
-      return "dotted";
-
-    case format_borders_t::THICK:
-      return "thick";
-
-    case format_borders_t::DOUBLE:
-      return "double";
-
-    case format_borders_t::HAIR:
-      return "hair";
-
-    case format_borders_t::MEDIUM_DASHED:
-      return "mediumDashed";
-
-    case format_borders_t::DASH_DOT:
-      return "dashDot";
-
-    case format_borders_t::MEDIUM_DASH_DOT:
-      return "mediumDashDot";
-
-    case format_borders_t::DASH_DOT_DOT:
-      return "dashDotDot";
-
-    case format_borders_t::MEDIUM_DASH_DOT_DOT:
-      return "mediumDashDotDot";
-
-    case format_borders_t::SLANT_DASH_DOT:
-      return "slantDashDot";
-
-    case format_borders_t::NONE:
-      return "none";
-  }
-
-  return "none";
-}
-
-std::string style_t::write_border_color(color_t color) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes;
-
-  if(color != color_t::UNSET)
-  {
-    attributes.emplace_back("rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK));
-  }
-  else
-  {
-    attributes.emplace_back("auto", "1");
-  }
-
-  return xml_empty_tag("color", attributes);
-}
-
-std::string style_t::write_sub_border(const std::string& type, format_borders_t style, color_t color) const
-{
-  if(style == format_borders_t::NONE)
-  {
-    return xml_empty_tag(type);
-  }
-
-  std::string xml_data = xml_start_tag(type, {
-                                               {"style", convert_format_borders_style(style)}
-  });
-  xml_data += write_border_color(color);
-  xml_data += xml_end_tag(type);
-
-  return xml_data;
-}
-
-std::string style_t::write_border(const format_t* format, bool is_dxf) const
+std::string style_t::write_border(const format_t* format, bool is_dxf)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -663,35 +758,6 @@ std::string style_t::write_borders() const
   return xml_data;
 }
 
-std::string style_t::write_style_xf(bool has_hyperlink, int32_t font_id) const
-{
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"numFmtId", "0"                    },
-    {"fontId",   std::to_string(font_id)},
-    {"fillId",   "0"                    },
-    {"borderId", "0"                    },
-  };
-
-  if(has_hyperlink)
-  {
-    attributes.emplace_back("applyNumberFormat", "0");
-    attributes.emplace_back("applyFill", "0");
-    attributes.emplace_back("applyBorder", "0");
-    attributes.emplace_back("applyAlignment", "0");
-    attributes.emplace_back("applyProtection", "0");
-
-    std::string xml_data = xml_start_tag("xf", attributes);
-    xml_data += write_hyperlink_alignment();
-    xml_data += write_hyperlink_protection();
-    xml_data += xml_end_tag("xf");
-    return xml_data;
-  }
-  else
-  {
-    return xml_empty_tag("xf", attributes);
-  }
-}
-
 std::string style_t::write_cell_style_xfs() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
@@ -745,15 +811,6 @@ std::string style_t::write_cell_xfs() const
   return xml_data;
 }
 
-std::string style_t::write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id) const
-{
-  return xml_empty_tag("cellStyle", {
-                                      {"name",      name                      },
-                                      {"xfId",      std::to_string(xf_id)     },
-                                      {"builtinId", std::to_string(builtin_id)},
-  });
-}
-
 std::string style_t::write_cell_styles() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
@@ -780,14 +837,14 @@ std::string style_t::write_cell_styles() const
   return xml_data;
 }
 
-bool style_t::apply_alignment(const format_t* format) const
+bool style_t::apply_alignment(const format_t* format)
 {
   return format->text_h_align_ != format_alignments_t::NONE || format->text_v_align_ != format_alignments_t::NONE ||
          format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
          format->reading_order_ != 0;
 }
 
-bool style_t::has_alignment(const format_t* format) const
+bool style_t::has_alignment(const format_t* format)
 {
   return format->text_h_align_ != format_alignments_t::NONE ||
          (format->text_v_align_ != format_alignments_t::NONE &&
@@ -796,7 +853,7 @@ bool style_t::has_alignment(const format_t* format) const
          format->reading_order_ != 0;
 }
 
-std::string style_t::write_alignment(const format_t* format) const
+std::string style_t::write_alignment(const format_t* format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   int16_t rotation                 = format->rotation_;
@@ -960,7 +1017,7 @@ std::string style_t::write_alignment(const format_t* format) const
   }
 }
 
-std::string style_t::write_protection(const format_t* format) const
+std::string style_t::write_protection(const format_t* format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   if(!format->locked_)
@@ -976,7 +1033,7 @@ std::string style_t::write_protection(const format_t* format) const
   return xml_empty_tag("protection", attributes);
 }
 
-std::string style_t::write_xf(const format_t* format) const
+std::string style_t::write_xf(const format_t* format)
 {
   const bool has_protection = !format->locked_ || format->hidden_;
 
@@ -1057,7 +1114,7 @@ std::string style_t::write_dxfs()
   {
     std::string xml_data = xml_start_tag("dxfs", attributes);
 
-    for(const auto& format: dxf_formats_)
+    for(const auto* format: dxf_formats_)
     {
       xml_data += xml_start_tag("dxf");
       if(format->has_dxf_font_)
@@ -1092,30 +1149,7 @@ std::string style_t::write_dxfs()
   }
 }
 
-std::string style_t::write_table_styles() const
-{
-  return xml_empty_tag("tableStyles", {
-                                        {"count",             "0"                },
-                                        {"defaultTableStyle", "TableStyleMedium9"},
-                                        {"defaultPivotStyle", "PivotStyleLight16"},
-  });
-}
-
-std::string style_t::write_hyperlink_alignment() const
-{
-  return xml_empty_tag("alignment", {
-                                      {"vertical", "top"}
-  });
-}
-
-std::string style_t::write_hyperlink_protection() const
-{
-  return xml_empty_tag("protection", {
-                                       {"locked", "0"}
-  });
-}
-
-std::string style_t::write_fill(const format_t* format, bool is_dxf) const
+std::string style_t::write_fill(const format_t* format, bool is_dxf)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   const format_patterns_t pattern = format->pattern_;
@@ -1163,34 +1197,6 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf) const
   xml_data += xml_end_tag("fill");
 
   return xml_data;
-}
-
-std::string style_t::write_fg_color(color_t color) const
-{
-  return xml_empty_tag("fgColor", {
-                                    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-  });
-}
-
-std::string style_t::write_bg_color(color_t color, format_patterns_t pattern) const
-{
-  if(color == color_t::UNSET)
-  {
-    if(pattern == format_patterns_t::SOLID || pattern == format_patterns_t::NONE)
-    {
-      return xml_empty_tag("bgColor", {
-                                        {"indexed", "64"}
-      });
-    }
-  }
-  else
-  {
-    return xml_empty_tag("bgColor", {
-                                      {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-    });
-  }
-
-  return "";
 }
 
 }

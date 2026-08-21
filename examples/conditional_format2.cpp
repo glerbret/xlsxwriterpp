@@ -288,7 +288,6 @@ int main()
   conditional_format.bar_negative_color_same_        = true;
   conditional_format.bar_negative_border_color_same_ = true;
   worksheet8.conditional_format_range(RANGE("N3:N14"), conditional_format);
-  conditional_format = xwpp::conditional_format_t{};
 
   // Example 9. Conditional formatting with icon sets.
   // Write the worksheet data.

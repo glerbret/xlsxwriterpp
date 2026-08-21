@@ -41,24 +41,14 @@ public:
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
-  [[nodiscard]] std::string write_properties() const;
-  [[nodiscard]] std::string write_application() const;
   [[nodiscard]] std::string write_doc_security() const;
-  [[nodiscard]] std::string write_scale_crop() const;
   [[nodiscard]] std::string write_heading_pairs() const;
   [[nodiscard]] std::string write_titles_of_parts() const;
   [[nodiscard]] std::string write_manager() const;
   [[nodiscard]] std::string write_company() const;
-  [[nodiscard]] std::string write_links_up_to_date() const;
-  [[nodiscard]] std::string write_shared_doc() const;
   [[nodiscard]] std::string write_hyperlink_base() const;
-  [[nodiscard]] std::string write_hyperlinks_changed() const;
-  [[nodiscard]] std::string write_app_version() const;
   [[nodiscard]] std::string write_vt_vector_heading_pairs() const;
   [[nodiscard]] std::string write_vt_vector_lpstr_named_parts() const;
-  [[nodiscard]] std::string write_vt_lpstr(const std::string& str) const;
-  [[nodiscard]] std::string write_vt_variant(const std::string& key, const std::string& value) const;
-  [[nodiscard]] std::string write_vt_i4(const std::string& value) const;
 
   std::vector<heading_pair_t> heading_pairs_;
   std::vector<part_name_t> part_names_;

@@ -14,6 +14,19 @@
 namespace xwpp
 {
 
+namespace
+{
+
+[[nodiscard]] std::string write_k(const std::string& name, const std::string& type)
+{
+  return xml_empty_tag("k", {
+                              {"n", name},
+                              {"t", type},
+  });
+}
+
+}
+
 rich_value_structure_t::rich_value_structure_t(bool has_embedded_image_descriptions)
   : has_embedded_image_descriptions_{has_embedded_image_descriptions}
 {
@@ -54,14 +67,6 @@ std::string rich_value_structure_t::write_s() const
   xml_data += xml_end_tag("s");
 
   return xml_data;
-}
-
-std::string rich_value_structure_t::write_k(const std::string& name, const std::string& type) const
-{
-  return xml_empty_tag("k", {
-                              {"n", name},
-                              {"t", type},
-  });
 }
 
 }

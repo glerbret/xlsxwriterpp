@@ -212,7 +212,7 @@ std::string escape_url_characters(const std::string& str, bool escape_hash)
 
       case '%':
         // Only escape % if it isn't already an escape.
-        if(i >= str.size() - 2 || (isxdigit(str[i + 1]) == 0) || (isxdigit(str[i + 1]) == 0))
+        if(i >= str.size() - 2 || (isxdigit(str[i + 1]) == 0) || (isxdigit(str[i + 2]) == 0))
         {
           encoded += std::format("%{:02x}", str[i]);
         }

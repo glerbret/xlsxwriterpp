@@ -36,7 +36,8 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   // clang-format on
 
   xwpp::content_types_t content_types;
-  content_types.add_override("/xl/workbook.xml", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
+  content_types.add_override("/xl/workbook.xml",
+                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
   content_types.add_worksheet_name("/xl/worksheets/sheet1.xml");
   content_types.add_default("jpeg", "image/jpeg");
   content_types.add_shared_strings();

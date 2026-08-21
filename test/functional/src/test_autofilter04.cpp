@@ -18,7 +18,7 @@ int main()
   {
     std::string region_;
     std::string item_;
-    int volume_;
+    int volume_ = 0;
     std::string month_;
   };
 

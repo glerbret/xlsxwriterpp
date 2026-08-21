@@ -20,7 +20,7 @@ int main()
   struct expense
   {
     std::string item_;
-    int cost_;
+    int cost_ = 0;
   };
 
   const std::vector<expense> expenses{

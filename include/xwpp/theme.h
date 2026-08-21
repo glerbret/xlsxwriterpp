@@ -17,7 +17,7 @@ namespace xwpp
 class theme_t
 {
 public:
-  [[nodiscard]] std::string assemble_xml_file() const;
+  [[nodiscard]] static const std::string& assemble_xml_file();
 
 private:
   static const std::string THEME;
