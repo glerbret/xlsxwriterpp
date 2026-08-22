@@ -41,7 +41,7 @@ int main()
   xwpp::chart_series_t& series4 = chart2.add_series("=Sheet1!$A$1:$A$4", "=Sheet1!$C$1:$C$4");
   worksheet.insert_chart(CELL("F25"), &chart2);
 
-  /* Add cache data for testing. */
+  // Add cache data for testing.
   xwpp::chart_add_data_cache(series1.categories_, data[0].data(), 5, 3, 0);
   xwpp::chart_add_data_cache(series2.categories_, data[0].data(), 5, 3, 0);
   xwpp::chart_add_data_cache(series1.values_, data[0].data(), 5, 3, 1);

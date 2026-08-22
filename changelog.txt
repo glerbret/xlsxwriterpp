@@ -7,4 +7,18 @@
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 
+## 0.2.0
+
+- Improve build process and CI
+  - Build with different options, including shared library
+  - Add clang-tidy and Cppcheck checks
+  - Treat warnings as errors
+- Improve code quality and robustness
+  - Fix clang-tidy and Cppcheck warnings
+  - Name consistency
+  - Use scope
+  - Add const
+
+@warning This version is a 'work in progress' without backward compatibility guarantee.
+
 */

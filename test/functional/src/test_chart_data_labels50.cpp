@@ -32,10 +32,9 @@ int main()
     row_num++;
   }
 
-  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED};
-  const xwpp::chart_font_t font = {.bold_ = true, .italic_ = true, .color_ = xwpp::color_t::RED, .baseline_ = -1};
-
-  const std::vector<xwpp::chart_data_label_t> data_labels = {
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
+  const xwpp::chart_font_t font{.bold_ = true, .italic_ = true, .color_ = xwpp::color_t::RED, .baseline_ = -1};
+  const std::vector<xwpp::chart_data_label_t> data_labels{
     {.font_ = font, .line_ = line}
   };
 

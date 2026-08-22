@@ -17,7 +17,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Set a worksheet header with the watermark image.
-  const xwpp::header_footer_options_t header_options = {.image_center_ = "watermark.png"};
+  const xwpp::header_footer_options_t header_options{.image_center_ = "watermark.png"};
   worksheet.set_header("&C&G", header_options);
 
   workbook.save("watermark.xlsx");

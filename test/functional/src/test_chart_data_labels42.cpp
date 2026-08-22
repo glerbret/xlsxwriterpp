@@ -34,10 +34,9 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
 
-  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED};
-  const xwpp::chart_font_t font = {.color_ = xwpp::color_t::RED, .baseline_ = -1};
-
-  const std::vector<xwpp::chart_data_label_t> data_labels = {
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
+  const xwpp::chart_font_t font{.color_ = xwpp::color_t::RED, .baseline_ = -1};
+  const std::vector<xwpp::chart_data_label_t> data_labels{
     {.value_ = "=Sheet1!$D$1", .font_ = font, .line_ = line}
   };
 

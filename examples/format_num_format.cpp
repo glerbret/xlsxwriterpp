@@ -28,8 +28,6 @@ int main()
   xwpp::format_t* format07 = workbook.add_format();
   xwpp::format_t* format08 = workbook.add_format();
   xwpp::format_t* format09 = workbook.add_format();
-  xwpp::format_t* format10 = workbook.add_format();
-  xwpp::format_t* format11 = workbook.add_format();
 
   // Set some example number formats.
   format01->set_num_format("0.000");
@@ -57,14 +55,22 @@ int main()
   worksheet.write_number(9, 0, 1.87, format09);      // 1 dollar and .87 cents
 
   // Show limited conditional number formats.
-  format10->set_num_format("[Green]General;[Red]-General;General");
-  worksheet.write_number(10, 0, 123, format10); // > 0 Green
-  worksheet.write_number(11, 0, -45, format10); // < 0 Red
-  worksheet.write_number(12, 0, 0, format10);   // = 0 Default color
+  {
+    xwpp::format_t* format = workbook.add_format();
+    format->set_num_format("[Green]General;[Red]-General;General");
+
+    worksheet.write_number(10, 0, 123, format); // > 0 Green
+    worksheet.write_number(11, 0, -45, format); // < 0 Red
+    worksheet.write_number(12, 0, 0, format);   // = 0 Default color
+  }
 
   // Format a Zip code.
-  format11->set_num_format("00000");
-  worksheet.write_number(13, 0, 1209, format11); // 01209
+  {
+    xwpp::format_t* format = workbook.add_format();
+    format->set_num_format("00000");
+
+    worksheet.write_number(13, 0, 1209, format); // 01209
+  }
 
   workbook.save("format_num_format.xlsx");
 }

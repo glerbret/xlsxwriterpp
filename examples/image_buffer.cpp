@@ -31,7 +31,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::image_options_t options{
+  const xwpp::image_options_t options{
     .x_offset_ = 34,
     .y_offset_ = 4,
     .x_scale_  = 2,

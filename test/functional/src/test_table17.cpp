@@ -57,9 +57,7 @@ int main()
     {.total_function_ = xwpp::table_total_functions_t::STD_DEV},
     {.total_function_ = xwpp::table_total_functions_t::VAR}
   };
-
   const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
-
   worksheet.add_table(RANGE("B3:K6"), options);
 
   workbook.save("test_table17.xlsx");

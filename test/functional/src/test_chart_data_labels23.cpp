@@ -35,7 +35,7 @@ int main()
   xwpp::chart_series_t& series2 = chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_font_t font = {.name_ = "Consolas", .pitch_family_ = 49, .charset_ = 0, .baseline_ = -1};
+  const xwpp::chart_font_t font{.name_ = "Consolas", .pitch_family_ = 49, .charset_ = 0, .baseline_ = -1};
 
   xwpp::chart_series_set_labels(series1);
   xwpp::chart_series_set_labels(series2);

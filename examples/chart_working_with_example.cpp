@@ -26,8 +26,7 @@ int main()
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
   // Configure the chart.
-  const xwpp::chart_series_t& series = chart.add_series("", "Sheet1!$A$1:$A$6");
-  (void)series; // Do something with series in the real examples.
+  /* const xwpp::chart_series_t& series = */ chart.add_series("", "Sheet1!$A$1:$A$6");
 
   // Insert the chart into the worksheet.
   worksheet.insert_chart(CELL("C1"), &chart);

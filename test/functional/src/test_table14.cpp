@@ -30,7 +30,6 @@ int main()
 
   const std::vector<xwpp::table_column_t> columns{{}, {.format_ = format1}, {.format_ = format2}, {.format_ = format3}};
   const xwpp::table_options_t options{.columns_ = columns};
-
   worksheet.add_table(RANGE("C2:F6"), options);
 
   worksheet.write_string(2, 2, "Foo");

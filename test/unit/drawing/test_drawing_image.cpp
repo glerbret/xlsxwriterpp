@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   const xwpp::drawing_object_t drawing_object{
     .type_         = xwpp::drawing_types_t::IMAGE,
     .anchor_       = static_cast<uint8_t>(xwpp::object_position_t::MOVE_DONT_SIZE),
-    .from_         = {.col_ = 2, .row_ = 1, .col_offset_ = 0,      .row_offset_ = 0     },
-    .to_           = {.col_ = 3, .row_ = 6, .col_offset_ = 533257, .row_offset_ = 190357},
+    .from_         = {.col_num_ = 2, .row_num_ = 1, .col_offset_ = 0,      .row_offset_ = 0     },
+    .to_           = {.col_num_ = 3, .row_num_ = 6, .col_offset_ = 533257, .row_offset_ = 190357},
     .col_absolute_ = 1219200,
     .row_absolute_ = 190500,
     .width_        = 1142857,

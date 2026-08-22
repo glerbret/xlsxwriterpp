@@ -35,8 +35,8 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::YELLOW};
-  const xwpp::chart_fill_t fill = {.color_ = xwpp::color_t::RED};
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::YELLOW};
+  const xwpp::chart_fill_t fill{.color_ = xwpp::color_t::RED};
 
   chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
   chart_series_set_marker_size(series, 5);

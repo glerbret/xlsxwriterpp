@@ -39,7 +39,7 @@ int main()
   xwpp::chart_series_t& series2 = chart2.add_series("", "=Sheet1!$B$1:$B$5");
   chart2.add_series("", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED, .dash_type_ = xwpp::chart_line_dash_type_t::DASH};
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED, .dash_type_ = xwpp::chart_line_dash_type_t::DASH};
 
   series_set_trendline(series1, xwpp::chart_trendline_type_t::LINEAR, 0);
   series_set_trendline_line(series1, line);

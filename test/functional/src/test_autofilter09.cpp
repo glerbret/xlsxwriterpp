@@ -81,15 +81,15 @@ int main()
   worksheet.write_string(0, 2, "Volume");
   worksheet.write_string(0, 3, "Month");
 
-  const xwpp::row_col_options_t hidden = {.hidden_ = true};
+  const xwpp::row_col_options_t hidden{.hidden_ = true};
 
   // Write the row data.
-  for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+  for(xwpp::row_num_t row_num = 1; const auto& [region, item, volume, month]: data)
   {
-    worksheet.write_string(i + 1, 0, region);
-    worksheet.write_string(i + 1, 1, item);
-    worksheet.write_number(i + 1, 2, volume);
-    worksheet.write_string(i + 1, 3, month);
+    worksheet.write_string(row_num, 0, region);
+    worksheet.write_string(row_num, 1, item);
+    worksheet.write_number(row_num, 2, volume);
+    worksheet.write_string(row_num, 3, month);
 
     if(region == "East" || region == "North" || region == "South")
     {
@@ -98,10 +98,10 @@ int main()
     else
     {
       // We need to hide rows that don't match the filter.
-      worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+      worksheet.set_row(row_num, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
     }
 
-    i++;
+    row_num++;
   }
 
   worksheet.autofilter(0, 0, 50, 3);

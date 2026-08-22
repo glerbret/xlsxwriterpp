@@ -109,7 +109,7 @@ namespace
 
 [[nodiscard]] std::string write_comment(const vml_obj_t& comment)
 {
-  const std::string ref = rowcol_to_cell(comment.row_, comment.col_);
+  const std::string ref = rowcol_to_cell(comment.row_num_, comment.col_num_);
   std::string xml_data  = xml_start_tag("comment", {
                                                     {"ref",      ref                               },
                                                     {"authorId", std::to_string(comment.author_id_)},
@@ -146,8 +146,7 @@ bool comment_t::check_author(const std::string& author) const
     return true;
   }
 
-  const auto it = author_ids_.find(author);
-  return it != std::end(author_ids_);
+  return author_ids_.find(author) != std::end(author_ids_);
 }
 
 uint32_t comment_t::get_author_index(const std::string& author)

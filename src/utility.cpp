@@ -91,19 +91,19 @@ std::string col_to_name(col_num_t col_num, bool absolute)
   return col_name;
 }
 
-std::string rowcol_to_cell(row_num_t row, col_num_t col)
+std::string rowcol_to_cell(row_num_t row_num, col_num_t col_num)
 {
-  return col_to_name(col, false) + std::to_string(row + 1);
+  return col_to_name(col_num, false) + std::to_string(row_num + 1);
 }
 
-std::string rowcol_to_cell_abs(row_num_t row, col_num_t col, bool abs_row, bool abs_col)
+std::string rowcol_to_cell_abs(row_num_t row_num, col_num_t col_num, bool abs_row, bool abs_col)
 {
-  std::string cell_name = col_to_name(col, abs_col);
+  std::string cell_name = col_to_name(col_num, abs_col);
   if(abs_row)
   {
     cell_name += '$';
   }
-  cell_name += std::to_string(row + 1);
+  cell_name += std::to_string(row_num + 1);
 
   return cell_name;
 }

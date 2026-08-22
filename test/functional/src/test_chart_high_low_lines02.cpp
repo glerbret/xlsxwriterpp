@@ -31,8 +31,7 @@ int main()
     row_num++;
   }
 
-  const xwpp::chart_line_t line = {.color_     = xwpp::color_t::RED,
-                                   .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED, .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
 
   chart.set_high_low_lines(line);
 

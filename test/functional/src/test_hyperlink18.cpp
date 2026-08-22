@@ -9,7 +9,7 @@
 int main()
 {
   xwpp::workbook_t workbook;
-  /* Set shorter length for testing. */
+  // Set shorter length for testing.
   workbook.set_max_url_length(255);
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   workbook.unset_default_url_format();

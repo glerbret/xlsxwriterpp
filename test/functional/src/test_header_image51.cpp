@@ -12,7 +12,6 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::header_footer_options_t header_options{.image_left_ = "images/red.jpg"};
-
   worksheet.set_header("&L&G", header_options);
 
   workbook.save("test_header_image51.xlsx");

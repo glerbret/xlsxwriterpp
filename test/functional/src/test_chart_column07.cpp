@@ -35,7 +35,7 @@ int main()
 
   worksheet.insert_chart(CELL("E9"), &chart);
 
-  /* Add the cached data for testing. */
+  // Add the cached data for testing.
   const std::array<std::array<uint8_t, 3>, 4> test_data{
     {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
   };

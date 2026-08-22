@@ -88,11 +88,12 @@ namespace
 
 [[nodiscard]] std::string write_anchor(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:Anchor", std::format("{}, {}, {}, {}, {}, {}, {}, {}", vml_obj.from_.col_,
-                                                  static_cast<uint32_t>(vml_obj.from_.col_offset_), vml_obj.from_.row_,
-                                                  static_cast<uint32_t>(vml_obj.from_.row_offset_), vml_obj.to_.col_,
-                                                  static_cast<uint32_t>(vml_obj.to_.col_offset_), vml_obj.to_.row_,
-                                                  static_cast<uint32_t>(vml_obj.to_.row_offset_)));
+  return xml_data_element("x:Anchor",
+                          std::format("{}, {}, {}, {}, {}, {}, {}, {}", vml_obj.from_.col_num_,
+                                      static_cast<uint32_t>(vml_obj.from_.col_offset_), vml_obj.from_.row_num_,
+                                      static_cast<uint32_t>(vml_obj.from_.row_offset_), vml_obj.to_.col_num_,
+                                      static_cast<uint32_t>(vml_obj.to_.col_offset_), vml_obj.to_.row_num_,
+                                      static_cast<uint32_t>(vml_obj.to_.row_offset_)));
 }
 
 [[nodiscard]] std::string write_auto_fill()
@@ -102,12 +103,12 @@ namespace
 
 [[nodiscard]] std::string write_row(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:Row", std::to_string(vml_obj.row_));
+  return xml_data_element("x:Row", std::to_string(vml_obj.row_num_));
 }
 
 [[nodiscard]] std::string write_column(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:Column", std::to_string(vml_obj.col_));
+  return xml_data_element("x:Column", std::to_string(vml_obj.col_num_));
 }
 
 [[nodiscard]] std::string write_visible()

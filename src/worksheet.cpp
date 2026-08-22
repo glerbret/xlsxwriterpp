@@ -227,8 +227,8 @@ void get_comment_params(vml_obj_t& comment, const std::optional<comment_options_
   uint32_t width          = 128;
   double x_scale          = 1.0;
   double y_scale          = 1.0;
-  const row_num_t row_num = comment.row_;
-  const col_num_t col_num = comment.col_;
+  const row_num_t row_num = comment.row_num_;
+  const col_num_t col_num = comment.col_num_;
 
   // Set the default start cell and offsets for the comment. These are
   // generally fixed in relation to the parent cell. However there are some
@@ -720,8 +720,8 @@ void get_button_params(vml_obj_t& button, uint16_t button_number, const std::opt
 
   button.width_     = width;
   button.height_    = height;
-  button.start_col_ = button.col_;
-  button.start_row_ = button.row_;
+  button.start_col_ = button.col_num_;
+  button.start_row_ = button.row_num_;
   button.x_offset_  = x_offset;
   button.y_offset_  = y_offset;
 }
@@ -2240,9 +2240,9 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
   }
 
   vml_obj_t comment;
-  comment.text_ = text;
-  comment.row_  = row_num;
-  comment.col_  = col_num;
+  comment.text_    = text;
+  comment.row_num_ = row_num;
+  comment.col_num_ = col_num;
 
   // Set user and default parameters for the comment.
   get_comment_params(comment, options);
@@ -2567,8 +2567,8 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   // Copy other options or set defaults.
   object_props.filename_    = filename;
   object_props.description_ = description;
-  object_props.row_         = row_num;
-  object_props.col_         = col_num;
+  object_props.row_num_     = row_num;
+  object_props.col_num_     = col_num;
 
   if(object_props.x_scale_ == 0.0)
   {
@@ -2619,8 +2619,8 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
 
   // Copy other options or set defaults.
   object_props.filename_ = "image_buffer";
-  object_props.row_      = row_num;
-  object_props.col_      = col_num;
+  object_props.row_num_  = row_num;
+  object_props.col_num_  = col_num;
 
   if(object_props.x_scale_ == 0.0)
   {
@@ -2696,8 +2696,8 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
   }
   // Copy other options or set defaults.
   object_props.filename_ = filename;
-  object_props.row_      = row_num;
-  object_props.col_      = col_num;
+  object_props.row_num_  = row_num;
+  object_props.col_num_  = col_num;
 
   if(object_props.x_scale_ == 0.0)
   {
@@ -2762,8 +2762,8 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
   }
   // Copy other options or set defaults.
   object_props.filename_ = "image_buffer";
-  object_props.row_      = row_num;
-  object_props.col_      = col_num;
+  object_props.row_num_  = row_num;
+  object_props.col_num_  = col_num;
 
   if(object_props.x_scale_ == 0.0)
   {
@@ -2812,8 +2812,8 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
   }
 
   // Copy other options or set defaults.
-  object_props.row_ = row_num;
-  object_props.col_ = col_num;
+  object_props.row_num_ = row_num;
+  object_props.col_num_ = col_num;
 
   object_props.width_  = 480;
   object_props.height_ = 288;
@@ -2846,8 +2846,8 @@ void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std:
   check_dimensions(row_num, col_num, true, true);
 
   vml_obj_t button;
-  button.row_ = row_num;
-  button.col_ = col_num;
+  button.row_num_ = row_num;
+  button.col_num_ = col_num;
 
   // Set user and default parameters for the button.
   get_button_params(button, static_cast<uint16_t>(1 + button_objs_.size()), options);
@@ -4183,8 +4183,8 @@ void worksheet_t::set_start_page(uint16_t start_page)
 
 void worksheet_t::set_error_cell(const object_properties_t& object_props, uint32_t ref_id)
 {
-  const row_num_t row_num = object_props.row_;
-  const col_num_t col_num = object_props.col_;
+  const row_num_t row_num = object_props.row_num_;
+  const col_num_t col_num = object_props.col_num_;
 
   const cell_t cell = new_error_cell(row_num, col_num, ref_id, object_props.format_);
   insert_cell(row_num, col_num, cell);
@@ -4855,9 +4855,9 @@ void worksheet_t::position_object_emus(const object_properties_t& image, drawing
  */
 void worksheet_t::position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object)
 {
-  col_num_t col_start      = object_props.col_;      // Column containing upper left corner.
+  col_num_t col_start      = object_props.col_num_;  // Column containing upper left corner.
   int32_t x1               = object_props.x_offset_; // Distance to left side of object.
-  row_num_t row_start      = object_props.row_;      // Row containing top left corner.
+  row_num_t row_start      = object_props.row_num_;  // Row containing top left corner.
   int32_t y1               = object_props.y_offset_; // Distance to top of object.
   col_num_t col_end        = 0;                      // Column containing lower right corner.
   double x2                = 0.;                     // Distance to right side of object.
@@ -4966,12 +4966,12 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   y2 = height;
 
   // Add the dimensions to the drawing object.
-  drawing_object.from_.col_        = col_start;
-  drawing_object.from_.row_        = row_start;
+  drawing_object.from_.col_num_    = col_start;
+  drawing_object.from_.row_num_    = row_start;
   drawing_object.from_.col_offset_ = x1;
   drawing_object.from_.row_offset_ = y1;
-  drawing_object.to_.col_          = col_end;
-  drawing_object.to_.row_          = row_end;
+  drawing_object.to_.col_num_      = col_end;
+  drawing_object.to_.row_num_      = row_end;
   drawing_object.to_.col_offset_   = x2;
   drawing_object.to_.row_offset_   = y2;
   drawing_object.col_absolute_     = x_abs;
@@ -4983,8 +4983,8 @@ void worksheet_t::position_vml_object(vml_obj_t& vml_obj)
   object_properties_t object_props;
   drawing_object_t drawing_object;
 
-  object_props.col_      = vml_obj.start_col_;
-  object_props.row_      = vml_obj.start_row_;
+  object_props.col_num_  = vml_obj.start_col_;
+  object_props.row_num_  = vml_obj.start_row_;
   object_props.x_offset_ = vml_obj.x_offset_;
   object_props.y_offset_ = vml_obj.y_offset_;
   object_props.width_    = vml_obj.width_;
@@ -4994,12 +4994,12 @@ void worksheet_t::position_vml_object(vml_obj_t& vml_obj)
 
   position_object_pixels(object_props, drawing_object);
 
-  vml_obj.from_.col_        = drawing_object.from_.col_;
-  vml_obj.from_.row_        = drawing_object.from_.row_;
+  vml_obj.from_.col_num_    = drawing_object.from_.col_num_;
+  vml_obj.from_.row_num_    = drawing_object.from_.row_num_;
   vml_obj.from_.col_offset_ = drawing_object.from_.col_offset_;
   vml_obj.from_.row_offset_ = drawing_object.from_.row_offset_;
-  vml_obj.to_.col_          = drawing_object.to_.col_;
-  vml_obj.to_.row_          = drawing_object.to_.row_;
+  vml_obj.to_.col_num_      = drawing_object.to_.col_num_;
+  vml_obj.to_.row_num_      = drawing_object.to_.row_num_;
   vml_obj.to_.col_offset_   = drawing_object.to_.col_offset_;
   vml_obj.to_.row_offset_   = drawing_object.to_.row_offset_;
   vml_obj.col_absolute_     = drawing_object.col_absolute_;

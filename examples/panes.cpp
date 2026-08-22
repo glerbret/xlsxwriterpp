@@ -14,11 +14,6 @@ int main()
   // Create a new workbook and add some worksheets.
   xwpp::workbook_t workbook;
 
-  xwpp::worksheet_t& worksheet1 = workbook.add_worksheet("Panes 1");
-  xwpp::worksheet_t& worksheet2 = workbook.add_worksheet("Panes 2");
-  xwpp::worksheet_t& worksheet3 = workbook.add_worksheet("Panes 3");
-  xwpp::worksheet_t& worksheet4 = workbook.add_worksheet("Panes 4");
-
   // Set up some formatting and text to highlight the panes.
   xwpp::format_t* header = workbook.add_format();
   header->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
@@ -31,92 +26,105 @@ int main()
   center->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
 
   // Example 1. Freeze pane on the top row.
-  worksheet1.freeze_panes(1, 0);
-
-  // Some sheet formatting.
-  worksheet1.set_column(0, 8, 16);
-  worksheet1.set_row(0, 20);
-  worksheet1.set_selection(4, 3, 4, 3);
-
-  // Some worksheet text to demonstrate scrolling.
-  for(xwpp::col_num_t col = 0; col < 9; col++)
   {
-    worksheet1.write_string(0, col, "Scroll down", header);
-  }
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Panes 1");
 
-  for(xwpp::row_num_t row = 1; row < 100; row++)
-  {
+    worksheet.freeze_panes(1, 0);
+
+    // Some sheet formatting.
+    worksheet.set_column(0, 8, 16);
+    worksheet.set_row(0, 20);
+    worksheet.set_selection(4, 3, 4, 3);
+
+    // Some worksheet text to demonstrate scrolling.
     for(xwpp::col_num_t col = 0; col < 9; col++)
     {
-      worksheet1.write_number(row, col, row + 1, center);
+      worksheet.write_string(0, col, "Scroll down", header);
+    }
+
+    for(xwpp::row_num_t row_num = 1; row_num < 100; row_num++)
+    {
+      for(xwpp::col_num_t col_num = 0; col_num < 9; col_num++)
+      {
+        worksheet.write_number(row_num, col_num, row_num + 1, center);
+      }
     }
   }
 
   // Example 2. Freeze pane on the left column.
-  worksheet2.freeze_panes(0, 1);
-
-  // Some sheet formatting.
-  worksheet2.set_column(0, 0, 16);
-  worksheet2.set_selection(4, 3, 4, 3);
-
-  // Some worksheet text to demonstrate scrolling.
-  for(xwpp::row_num_t row = 0; row < 50; row++)
   {
-    worksheet2.write_string(row, 0, "Scroll right", header);
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Panes 2");
 
-    for(xwpp::col_num_t col = 1; col < 26; col++)
+    worksheet.freeze_panes(0, 1);
+
+    // Some sheet formatting.
+    worksheet.set_column(0, 0, 16);
+    worksheet.set_selection(4, 3, 4, 3);
+
+    // Some worksheet text to demonstrate scrolling.
+    for(xwpp::row_num_t row_num = 0; row_num < 50; row_num++)
     {
-      worksheet2.write_number(row, col, col, center);
+      worksheet.write_string(row_num, 0, "Scroll right", header);
+
+      for(xwpp::col_num_t col_num = 1; col_num < 26; col_num++)
+      {
+        worksheet.write_number(row_num, col_num, col_num, center);
+      }
     }
   }
 
   // Example 3. Freeze pane on the top row and left column.
-  worksheet3.freeze_panes(1, 1);
-
-  // Some sheet formatting.
-  worksheet3.set_column(0, 25, 16);
-  worksheet3.set_row(0, 20);
-  worksheet3.write_string(0, 0, "", header);
-  worksheet3.set_selection(4, 3, 4, 3);
-
-  // Some worksheet text to demonstrate scrolling.
-  for(xwpp::col_num_t col = 1; col < 26; col++)
   {
-    worksheet3.write_string(0, col, "Scroll down", header);
-  }
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Panes 3");
 
-  for(xwpp::row_num_t row = 1; row < 50; row++)
-  {
-    worksheet3.write_string(row, 0, "Scroll right", header);
+    worksheet.freeze_panes(1, 1);
 
+    // Some sheet formatting.
+    worksheet.set_column(0, 25, 16);
+    worksheet.set_row(0, 20);
+    worksheet.write_string(0, 0, "", header);
+    worksheet.set_selection(4, 3, 4, 3);
+
+    // Some worksheet text to demonstrate scrolling.
     for(xwpp::col_num_t col = 1; col < 26; col++)
     {
-      worksheet3.write_number(row, col, col, center);
+      worksheet.write_string(0, col, "Scroll down", header);
+    }
+
+    for(xwpp::row_num_t row_num = 1; row_num < 50; row_num++)
+    {
+      worksheet.write_string(row_num, 0, "Scroll right", header);
+
+      for(xwpp::col_num_t col_num = 1; col_num < 26; col_num++)
+      {
+        worksheet.write_number(row_num, col_num, col_num, center);
+      }
     }
   }
 
-  /* Example 4. Split pane on the top row and left column.
-   *
-   * The divisions must be specified in terms of row and column dimensions.
-   * The default row height is 15 and the default column width is 8.43
-   */
-  worksheet4.split_panes(15, 8.43);
-
-  // Some sheet formatting.
-
-  // Some worksheet text to demonstrate scrolling.
-  for(xwpp::col_num_t col = 1; col < 26; col++)
+  // Example 4. Split pane on the top row and left column.
+  //
+  // The divisions must be specified in terms of row and column dimensions.
+  // The default row height is 15 and the default column width is 8.43
   {
-    worksheet4.write_string(0, col, "Scroll", center);
-  }
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Panes 4");
 
-  for(xwpp::row_num_t row = 1; row < 50; row++)
-  {
-    worksheet4.write_string(row, 0, "Scroll", center);
+    worksheet.split_panes(15, 8.43);
 
+    // Some worksheet text to demonstrate scrolling.
     for(xwpp::col_num_t col = 1; col < 26; col++)
     {
-      worksheet4.write_number(row, col, col, center);
+      worksheet.write_string(0, col, "Scroll", center);
+    }
+
+    for(xwpp::row_num_t row_num = 1; row_num < 50; row_num++)
+    {
+      worksheet.write_string(row_num, 0, "Scroll", center);
+
+      for(xwpp::col_num_t col_num = 1; col_num < 26; col_num++)
+      {
+        worksheet.write_number(row_num, col_num, col_num, center);
+      }
     }
   }
 

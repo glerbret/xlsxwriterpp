@@ -40,7 +40,7 @@ int main()
 
   chartsheet.set_paper(9);
 
-  xwpp::header_footer_options_t header_options{.margin_ = 0.3149606299212598};
+  const xwpp::header_footer_options_t header_options{.margin_ = 0.3149606299212598};
   chartsheet.set_header("Page &P", header_options);
   chartsheet.set_footer("&A", header_options);
 

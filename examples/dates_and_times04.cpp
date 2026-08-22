@@ -17,8 +17,6 @@ int main()
 {
   // A datetime to display.
   const auto datetime = std::chrono::sys_days{2013y / std::chrono::January / 23d} + 12h + 30min + 5s + 123ms;
-  uint32_t row        = 0;
-  const uint16_t col  = 0;
 
   // Examples date and time formats. In the output file compare how changing
   // the format strings changes the appearance of the date.
@@ -48,27 +46,27 @@ int main()
   bold->set_bold();
 
   // Write the column headers.
-  worksheet.write_string(row, col, "Formatted date", bold);
-  worksheet.write_string(row, col + 1, "Format", bold);
+  worksheet.write_string(0, 0, "Formatted date", bold);
+  worksheet.write_string(0, 1, "Format", bold);
 
   // Widen the first column to make the text clearer.
   worksheet.set_column(0, 1, 22);
 
   // Write the same date and time using each of the above formats.
-  for(const auto& date_format: date_formats)
+  for(xwpp::row_num_t row_num = 1; const auto& date_format: date_formats)
   {
-    row++;
-
     // Create a format for the date or time.
     xwpp::format_t* format = workbook.add_format();
     format->set_num_format(date_format);
     format->set_align(xwpp::format_alignments_t::HORIZONTAL_LEFT);
 
     // Write the datetime with each format.
-    worksheet.write_datetime(row, col, datetime, format);
+    worksheet.write_datetime(row_num, 0, datetime, format);
 
     // Also write the format string for comparison.
-    worksheet.write_string(row, col + 1, date_format);
+    worksheet.write_string(row_num, 1, date_format);
+
+    row_num++;
   }
 
   workbook.save("date_and_times04.xlsx");

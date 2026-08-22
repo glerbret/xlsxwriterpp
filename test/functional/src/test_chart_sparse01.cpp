@@ -22,8 +22,8 @@ int main()
   worksheet.write_number(4, 0, 5);
 
   worksheet.write_number(0, 1, 2);
-  /* Omit the next data point to test how it is handled. */
-  /* worksheet.write_number(1, 1, 4);  */
+  // Omit the next data point to test how it is handled.
+  // worksheet.write_number(1, 1, 4);
   worksheet.write_number(2, 1, 6);
   worksheet.write_number(3, 1, 8);
   worksheet.write_number(4, 1, 10);
@@ -36,7 +36,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
 
-  chart.add_series("=Sheet1!$A$1:$A$6", /* Ranges exceeds the data. */
+  chart.add_series("=Sheet1!$A$1:$A$6", // Ranges exceeds the data.
                    "=Sheet1!$C$1:$C$6");
   worksheet.insert_chart(CELL("E9"), &chart);
 

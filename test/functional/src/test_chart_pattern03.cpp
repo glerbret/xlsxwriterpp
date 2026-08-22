@@ -40,23 +40,22 @@ int main()
   xwpp::chart_series_t& series7 = chart.add_series("", "=Sheet1!$G$1:$G$3");
   xwpp::chart_series_t& series8 = chart.add_series("", "=Sheet1!$H$1:$H$3");
 
-  const xwpp::chart_pattern_t pattern1 = {.fg_color_ = xwpp::color_t(0xC00000),
-                                          .bg_color_ = xwpp::color_t(0xFFFFFF),
-                                          .type_     = xwpp::chart_pattern_type_t::PERCENT_10};
-  const xwpp::chart_pattern_t pattern2 = {.fg_color_ = xwpp::color_t(0xFF0000),
-                                          .type_     = xwpp::chart_pattern_type_t::PERCENT_60};
-  const xwpp::chart_pattern_t pattern3 = {.fg_color_ = xwpp::color_t(0xFFC000),
-                                          .type_     = xwpp::chart_pattern_type_t::LIGHT_UPWARD_DIAGONAL};
-  const xwpp::chart_pattern_t pattern4 = {.fg_color_ = xwpp::color_t(0xFFFF00),
-                                          .type_     = xwpp::chart_pattern_type_t::LIGHT_HORIZONTAL};
-  const xwpp::chart_pattern_t pattern5 = {.fg_color_ = xwpp::color_t(0x92D050),
-                                          .type_     = xwpp::chart_pattern_type_t::DASHED_UPWARD_DIAGONAL};
-  const xwpp::chart_pattern_t pattern6 = {.fg_color_ = xwpp::color_t(0x00B050),
-                                          .type_     = xwpp::chart_pattern_type_t::WAVE};
-  const xwpp::chart_pattern_t pattern7 = {.fg_color_ = xwpp::color_t(0x00B0F0),
-                                          .type_     = xwpp::chart_pattern_type_t::DOTTED_GRID};
-  const xwpp::chart_pattern_t pattern8 = {.fg_color_ = xwpp::color_t(0x0070C0),
-                                          .type_     = xwpp::chart_pattern_type_t::LARGE_GRID};
+  const xwpp::chart_pattern_t pattern1{.fg_color_ = xwpp::color_t(0xC00000),
+                                       .bg_color_ = xwpp::color_t(0xFFFFFF),
+                                       .type_     = xwpp::chart_pattern_type_t::PERCENT_10};
+  const xwpp::chart_pattern_t pattern2{.fg_color_ = xwpp::color_t(0xFF0000),
+                                       .type_     = xwpp::chart_pattern_type_t::PERCENT_60};
+  const xwpp::chart_pattern_t pattern3{.fg_color_ = xwpp::color_t(0xFFC000),
+                                       .type_     = xwpp::chart_pattern_type_t::LIGHT_UPWARD_DIAGONAL};
+  const xwpp::chart_pattern_t pattern4{.fg_color_ = xwpp::color_t(0xFFFF00),
+                                       .type_     = xwpp::chart_pattern_type_t::LIGHT_HORIZONTAL};
+  const xwpp::chart_pattern_t pattern5{.fg_color_ = xwpp::color_t(0x92D050),
+                                       .type_     = xwpp::chart_pattern_type_t::DASHED_UPWARD_DIAGONAL};
+  const xwpp::chart_pattern_t pattern6{.fg_color_ = xwpp::color_t(0x00B050), .type_ = xwpp::chart_pattern_type_t::WAVE};
+  const xwpp::chart_pattern_t pattern7{.fg_color_ = xwpp::color_t(0x00B0F0),
+                                       .type_     = xwpp::chart_pattern_type_t::DOTTED_GRID};
+  const xwpp::chart_pattern_t pattern8{.fg_color_ = xwpp::color_t(0x0070C0),
+                                       .type_     = xwpp::chart_pattern_type_t::LARGE_GRID};
 
   chart_series_set_pattern(series1, pattern1);
   chart_series_set_pattern(series2, pattern2);

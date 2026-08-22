@@ -32,11 +32,10 @@ int main()
   }
 
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t line1 = {.width_ = 5};
-  const xwpp::chart_line_t line2 = {.width_ = 0.1};
+  const xwpp::chart_line_t line1{.width_ = 5};
+  const xwpp::chart_line_t line2{.width_ = 0.1};
 
   chart_series_set_line(series1, line1);
   chart_series_set_line(series2, line2);

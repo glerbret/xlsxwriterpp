@@ -10,8 +10,8 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::format_t* bold         = workbook.add_format();
 
+  xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
   worksheet.write_number(0, 1, 0);

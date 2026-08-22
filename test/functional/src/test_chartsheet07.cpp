@@ -40,7 +40,7 @@ int main()
   chartsheet.set_portrait();
   chartsheet.set_chart(&chart);
 
-  /* For testing. */
+  // For testing.
   chartsheet.set_dpi(200, 200);
 
   workbook.save("test_chartsheet07.xlsx");

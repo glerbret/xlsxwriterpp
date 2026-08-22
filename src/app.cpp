@@ -128,6 +128,7 @@ std::string app_t::assemble_xml_file() const
   xml_data += write_hyperlinks_changed();
   xml_data += write_app_version();
   xml_data += xml_end_tag("Properties");
+
   return xml_data;
 }
 
@@ -146,22 +147,18 @@ std::string app_t::write_doc_security() const
 std::string app_t::write_heading_pairs() const
 {
   std::string xml_data = xml_start_tag("HeadingPairs");
-
-  // Write the vt:vector element.
   xml_data += write_vt_vector_heading_pairs();
-
   xml_data += xml_end_tag("HeadingPairs");
+
   return xml_data;
 }
 
 std::string app_t::write_titles_of_parts() const
 {
   std::string xml_data = xml_start_tag("TitlesOfParts");
-
-  // Write the vt:vector element.
   xml_data += write_vt_vector_lpstr_named_parts();
-
   xml_data += xml_end_tag("TitlesOfParts");
+
   return xml_data;
 }
 
@@ -171,6 +168,7 @@ std::string app_t::write_manager() const
   {
     return "";
   }
+
   return xml_data_element("Manager", properties_.manager_);
 }
 
@@ -188,14 +186,12 @@ std::string app_t::write_company() const
 
 std::string app_t::write_hyperlink_base() const
 {
-  if(!properties_.hyperlink_base_.empty())
-  {
-    return xml_data_element("HyperlinkBase", properties_.hyperlink_base_);
-  }
-  else
+  if(properties_.hyperlink_base_.empty())
   {
     return "";
   }
+
+  return xml_data_element("HyperlinkBase", properties_.hyperlink_base_);
 }
 
 std::string app_t::write_vt_vector_heading_pairs() const
@@ -204,13 +200,12 @@ std::string app_t::write_vt_vector_heading_pairs() const
                                                       {"size",     std::to_string(heading_pairs_.size() * 2)},
                                                       {"baseType", "variant"                                },
   });
-
   for(const auto& [key, value]: heading_pairs_)
   {
     xml_data += write_vt_variant(key, value);
   }
-
   xml_data += xml_end_tag("vt:vector");
+
   return xml_data;
 }
 
@@ -220,7 +215,6 @@ std::string app_t::write_vt_vector_lpstr_named_parts() const
                                                       {"size",     std::to_string(part_names_.size())},
                                                       {"baseType", "lpstr"                           },
   });
-
   for(const auto& part_name: part_names_)
   {
     xml_data += write_vt_lpstr(part_name.name_);

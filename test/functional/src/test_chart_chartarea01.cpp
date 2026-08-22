@@ -35,12 +35,12 @@ int main()
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t line1 = {.none_ = true};
-  const xwpp::chart_line_t line2 = {
+  const xwpp::chart_line_t line1{.none_ = true};
+  const xwpp::chart_line_t line2{
     .color_ = xwpp::color_t::YELLOW, .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH};
 
-  const xwpp::chart_fill_t fill1 = {.color_ = xwpp::color_t::RED};
-  const xwpp::chart_fill_t fill2 = {.color_ = xwpp::color_t(0x92D050)};
+  const xwpp::chart_fill_t fill1{.color_ = xwpp::color_t::RED};
+  const xwpp::chart_fill_t fill2{.color_ = xwpp::color_t(0x92D050)};
 
   chart.chartarea_set_line(line1);
   chart.chartarea_set_fill(fill1);

@@ -37,7 +37,7 @@ int main()
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  xwpp::chart_font_t font1{.rotation_ = 360, .baseline_ = -1};
+  const xwpp::chart_font_t font1{.rotation_ = 360, .baseline_ = -1};
 
   xwpp::chart_axis_set_name(chart.x_axis_, "XXX");
   xwpp::chart_axis_set_name_font(chart.x_axis_, font1);

@@ -50,79 +50,85 @@ int main()
   write_worksheet_data(worksheet, bold);
 
   // Chart 1. Create a radar chart.
-  xwpp::chart_t& chart1 = workbook.add_chart(xwpp::chart_type_t::RADAR);
+  {
+    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::RADAR);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series1 = chart1.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
+    // Add the first series to the chart.
+    xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
-  // Set the name for the series instead of the default "Series 1".
-  chart1.series_set_name(series1, "=Sheet1!$B$1");
+    // Set the name for the series instead of the default "Series 1".
+    chart.series_set_name(series1, "=Sheet1!$B$1");
 
-  // Add a second series but leave the categories and values undefined. They
-  // can be defined later using the alternative syntax shown below.
-  xwpp::chart_series_t& series2 = chart1.add_series("", "");
+    // Add a second series but leave the categories and values undefined. They
+    // can be defined later using the alternative syntax shown below.
+    xwpp::chart_series_t& series2 = chart.add_series("", "");
 
-  // Configure the series using a syntax that is easier to define programmatically.
-  xwpp::chart_series_set_categories(series2, "Sheet1", 1, 0, 6, 0); // "=Sheet1!$A$2:$A$7"
-  xwpp::chart_series_set_values(series2, "Sheet1", 1, 2, 6, 2);     // "=Sheet1!$C$2:$C$7"
-  xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
+    // Configure the series using a syntax that is easier to define programmatically.
+    xwpp::chart_series_set_categories(series2, "Sheet1", 1, 0, 6, 0); // "=Sheet1!$A$2:$A$7"
+    xwpp::chart_series_set_values(series2, "Sheet1", 1, 2, 6, 2);     // "=Sheet1!$C$2:$C$7"
+    xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
-  // Add a chart title.
-  chart1.title_set_name("Results of sample analysis");
+    // Add a chart title.
+    chart.title_set_name("Results of sample analysis");
 
-  // Set an Excel chart style.
-  chart1.set_style(11);
+    // Set an Excel chart style.
+    chart.set_style(11);
 
-  // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("E2"), &chart1);
+    // Insert the chart into the worksheet.
+    worksheet.insert_chart(CELL("E2"), &chart);
+  }
 
   // Chart 2. Create a radar chart with markers.
-  xwpp::chart_t& chart2 = workbook.add_chart(xwpp::chart_type_t::RADAR_WITH_MARKERS);
+  {
+    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::RADAR_WITH_MARKERS);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series3 = chart2.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
+    // Add the first series to the chart.
+    xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
-  // Set the name for the series instead of the default "Series 1". */
-  chart2.series_set_name(series3, "=Sheet1!$B$1");
+    // Set the name for the series instead of the default "Series 1". */
+    chart.series_set_name(series1, "=Sheet1!$B$1");
 
-  // Add the second series to the chart.
-  xwpp::chart_series_t& series4 = chart2.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
+    // Add the second series to the chart.
+    xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
-  // Set the name for the series instead of the default "Series 2".
-  chart2.series_set_name(series4, "=Sheet1!$C$1");
+    // Set the name for the series instead of the default "Series 2".
+    chart.series_set_name(series2, "=Sheet1!$C$1");
 
-  // Add a chart title.
-  chart2.title_set_name("Results of sample analysis");
+    // Add a chart title.
+    chart.title_set_name("Results of sample analysis");
 
-  // Set an Excel chart style.
-  chart2.set_style(12);
+    // Set an Excel chart style.
+    chart.set_style(12);
 
-  // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("E18"), &chart2);
+    // Insert the chart into the worksheet.
+    worksheet.insert_chart(CELL("E18"), &chart);
+  }
 
   // Chart 3. Create a filled radar chart.
-  xwpp::chart_t& chart3 = workbook.add_chart(xwpp::chart_type_t::RADAR_FILLED);
+  {
+    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::RADAR_FILLED);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series5 = chart3.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
+    // Add the first series to the chart.
+    xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
-  // Set the name for the series instead of the default "Series 1".
-  chart3.series_set_name(series5, "=Sheet1!$B$1");
+    // Set the name for the series instead of the default "Series 1".
+    chart.series_set_name(series1, "=Sheet1!$B$1");
 
-  // Add the second series to the chart.
-  xwpp::chart_series_t& series6 = chart3.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
+    // Add the second series to the chart.
+    xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
-  // Set the name for the series instead of the default "Series 2".
-  chart3.series_set_name(series6, "=Sheet1!$C$1");
+    // Set the name for the series instead of the default "Series 2".
+    chart.series_set_name(series2, "=Sheet1!$C$1");
 
-  // Add a chart title.
-  chart3.title_set_name("Results of sample analysis");
+    // Add a chart title.
+    chart.title_set_name("Results of sample analysis");
 
-  // Set an Excel chart style.
-  chart3.set_style(13);
+    // Set an Excel chart style.
+    chart.set_style(13);
 
-  // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("E34"), &chart3);
+    // Insert the chart into the worksheet.
+    worksheet.insert_chart(CELL("E34"), &chart);
+  }
 
   workbook.save("chart_radar.xlsx");
 }

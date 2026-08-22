@@ -110,197 +110,210 @@ void create_col_example_data(xwpp::worksheet_t& worksheet, const xwpp::format_t*
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet1 = workbook.add_worksheet("Outlined Rows");
-  xwpp::worksheet_t& worksheet2 = workbook.add_worksheet("Collapsed Rows 1");
-  xwpp::worksheet_t& worksheet3 = workbook.add_worksheet("Collapsed Rows 2");
-  xwpp::worksheet_t& worksheet4 = workbook.add_worksheet("Collapsed Rows 3");
-  xwpp::worksheet_t& worksheet5 = workbook.add_worksheet("Outline Columns");
-  xwpp::worksheet_t& worksheet6 = workbook.add_worksheet("Collapsed Columns");
 
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  /*
-   * Example 1: Create a worksheet with outlined rows. It also includes
-   * SUBTOTAL() functions so that it looks like the type of automatic
-   * outlines that are generated when you use the 'Sub Totals' option.
-   *
-   * For outlines the important parameters are 'hidden' and 'level'. Rows
-   * with the same 'level' are grouped together. The group will be collapsed
-   * if 'hidden' is non-zero.
-   */
+  // Example 1: Create a worksheet with outlined rows. It also includes
+  // SUBTOTAL() functions so that it looks like the type of automatic
+  // outlines that are generated when you use the 'Sub Totals' option.
+  //
+  // For outlines the important parameters are 'hidden' and 'level'. Rows
+  // with the same 'level' are grouped together. The group will be collapsed
+  // if 'hidden' is non-zero.
+  {
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
-  // The option structs with the outline level set.
-  xwpp::row_col_options_t options1{
-    .hidden_    = false,
-    .level_     = 2,
-    .collapsed_ = false,
-  };
-  xwpp::row_col_options_t options2{
-    .hidden_    = false,
-    .level_     = 1,
-    .collapsed_ = false,
-  };
+    // The option structs with the outline level set.
+    const xwpp::row_col_options_t options1{
+      .hidden_    = false,
+      .level_     = 2,
+      .collapsed_ = false,
+    };
+    const xwpp::row_col_options_t options2{
+      .hidden_    = false,
+      .level_     = 1,
+      .collapsed_ = false,
+    };
 
-  // Set the row outline properties set.
-  worksheet1.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+    // Set the row outline properties set.
+    worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
 
-  worksheet1.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-  worksheet1.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+    worksheet.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
 
-  // Write the sub-total data that is common to the row examples.
-  create_row_example_data(worksheet1, bold);
+    // Write the sub-total data that is common to the row examples.
+    create_row_example_data(worksheet, bold);
+  }
 
   // Example 2: Create a worksheet with collapsed outlined rows.
   // This is the same as the example 1  except that the all rows are collapsed.
+  {
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
-  // The option structs with the outline properties set.
-  xwpp::row_col_options_t options3{
-    .hidden_    = true,
-    .level_     = 2,
-    .collapsed_ = false,
-  };
-  xwpp::row_col_options_t options4{
-    .hidden_    = true,
-    .level_     = 1,
-    .collapsed_ = false,
-  };
-  xwpp::row_col_options_t options5{
-    .hidden_    = false,
-    .level_     = 0,
-    .collapsed_ = true,
-  };
+    // The option structs with the outline properties set.
+    const xwpp::row_col_options_t options1{
+      .hidden_    = true,
+      .level_     = 2,
+      .collapsed_ = false,
+    };
+    const xwpp::row_col_options_t options2{
+      .hidden_    = true,
+      .level_     = 1,
+      .collapsed_ = false,
+    };
+    const xwpp::row_col_options_t options3{
+      .hidden_    = false,
+      .level_     = 0,
+      .collapsed_ = true,
+    };
 
-  // Set the row options with the outline level.
-  worksheet2.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options4);
+    // Set the row options with the outline level.
+    worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
 
-  worksheet2.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
-  worksheet2.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options4);
-  worksheet2.set_row(11, xwpp::DEF_ROW_HEIGHT, nullptr, options5);
+    worksheet.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+    worksheet.set_row(11, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
 
-  // Write the sub-total data that is common to the row examples.
-  create_row_example_data(worksheet2, bold);
+    // Write the sub-total data that is common to the row examples.
+    create_row_example_data(worksheet, bold);
+  }
 
   // Example 3: Create a worksheet with collapsed outlined rows. Same as the
   // example 1 except that the two sub-totals are collapsed.
-  xwpp::row_col_options_t options6{
-    .hidden_    = true,
-    .level_     = 2,
-    .collapsed_ = false,
-  };
-  xwpp::row_col_options_t options7{
-    .hidden_    = false,
-    .level_     = 1,
-    .collapsed_ = true,
-  };
+  {
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
-  // Set the row options with the outline level.
-  worksheet3.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options7);
+    const xwpp::row_col_options_t options1{
+      .hidden_    = true,
+      .level_     = 2,
+      .collapsed_ = false,
+    };
+    const xwpp::row_col_options_t options2{
+      .hidden_    = false,
+      .level_     = 1,
+      .collapsed_ = true,
+    };
 
-  worksheet3.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options6);
-  worksheet3.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options7);
+    // Set the row options with the outline level.
+    worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
 
-  // Write the sub-total data that is common to the row examples.
-  create_row_example_data(worksheet3, bold);
+    worksheet.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+
+    // Write the sub-total data that is common to the row examples.
+    create_row_example_data(worksheet, bold);
+  }
 
   // Example 4: Create a worksheet with outlined rows. Same as the example 1
   // except that the two sub-totals are collapsed.
-  xwpp::row_col_options_t options8{
-    .hidden_    = true,
-    .level_     = 2,
-    .collapsed_ = false,
-  };
-  xwpp::row_col_options_t options9{
-    .hidden_    = true,
-    .level_     = 1,
-    .collapsed_ = true,
-  };
-  xwpp::row_col_options_t options10{
-    .hidden_    = false,
-    .level_     = 0,
-    .collapsed_ = true,
-  };
+  {
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
-  // Set the row options with the outline level.
-  worksheet4.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options9);
+    const xwpp::row_col_options_t options1{
+      .hidden_    = true,
+      .level_     = 2,
+      .collapsed_ = false,
+    };
+    const xwpp::row_col_options_t options2{
+      .hidden_    = true,
+      .level_     = 1,
+      .collapsed_ = true,
+    };
+    const xwpp::row_col_options_t options3{
+      .hidden_    = false,
+      .level_     = 0,
+      .collapsed_ = true,
+    };
 
-  worksheet4.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options8);
-  worksheet4.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options9);
+    // Set the row options with the outline level.
+    worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
 
-  worksheet4.set_row(11, xwpp::DEF_ROW_HEIGHT, nullptr, options10);
+    worksheet.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
+    worksheet.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
 
-  // Write the sub-total data that is common to the row examples.
-  create_row_example_data(worksheet4, bold);
+    worksheet.set_row(11, xwpp::DEF_ROW_HEIGHT, nullptr, options3);
+
+    // Write the sub-total data that is common to the row examples.
+    create_row_example_data(worksheet, bold);
+  }
 
   // Example 5: Create a worksheet with outlined columns.
+  {
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
-  xwpp::row_col_options_t options11{
-    .hidden_    = false,
-    .level_     = 1,
-    .collapsed_ = false,
-  };
+    const xwpp::row_col_options_t options{
+      .hidden_    = false,
+      .level_     = 1,
+      .collapsed_ = false,
+    };
 
-  // Write the sub-total data that is common to the column examples.
-  create_col_example_data(worksheet5, bold);
+    // Write the sub-total data that is common to the column examples.
+    create_col_example_data(worksheet, bold);
 
-  // Add bold format to the first row.
-  worksheet5.set_row(0, xwpp::DEF_ROW_HEIGHT, bold, std::nullopt);
+    // Add bold format to the first row.
+    worksheet.set_row(0, xwpp::DEF_ROW_HEIGHT, bold);
 
-  // Set column formatting and the outline level.
-  worksheet5.set_column(COLS("A:A"), 10, bold, std::nullopt);
-  worksheet5.set_column(COLS("B:G"), 5, nullptr, options11);
-  worksheet5.set_column(COLS("H:H"), 10);
+    // Set column formatting and the outline level.
+    worksheet.set_column(COLS("A:A"), 10, bold);
+    worksheet.set_column(COLS("B:G"), 5, nullptr, options);
+    worksheet.set_column(COLS("H:H"), 10);
+  }
 
   // Example 6: Create a worksheet with outlined columns.
-  xwpp::row_col_options_t options12{
-    .hidden_    = true,
-    .level_     = 1,
-    .collapsed_ = false,
-  };
-  xwpp::row_col_options_t options13{
-    .hidden_    = false,
-    .level_     = 0,
-    .collapsed_ = true,
-  };
+  {
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
-  // Write the sub-total data that is common to the column examples.
-  create_col_example_data(worksheet6, bold);
+    const xwpp::row_col_options_t options1{
+      .hidden_    = true,
+      .level_     = 1,
+      .collapsed_ = false,
+    };
+    const xwpp::row_col_options_t options2{
+      .hidden_    = false,
+      .level_     = 0,
+      .collapsed_ = true,
+    };
 
-  // Add bold format to the first row.
-  worksheet6.set_row(0, xwpp::DEF_ROW_HEIGHT, bold, std::nullopt);
+    // Write the sub-total data that is common to the column examples.
+    create_col_example_data(worksheet, bold);
 
-  // Set column formatting and the outline level.
-  worksheet6.set_column(COLS("A:A"), 10, bold, std::nullopt);
-  worksheet6.set_column(COLS("B:G"), 5, nullptr, options12);
-  worksheet6.set_column(COLS("H:H"), 10, nullptr, options13);
+    // Add bold format to the first row.
+    worksheet.set_row(0, xwpp::DEF_ROW_HEIGHT, bold);
+
+    // Set column formatting and the outline level.
+    worksheet.set_column(COLS("A:A"), 10, bold);
+    worksheet.set_column(COLS("B:G"), 5, nullptr, options1);
+    worksheet.set_column(COLS("H:H"), 10, nullptr, options2);
+  }
 
   workbook.save("outline_collapsed.xlsx");
 }
