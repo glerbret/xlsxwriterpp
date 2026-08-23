@@ -22,7 +22,6 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     def test_background03(self):
         self.run_exe_test('test_background03')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_background04(self):
         self.run_exe_test('test_background04')
 
