@@ -399,7 +399,7 @@ void chart_t::set_rotation(uint16_t rotation)
   }
   else
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("chart_t::set_rotation(): chart rotation '{}' outside Excel range: 0 <= rotation <= 360.", rotation));
   }
 }
@@ -412,7 +412,7 @@ void chart_t::set_hole_size(uint8_t size)
   }
   else
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("chart_t::set_hole_size(): hole size '{}' outside Excel range: 10 <= size <= 90.", size));
   }
 }
@@ -430,7 +430,7 @@ void chart_t::set_series_gap(uint16_t gap)
   }
   else
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("chart_t::set_series_gap(): chart series gap '{}' outside Excel range: 0 <= gap <= 500.", gap));
   }
 }
@@ -486,7 +486,7 @@ void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
   // The maximum number of series in a chart is 255.
   if(delete_series.size() > 255)
   {
-    throw xwpp_out_of_range_t("chart_t::legend_delete_series(): too manu elements in 'delete_series'.");
+    throw xwpp_exception_t("chart_t::legend_delete_series(): too manu elements in 'delete_series'.");
   }
 
   delete_series_ = delete_series;
@@ -4193,7 +4193,7 @@ void chart_series_set_marker_size(chart_series_t& series, uint8_t size)
 {
   if(size < 2 || size > 72)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("chart_series_set_marker_size(): marker size '{}' outside Excel range: 2 <= size <= 72.", size));
   }
 

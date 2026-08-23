@@ -213,7 +213,7 @@ void chartsheet_t::set_zoom(uint16_t scale)
   // Confine the scale to Excel"s range
   if(scale < 10 || scale > 400)
   {
-    throw xwpp_out_of_range_t("chartsheet_t::set_zoom(): Zoom factor scale outside range: 10 <= zoom <= 400.");
+    throw xwpp_exception_t("chartsheet_t::set_zoom(): Zoom factor scale outside range: 10 <= zoom <= 400.");
   }
 
   worksheet_.zoom_ = scale;

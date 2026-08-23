@@ -18,6 +18,7 @@
   - Name consistency
   - Use scope
   - Add const
+- Simplify exception (no inheritance)
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 

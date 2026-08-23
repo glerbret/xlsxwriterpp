@@ -167,18 +167,18 @@ void workbook_t::set_custom_property(std::string_view name, const std::string& v
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
   }
 
   if(value.size() > 255)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("workbook_t::set_custom_property(): value of custom property '{}' is too long.", value));
   }
 
@@ -194,12 +194,12 @@ void workbook_t::set_custom_property(std::string_view name, int32_t value)
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
   }
 
@@ -210,12 +210,12 @@ void workbook_t::set_custom_property(std::string_view name, double value)
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
   }
 
@@ -226,12 +226,12 @@ void workbook_t::set_custom_property(std::string_view name, bool value)
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
+    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
   }
 
@@ -242,12 +242,12 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::s
 {
   if(name.empty())
   {
-    throw xwpp_out_of_range_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
+    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
   }
 
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
   }
 

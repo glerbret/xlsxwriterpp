@@ -305,7 +305,7 @@ void format_t::set_rotation(int16_t angle)
   }
   else
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("format_t::set_rotation(): format rotation '{}' outside Excel range: -90 <= rotation <= 90", angle));
   }
 }

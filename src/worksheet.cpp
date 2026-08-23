@@ -469,7 +469,7 @@ void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<tabl
   {
     if(user_options->style_type_number_ > 21)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'LIGHT' ([0, 21]).",
                     user_options->style_type_number_));
     }
@@ -479,7 +479,7 @@ void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<tabl
   {
     if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 28)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'MEDIUM' ([1, 28]).",
                     user_options->style_type_number_));
     }
@@ -489,7 +489,7 @@ void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<tabl
   {
     if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 11)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'DARK' ([1, 11]).",
                     user_options->style_type_number_));
     }
@@ -559,7 +559,7 @@ void set_custom_table_columns(table_obj_t& table_obj, const std::optional<table_
     {
       if(user_column.header_.size() > 255)
       {
-        throw xwpp_out_of_range_t("set_custom_table_columns(): 'header' exceeds Excel length limit of 255.");
+        throw xwpp_exception_t("set_custom_table_columns(): 'header' exceeds Excel length limit of 255.");
       }
 
       table_column.header_ = user_column.header_;
@@ -611,7 +611,7 @@ void check_table_name(const std::optional<table_options_t>& user_options)
   // Check table name length.
   if(name.size() > 255)
   {
-    throw xwpp_out_of_range_t("check_table_name(): Table name exceeds Excel's limit of 255.");
+    throw xwpp_exception_t("check_table_name(): Table name exceeds Excel's limit of 255.");
   }
 
   // Check some short invalid names.
@@ -1933,7 +1933,7 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 
   if(str.size() > STR_MAX)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::write_string(): string size '{}' too large (max '{}').", str.size(), STR_MAX));
   }
 
@@ -2064,7 +2064,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
 
   if(rich_string.size() > STR_MAX)
   {
-    throw xwpp_out_of_range_t(std::format(
+    throw xwpp_exception_t(std::format(
       "worksheet_t::write_rich_string(): rich string size '{}' is too high (max: '{}').", rich_string.size(), STR_MAX));
   }
 
@@ -2090,7 +2090,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
   // Check the Excel limit of URLS per worksheet.
   if(hlink_count_ > MAX_NUMBER_URLS)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::write_url(): max number of URL '{}' exceeded.", MAX_NUMBER_URLS));
   }
 
@@ -2198,7 +2198,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
   // Check if URL exceeds Excel's length limit.
   if(url_copy.size() > max_url_length_)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::write_url(): URL '{}' is too long (max: '{}').", url_copy, max_url_length_));
   }
 
@@ -2235,7 +2235,7 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
 
   if(text.size() > STR_MAX)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::write_comment(): comment '{}' is too long (max: {}).", text, STR_MAX));
   }
 
@@ -3415,7 +3415,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   {
     if(validation.input_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("worksheet_t::data_validation_range(): 'input_title' length > Excel limit of {}.",
                     VALIDATION_MAX_TITLE_LENGTH));
     }
@@ -3425,7 +3425,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   {
     if(validation.error_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("worksheet_t::data_validation_range(): 'error_title' length > Excel limit of {}.",
                     VALIDATION_MAX_TITLE_LENGTH));
     }
@@ -3435,7 +3435,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   {
     if(validation.input_message_.size() > VALIDATION_MAX_STRING_LENGTH)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("worksheet_t::data_validation_range(): 'input_message' length > Excel limit of {}.",
                     VALIDATION_MAX_STRING_LENGTH));
     }
@@ -3445,7 +3445,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   {
     if(validation.error_message_.size() > VALIDATION_MAX_STRING_LENGTH)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("worksheet_t::data_validation_range(): 'error_message' length > Excel limit of {}.",
                     VALIDATION_MAX_STRING_LENGTH));
     }
@@ -3462,7 +3462,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
 
     if(length > VALIDATION_MAX_STRING_LENGTH)
     {
-      throw xwpp_out_of_range_t(
+      throw xwpp_exception_t(
         std::format("worksheet_t::data_validation_range(): 'list length with commas > Excel limit of {}.",
                     VALIDATION_MAX_STRING_LENGTH));
     }
@@ -3615,7 +3615,7 @@ void worksheet_t::set_header(const std::string& str, const std::optional<header_
 
   if(str.size() > HEADER_FOOTER_MAX)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::set_header(): header '{}' is too long (max: '{}').", str, HEADER_FOOTER_MAX));
   }
 
@@ -3689,7 +3689,7 @@ void worksheet_t::set_footer(const std::string& str, const std::optional<header_
 
   if(str.size() > HEADER_FOOTER_MAX)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::set_footer(): footer '{}' is too long (max: '{}').", str, HEADER_FOOTER_MAX));
   }
 
@@ -3786,7 +3786,7 @@ void worksheet_t::set_zoom(uint16_t scale)
   // Confine the scale to Excel"s range.
   if(scale < 10 || scale > 400)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::set_footer(): zoom factor {} scale outside range: 10 <= zoom <= 400.", scale));
   }
 
@@ -3898,7 +3898,7 @@ void worksheet_t::set_paper(uint8_t paper_size)
 {
   if(paper_size > 118)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::set_paper(): invalid paper size: {}. Valid range is 0-118.", paper_size));
   }
 
@@ -4253,13 +4253,13 @@ void worksheet_t::check_dimensions(row_num_t row_num, col_num_t col_num, bool ig
 {
   if(row_num >= ROW_MAX)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::check_dimensions(): row_num '{}' out of range: row_num < '{}'.", row_num, ROW_MAX));
   }
 
   if(col_num >= COL_MAX)
   {
-    throw xwpp_out_of_range_t(
+    throw xwpp_exception_t(
       std::format("worksheet_t::check_dimensions(): col_num '{}' out of range: col_num < '{}'.", col_num, COL_MAX));
   }
 

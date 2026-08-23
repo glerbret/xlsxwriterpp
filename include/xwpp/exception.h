@@ -46,29 +46,6 @@ public:
   }
 };
 
-/**
- * @brief Out of range exception.
- *
- * Out of range exception.
- */
-class xwpp_out_of_range_t : public xwpp_exception_t
-{
-public:
-  /**
-   * @param what_arg Description of the exception.
-   */
-  explicit xwpp_out_of_range_t(const std::string& what_arg)
-    : xwpp_exception_t(what_arg)
-  {
-  }
-
-  /// @overload
-  explicit xwpp_out_of_range_t(const char* what_arg)
-    : xwpp_exception_t(what_arg)
-  {
-  }
-};
-
 /// @cond
 }
 /// @endcond
