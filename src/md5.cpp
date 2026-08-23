@@ -26,9 +26,9 @@ const std::array<uint32_t, 64> md5_t::k_sine{
   0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
 
 const std::array<uint32_t, 64> md5_t::s_shift{7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-                                            5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
-                                            4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-                                            6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
+                                              5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
+                                              4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+                                              6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
 
 uint32_t md5_t::leftrotate(uint32_t x, uint32_t n)
 {
@@ -71,10 +71,12 @@ void md5_t::step(const std::array<uint32_t, 16>& chunck)
         break;
     }
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     f = f + a + k_sine[i] + chunck[g];
     a = d;
     d = c;
     c = b;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     b = b + leftrotate(f, s_shift[i]);
   }
 
@@ -91,17 +93,21 @@ void md5_t::update(const std::vector<uint8_t>& input)
 
   for(const auto byte: input)
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     buffer[offset++] = byte;
 
     // 512-bits chunk available, call step
     if(offset % 64 == 0)
     {
-      std::array<uint32_t, 16> chunk;
+      std::array<uint32_t, 16> chunk{};
 
       for(size_t i = 0; i < chunk.size(); ++i)
       {
-        chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24 | static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16 |
-                   static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8 | static_cast<uint32_t>(buffer[(i * 4)]);
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+        chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24U |
+                   static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16U |
+                   static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8U | static_cast<uint32_t>(buffer[(i * 4)]);
+        // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
       }
 
       step(chunk);
@@ -112,7 +118,7 @@ void md5_t::update(const std::vector<uint8_t>& input)
 
 std::array<uint8_t, 16> md5_t::finalize()
 {
-  size_t offset = size % 64;
+  const size_t offset = size % 64;
 
   // Pad the input (always present)
   const size_t padding_len = offset < 56 ? 56 - offset : 120 - offset;
@@ -122,25 +128,27 @@ std::array<uint8_t, 16> md5_t::finalize()
 
   // Process last block with two last words containing the input size
   size -= padding_len;
-  std::array<uint32_t, 16> chunk;
+  std::array<uint32_t, 16> chunk{};
   for(size_t i = 0; i < 14; ++i)
   {
-    chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24 | static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16 |
-               static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8 | static_cast<uint32_t>(buffer[(i * 4)]);
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+    chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24U | static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16U |
+               static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8U | static_cast<uint32_t>(buffer[(i * 4)]);
+    // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
   }
   chunk[14] = static_cast<uint32_t>(size * 8);
-  chunk[15] = static_cast<uint32_t>((size * 8) >> 32);
+  chunk[15] = static_cast<uint32_t>((size * 8) >> 32U);
   step(chunk);
 
   return std::array<uint8_t, 16>{
-    static_cast<uint8_t>(a0 & 0x000000ff),         static_cast<uint8_t>((a0 & 0x0000ff00) >> 8),
-    static_cast<uint8_t>((a0 & 0x00ff0000) >> 16), static_cast<uint8_t>((a0 & 0xff000000) >> 24),
-    static_cast<uint8_t>(b0 & 0x000000ff),         static_cast<uint8_t>((b0 & 0x0000ff00) >> 8),
-    static_cast<uint8_t>((b0 & 0x00ff0000) >> 16), static_cast<uint8_t>((b0 & 0xff000000) >> 24),
-    static_cast<uint8_t>(c0 & 0x000000ff),         static_cast<uint8_t>((c0 & 0x0000ff00) >> 8),
-    static_cast<uint8_t>((c0 & 0x00ff0000) >> 16), static_cast<uint8_t>((c0 & 0xff000000) >> 24),
-    static_cast<uint8_t>(d0 & 0x000000ff),         static_cast<uint8_t>((d0 & 0x0000ff00) >> 8),
-    static_cast<uint8_t>((d0 & 0x00ff0000) >> 16), static_cast<uint8_t>((d0 & 0xff000000) >> 24),
+    static_cast<uint8_t>(a0 & 0x000000ffU),          static_cast<uint8_t>((a0 & 0x0000ff00U) >> 8U),
+    static_cast<uint8_t>((a0 & 0x00ff0000U) >> 16U), static_cast<uint8_t>((a0 & 0xff000000U) >> 24U),
+    static_cast<uint8_t>(b0 & 0x000000ffU),          static_cast<uint8_t>((b0 & 0x0000ff00U) >> 8U),
+    static_cast<uint8_t>((b0 & 0x00ff0000U) >> 16U), static_cast<uint8_t>((b0 & 0xff000000U) >> 24U),
+    static_cast<uint8_t>(c0 & 0x000000ffU),          static_cast<uint8_t>((c0 & 0x0000ff00U) >> 8U),
+    static_cast<uint8_t>((c0 & 0x00ff0000U) >> 16U), static_cast<uint8_t>((c0 & 0xff000000U) >> 24U),
+    static_cast<uint8_t>(d0 & 0x000000ffU),          static_cast<uint8_t>((d0 & 0x0000ff00U) >> 8U),
+    static_cast<uint8_t>((d0 & 0x00ff0000U) >> 16U), static_cast<uint8_t>((d0 & 0xff000000U) >> 24U),
   };
 }
 
