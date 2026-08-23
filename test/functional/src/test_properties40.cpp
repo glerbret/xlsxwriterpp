@@ -6,13 +6,18 @@
 
 #include "xlsxwriterpp.h"
 
+#include <chrono>
+
+using namespace std::literals::chrono_literals;
+
 int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   workbook.set_custom_property("Checked by", "Adam");
-  workbook.set_custom_property("Date completed", xwpp::datetime_t{2016, 12, 12, 23, 0, 0});
+  workbook.set_custom_property("Date completed",
+                               std::chrono::sys_days{2016y / std::chrono::December / 12d} + 23h + 0min + 0s);
   workbook.set_custom_property("Document number", 12345);
   workbook.set_custom_property("Reference", 1.2345);
   workbook.set_custom_property("Source", true);
@@ -24,5 +29,5 @@ int main()
   worksheet.write_string(CELL("A1"), "Select 'Office Button -> Prepare -> Properties' to see the file properties.",
                          nullptr);
 
-  workbook.save("test_properties04.xlsx");
+  workbook.save("test_properties40.xlsx");
 }

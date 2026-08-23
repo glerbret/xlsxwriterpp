@@ -1967,6 +1967,21 @@ void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
   write_datetime(row_num, col_num, datetime, nullptr);
 }
 
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime,
+                                 const format_t* format)
+{
+  check_dimensions(row_num, col_num, false, false);
+  datetime_validate(datetime);
+  const double excel_date = datetime_to_excel_date_with_epoch(datetime, use_1904_epoch_);
+  const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
+  insert_cell(row_num, col_num, cell);
+}
+
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime)
+{
+  write_datetime(row_num, col_num, datetime, nullptr);
+}
+
 void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);

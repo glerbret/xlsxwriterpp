@@ -24,18 +24,62 @@ as a date you must apply an Excel number format to it. Here is an example:
 Some options for creating or converting dates to the correct format are shown
 below.
 
-@section ww_date_struct Writing datetimes with `std::chrono`
+@section ww_date_struct Writing datetimes with `datetime_t`
 
 To make working with dates and times a little easier the `Xlsxwriter++`
-library provides the `worksheet_t::write_datetime()` function.
+library provides the `worksheet_t::write_datetime()` function and
+the `datetime_t` struct.
+
+The members of the `datetime_t` struct and the range of their values are:
+
+  Member   | Value
+  -------- | -----------
+  year_    | 1900 - 9999
+  month_   | 1 - 12
+  day_     | 1 - 31
+  hour_    | 0 - 23
+  min_     | 0 - 59
+  sec_     | 0 - 59.999
 
 Dates in Excel do not support timezones and the maximum resolution of times is
 milliseconds.
 
-Using `worksheet_t::write_datetime()` the previous example can
-then be re-written as follows:
+If dates or times are required without the other you should initialize the
+unrequired values to `0`:
+
+@code
+    // Date and time.
+    xwpp::datetime_t datetime1 = {2014, 11, 25, 17, 45, 5.1};
+
+    // Date only.
+    xwpp::datetime_t datetime2 = {2014, 11, 25, 0, 0, 0};
+    // or
+    xwpp::datetime_t datetime2 = {.year_ = 2014, .month_ = 11, .day_ = 25};
+
+    // Time only.
+    xwpp::datetime_t datetime3 = {0, 0, 0, 17, 45, 5.1};
+    // or
+    xwpp::datetime_t datetime3 = {.hour_ = 17, .min_ = 45, .sec_ = 5.1};
+@endcode
+
+Using `datetime_t` and `worksheet_t::write_datetime()` the previous example
+can then be re-written as follows:
 
 @dontinclude dates_and_times02.cpp
+@skip include
+@until save
+@until }
+
+The output from this program is the same as the previous example.
+
+@image html date_example02.png
+
+@section ww_date_chrono Writing datetimes with `std::chrono`
+
+The `worksheet_t::write_datetime()` function also support date and time
+through `std::chrono`:
+
+@dontinclude dates_and_times03.cpp
 @skip include
 @until save
 @until }
@@ -53,7 +97,7 @@ which is a common integer time format. It is defined as the number of seconds si
 The `worksheet_t::write_unixtime()` function can be used to write dates and times
 in this format. Negative values can also be used for dates prior to 1970:
 
-@dontinclude dates_and_times03.cpp
+@dontinclude dates_and_times04.cpp
 @skip include
 @until }
 
@@ -66,7 +110,7 @@ The output from this program is:
 Dates can be formatted using any of the date formats supported by Excel. Here
 is a longer example that shows the same date in a several different formats:
 
-@dontinclude dates_and_times04.cpp
+@dontinclude dates_and_times05.cpp
 @skip include
 @until save
 @until }

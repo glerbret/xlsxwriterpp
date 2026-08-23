@@ -150,7 +150,7 @@ enum class validation_types_t
    * cell range. */
   LIST_FORMULA,
 
-  /** Restrict cell input to date values only, using a lxw_datetime type. */
+  /** Restrict cell input to date values only, using a datetime_t type. */
   DATE,
 
   /** Restrict cell input to date values only, using a cell reference. */
@@ -160,7 +160,7 @@ enum class validation_types_t
    * Undocumented. */
   DATE_NUMBER,
 
-  /** Restrict cell input to time values only, using a lxw_datetime type. */
+  /** Restrict cell input to time values only, using a datetime_t type. */
   TIME,
 
   /** Restrict cell input to time values only, using a cell reference. */
@@ -1074,7 +1074,7 @@ struct data_validation_t
    *
    * @todo Manage internally with a port of lxw_datetime, some for other datetime.
    */
-  std::chrono::system_clock::time_point value_datetime_;
+  datetime_t value_datetime_;
 
   /**
    * This parameter is the same as `%value_number_` but for the minimum value
@@ -1092,7 +1092,7 @@ struct data_validation_t
    * This parameter is the same as `%value_datetime_` but for the minimum value
    * when a `BETWEEN` criteria is used.
    */
-  std::chrono::system_clock::time_point minimum_datetime_;
+  datetime_t minimum_datetime_;
 
   /**
    * This parameter is the same as `%value_number_` but for the maximum value
@@ -1110,7 +1110,7 @@ struct data_validation_t
    * This parameter is the same as `%value_datetime_` but for the maximum value
    * when a `BETWEEN` criteria is used.
    */
-  std::chrono::system_clock::time_point maximum_datetime_;
+  datetime_t maximum_datetime_;
 
   /**
    * The `%input_title_` parameter is used to set the title of the input message
@@ -2849,6 +2849,10 @@ public:
    *
    * @todo Add overload with other date and time type (including lxw_datetime).
    */
+  void write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime, const format_t* format);
+  /// @overload
+  void write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime);
+  /// @overload
   void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime,
                       const format_t* format);
   /// @overload
@@ -2871,7 +2875,7 @@ public:
    * the Unix epoch (1970-01-01 00:00 UTC). Negative values can also be used for
    * dates prior to 1970:
    *
-   * @dontinclude dates_and_times03.cpp
+   * @dontinclude dates_and_times04.cpp
    * @skip 1970
    * @until 2208988800
    *

@@ -129,13 +129,13 @@ The equivalent parameters in `Xlsxwriter++` are defined in
   in a dropdown, using a cell range.
 
 - `validation_types_t::DATE`: Restrict cell input to date values only, using a
-  lxw_datetime type.
+  `datetime_t` type.
 
 - `validation_types_t::DATE_FORMULA`: Restrict cell input to date values only,
   using a cell reference.
 
 - `validation_types_t::TIME`: Restrict cell input to time values only, using a
-  lxw_datetime type.
+  `datetime_t` type.
 
 - `validation_types_t::TIME_FORMULA`: Restrict cell input to time values only,
   using a cell reference.
@@ -244,16 +244,16 @@ sets of data you should use a range reference like the previous example above.
 
 The `%value_datetime_` parameter is used to set the limiting value to which the
 `validation_types_t::DATE` or `validation_types_t::TIME` criteria is applied
-using a `std::chrono::system_clock::time_point`:
+using a `datetime_t`:
 
 @code
   data_validation.validate_       = xwpp::validation_types_t::DATE;
   data_validation.criteria_       = xwpp::validation_criteria_t::EQUAL;
-  data_validation.value_datetime_ = std::chrono::sys_days{2017y / std::chrono::September / 25d} + 0h + 0min + 0s;
+  data_validation.value_datetime_ = {2017, 9, 25d, 0, 0, 0.};
 
   data_validation.validate_       = xwpp::validation_types_t::TIME;
   data_validation.criteria_       = xwpp::validation_criteria_t::EQUAL;
-  data_validation.value_datetime_ = std::chrono::system_clock::time_point{12h + 30min + 0s};
+  data_validation.value_datetime_ = {0, 0, 0, 12, 30, 0.};
 @endcode
 
 The `%minimum_` and `%maximum_` parameters are used to set the lower and upper
@@ -282,8 +282,8 @@ They are similar to the `%value_` parameters described above. For example:
 
   data_validation.validate_         = xwpp::validation_types_t::DATE;
   data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
-  data_validation.minimum_datetime_ = std::chrono::sys_days{2024y / std::chrono::January / 1d} + 0h + 0min + 0s;
-  data_validation.maximum_datetime_ = std::chrono::sys_days{2024y / std::chrono::December / 12d} + 0h + 0min + 0s;
+  data_validation.minimum_datetime_ = {2024, 1, 1, 0, 0, 0.};
+  data_validation.maximum_datetime_ = {2024, 12, 12, 0, 0, 0.};
 @endcode
 
 @section ww_data_validate_options Data validation options
@@ -432,8 +432,8 @@ set using `error_message`. It is on by default.
   // Restrict input to a date between 1/1/2008 and 12/12/2008.
   data_validation.validate_         = xwpp::validation_types_t::DATE;
   data_validation.criteria_         = xwpp::validation_criteria_t::BETWEEN;
-  data_validation.minimum_datetime_ = std::chrono::sys_days{2008y / std::chrono::January / 1d} + 0h + 0min + 0s;
-  data_validation.maximum_datetime_ = std::chrono::sys_days{2008y / std::chrono::December / 12d} + 0h + 0min + 0s;
+  data_validation.minimum_datetime_ = {2008, 1, 1, 0, 0, 0.};
+  data_validation.maximum_datetime_ = {2008, 12, 12, 0, 0, 0.};
 
   // Restrict input to a string longer than 3 characters.
   data_validation.validate_         = xwpp::validation_types_t::LENGTH;

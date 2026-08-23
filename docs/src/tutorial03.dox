@@ -34,7 +34,7 @@ added a new `format_t` object for dates and we have additional
 handling for the date information.
 
 We have also extended the data that we are going to write to include a
-lxw_datetime struct to hold the date information. We will see how that is used
+`datetime_t` struct to hold the date information. We will see how that is used
 shortly.
 
 @dontinclude tutorial3.cpp
@@ -64,10 +64,10 @@ The handling of dates is also new to our program.
 
 Dates and times in Excel are floating point numbers that have a number format
 applied to display them in the correct format. `Xlsxwriter++` provides the
-`worksheet_t::write_datetime()` and the lxw_datetime struct help to convert dates
+`worksheet_t::write_datetime()` and the `datetime_t` struct help to convert dates
 and times into Excel date and time numbers.
 
-The `worksheet_t::write_datetime()` function converts the lxw_datetime struct to a
+The `worksheet_t::write_datetime()` function converts the `datetime_t` struct to a
 number that represents an Excel date but we also need to add the number format
 to ensure that Excel displays it as as date:
 

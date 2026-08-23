@@ -20,6 +20,7 @@
   - Add const.
 - Simplify exception (no inheritance).
 - Use dedicated implementation of MD5 instead of OpenSSL.
+- Port datetime_t (lxw_datetime) from libxlsxwriter.
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 

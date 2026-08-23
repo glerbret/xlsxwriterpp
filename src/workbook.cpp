@@ -256,6 +256,24 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::s
     throw xwpp_exception_t("workbook_t::set_custom_property(): date is not set.");
   }
 
+  custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), to_datetime(value));
+}
+
+void workbook_t::set_custom_property(std::string_view name, const datetime_t& value)
+{
+  if(name.empty())
+  {
+    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
+  }
+
+  if(name.size() > 255)
+  {
+    throw xwpp_exception_t(
+      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
+  }
+
+  datetime_validate(value);
+
   custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
 }
 

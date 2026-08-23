@@ -22,3 +22,6 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
 
     def test_simple04(self):
         self.run_exe_test('test_simple04')
+
+    def test_simple40(self):
+        self.run_exe_test('test_simple40', 'simple04.xlsx')

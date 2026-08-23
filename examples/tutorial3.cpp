@@ -12,11 +12,8 @@
 
 #include "xlsxwriterpp.h"
 
-#include <chrono>
 #include <string>
 #include <vector>
-
-using namespace std::literals::chrono_literals;
 
 int main()
 {
@@ -24,22 +21,14 @@ int main()
   {
     std::string item_;
     int cost_ = 0;
-    std::chrono::system_clock::time_point datetime_;
+    xwpp::datetime_t datetime_;
   };
 
   const std::vector<expense> expenses{
-    {.item_     = "Rent",
-     .cost_     = 1000,
-     .datetime_ = std::chrono::sys_days{2013y / std::chrono::January / 13d} + 0h + 0min + 0s},
-    {.item_     = "Gas",
-     .cost_     = 100,
-     .datetime_ = std::chrono::sys_days{2013y / std::chrono::January / 14d} + 0h + 0min + 0s},
-    {.item_     = "Food",
-     .cost_     = 300,
-     .datetime_ = std::chrono::sys_days{2013y / std::chrono::January / 16d} + 0h + 0min + 0s},
-    {.item_     = "Gym",
-     .cost_     = 50,
-     .datetime_ = std::chrono::sys_days{2013y / std::chrono::January / 20d} + 0h + 0min + 0s},
+    {.item_ = "Rent", .cost_ = 1000, .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 13}},
+    {.item_ = "Gas",  .cost_ = 100,  .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 14}},
+    {.item_ = "Food", .cost_ = 300,  .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 16}},
+    {.item_ = "Gym",  .cost_ = 50,   .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 17}},
   };
 
   // Create a workbook and add a worksheet.

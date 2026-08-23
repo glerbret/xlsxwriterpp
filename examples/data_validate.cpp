@@ -162,8 +162,8 @@ int main()
     const xwpp::data_validation_t data_validation{
       .validate_         = xwpp::validation_types_t::DATE,
       .criteria_         = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_datetime_ = std::chrono::sys_days{2024y / std::chrono::January / 1d} + 0h + 0min + 0s,
-      .maximum_datetime_ = std::chrono::sys_days{2024y / std::chrono::December / 12d} + 0h + 0min + 0s,
+      .minimum_datetime_ = {2024, 1,  1,  0, 0, 0},
+      .maximum_datetime_ = {2024, 12, 12, 0, 0, 0},
     };
     worksheet.data_validation_cell(CELL("B17"), data_validation);
   }
@@ -175,8 +175,8 @@ int main()
     const xwpp::data_validation_t data_validation{
       .validate_         = xwpp::validation_types_t::TIME,
       .criteria_         = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_datetime_ = std::chrono::system_clock::time_point{6h + 0min + 0s},
-      .maximum_datetime_ = std::chrono::system_clock::time_point{12h + 0min + 0s},
+      .minimum_datetime_ = {0, 0, 0, 6,  0, 0},
+      .maximum_datetime_ = {0, 0, 0, 12, 0, 0},
     };
     worksheet.data_validation_cell(CELL("B19"), data_validation);
   }

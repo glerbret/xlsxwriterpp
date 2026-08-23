@@ -123,30 +123,46 @@ uint16_t name_to_col_2(std::string_view col_str);
 std::string dup_formula(const std::string& formula);
 
 /**
+ * @brief Convert a `%system_clock::time_point` to a `datetime_t`.
+ *
+ * @param datetime  The `%system_clock::time_point` to convert.
+ *
+ * @return The converted `datetime_t`.
+ */
+datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime);
+
+/**
  * @brief Converts a `%system_clock::time_point` to an Excel datetime number with
  * 1900/1904 epoch.
  *
- * @param datetime A `%system_clock::time_point`.
+ * @param datetime       A date and time.
  * @param use_1904_epoch A flag to indicate whether to use the 1904 epoch (true)
  *  or the 1900 epoch (false).
+ *
+ * @return A double representing an Excel datetime.
+ *
+ * @throw xwpp::xwpp_exception_t.
  *
  * This function is similar to `datetime_to_excel_datetime()` but it allows
  * you to specify whether to use the 1900 or 1904 epoch.
  *
  * @see The `workbook_t::use_1904_epoch()` function.
  *
- * @todo Add again the overload using "lxw_datetime".
- * @todo Add Other overloads.
+ * @todo Add Other overloads (tm).
  * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
+double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
+/// @overload
 double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch);
 
 /**
  * @brief Converts a `%system_clock::time_point` to an Excel datetime number.
  *
- * @param datetime A `%system_clock::time_point`.
+ * @param datetime A date and time.
  *
  * @return A double representing an Excel datetime.
+ *
+ * @throw xwpp::xwpp_exception_t.
  *
  * The `%datetime_to_excel_datetime()` function converts a datetime in
  * `%system_clock::time_point` to an Excel datetime number:
@@ -159,36 +175,37 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
  *
  * @see @ref working_with_dates for more details on the Excel datetime format.
  *
- * @todo Add again the overload using "lxw_datetime" (and don't forget document "working with datetime").
- * @todo Add Other overloads.
+ * @todo Add Other overloads (tm).
  * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
+double datetime_to_excel_datetime(const datetime_t& datetime);
+/// @overload
 double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime);
 
-// /**
-//  * @brief Validate a #lxw_datetime struct.
-//  *
-//  * Validates a #lxw_datetime struct to ensure its fields are within acceptable
-//  * ranges for Excel dates and times.
-//  *
-//  * The members of the #lxw_datetime struct and the range of their values are:
-//  *
-//  * Member   | Value
-//  * -------- | -----------
-//  * year     | 1900 - 9999
-//  * month    | 1 - 12
-//  * day      | 1 - 31
-//  * hour     | 0 - 23
-//  * min      | 0 - 59
-//  * sec      | 0 - 59.999
-//  *
-//  * @param datetime A pointer to a #lxw_datetime struct.
-//  *
-//  * @return A #lxw_error code. Either #LXW_NO_ERROR or
-//  *         #LXW_ERROR_DATETIME_VALIDATION if a field is out of range.
-//  */
-// TODO Set again lxw_datetime
-// lxw_error lxw_datetime_validate(lxw_datetime *datetime);
+/**
+ * @brief Validate a `datetime_t` struct.
+ *
+ * Validates a `datetime_t` struct to ensure its fields are within acceptable
+ * ranges for Excel dates and times.
+ *
+ * The members of the `datetime_t` struct and the range of their values are:
+ *
+ * Member   | Value
+ * -------- | -----------
+ * year_    | 1900 - 9999
+ * month_   | 1 - 12
+ * day_     | 1 - 31
+ * hour_    | 0 - 23
+ * min_     | 0 - 59
+ * sec_     | 0 - 59.999
+ *
+ * @param datetime A `datetime_t`.
+ *
+ * @throw xwpp::xwpp_exception_t.
+ *
+ * @todo Better check for day number.
+ */
+void datetime_validate(const datetime_t& datetime);
 
 /**
  * @brief Converts a unix datetime to an Excel datetime number with 1900/1904
