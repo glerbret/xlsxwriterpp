@@ -12,11 +12,7 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     """
 
     def test_date_1904_01(self):
-        # TODO Temporary disable
-        #    self.run_exe_test('test_date_1904_01')
-        pass
+        self.run_exe_test('test_date_1904_01')
 
     def test_date_1904_02(self):
-        # TODO Temporary disable
-        # self.run_exe_test('test_date_1904_02')
-        pass
+        self.run_exe_test('test_date_1904_02')

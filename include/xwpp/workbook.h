@@ -161,8 +161,6 @@ struct doc_properties_t
    * @note This defaults to the current time and date. If you wish to create files that are
    * binary equivalent (for the same input data) then you should set this
    * creation date/time to a known value.
-   *
-   * @todo Manage internally with a port of lxw_datetime.
    */
   std::chrono::system_clock::time_point created_;
 
@@ -300,7 +298,7 @@ public:
    *
    * @todo Add overload for all integer types (template)
    * @todo Add overload for all float types (template)
-   * @todo Add overload with tm, ... (including lxw_datetime)
+   * @todo Add overload with tm, ...
    * @todo Use string_view instead of two overloads (std::string and char*)
    */
   void set_custom_property(std::string_view name, const std::string& value);
@@ -314,6 +312,8 @@ public:
   void set_custom_property(std::string_view name, bool value);
   /// @overload
   void set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value);
+  /// @overload
+  void set_custom_property(std::string_view name, const datetime_t& value);
   /// @overload
   void set_custom_property(std::string_view name, const std::chrono::year_month_day& value);
 

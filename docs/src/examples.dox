@@ -120,8 +120,8 @@ A tutorial program which is shown, with explanations, in @ref tutorial03.
 
 Example of writing a dates and time in Excel using a number with date
 formatting. This demonstrates that dates and times in Excel are just formatted
-real numbers. An easier approach using a `std::chrono` is shown in the
-next example.
+real numbers. An easier approach using `datetime_t` or `std::chrono` is shown in the
+next examples.
 
 @image html date_example01.png
 
@@ -134,7 +134,7 @@ next example.
 </tr>
 </table>
 
-Example of writing dates and times in Excel using `std::chrono` and
+Example of writing dates and times in Excel using a `datetime_t` struct and
 date formatting.
 
 @image html date_example02.png
@@ -148,16 +148,31 @@ date formatting.
 </tr>
 </table>
 
-Example of writing dates and times in Excel using Unix datetimes and
-formatting.
+Example of writing dates and times in Excel using `std::chrono` and
+date formatting.
 
-@image html date_example03.png
+@image html date_example02.png
+
 
 @example dates_and_times04.cpp
 
 <table  width="600">
 <tr>
   <td>@ref dates_and_times03.cpp "&lt;&lt; dates_and_times03.cpp"</td>
+  <td align="right">@ref dates_and_times05.cpp "dates_and_times05.cpp &gt;&gt;"</td>
+</tr>
+</table>
+
+Example of writing dates and times in Excel using Unix datetimes and
+formatting.
+
+@image html date_example03.png
+
+@example dates_and_times05.cpp
+
+<table  width="600">
+<tr>
+  <td>@ref dates_and_times04.cpp "&lt;&lt; dates_and_times04.cpp"</td>
   <td align="right">@ref hyperlinks.cpp "hyperlinks.cpp &gt;&gt;"</td>
 </tr>
 </table>
@@ -170,7 +185,7 @@ Example of writing dates and times in Excel using different date formats.
 
 <table  width="600">
 <tr>
-  <td>@ref dates_and_times04.cpp "&lt;&lt; dates_and_times04.cpp"</td>
+  <td>@ref dates_and_times05.cpp "&lt;&lt; dates_and_times05.cpp"</td>
   <td align="right">@ref rich_strings.cpp "rich_strings.cpp &gt;&gt;"</td>
 </tr>
 </table>

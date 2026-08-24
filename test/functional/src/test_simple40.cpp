@@ -22,8 +22,8 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  worksheet.write_datetime(0, 0, xwpp::datetime_t{0, 0, 0, 12, 0, 0}, format1);
-  worksheet.write_datetime(1, 0, xwpp::datetime_t{2013, 1, 27, 0, 0, 0}, format2);
+  worksheet.write_datetime(0, 0, std::chrono::system_clock::time_point{12h + 0min + 0s}, format1);
+  worksheet.write_datetime(1, 0, std::chrono::sys_days{2013y / std::chrono::January / 27d} + 0h + 0min + 0s, format2);
 
-  workbook.save("test_simple04.xlsx");
+  workbook.save("test_simple40.xlsx");
 }

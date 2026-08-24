@@ -1,5 +1,5 @@
 /*
- * Example of writing dates and times in Excel using std::chrono
+ * Example of writing dates and times in Excel using a datetime_t struct
  * and date formatting.
  *
  * Copyright 2026, Grégory Lerbret
@@ -9,14 +9,10 @@
 
 #include "xlsxwriterpp.h"
 
-#include <chrono>
-
-using namespace std::literals::chrono_literals;
-
 int main()
 {
   // A datetime to display.
-  const auto datetime = std::chrono::sys_days{2013y / std::chrono::February / 28d} + 12h + 0min + 0s;
+  const xwpp::datetime_t datetime = {.year_ = 2013, .month_ = 2, .day_ = 28, .hour_ = 12};
 
   // Create a new workbook and add a worksheet.
   xwpp::workbook_t workbook;

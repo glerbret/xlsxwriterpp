@@ -72,12 +72,10 @@ BOOST_AUTO_TEST_CASE(condtional_format11)
   worksheet.write_number(CELL("A4"), 40);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::BETWEEN,
-    .min_value_ =
-      xwpp::datetime_to_excel_datetime(std::chrono::sys_days{2011y / std::chrono::January / 1d} + 0h + 0min + 0s),
-    .max_value_ =
-      xwpp::datetime_to_excel_datetime(std::chrono::sys_days{2011y / std::chrono::December / 31d} + 0h + 0min + 0s),
+    .type_      = xwpp::conditional_format_types_t::CELL,
+    .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
+    .min_value_ = xwpp::datetime_to_excel_datetime(xwpp::datetime_t{2011, 1, 1, 0, 0, 0}),
+    .max_value_ = xwpp::datetime_to_excel_datetime(xwpp::datetime_t{2011, 12, 31, 0, 0, 0}),
   };
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
 

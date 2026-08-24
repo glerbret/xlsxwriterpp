@@ -1,6 +1,6 @@
 /*
- * Example of writing dates and times in Excel using a Unix datetime and date
- * formatting.
+ * Example of writing dates and times in Excel using std::chrono
+ * and date formatting.
  *
  * Copyright 2026, Grégory Lerbret
  *
@@ -9,8 +9,15 @@
 
 #include "xlsxwriterpp.h"
 
+#include <chrono>
+
+using namespace std::literals::chrono_literals;
+
 int main()
 {
+  // A datetime to display.
+  const auto datetime = std::chrono::sys_days{2013y / std::chrono::February / 28d} + 12h + 0min + 0s;
+
   // Create a new workbook and add a worksheet.
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
@@ -22,15 +29,11 @@ int main()
   // Widen the first column to make the text clearer.
   worksheet.set_column(0, 0, 22);
 
-  // Write some Unix datetimes with formatting.
-  // 1970-01-01. The Unix epoch.
-  worksheet.write_unixtime(0, 0, 0, format);
+  // Write the datetime without formatting.
+  worksheet.write_datetime(0, 0, datetime); // 41333.5
 
-  // 2000-01-01.
-  worksheet.write_unixtime(1, 0, 1577836800LL, format);
+  // Write the datetime with formatting.
+  worksheet.write_datetime(1, 0, datetime, format); // Feb 28 2013 12:00 PM
 
-  // 1900-01-01.
-  worksheet.write_unixtime(2, 0, -2208988800LL, format);
-
-  workbook.save("date_and_times03.xlsx");
+  workbook.save("date_and_times02.xlsx");
 }

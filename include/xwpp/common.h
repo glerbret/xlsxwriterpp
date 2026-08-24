@@ -39,25 +39,26 @@ using row_num_t = uint32_t;
  */
 using col_num_t = uint16_t;
 
-// TODO Add again (in complement of std::ptime)
-// /** @brief Struct to represent a date and time in Excel.
-//  *
-//  * Struct to represent a date and time in Excel. See @ref working_with_dates.
-//  */
-// typedef struct lxw_datetime {
-// /** Year     : 1900 - 9999 */
-//     int year;
-// /** Month    : 1 - 12 */
-//     int month;
-// /** Day      : 1 - 31 */
-//     int day;
-// /** Hour     : 0 - 23 */
-//     int hour;
-// /** Minute   : 0 - 59 */
-//     int min;
-// /** Seconds  : 0 - 59.999 */
-//     double sec;
-//};
+/**
+ * @brief Struct to represent a date and time in Excel.
+ *
+ * Struct to represent a date and time in Excel. See @ref working_with_dates.
+ */
+struct datetime_t
+{
+  /** Year     : 1900 - 9999 */
+  int year_   = 0;
+  /** Month    : 1 - 12 */
+  int month_  = 0;
+  /** Day      : 1 - 31 */
+  int day_    = 0;
+  /** Hour     : 0 - 23 */
+  int hour_   = 0;
+  /** Minute   : 0 - 59 */
+  int min_    = 0;
+  /** Seconds  : 0 - 59.999 */
+  double sec_ = 0.;
+};
 
 enum class custom_property_types_t
 {
@@ -66,7 +67,7 @@ enum class custom_property_types_t
   DOUBLE,
   INTEGER,
   BOOLEAN,
-  DATETIME
+  DATETIME,
 };
 
 enum class drawing_orientation_t
@@ -88,8 +89,9 @@ struct custom_property_t
 {
   custom_property_types_t type_ = custom_property_types_t::NONE;
   std::string name_;
-  std::variant<std::string, int32_t, double, bool, std::chrono::system_clock::time_point> value_;
+  std::variant<std::string, int32_t, double, bool, datetime_t> value_;
 };
+
 /// @cond
 }
 /// @endcond

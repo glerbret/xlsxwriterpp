@@ -49,10 +49,11 @@ namespace
   }
 }
 
-[[nodiscard]] std::string write(const std::chrono::system_clock::time_point& value)
+[[nodiscard]] std::string write(const datetime_t& value)
 {
   return xml_data_element("vt:filetime",
-                          std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(value)));
+                          std::format("{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z", value.year_, value.month_,
+                                      value.day_, value.hour_, value.min_, static_cast<int>(value.sec_)));
 }
 
 [[nodiscard]] std::string write_custom_property(size_t pid, const custom_property_t& property)
@@ -83,7 +84,7 @@ namespace
   }
   else if(property.type_ == custom_property_types_t::DATETIME)
   {
-    xml_data += write(std::get<std::chrono::system_clock::time_point>(property.value_));
+    xml_data += write(std::get<datetime_t>(property.value_));
   }
 
   xml_data += xml_end_tag("property");

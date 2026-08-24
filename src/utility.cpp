@@ -284,18 +284,55 @@ std::string dup_formula(const std::string& formula)
   }
 }
 
-double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
+datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
 {
   const auto date = std::chrono::floor<std::chrono::days>(datetime);
   const std::chrono::year_month_day ymd{date};
   const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - date)};
-  auto year      = static_cast<int>(ymd.year());
-  auto month     = static_cast<unsigned int>(ymd.month());
-  auto day       = static_cast<unsigned int>(ymd.day());
-  const int hour = static_cast<int>(time.hours().count());
-  const int min  = static_cast<int>(time.minutes().count());
-  const double sec =
-    static_cast<double>(time.seconds().count()) + (static_cast<double>(time.subseconds().count()) / 1000.0);
+
+  const int year  = static_cast<int>(ymd.year());
+  const int month = static_cast<int>(static_cast<unsigned int>(ymd.month()));
+  const int day   = static_cast<int>(static_cast<unsigned int>(ymd.day()));
+
+  // time_point set to epoch date (1970-01-01) are time only
+  if(year == 1970 && month == 1 && day == 1)
+  {
+    return datetime_t{.year_  = 0,
+                      .month_ = 0,
+                      .day_   = 0,
+                      .hour_  = static_cast<int>(time.hours().count()),
+                      .min_   = static_cast<int>(time.minutes().count()),
+                      .sec_   = static_cast<double>(time.seconds().count()) +
+                              (static_cast<double>(time.subseconds().count()) / 1000.0)};
+  }
+
+  return datetime_t{.year_  = year,
+                    .month_ = month,
+                    .day_   = day,
+                    .hour_  = static_cast<int>(time.hours().count()),
+                    .min_   = static_cast<int>(time.minutes().count()),
+                    .sec_   = static_cast<double>(time.seconds().count()) +
+                            (static_cast<double>(time.subseconds().count()) / 1000.0)};
+}
+
+double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
+{
+  return datetime_to_excel_date_with_epoch(to_datetime(datetime), use_1904_epoch);
+}
+
+double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime)
+{
+  return datetime_to_excel_date_with_epoch(datetime, false);
+}
+
+double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch)
+{
+  int year         = datetime.year_;
+  int month        = datetime.month_;
+  int day          = datetime.day_;
+  const int hour   = datetime.hour_;
+  const int min    = datetime.min_;
+  const double sec = datetime.sec_;
   const int epoch  = use_1904_epoch ? 1904 : 1900;
   const int offset = use_1904_epoch ? 4 : 0;
   const int norm   = 300;
@@ -304,8 +341,10 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   int leap = 0;
   int days = 0;
 
-  // For times without dates (i.e. set to epoch) set the default date for the Excel epoch.
-  if(year == 1970 && month == 1 && day == 1)
+  datetime_validate(datetime);
+
+  // For times without dates set the default date for the epoch.
+  if(year == 0)
   {
     if(!use_1904_epoch)
     {
@@ -339,18 +378,18 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
       return seconds;
     }
 
-    // Excel false leapday.
+    // Excel false leapday
     if(year == 1900 && month == 2 && day == 29)
     {
       return 60 + seconds;
     }
   }
 
-  /* We calculate the date by calculating the number of days since the
-     epoch and adjust for the number of leap days. We calculate the
-     number of leap days by normalizing the year in relation to the
-     epoch. Thus the year 2000 becomes 100 for 4-year and 100-year
-     leapdays and 400 for 400-year leapdays. */
+  // We calculate the date by calculating the number of days since the
+  // epoch and adjust for the number of leap days. We calculate the
+  // number of leap days by normalizing the year in relation to the
+  // epoch. Thus the year 2000 becomes 100 for 4-year and 100-year
+  // leapdays and 400 for 400-year leapdays.
   const int range = year - epoch;
 
   if(year % 4 == 0 && (year % 100 > 0 || year % 400 == 0))
@@ -360,12 +399,7 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   }
 
   // Calculate the serial date by accumulating the number of days
-  //  since the epoch.
-
-  if(month > 12)
-  {
-    throw xwpp_exception_t(std::format("datetime_to_excel_date_with_epoch(): invalid month '{}'", month));
-  }
+  // since the epoch.
 
   // Add days for previous months.
   for(size_t i = 0; i < static_cast<size_t>(month) && i < mdays.size(); i++)
@@ -373,7 +407,7 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
     days += mdays[i];
   }
   // Add days for current month.
-  days += static_cast<int>(day);
+  days += day;
   // Add days for all previous years.
   days += range * 365;
   // Add 4 year leapdays.
@@ -394,73 +428,58 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
   return days + seconds;
 }
 
-double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime)
+double datetime_to_excel_datetime(const datetime_t& datetime)
 {
   return datetime_to_excel_date_with_epoch(datetime, false);
 }
 
-// lxw_error
-// lxw_datetime_validate(lxw_datetime *datetime)
-// {
-//     if (!datetime)
-//         return LXW_ERROR_DATETIME_VALIDATION;
+void datetime_validate(const datetime_t& datetime)
+{
+  // Excel uses the year 1900 as the default epoch but it uses 1899-12-31 as
+  // the 0 date and internally we use the 0-0-0 date for time only values.
+  if(datetime.year_ < 1900 && (datetime.year_ != 0 || datetime.month_ != 0 || datetime.day_ != 0) &&
+     (datetime.year_ != 1899 || datetime.month_ != 12 || datetime.day_ != 31))
+  {
+    throw xwpp_exception_t(
+      std::format("datetime_validate(): invalid year: {}. Valid range is 1900-9999.", datetime.year_));
+  }
 
-/*
- * Excel uses the year 1900 as the default epoch but it uses 1899-12-31 as
- * the 0 date and internally we use the 0-0-0 date for time only values.
- */
-//     if (datetime->year < 1900 &&
-//         !(datetime->year == 0 &&
-//           datetime->month == 0 && datetime->day == 0) &&
-//         !(datetime->year == 1899 &&
-//           datetime->month == 12 && datetime->day == 31)) {
+  if(datetime.year_ > 9999)
+  {
+    throw xwpp_exception_t(
+      std::format("datetime_validate(): invalid year: {}. Valid range is 1900-9999.", datetime.year_));
+  }
 
-//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid year: %d. "
-//                          "Valid range is 1900-9999.", datetime->year);
+  if(datetime.year_ != 0)
+  {
+    if(datetime.month_ < 1 || datetime.month_ > 12)
+    {
+      throw xwpp_exception_t(
+        std::format("datetime_validate(): invalid month: {}. Valid range is 1-12.", datetime.month_));
+    }
 
-//         return LXW_ERROR_DATETIME_VALIDATION;
-//     }
+    if(datetime.day_ < 1 || datetime.day_ > 31)
+    {
+      throw xwpp_exception_t(std::format("datetime_validate(): invalid day: {}. Valid range is 1-31.", datetime.day_));
+    }
+  }
 
-//     if (datetime->year > 9999) {
-//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid year: %d. "
-//                          "Valid range is 1900-9999.", datetime->year);
-//         return LXW_ERROR_DATETIME_VALIDATION;
-//     }
+  if(datetime.hour_ < 0 || datetime.hour_ > 23)
+  {
+    throw xwpp_exception_t(std::format("datetime_validate(): invalid hour: {}. Valid range is 0-23.", datetime.hour_));
+  }
 
-//     if (datetime->year != 0) {
-//         if (datetime->month < 1 || datetime->month > 12) {
-//             LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid month: %d. "
-//                              "Valid range is 1-12.", datetime->month);
-//             return LXW_ERROR_DATETIME_VALIDATION;
-//         }
+  if(datetime.min_ < 0 || datetime.min_ > 59)
+  {
+    throw xwpp_exception_t(std::format("datetime_validate(): invalid minute: {}. Valid range is 0-59.", datetime.min_));
+  }
 
-//         if (datetime->day < 1 || datetime->day > 31) {
-//             LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid day: %d. "
-//                              "Valid range is 1-31.", datetime->day);
-//             return LXW_ERROR_DATETIME_VALIDATION;
-//         }
-//     }
-
-//     if (datetime->hour < 0 || datetime->hour > 23) {
-//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid hour: %d. "
-//                          "Valid range is 0-23.", datetime->hour);
-//         return LXW_ERROR_DATETIME_VALIDATION;
-//     }
-
-//     if (datetime->min < 0 || datetime->min > 59) {
-//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid minute: %d. "
-//                          "Valid range is 0-59.", datetime->min);
-//         return LXW_ERROR_DATETIME_VALIDATION;
-//     }
-
-//     if (datetime->sec < 0.0 || datetime->sec >= 60.0) {
-//         LXW_WARN_FORMAT1("lxw_datetime_validate(): invalid seconds: %.3f. "
-//                          "Valid range is 0.0-59.999.", datetime->sec);
-//         return LXW_ERROR_DATETIME_VALIDATION;
-//     }
-
-//     return LXW_NO_ERROR;
-// }
+  if(datetime.sec_ < 0.0 || datetime.sec_ >= 60.0)
+  {
+    throw xwpp_exception_t(
+      std::format("datetime_validate(): invalid seconds: {}. Valid range is 0.0-59.999.", datetime.sec_));
+  }
+}
 
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 {
