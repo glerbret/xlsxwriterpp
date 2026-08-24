@@ -144,14 +144,6 @@ if(USE_SYSTEM_MINIZIP)
   list(APPEND XWPP_PRIVATE_COMPILE_DEFINITIONS USE_SYSTEM_MINIZIP)
 endif()
 
-# TODO Replace MD5_Init and co and remove this
-# For openSSL use
-if(MSVC)
-  add_compile_options(/wd4996)
-else()
-  add_compile_options(-Wno-deprecated-declarations)
-endif()
-
 if(NOT BUILD_SHARED_LIBS)
   if(UNIX)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -224,10 +216,6 @@ if(USE_SYSTEM_MINIZIP)
     list(APPEND XWPP_PRIVATE_INCLUDE_DIRS ${MINIZIP_INCLUDE_DIRS}/..)
   endif()
 endif()
-
-# Set the openssl includes.
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
 
 # ----------------------------
 # Set the library dependencies

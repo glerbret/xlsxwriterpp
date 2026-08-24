@@ -10,12 +10,11 @@
 
 #include "xwpp/drawing.h"
 #include "xwpp/exception.h"
+#include "xwpp/md5.h"
 #include "xwpp/shared_strings.h"
 #include "xwpp/styles.h"
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
-
-#include <openssl/md5.h>
 
 #include <algorithm>
 #include <array>
@@ -969,16 +968,7 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
 
   // Calculate an MD5 checksum for the image so that we can remove duplicate
   // images to reduce the xlsx file size.
-  MD5_CTX md5_context;
-  std::array<unsigned char, MD5_SIZE> md5_checksum{};
-  MD5_Init(&md5_context);
-  MD5_Update(&md5_context, buffer.data(), buffer.size());
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
-  MD5_Final(md5_checksum.data(), &md5_context);
-  for(const auto b: md5_checksum)
-  {
-    image_props.md5_ += std::format("{:02X}", b);
-  }
+  image_props.md5_ = md5_t::digest_to_string(buffer);
 }
 
 void get_image_properties(object_properties_t& image_props)
@@ -2090,8 +2080,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
   // Check the Excel limit of URLS per worksheet.
   if(hlink_count_ > MAX_NUMBER_URLS)
   {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::write_url(): max number of URL '{}' exceeded.", MAX_NUMBER_URLS));
+    throw xwpp_exception_t(std::format("worksheet_t::write_url(): max number of URL '{}' exceeded.", MAX_NUMBER_URLS));
   }
 
   check_dimensions(row_num, col_num, false, false);

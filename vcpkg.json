@@ -1,7 +1,6 @@
 {
   "dependencies": [
     "zlib",
-    "openssl",
     "boost-test"
   ]
 }

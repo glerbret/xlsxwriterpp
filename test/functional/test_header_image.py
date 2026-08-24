@@ -83,25 +83,21 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
             'xl/worksheets/sheet1.xml': ['<pageMargins', '<pageSetup']}
         self.run_exe_test('test_header_image14')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_header_image15(self):
         self.ignore_elements = {'xl/worksheets/sheet1.xml': ['<pageMargins', '<pageSetup'],
                                 'xl/worksheets/sheet2.xml': ['<pageMargins', '<pageSetup']}
         self.run_exe_test('test_header_image15')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_header_image16(self):
         self.ignore_elements = {'xl/worksheets/sheet1.xml': ['<pageMargins', '<pageSetup'],
                                 'xl/worksheets/sheet2.xml': ['<pageMargins', '<pageSetup']}
         self.run_exe_test('test_header_image16')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_header_image17(self):
         self.ignore_elements = {
             'xl/worksheets/sheet1.xml': ['<pageMargins', '<pageSetup']}
         self.run_exe_test('test_header_image17')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_header_image18(self):
         self.ignore_elements = {
             'xl/worksheets/sheet1.xml': ['<pageMargins', '<pageSetup']}

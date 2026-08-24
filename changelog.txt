@@ -9,16 +9,17 @@
 
 ## 0.2.0
 
-- Improve build process and CI
-  - Build with different options, including shared library
-  - Add clang-tidy and Cppcheck checks
-  - Treat warnings as errors
-- Improve code quality and robustness
-  - Fix clang-tidy and Cppcheck warnings
-  - Name consistency
-  - Use scope
-  - Add const
-- Simplify exception (no inheritance)
+- Improve build process and CI:
+  - Build with different options, including shared library.
+  - Add clang-tidy and Cppcheck checks.
+  - Treat warnings as errors.
+- Improve code quality and robustness:
+  - Fix clang-tidy and Cppcheck warnings.
+  - Name consistency.
+  - Use scope.
+  - Add const.
+- Simplify exception (no inheritance).
+- Use dedicated implementation of MD5 instead of OpenSSL.
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 

@@ -124,20 +124,15 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     def test_image47(self):
         self.run_exe_test('test_image47')
 
-    # Some of the following tests require MD5 hash support to remove duplicate images.
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image48(self):
         self.run_exe_test('test_image48')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image49(self):
         self.run_exe_test('test_image49')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image50(self):
         self.run_exe_test('test_image50')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image51(self):
         self.run_exe_test('test_image51')
 
@@ -175,15 +170,12 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     def test_image89(self):
         self.run_exe_test('test_image89', 'image03.xlsx')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image86(self):
         self.run_exe_test('test_image86', 'image48.xlsx')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image87(self):
         self.run_exe_test('test_image87', 'image50.xlsx')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_image88(self):
         self.run_exe_test('test_image88', 'image54.xlsx')
 

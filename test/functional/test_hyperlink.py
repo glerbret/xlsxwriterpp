@@ -175,7 +175,6 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     def test_hyperlink47(self):
         self.run_exe_test('test_hyperlink47')
 
-    @pytest.mark.skipif(os.environ.get('USE_NO_MD5'), reason="compiled without MD5 support")
     def test_hyperlink48(self):
         self.run_exe_test('test_hyperlink48')
 

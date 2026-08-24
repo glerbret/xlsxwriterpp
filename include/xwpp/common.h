@@ -69,9 +69,6 @@ enum class custom_property_types_t
   DATETIME
 };
 
-// Size of MD5 byte arrays.
-const size_t MD5_SIZE = 16;
-
 enum class drawing_orientation_t
 {
   LANDSCAPE,
