@@ -795,6 +795,12 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
     it += 4;
   }
 
+  // Ensure that we read some valid data from the file.
+  if(width == 0)
+  {
+    throw xwpp_exception_t("process_jpeg(): file not valid.");
+  }
+
   // Set the image metadata.
   image_props.image_type_ = image_types_t::PNG;
   image_props.width_      = width;
@@ -907,13 +913,23 @@ void process_bmp(object_properties_t& image_props, const std::vector<unsigned ch
   const uint32_t width = (*(it + 3) * 0x1000000) + (*(it + 2) * 0x10000) + (*(it + 1) * 0x100) + *it;
   it += 4;
 
-  const uint32_t height = (*(it + 3) * 0x1000000) + (*(it + 2) * 0x10000) + (*(it + 1) * 0x100) + *it;
+  const int32_t height =
+    static_cast<int32_t>(static_cast<uint32_t>(*(it + 3) * 0x1000000U) + static_cast<uint32_t>(*(it + 2) * 0x10000U) +
+                         static_cast<uint32_t>(*(it + 1) * 0x100U) + static_cast<uint32_t>(*it));
   it += 4;
+
+  // Ensure that we read some valid data from the file.
+  if(width == 0 || height == 0)
+  {
+    throw xwpp_exception_t("process_jpeg(): file not valid.");
+  }
 
   // Set the image metadata.
   image_props.image_type_ = image_types_t::BMP;
   image_props.width_      = width;
-  image_props.height_     = height;
+  // The height can be stored as negative for a top-down DIB so we need to
+  // take the absolute value.
+  image_props.height_     = height > 0 ? static_cast<uint32_t>(height) : static_cast<uint32_t>(-height);
   image_props.x_dpi_      = x_dpi;
   image_props.y_dpi_      = y_dpi;
   image_props.extension_  = "bmp";
@@ -933,6 +949,12 @@ void process_gif(object_properties_t& image_props, const std::vector<unsigned ch
 
   const uint16_t height = (*(it + 1) * 0x100) + *it;
   it += 2;
+
+  // Ensure that we read some valid data from the file.
+  if(width == 0)
+  {
+    throw xwpp_exception_t("process_jpeg(): file not valid.");
+  }
 
   // Set the image metadata.
   image_props.image_type_ = image_types_t::GIF;
