@@ -162,8 +162,8 @@ int main()
     const xwpp::data_validation_t data_validation{
       .validate_         = xwpp::validation_types_t::DATE,
       .criteria_         = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_datetime_ = {2024, 1,  1,  0, 0, 0},
-      .maximum_datetime_ = {2024, 12, 12, 0, 0, 0},
+      .minimum_datetime_ = {.year_ = 2024, .month_ = 1,  .day_ = 1,  .hour_ = 0, .min_ = 0, .sec_ = 0.},
+      .maximum_datetime_ = {.year_ = 2024, .month_ = 12, .day_ = 12, .hour_ = 0, .min_ = 0, .sec_ = 0.},
     };
     worksheet.data_validation_cell(CELL("B17"), data_validation);
   }
@@ -175,8 +175,8 @@ int main()
     const xwpp::data_validation_t data_validation{
       .validate_         = xwpp::validation_types_t::TIME,
       .criteria_         = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_datetime_ = {0, 0, 0, 6,  0, 0},
-      .maximum_datetime_ = {0, 0, 0, 12, 0, 0},
+      .minimum_datetime_ = {.year_ = 0, .month_ = 0, .day_ = 0, .hour_ = 6,  .min_ = 0, .sec_ = 0.},
+      .maximum_datetime_ = {.year_ = 0, .month_ = 0, .day_ = 0, .hour_ = 12, .min_ = 0, .sec_ = 0.},
     };
     worksheet.data_validation_cell(CELL("B19"), data_validation);
   }

@@ -11,6 +11,8 @@
 #include "xwpp/common.h"
 #include "xwpp/xmlwriter.h"
 
+#include <format>
+
 namespace xwpp
 {
 
@@ -57,18 +59,18 @@ std::string relationships_t::assemble_xml_file() const
     if(target_mode.empty())
     {
       xml_data += xml_empty_tag("Relationship", {
-                                                  {"Id",     "rId" + std::to_string(rel_id)},
-                                                  {"Type",   type                          },
-                                                  {"Target", target                        },
+                                                  {"Id", std::format("rId{}", std::to_string(rel_id))},
+                                                  {"Type", type},
+                                                  {"Target", target},
       });
     }
     else
     {
       xml_data += xml_empty_tag("Relationship", {
-                                                  {"Id",         "rId" + std::to_string(rel_id)},
-                                                  {"Type",       type                          },
-                                                  {"Target",     target                        },
-                                                  {"TargetMode", target_mode                   },
+                                                  {"Id", std::format("rId{}", std::to_string(rel_id))},
+                                                  {"Type", type},
+                                                  {"Target", target},
+                                                  {"TargetMode", target_mode},
       });
     }
   }

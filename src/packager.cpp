@@ -452,7 +452,7 @@ void packager_t::write_custom_file(const workbook_t& workbook)
     return;
   }
 
-  custom_t custom(workbook.custom_properties_);
+  const custom_t custom(workbook.custom_properties_);
 
   const std::string xml_data = custom.assemble_xml_file();
   add_buffer_to_zip(xml_data, "docProps/custom.xml");
@@ -490,20 +490,20 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
       if(ws.external_vml_comment_link_.has_value())
       {
-        auto comment = ws.external_vml_comment_link_.value();
-        relationships.add_worksheet(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+        const auto [type, target, target_mode] = ws.external_vml_comment_link_.value();
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       if(ws.external_vml_header_link_.has_value())
       {
-        auto header = ws.external_vml_header_link_.value();
-        relationships.add_worksheet(std::get<0>(header), std::get<1>(header), std::get<2>(header));
+        const auto [type, target, target_mode] = ws.external_vml_header_link_.value();
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       if(ws.external_background_link_.has_value())
       {
-        auto rel = ws.external_background_link_.value();
-        relationships.add_worksheet(std::get<0>(rel), std::get<1>(rel), std::get<2>(rel));
+        const auto [type, target, target_mode] = ws.external_background_link_.value();
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       for(const auto& [type, target, target_mode]: ws.external_table_links_)
@@ -513,8 +513,8 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
       if(ws.external_comment_link_.has_value())
       {
-        auto comment = ws.external_comment_link_.value();
-        relationships.add_worksheet(std::get<0>(comment), std::get<1>(comment), std::get<2>(comment));
+        const auto [type, target, target_mode] = ws.external_comment_link_.value();
+        relationships.add_worksheet(type, target, target_mode);
       }
 
       const std::string xml_data = relationships.assemble_xml_file();

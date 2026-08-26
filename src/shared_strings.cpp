@@ -69,8 +69,7 @@ std::string shared_strings_t::assemble_xml_file() const
 shared_strings_element_t shared_strings_t::get_index(const std::string& str, bool is_rich_string)
 {
   // If element already exists, return it
-  const auto it = rb_tree_.find(str);
-  if(it != std::end(rb_tree_))
+  if(const auto it = rb_tree_.find(str); it != std::end(rb_tree_))
   {
     string_count_++;
     return order_list_[it->second];

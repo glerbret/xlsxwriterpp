@@ -74,8 +74,8 @@ const uint32_t DEF_COL_WIDTH_PIXELS = 64;
 const uint32_t DEF_ROW_HEIGHT_PIXELS = 20;
 
 // Conversion functions.
-double pixels_to_height(double pixels);
-double pixels_to_width(double pixels);
+[[nodiscard]] double pixels_to_height(double pixels);
+[[nodiscard]] double pixels_to_width(double pixels);
 
 /**
  * @brief Gridline options.
@@ -85,7 +85,7 @@ double pixels_to_width(double pixels);
  * @todo Use `enum class`.
  */
 // NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
-enum gridlines_t
+enum gridlines_t : uint16_t
 {
   /** Hide screen and print gridlines. */
   HIDE_ALL_GRIDLINES = 0,
@@ -3152,8 +3152,8 @@ public:
   /* Don't document for now since the string option can be achieved by a
    * subsequent cell `write()` as shown in the docs, and the
    * tooltip option isn't very useful. */
-  void write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format,
-                 const std::string& str, const std::string& tooltip);
+  void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format,
+                 std::string_view str, std::string_view tooltip);
 
   /**
    * @brief Write a comment to a worksheet cell with options.
@@ -4467,7 +4467,7 @@ public:
    * - `ignore_errors_t::TWO_DIGIT_TEXT_YEAR`: Turn off errors/warnings for formulas
    *    that contain a two digit text representation of a year.
    */
-  void ignore_errors(ignore_errors_t type, const std::string& range);
+  void ignore_errors(ignore_errors_t type, std::string_view range);
 
   /**
    * @brief Set the printed page header caption.
@@ -4854,7 +4854,7 @@ public:
    *
    * @see @ref working_with_macros
    */
-  void set_vba_name(const std::string& name);
+  void set_vba_name(std::string_view name);
 
   /**
    * @brief Set the default author of the cell comments.
@@ -4872,7 +4872,7 @@ public:
    * `comment_options_t` struct and the `write_comment()`
    * function (see above and @ref ww_comments_author).
    */
-  void set_comments_author(const std::string& author);
+  void set_comments_author(std::string_view author);
 
   /**
    * @brief Set current worksheet as the first visible sheet tab.
@@ -5552,13 +5552,13 @@ private:
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
-  [[nodiscard]] uint32_t size_col(col_num_t col_num, object_position_t anchor);
-  [[nodiscard]] uint32_t size_row(row_num_t row_num, object_position_t anchor);
+  [[nodiscard]] uint32_t size_col(col_num_t col_num, object_position_t anchor) const;
+  [[nodiscard]] uint32_t size_row(row_num_t row_num, object_position_t anchor) const;
   [[nodiscard]] const row_t* find_row(row_num_t row_num) const;
   [[nodiscard]] static const cell_t* find_cell_in_row(const row_t* row, col_num_t col_num);
-  void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object);
-  void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object);
-  void position_vml_object(vml_obj_t& vml_obj);
+  void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object) const;
+  void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object) const;
+  void position_vml_object(vml_obj_t& vml_obj) const;
   [[nodiscard]] uint32_t find_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t find_vml_drawing_rel_index(const std::string& target);
   [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
@@ -5633,7 +5633,7 @@ private:
   [[nodiscard]] static std::string write_cf_rule_average(const cond_format_obj_t& cond_format);
   [[nodiscard]] static std::string write_cf_rule_top(const cond_format_obj_t& cond_format);
   [[nodiscard]] static std::string write_cf_rule_icons(cond_format_obj_t& cond_format);
-  [[nodiscard]] static std::string write_icon_set(cond_format_obj_t& cond_format);
+  [[nodiscard]] static std::string write_icon_set(const cond_format_obj_t& cond_format);
   [[nodiscard]] std::string write_ext_list_data_bars();
   [[nodiscard]] static std::string write_conditional_formatting_2010(std::vector<cond_format_obj_t>& cond_formats);
   [[nodiscard]] static std::string write_x14_cf_rule(cond_format_obj_t& cond_format);
@@ -5656,12 +5656,12 @@ private:
   std::vector<merged_range_t> merged_ranges_;
   std::list<selection_t> selections_;
   std::vector<data_val_obj_t> data_validations_;
-  std::map<std::string, std::vector<cond_format_obj_t>> conditional_formats_;
+  std::map<std::string, std::vector<cond_format_obj_t>, std::less<>> conditional_formats_;
   std::vector<object_properties_t> image_props_;
   std::vector<object_properties_t> embedded_image_props_;
   std::vector<object_properties_t> chart_data_;
-  std::map<std::string, uint32_t> drawing_rel_ids_;
-  std::map<std::string, uint32_t> vml_drawing_rel_ids_;
+  std::map<std::string, uint32_t, std::less<>> drawing_rel_ids_;
+  std::map<std::string, uint32_t, std::less<>> vml_drawing_rel_ids_;
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> header_image_objs_;
   std::vector<vml_obj_t> button_objs_;

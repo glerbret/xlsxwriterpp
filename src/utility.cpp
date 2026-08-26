@@ -15,6 +15,7 @@
 #include <chrono>
 #include <format>
 #include <ranges>
+#include <utility>
 #include <vector>
 
 namespace xwpp
@@ -93,7 +94,7 @@ std::string col_to_name(col_num_t col_num, bool absolute)
 
 std::string rowcol_to_cell(row_num_t row_num, col_num_t col_num)
 {
-  return col_to_name(col_num, false) + std::to_string(row_num + 1);
+  return std::format("{}{}", col_to_name(col_num, false), (row_num + 1));
 }
 
 std::string rowcol_to_cell_abs(row_num_t row_num, col_num_t col_num, bool abs_row, bool abs_col)
@@ -184,10 +185,8 @@ row_num_t name_to_row(std::string_view row_str)
   }
 
   // Skip the column letters and absolute symbol of the A1 cell.
-  const auto found = row_str.find_first_of("0123456789");
-
   // Convert the row part of the A1 cell to a number.
-  if(found != std::string_view::npos)
+  if(const auto found = row_str.find_first_of("0123456789"); found != std::string_view::npos)
   {
     row_num = std::stoul(std::string{row_str.substr(found)});
   }
@@ -232,7 +231,7 @@ col_num_t name_to_col(std::string_view col_str)
   {
     if(isupper(c) != 0)
     {
-      col_num = (col_num * 26) + (c - 'A' + 1);
+      col_num = static_cast<col_num_t>((col_num * 26) + (c - 'A' + 1));
     }
     else if(c == '$')
     {
@@ -290,9 +289,9 @@ datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
   const std::chrono::year_month_day ymd{date};
   const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - date)};
 
-  const int year  = static_cast<int>(ymd.year());
-  const int month = static_cast<int>(static_cast<unsigned int>(ymd.month()));
-  const int day   = static_cast<int>(static_cast<unsigned int>(ymd.day()));
+  const auto year  = static_cast<int>(ymd.year());
+  const auto month = static_cast<int>(static_cast<unsigned int>(ymd.month()));
+  const auto day   = static_cast<int>(static_cast<unsigned int>(ymd.day()));
 
   // time_point set to epoch date (1970-01-01) are time only
   if(year == 1970 && month == 1 && day == 1)
@@ -361,7 +360,7 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
   }
 
   // Convert the Excel seconds to a fraction of the seconds in 24 hours.
-  const double seconds = (hour * 60 * 60 + min * 60 + sec) / (24 * 60 * 60.0);
+  const double seconds = ((hour * 60 * 60) + (min * 60) + sec) / (24 * 60 * 60.0);
 
   // Special cases for Excel dates in the 1900 epoch.
   if(!use_1904_epoch)
@@ -402,7 +401,7 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
   // since the epoch.
 
   // Add days for previous months.
-  for(size_t i = 0; i < static_cast<size_t>(month) && i < mdays.size(); i++)
+  for(size_t i = 0; std::cmp_less(i, month) && i < mdays.size(); i++)
   {
     days += mdays[i];
   }

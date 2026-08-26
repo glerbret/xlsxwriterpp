@@ -99,7 +99,7 @@ custom_t::custom_t(const std::vector<custom_property_t>& custom_properties)
 {
 }
 
-std::string custom_t::assemble_xml_file()
+std::string custom_t::assemble_xml_file() const
 {
   std::string xml_data = xml_declaration();
   xml_data += write_custom_properties();

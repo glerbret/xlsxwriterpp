@@ -1436,7 +1436,7 @@ public:
    *
    * @todo Should be member of `chart_series_t`.
    */
-  void series_set_name(chart_series_t& series, const std::string& name);
+  void series_set_name(chart_series_t& series, const std::string& name) const;
 
   /**
    * @brief Set the font properties for a chart title.
@@ -1726,7 +1726,7 @@ public:
    * automatic is on then other marker properties such as size, line or fill
    * cannot be set.
    */
-  void series_set_marker_type(chart_series_t& series, chart_marker_type_t type);
+  void series_set_marker_type(chart_series_t& series, chart_marker_type_t type) const;
 
   /**
    * Set the X or Y error bars for a chart series.
@@ -1781,7 +1781,7 @@ public:
    *
    * @see @ref chart_error_bars.
    */
-  void series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value);
+  void series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const;
 
   /**
    * @brief Set the Pie/Doughnut chart rotation.
@@ -2062,7 +2062,7 @@ public:
    *  chart_axis_major_gridlines_set_visible(y_axis, true);
    * @endcode
    */
-  chart_axis_t& axis_get(chart_axis_type_t axis_type);
+  [[nodiscard]] chart_axis_t& axis_get(chart_axis_type_t axis_type);
 
   /**
    * @brief Set the manual layout of the chart plotarea.
@@ -2373,7 +2373,7 @@ private:
   [[nodiscard]] static std::string write_scatter_style(const chart_t& chart);
   [[nodiscard]] static std::string write_tick_label_skip(const chart_axis_t& axis);
   [[nodiscard]] static std::string write_tick_mark_skip(const chart_axis_t& axis);
-  [[nodiscard]] std::string write_disp_blanks_as();
+  [[nodiscard]] std::string write_disp_blanks_as() const;
   [[nodiscard]] static std::string write_layout_target();
   [[nodiscard]] static std::string write_layout_mode(const std::string& mode);
   [[nodiscard]] static std::string write_layout_dimension(const std::string& dimension, double value);
@@ -2967,7 +2967,7 @@ void chart_series_set_labels_percentage(chart_series_t& series);
  *
  * @see @ref chart_labels.
  */
-void chart_series_set_labels_num_format(chart_series_t& series, const std::string& num_format);
+void chart_series_set_labels_num_format(chart_series_t& series, std::string_view num_format);
 
 /**
  * @brief Set the font properties for chart data labels in a series
@@ -3233,7 +3233,7 @@ void chart_series_set_trendline_intercept(chart_series_t& series, double interce
  *
  * @see @ref chart_trendlines.
  */
-void chart_series_set_trendline_name(chart_series_t& series, const std::string& name);
+void chart_series_set_trendline_name(chart_series_t& series, std::string_view name);
 
 /**
  * @brief Set the trendline line properties for a chart data series.
@@ -3489,7 +3489,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
  */
-void chart_axis_set_num_format(chart_axis_t& axis, const std::string& num_format);
+void chart_axis_set_num_format(chart_axis_t& axis, std::string_view num_format);
 
 /**
  * @brief Set the line properties for a chart axis.

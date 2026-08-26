@@ -50,7 +50,7 @@ format_t::format_t(std::function<int32_t(format_t*)> get_dxf_index)
 {
 }
 
-void format_t::set_num_format(const std::string& num_format)
+void format_t::set_num_format(std::string_view num_format)
 {
   num_format_ = num_format;
 }
@@ -213,7 +213,7 @@ void format_t::set_num_format_index(uint8_t index)
   num_format_index_ = index;
 }
 
-void format_t::set_font_name(const std::string& font_name)
+void format_t::set_font_name(std::string_view font_name)
 {
   font_name_ = font_name;
 }
@@ -256,7 +256,7 @@ void format_t::set_font_shadow()
   font_shadow_ = true;
 }
 
-void format_t::set_font_scheme(const std::string& font_scheme)
+void format_t::set_font_scheme(std::string_view font_scheme)
 {
   font_scheme_ = font_scheme;
 }

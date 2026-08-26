@@ -40,7 +40,7 @@ private:
   uint32_t unique_count_ = 0;
 
   std::vector<shared_strings_element_t> order_list_;
-  std::map<std::string, size_t> rb_tree_;
+  std::map<std::string, size_t, std::less<>> rb_tree_;
 };
 
 }

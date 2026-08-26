@@ -133,7 +133,7 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
   return pattern;
 }
 
-std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layout_t> user_layout,
+std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layout_t>& user_layout,
                                                   chart_layout_type_t type)
 {
   if(!user_layout)
@@ -175,7 +175,7 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
 // Verify that a X/Y error bar property is supported for the chart type.
 // All chart types, except Bar have Y error bars. Only Bar and Scatter
 // support X error bars.
-void check_error_bars(const series_error_bars_t& error_bars, const std::string& property)
+void check_error_bars(const series_error_bars_t& error_bars, std::string_view property)
 {
   // Check that the error bar type has been set for all error bar
   // functions except the one that is used to set the type.
@@ -292,7 +292,7 @@ void chart_t::title_set_name(const std::string& name)
 }
 
 // cppcheck-suppress functionStatic
-void chart_t::series_set_name(chart_series_t& series, const std::string& name)
+void chart_t::series_set_name(chart_series_t& series, const std::string& name) const
 {
   if(!name.empty())
   {
@@ -365,7 +365,7 @@ void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_
 }
 
 // cppcheck-suppress functionStatic
-void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t type)
+void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t type) const
 {
   if(!series.marker_)
   {
@@ -376,7 +376,7 @@ void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t
 }
 
 // cppcheck-suppress functionStatic
-void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value)
+void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const
 {
   check_error_bars(error_bars, "");
 
@@ -1284,9 +1284,9 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
     // To manage defautl value for tile
     if(use_font_default)
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_ ? font->bold_.value() : false));
+      attributes.emplace_back("b", std::format("{:d}", font->bold_.has_value() ? font->bold_.value() : false));
     }
-    else if(font->bold_)
+    else if(font->bold_.has_value())
     {
       attributes.emplace_back("b", std::format("{:d}", font->bold_.value()));
     }
@@ -1383,9 +1383,9 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
     // To manage defautl value for tile
     if(use_font_default)
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_ ? font->bold_.value() : false));
+      attributes.emplace_back("b", std::format("{:d}", font->bold_.has_value() ? font->bold_.value() : false));
     }
-    else if(font->bold_)
+    else if(font->bold_.has_value())
     {
       attributes.emplace_back("b", std::format("{:d}", font->bold_.value()));
     }
@@ -1991,7 +1991,7 @@ std::string chart_t::write_a_ln(const chart_line_t& line)
   std::vector<std::tuple<std::string, std::string>> attributes;
 
   // Round width to nearest 0.25, like Excel.
-  const auto width_flt = static_cast<double>(static_cast<uint32_t>((line.width_ + 0.125) * 4.0F) / 4.0);
+  const auto width_flt = static_cast<uint32_t>((line.width_ + 0.125) * 4.0F) / 4.0;
 
   // Convert to internal units.
   const auto width_int = static_cast<uint32_t>(0.5 + (12700.0 * width_flt));
@@ -4030,7 +4030,7 @@ std::string chart_t::write_tick_mark_skip(const chart_axis_t& axis)
   });
 }
 
-std::string chart_t::write_disp_blanks_as()
+std::string chart_t::write_disp_blanks_as() const
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
@@ -4243,7 +4243,7 @@ void series_set_points(chart_series_t& series, const std::vector<chart_point_t>&
     throw xwpp_exception_t("series_set_points(): list of points shall not be empty.");
   }
 
-  for(const auto src_point: points)
+  for(const auto& src_point: points)
   {
     const chart_point_t dst_point{
       .line_    = convert_line_args(src_point.line_),
@@ -4351,7 +4351,7 @@ void chart_series_set_labels_percentage(chart_series_t& series)
   series.show_labels_percent_ = true;
 }
 
-void chart_series_set_labels_num_format(chart_series_t& series, const std::string& num_format)
+void chart_series_set_labels_num_format(chart_series_t& series, std::string_view num_format)
 {
   if(!num_format.empty())
   {
@@ -4468,7 +4468,7 @@ void chart_series_set_trendline_intercept(chart_series_t& series, double interce
   series.trendline_intercept_     = intercept;
 }
 
-void chart_series_set_trendline_name(chart_series_t& series, const std::string& name)
+void chart_series_set_trendline_name(chart_series_t& series, std::string_view name)
 {
   if(!name.empty())
   {
@@ -4553,7 +4553,7 @@ void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_
   axis.num_font_ = convert_font_args(font);
 }
 
-void chart_axis_set_num_format(chart_axis_t& axis, const std::string& num_format)
+void chart_axis_set_num_format(chart_axis_t& axis, std::string_view num_format)
 {
   axis.num_format_ = num_format;
 }
