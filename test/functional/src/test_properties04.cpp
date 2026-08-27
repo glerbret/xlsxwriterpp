@@ -12,7 +12,8 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   workbook.set_custom_property("Checked by", "Adam");
-  workbook.set_custom_property("Date completed", xwpp::datetime_t{2016, 12, 12, 23, 0, 0});
+  workbook.set_custom_property(
+    "Date completed", xwpp::datetime_t{.year_ = 2016, .month_ = 12, .day_ = 12, .hour_ = 23, .min_ = 0, .sec_ = 0});
   workbook.set_custom_property("Document number", 12345);
   workbook.set_custom_property("Reference", 1.2345);
   workbook.set_custom_property("Source", true);

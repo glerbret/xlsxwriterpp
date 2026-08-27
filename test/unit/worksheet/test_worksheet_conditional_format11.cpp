@@ -74,8 +74,10 @@ BOOST_AUTO_TEST_CASE(condtional_format11)
   const xwpp::conditional_format_t conditional_format{
     .type_      = xwpp::conditional_format_types_t::CELL,
     .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
-    .min_value_ = xwpp::datetime_to_excel_datetime(xwpp::datetime_t{2011, 1, 1, 0, 0, 0}),
-    .max_value_ = xwpp::datetime_to_excel_datetime(xwpp::datetime_t{2011, 12, 31, 0, 0, 0}),
+    .min_value_ = xwpp::datetime_to_excel_datetime(
+      xwpp::datetime_t{.year_ = 2011, .month_ = 1, .day_ = 1, .hour_ = 0, .min_ = 0, .sec_ = 0}),
+    .max_value_ = xwpp::datetime_to_excel_datetime(
+      xwpp::datetime_t{.year_ = 2011, .month_ = 12, .day_ = 31, .hour_ = 0, .min_ = 0, .sec_ = 0}),
   };
   worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
 

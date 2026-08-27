@@ -8,5 +8,9 @@
     "XLSXWRITERPP",
     "xwpp",
     "XWPP"
+  ],
+  "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+    "cppcoreguidelines-pro-bounds-avoid-unchecked-container-access",
+    "misc-use-internal-linkage"
   ]
 }

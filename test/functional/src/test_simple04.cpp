@@ -22,8 +22,10 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  worksheet.write_datetime(0, 0, xwpp::datetime_t{0, 0, 0, 12, 0, 0}, format1);
-  worksheet.write_datetime(1, 0, xwpp::datetime_t{2013, 1, 27, 0, 0, 0}, format2);
+  worksheet.write_datetime(
+    0, 0, xwpp::datetime_t{.year_ = 0, .month_ = 0, .day_ = 0, .hour_ = 12, .min_ = 0, .sec_ = 0.}, format1);
+  worksheet.write_datetime(
+    1, 0, xwpp::datetime_t{.year_ = 2013, .month_ = 1, .day_ = 27, .hour_ = 0, .min_ = 0, .sec_ = 0.}, format2);
 
   workbook.save("test_simple04.xlsx");
 }

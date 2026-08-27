@@ -16,7 +16,7 @@ using namespace std::literals::chrono_literals;
 int main()
 {
   // A datetime to display.
-  const xwpp::datetime_t datetime = {2013, 1, 23, 12, 30, 5.123};
+  const xwpp::datetime_t datetime = {.year_ = 2013, .month_ = 1, .day_ = 23, .hour_ = 12, .min_ = 30, .sec_ = 5.123};
 
   // Examples date and time formats. In the output file compare how changing
   // the format strings changes the appearance of the date.

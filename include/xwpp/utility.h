@@ -129,7 +129,7 @@ std::string dup_formula(const std::string& formula);
  *
  * @return The converted `datetime_t`.
  */
-datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime);
+[[nodiscard]] datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime);
 
 /**
  * @brief Converts a `%system_clock::time_point` to an Excel datetime number with
@@ -219,7 +219,7 @@ void datetime_validate(const datetime_t& datetime);
  * you to specify whether to use the 1900 or 1904 epoch. See also the
  * `workbook_t::use_1904_epoch()` function.
  */
-double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
+[[nodiscard]] double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
 
 /**
  * @brief Converts a unix datetime to an Excel datetime number.
@@ -237,14 +237,14 @@ double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch);
  *
  * @see @ref working_with_dates for more details.
  */
-double unixtime_to_excel_date(int64_t unixtime);
+[[nodiscard]] double unixtime_to_excel_date(int64_t unixtime);
 
 // Hash a worksheet password. Based on the algorithm in ECMA-376-4:2016,
 // Office Open XML File Formats - Transitional Migration Features,
 // Additional attributes for workbookProtection element (Part 1, §18.2.29).
-uint16_t hash_password(const std::string& password);
+[[nodiscard]] uint16_t hash_password(const std::string& password);
 
-std::string to_lower(const std::string& str);
+[[nodiscard]] std::string to_lower(const std::string& str);
 
 /// @cond
 }

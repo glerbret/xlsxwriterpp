@@ -108,7 +108,7 @@ enum class color_t : uint32_t
   YELLOW  = 0xFFFF00,
 
   // Special value
-  UNSET = 0xFFFFFFFF,
+  UNSET = 0xFFFFFFFFU,
 };
 const uint32_t COLOR_MASK = 0xFFFFFF;
 
@@ -401,7 +401,7 @@ public:
    * [Microsoft documentation on cell
    * formats](http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx).
    */
-  void set_num_format(const std::string& num_format);
+  void set_num_format(std::string_view num_format);
 
   /**
    * @brief Turn on bold for the format font.
@@ -948,7 +948,7 @@ public:
    *
    * The default font in Excel 2007, and later, is `Calibri`.
    */
-  void set_font_name(const std::string& font_name);
+  void set_font_name(std::string_view font_name);
 
   /**
    * @brief Set the size of the font used in the cell.
@@ -1061,7 +1061,7 @@ public:
    * @todo Add image in description.
    * @todo Add an example (and fix example here).
    */
-  void set_font_scheme(const std::string& font_scheme);
+  void set_font_scheme(std::string_view font_scheme);
 
   /**
    * @brief Set the Format font condense property.

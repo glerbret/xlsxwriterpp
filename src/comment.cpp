@@ -151,8 +151,7 @@ bool comment_t::check_author(const std::string& author) const
 
 uint32_t comment_t::get_author_index(const std::string& author)
 {
-  const auto it = author_ids_.find(author);
-  if(it != std::end(author_ids_))
+  if(const auto it = author_ids_.find(author); it != std::end(author_ids_))
   {
     return it->second;
   }

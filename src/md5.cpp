@@ -16,14 +16,14 @@ namespace xwpp
 {
 
 const std::array<uint32_t, 64> md5_t::k_sine{
-  0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
-  0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
-  0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
-  0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed, 0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
-  0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c, 0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
-  0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
-  0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039, 0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
-  0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
+  0xd76aa478U, 0xe8c7b756U, 0x242070dbU, 0xc1bdceeeU, 0xf57c0fafU, 0x4787c62aU, 0xa8304613U, 0xfd469501U,
+  0x698098d8U, 0x8b44f7afU, 0xffff5bb1U, 0x895cd7beU, 0x6b901122U, 0xfd987193U, 0xa679438eU, 0x49b40821U,
+  0xf61e2562U, 0xc040b340U, 0x265e5a51U, 0xe9b6c7aaU, 0xd62f105dU, 0x02441453U, 0xd8a1e681U, 0xe7d3fbc8U,
+  0x21e1cde6U, 0xc33707d6U, 0xf4d50d87U, 0x455a14edU, 0xa9e3e905U, 0xfcefa3f8U, 0x676f02d9U, 0x8d2a4c8aU,
+  0xfffa3942U, 0x8771f681U, 0x6d9d6122U, 0xfde5380cU, 0xa4beea44U, 0x4bdecfa9U, 0xf6bb4b60U, 0xbebfbc70U,
+  0x289b7ec6U, 0xeaa127faU, 0xd4ef3085U, 0x04881d05U, 0xd9d4d039U, 0xe6db99e5U, 0x1fa27cf8U, 0xc4ac5665U,
+  0xf4292244U, 0x432aff97U, 0xab9423a7U, 0xfc93a039U, 0x655b59c3U, 0x8f0ccc92U, 0xffeff47dU, 0x85845dd1U,
+  0x6fa87e4fU, 0xfe2ce6e0U, 0xa3014314U, 0x4e0811a1U, 0xf7537e82U, 0xbd3af235U, 0x2ad7d2bbU, 0xeb86d391U};
 
 const std::array<uint32_t, 64> md5_t::s_shift{7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
                                               5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
@@ -106,7 +106,7 @@ void md5_t::update(const std::vector<uint8_t>& input)
         // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
         chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24U |
                    static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16U |
-                   static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8U | static_cast<uint32_t>(buffer[(i * 4)]);
+                   static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8U | static_cast<uint32_t>(buffer[i * 4]);
         // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
       }
 
@@ -133,7 +133,7 @@ std::array<uint8_t, 16> md5_t::finalize()
   {
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
     chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24U | static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16U |
-               static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8U | static_cast<uint32_t>(buffer[(i * 4)]);
+               static_cast<uint32_t>(buffer[(i * 4) + 1]) << 8U | static_cast<uint32_t>(buffer[i * 4]);
     // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
   }
   chunk[14] = static_cast<uint32_t>(size * 8);

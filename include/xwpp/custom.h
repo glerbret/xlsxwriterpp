@@ -22,7 +22,7 @@ class custom_t
 public:
   explicit custom_t(const std::vector<custom_property_t>& custom_properties);
 
-  [[nodiscard]] std::string assemble_xml_file();
+  [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
   [[nodiscard]] std::string write_custom_properties() const;

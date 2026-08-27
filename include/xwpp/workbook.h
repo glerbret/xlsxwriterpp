@@ -783,7 +783,7 @@ public:
    *
    * See also @ref working_with_macros.
    */
-  void set_vba_name(const std::string& name);
+  void set_vba_name(std::string_view name);
 
   /**
    * @brief Create a defined name in the workbook to use as a variable.
@@ -861,15 +861,15 @@ private:
   void prepare_num_formats();
   void prepare_borders();
   void prepare_vml();
-  void store_defined_name(const std::string& name, const std::string& app_name, const std::string& formula,
-                          int16_t index, bool hidden);
+  void store_defined_name(std::string_view name, std::string_view app_name, std::string_view formula, int16_t index,
+                          bool hidden);
   void prepare_defined_names();
   void store_image_type(image_types_t image_type);
   void prepare_drawings();
   void populate_range_dimensions(series_range_t& range) const;
   void populate_range_data_cache(series_range_t& range) const;
-  void populate_range(series_range_t& range);
-  void add_chart_cache_data();
+  void populate_range(series_range_t& range) const;
+  void add_chart_cache_data() const;
   void prepare_tables();
   void prepare_fills();
   void prepare_workbook();
@@ -892,12 +892,12 @@ private:
   std::list<format_t> formats_;
   std::list<defined_name_t> defined_names_;
   // As the unicity of sheet name is case insensitive, the name is stored as lower case.
-  std::map<std::string, worksheet_t*> worksheet_names_;
-  std::map<std::string, chartsheet_t*> chartsheet_names_;
-  std::map<std::string, uint32_t> image_md5_;
-  std::map<std::string, uint32_t> embedded_image_md5_;
-  std::map<std::string, uint32_t> header_image_md5_;
-  std::map<std::string, uint32_t> background_md5_;
+  std::map<std::string, worksheet_t*, std::less<>> worksheet_names_;
+  std::map<std::string, chartsheet_t*, std::less<>> chartsheet_names_;
+  std::map<std::string, uint32_t, std::less<>> image_md5_;
+  std::map<std::string, uint32_t, std::less<>> embedded_image_md5_;
+  std::map<std::string, uint32_t, std::less<>> header_image_md5_;
+  std::map<std::string, uint32_t, std::less<>> background_md5_;
   std::vector<chart_t*> ordered_charts_;
   shared_strings_t sst_;
   doc_properties_t properties_;

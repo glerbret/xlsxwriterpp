@@ -44,8 +44,8 @@ namespace
 // files easier.
 //
 // The span is the same for each block of 16 rows.
-std::string calculate_spans(std::map<row_num_t, row_t>::const_iterator it,
-                            std::map<row_num_t, row_t>::const_iterator end, int32_t& block_num)
+[[nodiscard]] std::string calculate_spans(std::map<row_num_t, row_t>::const_iterator it,
+                                          const std::map<row_num_t, row_t>::const_iterator& end, int32_t& block_num)
 {
   col_num_t span_col_min = std::numeric_limits<col_num_t>::max();
   col_num_t span_col_max = std::numeric_limits<col_num_t>::max();
@@ -73,8 +73,8 @@ std::string calculate_spans(std::map<row_num_t, row_t>::const_iterator it,
   return std::format("{}:{}", span_col_min + 1, span_col_max + 1);
 }
 
-cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id, const std::string& sst_string,
-                       const format_t* format)
+[[nodiscard]] cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id,
+                                     std::string_view sst_string, const format_t* format)
 {
   cell_t cell;
 
@@ -89,7 +89,7 @@ cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id,
   return cell;
 }
 
-cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const format_t* format)
+[[nodiscard]] cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const format_t* format)
 {
   cell_t cell;
 
@@ -103,22 +103,22 @@ cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const
   return cell;
 }
 
-cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t link_type, const std::string& url,
-                          const std::string& str, const std::string& tooltip)
+[[nodiscard]] cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t link_type,
+                                        std::string_view url, std::string_view str, std::string_view tooltip)
 {
   cell_t cell;
 
   cell.row_num_    = row_num;
   cell.col_num_    = col_num;
   cell.type_       = link_type;
-  cell.data_       = url;
+  cell.data_       = std::string{url};
   cell.user_data1_ = str;
   cell.user_data2_ = tooltip;
 
   return cell;
 }
 
-cell_t new_comment_cell(row_num_t row_num, col_num_t col_num, const vml_obj_t& comment)
+[[nodiscard]] cell_t new_comment_cell(row_num_t row_num, col_num_t col_num, const vml_obj_t& comment)
 {
   cell_t cell;
 
@@ -130,7 +130,7 @@ cell_t new_comment_cell(row_num_t row_num, col_num_t col_num, const vml_obj_t& c
   return cell;
 }
 
-cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* format)
+[[nodiscard]] cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* format)
 {
   cell_t cell;
 
@@ -143,7 +143,7 @@ cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* form
   return cell;
 }
 
-cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, const format_t* format)
+[[nodiscard]] cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, const format_t* format)
 {
   cell_t cell;
 
@@ -157,8 +157,8 @@ cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, cons
   return cell;
 }
 
-cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
-                        double result)
+[[nodiscard]] cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, std::string_view formula,
+                                      const format_t* format, double result)
 {
   cell_t cell;
 
@@ -167,14 +167,14 @@ cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string&
   cell.type_           = cell_types_t::FORMULA_CELL;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_         = const_cast<format_t*>(format);
-  cell.data_           = formula;
+  cell.data_           = std::string{formula};
   cell.formula_result_ = result;
 
   return cell;
 }
 
-cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
-                        const std::string& result)
+[[nodiscard]] cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, std::string_view formula,
+                                      const format_t* format, std::string_view result)
 {
   cell_t cell;
 
@@ -183,14 +183,14 @@ cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, const std::string&
   cell.type_       = cell_types_t::FORMULA_CELL;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_     = const_cast<format_t*>(format);
-  cell.data_       = formula;
+  cell.data_       = std::string{formula};
   cell.user_data2_ = result;
 
   return cell;
 }
 
-cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                              const std::string& range, const format_t* format, bool is_dynamic)
+[[nodiscard]] cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, std::string_view formula,
+                                            std::string_view range, const format_t* format, bool is_dynamic)
 {
   cell_t cell;
 
@@ -198,7 +198,7 @@ cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, const std::s
   cell.col_num_    = col_num;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
   cell.format_     = const_cast<format_t*>(format);
-  cell.data_       = formula;
+  cell.data_       = std::string{formula};
   cell.user_data1_ = range;
 
   if(is_dynamic)
@@ -390,7 +390,7 @@ size_t validation_list_length(const std::vector<std::string>& list)
   }
 
   size_t length = std::accumulate(std::begin(list), std::end(list), size_t{0},
-                                  [](size_t len, const std::string& str) { return len + str.size(); });
+                                  [](size_t len, std::string_view str) { return len + str.size(); });
 
   // Include commas in the length.
   length += list.size() - 1;
@@ -619,18 +619,9 @@ void check_table_name(const std::optional<table_options_t>& user_options)
     throw xwpp_exception_t(std::format("check_table_name(): invalid table name '{}'.", name));
   }
 
-  // Check for invalid characters in Table name, while trying to allow
-  // for utf8 strings.
-  // TODO Replace strpbrk by a C++ algo
-  const char* ptr = strpbrk(name.data(), " !\"#$%&'()*+,-/:;<=>?@[\\]^`{|}~");
-  if(ptr)
-  {
-    throw xwpp_exception_t(std::format("check_table_name(): invalid character '{}' name '{}'.", *ptr, name));
-  }
-
   // Check for invalid initial character in Table name, while trying to allow
   // for utf8 strings.
-  const std::string invalid_first_char = " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^`{|}~";
+  const std::string invalid_first_char = R"( !"#$%&'()*+,-./0123456789:;<=>?@[\]^`{|}~)";
   if(invalid_first_char.find(name[0]) != std::string::npos)
   {
     throw xwpp_exception_t(std::format("check_table_name(): invalid first character '{}' name '{}'.", name[0], name));
@@ -774,7 +765,7 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
           y_dpi = y_ppu * 0.0254;
         }
 
-        it += length - (2 * 4 + 1);
+        it += length - ((2 * 4) + 1);
       }
       else if(type == "IEND")
       {
@@ -913,7 +904,7 @@ void process_bmp(object_properties_t& image_props, const std::vector<unsigned ch
   const uint32_t width = (*(it + 3) * 0x1000000) + (*(it + 2) * 0x10000) + (*(it + 1) * 0x100) + *it;
   it += 4;
 
-  const int32_t height =
+  const auto height =
     static_cast<int32_t>(static_cast<uint32_t>(*(it + 3) * 0x1000000U) + static_cast<uint32_t>(*(it + 2) * 0x10000U) +
                          static_cast<uint32_t>(*(it + 1) * 0x100U) + static_cast<uint32_t>(*it));
   it += 4;
@@ -2100,8 +2091,8 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format,
-                            const std::string& str, const std::string& tooltip)
+void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format,
+                            std::string_view str, std::string_view tooltip)
 {
   std::string string_copy;
   std::string url_copy;
@@ -2199,7 +2190,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::str
     found_string = url_copy.find(':');
     if(found_string == std::string::npos)
     {
-      found_string = url_copy.find("\\\\");
+      found_string = url_copy.find(R"(\\)");
     }
 
     if(found_string != std::string::npos)
@@ -3584,7 +3575,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   data_validations_.push_back(copy);
 }
 
-void worksheet_t::ignore_errors(ignore_errors_t type, const std::string& range)
+void worksheet_t::ignore_errors(ignore_errors_t type, std::string_view range)
 {
   if(range.empty())
   {
@@ -3887,7 +3878,7 @@ void worksheet_t::set_background_buffer(const std::vector<unsigned char>& image_
   has_background_image_ = true;
 }
 
-void worksheet_t::set_vba_name(const std::string& name)
+void worksheet_t::set_vba_name(std::string_view name)
 {
   if(name.empty())
   {
@@ -3897,7 +3888,7 @@ void worksheet_t::set_vba_name(const std::string& name)
   vba_codename_ = name;
 }
 
-void worksheet_t::set_comments_author(const std::string& author)
+void worksheet_t::set_comments_author(std::string_view author)
 {
   comment_author_ = author;
 }
@@ -4721,14 +4712,14 @@ uint32_t worksheet_t::prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_sha
   return comment_count;
 }
 
-uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
+uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor) const
 {
   const col_options_t* col_opt = nullptr;
   uint32_t pixels              = 0;
 
   // Search for the col number in the array of col_options. Each col_option
   // entry contains the start and end column for a range.
-  for(auto& item: col_options_)
+  for(const auto& item: col_options_)
   {
     if(col_num >= item.firstcol_ && col_num <= item.lastcol_)
     {
@@ -4769,13 +4760,12 @@ uint32_t worksheet_t::size_col(col_num_t col_num, object_position_t anchor)
   return pixels;
 }
 
-uint32_t worksheet_t::size_row(row_num_t row_num, object_position_t anchor)
+uint32_t worksheet_t::size_row(row_num_t row_num, object_position_t anchor) const
 {
   uint32_t pixels = 0;
 
-  const row_t* row = find_row(row_num);
   // Note, the 0.75 below is due to the difference between 72/96 DPI.
-  if(row)
+  if(const row_t* row = find_row(row_num); row)
   {
     if(row->hidden_ && anchor != object_position_t::MOVE_AND_SIZE_AFTER)
     {
@@ -4829,7 +4819,7 @@ const cell_t* worksheet_t::find_cell_in_row(const row_t* row, col_num_t col_num)
 // within the worksheet in EMUs. The vertices are expressed as English
 // Metric Units (EMUs). There are 12,700 EMUs per point.
 // Therefore, 12,700 * 3 /4 = 9,525 EMUs per pixel.
-void worksheet_t::position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object)
+void worksheet_t::position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object) const
 {
   position_object_pixels(image, drawing_object);
 
@@ -4879,7 +4869,8 @@ void worksheet_t::position_object_emus(const object_properties_t& image, drawing
  * the width and height of the object from the width and height of the
  * underlying cells.
  */
-void worksheet_t::position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object)
+void worksheet_t::position_object_pixels(const object_properties_t& object_props,
+                                         drawing_object_t& drawing_object) const
 {
   col_num_t col_start      = object_props.col_num_;  // Column containing upper left corner.
   int32_t x1               = object_props.x_offset_; // Distance to left side of object.
@@ -5004,7 +4995,7 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   drawing_object.row_absolute_     = y_abs;
 }
 
-void worksheet_t::position_vml_object(vml_obj_t& vml_obj)
+void worksheet_t::position_vml_object(vml_obj_t& vml_obj) const
 {
   object_properties_t object_props;
   drawing_object_t drawing_object;
@@ -5183,7 +5174,7 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
       size_t found_string = url_copy.find(':');
       if(found_string == std::string::npos)
       {
-        found_string = url_copy.find("\\\\");
+        found_string = url_copy.find(R"(\\)");
       }
 
       if(found_string != std::string::npos)
@@ -5244,8 +5235,7 @@ void worksheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_
   header_image_vml.name_           = object_props.description_;
 
   // Strip the extension from the filename.
-  const size_t pos = header_image_vml.name_.find_last_of('.');
-  if(pos != std::string::npos)
+  if(const size_t pos = header_image_vml.name_.find_last_of('.'); pos != std::string::npos)
   {
     header_image_vml.name_ = header_image_vml.name_.substr(0, pos);
   }
@@ -6089,9 +6079,8 @@ std::string worksheet_t::write_table_parts()
 
   for(size_t i = 0; i < table_objs_.size(); i++)
   {
-    rel_count_++;
-
     // Write the tablePart element.
+    rel_count_++;
     xml_data += write_table_part(rel_count_);
   }
   xml_data += xml_end_tag("tableParts");
@@ -7053,15 +7042,15 @@ std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_forma
 
   if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_YESTERDAY)
   {
-    xml_data += write_formula_str_xml(std::format("FLOOR({0},1)=TODAY()-1", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("FLOOR({},1)=TODAY()-1", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_TODAY)
   {
-    xml_data += write_formula_str_xml(std::format("FLOOR({0},1)=TODAY()", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("FLOOR({},1)=TODAY()", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_TOMORROW)
   {
-    xml_data += write_formula_str_xml(std::format("FLOOR({0},1)=TODAY()+1", cond_format.first_cell_));
+    xml_data += write_formula_str_xml(std::format("FLOOR({},1)=TODAY()+1", cond_format.first_cell_));
   }
   else if(cond_format.criteria_ == conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS)
   {
@@ -7235,7 +7224,7 @@ std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format)
   return xml_data;
 }
 
-std::string worksheet_t::write_icon_set(cond_format_obj_t& cond_format)
+std::string worksheet_t::write_icon_set(const cond_format_obj_t& cond_format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 

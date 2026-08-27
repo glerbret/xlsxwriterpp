@@ -23,7 +23,7 @@ int main()
   // Set some custom document properties in the workbook.
   workbook.set_custom_property("Checked by", "Eve");
   workbook.set_custom_property("Date completed chrono", datetime);
-  workbook.set_custom_property("Date completed datetime", xwpp::datetime_t{2017, 12, 12});
+  workbook.set_custom_property("Date completed datetime", xwpp::datetime_t{.year_ = 2017, .month_ = 12, .day_ = 12});
   workbook.set_custom_property("Document number", 12345);
   workbook.set_custom_property("Reference number", 1.2345);
   workbook.set_custom_property("Has Review", true);
