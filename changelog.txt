@@ -21,7 +21,8 @@
 - Simplify exception (no inheritance).
 - Use dedicated implementation of MD5 instead of OpenSSL.
 - Port datetime_t (lxw_datetime) from libxlsxwriter.
-- Report "image: fix issue with top-down DIB bmp"
+- Report "image: fix issue with top-down DIB bmp".
+- Use `sheet_t` base class to `worksheet_t` and `chartsheet_t`.
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 

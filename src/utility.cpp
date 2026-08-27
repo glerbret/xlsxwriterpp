@@ -283,6 +283,40 @@ std::string dup_formula(const std::string& formula)
   }
 }
 
+double pixels_to_width(double pixels)
+{
+  const double max_digit_width = 7.0;
+  const double padding         = 5.0;
+  double width                 = 0.;
+
+  if(pixels == DEF_COL_WIDTH_PIXELS)
+  {
+    width = DEF_COL_WIDTH;
+  }
+  else if(pixels <= 12.0)
+  {
+    width = pixels / (max_digit_width + padding);
+  }
+  else
+  {
+    width = (pixels - padding) / max_digit_width;
+  }
+
+  return width;
+}
+
+double pixels_to_height(double pixels)
+{
+  if(pixels == DEF_ROW_HEIGHT_PIXELS)
+  {
+    return DEF_ROW_HEIGHT;
+  }
+  else
+  {
+    return pixels * 0.75;
+  }
+}
+
 datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
 {
   const auto date = std::chrono::floor<std::chrono::days>(datetime);

@@ -37,11 +37,10 @@
 
 #include "xwpp/chart.h"
 #include "xwpp/common.h"
-#include "xwpp/drawing.h"
 #include "xwpp/format.h"
 #include "xwpp/shared_strings.h"
+#include "xwpp/sheet.h"
 
-#include <array>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -55,27 +54,9 @@ namespace xwpp
 {
 /// @endcond
 
-const uint32_t HEADER_FOOTER_MAX = 255;
-
 /* The Excel 2007 specification says that the maximum number of page
  * breaks is 1026. However, in practice it is actually 1023. */
 const size_t BREAKS_MAX = 1023;
-
-/** Default Excel column width in character units. */
-const double DEF_COL_WIDTH = 8.43;
-
-/** Default Excel row height in character units. */
-const double DEF_ROW_HEIGHT = 15.0;
-
-/** Default Excel column width in pixels. */
-const uint32_t DEF_COL_WIDTH_PIXELS = 64;
-
-/** Default Excel column height in pixels. */
-const uint32_t DEF_ROW_HEIGHT_PIXELS = 20;
-
-// Conversion functions.
-[[nodiscard]] double pixels_to_height(double pixels);
-[[nodiscard]] double pixels_to_width(double pixels);
 
 /**
  * @brief Gridline options.
@@ -239,32 +220,6 @@ enum class validation_error_types_t
 
   /** Show an "Information" data validation pop-up message. */
   INFORMATION
-};
-
-/**
- * @brief Display type for a cell comment.
- *
- * Set the display type for a cell comment. This is hidden by default but
- * can be set to visible with the `worksheet_t::show_comments()` function.
- */
-enum class comment_display_t
-{
-  /** Default to the worksheet default which can be hidden or visible. */
-  DEFAULT,
-
-  /**
-   * Hide the cell comment.
-   *
-   * Usually the default.
-   */
-  HIDDEN,
-
-  /**
-   * Show the cell comment.
-   *
-   * Can also be set for the worksheet with the `worksheet_t::show_comments()` function.
-   */
-  VISIBLE
 };
 
 /**
@@ -693,40 +648,6 @@ enum class filter_operator_t
   OR
 };
 
-enum class filter_type_t
-{
-  NONE,
-  SINGLE,
-  AND,
-  OR,
-  STRING_LIST
-};
-
-/**
- * @brief Options to control the positioning of objects.
- *
- * Options to control the positioning of worksheet objects such as images
- * or charts. See @ref working_with_object_positioning.
- */
-enum class object_position_t
-{
-  /** Default positioning for the object. */
-  DEFAULT,
-
-  /** Move and size the worksheet object with the cells. */
-  MOVE_AND_SIZE,
-
-  /** Move but don't size the worksheet object with the cells. */
-  MOVE_DONT_SIZE,
-
-  /** Don't move or size the worksheet object with the cells. */
-  DONT_MOVE_DONT_SIZE,
-
-  /** Same as `MOVE_AND_SIZE` except `Xlsxwriter++` applies hidden
-   *  cells after the object is inserted. */
-  MOVE_AND_SIZE_AFTER
-};
-
 /**
  * @brief Options for ignoring errors/warnings.
  *
@@ -770,6 +691,15 @@ enum class ignore_errors_t
   LAST_OPTION
 };
 
+enum class filter_type_t
+{
+  NONE,
+  SINGLE,
+  AND,
+  OR,
+  STRING_LIST
+};
+
 enum class cell_types_t
 {
   NUMBER_CELL = 1,
@@ -792,83 +722,6 @@ enum class pane_types_t
   FREEZE_PANES,
   SPLIT_PANES,
   FREEZE_SPLIT_PANES
-};
-
-enum class image_position_t
-{
-  HEADER_LEFT = 0,
-  HEADER_CENTER,
-  HEADER_RIGHT,
-  FOOTER_LEFT,
-  FOOTER_CENTER,
-  FOOTER_RIGHT
-};
-
-// Internal structure for VML object options.
-struct vml_obj_t
-{
-  row_num_t row_num_         = 0;
-  col_num_t col_num_         = 0;
-  row_num_t start_row_       = 0;
-  col_num_t start_col_       = 0;
-  int32_t x_offset_          = 0;
-  int32_t y_offset_          = 0;
-  uint64_t col_absolute_     = 0;
-  uint64_t row_absolute_     = 0;
-  uint32_t width_            = 0;
-  uint32_t height_           = 0;
-  double x_dpi_              = 0.;
-  double y_dpi_              = 0.;
-  color_t color_             = color_t::UNSET;
-  uint8_t font_family_       = 0;
-  comment_display_t visible_ = comment_display_t::DEFAULT;
-  uint32_t author_id_        = 0;
-  uint32_t rel_index_        = 0;
-  double font_size_          = 0.;
-  drawing_coords_t from_;
-  drawing_coords_t to_;
-  std::string author_;
-  std::string font_name_;
-  std::string text_;
-  std::string image_position_;
-  std::string name_;
-  std::string macro_;
-};
-
-struct cell_t
-{
-  row_num_t row_num_ = 0;
-  col_num_t col_num_ = 0;
-  cell_types_t type_ = cell_types_t::BLANK_CELL;
-  format_t* format_  = nullptr;
-  std::optional<vml_obj_t> comment_;
-  std::variant<uint32_t, double, std::string> data_;
-  double formula_result_ = 0.;
-  std::string user_data1_;
-  std::string user_data2_;
-  std::string sst_string_;
-};
-
-struct row_t
-{
-  row_num_t row_num_   = 0;
-  double height_       = DEF_ROW_HEIGHT;
-  format_t* format_    = nullptr;
-  bool hidden_         = false;
-  uint8_t level_       = 0;
-  bool collapsed_      = false;
-  bool row_changed_    = false;
-  bool data_changed_   = false;
-  bool height_changed_ = false;
-
-  std::map<col_num_t, cell_t> cells_;
-};
-
-struct table_rows_t
-{
-  row_t& get_row_list(row_num_t row_num);
-
-  std::map<row_num_t, row_t> rbh_root_; // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /**
@@ -901,76 +754,6 @@ struct row_col_options_t
    * Set the outline row as collapsed.
    */
   bool collapsed_ = false;
-};
-
-struct col_options_t
-{
-  col_num_t firstcol_ = std::numeric_limits<col_num_t>::max();
-  col_num_t lastcol_  = std::numeric_limits<col_num_t>::max();
-  double width_       = DEF_COL_WIDTH;
-  format_t* format_   = nullptr;
-  bool hidden_        = false;
-  uint8_t level_      = 0;
-  bool collapsed_     = false;
-};
-
-struct merged_range_t
-{
-  row_num_t first_row_;
-  row_num_t last_row_;
-  col_num_t first_col_;
-  col_num_t last_col_;
-};
-
-struct repeat_rows_t
-{
-  bool in_use_         = false;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
-};
-
-struct repeat_cols_t
-{
-  bool in_use_         = false;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
-};
-
-struct print_area_t
-{
-  bool in_use_         = false;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
-};
-
-struct autofilter_t
-{
-  bool in_use_         = false;
-  bool has_rules_      = false;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
-};
-
-struct panes_t
-{
-  pane_types_t type_   = pane_types_t::NO_PANES;
-  row_num_t first_row_ = 0;
-  col_num_t first_col_ = 0;
-  row_num_t top_row_   = 0;
-  col_num_t left_col_  = 0;
-  double x_split_      = 0.;
-  double y_split_      = 0.;
-};
-
-struct selection_t
-{
-  std::string pane_;
-  std::string active_cell_;
-  std::string sqref_;
 };
 
 /**
@@ -1071,8 +854,6 @@ struct data_validation_t
   /**
    * This parameter is used to set the limiting value to which the date or
    * time criteria is applied.
-   *
-   * @todo Manage internally with a port of lxw_datetime, some for other datetime.
    */
   datetime_t value_datetime_;
 
@@ -1151,30 +932,6 @@ struct data_validation_t
    * message length is 255 characters.
    */
   std::string error_message_;
-};
-
-// A copy of `data_validation_t` which is used internally and which contains
-// some additional fields.
-struct data_val_obj_t
-{
-  validation_types_t validate_         = validation_types_t::NONE;
-  validation_criteria_t criteria_      = validation_criteria_t::NONE;
-  bool ignore_blank_                   = false;
-  bool show_input_                     = false;
-  bool show_error_                     = false;
-  validation_error_types_t error_type_ = validation_error_types_t::STOP;
-  bool dropdown_                       = false;
-  double value_number_                 = 0.;
-  std::string value_formula_;
-  double minimum_number_ = 0.;
-  std::string minimum_formula_;
-  double maximum_number_ = 0.;
-  std::string maximum_formula_;
-  std::string input_title_;
-  std::string input_message_;
-  std::string error_title_;
-  std::string error_message_;
-  std::string sqref_;
 };
 
 /**
@@ -1475,53 +1232,6 @@ struct conditional_format_t
   bool stop_if_true_ = false;
 };
 
-struct cond_format_obj_t
-{
-  conditional_format_types_t type_ = conditional_format_types_t::NONE;
-  conditional_criteria_t criteria_ = conditional_criteria_t::NONE;
-  double min_value_                = 0.;
-  std::string min_value_string_;
-  conditional_format_rule_types_t min_rule_type_ = conditional_format_rule_types_t::NONE;
-  color_t min_color_                             = color_t::UNSET;
-  double mid_value_                              = 0.;
-  std::string mid_value_string_;
-  // TODO ?    uint8_t mid_value_type;
-  conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
-  color_t mid_color_                             = color_t::UNSET;
-  double max_value_                              = 0.;
-  std::string max_value_string_;
-  // TODO ?     uint8_t max_value_type;
-  conditional_format_rule_types_t max_rule_type_     = conditional_format_rule_types_t::NONE;
-  color_t max_color_                                 = color_t::UNSET;
-  bool data_bar_2010_                                = false;
-  bool auto_min_                                     = false;
-  bool auto_max_                                     = false;
-  bool bar_only_                                     = false;
-  bool bar_solid_                                    = false;
-  bool bar_negative_color_same_                      = false;
-  bool bar_negative_border_color_same_               = false;
-  bool bar_no_border_                                = false;
-  conditional_format_bar_direction_t bar_direction_  = conditional_format_bar_direction_t::CONTEXT;
-  conditional_bar_axis_position_t bar_axis_position_ = conditional_bar_axis_position_t::AUTOMATIC;
-  color_t bar_color_                                 = color_t::UNSET;
-  color_t bar_negative_color_                        = color_t::UNSET;
-  color_t bar_border_color_                          = color_t::UNSET;
-  color_t bar_negative_border_color_                 = color_t::UNSET;
-  color_t bar_axis_color_                            = color_t::UNSET;
-  conditional_icon_types_t icon_style_               = conditional_icon_types_t::THREE_ARROWS_COLORED;
-  bool reverse_icons_                                = false;
-  bool icons_only_                                   = false;
-  bool stop_if_true_                                 = false;
-  bool has_max_                                      = false;
-  std::string type_string_;
-  std::string guid_;
-  // PROPERTY_UNSET should not be part of format_t
-  int32_t dxf_index_     = format_t::PROPERTY_UNSET;
-  uint32_t dxf_priority_ = 0;
-  std::string first_cell_;
-  std::string sqref_;
-};
-
 /**
  * @brief Table columns options.
  *
@@ -1786,30 +1496,6 @@ struct table_options_t
   std::vector<table_column_t> columns_;
 };
 
-struct table_obj_t
-{
-  std::string name_;
-  std::string total_string_;
-  std::vector<table_column_t> columns_;
-  bool banded_columns_           = false;
-  bool first_column_             = false;
-  bool last_column_              = false;
-  bool no_autofilter_            = false;
-  bool no_banded_rows_           = false;
-  bool no_header_row_            = false;
-  table_style_type_t style_type_ = table_style_type_t::DEFAULT;
-  uint8_t style_type_number_     = 0;
-  bool total_row_                = false;
-  row_num_t first_row_           = 0;
-  col_num_t first_col_           = 0;
-  row_num_t last_row_            = 0;
-  col_num_t last_col_            = 0;
-  col_num_t num_cols_            = 0; // TODO is it useful?
-  uint32_t id_                   = 0;
-  std::string sqref_;
-  std::string filter_sqref_;
-};
-
 /**
  * @brief Options for autofilter rules.
  *
@@ -1831,21 +1517,6 @@ struct filter_rule_t
    * Numeric value to which the criteria applies (if `%value_string_` isn't used).
    */
   double value_ = 0;
-};
-
-struct filter_rule_obj_t
-{
-  filter_type_t type_          = filter_type_t::NONE;
-  bool is_custom_              = false;
-  bool has_blanks_             = false;
-  col_num_t col_num_           = 0;
-  filter_criteria_t criteria1_ = filter_criteria_t::NONE;
-  filter_criteria_t criteria2_ = filter_criteria_t::NONE;
-  double value1_               = 0.;
-  double value2_               = 0.;
-  std::string value1_string_;
-  std::string value2_string_;
-  std::vector<std::string> list_;
 };
 
 /**
@@ -1970,37 +1641,6 @@ struct chart_options_t
    * field isn't written.
    */
   bool decorative_ = false;
-};
-
-// Internal struct to represent `image_options_t` and `chart_options_t`
-// values as well as internal metadata.
-struct object_properties_t
-{
-  int32_t x_offset_  = 0;
-  int32_t y_offset_  = 0;
-  double x_scale_    = 1.;
-  double y_scale_    = 1.;
-  row_num_t row_num_ = 0;
-  col_num_t col_num_ = 0;
-  std::string filename_;
-  std::string description_;
-  std::string url_;
-  std::string tip_;
-  object_position_t object_position_ = object_position_t::DEFAULT;
-  image_types_t image_type_          = image_types_t::UNKNOWN;
-  std::vector<unsigned char> image_buffer_;
-  double width_  = 0.;
-  double height_ = 0.;
-  std::string extension_;
-  double x_dpi_       = 0.;
-  double y_dpi_       = 0.;
-  chart_t* chart_     = nullptr;
-  bool is_duplicate_  = false;
-  bool is_background_ = false;
-  std::string md5_;
-  std::string image_position_;
-  bool decorative_  = false;
-  format_t* format_ = nullptr;
 };
 
 /**
@@ -2190,171 +1830,6 @@ struct button_options_t
 };
 
 /**
- * @brief Options for headers and footers.
- *
- * Optional parameters used in the `worksheet_t::set_header()` and
- * `worksheet_t::set_footer()` functions.
- */
-struct header_footer_options_t
-{
-  /**
-   * Header or footer margin in inches. Excel default is 0.3. Must by
-   * larger than 0.0.
-   *
-   * @see `worksheet_t::set_header()`.
-   */
-  double margin_ = 0.;
-
-  /**
-   * The left header image filename, with path if required. This should
-   * have a corresponding `&G` placeholder in the `&L` section of
-   * the header/footer string.
-   *
-   * @see `worksheet_t::set_header()`.
-   */
-  std::string image_left_;
-
-  /**
-   * The center header image filename, with path if required. This should
-   * have a corresponding `&G` placeholder in the `&C` section of
-   * the header/footer string.
-   *
-   * @see `worksheet_t::set_header()`.
-   */
-  std::string image_center_;
-
-  /**
-   * The right header image filename, with path if required. This should
-   * have a corresponding `&G` placeholder in the `&R` section of
-   * the header/footer string.
-   *
-   * @see `worksheet_t::set_header()`.
-   */
-  std::string image_right_;
-};
-
-/**
- * @brief Worksheet protection options.
- *
- * Worksheet protection options.
- */
-struct protection_t
-{
-  /**
-   * Turn off selection of locked cells. This in on in Excel by default.
-   */
-  bool no_select_locked_cells_ = false;
-
-  /**
-   * Turn off selection of unlocked cells. This in on in Excel by default.
-   */
-  bool no_select_unlocked_cells_ = false;
-
-  /**
-   * Prevent formatting of cells.
-   */
-  bool format_cells_ = false;
-
-  /**
-   * Prevent formatting of columns.
-   */
-  bool format_columns_ = false;
-
-  /**
-   * Prevent formatting of rows.
-   */
-  bool format_rows_ = false;
-
-  /**
-   * Prevent insertion of columns.
-   */
-  bool insert_columns_ = false;
-
-  /**
-   * Prevent insertion of rows.
-   */
-  bool insert_rows_ = false;
-
-  /**
-   * Prevent insertion of hyperlinks.
-   */
-  bool insert_hyperlinks_ = false;
-
-  /**
-   * Prevent deletion of columns.
-   */
-  bool delete_columns_ = false;
-
-  /**
-   * Prevent deletion of rows.
-   */
-  bool delete_rows_ = false;
-
-  /**
-   * Prevent sorting data.
-   */
-  bool sort_ = false;
-
-  /**
-   * Prevent filtering data.
-   */
-  bool autofilter_ = false;
-
-  /**
-   * Prevent insertion of pivot tables.
-   */
-  bool pivot_tables_ = false;
-
-  /**
-   * Protect scenarios.
-   */
-  bool scenarios_ = false;
-
-  /**
-   * Protect drawing objects. Worksheets only.
-   *
-   * @todo Not clear, why there is two options `%objects_` and `%no_objects_`.
-   * @todo And `%objects_` seems to be wrong name as XML object option is set to 1 iff objects_ is false.
-   */
-  bool objects_ = false;
-
-  /**
-   * Turn off chartsheet content protection.
-   */
-  bool no_content_ = false;
-
-  /**
-   * Turn off chartsheet objects.
-   */
-  bool no_objects_ = false;
-};
-
-// Internal struct to copy protection options and internal metadata.
-struct protection_obj_t
-{
-  bool no_select_locked_cells_   = false;
-  bool no_select_unlocked_cells_ = false;
-  bool format_cells_             = false;
-  bool format_columns_           = false;
-  bool format_rows_              = false;
-  bool insert_columns_           = false;
-  bool insert_rows_              = false;
-  bool insert_hyperlinks_        = false;
-  bool delete_columns_           = false;
-  bool delete_rows_              = false;
-  bool sort_                     = false;
-  bool autofilter_               = false;
-  bool pivot_tables_             = false;
-  bool scenarios_                = false;
-  bool objects_                  = false;
-  bool no_content_               = false;
-  bool no_objects_               = false;
-  bool no_sheet_                 = false;
-  bool is_configured_            = false;
-  std::string hash_;
-};
-
-/**
  * @brief Struct to represent a rich string format/string pair.
  *
  * Arrays of this struct are used to define "rich" multi-format strings that
@@ -2377,19 +1852,220 @@ struct rich_string_tuple_t
   std::string str_;
 };
 
-// Worksheet initialization data.
-struct worksheet_init_data_t
+struct cell_t
 {
-  uint16_t index_         = 0;
-  bool hidden_            = false;
-  uint16_t* active_sheet_ = nullptr;
-  uint16_t* first_sheet_  = nullptr;
-  shared_strings_t* sst_  = nullptr;
+  row_num_t row_num_ = 0;
+  col_num_t col_num_ = 0;
+  cell_types_t type_ = cell_types_t::BLANK_CELL;
+  format_t* format_  = nullptr;
+  std::optional<vml_obj_t> comment_;
+  std::variant<uint32_t, double, std::string> data_;
+  double formula_result_ = 0.;
+  std::string user_data1_;
+  std::string user_data2_;
+  std::string sst_string_;
+};
+
+struct row_t
+{
+  row_num_t row_num_   = 0;
+  double height_       = DEF_ROW_HEIGHT;
+  format_t* format_    = nullptr;
+  bool hidden_         = false;
+  uint8_t level_       = 0;
+  bool collapsed_      = false;
+  bool row_changed_    = false;
+  bool data_changed_   = false;
+  bool height_changed_ = false;
+
+  std::map<col_num_t, cell_t> cells_;
+};
+
+struct table_rows_t
+{
+  row_t& get_row_list(row_num_t row_num);
+
+  std::map<row_num_t, row_t> rbh_root_; // NOLINT(misc-non-private-member-variables-in-classes)
+};
+
+struct col_options_t
+{
+  col_num_t firstcol_ = std::numeric_limits<col_num_t>::max();
+  col_num_t lastcol_  = std::numeric_limits<col_num_t>::max();
+  double width_       = DEF_COL_WIDTH;
+  format_t* format_   = nullptr;
+  bool hidden_        = false;
+  uint8_t level_      = 0;
+  bool collapsed_     = false;
+};
+
+struct merged_range_t
+{
+  row_num_t first_row_;
+  row_num_t last_row_;
+  col_num_t first_col_;
+  col_num_t last_col_;
+};
+
+struct repeat_rows_t
+{
+  bool in_use_         = false;
+  row_num_t first_row_ = 0;
+  row_num_t last_row_  = 0;
+};
+
+struct repeat_cols_t
+{
+  bool in_use_         = false;
+  col_num_t first_col_ = 0;
+  col_num_t last_col_  = 0;
+};
+
+struct print_area_t
+{
+  bool in_use_         = false;
+  row_num_t first_row_ = 0;
+  row_num_t last_row_  = 0;
+  col_num_t first_col_ = 0;
+  col_num_t last_col_  = 0;
+};
+
+struct autofilter_t
+{
+  bool in_use_         = false;
+  bool has_rules_      = false;
+  row_num_t first_row_ = 0;
+  row_num_t last_row_  = 0;
+  col_num_t first_col_ = 0;
+  col_num_t last_col_  = 0;
+};
+
+struct panes_t
+{
+  pane_types_t type_   = pane_types_t::NO_PANES;
+  row_num_t first_row_ = 0;
+  col_num_t first_col_ = 0;
+  row_num_t top_row_   = 0;
+  col_num_t left_col_  = 0;
+  double x_split_      = 0.;
+  double y_split_      = 0.;
+};
+
+struct selection_t
+{
+  std::string pane_;
+  std::string active_cell_;
+  std::string sqref_;
+};
+
+// A copy of `data_validation_t` which is used internally and which contains
+// some additional fields.
+struct data_val_obj_t
+{
+  validation_types_t validate_         = validation_types_t::NONE;
+  validation_criteria_t criteria_      = validation_criteria_t::NONE;
+  bool ignore_blank_                   = false;
+  bool show_input_                     = false;
+  bool show_error_                     = false;
+  validation_error_types_t error_type_ = validation_error_types_t::STOP;
+  bool dropdown_                       = false;
+  double value_number_                 = 0.;
+  std::string value_formula_;
+  double minimum_number_ = 0.;
+  std::string minimum_formula_;
+  double maximum_number_ = 0.;
+  std::string maximum_formula_;
+  std::string input_title_;
+  std::string input_message_;
+  std::string error_title_;
+  std::string error_message_;
+  std::string sqref_;
+};
+
+struct cond_format_obj_t
+{
+  conditional_format_types_t type_ = conditional_format_types_t::NONE;
+  conditional_criteria_t criteria_ = conditional_criteria_t::NONE;
+  double min_value_                = 0.;
+  std::string min_value_string_;
+  conditional_format_rule_types_t min_rule_type_ = conditional_format_rule_types_t::NONE;
+  color_t min_color_                             = color_t::UNSET;
+  double mid_value_                              = 0.;
+  std::string mid_value_string_;
+  // TODO ?    uint8_t mid_value_type;
+  conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
+  color_t mid_color_                             = color_t::UNSET;
+  double max_value_                              = 0.;
+  std::string max_value_string_;
+  // TODO ?     uint8_t max_value_type;
+  conditional_format_rule_types_t max_rule_type_     = conditional_format_rule_types_t::NONE;
+  color_t max_color_                                 = color_t::UNSET;
+  bool data_bar_2010_                                = false;
+  bool auto_min_                                     = false;
+  bool auto_max_                                     = false;
+  bool bar_only_                                     = false;
+  bool bar_solid_                                    = false;
+  bool bar_negative_color_same_                      = false;
+  bool bar_negative_border_color_same_               = false;
+  bool bar_no_border_                                = false;
+  conditional_format_bar_direction_t bar_direction_  = conditional_format_bar_direction_t::CONTEXT;
+  conditional_bar_axis_position_t bar_axis_position_ = conditional_bar_axis_position_t::AUTOMATIC;
+  color_t bar_color_                                 = color_t::UNSET;
+  color_t bar_negative_color_                        = color_t::UNSET;
+  color_t bar_border_color_                          = color_t::UNSET;
+  color_t bar_negative_border_color_                 = color_t::UNSET;
+  color_t bar_axis_color_                            = color_t::UNSET;
+  conditional_icon_types_t icon_style_               = conditional_icon_types_t::THREE_ARROWS_COLORED;
+  bool reverse_icons_                                = false;
+  bool icons_only_                                   = false;
+  bool stop_if_true_                                 = false;
+  bool has_max_                                      = false;
+  std::string type_string_;
+  std::string guid_;
+  // PROPERTY_UNSET should not be part of format_t
+  int32_t dxf_index_     = format_t::PROPERTY_UNSET;
+  uint32_t dxf_priority_ = 0;
+  std::string first_cell_;
+  std::string sqref_;
+};
+
+struct table_obj_t
+{
   std::string name_;
-  std::string quoted_name_;
-  format_t* default_url_format_ = nullptr;
-  uint16_t max_url_length_      = 2079;
-  bool use_1904_epoch_          = false;
+  std::string total_string_;
+  std::vector<table_column_t> columns_;
+  bool banded_columns_           = false;
+  bool first_column_             = false;
+  bool last_column_              = false;
+  bool no_autofilter_            = false;
+  bool no_banded_rows_           = false;
+  bool no_header_row_            = false;
+  table_style_type_t style_type_ = table_style_type_t::DEFAULT;
+  uint8_t style_type_number_     = 0;
+  bool total_row_                = false;
+  row_num_t first_row_           = 0;
+  col_num_t first_col_           = 0;
+  row_num_t last_row_            = 0;
+  col_num_t last_col_            = 0;
+  col_num_t num_cols_            = 0; // TODO is it useful?
+  uint32_t id_                   = 0;
+  std::string sqref_;
+  std::string filter_sqref_;
+};
+
+struct filter_rule_obj_t
+{
+  filter_type_t type_          = filter_type_t::NONE;
+  bool is_custom_              = false;
+  bool has_blanks_             = false;
+  col_num_t col_num_           = 0;
+  filter_criteria_t criteria1_ = filter_criteria_t::NONE;
+  filter_criteria_t criteria2_ = filter_criteria_t::NONE;
+  double value1_               = 0.;
+  double value2_               = 0.;
+  std::string value1_string_;
+  std::string value2_string_;
+  std::vector<std::string> list_;
 };
 
 /**
@@ -2414,12 +2090,10 @@ struct worksheet_init_data_t
  * @todo Add API with col and row names instead of number.
  * @todo Replace few overload by default-valued parameters (in particular `nullptr` for `format`)
  */
-class worksheet_t
+class worksheet_t : public sheet_t
 {
 public:
-  // TODO Constructor should not be public but only used by `workbook_t`.
-  worksheet_t() = default;
-  worksheet_t(const worksheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
+  worksheet_t(const sheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
               std::function<int32_t(format_t*)> get_dxf_index);
 
   /**
@@ -4470,282 +4144,6 @@ public:
   void ignore_errors(ignore_errors_t type, std::string_view range);
 
   /**
-   * @brief Set the printed page header caption.
-   *
-   * @param str     The header string.
-   * @param options Header options.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * Headers and footers are generated using a string which is a combination of
-   * plain text and control characters.
-   *
-   * The available control character are:
-   *
-   *   | Control         | Category      | Description           |
-   *   | --------------- | ------------- | --------------------- |
-   *   | `&L`            | Justification | Left                  |
-   *   | `&C`            |               | Center                |
-   *   | `&R`            |               | Right                 |
-   *   | `&P`            | Information   | Page number           |
-   *   | `&N`            |               | Total number of pages |
-   *   | `&D`            |               | Date                  |
-   *   | `&T`            |               | Time                  |
-   *   | `&F`            |               | File name             |
-   *   | `&A`            |               | Worksheet name        |
-   *   | `&Z`            |               | Workbook path         |
-   *   | `&fontsize`     | Font          | Font size             |
-   *   | `&"font,style"` |               | Font name and style   |
-   *   | `&U`            |               | Single underline      |
-   *   | `&E`            |               | Double underline      |
-   *   | `&S`            |               | Strikethrough         |
-   *   | `&X`            |               | Superscript           |
-   *   | `&Y`            |               | Subscript             |
-   *   | `&G`            | Images        | Image placeholder     |
-   *   | `&&`            | Miscellaneous | Literal ampersand &   |
-   *
-   * Text in headers and footers can be justified (aligned) to the left, center
-   * and right by prefixing the text with the control characters `&L`, `&C` and
-   * `&R`.
-   *
-   * For example (with ASCII art representation of the results):
-   *
-   * @code
-   *  worksheet.set_header("&LHello");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    | Hello                                                         |
-   *  //    |                                                               |
-   *
-   *
-   *  worksheet.set_header("&CHello");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    |                          Hello                                |
-   *  //    |                                                               |
-   *
-   *
-   *  worksheet.set_header("&RHello");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    |                                                         Hello |
-   *  //    |                                                               |
-   * @endcode
-   *
-   * For simple text, if you do not specify any justification the text will be
-   * centered. However, you must prefix the text with `&C` if you specify a font
-   * name or any other formatting:
-   *
-   * @code
-   *  worksheet.set_header("Hello");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    |                          Hello                                |
-   *  //    |                                                               |
-   * @endcode
-   *
-   * You can have text in each of the justification regions:
-   *
-   * @code
-   *  worksheet.set_header("&LCiao&CBello&RCielo");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    | Ciao                     Bello                          Cielo |
-   *  //    |                                                               |
-   * @endcode
-   *
-   * The information control characters act as variables that Excel will update
-   * as the workbook or worksheet changes. Times and dates are in the users
-   * default format:
-   *
-   * @code
-   *  worksheet.set_header("&CPage &P of &N");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    |                        Page 1 of 6                            |
-   *  //    |                                                               |
-   *
-   *  worksheet.set_header("&CUpdated at &T");
-   *
-   *  //     ---------------------------------------------------------------
-   *  //    |                                                               |
-   *  //    |                    Updated at 12:30 PM                        |
-   *  //    |                                                               |
-   * @endcode
-   *
-   * You can specify the font size of a section of the text by prefixing it with
-   * the control character `&n` where `n` is the font size:
-   *
-   * @code
-   *  worksheet1.set_header("&C&30Hello Big");
-   *  worksheet2.set_header("&C&10Hello Small");
-   * @endcode
-   *
-   * You can specify the font of a section of the text by prefixing it with the
-   * control sequence `&"font,style"` where `fontname` is a font name such as
-   * Windows font descriptions: "Regular", "Italic", "Bold" or "Bold Italic":
-   * "Courier New" or "Times New Roman" and `style` is one of the standard
-   *
-   * @code
-   *  worksheet1.set_header("&C&\"Courier New,Italic\"Hello");
-   *  worksheet2.set_header("&C&\"Courier New,Bold Italic\"Hello");
-   *  worksheet3.set_header("&C&\"Times New Roman,Regular\"Hello");
-   * @endcode
-   *
-   * It is possible to combine all of these features together to create
-   * sophisticated headers and footers. As an aid to setting up complicated
-   * headers and footers you can record a page set-up as a macro in Excel and
-   * look at the format strings that VBA produces. Remember however that VBA
-   * uses two double quotes `""` to indicate a single double quote. For the last
-   * example above the equivalent VBA code looks like this:
-   *
-   * @code
-   *  .LeftHeader = ""
-   *  .CenterHeader = "&""Times New Roman,Regular""Hello"
-   *  .RightHeader = ""
-   * @endcode
-   *
-   * Alternatively you can inspect the header and footer strings in an Excel
-   * file by unzipping it and grepping the XML sub-files. The following shows
-   * how to do that using libxml's xmllint to format the XML for clarity:
-   *
-   * @code
-   *  $ unzip myfile.xlsm -d myfile
-   *  $ xmllint --format `find myfile -name "*.xml" | xargs` | egrep "Header|Footer" | sed 's/&amp;/\&/g'
-   *
-   *  <headerFooter scaleWithDoc="0">
-   *    <oddHeader>&L&P</oddHeader>
-   *  </headerFooter>
-   * @endcode
-   *
-   * To include a single literal ampersand `&` in a header or footer you should
-   * use a double ampersand `&&`:
-   *
-   * @code
-   *  worksheet.set_header("&CCuriouser && Curiouser - Attorneys at Law");
-   * @endcode
-   *
-   * @note Excel requires that the header or footer string cannot be longer than 255
-   * characters, including the control characters. Strings longer than this will
-   * not be written.
-   *
-   * The `header_footer_options_t` options are:
-   *
-   * - `%margin_`: Header or footer margin in inches. The value must by larger
-   *   than 0.0. The Excel default is 0.3.
-   *
-   * - `%image_left_`: The left header image filename, with path if required. This
-   *   should have a corresponding `&G` placeholder in the `&L`
-   *   section of the header/footer string.
-   *
-   * - `%image_center_`: The center header image filename, with path if
-   *   required. This should have a corresponding `&G` placeholder in
-   *   the `&C` section of the header/footer string.
-   *
-   * - `%image_right_`: The right header image filename, with path if
-   *   required. This should have a corresponding `&G` placeholder in
-   *   the `&R` section of the header/footer string.
-   *
-   * @code
-   *  xwpp::header_footer_options_t header_options = { .margin_ = 0.2 };
-   *
-   *  worksheet.set_header("Some text", header_options);
-   * @endcode
-   *
-   * Images can be inserted in the header by specifying the `&G`
-   * placeholder and a filename/path to the image:
-   *
-   * @code
-   *  xwpp::header_footer_options_t header_options = {.image_left_ = "logo.png"};
-   *
-   *  worksheet1set_header("&L&G", header_options);
-   * @endcode
-   *
-   * @image html headers_footers.png
-   */
-  void set_header(const std::string& str, const std::optional<header_footer_options_t>& options);
-  /// @overload
-  void set_header(const std::string& str);
-
-  /**
-   * @brief Set the printed page footer caption with additional options.
-   *
-   * @param str     The footer string.
-   * @param options Footer options.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * The syntax of this function is the same as `set_header()`.
-   */
-  void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options);
-  /// @overload
-  void set_footer(const std::string& str);
-
-  /**
-   * @brief Set the worksheet margins for the printed page.
-   *
-   * @param left   Left margin in inches.   Excel default is 0.7.
-   * @param right  Right margin in inches.  Excel default is 0.7.
-   * @param top    Top margin in inches.    Excel default is 0.75.
-   * @param bottom Bottom margin in inches. Excel default is 0.75.
-   *
-   * The `%set_margins()` function is used to set the margins of the
-   * worksheet when it is printed. The units are in inches. Specifying `-1` for
-   * any parameter will give the default Excel value as shown above.
-   *
-   * @code
-   *  worksheet.set_margins(1.3, 1.2, -1, -1);
-   * @endcode
-   */
-  void set_margins(double left, double right, double top, double bottom);
-
-  /**
-   * @brief Set the color of the worksheet tab.
-   *
-   * @param color The tab color.
-   *
-   * The `%set_tab_color()` function is used to change the color of
-   * the worksheet tab:
-   *
-   * @code
-   *  worksheet1.set_tab_color(xwpp::color_t::RED);
-   *  worksheet2.set_tab_color(xwpp::color_t::GREEN);
-   *  worksheet3.set_tab_color(xwpp::color_t(0xFF9900)); // Orange.
-   * @endcode
-   *
-   * The color should be an RGB integer value, see @ref working_with_colors.
-   */
-  void set_tab_color(color_t color);
-
-  /**
-   * @brief Set the worksheet zoom factor.
-   *
-   * @param scale Worksheet zoom factor.
-   *
-   * Set the worksheet zoom factor in the range `10 <= zoom <= 400`:
-   *
-   * @code
-   *  worksheet1.set_zoom(50);
-   *  worksheet2.set_zoom(75);
-   *  worksheet3.set_zoom(300);
-   *  worksheet4.set_zoom(400);
-   * @endcode
-   *
-   * The default zoom factor is 100. It isn't possible to set the zoom to
-   * "Selection" because it is calculated by Excel at run-time.
-   *
-   * @note `%set_zoom()` does not affect the scale of the printed
-   * page. For that you should use `set_print_scale()`.
-   */
-  void set_zoom(uint16_t scale);
-
-  /**
    * @brief Set the default row properties.
    *
    * @param height           Default row height.
@@ -4856,6 +4254,8 @@ public:
    */
   void set_vba_name(std::string_view name);
 
+  [[nodiscard]] std::string get_vba_name() const;
+
   /**
    * @brief Set the default author of the cell comments.
    *
@@ -4873,24 +4273,6 @@ public:
    * function (see above and @ref ww_comments_author).
    */
   void set_comments_author(std::string_view author);
-
-  /**
-   * @brief Set current worksheet as the first visible sheet tab.
-   *
-   * The `activate()` function determines which worksheet is initially
-   * selected.  However, if there are a large number of worksheets the selected
-   * worksheet may not appear on the screen. To avoid this you can select the
-   * leftmost visible worksheet tab using `%set_first_sheet()`:
-   *
-   * @code
-   *  worksheet19.set_first_sheet(); // First visible worksheet tab.
-   *  worksheet20.activate();        // First visible worksheet.
-   * @endcode
-   *
-   * This function is not required very often. The default value is the first
-   * worksheet.
-   */
-  void set_first_sheet();
 
   /**
    * @brief Set the first visible cell at the top left of a worksheet.
@@ -4911,100 +4293,6 @@ public:
   void set_top_left_cell(row_num_t row_num, col_num_t col_num);
 
   /**
-   * @brief Set the paper type for printing.
-   *
-   * @param paper_size The Excel paper format type.
-   *
-   * This function is used to set the paper format for the printed output of a
-   * worksheet. The following paper styles are available:
-   *
-   *   Index    | Paper format            | Paper size
-   *   :------- | :---------------------- | :-------------------
-   *   0        | Printer default         | Printer default
-   *   1        | Letter                  | 8 1/2 x 11 in
-   *   2        | Letter Small            | 8 1/2 x 11 in
-   *   3        | Tabloid                 | 11 x 17 in
-   *   4        | Ledger                  | 17 x 11 in
-   *   5        | Legal                   | 8 1/2 x 14 in
-   *   6        | Statement               | 5 1/2 x 8 1/2 in
-   *   7        | Executive               | 7 1/4 x 10 1/2 in
-   *   8        | A3                      | 297 x 420 mm
-   *   9        | A4                      | 210 x 297 mm
-   *   10       | A4 Small                | 210 x 297 mm
-   *   11       | A5                      | 148 x 210 mm
-   *   12       | B4                      | 250 x 354 mm
-   *   13       | B5                      | 182 x 257 mm
-   *   14       | Folio                   | 8 1/2 x 13 in
-   *   15       | Quarto                  | 215 x 275 mm
-   *   16       | ---                     | 10x14 in
-   *   17       | ---                     | 11x17 in
-   *   18       | Note                    | 8 1/2 x 11 in
-   *   19       | Envelope 9              | 3 7/8 x 8 7/8
-   *   20       | Envelope 10             | 4 1/8 x 9 1/2
-   *   21       | Envelope 11             | 4 1/2 x 10 3/8
-   *   22       | Envelope 12             | 4 3/4 x 11
-   *   23       | Envelope 14             | 5 x 11 1/2
-   *   24       | C size sheet            | ---
-   *   25       | D size sheet            | ---
-   *   26       | E size sheet            | ---
-   *   27       | Envelope DL             | 110 x 220 mm
-   *   28       | Envelope C3             | 324 x 458 mm
-   *   29       | Envelope C4             | 229 x 324 mm
-   *   30       | Envelope C5             | 162 x 229 mm
-   *   31       | Envelope C6             | 114 x 162 mm
-   *   32       | Envelope C65            | 114 x 229 mm
-   *   33       | Envelope B4             | 250 x 353 mm
-   *   34       | Envelope B5             | 176 x 250 mm
-   *   35       | Envelope B6             | 176 x 125 mm
-   *   36       | Envelope                | 110 x 230 mm
-   *   37       | Monarch                 | 3.875 x 7.5 in
-   *   38       | Envelope                | 3 5/8 x 6 1/2 in
-   *   39       | Fanfold                 | 14 7/8 x 11 in
-   *   40       | German Std Fanfold      | 8 1/2 x 12 in
-   *   41       | German Legal Fanfold    | 8 1/2 x 13 in
-   *
-   * @code
-   *  worksheet1.set_paper(1);  // US Letter
-   *  worksheet2.set_paper(9);  // A4
-   * @endcode
-   *
-   * If you do not specify a paper type the worksheet will print using the
-   * printer's default paper style.
-   *
-   * @note It is likely that not all of these paper types will be available to
-   * the end user since it will depend on the paper formats that the user's
-   * printer supports. Therefore, it is best to stick to standard paper types:
-   *
-   * @todo Use enum as `paper_size`.
-   */
-  void set_paper(uint8_t paper_size);
-
-  /**
-   * @brief Set the page orientation as landscape.
-   *
-   * This function is used to set the orientation of a worksheet's printed page
-   * to landscape:
-   *
-   * @code
-   *  worksheet.set_landscape();
-   * @endcode
-   */
-  void set_landscape();
-
-  /**
-   * @brief Set the page orientation as portrait.
-   *
-   * This function is used to set the orientation of a worksheet's printed page
-   * to portrait. The default worksheet orientation is portrait, so this
-   * function isn't generally required:
-   *
-   * @code
-   *  worksheet.set_portrait();
-   * @endcode
-   */
-  void set_portrait();
-
-  /**
    * @brief Set the page layout to page view mode.
    *
    * This function is used to display the worksheet in "Page View/Layout" mode:
@@ -5014,9 +4302,6 @@ public:
    * @endcode
    */
   void set_page_view();
-
-  // TODO Add documentation (for test only)
-  void set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi);
 
   /**
    * @brief Make all comments in the worksheet visible.
@@ -5062,48 +4347,6 @@ public:
    * @endcode
    */
   void hide_zero();
-
-  /**
-   * @brief Make a worksheet the active, i.e., visible worksheet.
-   *
-   * The `%activate()` function is used to specify which worksheet is
-   * initially visible in a multi-sheet workbook:
-   *
-   * @code
-   *  xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
-   *  xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
-   *  xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
-   *
-   *  worksheet3.activate();
-   * @endcode
-   *
-   * @image html worksheet_activate.png
-   *
-   * More than one worksheet can be selected via the `select()`
-   * function, see below, however only one worksheet can be active.
-   *
-   * The default active worksheet is the first worksheet.
-   */
-  void activate();
-
-  /**
-   * @brief Set a worksheet tab as selected.
-   *
-   * The `%select()` function is used to indicate that a worksheet is
-   * selected in a multi-sheet workbook:
-   *
-   * @code
-   *  worksheet1.activate();
-   *  worksheet2.select();
-   *  worksheet3.select();
-   * @endcode
-   *
-   * A selected worksheet has its tab highlighted. Selecting worksheets is a
-   * way of grouping them together so that, for example, several worksheets
-   * could be printed in one go. A worksheet that has been activated via the
-   * `activate()` function will also appear as selected.
-   */
-  void select();
 
   /**
    * @brief Protect elements of a worksheet from modification.
@@ -5187,33 +4430,6 @@ public:
   void protect(std::optional<protection_t> options);
   /// @overload
   void protect();
-
-  /**
-   * @brief Hide the current worksheet.
-   *
-   * The `%hide()` function is used to hide a worksheet:
-   *
-   * @code
-   *  worksheet.hide();
-   * @endcode
-   *
-   * You may wish to hide a worksheet in order to avoid confusing a user with
-   * intermediate data or calculations.
-   *
-   * @image html hide_sheet.png
-   *
-   * A hidden worksheet can not be activated or selected so this function is
-   * mutually exclusive with the `activate()` and `select()` functions.
-   * In addition, since the first worksheet will default to being the
-   * active worksheet, you cannot hide the first worksheet without activating
-   * another sheet:
-   *
-   * @code
-   *  worksheet2.activate(worksheet2);
-   *  worksheet1.hide(worksheet1);
-   * @endcode
-   */
-  void hide();
 
   /**
    * @brief Set the option to display or hide gridlines on the screen and
@@ -5510,15 +4726,17 @@ public:
    */
   void set_start_page(uint16_t start_page);
 
-  // TODO Only used by workbook, should be private.
-  void set_error_cell(const object_properties_t& object_props, uint32_t ref_id);
-
-  // TODO Only used by packager, should be private.
+  // Used by packager.
   [[nodiscard]] std::string assemble_xml_file();
 
+  // Getter.
+  [[nodiscard]] bool has_background_image() const override;
+  [[nodiscard]] object_properties_t get_background_image() const override;
+  [[nodiscard]] bool has_embedded_image() const override;
+  [[nodiscard]] std::vector<object_properties_t>& get_embedded_image_properties() override;
+  [[nodiscard]] const std::vector<object_properties_t>& get_embedded_image_properties() const override;
+
   static const size_t MAX_NUMBER_URLS;
-  static const row_num_t ROW_MAX;
-  static const col_num_t COL_MAX;
   static const size_t STR_MAX;
   static const col_num_t COL_META_MAX;
 
@@ -5529,14 +4747,9 @@ private:
   friend class rich_value_t;
   friend class chartsheet_t;
 
-  // Retrieve functions
-  [[nodiscard]] const std::string& get_sheet_name() const;
-  [[nodiscard]] uint16_t get_sheet_index() const;
-  [[nodiscard]] row_t& get_row(row_num_t row_num);
-
   // Insertion functions.
-  void check_dimensions(row_num_t row_num, col_num_t col_num, bool ignore_row, bool ignore_col);
   void insert_cell(row_num_t row_num, col_num_t col_num, const cell_t& cell);
+  void check_dimensions(row_num_t row_num, col_num_t col_num, bool ignore_row, bool ignore_col);
   void insert_hyperlink(row_num_t row_num, col_num_t col_num, const cell_t& link);
   void insert_comment(row_num_t row_num, col_num_t col_num, const cell_t& link);
   void insert_cell_placeholder(row_num_t row_num, col_num_t col_num);
@@ -5549,33 +4762,35 @@ private:
   void write_column_formula(row_num_t first_row, row_num_t last_row, col_num_t col, const table_column_t& column);
 
   // Function to prepare data before packaging.
-  void set_header_footer_image(const std::string& filename, image_position_t image_position);
   [[nodiscard]] uint32_t prepare_vml_objects(uint32_t vml_data_id, uint32_t vml_shape_id, uint32_t vml_drawing_id,
                                              uint32_t comment_id);
-  [[nodiscard]] uint32_t size_col(col_num_t col_num, object_position_t anchor) const;
-  [[nodiscard]] uint32_t size_row(row_num_t row_num, object_position_t anchor) const;
-  [[nodiscard]] const row_t* find_row(row_num_t row_num) const;
   [[nodiscard]] static const cell_t* find_cell_in_row(const row_t* row, col_num_t col_num);
-  void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object) const;
-  void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object) const;
   void position_vml_object(vml_obj_t& vml_obj) const;
-  [[nodiscard]] uint32_t find_drawing_rel_index(const std::string& target);
-  [[nodiscard]] uint32_t find_vml_drawing_rel_index(const std::string& target);
-  [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
-  [[nodiscard]] uint32_t get_vml_drawing_rel_index(const std::string& target);
-  void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props);
-  void prepare_header_image(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_header_vml_objects(uint32_t vml_header_id, uint32_t vml_drawing_id);
-  void prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props, bool is_chartsheet);
-  void prepare_background(uint32_t image_ref_id, object_properties_t& object_props);
   void prepare_tables(uint32_t table_id);
+  [[nodiscard]] uint32_t size_col(col_num_t col_num, object_position_t anchor) const;
+  [[nodiscard]] const row_t* find_row(row_num_t row_num) const;
+  [[nodiscard]] uint32_t size_row(row_num_t row_num, object_position_t anchor) const;
+  void position_object_pixels(const object_properties_t& object_props, drawing_object_t& drawing_object) const;
+  void position_object_emus(const object_properties_t& image, drawing_object_t& drawing_object) const;
+  void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props) override;
+  void prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props) override;
+  void set_error_cell(const object_properties_t& object_props, uint32_t ref_id) override;
+  void prepare_background(uint32_t image_ref_id, object_properties_t& object_props) override;
+  [[nodiscard]] row_t& get_row(row_num_t row_num);
 
   // Functions to write XML content.
   [[nodiscard]] std::string write_worksheet() const;
-  [[nodiscard]] std::string write_sheet_pr() const;
   [[nodiscard]] std::string write_dimension() const;
-  [[nodiscard]] std::string write_sheet_view();
-  [[nodiscard]] std::string write_sheet_views();
+  [[nodiscard]] std::string write_outline_pr() const;
+  [[nodiscard]] std::string write_freeze_panes();
+  [[nodiscard]] std::string write_split_panes();
+  [[nodiscard]] std::string write_panes();
+  [[nodiscard]] std::string write_selections() const;
+  [[nodiscard]] std::string write_sheet_view() override;
+  [[nodiscard]] std::string write_sheet_pr() const override;
+  [[nodiscard]] std::string write_page_set_up_pr() const;
+  [[nodiscard]] std::string write_page_setup() const override;
   [[nodiscard]] std::string write_sheet_format_pr() const;
   [[nodiscard]] std::string write_cols() const;
   [[nodiscard]] std::string write_col_info(const col_options_t& options) const;
@@ -5586,13 +4801,9 @@ private:
   [[nodiscard]] std::string write_data_validations() const;
   [[nodiscard]] std::string write_hyperlinks();
   [[nodiscard]] std::string write_print_options() const;
-  [[nodiscard]] std::string write_page_margins() const;
-  [[nodiscard]] std::string write_page_setup() const;
-  [[nodiscard]] std::string write_header_footer() const;
   [[nodiscard]] std::string write_row_breaks() const;
   [[nodiscard]] std::string write_col_breaks() const;
   [[nodiscard]] std::string write_ignored_errors() const;
-  [[nodiscard]] std::string write_drawings();
   [[nodiscard]] std::string write_legacy_drawing();
   [[nodiscard]] std::string write_legacy_drawing_hf();
   [[nodiscard]] std::string write_picture();
@@ -5604,14 +4815,10 @@ private:
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_cell(const cell_t& cell, format_t* row_format) const;
-  [[nodiscard]] std::string write_odd_header() const;
-  [[nodiscard]] std::string write_odd_footer() const;
-  [[nodiscard]] std::string write_tab_color() const;
   [[nodiscard]] static std::string write_merge_cell(const merged_range_t& merged_range);
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_boolean_cell(const cell_t& cell) const;
-  [[nodiscard]] static std::string write_sheet_protection(const protection_obj_t& protection);
   [[nodiscard]] static std::string write_filter_column(const std::optional<filter_rule_obj_t>& filter);
   [[nodiscard]] static std::string write_filter_standard(const filter_rule_obj_t& filter);
   [[nodiscard]] static std::string write_filter_list(const filter_rule_obj_t& filter);
@@ -5640,138 +4847,132 @@ private:
   [[nodiscard]] static std::string write_xm_sqref(const cond_format_obj_t& cond_format);
   [[nodiscard]] static std::string write_x14_data_bar(cond_format_obj_t& cond_format);
   [[nodiscard]] static std::string write_data_validation(const data_val_obj_t& validation);
-  [[nodiscard]] std::string write_panes();
-  [[nodiscard]] std::string write_freeze_panes();
-  [[nodiscard]] std::string write_split_panes();
-  [[nodiscard]] static std::string write_selection(const selection_t& selection);
-  [[nodiscard]] std::string write_selections() const;
-  [[nodiscard]] std::string write_page_set_up_pr() const;
-  [[nodiscard]] std::string write_outline_pr() const;
 
+  // Getter for properties
+  [[nodiscard]] bool is_outline_changed() const override;
+  [[nodiscard]] size_t get_table_count() const override;
+
+  // Getter for format index
   std::function<int32_t(format_t*)> get_xf_index_;
   std::function<int32_t(format_t*)> get_dxf_index_;
+
+  // Worksheet properties
+  bool use_1904_epoch_ = false;
+
+  // Worksheet content
+  bool has_dynamic_functions_ = false;
   table_rows_t table_;
-  table_rows_t hyperlinks_;
-  table_rows_t comments_;
-  std::vector<merged_range_t> merged_ranges_;
-  std::list<selection_t> selections_;
-  std::vector<data_val_obj_t> data_validations_;
-  std::map<std::string, std::vector<cond_format_obj_t>, std::less<>> conditional_formats_;
-  std::vector<object_properties_t> image_props_;
-  std::vector<object_properties_t> embedded_image_props_;
-  std::vector<object_properties_t> chart_data_;
-  std::map<std::string, uint32_t, std::less<>> drawing_rel_ids_;
-  std::map<std::string, uint32_t, std::less<>> vml_drawing_rel_ids_;
-  std::vector<vml_obj_t> comment_objs_;
-  std::vector<vml_obj_t> header_image_objs_;
-  std::vector<vml_obj_t> button_objs_;
   std::vector<table_obj_t> table_objs_;
-  row_num_t dim_rowmin_  = ROW_MAX;
-  row_num_t dim_rowmax_  = 0;
-  col_num_t dim_colmin_  = COL_MAX;
-  col_num_t dim_colmax_  = 0;
-  shared_strings_t* sst_ = nullptr;
-  std::string name_;
-  std::string quoted_name_;
-  uint16_t index_         = 0;
-  bool active_            = true; // TODO Set to true for test, to be removed
-  bool selected_          = false;
-  bool hidden_            = false;
-  uint16_t* active_sheet_ = nullptr;
-  uint16_t* first_sheet_  = nullptr;
-  bool is_chartsheet_     = false;
-  std::vector<col_options_t> col_options_;
-  std::vector<format_t*> col_formats_;
-  bool col_size_changed_             = false;
-  bool row_size_changed_             = false;
-  uint16_t fit_height_               = 0;
-  uint16_t fit_width_                = 0;
-  uint16_t horizontal_dpi_           = 0;
-  uint16_t hlink_count_              = 0;
-  uint16_t page_start_               = 0;
-  uint16_t print_scale_              = 100;
-  uint16_t rel_count_                = 0;
-  uint16_t vertical_dpi_             = 0;
-  uint16_t zoom_                     = 100;
-  bool filter_on_                    = false;
-  bool fit_page_                     = false;
-  bool hcenter_                      = false;
-  drawing_orientation_t orientation_ = drawing_orientation_t::PORTRAIT;
-  bool outline_changed_              = false;
-  bool outline_on_                   = true;
-  bool outline_style_                = true;
-  bool outline_below_                = true;
-  bool outline_right_                = false;
-  uint8_t page_order_                = 0;
-  bool page_setup_changed_           = false;
-  bool page_view_                    = false;
-  uint8_t paper_size_                = 0;
-  bool print_gridlines_              = false;
-  bool print_headers_                = false;
-  bool print_options_changed_        = false;
-  bool right_to_left_                = false;
-  bool screen_gridlines_             = true;
-  bool show_zeros_                   = true;
-  bool vcenter_                      = false;
-  bool zoom_scale_normal_            = true;
-  bool black_white_                  = false;
-  bool has_dynamic_functions_        = false;
-  std::string vba_codename_;
-  color_t tab_color_           = color_t::UNSET;
-  double margin_left_          = 0.7;
-  double margin_right_         = 0.7;
-  double margin_top_           = 0.75;
-  double margin_bottom_        = 0.75;
-  double margin_header_        = 0.3;
-  double margin_footer_        = 0.3;
+
+  // Worksheet view
+  row_num_t dim_rowmin_ = ROW_MAX;
+  row_num_t dim_rowmax_ = 0;
+  col_num_t dim_colmin_ = COL_MAX;
+  col_num_t dim_colmax_ = 0;
+  panes_t panes_;
+  std::list<selection_t> selections_;
+  bool screen_gridlines_ = true;
+  bool show_zeros_       = true;
+  bool right_to_left_    = false;
+  std::string top_left_cell_;
+  bool page_view_ = false;
+
+  // Rows properties
+  bool row_size_changed_       = false;
   double default_row_height_   = DEF_ROW_HEIGHT;
   uint32_t default_row_pixels_ = 20;
-  uint32_t default_col_pixels_ = 64;
   bool default_row_zeroed_     = false;
   bool default_row_set_        = false;
   uint8_t outline_row_level_   = 0;
-  uint8_t outline_col_level_   = 0;
-  bool header_footer_changed_  = false;
-  std::string header_;
-  std::string footer_;
   repeat_rows_t repeat_rows_;
+
+  // Cols properties
+  bool col_size_changed_       = false;
+  uint32_t default_col_pixels_ = 64;
+  uint8_t outline_col_level_   = 0;
   repeat_cols_t repeat_cols_;
+  std::vector<col_options_t> col_options_;
+
+  // Format
+  format_t* default_url_format_ = nullptr;
+  std::vector<format_t*> col_formats_;
+
+  // Outlines
+  bool outline_changed_ = false;
+  bool outline_on_      = true;
+  bool outline_style_   = true;
+  bool outline_below_   = true;
+  bool outline_right_   = false;
+
+  // Page setup
+  bool fit_page_       = false;
+  uint16_t fit_height_ = 0;
+  uint16_t fit_width_  = 0;
+
+  // Print options
+  bool print_options_changed_ = false;
+  bool hcenter_               = false;
+  bool vcenter_               = false;
+  bool print_gridlines_       = false;
+  bool print_headers_         = false;
+  bool black_white_           = false;
+  uint16_t print_scale_       = 100;
+  uint8_t page_order_         = 0;
+  uint16_t page_start_        = 0;
   print_area_t print_area_;
-  autofilter_t autofilter_;
-  uint16_t max_url_length_ = 2079;
   std::vector<row_num_t> hbreaks_;
   std::vector<col_num_t> vbreaks_;
-  uint32_t drawing_rel_id_     = 0;
-  uint32_t vml_drawing_rel_id_ = 0;
-  std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
-  std::vector<std::tuple<std::string, std::string, std::string>> external_drawing_links_;
-  std::vector<std::tuple<std::string, std::string, std::string>> drawing_links_;
-  std::vector<std::tuple<std::string, std::string, std::string>> vml_drawing_links_;
-  std::vector<std::tuple<std::string, std::string, std::string>> external_table_links_;
-  panes_t panes_;
-  std::string top_left_cell_;
-  protection_obj_t protection_;
-  std::optional<drawing_t> drawing_;
-  format_t* default_url_format_ = nullptr;
-  bool has_vml_                 = false;
-  bool has_comments_            = false;
-  bool has_header_vml_          = false;
-  bool has_background_image_    = false;
-  bool has_buttons_             = false;
-  bool storing_embedded_image_  = false;
-  std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
-  std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
-  std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
-  std::optional<std::tuple<std::string, std::string, std::string>> external_background_link_;
+
+  // Shared strings
+  shared_strings_t* sst_ = nullptr;
+
+  // Comments
+  bool has_comments_ = false;
+  table_rows_t comments_;
+  std::vector<vml_obj_t> comment_objs_;
   std::string comment_author_;
-  std::string vml_data_id_str_;
-  std::string vml_header_id_str_;
-  uint32_t vml_shape_id_                     = 0;
-  uint32_t vml_header_id_                    = 0;
-  uint32_t dxf_priority_                     = 0;
   comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
-  uint32_t data_bar_2010_index_              = 0;
-  bool has_ignore_errors_                    = false;
+
+  // Links
+  table_rows_t hyperlinks_;
+  uint16_t hlink_count_    = 0;
+  uint16_t max_url_length_ = 2079;
+  std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
+  std::vector<std::tuple<std::string, std::string, std::string>> external_table_links_;
+
+  // Images
+  bool storing_embedded_image_ = false;
+  std::vector<object_properties_t> embedded_image_props_;
+
+  // Background
+  bool has_background_image_ = false;
+  std::optional<object_properties_t> background_image_;
+  std::optional<std::tuple<std::string, std::string, std::string>> external_background_link_;
+
+  // Merged ranges
+  std::vector<merged_range_t> merged_ranges_;
+
+  // Filters
+  bool filter_on_ = false;
+  autofilter_t autofilter_;
+  std::vector<std::optional<filter_rule_obj_t>> filter_rules_;
+  col_num_t num_filter_rules_ = 0;
+
+  // Validation
+  std::vector<data_val_obj_t> data_validations_;
+
+  // Conditonal formats
+  uint32_t dxf_priority_ = 0;
+  std::map<std::string, std::vector<cond_format_obj_t>, std::less<>> conditional_formats_;
+
+  // Buttons
+  std::vector<vml_obj_t> button_objs_;
+
+  // VBA
+  std::string vba_codename_;
+
+  // Errors
+  bool has_ignore_errors_ = false;
   std::string ignore_number_stored_as_text_;
   std::string ignore_eval_error_;
   std::string ignore_formula_differs_;
@@ -5781,12 +4982,20 @@ private:
   std::string ignore_list_data_validation_;
   std::string ignore_calculated_column_;
   std::string ignore_two_digit_text_year_;
-  bool use_1904_epoch_    = false;
-  uint16_t excel_version_ = 0;
-  std::array<std::optional<object_properties_t>, 6> header_footer_objs_;
-  std::optional<object_properties_t> background_image_;
-  std::vector<std::optional<filter_rule_obj_t>> filter_rules_;
-  col_num_t num_filter_rules_ = 0;
+
+  // VML
+  bool has_vml_ = false;
+  std::string vml_data_id_str_;
+  std::string vml_header_id_str_;
+  uint32_t vml_shape_id_  = 0;
+  uint32_t vml_header_id_ = 0;
+  std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
+  std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
+  std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
+
+  // Excel version
+  uint16_t excel_version_       = 0; // TODO Default value
+  uint32_t data_bar_2010_index_ = 0; // TODO Useful ?
 };
 
 /// @cond

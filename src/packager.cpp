@@ -64,8 +64,10 @@
 #include "xwpp/vml.h"
 #include "xwpp/xmlwriter.h"
 
+#include <algorithm>
 #include <format>
 #include <fstream>
+#include <numeric>
 #include <string>
 
 namespace xwpp
@@ -141,10 +143,10 @@ void packager_t::create_package(workbook_t& workbook)
 void packager_t::write_content_types_file(const workbook_t& workbook)
 {
   content_types_t content_types;
-  uint32_t worksheet_index     = 1;
-  uint32_t chartsheet_index    = 1;
-  const uint32_t drawing_count = get_drawing_count(workbook);
-  const uint32_t table_count   = get_table_count(workbook);
+  uint32_t worksheet_index   = 1;
+  uint32_t chartsheet_index  = 1;
+  const size_t drawing_count = get_drawing_count(workbook);
+  const size_t table_count   = get_table_count(workbook);
 
   if(workbook.has_png_)
   {
@@ -181,14 +183,14 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_override("/xl/vbaProjectSignature.bin", "application/vnd.ms-office.vbaProjectSignature");
   }
 
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto* sheet: workbook.sheets_)
   {
-    if(std::holds_alternative<chartsheet_t>(sheet))
+    if(sheet->is_chartsheet())
     {
       content_types.add_chartsheet_name(std::format("/xl/chartsheets/sheet{}.xml", chartsheet_index));
       chartsheet_index++;
     }
-    else if(std::holds_alternative<worksheet_t>(sheet))
+    else
     {
       content_types.add_worksheet_name(std::format("/xl/worksheets/sheet{}.xml", worksheet_index));
       worksheet_index++;
@@ -200,12 +202,12 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_chart_name(std::format("/xl/charts/chart{}.xml", index));
   }
 
-  for(uint32_t index = 1; index <= drawing_count; index++)
+  for(size_t index = 1; index <= drawing_count; index++)
   {
     content_types.add_drawing_name(std::format("/xl/drawings/drawing{}.xml", index));
   }
 
-  for(uint32_t index = 1; index <= table_count; index++)
+  for(size_t index = 1; index <= table_count; index++)
   {
     content_types.add_table_name(std::format("/xl/tables/table{}.xml", index));
   }
@@ -264,15 +266,14 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
   uint32_t worksheet_index  = 1;
   uint32_t chartsheet_index = 1;
 
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto* sheet: workbook.sheets_)
   {
-    if(std::holds_alternative<chartsheet_t>(sheet))
+    if(sheet->is_chartsheet())
     {
       relationships.add_document("/chartsheet", std::format("chartsheets/sheet{}.xml", chartsheet_index));
       chartsheet_index++;
     }
-
-    if(std::holds_alternative<worksheet_t>(sheet))
+    else
     {
       relationships.add_document("/worksheet", std::format("worksheets/sheet{}.xml", worksheet_index));
       worksheet_index++;
@@ -310,32 +311,22 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
 void packager_t::write_worksheet_files(workbook_t& workbook)
 {
   // Use ref to modify worksheet (add relations in external_hyperlinks_)
-  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  for(size_t index = 1; auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
-    {
-      auto& worksheet = std::get<worksheet_t>(sheet);
-
-      const std::string xml_data = worksheet.assemble_xml_file();
-      add_buffer_to_zip(xml_data, std::format("xl/worksheets/sheet{}.xml", index));
-      index++;
-    }
+    const std::string xml_data = worksheet.assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/worksheets/sheet{}.xml", index));
+    index++;
   }
 }
 
 // cppcheck-suppress constParameterReference
 void packager_t::write_chartsheet_files(workbook_t& workbook)
 {
-  for(size_t index = 1; auto& sheet: workbook.sheets_)
+  for(size_t index = 1; auto& chartsheet: workbook.chartsheets_)
   {
-    if(std::holds_alternative<chartsheet_t>(sheet))
-    {
-      auto& chartsheet = std::get<chartsheet_t>(sheet);
-
-      const std::string xml_data = chartsheet.assemble_xml_file();
-      add_buffer_to_zip(xml_data, std::format("xl/chartsheets/sheet{}.xml", index));
-      index++;
-    }
+    const std::string xml_data = chartsheet.assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/chartsheets/sheet{}.xml", index));
+    index++;
   }
 }
 
@@ -379,32 +370,25 @@ void packager_t::write_app_file(const workbook_t& workbook)
 {
   app_t app;
 
-  if(workbook.num_worksheets_ != 0)
+  if(!workbook.worksheets_.empty())
   {
-    app.add_heading_pair("Worksheets", std::to_string(workbook.num_worksheets_));
+    app.add_heading_pair("Worksheets", std::to_string(workbook.worksheets_.size()));
   }
 
-  if(workbook.num_chartsheets_ != 0)
+  if(!workbook.chartsheets_.empty())
   {
-    app.add_heading_pair("Charts", std::to_string(workbook.num_chartsheets_));
+    app.add_heading_pair("Charts", std::to_string(workbook.chartsheets_.size()));
   }
 
   // Two passes to have the same order of Excel: first worksheet and then chartsheet
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
-    {
-      const auto& ws = std::get<worksheet_t>(sheet);
-      app.add_part_name(ws.get_sheet_name());
-    }
+    app.add_part_name(worksheet.get_sheet_name());
   }
-  for(const auto& sheet: workbook.sheets_)
+
+  for(const auto& chartsheet: workbook.chartsheets_)
   {
-    if(std::holds_alternative<chartsheet_t>(sheet))
-    {
-      const auto& cs = std::get<chartsheet_t>(sheet);
-      app.add_part_name(cs.get_sheet_name());
-    }
+    app.add_part_name(chartsheet.get_sheet_name());
   }
 
   // Add the Named Ranges parts.
@@ -462,96 +446,84 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 {
   uint32_t index = 0;
 
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    relationships_t relationships;
+
+    index++;
+
+    if(worksheet.external_hyperlinks_.empty() && worksheet.external_drawing_links_.empty() &&
+       worksheet.external_table_links_.empty() && !worksheet.external_vml_header_link_.has_value() &&
+       !worksheet.external_vml_comment_link_.has_value() && !worksheet.external_background_link_.has_value() &&
+       !worksheet.external_comment_link_.has_value())
     {
-      const auto& ws = std::get<worksheet_t>(sheet);
-      relationships_t relationships;
-
-      index++;
-
-      if(ws.external_hyperlinks_.empty() && ws.external_drawing_links_.empty() && ws.external_table_links_.empty() &&
-         !ws.external_vml_header_link_.has_value() && !ws.external_vml_comment_link_.has_value() &&
-         !ws.external_background_link_.has_value() && !ws.external_comment_link_.has_value())
-      {
-        continue;
-      }
-
-      for(const auto& [type, target, target_mode]: ws.external_hyperlinks_)
-      {
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      for(const auto& [type, target, target_mode]: ws.external_drawing_links_)
-      {
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      if(ws.external_vml_comment_link_.has_value())
-      {
-        const auto [type, target, target_mode] = ws.external_vml_comment_link_.value();
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      if(ws.external_vml_header_link_.has_value())
-      {
-        const auto [type, target, target_mode] = ws.external_vml_header_link_.value();
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      if(ws.external_background_link_.has_value())
-      {
-        const auto [type, target, target_mode] = ws.external_background_link_.value();
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      for(const auto& [type, target, target_mode]: ws.external_table_links_)
-      {
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      if(ws.external_comment_link_.has_value())
-      {
-        const auto [type, target, target_mode] = ws.external_comment_link_.value();
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      const std::string xml_data = relationships.assemble_xml_file();
-      add_buffer_to_zip(xml_data, std::format("xl/worksheets/_rels/sheet{}.xml.rels", index));
+      continue;
     }
+
+    for(const auto& [type, target, target_mode]: worksheet.external_hyperlinks_)
+    {
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    for(const auto& [type, target, target_mode]: worksheet.external_drawing_links_)
+    {
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    if(worksheet.external_vml_comment_link_.has_value())
+    {
+      const auto [type, target, target_mode] = worksheet.external_vml_comment_link_.value();
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    if(worksheet.external_vml_header_link_.has_value())
+    {
+      const auto [type, target, target_mode] = worksheet.external_vml_header_link_.value();
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    if(worksheet.external_background_link_.has_value())
+    {
+      const auto [type, target, target_mode] = worksheet.external_background_link_.value();
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    for(const auto& [type, target, target_mode]: worksheet.external_table_links_)
+    {
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    if(worksheet.external_comment_link_.has_value())
+    {
+      const auto [type, target, target_mode] = worksheet.external_comment_link_.value();
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    const std::string xml_data = relationships.assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/worksheets/_rels/sheet{}.xml.rels", index));
   }
 }
 
 void packager_t::write_chartsheet_rels_file(const workbook_t& workbook)
 {
-  for(size_t index = 0; const auto& sheet: workbook.sheets_)
+  for(size_t index = 0; const auto& chartsheet: workbook.chartsheets_)
   {
-    if(std::holds_alternative<chartsheet_t>(sheet))
+    relationships_t relationships;
+
+    index++;
+
+    if(chartsheet.external_drawing_links_.empty())
     {
-      const auto& ws = std::get<chartsheet_t>(sheet).worksheet_;
-      relationships_t relationships;
-
-      index++;
-
-      if(ws.external_drawing_links_.empty())
-      {
-        continue;
-      }
-
-      for(const auto& [type, target, target_mode]: ws.external_hyperlinks_)
-      {
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      for(const auto& [type, target, target_mode]: ws.external_drawing_links_)
-      {
-        relationships.add_worksheet(type, target, target_mode);
-      }
-
-      const std::string xml_data = relationships.assemble_xml_file();
-      add_buffer_to_zip(xml_data, std::format("xl/chartsheets/_rels/sheet{}.xml.rels", index));
+      continue;
     }
+
+    for(const auto& [type, target, target_mode]: chartsheet.external_drawing_links_)
+    {
+      relationships.add_worksheet(type, target, target_mode);
+    }
+
+    const std::string xml_data = relationships.assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/chartsheets/_rels/sheet{}.xml.rels", index));
   }
 }
 
@@ -559,34 +531,29 @@ void packager_t::write_vml_files(const workbook_t& workbook)
 {
   uint32_t index = 1;
 
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(!worksheet.has_vml_ && !worksheet.has_header_vml())
     {
-      const auto& ws = std::get<worksheet_t>(sheet);
+      continue;
+    }
 
-      if(!ws.has_vml_ && !ws.has_header_vml_)
-      {
-        continue;
-      }
+    if(worksheet.has_vml_)
+    {
+      vml_t vml(worksheet.vml_data_id_str_, worksheet.comment_objs_, worksheet.button_objs_, worksheet.vml_shape_id_,
+                worksheet.comment_display_default_);
+      const std::string xml_data = vml.assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
+      index++;
+    }
 
-      if(ws.has_vml_)
-      {
-        vml_t vml(ws.vml_data_id_str_, ws.comment_objs_, ws.button_objs_, ws.vml_shape_id_,
-                  ws.comment_display_default_);
-        const std::string xml_data = vml.assemble_xml_file();
-        add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
-        index++;
-      }
-
-      if(ws.has_header_vml_)
-      {
-        write_vml_drawing_rels_file(ws, index);
-        vml_t vml(ws.vml_header_id_str_, ws.header_image_objs_, ws.vml_header_id_ * 1024);
-        const std::string xml_data = vml.assemble_xml_file();
-        add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
-        index++;
-      }
+    if(worksheet.has_header_vml())
+    {
+      write_vml_drawing_rels_file(worksheet, index);
+      vml_t vml(worksheet.vml_header_id_str_, worksheet.header_image_objs_, worksheet.vml_header_id_ * 1024);
+      const std::string xml_data = vml.assemble_xml_file();
+      add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
+      index++;
     }
   }
 }
@@ -595,34 +562,27 @@ void packager_t::write_comment_files(const workbook_t& workbook)
 {
   uint32_t index = 1;
 
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(!worksheet.has_comments_)
     {
-      const auto& ws = std::get<worksheet_t>(sheet);
-
-      if(!ws.has_comments_)
-      {
-        continue;
-      }
-
-      comment_t comment(ws.comment_objs_, ws.comment_author_);
-      const std::string xml_data = comment.assemble_xml_file();
-      add_buffer_to_zip(xml_data, std::format("xl/comments{}.xml", index));
-      index++;
+      continue;
     }
+
+    comment_t comment(worksheet.comment_objs_, worksheet.comment_author_);
+    const std::string xml_data = comment.assemble_xml_file();
+    add_buffer_to_zip(xml_data, std::format("xl/comments{}.xml", index));
+    index++;
   }
 }
 
 void packager_t::write_drawing_files(const workbook_t& workbook)
 {
-  for(size_t index = 1; const auto& sheet: workbook.sheets_)
+  for(size_t index = 1; const auto* sheet: workbook.sheets_)
   {
-    const auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
-                                                                       : std::get<chartsheet_t>(sheet).worksheet_;
-    if(worksheet.drawing_)
+    if(sheet->drawing_.has_value())
     {
-      const std::string xml_data = worksheet.drawing_->assemble_xml_file();
+      const std::string xml_data = sheet->drawing_->assemble_xml_file();
       add_buffer_to_zip(xml_data, std::format("xl/drawings/drawing{}.xml", index));
       index++;
     }
@@ -633,12 +593,10 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 {
   for(size_t index = 1; const auto& sheet: workbook.sheets_)
   {
-    const auto& worksheet = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
-                                                                       : std::get<chartsheet_t>(sheet).worksheet_;
-    if(!worksheet.drawing_links_.empty())
+    if(!sheet->drawing_links_.empty())
     {
       relationships_t relationships;
-      for(const auto& [type, target, target_mode]: worksheet.drawing_links_)
+      for(const auto& [type, target, target_mode]: sheet->drawing_links_)
       {
         relationships.add_worksheet(type, target, target_mode);
       }
@@ -652,52 +610,47 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 
 void packager_t::write_image_files(const workbook_t& workbook)
 {
-  for(size_t index = 1; const auto& sheet: workbook.sheets_)
+  for(size_t index = 1; const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(!worksheet.image_props_.empty() || worksheet.has_embedded_image())
     {
-      const auto& worksheet = std::get<worksheet_t>(sheet);
-
-      if(!worksheet.image_props_.empty() || !worksheet.embedded_image_props_.empty())
+      for(const auto& object_props: worksheet.get_embedded_image_properties())
       {
-        for(const auto& object_props: worksheet.embedded_image_props_)
+        if(!object_props.is_duplicate_)
         {
-          if(!object_props.is_duplicate_)
+          if(object_props.image_buffer_.empty())
           {
-            if(object_props.image_buffer_.empty())
-            {
-              // Read image.
-              std::ifstream image_stream(object_props.filename_, std::ios::binary);
-              const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
-              add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
-            }
-            else
-            {
-              add_buffer_to_zip(object_props.image_buffer_,
-                                std::format("xl/media/image{}.{}", index, object_props.extension_));
-            }
-            index++;
+            // Read image.
+            std::ifstream image_stream(object_props.filename_, std::ios::binary);
+            const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
           }
+          else
+          {
+            add_buffer_to_zip(object_props.image_buffer_,
+                              std::format("xl/media/image{}.{}", index, object_props.extension_));
+          }
+          index++;
         }
+      }
 
-        for(const auto& object_props: worksheet.image_props_)
+      for(const auto& object_props: worksheet.image_props_)
+      {
+        if(!object_props.is_duplicate_)
         {
-          if(!object_props.is_duplicate_)
+          if(object_props.image_buffer_.empty())
           {
-            if(object_props.image_buffer_.empty())
-            {
-              // Read image.
-              std::ifstream image_stream(object_props.filename_, std::ios::binary);
-              const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
-              add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
-            }
-            else
-            {
-              add_buffer_to_zip(object_props.image_buffer_,
-                                std::format("xl/media/image{}.{}", index, object_props.extension_));
-            }
-            index++;
+            // Read image.
+            std::ifstream image_stream(object_props.filename_, std::ios::binary);
+            const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
           }
+          else
+          {
+            add_buffer_to_zip(object_props.image_buffer_,
+                              std::format("xl/media/image{}.{}", index, object_props.extension_));
+          }
+          index++;
         }
       }
     }
@@ -726,21 +679,16 @@ void packager_t::write_rich_value_rels_file(const workbook_t& workbook)
 
   relationships_t relationships;
 
-  for(size_t index = 1; const auto& sheet: workbook.sheets_)
+  for(size_t index = 1; const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(worksheet.has_embedded_image())
     {
-      const auto& worksheet = std::get<0>(sheet);
-      if(!worksheet.embedded_image_props_.empty())
+      for(const auto& object_props: worksheet.get_embedded_image_properties())
       {
-        for(const auto& object_props: worksheet.embedded_image_props_)
+        if(!object_props.is_duplicate_)
         {
-
-          if(!object_props.is_duplicate_)
-          {
-            relationships.add_document("/image", std::format("../media/image{}.{}", index, object_props.extension_));
-            index++;
-          }
+          relationships.add_document("/image", std::format("../media/image{}.{}", index, object_props.extension_));
+          index++;
         }
       }
     }
@@ -818,21 +766,17 @@ void packager_t::write_chart_files(const workbook_t& workbook)
 
 void packager_t::write_table_files(const workbook_t& workbook)
 {
-  for(uint32_t index = 1; const auto& sheet: workbook.sheets_)
+  for(uint32_t index = 1; const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(!worksheet.table_objs_.empty())
     {
-      const auto& ws = std::get<worksheet_t>(sheet);
-      if(!ws.table_objs_.empty())
+      for(const auto& table_obj: worksheet.table_objs_)
       {
-        for(const auto& table_obj: ws.table_objs_)
-        {
-          const table_t table{table_obj};
+        const table_t table{table_obj};
 
-          const std::string xml_data = table.assemble_xml_file();
-          add_buffer_to_zip(xml_data, std::format("xl/tables/table{}.xml", index));
-          index++;
-        }
+        const std::string xml_data = table.assemble_xml_file();
+        add_buffer_to_zip(xml_data, std::format("xl/tables/table{}.xml", index));
+        index++;
       }
     }
   }
@@ -923,54 +867,16 @@ void packager_t::add_buffer_to_zip(const std::vector<unsigned char>& buffer, con
   }
 }
 
-uint32_t packager_t::get_drawing_count(const workbook_t& workbook) const
+size_t packager_t::get_drawing_count(const workbook_t& workbook) const
 {
-  uint32_t drawing_count = 0;
-
-  for(const auto& sheet: workbook.sheets_)
-  {
-    if(std::holds_alternative<chartsheet_t>(sheet))
-    {
-      const auto& ws = std::get<chartsheet_t>(sheet).worksheet_;
-      if(ws.drawing_)
-      {
-        drawing_count++;
-      }
-    }
-
-    if(std::holds_alternative<worksheet_t>(sheet))
-    {
-      const auto& ws = std::get<worksheet_t>(sheet);
-      if(ws.drawing_)
-      {
-        drawing_count++;
-      }
-    }
-  }
-
-  return drawing_count;
+  return static_cast<size_t>(
+    std::ranges::count_if(workbook.sheets_, [](const sheet_t* sheet) { return sheet->drawing_.has_value(); }));
 }
 
-uint32_t packager_t::get_table_count(const workbook_t& workbook) const
+size_t packager_t::get_table_count(const workbook_t& workbook) const
 {
-  uint32_t table_count = 0;
-
-  for(const auto& sheet: workbook.sheets_)
-  {
-    if(std::holds_alternative<chartsheet_t>(sheet))
-    {
-      const auto& ws = std::get<chartsheet_t>(sheet).worksheet_;
-      table_count += static_cast<uint32_t>(ws.table_objs_.size());
-    }
-
-    if(std::holds_alternative<worksheet_t>(sheet))
-    {
-      const auto& ws = std::get<worksheet_t>(sheet);
-      table_count += static_cast<uint32_t>(ws.table_objs_.size());
-    }
-  }
-
-  return table_count;
+  return std::accumulate(std::begin(workbook.sheets_), std::end(workbook.sheets_), size_t{0},
+                         [](size_t count, const sheet_t* sheet) { return count + sheet->get_table_count(); });
 }
 
 }

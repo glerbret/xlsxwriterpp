@@ -48,7 +48,6 @@
 #include <cstdint>
 #include <list>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 /// @cond
@@ -58,8 +57,8 @@ namespace xwpp
 
 struct defined_name_t
 {
-  int16_t index_ = 0;
-  bool hidden_   = false;
+  size_t index_ = 0;
+  bool hidden_  = false;
   std::string name_;
   std::string app_name_;
   std::string formula_;
@@ -861,7 +860,7 @@ private:
   void prepare_num_formats();
   void prepare_borders();
   void prepare_vml();
-  void store_defined_name(std::string_view name, std::string_view app_name, std::string_view formula, int16_t index,
+  void store_defined_name(std::string_view name, std::string_view app_name, std::string_view formula, size_t index,
                           bool hidden);
   void prepare_defined_names();
   void store_image_type(image_types_t image_type);
@@ -887,13 +886,16 @@ private:
   static const size_t XWPP_SHEETNAME_MAX = 31;
 
   // Use list to not invalidate referenced owned by caller in case of insertion of new items.
-  std::list<std::variant<worksheet_t, chartsheet_t>> sheets_;
-  std::list<chart_t> charts_;
-  std::list<format_t> formats_;
-  std::list<defined_name_t> defined_names_;
+  std::list<worksheet_t> worksheets_;
+  std::list<chartsheet_t> chartsheets_;
   // As the unicity of sheet name is case insensitive, the name is stored as lower case.
   std::map<std::string, worksheet_t*, std::less<>> worksheet_names_;
   std::map<std::string, chartsheet_t*, std::less<>> chartsheet_names_;
+  // Complete list of sheets (worksheets and chartsheets) in creation order
+  std::vector<sheet_t*> sheets_;
+  std::list<chart_t> charts_;
+  std::list<format_t> formats_;
+  std::list<defined_name_t> defined_names_;
   std::map<std::string, uint32_t, std::less<>> image_md5_;
   std::map<std::string, uint32_t, std::less<>> embedded_image_md5_;
   std::map<std::string, uint32_t, std::less<>> header_image_md5_;
@@ -902,11 +904,8 @@ private:
   shared_strings_t sst_;
   doc_properties_t properties_;
   std::vector<custom_property_t> custom_properties_;
-  uint16_t num_sheets_                  = 0; // TODO Useless, to be replaced by size of sheets_.
-  uint16_t num_worksheets_              = 0;
-  uint16_t num_chartsheets_             = 0;
-  uint16_t first_sheet_                 = 0;
-  uint16_t active_sheet_                = 0;
+  size_t first_sheet_                   = 0;
+  size_t active_sheet_                  = 0;
   uint16_t num_format_count_            = 0;
   uint16_t drawing_count_               = 0;
   uint16_t comment_count_               = 0;

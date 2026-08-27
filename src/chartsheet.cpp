@@ -13,22 +13,18 @@
 #include "xwpp/worksheet.h"
 #include "xwpp/xmlwriter.h"
 
+#include <algorithm> // ???
 #include <format>
+#include <string>
+
+using namespace std::literals; // ???
 
 namespace xwpp
 {
 
-chartsheet_t::chartsheet_t(const worksheet_init_data_t& init_data)
-  : name_{init_data.name_}
-  , quoted_name_{init_data.quoted_name_}
-  , index_{init_data.index_}
-  , active_sheet_{init_data.active_sheet_}
-  , first_sheet_{init_data.first_sheet_}
-
+chartsheet_t::chartsheet_t(const sheet_init_data_t& init_data)
+  : sheet_t{true, init_data}
 {
-  worksheet_.is_chartsheet_     = true;
-  worksheet_.zoom_scale_normal_ = false;
-  worksheet_.orientation_       = drawing_orientation_t::LANDSCAPE;
 }
 
 void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& options)
@@ -74,7 +70,7 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   // Store chart references so they can be ordered in the workbook.
   object_props.chart_ = chart;
 
-  worksheet_.chart_data_.push_back(object_props);
+  push_chart(object_props);
 
   chart->in_use_        = true;
   chart->is_chartsheet_ = true;
@@ -87,47 +83,38 @@ void chartsheet_t::set_chart(chart_t* chart)
   set_chart(chart, std::nullopt);
 }
 
-void chartsheet_t::activate()
-{
-  worksheet_.selected_ = true;
-  worksheet_.active_   = true;
-
-  // Active worksheet can't be hidden.
-  worksheet_.hidden_ = false;
-
-  *active_sheet_ = index_;
-}
-
 void chartsheet_t::protect(const std::string& password, std::optional<protection_t> options)
 {
   // Copy any user parameters to the internal structure.
+  protection_obj_t protection;
+
   if(options)
   {
-    protection_.objects_    = options->no_objects_;
-    protection_.no_content_ = options->no_content_;
+    protection.objects_    = options->no_objects_;
+    protection.no_content_ = options->no_content_;
   }
   else
   {
-    protection_.objects_    = false;
-    protection_.no_content_ = false;
+    protection.objects_    = false;
+    protection.no_content_ = false;
   }
 
   if(!password.empty())
   {
     const uint16_t hash = hash_password(password);
-    protection_.hash_   = std::format("{:04X}", hash);
+    protection.hash_    = std::format("{:04X}", hash);
   }
   else
   {
-    if(protection_.objects_ && protection_.no_content_)
+    if(protection.objects_ && protection.no_content_)
     {
       return;
     }
   }
 
-  protection_.no_sheet_      = true;
-  protection_.scenarios_     = true;
-  protection_.is_configured_ = true;
+  protection.no_sheet_      = true;
+  protection.scenarios_     = true;
+  protection.is_configured_ = true;
 
   if(chart_)
   {
@@ -137,6 +124,8 @@ void chartsheet_t::protect(const std::string& password, std::optional<protection
   {
     is_protected_ = true;
   }
+
+  set_protection_obj(protection);
 }
 
 void chartsheet_t::protect(const std::string& password)
@@ -154,111 +143,13 @@ void chartsheet_t::protect()
   protect("", std::nullopt);
 }
 
-void chartsheet_t::set_paper(uint8_t paper_size)
-{
-  worksheet_.set_paper(paper_size);
-}
-
-void chartsheet_t::set_margins(double left, double right, double top, double bottom)
-{
-  worksheet_.set_margins(left, right, top, bottom);
-}
-
-void chartsheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
-{
-  worksheet_.set_header(str, options);
-}
-
-void chartsheet_t::set_header(const std::string& str)
-{
-  set_header(str, std::nullopt);
-}
-
-void chartsheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
-{
-  worksheet_.set_footer(str, options);
-}
-
-void chartsheet_t::set_footer(const std::string& str)
-{
-  set_footer(str, std::nullopt);
-}
-
-void chartsheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
-{
-  worksheet_.set_dpi(horizontal_dpi, vertical_dpi);
-}
-
-void chartsheet_t::hide()
-{
-  hidden_ = true;
-
-  // A hidden worksheet shouldn't be active or selected.
-  worksheet_.selected_ = false;
-
-  // If this is active_sheet or first_sheet reset the workbook value.
-  if(*first_sheet_ == index_)
-  {
-    *first_sheet_ = 0;
-  }
-
-  if(*active_sheet_ == index_)
-  {
-    *active_sheet_ = 0;
-  }
-}
-
-void chartsheet_t::set_zoom(uint16_t scale)
-{
-  // Confine the scale to Excel"s range
-  if(scale < 10 || scale > 400)
-  {
-    throw xwpp_exception_t("chartsheet_t::set_zoom(): Zoom factor scale outside range: 10 <= zoom <= 400.");
-  }
-
-  worksheet_.zoom_ = scale;
-}
-
-void chartsheet_t::set_tab_color(color_t color)
-{
-  worksheet_.tab_color_ = color;
-}
-
-void chartsheet_t::set_landscape()
-{
-  worksheet_.set_landscape();
-}
-
-void chartsheet_t::set_portrait()
-{
-  worksheet_.set_portrait();
-}
-
-// TODO Add test
-void chartsheet_t::select()
-{
-  worksheet_.selected_ = true;
-
-  // Selected worksheet can't be hidden.
-  worksheet_.hidden_ = false;
-}
-
-// TODO Add test
-void chartsheet_t::set_first_sheet()
-{
-  // Active worksheet can't be hidden.
-  worksheet_.hidden_ = false;
-
-  *first_sheet_ = index_;
-}
-
 [[nodiscard]] std::string chartsheet_t::assemble_xml_file()
 {
   std::string xml_data = xml_declaration();
   xml_data += write_chartsheet();
   xml_data += write_sheet_pr();
   xml_data += write_sheet_views();
-  xml_data += write_sheet_protection(protection_);
+  xml_data += write_sheet_protection();
   xml_data += write_page_margins();
   xml_data += write_page_setup();
   xml_data += write_header_footer();
@@ -266,16 +157,6 @@ void chartsheet_t::set_first_sheet()
   xml_data += xml_end_tag("chartsheet");
 
   return xml_data;
-}
-
-const std::string& chartsheet_t::get_sheet_name() const
-{
-  return name_;
-}
-
-uint16_t chartsheet_t::get_sheet_index() const
-{
-  return index_;
 }
 
 std::string chartsheet_t::write_chartsheet()
@@ -287,39 +168,149 @@ std::string chartsheet_t::write_chartsheet()
   });
 }
 
-std::string chartsheet_t::write_sheet_pr() const
+std::string chartsheet_t::write_sheet_view()
 {
-  return worksheet_.write_sheet_pr();
-}
+  std::vector<std::tuple<std::string, std::string>> attributes;
 
-std::string chartsheet_t::write_sheet_views()
-{
-  return worksheet_.write_sheet_views();
-}
+  // Show that the sheet tab is selected.
+  if(is_selected())
+  {
+    attributes.emplace_back("tabSelected", "1");
+  }
 
-std::string chartsheet_t::write_sheet_protection(const protection_obj_t& protection) const
-{
-  return worksheet_.write_sheet_protection(protection);
-}
+  // Set the zoom level.
+  if(get_zoom() != 100)
+  {
+    attributes.emplace_back("zoomScale", std::to_string(get_zoom()));
+  }
 
-std::string chartsheet_t::write_page_margins() const
-{
-  return worksheet_.write_page_margins();
+  attributes.emplace_back("workbookViewId", "0");
+
+  return xml_empty_tag("sheetView", attributes);
 }
 
 std::string chartsheet_t::write_page_setup() const
 {
-  return worksheet_.write_page_setup();
+  if(!is_page_setup_changed())
+  {
+    return "";
+  }
+
+  std::vector<std::tuple<std::string, std::string>> attributes;
+
+  // Set paper size.
+  if(get_paper_size() != 0)
+  {
+    attributes.emplace_back("paperSize", std::to_string(get_paper_size()));
+  }
+
+  // Set page orientation.
+  if(get_orientation() == drawing_orientation_t::PORTRAIT)
+  {
+    attributes.emplace_back("orientation", "portrait");
+  }
+  else
+  {
+    attributes.emplace_back("orientation", "landscape");
+  }
+
+  // Set the DPI. Mainly only for testing.
+  if(get_horizontal_dpi() != 0)
+  {
+    attributes.emplace_back("horizontalDpi", std::to_string(get_horizontal_dpi()));
+  }
+
+  if(get_vertical_dpi() != 0)
+  {
+    attributes.emplace_back("verticalDpi", std::to_string(get_vertical_dpi()));
+  }
+
+  return xml_empty_tag("pageSetup", attributes);
 }
 
-std::string chartsheet_t::write_header_footer() const
+std::string chartsheet_t::write_sheet_pr() const
 {
-  return worksheet_.write_header_footer();
+  if(get_tab_color() != color_t::UNSET || is_outline_changed())
+  {
+    std::string xml_data = xml_start_tag("sheetPr");
+    xml_data += write_tab_color();
+    xml_data += xml_end_tag("sheetPr");
+
+    return xml_data;
+  }
+  else
+  {
+    return xml_empty_tag("sheetPr");
+  }
 }
 
-std::string chartsheet_t::write_drawings()
+void chartsheet_t::set_error_cell([[maybe_unused]] const object_properties_t& object_props,
+                                  [[maybe_unused]] uint32_t ref_id)
 {
-  return worksheet_.write_drawings();
+  throw xwpp_exception_t("chartsheet_t::set_error_cell(): no cell in chartsheet");
+}
+
+void chartsheet_t::prepare_background([[maybe_unused]] uint32_t image_ref_id,
+                                      [[maybe_unused]] object_properties_t& object_props)
+{
+  throw xwpp_exception_t("chartsheet_t::prepare_background(): background image not supported in chartsheet");
+}
+
+void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props)
+{
+  drawing_object_t drawing_object;
+  drawing_object.anchor_        = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE);
+  drawing_object.type_          = drawing_types_t::IMAGE;
+  drawing_object.description_   = object_props.description_;
+  drawing_object.tip_           = object_props.tip_;
+  drawing_object.rel_index_     = 0;
+  drawing_object.url_rel_index_ = 0;
+  drawing_object.decorative_    = object_props.decorative_;
+
+  // Scale to user scale.
+  double width  = object_props.width_ * object_props.x_scale_;
+  double height = object_props.height_ * object_props.y_scale_;
+
+  // Scale by non 96dpi resolutions.
+  width *= 96.0 / object_props.x_dpi_;
+  height *= 96.0 / object_props.y_dpi_;
+
+  object_props.width_  = width;
+  object_props.height_ = height;
+
+  // Convert from pixels to emus.
+  drawing_object.width_  = static_cast<uint32_t>(0.5 + (width * 9525));
+  drawing_object.height_ = static_cast<uint32_t>(0.5 + (height * 9525));
+
+  drawing_object.rel_index_ = add_image_link_get_index(image_ref_id, object_props);
+  add_drawing_object(drawing_object, drawing_id, true);
+}
+
+void chartsheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props)
+{
+  drawing_object_t drawing_object;
+  drawing_object.anchor_        = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE);
+  drawing_object.type_          = drawing_types_t::CHART;
+  drawing_object.description_   = object_props.description_;
+  drawing_object.tip_           = "";
+  drawing_object.rel_index_     = get_drawing_rel_index("");
+  drawing_object.url_rel_index_ = 0;
+  drawing_object.decorative_    = object_props.decorative_;
+
+  // Scale to user scale.
+  const double width  = object_props.width_ * object_props.x_scale_;
+  const double height = object_props.height_ * object_props.y_scale_;
+
+  // Convert to the nearest pixel.
+  object_props.width_  = width;
+  object_props.height_ = height;
+
+  // Convert from pixels to emus.
+  drawing_object.width_  = static_cast<uint32_t>(0.5 + (width * 9525));
+  drawing_object.height_ = static_cast<uint32_t>(0.5 + (height * 9525));
+
+  add_drawing_object(drawing_object, drawing_id, true);
+  add_chart_link(chart_ref_id);
 }
 
 }
