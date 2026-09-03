@@ -69,6 +69,9 @@ public:
   [[nodiscard]] std::string assemble_xml_file() const;
 
 private:
+  // TODO
+  friend class sheet_t;
+  friend class chartsheet_t;
   friend class worksheet_t;
 
   [[nodiscard]] std::string write_absolute_anchor(uint32_t frame_index) const;

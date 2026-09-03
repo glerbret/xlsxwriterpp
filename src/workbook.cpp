@@ -40,7 +40,7 @@ namespace
   });
 }
 
-[[nodiscard]] std::string write_sheet(std::string_view name, uint32_t sheet_id, bool hidden)
+[[nodiscard]] std::string write_sheet(std::string_view name, size_t sheet_id, bool hidden)
 {
   std::vector<std::tuple<std::string, std::string>> attributes{
     {"name", std::string(name)},
@@ -83,7 +83,7 @@ workbook_t::workbook_t(bool use_zip64)
 void workbook_t::save(std::string_view filename)
 {
   // Add a default worksheet if none have been added.
-  if(num_sheets_ == 0)
+  if(sheets_.empty())
   {
     add_worksheet();
   }
@@ -91,35 +91,27 @@ void workbook_t::save(std::string_view filename)
   // Ensure that at least one worksheet has been selected.
   if(active_sheet_ == 0)
   {
-    if(std::holds_alternative<worksheet_t>(sheets_.front()))
+    // TODO sheets_
+    auto* sheet = sheets_.front();
+    if(!sheet->is_chartsheet())
     {
-      auto& sheet = std::get<worksheet_t>(sheets_.front());
-      sheet.select();
+      dynamic_cast<worksheet_t*>(sheet)->select();
     }
   }
 
-  // Set the active sheet and check if a metadata file is needed.
-  for(auto& sheet: sheets_)
+  // Check if a metadata file is needed.
+  for(const auto& worksheet: worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(worksheet.has_dynamic_functions_)
     {
-      auto& worksheet = std::get<worksheet_t>(sheet);
-      if(worksheet.index_ == active_sheet_)
-      {
-        worksheet.active_ = true;
-      }
+      has_metadata_          = true;
+      has_dynamic_functions_ = true;
+    }
 
-      if(worksheet.has_dynamic_functions_)
-      {
-        has_metadata_          = true;
-        has_dynamic_functions_ = true;
-      }
-
-      if(!worksheet.embedded_image_props_.empty())
-      {
-        has_metadata_        = true;
-        has_embedded_images_ = true;
-      }
+    if(worksheet.has_embedded_image())
+    {
+      has_metadata_        = true;
+      has_embedded_images_ = true;
     }
   }
 
@@ -131,16 +123,11 @@ void workbook_t::save(std::string_view filename)
       set_vba_name("ThisWorkbook");
     }
 
-    for(auto& sheet: sheets_)
+    for(auto& worksheet: worksheets_)
     {
-      if(std::holds_alternative<worksheet_t>(sheet))
+      if(worksheet.get_vba_name().empty())
       {
-        auto& ws = std::get<worksheet_t>(sheet);
-
-        if(ws.vba_codename_.empty())
-        {
-          ws.set_vba_name(std::format("Sheet{}", ws.get_sheet_index() + 1));
-        }
+        worksheet.set_vba_name(std::format("Sheet{}", worksheet.get_sheet_index() + 1));
       }
     }
   }
@@ -317,8 +304,8 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   // Check that the worksheet name is valid.
   validate_sheetname(sheetname);
 
-  const worksheet_init_data_t init_data{
-    .index_              = num_sheets_,
+  const sheet_init_data_t init_data{
+    .index_              = sheets_.size(),
     .hidden_             = false,
     .active_sheet_       = &active_sheet_,
     .first_sheet_        = &first_sheet_,
@@ -330,21 +317,17 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
     .use_1904_epoch_     = use_1904_epoch_,
   };
 
-  // NOLINTBEGIN(modernize-avoid-bind)
-  sheets_.emplace_back(worksheet_t{init_data, std::bind_front(&workbook_t::get_xf_index, this),
-                                   std::bind_front(&workbook_t::get_dxf_index, this)});
-  // NOLINTEND(modernize-avoid-bind)
-  num_worksheets_++;
-  num_sheets_++;
+  worksheets_.emplace_back(init_data, std::bind_front(&workbook_t::get_xf_index, this),
+                           std::bind_front(&workbook_t::get_dxf_index, this));
+  worksheet_names_[to_lower(init_data.name_)] = &worksheets_.back();
+  sheets_.push_back(&worksheets_.back());
 
-  worksheet_names_[to_lower(init_data.name_)] = &std::get<worksheet_t>(sheets_.back());
-
-  return std::get<worksheet_t>(sheets_.back());
+  return worksheets_.back();
 }
 
 worksheet_t& workbook_t::add_worksheet()
 {
-  const std::string sheetname = std::format("Sheet{}", num_worksheets_ + 1);
+  const std::string sheetname = std::format("Sheet{}", worksheets_.size() + 1);
   return add_worksheet(sheetname);
 }
 
@@ -353,8 +336,8 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   // Check that the worksheet name is valid.
   validate_sheetname(sheetname);
 
-  const worksheet_init_data_t init_data{
-    .index_              = num_sheets_,
+  const sheet_init_data_t init_data{
+    .index_              = sheets_.size(),
     .hidden_             = false,
     .active_sheet_       = &active_sheet_,
     .first_sheet_        = &first_sheet_,
@@ -366,18 +349,16 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
     .use_1904_epoch_     = use_1904_epoch_,
   };
 
-  sheets_.emplace_back(chartsheet_t{init_data});
-  num_chartsheets_++;
-  num_sheets_++;
+  chartsheets_.emplace_back(init_data);
+  chartsheet_names_[to_lower(init_data.name_)] = &chartsheets_.back();
+  sheets_.push_back(&chartsheets_.back());
 
-  chartsheet_names_[to_lower(init_data.name_)] = &std::get<chartsheet_t>(sheets_.back());
-
-  return std::get<chartsheet_t>(sheets_.back());
+  return chartsheets_.back();
 }
 
 chartsheet_t& workbook_t::add_chartsheet()
 {
-  const std::string sheetname = std::format("Chart{}", num_chartsheets_ + 1);
+  const std::string sheetname = std::format("Chart{}", chartsheets_.size() + 1);
   return add_chartsheet(sheetname);
 }
 
@@ -542,7 +523,7 @@ void workbook_t::set_vba_name(std::string_view name)
 
 void workbook_t::define_name(const std::string& name, const std::string& formula)
 {
-  store_defined_name(name, "", formula, -1, false);
+  store_defined_name(name, "", formula, std::numeric_limits<size_t>::max(), false);
 }
 
 void workbook_t::set_default_xf_indices()
@@ -812,43 +793,38 @@ void workbook_t::prepare_vml()
   uint32_t vml_shape_id   = 1024;
   uint32_t comment_count  = 0;
 
-  for(auto& sheet: sheets_)
+  for(auto& worksheet: worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(!worksheet.has_vml_ && !worksheet.has_header_vml())
     {
-      auto& ws = std::get<worksheet_t>(sheet);
+      continue;
+    }
 
-      if(!ws.has_vml_ && !ws.has_header_vml_)
+    if(worksheet.has_vml_)
+    {
+      has_vml_ = true;
+      if(worksheet.has_comments_)
       {
-        continue;
+        comment_count_++;
+        comment_id++;
+        has_comments_ = true;
       }
 
-      if(ws.has_vml_)
-      {
-        has_vml_ = true;
-        if(ws.has_comments_)
-        {
-          comment_count_++;
-          comment_id++;
-          has_comments_ = true;
-        }
+      vml_drawing_id++;
 
-        vml_drawing_id++;
+      comment_count = worksheet.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
 
-        comment_count = ws.prepare_vml_objects(vml_data_id, vml_shape_id, vml_drawing_id, comment_id);
+      // Each VML should start with a shape id incremented by 1024.
+      vml_data_id += 1 * ((1024 + comment_count) / 1024);
+      vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
+    }
 
-        // Each VML should start with a shape id incremented by 1024.
-        vml_data_id += 1 * ((1024 + comment_count) / 1024);
-        vml_shape_id += 1024 * ((1024 + comment_count) / 1024);
-      }
-
-      if(ws.has_header_vml_)
-      {
-        has_vml_ = true;
-        vml_drawing_id++;
-        vml_header_id++;
-        ws.prepare_header_vml_objects(vml_header_id, vml_drawing_id);
-      }
+    if(worksheet.has_header_vml())
+    {
+      has_vml_ = true;
+      vml_drawing_id++;
+      vml_header_id++;
+      worksheet.prepare_header_vml_objects(vml_header_id, vml_drawing_id);
     }
   }
 }
@@ -861,7 +837,7 @@ void workbook_t::prepare_vml()
  * sorting.
  */
 void workbook_t::store_defined_name(std::string_view name, std::string_view app_name, std::string_view formula,
-                                    int16_t index, bool hidden)
+                                    size_t index, bool hidden)
 {
   // Do some checks on the input data.
   if(name.empty() || formula.empty())
@@ -905,22 +881,17 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
     }
 
     // Search for worksheet name to get the equivalent worksheet index.
-    for(auto& sheet: sheets_)
+    for(const auto& worksheet: worksheets_)
     {
-      if(std::holds_alternative<worksheet_t>(sheet))
+      if(worksheet_name == worksheet.name_)
       {
-        const auto& ws = std::get<worksheet_t>(sheet);
-
-        if(worksheet_name == ws.name_)
-        {
-          defined_name.index_                = static_cast<int16_t>(ws.index_);
-          defined_name.normalised_sheetname_ = worksheet_name;
-        }
+        defined_name.index_                = static_cast<int16_t>(worksheet.index_);
+        defined_name.normalised_sheetname_ = worksheet_name;
       }
     }
 
     // If we didn't find the worksheet name we exit.
-    if(defined_name.index_ == -1)
+    if(defined_name.index_ == std::numeric_limits<size_t>::max())
     {
       throw xwpp_exception_t(
         std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
@@ -992,79 +963,76 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
 
 void workbook_t::prepare_defined_names()
 {
-  for(auto& sheet: sheets_)
+  for(auto& worksheet: worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    // Check for autofilter settings and store them.
+    if(worksheet.autofilter_.in_use_)
     {
-      auto& ws = std::get<worksheet_t>(sheet);
+      std::string area = rowcol_to_range_abs(worksheet.autofilter_.first_row_, worksheet.autofilter_.first_col_,
+                                             worksheet.autofilter_.last_row_, worksheet.autofilter_.last_col_);
 
-      // Check for autofilter settings and store them.
-      if(ws.autofilter_.in_use_)
+      // Autofilters are the only defined name to set the hidden flag.
+      store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", worksheet.quoted_name_),
+                         std::format("{}!{}", worksheet.quoted_name_, area), worksheet.index_, true);
+    }
+
+    // Check for Print Area settings and store them.
+    if(worksheet.print_area_.in_use_)
+    {
+      std::string area;
+
+      // Check for print area that is the max row range.
+      if(worksheet.print_area_.first_row_ == 0 && worksheet.print_area_.last_row_ == worksheet_t::ROW_MAX - 1)
       {
-        std::string area = rowcol_to_range_abs(ws.autofilter_.first_row_, ws.autofilter_.first_col_,
-                                               ws.autofilter_.last_row_, ws.autofilter_.last_col_);
-
-        // Autofilters are the only defined name to set the hidden flag.
-        store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", ws.quoted_name_),
-                           std::format("{}!{}", ws.quoted_name_, area), static_cast<int16_t>(ws.index_), true);
+        const std::string first_col = col_to_name(worksheet.print_area_.first_col_, false);
+        const std::string last_col  = col_to_name(worksheet.print_area_.last_col_, false);
+        area                        = std::format("${}:${}", first_col, last_col);
+      }
+      // Check for print area that is the max column range.
+      else if(worksheet.print_area_.first_col_ == 0 &&
+              std::cmp_equal(worksheet.print_area_.last_col_, worksheet_t::COL_MAX - 1))
+      {
+        area = std::format("${}:${}", worksheet.print_area_.first_row_ + 1, worksheet.print_area_.last_row_ + 1);
+      }
+      else
+      {
+        area = rowcol_to_range_abs(worksheet.print_area_.first_row_, worksheet.print_area_.first_col_,
+                                   worksheet.print_area_.last_row_, worksheet.print_area_.last_col_);
       }
 
-      // Check for Print Area settings and store them.
-      if(ws.print_area_.in_use_)
+      const std::string app_name = std::format("{}!Print_Area", worksheet.quoted_name_);
+      const std::string range    = std::format("{}!{}", worksheet.quoted_name_, area);
+      store_defined_name("_xlnm.Print_Area", app_name, range, static_cast<int16_t>(worksheet.index_), false);
+    }
+
+    // Check for repeat rows/cols. aka, Print Titles and store them.
+    if(worksheet.repeat_rows_.in_use_ || worksheet.repeat_cols_.in_use_)
+    {
+      if(worksheet.repeat_rows_.in_use_ && worksheet.repeat_cols_.in_use_)
       {
-        std::string area;
-
-        // Check for print area that is the max row range.
-        if(ws.print_area_.first_row_ == 0 && ws.print_area_.last_row_ == worksheet_t::ROW_MAX - 1)
-        {
-          const std::string first_col = col_to_name(ws.print_area_.first_col_, false);
-          const std::string last_col  = col_to_name(ws.print_area_.last_col_, false);
-          area                        = std::format("${}:${}", first_col, last_col);
-        }
-        // Check for print area that is the max column range.
-        else if(ws.print_area_.first_col_ == 0 && std::cmp_equal(ws.print_area_.last_col_, worksheet_t::COL_MAX - 1))
-        {
-          area = std::format("${}:${}", ws.print_area_.first_row_ + 1, ws.print_area_.last_row_ + 1);
-        }
-        else
-        {
-          area = rowcol_to_range_abs(ws.print_area_.first_row_, ws.print_area_.first_col_, ws.print_area_.last_row_,
-                                     ws.print_area_.last_col_);
-        }
-
-        const std::string app_name = std::format("{}!Print_Area", ws.quoted_name_);
-        const std::string range    = std::format("{}!{}", ws.quoted_name_, area);
-        store_defined_name("_xlnm.Print_Area", app_name, range, static_cast<int16_t>(ws.index_), false);
+        const std::string app_name  = std::format("{}!Print_Titles", worksheet.quoted_name_);
+        const std::string first_col = col_to_name(worksheet.repeat_cols_.first_col_, false);
+        const std::string last_col  = col_to_name(worksheet.repeat_cols_.last_col_, false);
+        const std::string range =
+          std::format("{}!${}:${},{}!${}:${}", worksheet.quoted_name_, first_col, last_col, worksheet.quoted_name_,
+                      worksheet.repeat_rows_.first_row_ + 1, worksheet.repeat_rows_.last_row_ + 1);
+        store_defined_name("_xlnm.Print_Titles", app_name, range, worksheet.index_, false);
       }
-
-      // Check for repeat rows/cols. aka, Print Titles and store them.
-      if(ws.repeat_rows_.in_use_ || ws.repeat_cols_.in_use_)
+      else if(worksheet.repeat_rows_.in_use_)
       {
-        if(ws.repeat_rows_.in_use_ && ws.repeat_cols_.in_use_)
-        {
-          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
-          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
-          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
-          const std::string range =
-            std::format("{}!${}:${},{}!${}:${}", ws.quoted_name_, first_col, last_col, ws.quoted_name_,
-                        ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, static_cast<int16_t>(ws.index_), false);
-        }
-        else if(ws.repeat_rows_.in_use_)
-        {
-          const std::string app_name = std::format("{}!Print_Titles", ws.quoted_name_);
-          const std::string range =
-            std::format("{}!${}:${}", ws.quoted_name_, ws.repeat_rows_.first_row_ + 1, ws.repeat_rows_.last_row_ + 1);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, static_cast<int16_t>(ws.index_), false);
-        }
-        else if(ws.repeat_cols_.in_use_)
-        {
-          const std::string app_name  = std::format("{}!Print_Titles", ws.quoted_name_);
-          const std::string first_col = col_to_name(ws.repeat_cols_.first_col_, false);
-          const std::string last_col  = col_to_name(ws.repeat_cols_.last_col_, false);
-          const std::string range     = std::format("{}!${}:${}", ws.quoted_name_, first_col, last_col);
-          store_defined_name("_xlnm.Print_Titles", app_name, range, static_cast<int16_t>(ws.index_), false);
-        }
+        const std::string app_name = std::format("{}!Print_Titles", worksheet.quoted_name_);
+        const std::string range =
+          std::format("{}!${}:${}", worksheet.quoted_name_, worksheet.repeat_rows_.first_row_ + 1,
+                      worksheet.repeat_rows_.last_row_ + 1);
+        store_defined_name("_xlnm.Print_Titles", app_name, range, worksheet.index_, false);
+      }
+      else if(worksheet.repeat_cols_.in_use_)
+      {
+        const std::string app_name  = std::format("{}!Print_Titles", worksheet.quoted_name_);
+        const std::string first_col = col_to_name(worksheet.repeat_cols_.first_col_, false);
+        const std::string last_col  = col_to_name(worksheet.repeat_cols_.last_col_, false);
+        const std::string range     = std::format("{}!${}:${}", worksheet.quoted_name_, first_col, last_col);
+        store_defined_name("_xlnm.Print_Titles", app_name, range, worksheet.index_, false);
       }
     }
   }
@@ -1099,14 +1067,10 @@ void workbook_t::prepare_drawings()
   uint32_t image_ref_id = 0;
   uint32_t drawing_id   = 0;
 
-  for(auto& sheet: sheets_)
+  for(auto* sheet: sheets_)
   {
-    auto& worksheet          = std::holds_alternative<worksheet_t>(sheet) ? std::get<worksheet_t>(sheet)
-                                                                          : std::get<chartsheet_t>(sheet).worksheet_;
-    const bool is_chartsheet = std::holds_alternative<chartsheet_t>(sheet);
-
-    if(worksheet.image_props_.empty() && worksheet.embedded_image_props_.empty() && worksheet.chart_data_.empty() &&
-       !worksheet.has_header_vml_ && !worksheet.has_background_image_)
+    if(sheet->image_props_.empty() && !sheet->has_embedded_image() && sheet->chart_data_.empty() &&
+       !sheet->has_header_vml() && !sheet->has_background_image())
     {
       continue;
     }
@@ -1114,38 +1078,41 @@ void workbook_t::prepare_drawings()
     drawing_id++;
 
     // Prepare embedded worksheet images.
-    for(auto& object_props: worksheet.embedded_image_props_)
+    if(sheet->has_embedded_image())
     {
-      store_image_type(object_props.image_type_);
-
-      // Check for images with alt-text.
-      if(!object_props.description_.empty())
+      for(auto& object_props: sheet->get_embedded_image_properties())
       {
-        has_embedded_image_descriptions_ = true;
-      }
+        store_image_type(object_props.image_type_);
 
-      // Check for duplicate images and only store the first instance.
-      uint32_t ref_id = 0;
-      if(const auto it = embedded_image_md5_.find(object_props.md5_); it != std::end(embedded_image_md5_))
-      {
-        ref_id                     = it->second;
-        object_props.is_duplicate_ = true;
-      }
-      else
-      {
-        image_ref_id++;
-        ref_id = image_ref_id;
-        num_embedded_images_++;
-        embedded_image_md5_[object_props.md5_] = ref_id;
-      }
+        // Check for images with alt-text.
+        if(!object_props.description_.empty())
+        {
+          has_embedded_image_descriptions_ = true;
+        }
 
-      worksheet.set_error_cell(object_props, ref_id);
+        // Check for duplicate images and only store the first instance.
+        uint32_t ref_id = 0;
+        if(const auto it = embedded_image_md5_.find(object_props.md5_); it != std::end(embedded_image_md5_))
+        {
+          ref_id                     = it->second;
+          object_props.is_duplicate_ = true;
+        }
+        else
+        {
+          image_ref_id++;
+          ref_id = image_ref_id;
+          num_embedded_images_++;
+          embedded_image_md5_[object_props.md5_] = ref_id;
+        }
+
+        sheet->set_error_cell(object_props, ref_id);
+      }
     }
 
     // Prepare background images.
-    if(worksheet.has_background_image_)
+    if(sheet->has_background_image())
     {
-      object_properties_t object_props = worksheet.background_image_.value();
+      auto object_props = sheet->get_background_image();
       store_image_type(object_props.image_type_);
 
       uint32_t ref_id = 0;
@@ -1161,11 +1128,11 @@ void workbook_t::prepare_drawings()
         background_md5_[object_props.md5_] = ref_id;
       }
 
-      worksheet.prepare_background(ref_id, object_props);
+      sheet->prepare_background(ref_id, object_props);
     }
 
     // Prepare worksheet images.
-    for(auto& object_props: worksheet.image_props_)
+    for(auto& object_props: sheet->image_props_)
     {
       // Ignore background image added above.
       if(object_props.is_background_)
@@ -1189,14 +1156,14 @@ void workbook_t::prepare_drawings()
         image_md5_[object_props.md5_] = ref_id;
       }
 
-      worksheet.prepare_image(ref_id, drawing_id, object_props);
+      sheet->prepare_image(ref_id, drawing_id, object_props);
     }
 
     // Prepare worksheet charts.
-    for(auto& object_props: worksheet.chart_data_)
+    for(auto& object_props: sheet->chart_data_)
     {
       chart_ref_id++;
-      worksheet.prepare_chart(chart_ref_id, drawing_id, object_props, is_chartsheet);
+      sheet->prepare_chart(chart_ref_id, drawing_id, object_props);
       if(object_props.chart_)
       {
         ordered_charts_.push_back(object_props.chart_);
@@ -1204,7 +1171,7 @@ void workbook_t::prepare_drawings()
     }
 
     // Prepare worksheet header/footer images.
-    for(auto& object_props: worksheet.header_footer_objs_)
+    for(auto& object_props: sheet->header_footer_objs_)
     {
       if(object_props)
       {
@@ -1224,7 +1191,7 @@ void workbook_t::prepare_drawings()
           header_image_md5_[object_props->md5_] = ref_id;
         }
 
-        worksheet.prepare_header_image(ref_id, *object_props);
+        sheet->prepare_header_image(ref_id, *object_props);
       }
     }
   }
@@ -1424,17 +1391,12 @@ void workbook_t::prepare_tables()
 {
   uint32_t table_id = 0;
 
-  for(auto& sheet: sheets_)
+  for(auto& worksheet: worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    if(!worksheet.table_objs_.empty())
     {
-      auto& ws = std::get<worksheet_t>(sheet);
-
-      if(!ws.table_objs_.empty())
-      {
-        ws.prepare_tables(table_id + 1);
-        table_id += static_cast<uint32_t>(ws.table_objs_.size());
-      }
+      worksheet.prepare_tables(table_id + 1);
+      table_id += static_cast<uint32_t>(worksheet.table_objs_.size());
     }
   }
 }
@@ -1611,18 +1573,9 @@ std::string workbook_t::write_book_views() const
 std::string workbook_t::write_sheets() const
 {
   std::string xml_data = xml_start_tag("sheets");
-  for(const auto& sheet: sheets_)
+  for(const auto* sheet: sheets_)
   {
-    if(std::holds_alternative<chartsheet_t>(sheet))
-    {
-      const auto& cs = std::get<chartsheet_t>(sheet);
-      xml_data += write_sheet(cs.get_sheet_name(), cs.get_sheet_index() + 1, cs.hidden_);
-    }
-    else if(std::holds_alternative<worksheet_t>(sheet))
-    {
-      const auto& ws = std::get<worksheet_t>(sheet);
-      xml_data += write_sheet(ws.get_sheet_name(), ws.get_sheet_index() + 1, ws.hidden_);
-    }
+    xml_data += write_sheet(sheet->get_sheet_name(), sheet->get_sheet_index() + 1, sheet->is_hidden());
   }
   xml_data += xml_end_tag("sheets");
 
@@ -1635,7 +1588,7 @@ std::string workbook_t::write_defined_name(const defined_name_t& defined_name)
     {"name", defined_name.name_}
   };
 
-  if(defined_name.index_ != -1)
+  if(defined_name.index_ != std::numeric_limits<size_t>::max())
   {
     attributes.emplace_back("localSheetId", std::to_string(defined_name.index_));
   }

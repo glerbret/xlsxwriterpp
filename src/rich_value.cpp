@@ -55,33 +55,27 @@ std::string rich_value_t::write_images(const workbook_t& workbook) const
   uint8_t type   = 5;
 
   std::string xml_data;
-  for(const auto& sheet: workbook.sheets_)
+  for(const auto& worksheet: workbook.worksheets_)
   {
-    if(std::holds_alternative<worksheet_t>(sheet))
+    for(const auto& object_props: worksheet.get_embedded_image_properties())
     {
-      const auto& ws = std::get<worksheet_t>(sheet);
-
-      for(const auto& object_props: ws.embedded_image_props_)
+      if(!object_props.is_duplicate_)
       {
-        if(!object_props.is_duplicate_)
+        if(object_props.decorative_)
         {
-
-          if(object_props.decorative_)
-          {
-            type = 6;
-          }
-
-          xml_data += write_rv();
-          xml_data += write_v(std::to_string(index));
-          xml_data += write_v(std::to_string(type));
-          if(!object_props.description_.empty())
-          {
-            xml_data += write_v(object_props.description_);
-          }
-          xml_data += xml_end_tag("rv");
-
-          index++;
+          type = 6;
         }
+
+        xml_data += write_rv();
+        xml_data += write_v(std::to_string(index));
+        xml_data += write_v(std::to_string(type));
+        if(!object_props.description_.empty())
+        {
+          xml_data += write_v(object_props.description_);
+        }
+        xml_data += xml_end_tag("rv");
+
+        index++;
       }
     }
   }

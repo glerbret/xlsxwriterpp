@@ -7,14 +7,12 @@
 #define BOOST_TEST_DYN_LINK
 
 #include "xwpp/utility.h"
-#include "xwpp/workbook.h"
-#include "xwpp/worksheet.h"
 
 #include <boost/test/unit_test.hpp>
 
 #include <string>
 
-BOOST_AUTO_TEST_SUITE(worksheet)
+BOOST_AUTO_TEST_SUITE(utility)
 
 namespace
 {

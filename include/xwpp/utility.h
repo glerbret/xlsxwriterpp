@@ -122,6 +122,10 @@ uint16_t name_to_col_2(std::string_view col_str);
 
 std::string dup_formula(const std::string& formula);
 
+// Conversion functions.
+[[nodiscard]] double pixels_to_height(double pixels);
+[[nodiscard]] double pixels_to_width(double pixels);
+
 /**
  * @brief Convert a `%system_clock::time_point` to a `datetime_t`.
  *

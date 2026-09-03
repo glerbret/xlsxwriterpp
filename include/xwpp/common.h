@@ -25,6 +25,12 @@ namespace xwpp
 {
 /// @endcond
 
+/** Default Excel column width in pixels. */
+const uint32_t DEF_COL_WIDTH_PIXELS = 64;
+
+/** Default Excel column height in pixels. */
+const uint32_t DEF_ROW_HEIGHT_PIXELS = 20;
+
 /**
  * Integer data type to represent a row value. Equivalent to `uint32_t`.
  *
