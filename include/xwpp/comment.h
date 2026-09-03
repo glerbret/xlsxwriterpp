@@ -32,9 +32,9 @@ private:
   [[nodiscard]] std::string write_comment_list() const;
 
   std::vector<vml_obj_t> comment_objs_;
-  std::map<std::string, uint32_t> author_ids_;
+  std::map<std::string, uint32_t, std::less<>> author_ids_;
   std::string comment_author_;
-  uint32_t author_id_ = 0;
+  uint32_t author_id_{0};
 };
 
 }

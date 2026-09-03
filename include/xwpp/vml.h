@@ -41,8 +41,8 @@ private:
   std::vector<vml_obj_t> comment_objs_;
   std::vector<vml_obj_t> image_objs_;
   std::string vml_data_id_str_;
-  uint32_t vml_shape_id_                     = 0;
-  comment_display_t comment_display_default_ = comment_display_t::DEFAULT;
+  uint32_t vml_shape_id_{0};
+  comment_display_t comment_display_default_{comment_display_t::DEFAULT};
 };
 
 }

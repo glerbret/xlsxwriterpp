@@ -21,11 +21,11 @@ namespace xwpp
 namespace
 {
 
-const std::string XML_AMP  = "&amp;";
-const std::string XML_LT   = "&lt;";
-const std::string XML_GT   = "&gt;";
-const std::string XML_QUOT = "&quot;";
-const std::string XML_NL   = "&#xA;";
+const std::string XML_AMP{"&amp;"};
+const std::string XML_LT{"&lt;"};
+const std::string XML_GT{"&gt;"};
+const std::string XML_QUOT{"&quot;"};
+const std::string XML_NL{"&#xA;"};
 
 std::string escape_attribute_value(std::string_view attribute_value)
 {
@@ -181,7 +181,7 @@ std::string escape_url_characters(const std::string& str, bool escape_hash)
   std::string encoded;
   encoded.reserve(2 * str.size());
 
-  for(size_t i = 0; i < str.size(); i++)
+  for(size_t i{0}; i < str.size(); i++)
   {
     switch(str[i])
     {

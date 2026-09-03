@@ -16,7 +16,7 @@ int main()
   worksheet.write_string(CELL("A1"), "Foo");
   worksheet.write_string(CELL("A10"), "Bar");
 
-  for(xwpp::row_num_t row = 1; row <= 8; row++)
+  for(xwpp::row_num_t row{1}; row <= 8; row++)
   {
     worksheet.set_row(row, 15);
   }

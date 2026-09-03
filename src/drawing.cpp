@@ -389,9 +389,7 @@ std::string drawing_t::assemble_xml_file() const
 
   if(embedded_)
   {
-    uint32_t index = 1;
-
-    for(const auto& drawing_object: drawing_objects_)
+    for(uint32_t index{1}; const auto& drawing_object: drawing_objects_)
     {
       xml_data += write_two_cell_anchor(index, drawing_object);
       index++;

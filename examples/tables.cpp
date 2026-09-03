@@ -234,9 +234,7 @@ int main()
       {.header_ = "Product"},
       {.header_ = "Quarter 1"},
       {.header_ = "Quarter 2"},
-      {
-       .header_ = "Quarter 3",
-       },
+      {.header_ = "Quarter 3"},
       {.header_ = "Quarter 4"},
       {.header_ = "Year", .formula_ = "=SUM(Table9[@[Quarter 1]:[Quarter 4]])"},
     };

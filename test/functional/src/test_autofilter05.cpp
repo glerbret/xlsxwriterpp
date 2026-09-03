@@ -18,7 +18,7 @@ int main()
   {
     std::string region_;
     std::string item_;
-    int volume_ = 0;
+    int volume_{0};
     std::string month_;
   };
 
@@ -81,10 +81,10 @@ int main()
   worksheet.write_string(0, 2, "Volume");
   worksheet.write_string(0, 3, "Month");
 
-  const xwpp::row_col_options_t hidden = {.hidden_ = true};
+  const xwpp::row_col_options_t hidden{.hidden_ = true};
 
   // Write the row data.
-  for(xwpp::row_num_t row_num = 1; const auto& [region, item, volume, month]: data)
+  for(xwpp::row_num_t row_num{1}; const auto& [region, item, volume, month]: data)
   {
     worksheet.write_string(row_num, 0, region);
     worksheet.write_string(row_num, 1, item);

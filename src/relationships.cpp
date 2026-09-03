@@ -53,7 +53,7 @@ std::string relationships_t::assemble_xml_file() const
                                                {"xmlns", SCHEMA_PACKAGE}
   });
 
-  for(size_t rel_id = 0; const auto& [type, target, target_mode]: relationships_)
+  for(size_t rel_id{0}; const auto& [type, target, target_mode]: relationships_)
   {
     rel_id++;
     if(target_mode.empty())

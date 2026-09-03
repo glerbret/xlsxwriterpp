@@ -385,6 +385,6 @@ void format_t::set_hyperlink()
   theme_     = 10;
 }
 
-const std::string format_t::DEFAULT_FONT_NAME = "Calibri";
+const std::string format_t::DEFAULT_FONT_NAME{"Calibri"};
 
 }

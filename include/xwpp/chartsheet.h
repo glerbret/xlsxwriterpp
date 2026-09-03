@@ -194,8 +194,8 @@ private:
   void prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props) override;
   void prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props) override;
 
-  chart_t* chart_    = nullptr;
-  bool is_protected_ = false;
+  chart_t* chart_{nullptr};
+  bool is_protected_{false};
 };
 
 /// @cond

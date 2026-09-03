@@ -20,7 +20,7 @@ int main()
   struct expense
   {
     std::string item_;
-    int cost_ = 0;
+    int cost_{0};
   };
 
   const std::vector<expense> expenses{
@@ -35,7 +35,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Start from the first cell.
-  xwpp::row_num_t row_num = 0;
+  xwpp::row_num_t row_num{0};
 
   // Iterate over the data and write it out element by element.
   for(const auto& value: expenses)

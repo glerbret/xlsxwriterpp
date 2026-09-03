@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  for(xwpp::row_num_t row_num = 0; row_num < 10; row_num++)
+  for(xwpp::row_num_t row_num{0}; row_num < 10; row_num++)
   {
     worksheet.write_string(row_num, 0, "123");
   }

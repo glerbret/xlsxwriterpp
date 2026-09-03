@@ -29,7 +29,7 @@ int main()
     {"E"s, 1},
   };
 
-  for(xwpp::row_num_t row_num = 0; const auto& value: data)
+  for(xwpp::row_num_t row_num{0}; const auto& value: data)
   {
     worksheet.write_string(row_num, 0, std::get<std::string>(value));
     worksheet.write_number(row_num, 1, std::get<int>(value));

@@ -639,10 +639,10 @@ enum class chart_axis_tick_mark_t
 
 struct series_data_point_t
 {
-  bool is_string_ = false;
-  double number_  = 0;
+  bool is_string_{false};
+  double number_{0};
   std::string str_;
-  bool no_data_ = false;
+  bool no_data_{false};
 };
 
 // TODO struct or class
@@ -650,14 +650,14 @@ struct series_range_t
 {
   std::string formula_;
   std::string sheetname_;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
-  bool ignore_cache_   = false;
+  row_num_t first_row_{0};
+  row_num_t last_row_{0};
+  col_num_t first_col_{0};
+  col_num_t last_col_{0};
+  bool ignore_cache_{false};
 
-  bool has_string_cache_    = false;
-  uint16_t num_data_points_ = 0;
+  bool has_string_cache_{false};
+  uint16_t num_data_points_{0};
   std::vector<series_data_point_t> data_cache_;
 };
 
@@ -675,23 +675,23 @@ struct chart_line_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_ = color_t::UNSET;
+  color_t color_{color_t::UNSET};
 
-  /** Turn off/hide line. Set to 0 or 1.*/
-  bool none_ = false;
+  /** Turn off/hide line.*/
+  bool none_{false};
 
   /** Width of the line in increments of 0.25. Default is 2.25. */
-  double width_ = 0.;
+  double width_{0.};
 
   /**
    * The line dash type.
    *
    * @see `chart_line_dash_type_t`.
    */
-  chart_line_dash_type_t dash_type_ = chart_line_dash_type_t::SOLID;
+  chart_line_dash_type_t dash_type_{chart_line_dash_type_t::SOLID};
 
   /** Set the transparency of the line. 0 - 100. Default 0. */
-  uint8_t transparency_ = 0;
+  uint8_t transparency_{0};
 };
 
 /**
@@ -708,13 +708,13 @@ struct chart_fill_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_ = color_t::UNSET;
+  color_t color_{color_t::UNSET};
 
-  /** Turn off/hide line. Set to 0 or 1.*/
-  bool none_ = false;
+  /** Turn off/hide line.*/
+  bool none_{false};
 
   /** Set the transparency of the fill. 0 - 100. Default 0. */
-  uint8_t transparency_ = 0;
+  uint8_t transparency_{0};
 };
 
 /**
@@ -731,17 +731,17 @@ struct chart_pattern_t
    *
    * @see @ref working_with_colors.
    */
-  color_t fg_color_ = color_t::UNSET;
+  color_t fg_color_{color_t::UNSET};
 
   /**
    * The pattern background color.
    *
    * @see @ref working_with_colors.
    */
-  color_t bg_color_ = color_t::UNSET;
+  color_t bg_color_{color_t::UNSET};
 
   /** The pattern type. See `chart_pattern_type_t`. */
-  chart_pattern_type_t type_ = chart_pattern_type_t::NONE;
+  chart_pattern_type_t type_{chart_pattern_type_t::NONE};
 };
 
 /**
@@ -757,7 +757,7 @@ struct chart_font_t
   std::string name_;
 
   /** The chart font size. The default is 11. */
-  double size_ = 0.;
+  double size_{0.};
 
   /** The chart font bold property. Set to 0 or 1. */
   // By default, bold_ may be set to true (title) or false.
@@ -765,10 +765,10 @@ struct chart_font_t
   std::optional<bool> bold_;
 
   /** The chart font italic property. Set to 0 or 1. */
-  bool italic_ = false;
+  bool italic_{false};
 
   /** The chart font underline property. Set to 0 or 1. */
-  bool underline_ = false;
+  bool underline_{false};
 
   /**
    * The chart font rotation property. Range: -90 to 90, and 270, 271 and 360:
@@ -778,26 +778,26 @@ struct chart_font_t
    *  - The angle 271 gives a stacked alignment for East Asian fonts.
    *  - The angle 360 gives an explicit angle of 0 to override the y axis default.
    */
-  int32_t rotation_ = 0;
+  int32_t rotation_{0};
 
   /**
    * The chart font color.
    *
    * @see @ref working_with_colors.
    */
-  color_t color_ = color_t::UNSET;
+  color_t color_{color_t::UNSET};
 
   /** The chart font pitch family property. Rarely required, set to 0. */
-  uint8_t pitch_family_ = 0;
+  uint8_t pitch_family_{0};
 
   /** The chart font character set property. Rarely required, set to 0. */
-  uint8_t charset_ = 0;
+  uint8_t charset_{0};
 
   /** The chart font baseline property. Rarely required, set to 0. */
-  int8_t baseline_ = 0;
+  int8_t baseline_{0};
 
   // Use to distinguish title font (bold by default and we should set b="0" if bold_ is false) from others one
-  bool title_font_ = false;
+  bool title_font_{false};
 };
 
 /**
@@ -849,24 +849,24 @@ struct chart_font_t
 struct chart_layout_t
 {
   /** The x offset in the range `0.0 < x <= 1.0` */
-  double x_ = 0.;
+  double x_{0.};
 
   /** The y offset in the range `0.0 < y <= 1.0` */
-  double y_ = 0.;
+  double y_{0.};
 
   /** The width of the plotarea or legend in the range `0.0 < x <= 1.0` */
-  double width_ = 0.;
+  double width_{0.};
 
   /** The height of the plotarea or legend in the range `0.0 < x <= 1.0` */
-  double height_ = 0.;
+  double height_{0.};
 
-  bool has_inner_ = false;
+  bool has_inner_{false};
 };
 
 struct chart_marker_t
 {
-  chart_marker_type_t type_ = chart_marker_type_t::AUTOMATIC;
-  uint8_t size_             = 0;
+  chart_marker_type_t type_{chart_marker_type_t::AUTOMATIC};
+  uint8_t size_{0};
   std::optional<chart_line_t> line_;
   std::optional<chart_fill_t> fill_;
   std::optional<chart_pattern_t> pattern_;
@@ -875,7 +875,7 @@ struct chart_marker_t
 struct chart_legend_t
 {
   std::optional<chart_font_t> font_;
-  chart_legend_position_t position_ = chart_legend_position_t::NONE;
+  chart_legend_position_t position_{chart_legend_position_t::NONE};
   std::optional<chart_layout_t> layout_;
 };
 
@@ -885,10 +885,10 @@ struct chart_title_t
   // TODO ?   lxw_row_t row;
   // TODO ?   lxw_col_t col;
   std::optional<chart_font_t> font_;
-  bool off_           = false;
-  bool is_horizontal_ = false;
+  bool off_{false};
+  bool is_horizontal_{false};
   // TODO ?   uint8_t ignore_cache;
-  bool has_overlay_   = false;
+  bool has_overlay_{false};
 
   // TODO ?
   /* We use a range to hold the title formula properties even though it
@@ -951,7 +951,7 @@ struct chart_data_label_t
    *
    * @see @ref chart_custom_labels.
    */
-  bool hide_ = false;
+  bool hide_{false};
 
   /**
    * The font properties for the chart data label.
@@ -986,7 +986,7 @@ struct chart_data_label_t
 struct chart_custom_label_t
 {
   std::string value_;
-  bool hide_ = false;
+  bool hide_{false};
   std::optional<chart_font_t> font_;
   std::optional<chart_line_t> line_;
   std::optional<chart_fill_t> fill_;
@@ -1100,14 +1100,14 @@ enum class chart_error_bar_cap_t
 
 struct series_error_bars_t
 {
-  chart_error_bar_type_t type_           = chart_error_bar_type_t::STD_ERROR;
-  chart_error_bar_direction_t direction_ = chart_error_bar_direction_t::BOTH;
-  chart_error_bar_cap_t endcap_          = chart_error_bar_cap_t::END_CAP;
-  bool has_value_                        = false;
-  bool is_set_                           = false;
-  bool is_x_                             = false;
-  chart_type_t chart_group_              = chart_type_t::NONE;
-  double value_                          = 0.;
+  chart_error_bar_type_t type_{chart_error_bar_type_t::STD_ERROR};
+  chart_error_bar_direction_t direction_{chart_error_bar_direction_t::BOTH};
+  chart_error_bar_cap_t endcap_{chart_error_bar_cap_t::END_CAP};
+  bool has_value_{false};
+  bool is_set_{false};
+  bool is_x_{false};
+  chart_type_t chart_group_{chart_type_t::NONE};
+  double value_{0.};
   std::optional<chart_line_t> line_;
 };
 
@@ -1158,20 +1158,20 @@ struct chart_series_t
   std::vector<chart_point_t> points_;
   std::vector<chart_custom_label_t> data_labels_;
 
-  bool smooth_             = false;
-  bool invert_if_negative_ = false;
+  bool smooth_{false};
+  bool invert_if_negative_{false};
 
   // Data label parameters.
-  bool has_labels_                               = false;
-  bool show_labels_value_                        = false;
-  bool show_labels_category_                     = false;
-  bool show_labels_name_                         = false;
-  bool show_labels_leader_                       = false;
-  bool show_labels_legend_                       = false;
-  bool show_labels_percent_                      = false;
-  chart_label_position_t label_position_         = chart_label_position_t::DEFAULT;
-  chart_label_separator_t label_separator_       = chart_label_separator_t::COMMA;
-  chart_label_position_t default_label_position_ = chart_label_position_t::DEFAULT;
+  bool has_labels_{false};
+  bool show_labels_value_{false};
+  bool show_labels_category_{false};
+  bool show_labels_name_{false};
+  bool show_labels_leader_{false};
+  bool show_labels_legend_{false};
+  bool show_labels_percent_{false};
+  chart_label_position_t label_position_{chart_label_position_t::DEFAULT};
+  chart_label_separator_t label_separator_{chart_label_separator_t::COMMA};
+  chart_label_position_t default_label_position_{chart_label_position_t::DEFAULT};
   std::string label_num_format_;
   std::optional<chart_font_t> label_font_;
   std::optional<chart_line_t> label_line_;
@@ -1181,25 +1181,25 @@ struct chart_series_t
   series_error_bars_t x_error_bars_;
   series_error_bars_t y_error_bars_;
 
-  bool has_trendline_                          = false;
-  bool has_trendline_forecast_                 = false;
-  bool has_trendline_equation_                 = false;
-  bool has_trendline_r_squared_                = false;
-  bool has_trendline_intercept_                = false;
-  chart_trendline_type_t trendline_type_       = chart_trendline_type_t::LINEAR;
-  uint8_t trendline_value_                     = 0;
-  double trendline_forward_                    = 0.;
-  double trendline_backward_                   = 0.;
-  chart_trendline_type_t trendline_value_type_ = chart_trendline_type_t::LINEAR;
+  bool has_trendline_{false};
+  bool has_trendline_forecast_{false};
+  bool has_trendline_equation_{false};
+  bool has_trendline_r_squared_{false};
+  bool has_trendline_intercept_{false};
+  chart_trendline_type_t trendline_type_{chart_trendline_type_t::LINEAR};
+  uint8_t trendline_value_{0};
+  double trendline_forward_{0.};
+  double trendline_backward_{0.};
+  chart_trendline_type_t trendline_value_type_{chart_trendline_type_t::LINEAR};
   std::string trendline_name_;
   std::optional<chart_line_t> trendline_line_;
-  double trendline_intercept_ = 0.;
+  double trendline_intercept_{0.};
 };
 
 // Struct for major/minor axis gridlines.
 struct chart_gridline_t
 {
-  bool visible_ = false;
+  bool visible_{false};
   std::optional<chart_line_t> line_;
 };
 
@@ -1216,10 +1216,10 @@ struct chart_axis_t
   chart_title_t title_;
   std::string num_format_;
   std::string default_num_format_;
-  uint8_t source_linked_ = 0;
+  uint8_t source_linked_{0};
 
-  chart_axis_tick_mark_t major_tick_mark_ = chart_axis_tick_mark_t::DEFAULT;
-  chart_axis_tick_mark_t minor_tick_mark_ = chart_axis_tick_mark_t::DEFAULT;
+  chart_axis_tick_mark_t major_tick_mark_{chart_axis_tick_mark_t::DEFAULT};
+  chart_axis_tick_mark_t minor_tick_mark_{chart_axis_tick_mark_t::DEFAULT};
   // TODO ?   uint8_t is_horizontal;
 
   chart_gridline_t major_gridlines_;
@@ -1230,39 +1230,39 @@ struct chart_axis_t
   std::optional<chart_fill_t> fill_;
   std::optional<chart_pattern_t> pattern_;
 
-  bool is_category_ = false;
+  bool is_category_{false};
   // TODO ?   uint8_t is_date;
-  bool is_value_    = false;
+  bool is_value_{false};
 
-  chart_position_t axis_position_             = chart_position_t::RIGHT;
-  chart_axis_tick_position_t position_axis_   = chart_axis_tick_position_t::DEFAULT;
-  chart_axis_label_position_t label_position_ = chart_axis_label_position_t::NEXT_TO;
-  chart_axis_label_alignment_t label_align_   = chart_axis_label_alignment_t::CENTER;
-  bool hidden_                                = false;
-  bool reverse_                               = false;
+  chart_position_t axis_position_{chart_position_t::RIGHT};
+  chart_axis_tick_position_t position_axis_{chart_axis_tick_position_t::DEFAULT};
+  chart_axis_label_position_t label_position_{chart_axis_label_position_t::NEXT_TO};
+  chart_axis_label_alignment_t label_align_{chart_axis_label_alignment_t::CENTER};
+  bool hidden_{false};
+  bool reverse_{false};
 
-  bool has_min_ = false;
-  double min_   = 0;
-  bool has_max_ = false;
-  double max_   = 0;
+  bool has_min_{false};
+  double min_{0};
+  bool has_max_{false};
+  double max_{0};
 
-  bool has_major_unit_ = false;
-  double major_unit_   = 0.;
-  bool has_minor_unit_ = false;
-  double minor_unit_   = 0.;
+  bool has_major_unit_{false};
+  double major_unit_{0.};
+  bool has_minor_unit_{false};
+  double minor_unit_{0.};
 
-  uint16_t interval_unit_ = 0;
-  uint16_t interval_tick_ = 0;
+  uint16_t interval_unit_{0};
+  uint16_t interval_tick_{0};
 
-  uint16_t log_base_ = 0;
+  uint16_t log_base_{0};
 
-  chart_axis_display_unit_t display_units_ = chart_axis_display_unit_t::NONE;
-  bool display_units_visible_              = false;
+  chart_axis_display_unit_t display_units_{chart_axis_display_unit_t::NONE};
+  bool display_units_visible_{false};
 
-  bool has_crossing_ = false;
-  bool crossing_min_ = false;
-  bool crossing_max_ = false;
-  double crossing_   = 0.;
+  bool has_crossing_{false};
+  bool crossing_min_{false};
+  bool crossing_max_{false};
+  double crossing_{0.};
 };
 
 /**
@@ -2382,35 +2382,35 @@ private:
   static void adjust_max_crossing(chart_t& chart);
 
   chart_type_t type_;
-  chart_subtype_t subtype_ = chart_subtype_t::NONE;
-  uint16_t series_index_   = 0;
+  chart_subtype_t subtype_{chart_subtype_t::NONE};
+  uint16_t series_index_{0};
 
   std::function<std::string(chart_t& chart)> write_chart_type_;
   std::function<std::string(chart_t& chart)> write_plot_area_;
 
   chart_title_t title_;
-  uint32_t id_                                      = 0;
-  uint32_t axis_id_1_                               = 0;
-  uint32_t axis_id_2_                               = 0;
+  uint32_t id_{0};
+  uint32_t axis_id_1_{0};
+  uint32_t axis_id_2_{0};
   // TODO ?   uint32_t axis_id_3;
   // TODO ?   uint32_t axis_id_4;
-  bool in_use_                                      = false;
-  chart_type_t chart_group_                         = chart_type_t::NONE;
-  bool cat_has_num_fmt_                             = false;
-  bool is_chartsheet_                               = false;
-  bool has_horiz_cat_axis_                          = false;
-  bool has_horiz_val_axis_                          = true;
-  uint8_t style_id_                                 = 2; // TODO Constant for default style
-  uint16_t rotation_                                = 0;
-  uint16_t hole_size_                               = 50;
+  bool in_use_{false};
+  chart_type_t chart_group_{chart_type_t::NONE};
+  bool cat_has_num_fmt_{false};
+  bool is_chartsheet_{false};
+  bool has_horiz_cat_axis_{false};
+  bool has_horiz_val_axis_{true};
+  uint8_t style_id_{2}; // TODO Constant for default style
+  uint16_t rotation_{0};
+  uint16_t hole_size_{50};
   // TODO ?   uint8_t no_title;
-  bool has_overlap_                                 = false;
-  int8_t overlap_y1_                                = 0;
+  bool has_overlap_{false};
+  int8_t overlap_y1_{0};
   // TODO ?   int8_t overlap_y2;
-  uint16_t gap_y1_                                  = DEFAULT_GAP;
-  uint16_t gap_y2_                                  = DEFAULT_GAP;
-  chart_grouping_t grouping_                        = chart_grouping_t::CLUSTERED;
-  chart_axis_tick_position_t default_cross_between_ = chart_axis_tick_position_t::DEFAULT;
+  uint16_t gap_y1_{DEFAULT_GAP};
+  uint16_t gap_y2_{DEFAULT_GAP};
+  chart_grouping_t grouping_{chart_grouping_t::CLUSTERED};
+  chart_axis_tick_position_t default_cross_between_{chart_axis_tick_position_t::DEFAULT};
   chart_legend_t legend_{.position_ = chart_legend_position_t::RIGHT};
   std::vector<int16_t> delete_series_;
   std::optional<chart_marker_t> default_marker_;
@@ -2421,28 +2421,28 @@ private:
   std::optional<chart_fill_t> plotarea_fill_;
   std::optional<chart_layout_t> plotarea_layout_;
   std::optional<chart_pattern_t> plotarea_pattern_;
-  bool has_drop_lines_ = false;
+  bool has_drop_lines_{false};
   std::optional<chart_line_t> drop_lines_line_;
-  bool has_high_low_lines_ = false;
+  bool has_high_low_lines_{false};
   std::optional<chart_line_t> high_low_lines_line_;
   std::list<chart_series_t> series_list_;
-  bool has_table_             = false;
-  bool has_table_vertical_    = false;
-  bool has_table_horizontal_  = false;
-  bool has_table_outline_     = false;
-  bool has_table_legend_keys_ = false;
+  bool has_table_{false};
+  bool has_table_vertical_{false};
+  bool has_table_horizontal_{false};
+  bool has_table_outline_{false};
+  bool has_table_legend_keys_{false};
   std::optional<chart_font_t> table_font_;
-  chart_blank_t show_blanks_as_ = chart_blank_t::AS_GAP;
-  bool show_hidden_data_        = false;
-  bool has_up_down_bars_        = false;
+  chart_blank_t show_blanks_as_{chart_blank_t::AS_GAP};
+  bool show_hidden_data_{false};
+  bool has_up_down_bars_{false};
   std::optional<chart_line_t> up_bar_line_;
   std::optional<chart_line_t> down_bar_line_;
   std::optional<chart_fill_t> up_bar_fill_;
   std::optional<chart_fill_t> down_bar_fill_;
-  chart_label_position_t default_label_position_ = chart_label_position_t::DEFAULT;
-  bool is_protected_                             = false;
+  chart_label_position_t default_label_position_{chart_label_position_t::DEFAULT};
+  bool is_protected_{false};
 
-  static const uint16_t DEFAULT_GAP = 501;
+  static const uint16_t DEFAULT_GAP{501};
 };
 
 /**
@@ -3423,7 +3423,7 @@ void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_la
  *
  * @code
  *  xwpp::chart_font_t font{
- *    .bold_ = true,
+ *    .bold_  = true,
  *    .color_ = xwpp::color_t::BLUE,
  *  };
  *
@@ -3451,7 +3451,7 @@ void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font
  *
  * @code
  *  xwpp::chart_font_t font{
- *    .bold_ = true,
+ *    .bold_  = true,
  *    .color_ = xwpp::color_t::BLUE
  *  };
  *

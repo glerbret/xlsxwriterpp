@@ -97,7 +97,7 @@ namespace xwpp
  * Get the library version as a "X.Y.Z" version string
  *
  * @code
- *  std::cout << std::format("Xlsxwriter++ version = {}\n", xwpp::version());
+ *  std::cout << std::format("Xlsxwriter++ version: {}\n", xwpp::version());
  * @endcode
  */
 std::string version();

@@ -21,7 +21,7 @@ int main()
   bold->set_bold();
 
   // Some chart positioning options.
-  xwpp::chart_options_t options = {.x_offset_ = 25, .y_offset_ = 10};
+  xwpp::chart_options_t options{.x_offset_ = 25, .y_offset_ = 10};
 
   // Write some data for the chart.
   worksheet.write_string(0, 0, "Number", bold);
@@ -155,7 +155,7 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Create some custom labels.
-    const std::vector<xwpp::chart_data_label_t> data_labels = {
+    const std::vector<xwpp::chart_data_label_t> data_labels{
       {.value_ = "Amy"}, {.value_ = "Bea"}, {.value_ = "Eva"}, {.value_ = "Fay"}, {.value_ = "Liv"}, {.value_ = "Una"},
     };
 
@@ -183,7 +183,7 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Create some custom labels.
-    const std::vector<xwpp::chart_data_label_t> data_labels = {
+    const std::vector<xwpp::chart_data_label_t> data_labels{
       {.value_ = "=Sheet1!$C$2"}, {.value_ = "=Sheet1!$C$3"}, {.value_ = "=Sheet1!$C$4"},
       {.value_ = "=Sheet1!$C$5"}, {.value_ = "=Sheet1!$C$6"}, {.value_ = "=Sheet1!$C$7"},
     };
@@ -214,7 +214,7 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Create some custom labels.
-    const std::vector<xwpp::chart_data_label_t> data_labels = {
+    const std::vector<xwpp::chart_data_label_t> data_labels{
       {.value_ = "=Sheet1!$C$2", .font_ = font},
       {},
       {.value_ = "=Sheet1!$C$4", .font_ = font},

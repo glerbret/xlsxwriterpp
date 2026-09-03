@@ -29,7 +29,7 @@
 namespace xwpp
 {
 
-const size_t MAX_ATTRIBUTE_LENGTH = 2080;
+const size_t MAX_ATTRIBUTE_LENGTH{2080};
 
 /**
  * Create the XML declaration in an XML file.

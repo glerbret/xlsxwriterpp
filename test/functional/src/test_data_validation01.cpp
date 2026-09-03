@@ -12,8 +12,8 @@
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet        = workbook.add_worksheet();
-  const std::vector<std::string> list = {"Foo", "Bar", "Baz"};
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+  const std::vector<std::string> list{"Foo", "Bar", "Baz"};
 
   const xwpp::data_validation_t data_validation{
     .validate_   = xwpp::validation_types_t::LIST,

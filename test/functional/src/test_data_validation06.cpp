@@ -12,13 +12,13 @@
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet         = workbook.add_worksheet();
-  const std::vector<std::string> list1 = {"Foo", "Bar", "Baz"};
-  const std::vector<std::string> list2 = {
-    "Foobar", "Foobas", "Foobat", "Foobau", "Foobav", "Foobaw", "Foobax", "Foobay", "Foobaz", "Foobba",
-    "Foobbb", "Foobbc", "Foobbd", "Foobbe", "Foobbf", "Foobbg", "Foobbh", "Foobbi", "Foobbj", "Foobbk",
-    "Foobbl", "Foobbm", "Foobbn", "Foobbo", "Foobbp", "Foobbq", "Foobbr", "Foobbs", "Foobbt", "Foobbu",
-    "Foobbv", "Foobbw", "Foobbx", "Foobby", "Foobbz", "Foobca", "End1"};
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+  const std::vector<std::string> list1{"Foo", "Bar", "Baz"};
+  const std::vector<std::string> list2{"Foobar", "Foobas", "Foobat", "Foobau", "Foobav", "Foobaw", "Foobax", "Foobay",
+                                       "Foobaz", "Foobba", "Foobbb", "Foobbc", "Foobbd", "Foobbe", "Foobbf", "Foobbg",
+                                       "Foobbh", "Foobbi", "Foobbj", "Foobbk", "Foobbl", "Foobbm", "Foobbn", "Foobbo",
+                                       "Foobbp", "Foobbq", "Foobbr", "Foobbs", "Foobbt", "Foobbu", "Foobbv", "Foobbw",
+                                       "Foobbx", "Foobby", "Foobbz", "Foobca", "End1"};
 
   const xwpp::data_validation_t data_validation1{
     .validate_      = xwpp::validation_types_t::LIST,

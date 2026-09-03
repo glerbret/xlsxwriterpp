@@ -95,7 +95,7 @@ static unsigned crypthead(const char* passwd,       /* password string */
     int t;                       /* temporary */
     int c;                       /* random byte */
     unsigned char header[RAND_HEAD_LEN-2]; /* random header */
-    static unsigned calls = 0;   /* ensure different random header each time */
+    static unsigned calls{0};   /* ensure different random header each time */
 
     if (bufSize<RAND_HEAD_LEN)
       return 0;
@@ -109,14 +109,14 @@ static unsigned crypthead(const char* passwd,       /* password string */
         srand((unsigned)(time(NULL) ^ ZCR_SEED2));
     }
     init_keys(passwd, pkeys, pcrc_32_tab);
-    for (n = 0; n < RAND_HEAD_LEN-2; n++)
+    for (n{0}; n < RAND_HEAD_LEN-2; n++)
     {
         c = (rand() >> 7) & 0xff;
         header[n] = (unsigned char)zencode(pkeys, pcrc_32_tab, c, t);
     }
     /* Encrypt random header (last two bytes is high word of crc) */
     init_keys(passwd, pkeys, pcrc_32_tab);
-    for (n = 0; n < RAND_HEAD_LEN-2; n++)
+    for (n{0}; n < RAND_HEAD_LEN-2; n++)
     {
         buf[n] = (unsigned char)zencode(pkeys, pcrc_32_tab, header[n], t);
     }

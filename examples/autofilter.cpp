@@ -36,7 +36,7 @@ int main()
   {
     std::string region_;
     std::string item_;
-    int volume_ = 0;
+    int volume_{0};
     std::string month_;
   };
 
@@ -106,7 +106,7 @@ int main()
     write_worksheet_header(worksheet, header);
 
     // Write the row data.
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -126,7 +126,7 @@ int main()
     write_worksheet_header(worksheet, header);
 
     // Write the row data.
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -177,7 +177,7 @@ int main()
     write_worksheet_header(worksheet, header);
 
     // Write the row data.
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -218,7 +218,7 @@ int main()
     write_worksheet_header(worksheet, header);
 
     // Write the row data.
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -264,7 +264,7 @@ int main()
     write_worksheet_header(worksheet, header);
 
     // Write the row data.
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -300,7 +300,7 @@ int main()
     // Simulate one blank cell in the data, to test the filter.
     data[5].region_.clear();
 
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -333,7 +333,7 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
     write_worksheet_header(worksheet, header);
 
-    for(xwpp::row_num_t i = 0; const auto& [region, item, volume, month]: data)
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
       worksheet.write_string(i + 1, 0, region);
       worksheet.write_string(i + 1, 1, item);
@@ -356,7 +356,7 @@ int main()
     worksheet.autofilter(0, 0, 50, 3);
 
     // Add the filter criteria.
-    const xwpp::filter_rule_t filter_rule7 = {.criteria_ = xwpp::filter_criteria_t::NON_BLANKS};
+    const xwpp::filter_rule_t filter_rule7{.criteria_ = xwpp::filter_criteria_t::NON_BLANKS};
     worksheet.filter_column(0, filter_rule7);
   }
 

@@ -15,7 +15,7 @@ int main()
 
   std::vector<xwpp::row_num_t> breaks;
   breaks.reserve(1028);
-  for(xwpp::row_num_t i = 0; i < 1027; i++)
+  for(xwpp::row_num_t i{0}; i < 1027; i++)
   {
     breaks.push_back(i + 1);
   }

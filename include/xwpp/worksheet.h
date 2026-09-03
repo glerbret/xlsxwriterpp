@@ -56,7 +56,7 @@ namespace xwpp
 
 /* The Excel 2007 specification says that the maximum number of page
  * breaks is 1026. However, in practice it is actually 1023. */
-const size_t BREAKS_MAX = 1023;
+const size_t BREAKS_MAX{1023};
 
 /**
  * @brief Gridline options.
@@ -739,21 +739,21 @@ struct row_col_options_t
    *
    * Hide the row/column.
    */
-  bool hidden_ = false;
+  bool hidden_{false};
 
   /**
    * @brief Outline level.
    *
    * Outline level.
    */
-  uint8_t level_ = 0;
+  uint8_t level_{0};
 
   /**
    * @brief Set the outline row as collapsed.
    *
    * Set the outline row as collapsed.
    */
-  bool collapsed_ = false;
+  bool collapsed_{false};
 };
 
 /**
@@ -770,14 +770,14 @@ struct data_validation_t
    *
    * Should be a `validation_types_t` value.
    */
-  validation_types_t validate_ = validation_types_t::NONE;
+  validation_types_t validate_{validation_types_t::NONE};
 
   /**
    * Set the validation criteria type to select the data.
    *
    * Should be a `validation_criteria_t` value.
    */
-  validation_criteria_t criteria_ = validation_criteria_t::NONE;
+  validation_criteria_t criteria_{validation_criteria_t::NONE};
 
   /**
    * Controls whether a data validation is not applied to blank data in the
@@ -787,7 +787,7 @@ struct data_validation_t
    *
    * It is on by default.
    */
-  validation_boolean_t ignore_blank_ = validation_boolean_t::DEFAULT;
+  validation_boolean_t ignore_blank_{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to toggle on and off the 'Show input message
@@ -797,7 +797,7 @@ struct data_validation_t
    *
    * Should be a `validation_boolean_t` value. It is on by default.
    */
-  validation_boolean_t show_input_ = validation_boolean_t::DEFAULT;
+  validation_boolean_t show_input_{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to toggle on and off the 'Show error alert
@@ -807,7 +807,7 @@ struct data_validation_t
    *
    * Should be a `validation_boolean_t` value. It is on by default.
    */
-  validation_boolean_t show_error_ = validation_boolean_t::DEFAULT;
+  validation_boolean_t show_error_{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to specify the type of error dialog that is
@@ -815,7 +815,7 @@ struct data_validation_t
    *
    * Should be a `validation_error_types_t` value.
    */
-  validation_error_types_t error_type_ = validation_error_types_t::STOP;
+  validation_error_types_t error_type_{validation_error_types_t::STOP};
 
   /**
    * This parameter is used to toggle on and off the 'In-cell dropdown'
@@ -824,13 +824,13 @@ struct data_validation_t
    *
    * Should be a `validation_boolean_t` value. It is on by default.
    */
-  validation_boolean_t dropdown_ = validation_boolean_t::DEFAULT;
+  validation_boolean_t dropdown_{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to set the limiting value to which the criteria
    * is applied using a whole or decimal number.
    */
-  double value_number_ = 0.;
+  double value_number_{0.};
 
   /**
    * This parameter is used to set the limiting value to which the criteria
@@ -861,7 +861,7 @@ struct data_validation_t
    * This parameter is the same as `%value_number_` but for the minimum value
    * when a `BETWEEN` criteria is used.
    */
-  double minimum_number_ = 0.;
+  double minimum_number_{0.};
 
   /**
    * This parameter is the same as `%value_formula_` but for the minimum value
@@ -879,7 +879,7 @@ struct data_validation_t
    * This parameter is the same as `%value_number_` but for the maximum value
    * when a `BETWEEN` criteria is used.
    */
-  double maximum_number_ = 0.;
+  double maximum_number_{0.};
 
   /**
    * This parameter is the same as `%value_formula_` but for the maximum value
@@ -949,7 +949,7 @@ struct conditional_format_t
    *
    * Should be a `conditional_format_types_t` value.
    */
-  conditional_format_types_t type_ = conditional_format_types_t::NONE;
+  conditional_format_types_t type_{conditional_format_types_t::NONE};
 
   /**
    * The criteria parameter is used to set the criteria by which the cell
@@ -960,13 +960,13 @@ struct conditional_format_t
    *
    * The criteria options are defined in `conditional_criteria_t`.
    */
-  conditional_criteria_t criteria_ = conditional_criteria_t::NONE;
+  conditional_criteria_t criteria_{conditional_criteria_t::NONE};
 
   /**
    * The number value to which the condition refers. For example in the
    * expression `a > 5`, the value is 5.
    */
-  double value_ = 0.;
+  double value_{0.};
 
   /**
    * The string value to which the condition refers, such as `"=A1"`. If a
@@ -991,14 +991,14 @@ struct conditional_format_t
    * subscript, diagonal borders, all alignment properties and all
    * protection properties.
    */
-  format_t* format_ = nullptr;
+  format_t* format_{nullptr};
 
   /**
    * The minimum value used for Cell, Color Scale and Data Bar conditional
    * formats. For Cell types this is usually used with a "Between" style
    * criteria.
    */
-  double min_value_ = 0.;
+  double min_value_{0.};
 
   /**
    * The minimum string value used for Cell, Color Scale and Data Bar conditional
@@ -1011,18 +1011,18 @@ struct conditional_format_t
    * conditional formats. The rule types are defined in
    * `conditional_format_rule_types_t`.
    */
-  conditional_format_rule_types_t min_rule_type_ = conditional_format_rule_types_t::NONE;
+  conditional_format_rule_types_t min_rule_type_{conditional_format_rule_types_t::NONE};
 
   /**
    * The color used for the minimum Color Scale conditional format.
    * See @ref working_with_colors.
    */
-  color_t min_color_ = color_t::UNSET;
+  color_t min_color_{color_t::UNSET};
 
   /**
    * The middle value used for Color Scale and Data Bar conditional formats.
    */
-  double mid_value_ = 0.;
+  double mid_value_{0.};
 
   /**
    * The middle string value used for Color Scale and Data Bar conditional
@@ -1035,21 +1035,21 @@ struct conditional_format_t
    * conditional formats. The rule types are defined in
    * `conditional_format_rule_types_t`.
    */
-  conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
+  conditional_format_rule_types_t mid_rule_type_{conditional_format_rule_types_t::NONE};
 
   /**
    * The color used for the middle Color Scale conditional format.
    *
    * @see @ref working_with_colors.
    */
-  color_t mid_color_ = color_t::UNSET;
+  color_t mid_color_{color_t::UNSET};
 
   /**
    * The maximum value used for Cell, Color Scale and Data Bar conditional
    * formats. For Cell types this is usually used with a "Between" style
    * criteria.
    */
-  double max_value_ = 0.;
+  double max_value_{0.};
 
   /**
    * The maximum string value used for Cell, Color Scale and Data Bar conditional
@@ -1062,27 +1062,27 @@ struct conditional_format_t
    * conditional formats. The rule types are defined in
    * `conditional_format_rule_types_t`.
    */
-  conditional_format_rule_types_t max_rule_type_ = conditional_format_rule_types_t::NONE;
+  conditional_format_rule_types_t max_rule_type_{conditional_format_rule_types_t::NONE};
 
   /**
    * The color used for the maximum Color Scale conditional format.
    *
    * @see @ref working_with_colors.
    */
-  color_t max_color_ = color_t::UNSET;
+  color_t max_color_{color_t::UNSET};
 
   /**
    * The `%bar_color_` field sets the fill color for data bars.
    *
    * @see @ref working_with_colors.
    */
-  color_t bar_color_ = color_t::UNSET;
+  color_t bar_color_{color_t::UNSET};
 
   /**
    * The `%bar_only_` field sets The bar_only field displays a bar data but
    * not the data in the cells.
    */
-  bool bar_only_ = false;
+  bool bar_only_{false};
 
   /**
    * In Excel 2010 additional data bar properties were added such as solid
@@ -1092,7 +1092,7 @@ struct conditional_format_t
    * The `%data_bar_2010_` field sets Excel 2010 style data bars even when
    * Excel 2010 specific properties aren't used.
    */
-  bool data_bar_2010_ = false;
+  bool data_bar_2010_{false};
 
   /**
    * The `%bar_solid_` field turns on a solid (non-gradient) fill for data
@@ -1100,7 +1100,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_solid_ = false;
+  bool bar_solid_{false};
 
   /**
    * The `%bar_negative_color_` field sets the color fill for the negative
@@ -1110,7 +1110,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_negative_color_ = color_t::UNSET;
+  color_t bar_negative_color_{color_t::UNSET};
 
   /**
    * The `%bar_border_color_` field sets the color for the border line of a
@@ -1120,7 +1120,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_border_color_ = color_t::UNSET;
+  color_t bar_border_color_{color_t::UNSET};
 
   /**
    * The `%bar_negative_border_color_` field sets the color for the border of
@@ -1130,7 +1130,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_negative_border_color_ = color_t::UNSET;
+  color_t bar_negative_border_color_{color_t::UNSET};
 
   /**
    * The `%bar_negative_color_same_` field sets the fill color for the negative
@@ -1139,7 +1139,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_negative_color_same_ = false;
+  bool bar_negative_color_same_{false};
 
   /**
    * The `%bar_negative_border_color_same_` field sets the border color for the
@@ -1148,14 +1148,14 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_negative_border_color_same_ = false;
+  bool bar_negative_border_color_same_{false};
 
   /**
    * The `%bar_no_border_` field turns off the border for data bars.
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_no_border_ = false;
+  bool bar_no_border_{false};
 
   /**
    * The `%bar_direction_` field sets the direction for data bars. This
@@ -1166,7 +1166,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  conditional_format_bar_direction_t bar_direction_ = conditional_format_bar_direction_t::CONTEXT;
+  conditional_format_bar_direction_t bar_direction_{conditional_format_bar_direction_t::CONTEXT};
 
   /**
    * The `%bar_axis_position_` field sets the position within the cells for the
@@ -1178,7 +1178,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  conditional_bar_axis_position_t bar_axis_position_ = conditional_bar_axis_position_t::AUTOMATIC;
+  conditional_bar_axis_position_t bar_axis_position_{conditional_bar_axis_position_t::AUTOMATIC};
 
   /**
    * The `%bar_axis_color_` field sets the color for the axis that is shown
@@ -1188,24 +1188,24 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_axis_color_ = color_t::UNSET;
+  color_t bar_axis_color_{color_t::UNSET};
 
   /**
    * The Icons Sets style is specified by the `%icon_style_` parameter. Should
    * be a `conditional_icon_types_t`.
    */
-  conditional_icon_types_t icon_style_ = conditional_icon_types_t::THREE_ARROWS_COLORED;
+  conditional_icon_types_t icon_style_{conditional_icon_types_t::THREE_ARROWS_COLORED};
 
   /**
    * The order of Icon Sets icons can be reversed by setting `%reverse_icons_`.
    */
-  bool reverse_icons_ = false;
+  bool reverse_icons_{false};
 
   /**
    * The icons can be displayed without the cell value by settings the
    *  `%icons_only_` parameter.
    */
-  bool icons_only_ = false;
+  bool icons_only_{false};
 
   /**
    * The multi_range field is used to extend a conditional format over
@@ -1229,7 +1229,7 @@ struct conditional_format_t
    * applied to a cell or a range of cells. When this parameter is set then
    * subsequent rules are not evaluated if the current rule is true.
    */
-  bool stop_if_true_ = false;
+  bool stop_if_true_{false};
 };
 
 /**
@@ -1261,22 +1261,22 @@ struct table_column_t
   /**
    * Set the function for the column total.
    */
-  table_total_functions_t total_function_ = table_total_functions_t::NONE;
+  table_total_functions_t total_function_{table_total_functions_t::NONE};
 
   /**
    * Set the format for the column header.
    */
-  format_t* header_format_ = nullptr;
+  format_t* header_format_{nullptr};
 
   /**
    * Set the format for the data rows in the column.
    */
-  format_t* format_ = nullptr;
+  format_t* format_{nullptr};
 
   /**
    * Set the formula value for the column total (not generally required).
    */
-  double total_value_ = 0.;
+  double total_value_{0.};
 };
 
 /**
@@ -1324,7 +1324,7 @@ struct table_options_t
    * as `Column 1`, `Column 2`, etc. These captions can be overridden
    * using the `%columns_` parameter shown below.
    */
-  bool no_header_row_ = false;
+  bool no_header_row_{false};
 
   /**
    * The `%no_autofilter_` parameter can be used to turn off the autofilter in
@@ -1341,7 +1341,7 @@ struct table_options_t
    * The autofilter is only shown if the `%no_header_row_` parameter is off
    * (the default). Filter conditions within the table are not supported.
    */
-  bool no_autofilter_ = false;
+  bool no_autofilter_{false};
 
   /**
    * The `%no_banded_rows_` parameter can be used to turn off the rows of
@@ -1355,7 +1355,7 @@ struct table_options_t
    *
    * @image html tables6.png
    */
-  bool no_banded_rows_ = false;
+  bool no_banded_rows_{false};
 
   /**
    * The `%banded_columns_` parameter can be used to used to create columns of
@@ -1370,7 +1370,7 @@ struct table_options_t
    * The banded columns formatting is shown in the image in the previous
    * section above.
    */
-  bool banded_columns_ = false;
+  bool banded_columns_{false};
 
   /**
    * The `first_column` parameter can be used to highlight the first column
@@ -1381,7 +1381,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{
    *    .first_column_ = true,
-   *    .last_column_ = true,
+   *    .last_column_  = true,
    *  };
    *
    *  worksheet.add_table(RANGE("B3:F7"), options);
@@ -1389,7 +1389,7 @@ struct table_options_t
    *
    * @image html tables5.png
    */
-  bool first_column_ = false;
+  bool first_column_{false};
 
   /**
    * The `%last_column_` parameter can be used to highlight the last column of
@@ -1399,7 +1399,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{
    *    .first_column_ = true,
-   *    .last_column_ = true,
+   *    .last_column_  = true,
    *  };
    *
    *  worksheet.add_table(RANGE("B3:F7"), options);
@@ -1408,7 +1408,7 @@ struct table_options_t
    * The `%last_column_` formatting is shown in the image in the previous
    * section above.
    */
-  bool last_column_ = false;
+  bool last_column_{false};
 
   /**
    * The `%style_type_` parameter can be used to set the style of the table,
@@ -1461,13 +1461,13 @@ struct table_options_t
    *
    * @image html tables13.png
    */
-  table_style_type_t style_type_ = table_style_type_t::DEFAULT;
+  table_style_type_t style_type_{table_style_type_t::DEFAULT};
 
   /**
    * The `%style_type_number_` parameter is used with `%style_type_` to set the
    * style of a worksheet table.
    */
-  uint8_t style_type_number_ = 0;
+  uint8_t style_type_number_{0};
 
   /**
    * The `%total_row_` parameter can be used to turn on the total row in the
@@ -1485,7 +1485,7 @@ struct table_options_t
    * The default total row doesn't have any captions or functions. These
    * must by specified via the `%columns_` parameter below.
    */
-  bool total_row_ = false;
+  bool total_row_{false};
 
   /**
    * The `%columns_` parameter can be used to set properties for columns
@@ -1506,7 +1506,7 @@ struct filter_rule_t
   /**
    * The filter_criteria_t to define the rule.
    */
-  filter_criteria_t criteria_ = filter_criteria_t::NONE;
+  filter_criteria_t criteria_{filter_criteria_t::NONE};
 
   /**
    * String value to which the criteria applies.
@@ -1516,7 +1516,7 @@ struct filter_rule_t
   /**
    * Numeric value to which the criteria applies (if `%value_string_` isn't used).
    */
-  double value_ = 0;
+  double value_{0};
 };
 
 /**
@@ -1530,29 +1530,29 @@ struct image_options_t
   /**
    * Offset from the left of the cell in pixels.
    */
-  int32_t x_offset_ = 0;
+  int32_t x_offset_{0};
 
   /**
    * Offset from the top of the cell in pixels.
    */
-  int32_t y_offset_ = 0;
+  int32_t y_offset_{0};
 
   /**
    *  X scale of the image as a decimal.
    */
-  double x_scale_ = 1.;
+  double x_scale_{1.};
 
   /**
    *  Y scale of the image as a decimal.
    */
-  double y_scale_ = 1.;
+  double y_scale_{1.};
 
   /**
    * Object position - use one of the values of `object_position_t`.
    *
    * @see @ref working_with_object_positioning.
    */
-  object_position_t object_position_ = object_position_t::DEFAULT;
+  object_position_t object_position_{object_position_t::DEFAULT};
 
   /**
    * Optional description or "Alt text" for the image. This field can be
@@ -1570,7 +1570,7 @@ struct image_options_t
    * readers. As in Excel, if this parameter is in use the `%description_`
    * field isn't written.
    */
-  bool decorative_ = false;
+  bool decorative_{false};
 
   /**
    * Add an optional hyperlink to the image. Follows the same URL rules
@@ -1600,29 +1600,29 @@ struct chart_options_t
   /**
    * Offset from the left of the cell in pixels.
    */
-  int32_t x_offset_ = 0;
+  int32_t x_offset_{0};
 
   /**
    * Offset from the top of the cell in pixels.
    */
-  int32_t y_offset_ = 0;
+  int32_t y_offset_{0};
 
   /**
    * X scale of the chart as a decimal.
    */
-  double x_scale_ = 0.;
+  double x_scale_{0.};
 
   /**
    * Y scale of the chart as a decimal.
    */
-  double y_scale_ = 0.;
+  double y_scale_{0.};
 
   /**
    * Object position - use one of the values of `object_position_t`.
    *
    * @see @ref working_with_object_positioning.
    */
-  object_position_t object_position_ = object_position_t::DEFAULT;
+  object_position_t object_position_{object_position_t::DEFAULT};
 
   /**
    * Optional description or "Alt text" for the chart. This field can be
@@ -1640,7 +1640,7 @@ struct chart_options_t
    * readers. As in Excel, if this parameter is in use the `%description_`
    * field isn't written.
    */
-  bool decorative_ = false;
+  bool decorative_{false};
 };
 
 /**
@@ -1661,7 +1661,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_visible.
    */
-  comment_display_t visible_ = comment_display_t::DEFAULT;
+  comment_display_t visible_{comment_display_t::DEFAULT};
 
   /**
    * This option is used to indicate the author of the cell comment. Excel
@@ -1680,7 +1680,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_width.
    */
-  uint16_t width_ = 128;
+  uint16_t width_{128};
 
   /**
    * This option is used to set the height of the cell comment box
@@ -1688,21 +1688,21 @@ struct comment_options_t
    *
    * @see @ref ww_comments_height.
    */
-  uint16_t height_ = 74;
+  uint16_t height_{74};
 
   /**
    * X scale of the comment as a decimal.
    *
    * @see @ref ww_comments_x_scale.
    */
-  double x_scale_ = 1.;
+  double x_scale_{1.};
 
   /**
    * Y scale of the comment as a decimal.
    *
    * @see @ref ww_comments_y_scale.
    */
-  double y_scale_ = 1.;
+  double y_scale_{1.};
 
   /**
    * This option is used to set the background color of cell comment
@@ -1711,7 +1711,7 @@ struct comment_options_t
    * @see @ref working_with_colors.
    * @see @ref ww_comments_color.
    */
-  color_t color_ = color_t::UNSET;
+  color_t color_{color_t::UNSET};
 
   /**
    * This option is used to set the font for the comment. The default font
@@ -1719,7 +1719,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_font_name.
    */
-  std::string font_name_ = "Tahoma";
+  std::string font_name_{"Tahoma"};
 
   /**
    * This option is used to set the font size for the comment. The default
@@ -1727,13 +1727,13 @@ struct comment_options_t
    *
    * @see @ref ww_comments_font_size.
    */
-  double font_size_ = 8.;
+  double font_size_{8.};
 
   /**
    * This option is used to set the font family number for the comment.
    * Not required very often. Set to 0.
    */
-  uint8_t font_family_ = 0;
+  uint8_t font_family_{0};
 
   /**
    * This option is used to set the row in which the comment will
@@ -1743,7 +1743,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_start_row.
    */
-  row_num_t start_row_ = 0;
+  row_num_t start_row_{0};
 
   /**
    * This option is used to set the column in which the comment will
@@ -1751,21 +1751,21 @@ struct comment_options_t
    *
    * @see @ref ww_comments_start_col.
    */
-  col_num_t start_col_ = 0;
+  col_num_t start_col_{0};
 
   /**
    * Offset from the left of the cell in pixels.
    *
    * @see @ref ww_comments_x_offset.
    */
-  int32_t x_offset_ = 0;
+  int32_t x_offset_{0};
 
   /**
    * Offset from the top of the cell in pixels.
    *
    * @see @ref ww_comments_y_offset.
    */
-  int32_t y_offset_ = 0;
+  int32_t y_offset_{0};
 };
 
 /**
@@ -1800,33 +1800,33 @@ struct button_options_t
    * This option is used to set the width of the cell button box
    * explicitly in pixels. The default width is 64 pixels.
    */
-  uint16_t width_ = 0;
+  uint16_t width_{0};
 
   /**
    * This option is used to set the height of the cell button box
    * explicitly in pixels. The default height is 20 pixels.
    */
-  uint16_t height_ = 0;
+  uint16_t height_{0};
 
   /**
    * X scale of the button as a decimal.
    */
-  double x_scale_ = 0.;
+  double x_scale_{0.};
 
   /**
    * Y scale of the button as a decimal.
    */
-  double y_scale_ = 0.;
+  double y_scale_{0.};
 
   /**
    * Offset from the left of the cell in pixels.
    */
-  int32_t x_offset_ = 0;
+  int32_t x_offset_{0};
 
   /**
    * Offset from the top of the cell in pixels.
    */
-  int32_t y_offset_ = 0;
+  int32_t y_offset_{0};
 };
 
 /**
@@ -1844,7 +1844,7 @@ struct rich_string_tuple_t
    * The format for a string fragment in a rich string. `nullptr` if the string
    * isn't formatted.
    */
-  format_t* format_ = nullptr;
+  format_t* format_{nullptr};
 
   /**
    * The string fragment.
@@ -1854,13 +1854,13 @@ struct rich_string_tuple_t
 
 struct cell_t
 {
-  row_num_t row_num_ = 0;
-  col_num_t col_num_ = 0;
-  cell_types_t type_ = cell_types_t::BLANK_CELL;
-  format_t* format_  = nullptr;
+  row_num_t row_num_{0};
+  col_num_t col_num_{0};
+  cell_types_t type_{cell_types_t::BLANK_CELL};
+  format_t* format_{nullptr};
   std::optional<vml_obj_t> comment_;
   std::variant<uint32_t, double, std::string> data_;
-  double formula_result_ = 0.;
+  double formula_result_{0.};
   std::string user_data1_;
   std::string user_data2_;
   std::string sst_string_;
@@ -1868,15 +1868,15 @@ struct cell_t
 
 struct row_t
 {
-  row_num_t row_num_   = 0;
-  double height_       = DEF_ROW_HEIGHT;
-  format_t* format_    = nullptr;
-  bool hidden_         = false;
-  uint8_t level_       = 0;
-  bool collapsed_      = false;
-  bool row_changed_    = false;
-  bool data_changed_   = false;
-  bool height_changed_ = false;
+  row_num_t row_num_{0};
+  double height_{DEF_ROW_HEIGHT};
+  format_t* format_{nullptr};
+  bool hidden_{false};
+  uint8_t level_{0};
+  bool collapsed_{false};
+  bool row_changed_{false};
+  bool data_changed_{false};
+  bool height_changed_{false};
 
   std::map<col_num_t, cell_t> cells_;
 };
@@ -1890,13 +1890,13 @@ struct table_rows_t
 
 struct col_options_t
 {
-  col_num_t firstcol_ = std::numeric_limits<col_num_t>::max();
-  col_num_t lastcol_  = std::numeric_limits<col_num_t>::max();
-  double width_       = DEF_COL_WIDTH;
-  format_t* format_   = nullptr;
-  bool hidden_        = false;
-  uint8_t level_      = 0;
-  bool collapsed_     = false;
+  col_num_t firstcol_{std::numeric_limits<col_num_t>::max()};
+  col_num_t lastcol_{std::numeric_limits<col_num_t>::max()};
+  double width_{DEF_COL_WIDTH};
+  format_t* format_{nullptr};
+  bool hidden_{false};
+  uint8_t level_{0};
+  bool collapsed_{false};
 };
 
 struct merged_range_t
@@ -1909,46 +1909,46 @@ struct merged_range_t
 
 struct repeat_rows_t
 {
-  bool in_use_         = false;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
+  bool in_use_{false};
+  row_num_t first_row_{0};
+  row_num_t last_row_{0};
 };
 
 struct repeat_cols_t
 {
-  bool in_use_         = false;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
+  bool in_use_{false};
+  col_num_t first_col_{0};
+  col_num_t last_col_{0};
 };
 
 struct print_area_t
 {
-  bool in_use_         = false;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
+  bool in_use_{false};
+  row_num_t first_row_{0};
+  row_num_t last_row_{0};
+  col_num_t first_col_{0};
+  col_num_t last_col_{0};
 };
 
 struct autofilter_t
 {
-  bool in_use_         = false;
-  bool has_rules_      = false;
-  row_num_t first_row_ = 0;
-  row_num_t last_row_  = 0;
-  col_num_t first_col_ = 0;
-  col_num_t last_col_  = 0;
+  bool in_use_{false};
+  bool has_rules_{false};
+  row_num_t first_row_{0};
+  row_num_t last_row_{0};
+  col_num_t first_col_{0};
+  col_num_t last_col_{0};
 };
 
 struct panes_t
 {
-  pane_types_t type_   = pane_types_t::NO_PANES;
-  row_num_t first_row_ = 0;
-  col_num_t first_col_ = 0;
-  row_num_t top_row_   = 0;
-  col_num_t left_col_  = 0;
-  double x_split_      = 0.;
-  double y_split_      = 0.;
+  pane_types_t type_{pane_types_t::NO_PANES};
+  row_num_t first_row_{0};
+  col_num_t first_col_{0};
+  row_num_t top_row_{0};
+  col_num_t left_col_{0};
+  double x_split_{0.};
+  double y_split_{0.};
 };
 
 struct selection_t
@@ -1962,18 +1962,18 @@ struct selection_t
 // some additional fields.
 struct data_val_obj_t
 {
-  validation_types_t validate_         = validation_types_t::NONE;
-  validation_criteria_t criteria_      = validation_criteria_t::NONE;
-  bool ignore_blank_                   = false;
-  bool show_input_                     = false;
-  bool show_error_                     = false;
-  validation_error_types_t error_type_ = validation_error_types_t::STOP;
-  bool dropdown_                       = false;
-  double value_number_                 = 0.;
+  validation_types_t validate_{validation_types_t::NONE};
+  validation_criteria_t criteria_{validation_criteria_t::NONE};
+  bool ignore_blank_{false};
+  bool show_input_{false};
+  bool show_error_{false};
+  validation_error_types_t error_type_{validation_error_types_t::STOP};
+  bool dropdown_{false};
+  double value_number_{0.};
   std::string value_formula_;
-  double minimum_number_ = 0.;
+  double minimum_number_{0.};
   std::string minimum_formula_;
-  double maximum_number_ = 0.;
+  double maximum_number_{0.};
   std::string maximum_formula_;
   std::string input_title_;
   std::string input_message_;
@@ -1984,47 +1984,47 @@ struct data_val_obj_t
 
 struct cond_format_obj_t
 {
-  conditional_format_types_t type_ = conditional_format_types_t::NONE;
-  conditional_criteria_t criteria_ = conditional_criteria_t::NONE;
-  double min_value_                = 0.;
+  conditional_format_types_t type_{conditional_format_types_t::NONE};
+  conditional_criteria_t criteria_{conditional_criteria_t::NONE};
+  double min_value_{0.};
   std::string min_value_string_;
-  conditional_format_rule_types_t min_rule_type_ = conditional_format_rule_types_t::NONE;
-  color_t min_color_                             = color_t::UNSET;
-  double mid_value_                              = 0.;
+  conditional_format_rule_types_t min_rule_type_{conditional_format_rule_types_t::NONE};
+  color_t min_color_{color_t::UNSET};
+  double mid_value_{0.};
   std::string mid_value_string_;
   // TODO ?    uint8_t mid_value_type;
-  conditional_format_rule_types_t mid_rule_type_ = conditional_format_rule_types_t::NONE;
-  color_t mid_color_                             = color_t::UNSET;
-  double max_value_                              = 0.;
+  conditional_format_rule_types_t mid_rule_type_{conditional_format_rule_types_t::NONE};
+  color_t mid_color_{color_t::UNSET};
+  double max_value_{0.};
   std::string max_value_string_;
   // TODO ?     uint8_t max_value_type;
-  conditional_format_rule_types_t max_rule_type_     = conditional_format_rule_types_t::NONE;
-  color_t max_color_                                 = color_t::UNSET;
-  bool data_bar_2010_                                = false;
-  bool auto_min_                                     = false;
-  bool auto_max_                                     = false;
-  bool bar_only_                                     = false;
-  bool bar_solid_                                    = false;
-  bool bar_negative_color_same_                      = false;
-  bool bar_negative_border_color_same_               = false;
-  bool bar_no_border_                                = false;
-  conditional_format_bar_direction_t bar_direction_  = conditional_format_bar_direction_t::CONTEXT;
-  conditional_bar_axis_position_t bar_axis_position_ = conditional_bar_axis_position_t::AUTOMATIC;
-  color_t bar_color_                                 = color_t::UNSET;
-  color_t bar_negative_color_                        = color_t::UNSET;
-  color_t bar_border_color_                          = color_t::UNSET;
-  color_t bar_negative_border_color_                 = color_t::UNSET;
-  color_t bar_axis_color_                            = color_t::UNSET;
-  conditional_icon_types_t icon_style_               = conditional_icon_types_t::THREE_ARROWS_COLORED;
-  bool reverse_icons_                                = false;
-  bool icons_only_                                   = false;
-  bool stop_if_true_                                 = false;
-  bool has_max_                                      = false;
+  conditional_format_rule_types_t max_rule_type_{conditional_format_rule_types_t::NONE};
+  color_t max_color_{color_t::UNSET};
+  bool data_bar_2010_{false};
+  bool auto_min_{false};
+  bool auto_max_{false};
+  bool bar_only_{false};
+  bool bar_solid_{false};
+  bool bar_negative_color_same_{false};
+  bool bar_negative_border_color_same_{false};
+  bool bar_no_border_{false};
+  conditional_format_bar_direction_t bar_direction_{conditional_format_bar_direction_t::CONTEXT};
+  conditional_bar_axis_position_t bar_axis_position_{conditional_bar_axis_position_t::AUTOMATIC};
+  color_t bar_color_{color_t::UNSET};
+  color_t bar_negative_color_{color_t::UNSET};
+  color_t bar_border_color_{color_t::UNSET};
+  color_t bar_negative_border_color_{color_t::UNSET};
+  color_t bar_axis_color_{color_t::UNSET};
+  conditional_icon_types_t icon_style_{conditional_icon_types_t::THREE_ARROWS_COLORED};
+  bool reverse_icons_{false};
+  bool icons_only_{false};
+  bool stop_if_true_{false};
+  bool has_max_{false};
   std::string type_string_;
   std::string guid_;
   // PROPERTY_UNSET should not be part of format_t
-  int32_t dxf_index_     = format_t::PROPERTY_UNSET;
-  uint32_t dxf_priority_ = 0;
+  int32_t dxf_index_{format_t::PROPERTY_UNSET};
+  uint32_t dxf_priority_{0};
   std::string first_cell_;
   std::string sqref_;
 };
@@ -2034,35 +2034,35 @@ struct table_obj_t
   std::string name_;
   std::string total_string_;
   std::vector<table_column_t> columns_;
-  bool banded_columns_           = false;
-  bool first_column_             = false;
-  bool last_column_              = false;
-  bool no_autofilter_            = false;
-  bool no_banded_rows_           = false;
-  bool no_header_row_            = false;
-  table_style_type_t style_type_ = table_style_type_t::DEFAULT;
-  uint8_t style_type_number_     = 0;
-  bool total_row_                = false;
-  row_num_t first_row_           = 0;
-  col_num_t first_col_           = 0;
-  row_num_t last_row_            = 0;
-  col_num_t last_col_            = 0;
-  col_num_t num_cols_            = 0; // TODO is it useful?
-  uint32_t id_                   = 0;
+  bool banded_columns_{false};
+  bool first_column_{false};
+  bool last_column_{false};
+  bool no_autofilter_{false};
+  bool no_banded_rows_{false};
+  bool no_header_row_{false};
+  table_style_type_t style_type_{table_style_type_t::DEFAULT};
+  uint8_t style_type_number_{0};
+  bool total_row_{false};
+  row_num_t first_row_{0};
+  col_num_t first_col_{0};
+  row_num_t last_row_{0};
+  col_num_t last_col_{0};
+  col_num_t num_cols_{0}; // TODO is it useful?
+  uint32_t id_{0};
   std::string sqref_;
   std::string filter_sqref_;
 };
 
 struct filter_rule_obj_t
 {
-  filter_type_t type_          = filter_type_t::NONE;
-  bool is_custom_              = false;
-  bool has_blanks_             = false;
-  col_num_t col_num_           = 0;
-  filter_criteria_t criteria1_ = filter_criteria_t::NONE;
-  filter_criteria_t criteria2_ = filter_criteria_t::NONE;
-  double value1_               = 0.;
-  double value2_               = 0.;
+  filter_type_t type_{filter_type_t::NONE};
+  bool is_custom_{false};
+  bool has_blanks_{false};
+  col_num_t col_num_{0};
+  filter_criteria_t criteria1_{filter_criteria_t::NONE};
+  filter_criteria_t criteria2_{filter_criteria_t::NONE};
+  double value1_{0.};
+  double value2_{0.};
   std::string value1_string_;
   std::string value2_string_;
   std::vector<std::string> list_;
@@ -2202,7 +2202,7 @@ public:
    * example, to hide intermediary steps in a complicated calculation:
    *
    * @code
-   *  xwpp::row_col_options_t options = {.hidden_ = true, .level_ = 0, .collapsed_ = false};
+   *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
    *
    *  worksheet.set_column(COLS("D:E"), xwpp::DEF_COL_WIDTH, nullptr, options);
    * @endcode
@@ -2213,7 +2213,7 @@ public:
    * create Outlines and Grouping. See @ref working_with_outlines.
    *
    * @code
-   *  xwpp::row_col_options_t options = {.hidden_ = false, .level = 1, .collapsed = false};
+   *  xwpp::row_col_options_t options{.hidden_ = false, .level = 1, .collapsed = false};
    *
    *  worksheet.set_column(COLS("B:G"), 5, nullptr, &options1);
    * @endcode
@@ -2297,7 +2297,7 @@ public:
    * example, to hide intermediary steps in a complicated calculation:
    *
    * @code
-   *  xwpp::row_col_options_t options = {.hidden_ = true, .level_ = 0, .collapsed_ = false};
+   *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
    *
    *  // Hide the fourth and fifth (zero indexed) rows.
    *  worksheet.set_row(3, 15, nullptr, options);
@@ -2311,8 +2311,8 @@ public:
    *
    * @code
    *  // The option structs with the outline level set.
-   *  xwpp::row_col_options_t options1 = {.hidden_ = false, .level_ = 2, .collapsed_ = false};
-   *  xwpp::row_col_options_t options2 = {.hidden_ = false, .level_ = 1, .collapsed_ = false};
+   *  xwpp::row_col_options_t options1{.hidden_ = false, .level_ = 2, .collapsed_ = false};
+   *  xwpp::row_col_options_t options2{.hidden_ = false, .level_ = 1, .collapsed_ = false};
    *
    *  // Set the row options with the outline level.
    *  worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
@@ -2641,10 +2641,10 @@ public:
    *  xwpp::format_t* italic = workbook.add_format();
    *  italic->set_italic();
    *
-   *  xwpp::rich_string_tuple_t fragment1 = {.str_ = "This is "};
-   *  xwpp::rich_string_tuple_t fragment2 = {.format_ = bold, .str_ =  "bold"};
-   *  xwpp::rich_string_tuple_t fragment3 = {.str_  = " and this is "};
-   *  xwpp::rich_string_tuple_t fragment4 = {.format_ = italic, .str_ = "italic"};
+   *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
+   *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
+   *  xwpp::rich_string_tuple_t fragment3{.str_  = " and this is "};
+   *  xwpp::rich_string_tuple_t fragment4{.format_ = italic, .str_ = "italic"};
    *
    *  std::vector<xwpp::rich_string_tuple_t> rich_string{
    *    fragment1, fragment2,
@@ -2859,7 +2859,7 @@ public:
    * The following example shows how to add a comment to a cell with options:
    *
    * @code
-   *  xwpp::comment_options_t options = {.visible_ = LXW_COMMENT_DISPLAY_VISIBLE};
+   *  xwpp::comment_options_t options{.visible_ = LXW_COMMENT_DISPLAY_VISIBLE};
    *
    *  worksheet.write_comment(CELL("C6"), "Hello.", options);
    * @endcode
@@ -4857,95 +4857,95 @@ private:
   std::function<int32_t(format_t*)> get_dxf_index_;
 
   // Worksheet properties
-  bool use_1904_epoch_ = false;
+  bool use_1904_epoch_{false};
 
   // Worksheet content
-  bool has_dynamic_functions_ = false;
+  bool has_dynamic_functions_{false};
   table_rows_t table_;
   std::vector<table_obj_t> table_objs_;
 
   // Worksheet view
-  row_num_t dim_rowmin_ = ROW_MAX;
-  row_num_t dim_rowmax_ = 0;
-  col_num_t dim_colmin_ = COL_MAX;
-  col_num_t dim_colmax_ = 0;
+  row_num_t dim_rowmin_{ROW_MAX};
+  row_num_t dim_rowmax_{0};
+  col_num_t dim_colmin_{COL_MAX};
+  col_num_t dim_colmax_{0};
   panes_t panes_;
   std::list<selection_t> selections_;
-  bool screen_gridlines_ = true;
-  bool show_zeros_       = true;
-  bool right_to_left_    = false;
+  bool screen_gridlines_{true};
+  bool show_zeros_{true};
+  bool right_to_left_{false};
   std::string top_left_cell_;
-  bool page_view_ = false;
+  bool page_view_{false};
 
   // Rows properties
-  bool row_size_changed_       = false;
-  double default_row_height_   = DEF_ROW_HEIGHT;
-  uint32_t default_row_pixels_ = 20;
-  bool default_row_zeroed_     = false;
-  bool default_row_set_        = false;
-  uint8_t outline_row_level_   = 0;
+  bool row_size_changed_{false};
+  double default_row_height_{DEF_ROW_HEIGHT};
+  uint32_t default_row_pixels_{20};
+  bool default_row_zeroed_{false};
+  bool default_row_set_{false};
+  uint8_t outline_row_level_{0};
   repeat_rows_t repeat_rows_;
 
   // Cols properties
-  bool col_size_changed_       = false;
-  uint32_t default_col_pixels_ = 64;
-  uint8_t outline_col_level_   = 0;
+  bool col_size_changed_{false};
+  uint32_t default_col_pixels_{64};
+  uint8_t outline_col_level_{0};
   repeat_cols_t repeat_cols_;
   std::vector<col_options_t> col_options_;
 
   // Format
-  format_t* default_url_format_ = nullptr;
+  format_t* default_url_format_{nullptr};
   std::vector<format_t*> col_formats_;
 
   // Outlines
-  bool outline_changed_ = false;
-  bool outline_on_      = true;
-  bool outline_style_   = true;
-  bool outline_below_   = true;
-  bool outline_right_   = false;
+  bool outline_changed_{false};
+  bool outline_on_{true};
+  bool outline_style_{true};
+  bool outline_below_{true};
+  bool outline_right_{false};
 
   // Page setup
-  bool fit_page_       = false;
-  uint16_t fit_height_ = 0;
-  uint16_t fit_width_  = 0;
+  bool fit_page_{false};
+  uint16_t fit_height_{0};
+  uint16_t fit_width_{0};
 
   // Print options
-  bool print_options_changed_ = false;
-  bool hcenter_               = false;
-  bool vcenter_               = false;
-  bool print_gridlines_       = false;
-  bool print_headers_         = false;
-  bool black_white_           = false;
-  uint16_t print_scale_       = 100;
-  uint8_t page_order_         = 0;
-  uint16_t page_start_        = 0;
+  bool print_options_changed_{false};
+  bool hcenter_{false};
+  bool vcenter_{false};
+  bool print_gridlines_{false};
+  bool print_headers_{false};
+  bool black_white_{false};
+  uint16_t print_scale_{100};
+  uint8_t page_order_{0};
+  uint16_t page_start_{0};
   print_area_t print_area_;
   std::vector<row_num_t> hbreaks_;
   std::vector<col_num_t> vbreaks_;
 
   // Shared strings
-  shared_strings_t* sst_ = nullptr;
+  shared_strings_t* sst_{nullptr};
 
   // Comments
-  bool has_comments_ = false;
+  bool has_comments_{false};
   table_rows_t comments_;
   std::vector<vml_obj_t> comment_objs_;
   std::string comment_author_;
-  comment_display_t comment_display_default_ = comment_display_t::HIDDEN;
+  comment_display_t comment_display_default_{comment_display_t::HIDDEN};
 
   // Links
   table_rows_t hyperlinks_;
-  uint16_t hlink_count_    = 0;
-  uint16_t max_url_length_ = 2079;
+  uint16_t hlink_count_{0};
+  uint16_t max_url_length_{2079};
   std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
   std::vector<std::tuple<std::string, std::string, std::string>> external_table_links_;
 
   // Images
-  bool storing_embedded_image_ = false;
+  bool storing_embedded_image_{false};
   std::vector<object_properties_t> embedded_image_props_;
 
   // Background
-  bool has_background_image_ = false;
+  bool has_background_image_{false};
   std::optional<object_properties_t> background_image_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_background_link_;
 
@@ -4953,16 +4953,16 @@ private:
   std::vector<merged_range_t> merged_ranges_;
 
   // Filters
-  bool filter_on_ = false;
+  bool filter_on_{false};
   autofilter_t autofilter_;
   std::vector<std::optional<filter_rule_obj_t>> filter_rules_;
-  col_num_t num_filter_rules_ = 0;
+  col_num_t num_filter_rules_{0};
 
   // Validation
   std::vector<data_val_obj_t> data_validations_;
 
   // Conditonal formats
-  uint32_t dxf_priority_ = 0;
+  uint32_t dxf_priority_{0};
   std::map<std::string, std::vector<cond_format_obj_t>, std::less<>> conditional_formats_;
 
   // Buttons
@@ -4972,7 +4972,7 @@ private:
   std::string vba_codename_;
 
   // Errors
-  bool has_ignore_errors_ = false;
+  bool has_ignore_errors_{false};
   std::string ignore_number_stored_as_text_;
   std::string ignore_eval_error_;
   std::string ignore_formula_differs_;
@@ -4984,18 +4984,18 @@ private:
   std::string ignore_two_digit_text_year_;
 
   // VML
-  bool has_vml_ = false;
+  bool has_vml_{false};
   std::string vml_data_id_str_;
   std::string vml_header_id_str_;
-  uint32_t vml_shape_id_  = 0;
-  uint32_t vml_header_id_ = 0;
+  uint32_t vml_shape_id_{0};
+  uint32_t vml_header_id_{0};
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_comment_link_;
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
 
   // Excel version
-  uint16_t excel_version_       = 0; // TODO Default value
-  uint32_t data_bar_2010_index_ = 0; // TODO Useful ?
+  uint16_t excel_version_{0};       // TODO Default value
+  uint32_t data_bar_2010_index_{0}; // TODO Useful ?
 };
 
 /// @cond

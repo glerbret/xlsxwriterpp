@@ -34,9 +34,9 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet)
      }
   };
 
-  for(xwpp::row_num_t row_num = 0; const auto& row: data)
+  for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
-    for(xwpp::col_num_t col_num = 0; const auto value: row)
+    for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
       worksheet.write_number(row_num, col_num, value);
       col_num++;
@@ -215,7 +215,7 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
     // Write the worksheet data.
-    for(int i = 1; i <= 12; i++)
+    for(int i{1}; i <= 12; i++)
     {
       worksheet.write_number(i + 1, 1, i);
       worksheet.write_number(i + 1, 3, i);
@@ -264,7 +264,7 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
     // Write the worksheet data.
-    for(int i = 1; i <= 12; i++)
+    for(int i{1}; i <= 12; i++)
     {
       worksheet.write_number(i + 1, 1, i);
       worksheet.write_number(i + 1, 3, i);
@@ -274,7 +274,7 @@ int main()
     }
 
     const std::vector<int> data{-1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1, 0};
-    for(xwpp::row_num_t row_num = 2; const auto value: data)
+    for(xwpp::row_num_t row_num{2}; const auto value: data)
     {
       worksheet.write_number(row_num, 11, value);
       worksheet.write_number(row_num, 13, value);
@@ -339,7 +339,7 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
     // Write the worksheet data.
-    for(int i = 1; i <= 3; i++)
+    for(int i{1}; i <= 3; i++)
     {
       worksheet.write_number(2, static_cast<xwpp::col_num_t>(i), i);
       worksheet.write_number(3, static_cast<xwpp::col_num_t>(i), i);
@@ -347,12 +347,12 @@ int main()
       worksheet.write_number(5, static_cast<xwpp::col_num_t>(i), i);
     }
 
-    for(int i = 1; i <= 4; i++)
+    for(int i{1}; i <= 4; i++)
     {
       worksheet.write_number(6, static_cast<xwpp::col_num_t>(i), i);
     }
 
-    for(int i = 1; i <= 5; i++)
+    for(int i{1}; i <= 5; i++)
     {
       worksheet.write_number(7, static_cast<xwpp::col_num_t>(i), i);
       worksheet.write_number(8, static_cast<xwpp::col_num_t>(i), i);

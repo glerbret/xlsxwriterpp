@@ -33,7 +33,7 @@ int main()
   // TODO Throw exception (and don't ignore) on xlsxwriter++, test to add
   /*
     // Empty string.
-    std::vector<xwpp::rich_string_tuple_t> rich_strings3 = {
+    std::vector<xwpp::rich_string_tuple_t> rich_strings3{
         {.str_ = ""},
         {.format_ = bold, .str_ = "bc"},
         {.str_ = "defg"}
@@ -45,7 +45,7 @@ int main()
     worksheet.write_rich_string(CELL("A3"), rich_strings4, nullptr);
 
     // Single string.
-    std::vector<xwpp::rich_string_tuple_t> rich_strings5 = {
+    std::vector<xwpp::rich_string_tuple_t> rich_strings5{
         {.format_ = bold, .str_ = "foo"}
     };
     worksheet.write_rich_string(CELL("A3"), rich_strings5, nullptr);

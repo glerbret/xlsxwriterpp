@@ -26,10 +26,10 @@ namespace xwpp
 /// @endcond
 
 /** Default Excel column width in pixels. */
-const uint32_t DEF_COL_WIDTH_PIXELS = 64;
+const uint32_t DEF_COL_WIDTH_PIXELS{64};
 
 /** Default Excel column height in pixels. */
-const uint32_t DEF_ROW_HEIGHT_PIXELS = 20;
+const uint32_t DEF_ROW_HEIGHT_PIXELS{20};
 
 /**
  * Integer data type to represent a row value. Equivalent to `uint32_t`.
@@ -53,17 +53,17 @@ using col_num_t = uint16_t;
 struct datetime_t
 {
   /** Year     : 1900 - 9999 */
-  int year_   = 0;
+  int year_{0};
   /** Month    : 1 - 12 */
-  int month_  = 0;
+  int month_{0};
   /** Day      : 1 - 31 */
-  int day_    = 0;
+  int day_{0};
   /** Hour     : 0 - 23 */
-  int hour_   = 0;
+  int hour_{0};
   /** Minute   : 0 - 59 */
-  int min_    = 0;
+  int min_{0};
   /** Seconds  : 0 - 59.999 */
-  double sec_ = 0.;
+  double sec_{0.};
 };
 
 enum class custom_property_types_t
@@ -82,18 +82,18 @@ enum class drawing_orientation_t
   PORTRAIT,
 };
 
-const std::string SCHEMA_MS        = "http://schemas.microsoft.com/office/2006/relationships";
-const std::string SCHEMA_ROOT      = "http://schemas.openxmlformats.org";
-const std::string SCHEMA_DRAWING   = SCHEMA_ROOT + "/drawingml/2006";
-const std::string SCHEMA_OFFICEDOC = SCHEMA_ROOT + "/officeDocument/2006";
-const std::string SCHEMA_PACKAGE   = SCHEMA_ROOT + "/package/2006/relationships";
-const std::string SCHEMA_DOCUMENT  = SCHEMA_ROOT + "/officeDocument/2006/relationships";
-const std::string SCHEMA_CONTENT   = SCHEMA_ROOT + "/package/2006/content-types";
+const std::string SCHEMA_MS{"http://schemas.microsoft.com/office/2006/relationships"};
+const std::string SCHEMA_ROOT{"http://schemas.openxmlformats.org"};
+const std::string SCHEMA_DRAWING{SCHEMA_ROOT + "/drawingml/2006"};
+const std::string SCHEMA_OFFICEDOC{SCHEMA_ROOT + "/officeDocument/2006"};
+const std::string SCHEMA_PACKAGE{SCHEMA_ROOT + "/package/2006/relationships"};
+const std::string SCHEMA_DOCUMENT{SCHEMA_ROOT + "/officeDocument/2006/relationships"};
+const std::string SCHEMA_CONTENT{SCHEMA_ROOT + "/package/2006/content-types"};
 
 // Define custom property used in workbook.c and custom.c.
 struct custom_property_t
 {
-  custom_property_types_t type_ = custom_property_types_t::NONE;
+  custom_property_types_t type_{custom_property_types_t::NONE};
   std::string name_;
   std::variant<std::string, int32_t, double, bool, datetime_t> value_;
 };

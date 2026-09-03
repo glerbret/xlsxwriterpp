@@ -27,29 +27,29 @@ int main()
   worksheet.add_table(RANGE("I2:J2"));
 
   // Check incorrect table names.
-  xwpp::table_options_t options2 = {.name_ = "Has space"};
+  xwpp::table_options_t options2{.name_ = "Has space"};
   worksheet.add_table(RANGE("F3:G33"), options2);
 
-  xwpp::table_options_t options3 = {.name_ = "Table["};
+  xwpp::table_options_t options3{.name_ = "Table["};
   worksheet.add_table(RANGE("F3:G33"), options3);
 
-  xwpp::table_options_t options4 = {
+  xwpp::table_options_t options4{
       .name_ =
           "This_is_a_long_table_name_that_exceeds_a_limit_of_255_characters_"
           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"};
   worksheet.add_table(RANGE("F3:G33"), options4);
 
-  xwpp::table_options_t options5 = {.name_ = "c"};
+  xwpp::table_options_t options5{.name_ = "c"};
   worksheet.add_table(RANGE("F3:G33"), options5);
 
-  xwpp::table_options_t options6 = {.name_ = "R"};
+  xwpp::table_options_t options6{.name_ = "R"};
   worksheet.add_table(RANGE("F3:G33"), options6);
 
-  xwpp::table_options_t options7 = {.name_ = ".Table"};
+  xwpp::table_options_t options7{.name_ = ".Table"};
   worksheet.add_table(RANGE("F3:G33"), options7);
 
-  xwpp::table_options_t options8 = {.name_ = "1Table"};
+  xwpp::table_options_t options8{.name_ = "1Table"};
   worksheet.add_table(RANGE("F3:G33"), options8);
 */
   workbook.save("test_table26.xlsx");

@@ -24,9 +24,9 @@ int main()
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row_num = 0; const auto& row: data)
+  for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
-    for(xwpp::col_num_t col_num = 0; const auto value: row)
+    for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
       worksheet1.write_number(row_num, col_num, value);
       worksheet2.write_number(row_num, col_num, value);

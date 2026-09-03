@@ -143,8 +143,8 @@ void packager_t::create_package(workbook_t& workbook)
 void packager_t::write_content_types_file(const workbook_t& workbook)
 {
   content_types_t content_types;
-  uint32_t worksheet_index   = 1;
-  uint32_t chartsheet_index  = 1;
+  uint32_t worksheet_index{1};
+  uint32_t chartsheet_index{1};
   const size_t drawing_count = get_drawing_count(workbook);
   const size_t table_count   = get_table_count(workbook);
 
@@ -197,17 +197,17 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     }
   }
 
-  for(size_t index = 1; index <= workbook.ordered_charts_.size(); index++)
+  for(size_t index{1}; index <= workbook.ordered_charts_.size(); index++)
   {
     content_types.add_chart_name(std::format("/xl/charts/chart{}.xml", index));
   }
 
-  for(size_t index = 1; index <= drawing_count; index++)
+  for(size_t index{1}; index <= drawing_count; index++)
   {
     content_types.add_drawing_name(std::format("/xl/drawings/drawing{}.xml", index));
   }
 
-  for(size_t index = 1; index <= table_count; index++)
+  for(size_t index{1}; index <= table_count; index++)
   {
     content_types.add_table_name(std::format("/xl/tables/table{}.xml", index));
   }
@@ -217,7 +217,7 @@ void packager_t::write_content_types_file(const workbook_t& workbook)
     content_types.add_vml_name();
   }
 
-  for(size_t index = 1; index <= workbook.comment_count_; index++)
+  for(size_t index{1}; index <= workbook.comment_count_; index++)
   {
     content_types.add_comment_name(std::format("/xl/comments{}.xml", index));
   }
@@ -263,8 +263,8 @@ void packager_t::write_root_rels_file(const workbook_t& workbook)
 void packager_t::write_workbook_rels_file(const workbook_t& workbook)
 {
   relationships_t relationships;
-  uint32_t worksheet_index  = 1;
-  uint32_t chartsheet_index = 1;
+  uint32_t worksheet_index{1};
+  uint32_t chartsheet_index{1};
 
   for(const auto* sheet: workbook.sheets_)
   {
@@ -311,7 +311,7 @@ void packager_t::write_workbook_rels_file(const workbook_t& workbook)
 void packager_t::write_worksheet_files(workbook_t& workbook)
 {
   // Use ref to modify worksheet (add relations in external_hyperlinks_)
-  for(size_t index = 1; auto& worksheet: workbook.worksheets_)
+  for(size_t index{1}; auto& worksheet: workbook.worksheets_)
   {
     const std::string xml_data = worksheet.assemble_xml_file();
     add_buffer_to_zip(xml_data, std::format("xl/worksheets/sheet{}.xml", index));
@@ -322,7 +322,7 @@ void packager_t::write_worksheet_files(workbook_t& workbook)
 // cppcheck-suppress constParameterReference
 void packager_t::write_chartsheet_files(workbook_t& workbook)
 {
-  for(size_t index = 1; auto& chartsheet: workbook.chartsheets_)
+  for(size_t index{1}; auto& chartsheet: workbook.chartsheets_)
   {
     const std::string xml_data = chartsheet.assemble_xml_file();
     add_buffer_to_zip(xml_data, std::format("xl/chartsheets/sheet{}.xml", index));
@@ -392,7 +392,7 @@ void packager_t::write_app_file(const workbook_t& workbook)
   }
 
   // Add the Named Ranges parts.
-  uint32_t named_range_count = 0;
+  uint32_t named_range_count{0};
   for(const auto& defined_name: workbook.defined_names_)
   {
     const bool has_range  = defined_name.formula_.find('!') != std::string::npos;
@@ -444,9 +444,7 @@ void packager_t::write_custom_file(const workbook_t& workbook)
 
 void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 {
-  uint32_t index = 0;
-
-  for(const auto& worksheet: workbook.worksheets_)
+  for(uint32_t index{0}; const auto& worksheet: workbook.worksheets_)
   {
     relationships_t relationships;
 
@@ -506,7 +504,7 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
 void packager_t::write_chartsheet_rels_file(const workbook_t& workbook)
 {
-  for(size_t index = 0; const auto& chartsheet: workbook.chartsheets_)
+  for(size_t index{0}; const auto& chartsheet: workbook.chartsheets_)
   {
     relationships_t relationships;
 
@@ -529,9 +527,7 @@ void packager_t::write_chartsheet_rels_file(const workbook_t& workbook)
 
 void packager_t::write_vml_files(const workbook_t& workbook)
 {
-  uint32_t index = 1;
-
-  for(const auto& worksheet: workbook.worksheets_)
+  for(uint32_t index{1}; const auto& worksheet: workbook.worksheets_)
   {
     if(!worksheet.has_vml_ && !worksheet.has_header_vml())
     {
@@ -560,9 +556,7 @@ void packager_t::write_vml_files(const workbook_t& workbook)
 
 void packager_t::write_comment_files(const workbook_t& workbook)
 {
-  uint32_t index = 1;
-
-  for(const auto& worksheet: workbook.worksheets_)
+  for(uint32_t index{1}; const auto& worksheet: workbook.worksheets_)
   {
     if(!worksheet.has_comments_)
     {
@@ -578,7 +572,7 @@ void packager_t::write_comment_files(const workbook_t& workbook)
 
 void packager_t::write_drawing_files(const workbook_t& workbook)
 {
-  for(size_t index = 1; const auto* sheet: workbook.sheets_)
+  for(size_t index{1}; const auto* sheet: workbook.sheets_)
   {
     if(sheet->drawing_.has_value())
     {
@@ -591,7 +585,7 @@ void packager_t::write_drawing_files(const workbook_t& workbook)
 
 void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 {
-  for(size_t index = 1; const auto& sheet: workbook.sheets_)
+  for(size_t index{1}; const auto& sheet: workbook.sheets_)
   {
     if(!sheet->drawing_links_.empty())
     {
@@ -610,7 +604,7 @@ void packager_t::write_drawing_rels_file(const workbook_t& workbook)
 
 void packager_t::write_image_files(const workbook_t& workbook)
 {
-  for(size_t index = 1; const auto& worksheet: workbook.worksheets_)
+  for(size_t index{1}; const auto& worksheet: workbook.worksheets_)
   {
     if(!worksheet.image_props_.empty() || worksheet.has_embedded_image())
     {
@@ -679,7 +673,7 @@ void packager_t::write_rich_value_rels_file(const workbook_t& workbook)
 
   relationships_t relationships;
 
-  for(size_t index = 1; const auto& worksheet: workbook.worksheets_)
+  for(size_t index{1}; const auto& worksheet: workbook.worksheets_)
   {
     if(worksheet.has_embedded_image())
     {
@@ -756,7 +750,7 @@ void packager_t::write_rich_value_types_file(const workbook_t& workbook)
 
 void packager_t::write_chart_files(const workbook_t& workbook)
 {
-  for(uint32_t index = 1; const auto& chart: workbook.ordered_charts_)
+  for(uint32_t index{1}; const auto& chart: workbook.ordered_charts_)
   {
     const std::string xml_data = chart->assemble_xml_file();
     add_buffer_to_zip(xml_data, std::format("xl/charts/chart{}.xml", index));
@@ -766,7 +760,7 @@ void packager_t::write_chart_files(const workbook_t& workbook)
 
 void packager_t::write_table_files(const workbook_t& workbook)
 {
-  for(uint32_t index = 1; const auto& worksheet: workbook.worksheets_)
+  for(uint32_t index{1}; const auto& worksheet: workbook.worksheets_)
   {
     if(!worksheet.table_objs_.empty())
     {

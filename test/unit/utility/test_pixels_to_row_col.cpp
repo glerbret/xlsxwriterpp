@@ -19,9 +19,9 @@ namespace
 
 uint32_t width_to_pixels(double width)
 {
-  const double max_digit_width = 7.0;
-  const double padding         = 5.0;
-  double pixels                = 0.;
+  const double max_digit_width{7.0};
+  const double padding{5.0};
+  double pixels{0.};
 
   if(width < 1.0)
   {
@@ -44,7 +44,7 @@ uint32_t height_to_pixels(double height)
 
 BOOST_AUTO_TEST_CASE(pixel_to_width, *boost::unit_test::tolerance(0.00001))
 {
-  for(int pixels = 0; pixels <= 1790; pixels++)
+  for(int pixels{0}; pixels <= 1790; pixels++)
   {
     BOOST_TEST(pixels == width_to_pixels(xwpp::pixels_to_width(pixels)));
   }
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(pixel_to_width, *boost::unit_test::tolerance(0.00001))
 
 BOOST_AUTO_TEST_CASE(pixel_to_height, *boost::unit_test::tolerance(0.00001))
 {
-  for(int pixels = 0; pixels <= 545; pixels++)
+  for(int pixels{0}; pixels <= 545; pixels++)
   {
     BOOST_TEST(pixels == height_to_pixels(xwpp::pixels_to_height(pixels)));
   }

@@ -68,10 +68,10 @@ namespace
 
 void process_png(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
-  uint32_t width  = 0;
-  uint32_t height = 0;
-  double x_dpi    = 96;
-  double y_dpi    = 96;
+  uint32_t width{0};
+  uint32_t height{0};
+  double x_dpi{96};
+  double y_dpi{96};
 
   // Start after header.
   auto it = std::begin(data);
@@ -153,10 +153,10 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
 
 void process_jpeg(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
-  uint32_t width  = 0;
-  uint32_t height = 0;
-  double x_dpi    = 96;
-  double y_dpi    = 96;
+  uint32_t width{0};
+  uint32_t height{0};
+  double x_dpi{96};
+  double y_dpi{96};
 
   // Start after header.
   auto it = std::begin(data);
@@ -172,7 +172,7 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
     it += 2;
 
     // The offset for next fseek() is the field length + type length.
-    uint32_t offset = length - 2;
+    uint32_t offset{static_cast<uint32_t>(length - 2)};
 
     // Read the height and width in the 0xFFCn elements (except C4, C8
     // and CC which aren't SOF markers).
@@ -244,8 +244,8 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
 
 void process_bmp(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
-  const double x_dpi = 96;
-  const double y_dpi = 96;
+  const double x_dpi{96};
+  const double y_dpi{96};
 
   // Skip 18 bytes to the start of the BMP height/width.
   auto it = std::begin(data);
@@ -278,8 +278,8 @@ void process_bmp(object_properties_t& image_props, const std::vector<unsigned ch
 
 void process_gif(object_properties_t& image_props, const std::vector<unsigned char>& data)
 {
-  const double x_dpi = 96;
-  const double y_dpi = 96;
+  const double x_dpi{96};
+  const double y_dpi{96};
 
   // Skip 6 bytes to the start of the GIF height/width.
   auto it = std::begin(data);
@@ -334,7 +334,7 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
   image_props.md5_ = md5_t::digest_to_string(buffer);
 }
 
-const uint32_t HEADER_FOOTER_MAX = 255;
+const uint32_t HEADER_FOOTER_MAX{255};
 
 }
 
@@ -450,8 +450,8 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
   }
 
   // Count &G placeholders and ensure there are sufficient images.
-  uint8_t placeholder_count = 0;
-  for(size_t i = 0; i < str.size() - 1; ++i)
+  uint8_t placeholder_count{0};
+  for(size_t i{0}; i < str.size() - 1; ++i)
   {
     if(str[i] == '&' && str[i + 1] == 'G')
     {
@@ -466,7 +466,7 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
 
   if(options)
   {
-    uint8_t image_count = 0;
+    uint8_t image_count{0};
 
     // Ensure there are enough images to match the placeholders. There is
     // a potential bug where there are sufficient images but in the wrong
@@ -524,8 +524,8 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
   }
 
   // Count &G placeholders and ensure there are sufficient images.
-  uint8_t placeholder_count = 0;
-  for(size_t i = 0; i < str.size() - 1; ++i)
+  uint8_t placeholder_count{0};
+  for(size_t i{0}; i < str.size() - 1; ++i)
   {
     if(str[i] == '&' && str[i + 1] == 'G')
     {
@@ -540,7 +540,7 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
 
   if(options)
   {
-    uint8_t image_count = 0;
+    uint8_t image_count{0};
 
     // Ensure there are enough images to match the placeholders. There is
     // a potential bug where there are sufficient images but in the wrong
@@ -645,8 +645,7 @@ uint32_t sheet_t::find_drawing_rel_index(const std::string& target)
     return 0;
   }
 
-  auto it = drawing_rel_ids_.find(target);
-  if(it != std::end(drawing_rel_ids_))
+  if(const auto it = drawing_rel_ids_.find(target); it != std::end(drawing_rel_ids_))
   {
     return it->second;
   }
@@ -660,8 +659,7 @@ uint32_t sheet_t::get_drawing_rel_index(const std::string& target)
 {
   if(!target.empty())
   {
-    const auto it = drawing_rel_ids_.find(target);
-    if(it != std::end(drawing_rel_ids_))
+    if(const auto it = drawing_rel_ids_.find(target); it != std::end(drawing_rel_ids_))
     {
       return it->second;
     }
@@ -686,8 +684,7 @@ uint32_t sheet_t::find_vml_drawing_rel_index(const std::string& target)
     return 0;
   }
 
-  auto it = vml_drawing_rel_ids_.find(target);
-  if(it != std::end(vml_drawing_rel_ids_))
+  if(const auto it = vml_drawing_rel_ids_.find(target); it != std::end(vml_drawing_rel_ids_))
   {
     return it->second;
   }
@@ -701,8 +698,7 @@ uint32_t sheet_t::get_vml_drawing_rel_index(const std::string& target)
 {
   if(!target.empty())
   {
-    const auto it = vml_drawing_rel_ids_.find(target);
-    if(it != std::end(vml_drawing_rel_ids_))
+    if(const auto it = vml_drawing_rel_ids_.find(target); it != std::end(vml_drawing_rel_ids_))
     {
       return it->second;
     }
@@ -730,13 +726,14 @@ void sheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_t& o
                                     "");
   }
 
-  vml_obj_t header_image_vml;
-  header_image_vml.width_          = static_cast<uint32_t>(object_props.width_);
-  header_image_vml.height_         = static_cast<uint32_t>(object_props.height_);
-  header_image_vml.x_dpi_          = object_props.x_dpi_;
-  header_image_vml.y_dpi_          = object_props.y_dpi_;
-  header_image_vml.image_position_ = object_props.image_position_;
-  header_image_vml.name_           = object_props.description_;
+  vml_obj_t header_image_vml{
+    .width_          = static_cast<uint32_t>(object_props.width_),
+    .height_         = static_cast<uint32_t>(object_props.height_),
+    .x_dpi_          = object_props.x_dpi_,
+    .y_dpi_          = object_props.y_dpi_,
+    .image_position_ = object_props.image_position_,
+    .name_           = object_props.description_,
+  };
 
   // Strip the extension from the filename.
   if(const size_t pos = header_image_vml.name_.find_last_of('.'); pos != std::string::npos)
@@ -1128,7 +1125,7 @@ const std::vector<object_properties_t>& sheet_t::get_embedded_image_properties()
   throw xwpp_exception_t("sheet_t::get_background_image(): cannot have embedded image.");
 }
 
-const row_num_t sheet_t::ROW_MAX = 1048576;
-const col_num_t sheet_t::COL_MAX = 16384;
+const row_num_t sheet_t::ROW_MAX{1048576};
+const col_num_t sheet_t::COL_MAX{16384};
 
 }

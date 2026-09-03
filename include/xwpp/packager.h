@@ -74,10 +74,10 @@ private:
   [[nodiscard]] size_t get_drawing_count(const workbook_t& workbook) const;
   [[nodiscard]] size_t get_table_count(const workbook_t& workbook) const;
 
-  zipFile zipfile_ = nullptr;
+  zipFile zipfile_{nullptr};
   zip_fileinfo zip_fileinfo_;
   std::string filename_;
-  bool use_zip64_ = false;
+  bool use_zip64_{false};
 };
 
 }

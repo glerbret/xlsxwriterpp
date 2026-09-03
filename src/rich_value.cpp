@@ -51,8 +51,8 @@ std::string rich_value_t::write_rv_data(const workbook_t& workbook)
 
 std::string rich_value_t::write_images(const workbook_t& workbook) const
 {
-  uint32_t index = 0;
-  uint8_t type   = 5;
+  uint32_t index{0};
+  uint8_t type{5};
 
   std::string xml_data;
   for(const auto& worksheet: workbook.worksheets_)

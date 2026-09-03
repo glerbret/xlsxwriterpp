@@ -101,8 +101,7 @@ void chartsheet_t::protect(const std::string& password, std::optional<protection
 
   if(!password.empty())
   {
-    const uint16_t hash = hash_password(password);
-    protection.hash_    = std::format("{:04X}", hash);
+    protection.hash_ = std::format("{:04X}", hash_password(password));
   }
   else
   {
@@ -268,8 +267,8 @@ void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obj
   drawing_object.decorative_    = object_props.decorative_;
 
   // Scale to user scale.
-  double width  = object_props.width_ * object_props.x_scale_;
-  double height = object_props.height_ * object_props.y_scale_;
+  double width{object_props.width_ * object_props.x_scale_};
+  double height{object_props.height_ * object_props.y_scale_};
 
   // Scale by non 96dpi resolutions.
   width *= 96.0 / object_props.x_dpi_;
@@ -298,8 +297,8 @@ void chartsheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, obj
   drawing_object.decorative_    = object_props.decorative_;
 
   // Scale to user scale.
-  const double width  = object_props.width_ * object_props.x_scale_;
-  const double height = object_props.height_ * object_props.y_scale_;
+  const double width{object_props.width_ * object_props.x_scale_};
+  const double height{object_props.height_ * object_props.y_scale_};
 
   // Convert to the nearest pixel.
   object_props.width_  = width;

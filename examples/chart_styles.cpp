@@ -32,10 +32,10 @@ int main()
     worksheet.set_zoom(30);
 
     // Create 48 charts, each with a different style.
-    uint8_t style_num = 1;
-    for(xwpp::row_num_t row_num = 0; row_num < 90; row_num += 15)
+    uint8_t style_num{1};
+    for(xwpp::row_num_t row_num{0}; row_num < 90; row_num += 15)
     {
-      for(xwpp::col_num_t col_num = 0; col_num < 64; col_num += 8)
+      for(xwpp::col_num_t col_num{0}; col_num < 64; col_num += 8)
       {
         xwpp::chart_t& chart = workbook.add_chart(chart_type);
         chart.add_series("", "=Data!$A$1:$A$6");

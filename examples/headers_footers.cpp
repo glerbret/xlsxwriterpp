@@ -42,7 +42,7 @@ int main()
 {
   xwpp::workbook_t workbook;
 
-  const std::string preview = "Select Print Preview to see the header and footer";
+  const std::string preview{"Select Print Preview to see the header and footer"};
 
   // A simple example to start
   {
@@ -57,8 +57,8 @@ int main()
 
   // A simple example to start
   {
-    xwpp::worksheet_t& worksheet                       = workbook.add_worksheet("Image");
-    const xwpp::header_footer_options_t header_options = {.image_left_ = "logo_small.png"};
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Image");
+    const xwpp::header_footer_options_t header_options{.image_left_ = "logo_small.png"};
 
     worksheet.set_header("&L&G", header_options);
 

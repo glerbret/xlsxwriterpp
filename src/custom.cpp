@@ -58,7 +58,7 @@ namespace
 
 [[nodiscard]] std::string write_custom_property(size_t pid, const custom_property_t& property)
 {
-  const std::string fmtid = "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}";
+  const std::string fmtid{"{D5CDD505-2E9C-101B-9397-08002B2CF9AE}"};
 
   std::string xml_data = xml_start_tag("property", {
                                                      {"fmtid", fmtid                  },
@@ -115,7 +115,7 @@ std::string custom_t::write_custom_properties() const
                                                        {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"   },
   });
 
-  for(size_t index = 1; const auto& property: custom_properties_)
+  for(size_t index{1}; const auto& property: custom_properties_)
   {
     xml_data += write_custom_property(index, property);
     index++;

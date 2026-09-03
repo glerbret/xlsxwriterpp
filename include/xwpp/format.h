@@ -110,10 +110,10 @@ enum class color_t : uint32_t
   // Special value
   UNSET = 0xFFFFFFFFU,
 };
-const uint32_t COLOR_MASK = 0xFFFFFF;
+const uint32_t COLOR_MASK{0xFFFFFF};
 
-const double MIN_FONT_SIZE = 1.0;
-const double MAX_FONT_SIZE = 409.0;
+const double MIN_FONT_SIZE{1.0};
+const double MAX_FONT_SIZE{409.0};
 
 /**
  * @brief Option for underline format.
@@ -1315,7 +1315,7 @@ public:
    */
   void set_hyperlink();
 
-  static const int32_t PROPERTY_UNSET = -1;
+  static const int32_t PROPERTY_UNSET{-1};
   static const std::string DEFAULT_FONT_NAME;
 
   // TODO Refactor this point to not have it in several places
@@ -1328,72 +1328,72 @@ private:
   friend class worksheet_t; // TODO for debug
   friend class style_t;
 
-  static const uint8_t DEFAULT_FONT_FAMILY = 2;
+  static const uint8_t DEFAULT_FONT_FAMILY{2};
 
-  int32_t xf_index_  = PROPERTY_UNSET;
-  int32_t dxf_index_ = PROPERTY_UNSET;
-  int32_t xf_id_     = 0;
+  int32_t xf_index_{PROPERTY_UNSET};
+  int32_t dxf_index_{PROPERTY_UNSET};
+  int32_t xf_id_{0};
   std::string num_format_;
   std::string font_name_;
   std::string font_scheme_;
-  uint16_t num_format_index_         = 0;
-  int32_t font_index_                = PROPERTY_UNSET;
-  bool has_font_                     = false;
-  bool has_dxf_font_                 = false;
-  double font_size_                  = 11.0;
-  bool bold_                         = false;
-  bool italic_                       = false;
-  color_t font_color_                = color_t::UNSET;
-  format_underlines_t underline_     = format_underlines_t::NONE;
-  bool font_strikeout_               = false;
-  bool font_outline_                 = false;
-  bool font_shadow_                  = false;
-  format_scripts_t font_script_      = format_scripts_t::NONE;
-  uint8_t font_family_               = DEFAULT_FONT_FAMILY;
-  uint8_t font_charset_              = 0;
-  bool font_condense_                = false;
-  bool font_extend_                  = false;
-  uint8_t theme_                     = 0;
-  bool hyperlink_                    = false;
-  bool hidden_                       = false;
-  bool locked_                       = true;
-  format_alignments_t text_h_align_  = format_alignments_t::NONE;
-  bool text_wrap_                    = false;
-  format_alignments_t text_v_align_  = format_alignments_t::NONE;
-  bool text_justlast_                = false;
-  int16_t rotation_                  = 0;
-  color_t fg_color_                  = color_t::UNSET;
-  color_t bg_color_                  = color_t::UNSET;
-  color_t dxf_fg_color_              = color_t::UNSET;
-  color_t dxf_bg_color_              = color_t::UNSET;
-  format_patterns_t pattern_         = format_patterns_t::NONE;
-  bool has_fill_                     = false;
-  bool has_dxf_fill_                 = false;
-  int32_t fill_index_                = PROPERTY_UNSET;
-  int32_t fill_count_                = 0;
-  int32_t border_index_              = PROPERTY_UNSET;
-  bool has_border_                   = false;
-  bool has_dxf_border_               = false;
-  int32_t border_count_              = 0;
-  format_borders_t bottom_           = format_borders_t::NONE;
-  format_borders_t diag_border_      = format_borders_t::NONE;
-  format_diagonal_types_t diag_type_ = format_diagonal_types_t::NONE;
-  format_borders_t left_             = format_borders_t::NONE;
-  format_borders_t right_            = format_borders_t::NONE;
-  format_borders_t top_              = format_borders_t::NONE;
-  color_t bottom_color_              = color_t::UNSET;
-  color_t diag_color_                = color_t::UNSET;
-  color_t left_color_                = color_t::UNSET;
-  color_t right_color_               = color_t::UNSET;
-  color_t top_color_                 = color_t::UNSET;
-  uint8_t indent_                    = 0;
-  bool shrink_                       = false;
-  bool merge_range_                  = false;
-  uint8_t reading_order_             = 0;
-  bool just_distrib_                 = false;
-  uint8_t color_indexed_             = 0;
-  bool font_only_                    = false;
-  bool quote_prefix_                 = false;
+  uint16_t num_format_index_{0};
+  int32_t font_index_{PROPERTY_UNSET};
+  bool has_font_{false};
+  bool has_dxf_font_{false};
+  double font_size_{11.0};
+  bool bold_{false};
+  bool italic_{false};
+  color_t font_color_{color_t::UNSET};
+  format_underlines_t underline_{format_underlines_t::NONE};
+  bool font_strikeout_{false};
+  bool font_outline_{false};
+  bool font_shadow_{false};
+  format_scripts_t font_script_{format_scripts_t::NONE};
+  uint8_t font_family_{DEFAULT_FONT_FAMILY};
+  uint8_t font_charset_{0};
+  bool font_condense_{false};
+  bool font_extend_{false};
+  uint8_t theme_{0};
+  bool hyperlink_{false};
+  bool hidden_{false};
+  bool locked_{true};
+  format_alignments_t text_h_align_{format_alignments_t::NONE};
+  bool text_wrap_{false};
+  format_alignments_t text_v_align_{format_alignments_t::NONE};
+  bool text_justlast_{false};
+  int16_t rotation_{0};
+  color_t fg_color_{color_t::UNSET};
+  color_t bg_color_{color_t::UNSET};
+  color_t dxf_fg_color_{color_t::UNSET};
+  color_t dxf_bg_color_{color_t::UNSET};
+  format_patterns_t pattern_{format_patterns_t::NONE};
+  bool has_fill_{false};
+  bool has_dxf_fill_{false};
+  int32_t fill_index_{PROPERTY_UNSET};
+  int32_t fill_count_{0};
+  int32_t border_index_{PROPERTY_UNSET};
+  bool has_border_{false};
+  bool has_dxf_border_{false};
+  int32_t border_count_{0};
+  format_borders_t bottom_{format_borders_t::NONE};
+  format_borders_t diag_border_{format_borders_t::NONE};
+  format_diagonal_types_t diag_type_{format_diagonal_types_t::NONE};
+  format_borders_t left_{format_borders_t::NONE};
+  format_borders_t right_{format_borders_t::NONE};
+  format_borders_t top_{format_borders_t::NONE};
+  color_t bottom_color_{color_t::UNSET};
+  color_t diag_color_{color_t::UNSET};
+  color_t left_color_{color_t::UNSET};
+  color_t right_color_{color_t::UNSET};
+  color_t top_color_{color_t::UNSET};
+  uint8_t indent_{0};
+  bool shrink_{false};
+  bool merge_range_{false};
+  uint8_t reading_order_{0};
+  bool just_distrib_{false};
+  uint8_t color_indexed_{0};
+  bool font_only_{false};
+  bool quote_prefix_{false};
 };
 
 /// @cond

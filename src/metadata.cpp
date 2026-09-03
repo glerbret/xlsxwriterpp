@@ -184,7 +184,7 @@ std::string metadata_t::write_metadata() const
 
 std::string metadata_t::write_metadata_types() const
 {
-  uint8_t count = 0;
+  uint8_t count{0};
 
   if(has_dynamic_functions_)
   {
@@ -219,7 +219,7 @@ std::string metadata_t::write_value_future_metadata() const
                                                            {"name",  "XLRICHVALUE"                       },
                                                            {"count", std::to_string(num_embedded_images_)},
   });
-  for(uint32_t i = 0; i < num_embedded_images_; i++)
+  for(uint32_t i{0}; i < num_embedded_images_; i++)
   {
     xml_data += xml_start_tag("bk");
     xml_data += xml_start_tag("extLst");
@@ -234,7 +234,7 @@ std::string metadata_t::write_value_future_metadata() const
 
 std::string metadata_t::write_value_metadata() const
 {
-  uint8_t type = 1;
+  uint8_t type{1};
 
   if(has_dynamic_functions_)
   {
@@ -244,7 +244,7 @@ std::string metadata_t::write_value_metadata() const
   std::string xml_data = xml_start_tag("valueMetadata", {
                                                           {"count", std::to_string(num_embedded_images_)}
   });
-  for(uint32_t i = 0; i < num_embedded_images_; i++)
+  for(uint32_t i{0}; i < num_embedded_images_; i++)
   {
     xml_data += xml_start_tag("bk");
     xml_data += write_rc(type, i);
