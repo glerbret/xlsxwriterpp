@@ -1103,15 +1103,8 @@ std::string chart_t::write_auto_title_deleted()
 
 std::string chart_t::write_tx_pr_pie(bool is_horizontal, const std::optional<chart_font_t>& font)
 {
-  int32_t rotation{0};
-
-  if(font)
-  {
-    rotation = font->rotation_;
-  }
-
   std::string xml_data = xml_start_tag("c:txPr");
-  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_body_pr(font.has_value() ? font->rotation_ : 0, is_horizontal);
   xml_data += write_a_lst_style();
   xml_data += write_a_p_pie(font);
   xml_data += xml_end_tag("c:txPr");
@@ -1180,14 +1173,8 @@ std::string chart_t::write_tx_rich(const std::string& name, bool is_horizontal, 
 std::string chart_t::write_rich(const std::string& name, const std::optional<chart_font_t>& font, bool is_horizontal,
                                 bool ignore_rich_pr)
 {
-  int32_t rotation{0};
-  if(font)
-  {
-    rotation = font->rotation_;
-  }
-
   std::string xml_data = xml_start_tag("c:rich");
-  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_body_pr(font.has_value() ? font->rotation_ : 0, is_horizontal);
   xml_data += write_a_lst_style();
   xml_data += write_a_p_rich(name, font, ignore_rich_pr);
   xml_data += xml_end_tag("c:rich");
@@ -2474,14 +2461,8 @@ std::string chart_t::write_title_formula(const chart_title_t& title)
 
 std::string chart_t::write_tx_pr(bool is_horizontal, const std::optional<chart_font_t>& font)
 {
-  int32_t rotation{0};
-  if(font)
-  {
-    rotation = font->rotation_;
-  }
-
   std::string xml_data = xml_start_tag("c:txPr");
-  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_body_pr(font.has_value() ? font->rotation_ : 0, is_horizontal);
   xml_data += write_a_lst_style();
   xml_data += write_a_p_formula(font);
   xml_data += xml_end_tag("c:txPr");
@@ -2956,12 +2937,7 @@ std::string chart_t::write_d_lbls(const chart_series_t& series)
 
 std::string chart_t::write_custom_label_str(const chart_series_t& series, const chart_custom_label_t& data_label)
 {
-  bool ignore_rich_pr{true};
-
-  if(data_label.line_ || data_label.fill_ || data_label.pattern_)
-  {
-    ignore_rich_pr = false;
-  }
+  const bool ignore_rich_pr = !data_label.line_ && !data_label.fill_ && !data_label.pattern_;
 
   std::string xml_data = xml_empty_tag("c:layout");
   xml_data += xml_start_tag("c:tx");

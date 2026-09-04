@@ -76,141 +76,128 @@ namespace
 [[nodiscard]] cell_t new_string_cell(row_num_t row_num, col_num_t col_num, uint32_t string_id,
                                      std::string_view sst_string, const format_t* format)
 {
-  cell_t cell;
-
-  cell.row_num_    = row_num;
-  cell.col_num_    = col_num;
-  cell.type_       = cell_types_t::STRING_CELL;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_     = const_cast<format_t*>(format);
-  cell.data_       = string_id;
-  cell.sst_string_ = sst_string;
-
-  return cell;
+  return {
+    .row_num_    = row_num,
+    .col_num_    = col_num,
+    .type_       = cell_types_t::STRING_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_     = const_cast<format_t*>(format),
+    .data_       = string_id,
+    .sst_string_ = std::string{sst_string},
+  };
 }
 
 [[nodiscard]] cell_t new_number_cell(row_num_t row_num, col_num_t col_num, double value, const format_t* format)
 {
-  cell_t cell;
-
-  cell.row_num_ = row_num;
-  cell.col_num_ = col_num;
-  cell.type_    = cell_types_t::NUMBER_CELL;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_  = const_cast<format_t*>(format);
-  cell.data_    = value;
-
-  return cell;
+  return {
+    .row_num_ = row_num,
+    .col_num_ = col_num,
+    .type_    = cell_types_t::NUMBER_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_  = const_cast<format_t*>(format),
+    .data_    = value,
+  };
 }
 
 [[nodiscard]] cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t link_type,
                                         std::string_view url, std::string_view str, std::string_view tooltip)
 {
-  cell_t cell;
+  return {
+    .row_num_    = row_num,
+    .col_num_    = col_num,
+    .type_       = link_type,
+    .data_       = std::string{url},
+    .user_data1_ = std::string{str},
+    .user_data2_ = std::string{tooltip},
 
-  cell.row_num_    = row_num;
-  cell.col_num_    = col_num;
-  cell.type_       = link_type;
-  cell.data_       = std::string{url};
-  cell.user_data1_ = str;
-  cell.user_data2_ = tooltip;
-
-  return cell;
+  };
 }
 
 [[nodiscard]] cell_t new_comment_cell(row_num_t row_num, col_num_t col_num, const vml_obj_t& comment)
 {
-  cell_t cell;
+  return {
 
-  cell.row_num_ = row_num;
-  cell.col_num_ = col_num;
-  cell.type_    = cell_types_t::COMMENT;
-  cell.comment_ = comment;
+    .row_num_ = row_num,
+    .col_num_ = col_num,
+    .type_    = cell_types_t::COMMENT,
+    .comment_ = comment,
 
-  return cell;
+  };
 }
 
 [[nodiscard]] cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* format)
 {
-  cell_t cell;
+  return {
 
-  cell.row_num_ = row_num;
-  cell.col_num_ = col_num;
-  cell.type_    = cell_types_t::BLANK_CELL;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_  = const_cast<format_t*>(format);
+    .row_num_ = row_num,
+    .col_num_ = col_num,
+    .type_    = cell_types_t::BLANK_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_  = const_cast<format_t*>(format),
 
-  return cell;
+  };
 }
 
 [[nodiscard]] cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, std::string_view formula,
                                       const format_t* format, double result)
 {
-  cell_t cell;
+  return {
 
-  cell.row_num_        = row_num;
-  cell.col_num_        = col_num;
-  cell.type_           = cell_types_t::FORMULA_CELL;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_         = const_cast<format_t*>(format);
-  cell.data_           = std::string{formula};
-  cell.formula_result_ = result;
+    .row_num_        = row_num,
+    .col_num_        = col_num,
+    .type_           = cell_types_t::FORMULA_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_         = const_cast<format_t*>(format),
+    .data_           = std::string{formula},
+    .formula_result_ = result,
 
-  return cell;
+  };
 }
 
 [[nodiscard]] cell_t new_formula_cell(row_num_t row_num, col_num_t col_num, std::string_view formula,
                                       const format_t* format, std::string_view result)
 {
-  cell_t cell;
+  return {
 
-  cell.row_num_    = row_num;
-  cell.col_num_    = col_num;
-  cell.type_       = cell_types_t::FORMULA_CELL;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_     = const_cast<format_t*>(format);
-  cell.data_       = std::string{formula};
-  cell.user_data2_ = result;
+    .row_num_    = row_num,
+    .col_num_    = col_num,
+    .type_       = cell_types_t::FORMULA_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_     = const_cast<format_t*>(format),
+    .data_       = std::string{formula},
+    .user_data2_ = std::string{result},
 
-  return cell;
+  };
 }
 
 [[nodiscard]] cell_t new_array_formula_cell(row_num_t row_num, col_num_t col_num, std::string_view formula,
                                             std::string_view range, const format_t* format, bool is_dynamic)
 {
-  cell_t cell;
+  return {
 
-  cell.row_num_    = row_num;
-  cell.col_num_    = col_num;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_     = const_cast<format_t*>(format);
-  cell.data_       = std::string{formula};
-  cell.user_data1_ = range;
+    .row_num_    = row_num,
+    .col_num_    = col_num,
+    .type_       = is_dynamic ? cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL : cell_types_t::ARRAY_FORMULA_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_     = const_cast<format_t*>(format),
+    .data_       = std::string{formula},
+    .user_data1_ = std::string{range},
 
-  if(is_dynamic)
-  {
-    cell.type_ = cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL;
-  }
-  else
-  {
-    cell.type_ = cell_types_t::ARRAY_FORMULA_CELL;
-  }
-
-  return cell;
+  };
 }
 
 [[nodiscard]] cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, const format_t* format)
 {
-  cell_t cell;
+  return {
 
-  cell.row_num_ = row_num;
-  cell.col_num_ = col_num;
-  cell.type_    = cell_types_t::ERROR_CELL;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_  = const_cast<format_t*>(format);
-  cell.data_    = value;
+    .row_num_ = row_num,
+    .col_num_ = col_num,
+    .type_    = cell_types_t::ERROR_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_  = const_cast<format_t*>(format),
+    .data_    = value,
 
-  return cell;
+  };
 }
 
 // This function handles the additional optional parameters to
