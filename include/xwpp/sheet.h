@@ -241,7 +241,7 @@ struct protection_t
 
 enum class image_position_t
 {
-  HEADER_LEFT = 0,
+  HEADER_LEFT,
   HEADER_CENTER,
   HEADER_RIGHT,
   FOOTER_LEFT,

@@ -569,7 +569,7 @@ enum class table_style_type_t
  */
 enum class table_total_functions_t
 {
-  NONE = 0,
+  NONE,
 
   /** Use the average function as the table total. */
   AVERAGE = 101,
@@ -657,7 +657,7 @@ enum class filter_operator_t
 enum class ignore_errors_t
 {
   /** Turn off errors/warnings for numbers stores as text. */
-  NUMBER_STORED_AS_TEXT = 1,
+  NUMBER_STORED_AS_TEXT,
 
   /** Turn off errors/warnings for formula errors (such as divide by
    *  zero). */
@@ -702,7 +702,7 @@ enum class filter_type_t
 
 enum class cell_types_t
 {
-  NUMBER_CELL = 1,
+  NUMBER_CELL,
   STRING_CELL,
   FORMULA_CELL,
   ARRAY_FORMULA_CELL,
@@ -718,7 +718,7 @@ enum class cell_types_t
 
 enum class pane_types_t
 {
-  NO_PANES = 0,
+  NO_PANES,
   FREEZE_PANES,
   SPLIT_PANES,
   FREEZE_SPLIT_PANES

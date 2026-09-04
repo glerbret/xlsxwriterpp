@@ -124,7 +124,7 @@ const double MAX_FONT_SIZE{409.0};
  */
 enum class format_underlines_t
 {
-  NONE = 0,
+  NONE,
 
   /** Single underline. */
   SINGLE,
@@ -166,7 +166,7 @@ enum class format_scripts_t
 enum class format_alignments_t
 {
   /** No alignment. Cell will use Excel's default for the data type. */
-  NONE = 0,
+  NONE,
 
   /** Left horizontal alignment. */
   HORIZONTAL_LEFT,
@@ -232,7 +232,7 @@ enum class format_diagonal_types_t
 enum class format_patterns_t
 {
   /** Empty pattern. */
-  NONE = 0,
+  NONE,
 
   /** Solid pattern. */
   SOLID,

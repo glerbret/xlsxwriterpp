@@ -90,7 +90,7 @@ namespace xwpp
 enum class chart_type_t
 {
   /** None. */
-  NONE = 0,
+  NONE,
 
   /** Area chart. */
   AREA,
@@ -167,7 +167,7 @@ enum class chart_type_t
 enum class chart_legend_position_t
 {
   /** No chart legend. */
-  NONE = 0,
+  NONE,
 
   /** Chart legend positioned at right side. */
   RIGHT,
@@ -206,7 +206,7 @@ enum class chart_legend_position_t
 enum class chart_line_dash_type_t
 {
   /** Solid. */
-  SOLID = 0,
+  SOLID,
 
   /** Round Dot. */
   ROUND_DOT,
@@ -508,7 +508,7 @@ enum class chart_axis_type_t
 
 enum class chart_subtype_t
 {
-  NONE = 0,
+  NONE,
   STACKED,
   STACKED_PERCENT
 };
