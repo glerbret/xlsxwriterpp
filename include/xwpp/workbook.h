@@ -614,7 +614,7 @@ public:
    *
    * @todo Add builder API to create format.
    */
-  format_t* add_format();
+  [[nodiscard]] format_t* add_format();
 
   /**
    * @brief Get the default URL format used with `worksheet_t::write_url()`.

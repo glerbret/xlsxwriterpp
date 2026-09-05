@@ -21,9 +21,9 @@ class md5_t
 {
 public:
   // Build MD5 digest
-  static std::array<uint8_t, 16> digest(const std::vector<uint8_t>& input);
+  [[nodiscard]] static std::array<uint8_t, 16> digest(const std::vector<uint8_t>& input);
   // Build MD5 digest and return it in a "hex string"
-  static std::string digest_to_string(const std::vector<uint8_t>& input);
+  [[nodiscard]] static std::string digest_to_string(const std::vector<uint8_t>& input);
 
 private:
   // Only usable through static functions hereafter
@@ -33,7 +33,7 @@ private:
 
   void step(const std::array<uint32_t, 16>& chunck);
   void update(const std::vector<uint8_t>& input);
-  std::array<uint8_t, 16> finalize();
+  [[nodiscard]] std::array<uint8_t, 16> finalize();
 
   static const std::array<uint32_t, 64> k_sine;
   static const std::array<uint32_t, 64> s_shift;

@@ -13,10 +13,10 @@ int main()
   /* xwpp::worksheet_t& worksheet2 = */ workbook.add_worksheet("Data Sheet");
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
 
-  /* xwpp::format_t* unused1 = */ workbook.add_format();
+  /* xwpp::format_t* unused1 = */ (void)workbook.add_format();
   xwpp::format_t* format = workbook.add_format();
-  /* xwpp::format_t* unused2 = */ workbook.add_format();
-  /* xwpp::format_t* unused3 = */ workbook.add_format();
+  /* xwpp::format_t* unused2 = */ (void)workbook.add_format();
+  /* xwpp::format_t* unused3 = */ (void)workbook.add_format();
 
   format->set_bold();
 
