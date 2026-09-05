@@ -2408,6 +2408,7 @@ std::string chart_t::write_axis_pos(chart_position_t position, bool reverse)
         attributes.emplace_back("val", "r");
       }
       break;
+
     case chart_position_t::LEFT:
       if(reverse)
       {
@@ -2429,6 +2430,7 @@ std::string chart_t::write_axis_pos(chart_position_t position, bool reverse)
         attributes.emplace_back("val", "t");
       }
       break;
+
     case chart_position_t::BOTTOM:
       if(reverse)
       {
@@ -2774,29 +2776,37 @@ std::string chart_t::write_legend()
     case chart_legend_position_t::LEFT:
       xml_data += write_legend_pos("l");
       break;
+
     case chart_legend_position_t::TOP:
       xml_data += write_legend_pos("t");
       break;
+
     case chart_legend_position_t::BOTTOM:
       xml_data += write_legend_pos("b");
       break;
+
     case chart_legend_position_t::TOP_RIGHT:
       xml_data += write_legend_pos("tr");
       break;
+
     case chart_legend_position_t::OVERLAY_RIGHT:
       xml_data += write_legend_pos("r");
       has_overlay = true;
       break;
+
     case chart_legend_position_t::OVERLAY_LEFT:
       xml_data += write_legend_pos("l");
       has_overlay = true;
       break;
+
     case chart_legend_position_t::OVERLAY_TOP_RIGHT:
       xml_data += write_legend_pos("tr");
       has_overlay = true;
       break;
+
     default:
       xml_data += write_legend_pos("r");
+      break;
   }
 
   for(size_t index{0}; index < delete_series_.size(); index++)
@@ -3829,7 +3839,7 @@ std::string chart_t::write_cat_val_axis(chart_t& chart)
 
 std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
 {
-  const uint16_t index = chart.series_index_++;
+  const auto index = chart.series_index_++;
 
   std::string xml_data = xml_start_tag("c:ser");
   xml_data += write_idx(index);

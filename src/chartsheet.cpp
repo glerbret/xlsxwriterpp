@@ -13,11 +13,8 @@
 #include "xwpp/worksheet.h"
 #include "xwpp/xmlwriter.h"
 
-#include <algorithm> // ???
 #include <format>
 #include <string>
-
-using namespace std::literals; // ???
 
 namespace xwpp
 {
@@ -257,14 +254,15 @@ void chartsheet_t::prepare_background([[maybe_unused]] uint32_t image_ref_id,
 
 void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props)
 {
-  drawing_object_t drawing_object;
-  drawing_object.anchor_        = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE);
-  drawing_object.type_          = drawing_types_t::IMAGE;
-  drawing_object.description_   = object_props.description_;
-  drawing_object.tip_           = object_props.tip_;
-  drawing_object.rel_index_     = 0;
-  drawing_object.url_rel_index_ = 0;
-  drawing_object.decorative_    = object_props.decorative_;
+  drawing_object_t drawing_object{
+    .type_          = drawing_types_t::IMAGE,
+    .anchor_        = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE),
+    .rel_index_     = 0,
+    .url_rel_index_ = 0,
+    .description_   = object_props.description_,
+    .tip_           = object_props.tip_,
+    .decorative_    = object_props.decorative_,
+  };
 
   // Scale to user scale.
   double width{object_props.width_ * object_props.x_scale_};
@@ -287,14 +285,15 @@ void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obj
 
 void chartsheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props)
 {
-  drawing_object_t drawing_object;
-  drawing_object.anchor_        = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE);
-  drawing_object.type_          = drawing_types_t::CHART;
-  drawing_object.description_   = object_props.description_;
-  drawing_object.tip_           = "";
-  drawing_object.rel_index_     = get_drawing_rel_index("");
-  drawing_object.url_rel_index_ = 0;
-  drawing_object.decorative_    = object_props.decorative_;
+  drawing_object_t drawing_object{
+    .type_          = drawing_types_t::CHART,
+    .anchor_        = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE),
+    .rel_index_     = get_drawing_rel_index(""),
+    .url_rel_index_ = 0,
+    .description_   = object_props.description_,
+    .tip_           = "",
+    .decorative_    = object_props.decorative_,
+  };
 
   // Scale to user scale.
   const double width{object_props.width_ * object_props.x_scale_};

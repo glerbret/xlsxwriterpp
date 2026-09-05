@@ -6715,31 +6715,38 @@ std::string worksheet_t::write_data_validation(const data_val_obj_t& validation)
     case validation_types_t::INTEGER_FORMULA:
       attributes.emplace_back("type", "whole");
       break;
+
     case validation_types_t::DECIMAL:
     case validation_types_t::DECIMAL_FORMULA:
       attributes.emplace_back("type", "decimal");
       break;
+
     case validation_types_t::LIST:
     case validation_types_t::LIST_FORMULA:
       attributes.emplace_back("type", "list");
       break;
+
     case validation_types_t::DATE:
     case validation_types_t::DATE_FORMULA:
     case validation_types_t::DATE_NUMBER:
       attributes.emplace_back("type", "date");
       break;
+
     case validation_types_t::TIME:
     case validation_types_t::TIME_FORMULA:
     case validation_types_t::TIME_NUMBER:
       attributes.emplace_back("type", "time");
       break;
+
     case validation_types_t::LENGTH:
     case validation_types_t::LENGTH_FORMULA:
       attributes.emplace_back("type", "textLength");
       break;
+
     case validation_types_t::CUSTOM_FORMULA:
       attributes.emplace_back("type", "custom");
       break;
+
     default:
       // NOP.
       break;
@@ -6750,29 +6757,37 @@ std::string worksheet_t::write_data_validation(const data_val_obj_t& validation)
     case validation_criteria_t::EQUAL_TO:
       attributes.emplace_back("operator", "equal");
       break;
+
     case validation_criteria_t::NOT_EQUAL_TO:
       attributes.emplace_back("operator", "notEqual");
       break;
+
     case validation_criteria_t::LESS_THAN:
       attributes.emplace_back("operator", "lessThan");
       break;
+
     case validation_criteria_t::LESS_THAN_OR_EQUAL_TO:
       attributes.emplace_back("operator", "lessThanOrEqual");
       break;
+
     case validation_criteria_t::GREATER_THAN:
       attributes.emplace_back("operator", "greaterThan");
       break;
+
     case validation_criteria_t::GREATER_THAN_OR_EQUAL_TO:
       attributes.emplace_back("operator", "greaterThanOrEqual");
       break;
+
     case validation_criteria_t::BETWEEN:
       // Between is the default for 2 formulas and isn't added.
       is_between = true;
       break;
+
     case validation_criteria_t::NOT_BETWEEN:
       is_between = true;
       attributes.emplace_back("operator", "notBetween");
       break;
+
     default:
       // NOP.
       break;
@@ -6857,6 +6872,7 @@ std::string worksheet_t::write_data_validation(const data_val_obj_t& validation)
         xml_data += write_formula2_num(validation.maximum_number_);
       }
       break;
+
     case validation_types_t::INTEGER_FORMULA:
     case validation_types_t::DECIMAL_FORMULA:
     case validation_types_t::LENGTH_FORMULA:

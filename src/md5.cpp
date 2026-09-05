@@ -161,7 +161,7 @@ std::array<uint8_t, 16> md5_t::digest(const std::vector<uint8_t>& input)
 
 std::string md5_t::digest_to_string(const std::vector<uint8_t>& input)
 {
-  auto hash = md5_t::digest(input);
+  const auto hash = md5_t::digest(input);
 
   std::string hash_str;
   for(const auto b: hash)
