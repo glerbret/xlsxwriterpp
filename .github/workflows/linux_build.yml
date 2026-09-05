@@ -19,6 +19,7 @@ jobs:
         make_flags: ["",
                      "-DUSE_SYSTEM_MINIZIP=ON",
                      "-DBUILD_SHARED_LIBS=ON"]
+        build_type : [Debug, Release]
 
     runs-on: ubuntu-latest
     env:
@@ -47,12 +48,12 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON ${{ matrix.cmake_flags }} -DCMAKE_BUILD_TYPE=Release
+        cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON ${{ matrix.cmake_flags }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build
       run: |
         cd build
-        cmake --build . --config Release
+        cmake --build . --config ${{ matrix.build_type }}
 
     - name: Test
       run: |
