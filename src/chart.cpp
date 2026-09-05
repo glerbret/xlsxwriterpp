@@ -23,7 +23,7 @@ namespace
 
 std::optional<chart_font_t> convert_font_args(const std::optional<chart_font_t>& user_font, bool title_font = false)
 {
-  if(!user_font)
+  if(!user_font.has_value())
   {
     return std::nullopt;
   }
@@ -59,7 +59,7 @@ std::optional<chart_font_t> convert_font_args(const std::optional<chart_font_t>&
 
 std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>& user_line)
 {
-  if(!user_line)
+  if(!user_line.has_value())
   {
     return std::nullopt;
   }
@@ -82,7 +82,7 @@ std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>&
 
 std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> user_fill)
 {
-  if(!user_fill)
+  if(!user_fill.has_value())
   {
     return std::nullopt;
   }
@@ -103,7 +103,7 @@ std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> 
 
 std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pattern_t>& user_pattern)
 {
-  if(!user_pattern)
+  if(!user_pattern.has_value())
   {
     return std::nullopt;
   }
@@ -136,7 +136,7 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
 std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layout_t>& user_layout,
                                                   chart_layout_type_t type)
 {
-  if(!user_layout)
+  if(!user_layout.has_value())
   {
     return std::nullopt;
   }
@@ -367,7 +367,7 @@ void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_
 // cppcheck-suppress functionStatic
 void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t type) const
 {
-  if(!series.marker_)
+  if(!series.marker_.has_value())
   {
     series.marker_ = chart_marker_t{};
   }
@@ -1256,7 +1256,7 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
   bool has_color{false};
   bool has_latin{false};
 
-  if(font)
+  if(font.has_value())
   {
     has_color                   = font->color_ != color_t::UNSET;
     has_latin                   = !font->name_.empty() || font->pitch_family_ != 0 || font->charset_ != 0;
@@ -1357,7 +1357,7 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
 
   attributes.emplace_back("lang", "en-US");
 
-  if(font)
+  if(font.has_value())
   {
     has_color                   = font->color_ != color_t::UNSET;
     has_latin                   = !font->name_.empty() || font->pitch_family_ != 0 || font->charset_ != 0;
@@ -1445,7 +1445,7 @@ std::string chart_t::write_a_t(const std::string& name)
 
 std::string chart_t::write_layout(const std::optional<chart_layout_t>& layout)
 {
-  if(!layout)
+  if(!layout.has_value())
   {
     return xml_empty_tag("c:layout");
   }
@@ -1664,13 +1664,13 @@ std::string chart_t::write_f(const std::string& formula)
 std::string chart_t::write_sp_pr(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill,
                                  const std::optional<chart_pattern_t>& pattern)
 {
-  if(!line && !fill && !pattern)
+  if(!line.has_value() && !fill.has_value() && !pattern.has_value())
   {
     return "";
   }
 
   std::string xml_data = xml_start_tag("c:spPr");
-  if(fill && !pattern)
+  if(fill.has_value() && !pattern.has_value())
   {
     if(fill->none_)
     {
@@ -1682,12 +1682,12 @@ std::string chart_t::write_sp_pr(const std::optional<chart_line_t>& line, const 
     }
   }
 
-  if(pattern)
+  if(pattern.has_value())
   {
     xml_data += write_a_patt_fill(*pattern);
   }
 
-  if(line)
+  if(line.has_value())
   {
     xml_data += write_a_ln(*line);
   }
@@ -2317,12 +2317,12 @@ std::string chart_t::write_marker(const chart_t& chart, std::optional<chart_mark
 {
   // If there isn't a user defined marker use the default, if this chart
   //  type one. The default usually turns the marker off. */
-  if(!marker)
+  if(!marker.has_value())
   {
     marker = chart.default_marker_;
   }
 
-  if(!marker)
+  if(!marker.has_value())
   {
     return "";
   }
@@ -2493,7 +2493,7 @@ std::string chart_t::write_a_p_pr_formula(const std::optional<chart_font_t>& fon
 
 std::string chart_t::write_axis_font(const std::optional<chart_font_t>& font)
 {
-  if(!font)
+  if(!font.has_value())
   {
     return "";
   }
@@ -3303,7 +3303,7 @@ std::string chart_t::write_marker_value()
 
 std::string chart_t::write_up_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill)
 {
-  if(line || fill)
+  if(line.has_value() || fill.has_value())
   {
     std::string xml_data = xml_start_tag("c:upBars");
     xml_data += write_sp_pr(line, fill, std::nullopt);
@@ -3319,7 +3319,7 @@ std::string chart_t::write_up_bars(const std::optional<chart_line_t>& line, cons
 
 std::string chart_t::write_down_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill)
 {
-  if(line || fill)
+  if(line.has_value() || fill.has_value())
   {
     std::string xml_data = xml_start_tag("c:downBars");
     xml_data += write_sp_pr(line, fill, std::nullopt);
@@ -4527,7 +4527,7 @@ void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_la
 
 void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
 {
-  if(!font)
+  if(!font.has_value())
   {
     return;
   }
@@ -4536,7 +4536,7 @@ void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font
 
 void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
 {
-  if(!font)
+  if(!font.has_value())
   {
     return;
   }
@@ -4550,7 +4550,7 @@ void chart_axis_set_num_format(chart_axis_t& axis, std::string_view num_format)
 
 void chart_axis_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line)
 {
-  if(!line)
+  if(!line.has_value())
   {
     return;
   }

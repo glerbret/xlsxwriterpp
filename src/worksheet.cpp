@@ -24,6 +24,7 @@
 #include <format>
 #include <fstream>
 #include <numeric>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -289,7 +290,7 @@ void get_comment_params(vml_obj_t& comment, const std::optional<comment_options_
   comment.font_family_ = 2;
 
   // Set any user defined options.
-  if(options)
+  if(options.has_value())
   {
     if(options->width_ > 0.0)
     {
@@ -446,7 +447,7 @@ void set_custom_filter(filter_rule_obj_t& rule_obj)
 
 void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<table_options_t>& user_options)
 {
-  if(!user_options)
+  if(!user_options.has_value())
   {
     return;
   }
@@ -532,14 +533,12 @@ std::string expand_table_formula(const std::string& formula)
   }
 }
 
-void set_custom_table_columns(table_obj_t& table_obj, const std::optional<table_options_t>& user_options)
+void set_custom_table_columns(table_obj_t& table_obj, const table_options_t& user_options)
 {
   // TODO Check size consistency, and if possible use algorithm.
-  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-  for(size_t i{0}; i < user_options->columns_.size(); i++)
+  for(size_t i{0}; i < user_options.columns_.size(); i++)
   {
-    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    const table_column_t& user_column = user_options->columns_[i];
+    const table_column_t& user_column = user_options.columns_[i];
     table_column_t& table_column      = table_obj.columns_[i];
 
     if(!user_column.header_.empty())
@@ -570,7 +569,7 @@ void check_table_rows(row_num_t first_row, row_num_t last_row, const std::option
 {
   row_num_t num_non_header_rows{last_row - first_row};
 
-  if(user_options && user_options->no_header_row_)
+  if(user_options.has_value() && user_options->no_header_row_)
   {
     num_non_header_rows++;
   }
@@ -583,7 +582,7 @@ void check_table_rows(row_num_t first_row, row_num_t last_row, const std::option
 
 void check_table_name(const std::optional<table_options_t>& user_options)
 {
-  if(!user_options)
+  if(!user_options.has_value())
   {
     return;
   }
@@ -631,7 +630,7 @@ void get_button_params(vml_obj_t& button, uint16_t button_number, const std::opt
   bool has_macro{false};
 
   // Set any user defined options.
-  if(options)
+  if(options.has_value())
   {
     if(options->width_ > 0.0)
     {
@@ -1415,7 +1414,7 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   uint8_t level{0};
   bool collapsed{false};
 
-  if(options)
+  if(options.has_value())
   {
     hidden    = options->hidden_;
     level     = options->level_;
@@ -1494,7 +1493,7 @@ void worksheet_t::set_row(row_num_t row_num, double height, const format_t* form
   uint8_t level{0};
   bool collapsed{false};
 
-  if(user_options)
+  if(user_options.has_value())
   {
     hidden    = user_options->hidden_;
     level     = user_options->level_;
@@ -2153,7 +2152,7 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   table_obj.filter_sqref_ = rowcol_to_range(first_row, first_col, last_row, last_col);
 
   // Validate and copy user options to an internal object.
-  if(user_options)
+  if(user_options.has_value())
   {
     check_and_copy_table_style(table_obj, user_options);
     table_obj.total_row_      = user_options->total_row_;
@@ -2171,7 +2170,7 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
 
     if(!user_options->columns_.empty())
     {
-      set_custom_table_columns(table_obj, user_options);
+      set_custom_table_columns(table_obj, user_options.value());
     }
 
     if(user_options->total_row_)
@@ -2218,7 +2217,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   // Create a new object to hold the image properties.
   object_properties_t object_props;
 
-  if(options)
+  if(options.has_value())
   {
     object_props.x_offset_        = options->x_offset_;
     object_props.y_offset_        = options->y_offset_;
@@ -2272,7 +2271,7 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
   object_properties_t object_props;
 
   object_props.image_buffer_ = image_buffer;
-  if(user_options)
+  if(user_options.has_value())
   {
     object_props.x_offset_        = user_options->x_offset_;
     object_props.y_offset_        = user_options->y_offset_;
@@ -2338,7 +2337,7 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
   object_properties_t object_props;
 
   // We only copy/use a limited number of options for embedded images.
-  if(options)
+  if(options.has_value())
   {
     if(options->cell_format_)
     {
@@ -2404,7 +2403,7 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
   object_props.image_buffer_ = image_buffer;
 
   // We only copy/use a limited number of options for embedded images.
-  if(options)
+  if(options.has_value())
   {
     if(options->cell_format_)
     {
@@ -2471,7 +2470,7 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
   }
 
   object_properties_t object_props;
-  if(user_options)
+  if(user_options.has_value())
   {
     object_props.x_offset_        = user_options->x_offset_;
     object_props.y_offset_        = user_options->y_offset_;
@@ -3401,7 +3400,7 @@ void worksheet_t::protect(const std::string& password, std::optional<protection_
   // Copy any user parameters to the internal structure.
   protection_obj_t protection;
 
-  if(options)
+  if(options.has_value())
   {
     protection.no_select_locked_cells_   = options->no_select_locked_cells_;
     protection.no_select_unlocked_cells_ = options->no_select_unlocked_cells_;
@@ -5792,7 +5791,7 @@ std::string worksheet_t::write_boolean_cell(const cell_t& cell) const
 
 std::string worksheet_t::write_filter_column(const std::optional<filter_rule_obj_t>& filter)
 {
-  if(!filter)
+  if(!filter.has_value())
   {
     return "";
   }

@@ -43,7 +43,7 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   }
 
   object_properties_t object_props;
-  if(options)
+  if(options.has_value())
   {
     object_props.x_offset_ = options->x_offset_;
     object_props.y_offset_ = options->y_offset_;
@@ -85,7 +85,7 @@ void chartsheet_t::protect(const std::string& password, std::optional<protection
   // Copy any user parameters to the internal structure.
   protection_obj_t protection;
 
-  if(options)
+  if(options.has_value())
   {
     protection.objects_    = options->no_objects_;
     protection.no_content_ = options->no_content_;

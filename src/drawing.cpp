@@ -256,12 +256,12 @@ namespace
     {"name", std::format("{} {}", object_name, index)},
   };
 
-  if(drawing_object && !drawing_object->description_.empty() && !drawing_object->decorative_)
+  if(drawing_object.has_value() && !drawing_object->description_.empty() && !drawing_object->decorative_)
   {
     attributes.emplace_back("descr", drawing_object->description_);
   }
 
-  if(drawing_object && (drawing_object->url_rel_index_ != 0 || drawing_object->decorative_))
+  if(drawing_object.has_value() && (drawing_object->url_rel_index_ != 0 || drawing_object->decorative_))
   {
     std::string xml_data = xml_start_tag("xdr:cNvPr", attributes);
 
