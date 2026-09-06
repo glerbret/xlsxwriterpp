@@ -51,7 +51,7 @@ public:
   {
     attributes_.emplace_back(key, std::format("{}", value));
   }
-  void add_attribute(std::string_view key, color_t value);
+  void add_attribute(std::string_view key, color_t value, bool padding);
 
   [[nodiscard]] std::string to_string() const;
   [[nodiscard]] bool empty() const;

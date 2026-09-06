@@ -130,9 +130,16 @@ void attributes_t::add_attribute(std::string_view key, bool value)
   attributes_.emplace_back(key, std::format("{:d}", value));
 }
 
-void attributes_t::add_attribute(std::string_view key, color_t value)
+void attributes_t::add_attribute(std::string_view key, color_t value, bool padding)
 {
-  attributes_.emplace_back(key, std::format("FF{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
+  if(padding)
+  {
+    attributes_.emplace_back(key, std::format("FF{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
+  }
+  else
+  {
+    attributes_.emplace_back(key, std::format("{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
+  }
 }
 
 std::string attributes_t::to_string() const

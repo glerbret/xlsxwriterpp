@@ -296,7 +296,7 @@ namespace
 
   if(color != color_t::UNSET)
   {
-    attributes.add_attribute("rgb", color);
+    attributes.add_attribute("rgb", color, true);
   }
   else
   {

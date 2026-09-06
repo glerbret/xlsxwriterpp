@@ -1711,7 +1711,7 @@ std::string chart_t::write_a_solid_fill(color_t color, uint8_t transparency)
 std::string chart_t::write_a_srgb_clr(color_t color, uint8_t transparency)
 {
   attributes_t attributes;
-  attributes.add_attribute("val", color);
+  attributes.add_attribute("val", color, false);
 
   if(transparency != 0)
   {
