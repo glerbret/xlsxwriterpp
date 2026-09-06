@@ -2568,22 +2568,23 @@ std::string chart_t::write_tick_label_pos(const chart_axis_t& axis)
 {
   attributes_t attributes;
 
-  // Todo switch case
-  if(axis.label_position_ == chart_axis_label_position_t::HIGH)
+  switch(axis.label_position_)
   {
-    attributes.add_attribute("val", "high");
-  }
-  else if(axis.label_position_ == chart_axis_label_position_t::LOW)
-  {
-    attributes.add_attribute("val", "low");
-  }
-  else if(axis.label_position_ == chart_axis_label_position_t::NONE)
-  {
-    attributes.add_attribute("val", "none");
-  }
-  else
-  {
-    attributes.add_attribute("val", "nextTo");
+    case chart_axis_label_position_t::HIGH:
+      attributes.add_attribute("val", "high");
+      break;
+
+    case chart_axis_label_position_t::LOW:
+      attributes.add_attribute("val", "low");
+      break;
+
+    case chart_axis_label_position_t::NONE:
+      attributes.add_attribute("val", "none");
+      break;
+
+    default:
+      attributes.add_attribute("val", "nextTo");
+      break;
   }
 
   return xml_empty_tag("c:tickLblPos", attributes);
@@ -2634,18 +2635,19 @@ std::string chart_t::write_label_align(const chart_axis_t& axis)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(axis.label_align_ == chart_axis_label_alignment_t::LEFT)
+  switch(axis.label_align_)
   {
-    attributes.add_attribute("val", "l");
-  }
-  else if(axis.label_align_ == chart_axis_label_alignment_t::RIGHT)
-  {
-    attributes.add_attribute("val", "r");
-  }
-  else
-  {
-    attributes.add_attribute("val", "ctr");
+    case chart_axis_label_alignment_t::LEFT:
+      attributes.add_attribute("val", "l");
+      break;
+
+    case chart_axis_label_alignment_t::RIGHT:
+      attributes.add_attribute("val", "r");
+      break;
+
+    default:
+      attributes.add_attribute("val", "ctr");
+      break;
   }
 
   return xml_empty_tag("c:lblAlgn", attributes);
@@ -2990,42 +2992,43 @@ std::string chart_t::write_d_lbl_pos(chart_label_position_t position)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(position == chart_label_position_t::RIGHT)
+  switch(position)
   {
-    attributes.add_attribute("val", "r");
-  }
-  else if(position == chart_label_position_t::LEFT)
-  {
-    attributes.add_attribute("val", "l");
-  }
-  else if(position == chart_label_position_t::ABOVE)
-  {
-    attributes.add_attribute("val", "t");
-  }
-  else if(position == chart_label_position_t::BELOW)
-  {
-    attributes.add_attribute("val", "b");
-  }
-  else if(position == chart_label_position_t::INSIDE_BASE)
-  {
-    attributes.add_attribute("val", "inBase");
-  }
-  else if(position == chart_label_position_t::INSIDE_END)
-  {
-    attributes.add_attribute("val", "inEnd");
-  }
-  else if(position == chart_label_position_t::OUTSIDE_END)
-  {
-    attributes.add_attribute("val", "outEnd");
-  }
-  else if(position == chart_label_position_t::BEST_FIT)
-  {
-    attributes.add_attribute("val", "bestFit");
-  }
-  else
-  {
-    attributes.add_attribute("val", "ctr");
+    case chart_label_position_t::RIGHT:
+      attributes.add_attribute("val", "r");
+      break;
+
+    case chart_label_position_t::LEFT:
+      attributes.add_attribute("val", "l");
+      break;
+
+    case chart_label_position_t::ABOVE:
+      attributes.add_attribute("val", "t");
+      break;
+
+    case chart_label_position_t::BELOW:
+      attributes.add_attribute("val", "b");
+      break;
+
+    case chart_label_position_t::INSIDE_BASE:
+      attributes.add_attribute("val", "inBase");
+      break;
+
+    case chart_label_position_t::INSIDE_END:
+      attributes.add_attribute("val", "inEnd");
+      break;
+
+    case chart_label_position_t::OUTSIDE_END:
+      attributes.add_attribute("val", "outEnd");
+      break;
+
+    case chart_label_position_t::BEST_FIT:
+      attributes.add_attribute("val", "bestFit");
+      break;
+
+    default:
+      attributes.add_attribute("val", "ctr");
+      break;
   }
 
   return xml_empty_tag("c:dLblPos", attributes);
@@ -3311,46 +3314,47 @@ std::string chart_t::write_symbol(chart_marker_type_t type)
 {
   attributes_t attributes;
 
-  // TODO switch
-  if(type == chart_marker_type_t::SQUARE)
+  switch(type)
   {
-    attributes.add_attribute("val", "square");
-  }
-  else if(type == chart_marker_type_t::DIAMOND)
-  {
-    attributes.add_attribute("val", "diamond");
-  }
-  else if(type == chart_marker_type_t::TRIANGLE)
-  {
-    attributes.add_attribute("val", "triangle");
-  }
-  else if(type == chart_marker_type_t::X)
-  {
-    attributes.add_attribute("val", "x");
-  }
-  else if(type == chart_marker_type_t::STAR)
-  {
-    attributes.add_attribute("val", "star");
-  }
-  else if(type == chart_marker_type_t::SHORT_DASH)
-  {
-    attributes.add_attribute("val", "short_dash");
-  }
-  else if(type == chart_marker_type_t::LONG_DASH)
-  {
-    attributes.add_attribute("val", "long_dash");
-  }
-  else if(type == chart_marker_type_t::CIRCLE)
-  {
-    attributes.add_attribute("val", "circle");
-  }
-  else if(type == chart_marker_type_t::PLUS)
-  {
-    attributes.add_attribute("val", "plus");
-  }
-  else
-  {
-    attributes.add_attribute("val", "none");
+    case chart_marker_type_t::SQUARE:
+      attributes.add_attribute("val", "square");
+      break;
+
+    case chart_marker_type_t::DIAMOND:
+      attributes.add_attribute("val", "diamond");
+      break;
+
+    case chart_marker_type_t::TRIANGLE:
+      attributes.add_attribute("val", "triangle");
+      break;
+
+    case chart_marker_type_t::X:
+      attributes.add_attribute("val", "x");
+      break;
+
+    case chart_marker_type_t::STAR:
+      attributes.add_attribute("val", "star");
+      break;
+
+    case chart_marker_type_t::SHORT_DASH:
+      attributes.add_attribute("val", "short_dash");
+      break;
+
+    case chart_marker_type_t::LONG_DASH:
+      attributes.add_attribute("val", "long_dash");
+      break;
+
+    case chart_marker_type_t::CIRCLE:
+      attributes.add_attribute("val", "circle");
+      break;
+
+    case chart_marker_type_t::PLUS:
+      attributes.add_attribute("val", "plus");
+      break;
+
+    default:
+      attributes.add_attribute("val", "none");
+      break;
   }
 
   return xml_empty_tag("c:symbol", attributes);
@@ -3423,18 +3427,19 @@ std::string chart_t::write_err_bar_type(chart_error_bar_direction_t direction)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(direction == chart_error_bar_direction_t::PLUS)
+  switch(direction)
   {
-    attributes.add_attribute("val", "plus");
-  }
-  else if(direction == chart_error_bar_direction_t::MINUS)
-  {
-    attributes.add_attribute("val", "minus");
-  }
-  else
-  {
-    attributes.add_attribute("val", "both");
+    case chart_error_bar_direction_t::PLUS:
+      attributes.add_attribute("val", "plus");
+      break;
+
+    case chart_error_bar_direction_t::MINUS:
+      attributes.add_attribute("val", "minus");
+      break;
+
+    default:
+      attributes.add_attribute("val", "both");
+      break;
   }
 
   return xml_empty_tag("c:errBarType", attributes);
@@ -3444,23 +3449,24 @@ std::string chart_t::write_err_val_type(chart_error_bar_type_t type)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(type == chart_error_bar_type_t::FIXED)
+  switch(type)
   {
-    attributes.add_attribute("val", "fixedVal");
-  }
-  else if(type == chart_error_bar_type_t::PERCENTAGE)
-  {
-    attributes.add_attribute("val", "percentage");
-  }
-  else if(type == chart_error_bar_type_t::STD_DEV)
-  {
-    attributes.add_attribute("val", "stdDev");
-  }
-  else
-  {
-    attributes.add_attribute("val", "stdErr");
-  }
+    case chart_error_bar_type_t::FIXED:
+      attributes.add_attribute("val", "fixedVal");
+      break;
+
+    case chart_error_bar_type_t::PERCENTAGE:
+      attributes.add_attribute("val", "percentage");
+      break;
+
+    case chart_error_bar_type_t::STD_DEV:
+      attributes.add_attribute("val", "stdDev");
+      break;
+
+    default:
+      attributes.add_attribute("val", "stdErr");
+      break;
+}
 
   return xml_empty_tag("c:errValType", attributes);
 }
@@ -3542,30 +3548,31 @@ std::string chart_t::write_trendline_type(chart_trendline_type_t type)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(type == chart_trendline_type_t::LOG)
+  switch(type)
   {
-    attributes.add_attribute("val", "log");
-  }
-  else if(type == chart_trendline_type_t::POLY)
-  {
-    attributes.add_attribute("val", "poly");
-  }
-  else if(type == chart_trendline_type_t::POWER)
-  {
-    attributes.add_attribute("val", "power");
-  }
-  else if(type == chart_trendline_type_t::EXP)
-  {
-    attributes.add_attribute("val", "exp");
-  }
-  else if(type == chart_trendline_type_t::AVERAGE)
-  {
-    attributes.add_attribute("val", "movingAvg");
-  }
-  else
-  {
-    attributes.add_attribute("val", "linear");
+    case chart_trendline_type_t::LOG:
+      attributes.add_attribute("val", "log");
+      break;
+
+    case chart_trendline_type_t::POLY:
+      attributes.add_attribute("val", "poly");
+      break;
+
+    case chart_trendline_type_t::POWER:
+      attributes.add_attribute("val", "power");
+      break;
+
+    case chart_trendline_type_t::EXP:
+      attributes.add_attribute("val", "exp");
+      break;
+
+    case chart_trendline_type_t::AVERAGE:
+      attributes.add_attribute("val", "movingAvg");
+      break;
+
+    default:
+      attributes.add_attribute("val", "linear");
+      break;
   }
 
   return xml_empty_tag("c:trendlineType", attributes);
@@ -3723,22 +3730,23 @@ std::string chart_t::write_major_tick_mark(const chart_axis_t& axis)
     return "";
   }
 
-  // TODO Switch case
-  if(axis.major_tick_mark_ == chart_axis_tick_mark_t::NONE)
+  switch(axis.major_tick_mark_)
   {
-    attributes.add_attribute("val", "none");
-  }
-  else if(axis.major_tick_mark_ == chart_axis_tick_mark_t::INSIDE)
-  {
-    attributes.add_attribute("val", "in");
-  }
-  else if(axis.major_tick_mark_ == chart_axis_tick_mark_t::CROSSING)
-  {
-    attributes.add_attribute("val", "cross");
-  }
-  else
-  {
-    attributes.add_attribute("val", "out");
+    case chart_axis_tick_mark_t::NONE:
+      attributes.add_attribute("val", "none");
+      break;
+
+    case chart_axis_tick_mark_t::INSIDE:
+      attributes.add_attribute("val", "in");
+      break;
+
+    case chart_axis_tick_mark_t::CROSSING:
+      attributes.add_attribute("val", "cross");
+      break;
+
+    default:
+      attributes.add_attribute("val", "out");
+      break;
   }
 
   return xml_empty_tag("c:majorTickMark", attributes);
@@ -3753,22 +3761,23 @@ std::string chart_t::write_minor_tick_mark(const chart_axis_t& axis)
     return "";
   }
 
-  // TODO Switch case
-  if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::NONE)
+  switch(axis.minor_tick_mark_)
   {
-    attributes.add_attribute("val", "none");
-  }
-  else if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::INSIDE)
-  {
-    attributes.add_attribute("val", "in");
-  }
-  else if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::CROSSING)
-  {
-    attributes.add_attribute("val", "cross");
-  }
-  else
-  {
-    attributes.add_attribute("val", "out");
+    case chart_axis_tick_mark_t::NONE:
+      attributes.add_attribute("val", "none");
+      break;
+
+    case chart_axis_tick_mark_t::INSIDE:
+      attributes.add_attribute("val", "in");
+      break;
+
+    case chart_axis_tick_mark_t::CROSSING:
+      attributes.add_attribute("val", "cross");
+      break;
+
+    default:
+      attributes.add_attribute("val", "out");
+      break;
   }
 
   return xml_empty_tag("c:minorTickMark", attributes);

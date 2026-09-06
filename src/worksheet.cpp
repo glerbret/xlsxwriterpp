@@ -1133,26 +1133,31 @@ std::string write_selection(const selection_t& selection)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(criteria == filter_criteria_t::NOT_EQUAL_TO)
+  switch(criteria)
   {
-    attributes.add_attribute("operator", "notEqual");
-  }
-  else if(criteria == filter_criteria_t::GREATER_THAN)
-  {
-    attributes.add_attribute("operator", "greaterThan");
-  }
-  else if(criteria == filter_criteria_t::GREATER_THAN_OR_EQUAL_TO)
-  {
-    attributes.add_attribute("operator", "greaterThanOrEqual");
-  }
-  else if(criteria == filter_criteria_t::LESS_THAN)
-  {
-    attributes.add_attribute("operator", "lessThan");
-  }
-  else if(criteria == filter_criteria_t::LESS_THAN_OR_EQUAL_TO)
-  {
-    attributes.add_attribute("operator", "lessThanOrEqual");
+    case filter_criteria_t::NOT_EQUAL_TO:
+      attributes.add_attribute("operator", "notEqual");
+      break;
+
+    case filter_criteria_t::GREATER_THAN:
+      attributes.add_attribute("operator", "greaterThan");
+      break;
+
+    case filter_criteria_t::GREATER_THAN_OR_EQUAL_TO:
+      attributes.add_attribute("operator", "greaterThanOrEqual");
+      break;
+
+    case filter_criteria_t::LESS_THAN:
+      attributes.add_attribute("operator", "lessThan");
+      break;
+
+    case filter_criteria_t::LESS_THAN_OR_EQUAL_TO:
+      attributes.add_attribute("operator", "lessThanOrEqual");
+      break;
+
+      default:
+      // NOP
+      break;
   }
 
   if(!str.empty())
@@ -1189,31 +1194,36 @@ std::string write_selection(const selection_t& selection)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  switch(rule_type)
   {
-    attributes.add_attribute("type", "min");
-  }
-  else if(rule_type == conditional_format_rule_types_t::NUMBER)
-  {
-    attributes.add_attribute("type", "num");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENT)
-  {
-    attributes.add_attribute("type", "percent");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
-  {
-    attributes.add_attribute("type", "percentile");
-  }
-  else if(rule_type == conditional_format_rule_types_t::FORMULA)
-  {
-    attributes.add_attribute("type", "formula");
-  }
-  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
-  {
-    attributes.add_attribute("type", "max");
-  }
+    case conditional_format_rule_types_t::MINIMUM:
+      attributes.add_attribute("type", "min");
+      break;
+
+    case conditional_format_rule_types_t::NUMBER:
+      attributes.add_attribute("type", "num");
+      break;
+
+    case conditional_format_rule_types_t::PERCENT:
+      attributes.add_attribute("type", "percent");
+      break;
+
+    case conditional_format_rule_types_t::PERCENTILE:
+      attributes.add_attribute("type", "percentile");
+      break;
+
+    case conditional_format_rule_types_t::FORMULA:
+      attributes.add_attribute("type", "formula");
+      break;
+
+    case conditional_format_rule_types_t::MAXIMUM:
+      attributes.add_attribute("type", "max");
+      break;
+
+    default:
+      // NOP
+      break;
+}
 
   if(!data_bar_2010 ||
      (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
@@ -1228,30 +1238,35 @@ std::string write_selection(const selection_t& selection)
 {
   attributes_t attributes;
 
-  // TODO Switch case
-  if(rule_type == conditional_format_rule_types_t::MINIMUM)
+  switch(rule_type)
   {
-    attributes.add_attribute("type", "min");
-  }
-  else if(rule_type == conditional_format_rule_types_t::NUMBER)
-  {
-    attributes.add_attribute("type", "num");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENT)
-  {
-    attributes.add_attribute("type", "percent");
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
-  {
-    attributes.add_attribute("type", "percentile");
-  }
-  else if(rule_type == conditional_format_rule_types_t::FORMULA)
-  {
-    attributes.add_attribute("type", "formula");
-  }
-  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
-  {
-    attributes.add_attribute("type", "max");
+    case conditional_format_rule_types_t::MINIMUM:
+      attributes.add_attribute("type", "min");
+      break;
+
+    case conditional_format_rule_types_t::NUMBER:
+      attributes.add_attribute("type", "num");
+      break;
+
+    case conditional_format_rule_types_t::PERCENT:
+      attributes.add_attribute("type", "percent");
+      break;
+
+    case conditional_format_rule_types_t::PERCENTILE:
+      attributes.add_attribute("type", "percentile");
+      break;
+
+    case conditional_format_rule_types_t::FORMULA:
+      attributes.add_attribute("type", "formula");
+      break;
+
+    case conditional_format_rule_types_t::MAXIMUM:
+      attributes.add_attribute("type", "max");
+      break;
+
+    default:
+      // NOP
+      break;
   }
 
   if(!data_bar_2010 ||
@@ -1278,46 +1293,51 @@ std::string write_selection(const selection_t& selection)
   attributes_t attributes;
   bool has_value{false};
 
-  // TODO switch case
-  if(rule_type == conditional_format_rule_types_t::AUTO_MIN)
+  switch(rule_type)
   {
-    attributes.add_attribute("type", "autoMin");
-    has_value = false;
-  }
-  else if(rule_type == conditional_format_rule_types_t::MINIMUM)
-  {
-    attributes.add_attribute("type", "min");
-    has_value = false;
-  }
-  else if(rule_type == conditional_format_rule_types_t::NUMBER)
-  {
-    attributes.add_attribute("type", "num");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENT)
-  {
-    attributes.add_attribute("type", "percent");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::PERCENTILE)
-  {
-    attributes.add_attribute("type", "percentile");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::FORMULA)
-  {
-    attributes.add_attribute("type", "formula");
-    has_value = true;
-  }
-  else if(rule_type == conditional_format_rule_types_t::MAXIMUM)
-  {
-    attributes.add_attribute("type", "max");
-    has_value = false;
-  }
-  else if(rule_type == conditional_format_rule_types_t::AUTO_MAX)
-  {
-    attributes.add_attribute("type", "autoMax");
-    has_value = false;
+    case conditional_format_rule_types_t::AUTO_MIN:
+      attributes.add_attribute("type", "autoMin");
+      has_value = false;
+      break;
+
+    case conditional_format_rule_types_t::MINIMUM:
+      attributes.add_attribute("type", "min");
+      has_value = false;
+      break;
+
+    case conditional_format_rule_types_t::NUMBER:
+      attributes.add_attribute("type", "num");
+      has_value = true;
+      break;
+
+    case conditional_format_rule_types_t::PERCENT:
+      attributes.add_attribute("type", "percent");
+      has_value = true;
+      break;
+
+    case conditional_format_rule_types_t::PERCENTILE:
+      attributes.add_attribute("type", "percentile");
+      has_value = true;
+      break;
+
+    case conditional_format_rule_types_t::FORMULA:
+      attributes.add_attribute("type", "formula");
+      has_value = true;
+      break;
+
+    case conditional_format_rule_types_t::MAXIMUM:
+      attributes.add_attribute("type", "max");
+      has_value = false;
+      break;
+
+    case conditional_format_rule_types_t::AUTO_MAX:
+      attributes.add_attribute("type", "autoMax");
+      has_value = false;
+      break;
+
+    case conditional_format_rule_types_t::NONE:
+      // NOP
+      break;
   }
 
   if(has_value)
@@ -6046,22 +6066,27 @@ std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format
   };
 
   const conditional_criteria_t criteria{cond_format.criteria_};
-  // TODO Switch case
-  if(criteria == conditional_criteria_t::TEXT_CONTAINING)
+  switch(criteria)
   {
-    attributes.add_attribute("type", "containsText");
-  }
-  else if(criteria == conditional_criteria_t::TEXT_NOT_CONTAINING)
-  {
-    attributes.add_attribute("type", "notContainsText");
-  }
-  else if(criteria == conditional_criteria_t::TEXT_BEGINS_WITH)
-  {
-    attributes.add_attribute("type", "beginsWith");
-  }
-  else if(criteria == conditional_criteria_t::TEXT_ENDS_WITH)
-  {
-    attributes.add_attribute("type", "endsWith");
+    case conditional_criteria_t::TEXT_CONTAINING:
+      attributes.add_attribute("type", "containsText");
+      break;
+
+    case conditional_criteria_t::TEXT_NOT_CONTAINING:
+      attributes.add_attribute("type", "notContainsText");
+      break;
+
+    case conditional_criteria_t::TEXT_BEGINS_WITH:
+      attributes.add_attribute("type", "beginsWith");
+      break;
+
+    case conditional_criteria_t::TEXT_ENDS_WITH:
+      attributes.add_attribute("type", "endsWith");
+      break;
+
+    default:
+      // NOP
+      break;
   }
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
@@ -6417,7 +6442,6 @@ std::string worksheet_t::write_cf_rule_average(const cond_format_obj_t& cond_for
     attributes.add_attribute("stopIfTrue", "1");
   }
 
-  // TODO Switch case
   if(cond_format.criteria_ == conditional_criteria_t::AVERAGE_BELOW ||
      cond_format.criteria_ == conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL ||
      cond_format.criteria_ == conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW ||
