@@ -42,16 +42,16 @@ namespace
 
 [[nodiscard]] std::string write_sheet(std::string_view name, size_t sheet_id, bool hidden)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  attributes_t attributes{{
     {"name", std::string(name)},
     {"sheetId", std::format("{}", sheet_id)},
-  };
+  }};
 
   if(hidden)
   {
-    attributes.emplace_back("state", "hidden");
+    attributes.add_attribute("state", "hidden");
   }
-  attributes.emplace_back("r:id", std::format("rId{}", sheet_id));
+  attributes.add_attribute("r:id", std::format("rId{}", sheet_id));
 
   return xml_empty_tag("sheet", attributes);
 }
@@ -1488,16 +1488,16 @@ void workbook_t::prepare_workbook()
 
 std::string workbook_t::write_file_version() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  attributes_t attributes{{
     {"appName",      "xl"  },
     {"lastEdited",   "4"   },
     {"lowestEdited", "4"   },
     {"rupBuild",     "4505"},
-  };
+  }};
 
   if(!vba_project_.empty())
   {
-    attributes.emplace_back("codeName", "{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}");
+    attributes.add_attribute("codeName", "{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}");
   }
 
   return xml_empty_tag("fileVersion", attributes);
@@ -1517,40 +1517,40 @@ std::string workbook_t::write_file_sharing() const
 
 std::string workbook_t::write_workbook_pr() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(!vba_codename_.empty())
   {
-    attributes.emplace_back("codeName", vba_codename_);
+    attributes.add_attribute("codeName", vba_codename_);
   }
 
   if(use_1904_epoch_)
   {
-    attributes.emplace_back("date1904", "1");
+    attributes.add_attribute("date1904", "1");
   }
 
-  attributes.emplace_back("defaultThemeVersion", "124226");
+  attributes.add_attribute("defaultThemeVersion", "124226");
 
   return xml_empty_tag("workbookPr", attributes);
 }
 
 std::string workbook_t::write_workbook_view() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  attributes_t attributes{{
     {"xWindow",      "240"                         },
     {"yWindow",      "15"                          },
     {"windowWidth",  std::to_string(window_width_) },
     {"windowHeight", std::to_string(window_height_)},
-  };
+  }};
 
   if(first_sheet_ != 0)
   {
-    attributes.emplace_back("firstSheet", std::to_string(first_sheet_));
+    attributes.add_attribute("firstSheet", first_sheet_);
   }
 
   if(active_sheet_ != 0)
   {
-    attributes.emplace_back("activeTab", std::to_string(active_sheet_));
+    attributes.add_attribute("activeTab", active_sheet_);
   }
 
   return xml_empty_tag("workbookView", attributes);
@@ -1579,18 +1579,18 @@ std::string workbook_t::write_sheets() const
 
 std::string workbook_t::write_defined_name(const defined_name_t& defined_name)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  attributes_t attributes{{
     {"name", defined_name.name_}
-  };
+  }};
 
   if(defined_name.index_ != std::numeric_limits<size_t>::max())
   {
-    attributes.emplace_back("localSheetId", std::to_string(defined_name.index_));
+    attributes.add_attribute("localSheetId", defined_name.index_);
   }
 
   if(defined_name.hidden_)
   {
-    attributes.emplace_back("hidden", "1");
+    attributes.add_attribute("hidden", "1");
   }
 
   return xml_data_element("definedName", defined_name.formula_, attributes);

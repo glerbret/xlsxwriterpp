@@ -40,13 +40,13 @@ namespace
 
 [[nodiscard]] std::string write_comment_path(bool has_gradient, const std::string& type)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(has_gradient)
   {
-    attributes.emplace_back("gradientshapeok", "t");
+    attributes.add_attribute("gradientshapeok", "t");
   }
-  attributes.emplace_back("o:connecttype", type);
+  attributes.add_attribute("o:connecttype", type);
 
   return xml_empty_tag("v:path", attributes);
 }
@@ -500,25 +500,25 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
 
 std::string vml_t::write_button_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& vml_obj)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
+  attributes_t attributes{{
     {"id", std::format("_x0000_s{}", vml_shape_id)},
     {"type", "#_x0000_t201"},
-  };
+  }};
 
   if(!vml_obj.text_.empty())
   {
-    attributes.emplace_back("alt", vml_obj.text_);
+    attributes.add_attribute("alt", vml_obj.text_);
   }
-  attributes.emplace_back(
+  attributes.add_attribute(
     "style",
     std::format(
       "position:absolute;margin-left:{}pt;margin-top:{}pt;width:{}pt;height:{}pt;z-index:{};mso-wrap-style:tight",
       static_cast<double>(vml_obj.col_absolute_) * 0.75, static_cast<double>(vml_obj.row_absolute_) * 0.75,
       static_cast<double>(vml_obj.width_) * 0.75, static_cast<double>(vml_obj.height_) * 0.75, z_index));
-  attributes.emplace_back("o:button", "t");
-  attributes.emplace_back("fillcolor", "buttonFace [67]");
-  attributes.emplace_back("strokecolor", "windowText [64]");
-  attributes.emplace_back("o:insetmode", "auto");
+  attributes.add_attribute("o:button", "t");
+  attributes.add_attribute("fillcolor", "buttonFace [67]");
+  attributes.add_attribute("strokecolor", "windowText [64]");
+  attributes.add_attribute("o:insetmode", "auto");
 
   std::string xml_data = xml_start_tag("v:shape", attributes);
   xml_data += write_button_fill();

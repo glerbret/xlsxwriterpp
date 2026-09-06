@@ -768,7 +768,7 @@ std::string sheet_t::write_sheet_views()
 
 std::string sheet_t::write_sheet_protection() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(!protection_.is_configured_)
   {
@@ -777,92 +777,92 @@ std::string sheet_t::write_sheet_protection() const
 
   if(!protection_.hash_.empty())
   {
-    attributes.emplace_back("password", protection_.hash_);
+    attributes.add_attribute("password", protection_.hash_);
   }
 
   if(!protection_.no_sheet_)
   {
-    attributes.emplace_back("sheet", "1");
+    attributes.add_attribute("sheet", "1");
   }
 
   if(!protection_.no_content_)
   {
-    attributes.emplace_back("content", "1");
+    attributes.add_attribute("content", "1");
   }
 
   if(!protection_.objects_)
   {
-    attributes.emplace_back("objects", "1");
+    attributes.add_attribute("objects", "1");
   }
 
   if(!protection_.scenarios_)
   {
-    attributes.emplace_back("scenarios", "1");
+    attributes.add_attribute("scenarios", "1");
   }
 
   if(protection_.format_cells_)
   {
-    attributes.emplace_back("formatCells", "0");
+    attributes.add_attribute("formatCells", "0");
   }
 
   if(protection_.format_columns_)
   {
-    attributes.emplace_back("formatColumns", "0");
+    attributes.add_attribute("formatColumns", "0");
   }
 
   if(protection_.format_rows_)
   {
-    attributes.emplace_back("formatRows", "0");
+    attributes.add_attribute("formatRows", "0");
   }
 
   if(protection_.insert_columns_)
   {
-    attributes.emplace_back("insertColumns", "0");
+    attributes.add_attribute("insertColumns", "0");
   }
 
   if(protection_.insert_rows_)
   {
-    attributes.emplace_back("insertRows", "0");
+    attributes.add_attribute("insertRows", "0");
   }
 
   if(protection_.insert_hyperlinks_)
   {
-    attributes.emplace_back("insertHyperlinks", "0");
+    attributes.add_attribute("insertHyperlinks", "0");
   }
 
   if(protection_.delete_columns_)
   {
-    attributes.emplace_back("deleteColumns", "0");
+    attributes.add_attribute("deleteColumns", "0");
   }
 
   if(protection_.delete_rows_)
   {
-    attributes.emplace_back("deleteRows", "0");
+    attributes.add_attribute("deleteRows", "0");
   }
 
   if(protection_.no_select_locked_cells_)
   {
-    attributes.emplace_back("selectLockedCells", "1");
+    attributes.add_attribute("selectLockedCells", "1");
   }
 
   if(protection_.sort_)
   {
-    attributes.emplace_back("sort", "0");
+    attributes.add_attribute("sort", "0");
   }
 
   if(protection_.autofilter_)
   {
-    attributes.emplace_back("autoFilter", "0");
+    attributes.add_attribute("autoFilter", "0");
   }
 
   if(protection_.pivot_tables_)
   {
-    attributes.emplace_back("pivotTables", "0");
+    attributes.add_attribute("pivotTables", "0");
   }
 
   if(protection_.no_select_unlocked_cells_)
   {
-    attributes.emplace_back("selectUnlockedCells", "1");
+    attributes.add_attribute("selectUnlockedCells", "1");
   }
 
   return xml_empty_tag("sheetProtection", attributes);

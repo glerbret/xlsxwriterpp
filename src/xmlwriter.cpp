@@ -27,6 +27,44 @@ const std::string XML_GT{"&gt;"};
 const std::string XML_QUOT{"&quot;"};
 const std::string XML_NL{"&#xA;"};
 
+// Escape XML characters in data sections of tags.
+// Note, this is different from _escape_attributes() in that double quotes are not escaped by Excel.
+[[nodiscard]] std::string escape_data(std::string_view data)
+{
+  std::string encoded;
+  encoded.reserve(data.size() * 2);
+
+  for(auto c: data)
+  {
+    switch(c)
+    {
+      case '&':
+        encoded += XML_AMP;
+        break;
+
+      case '<':
+        encoded += XML_LT;
+        break;
+
+      case '>':
+        encoded += XML_GT;
+        break;
+
+      default:
+        encoded.push_back(c);
+    }
+  }
+
+  return encoded;
+}
+
+
+
+
+
+
+
+// TODO A enlever
 std::string escape_attribute_value(std::string_view attribute_value)
 {
   std::string encoded;
@@ -76,7 +114,116 @@ std::string escaped_attributes(const std::vector<std::tuple<std::string, std::st
   return out;
 }
 
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+attributes_t::attributes_t(const std::vector<std::tuple<std::string, std::string>>& attributes)
+  : attributes_{attributes}
+{
+}
+
+void attributes_t::add_attribute(std::string_view key, std::string_view value)
+{
+  attributes_.emplace_back(key, value);
+}
+
+void attributes_t::add_attribute(std::string_view key, const char* value)
+{
+  attributes_.emplace_back(key, value);
+}
+
+void attributes_t::add_attribute(std::string_view key, bool value)
+{
+  attributes_.emplace_back(key, std::format("{:d}", value));
+}
+
+void attributes_t::add_attribute(std::string_view key, color_t value)
+{
+  attributes_.emplace_back(key, std::format("FF{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
+}
+
+
+
+
+
+std::string attributes_t::to_string() const
+{
+  std::string out;
+
+  for(const auto& [key, value]: attributes_)
+  {
+    out += std::format(" {}=\"{}\"", key, escape_attribute_value(value));
+  }
+
+  return out;
+}
+
+bool attributes_t::empty() const
+{
+  return attributes_.empty();
+}
+
+[[nodiscard]] std::string attributes_t::escape_attribute_value(std::string_view attribute_value) const
+{
+  std::string encoded;
+  encoded.reserve(attribute_value.size() * 2);
+
+  for(auto c: attribute_value)
+  {
+    switch(c)
+    {
+      case '&':
+        encoded += XML_AMP;
+        break;
+
+      case '<':
+        encoded += XML_LT;
+        break;
+
+      case '>':
+        encoded += XML_GT;
+        break;
+
+      case '"':
+        encoded += XML_QUOT;
+        break;
+
+      case '\n':
+        encoded += XML_NL;
+        break;
+
+      default:
+        encoded.push_back(c);
+    }
+  }
+
+  return encoded;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 std::string xml_declaration()
 {
@@ -86,6 +233,11 @@ std::string xml_declaration()
 std::string xml_start_tag(std::string_view tag, const std::vector<std::tuple<std::string, std::string>>& attributes)
 {
   return std::format("<{}{}>", tag, escaped_attributes(attributes));
+}
+
+std::string xml_start_tag(std::string_view tag, const attributes_t& attributes)
+{
+  return std::format("<{}{}>", tag, attributes.to_string());
 }
 
 std::string xml_start_tag(std::string_view tag)
@@ -103,6 +255,11 @@ std::string xml_empty_tag(std::string_view tag, const std::vector<std::tuple<std
   return std::format("<{}{}/>", tag, escaped_attributes(attributes));
 }
 
+std::string xml_empty_tag(std::string_view tag, const attributes_t& attributes)
+{
+  return std::format("<{}{}/>", tag, attributes.to_string());
+}
+
 std::string xml_empty_tag(std::string_view tag)
 {
   return std::format("<{}/>", tag);
@@ -113,10 +270,18 @@ std::string xml_data_element(std::string_view tag, std::string_view data,
 {
   return std::format("<{0}{1}>{2}</{0}>", tag, escaped_attributes(attributes), escape_data(data));
 }
+
+std::string xml_data_element(std::string_view tag, std::string_view data,
+                             const attributes_t& attributes)
+{
+  return std::format("<{0}{1}>{2}</{0}>", tag, attributes.to_string(), escape_data(data));
+}
+
 std::string xml_data_element(std::string_view tag, std::string_view data)
 {
   return std::format("<{0}>{1}</{0}>", tag, escape_data(data));
 }
+
 std::string xml_data_element(std::string_view tag)
 {
   return std::format("<{}/>", tag);
@@ -225,37 +390,6 @@ std::string escape_url_characters(const std::string& str, bool escape_hash)
       default:
         encoded.push_back(str[i]);
         break;
-    }
-  }
-
-  return encoded;
-}
-
-// Escape XML characters in data sections of tags.
-// Note, this is different from _escape_attributes() in that double quotes are not escaped by Excel.
-std::string escape_data(std::string_view data)
-{
-  std::string encoded;
-  encoded.reserve(data.size() * 2);
-
-  for(auto c: data)
-  {
-    switch(c)
-    {
-      case '&':
-        encoded += XML_AMP;
-        break;
-
-      case '<':
-        encoded += XML_LT;
-        break;
-
-      case '>':
-        encoded += XML_GT;
-        break;
-
-      default:
-        encoded.push_back(c);
     }
   }
 

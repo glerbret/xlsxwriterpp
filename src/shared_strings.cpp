@@ -28,11 +28,11 @@ namespace
 
 [[nodiscard]] std::string write_t(const std::string& str)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   // Add attribute to preserve leading or trailing whitespace.
   if(std::isspace(str.front()) != 0 || std::isspace(str.back()) != 0)
   {
-    attributes.emplace_back("xml:space", "preserve");
+    attributes.add_attribute("xml:space", "preserve");
   }
 
   return xml_data_element("t", str, attributes);

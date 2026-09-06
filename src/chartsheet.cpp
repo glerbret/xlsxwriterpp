@@ -166,21 +166,21 @@ std::string chartsheet_t::write_chartsheet()
 
 std::string chartsheet_t::write_sheet_view()
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   // Show that the sheet tab is selected.
   if(is_selected())
   {
-    attributes.emplace_back("tabSelected", "1");
+    attributes.add_attribute("tabSelected", "1");
   }
 
   // Set the zoom level.
   if(get_zoom() != 100)
   {
-    attributes.emplace_back("zoomScale", std::to_string(get_zoom()));
+    attributes.add_attribute("zoomScale", get_zoom());
   }
 
-  attributes.emplace_back("workbookViewId", "0");
+  attributes.add_attribute("workbookViewId", "0");
 
   return xml_empty_tag("sheetView", attributes);
 }
@@ -192,33 +192,33 @@ std::string chartsheet_t::write_page_setup() const
     return "";
   }
 
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   // Set paper size.
   if(get_paper_size() != 0)
   {
-    attributes.emplace_back("paperSize", std::to_string(get_paper_size()));
+    attributes.add_attribute("paperSize", get_paper_size());
   }
 
   // Set page orientation.
   if(get_orientation() == drawing_orientation_t::PORTRAIT)
   {
-    attributes.emplace_back("orientation", "portrait");
+    attributes.add_attribute("orientation", "portrait");
   }
   else
   {
-    attributes.emplace_back("orientation", "landscape");
+    attributes.add_attribute("orientation", "landscape");
   }
 
   // Set the DPI. Mainly only for testing.
   if(get_horizontal_dpi() != 0)
   {
-    attributes.emplace_back("horizontalDpi", std::to_string(get_horizontal_dpi()));
+    attributes.add_attribute("horizontalDpi", get_horizontal_dpi());
   }
 
   if(get_vertical_dpi() != 0)
   {
-    attributes.emplace_back("verticalDpi", std::to_string(get_vertical_dpi()));
+    attributes.add_attribute("verticalDpi", get_vertical_dpi());
   }
 
   return xml_empty_tag("pageSetup", attributes);

@@ -48,15 +48,15 @@ namespace
 
 [[nodiscard]] std::string write_r_font(const vml_obj_t& comment)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(!comment.font_name_.empty())
   {
-    attributes.emplace_back("val", comment.font_name_);
+    attributes.add_attribute("val", comment.font_name_);
   }
   else
   {
-    attributes.emplace_back("val", "Tahoma");
+    attributes.add_attribute("val", "Tahoma");
   }
 
   return xml_empty_tag("rFont", attributes);
