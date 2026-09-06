@@ -114,24 +114,16 @@ void content_types_t::add_calc_chain()
 std::string content_types_t::assemble_xml_file() const
 {
   std::string xml_data = xml_declaration();
-  xml_data += xml_start_tag("Types", {
-                                       {"xmlns", SCHEMA_CONTENT}
-  });
+  xml_data += xml_start_tag("Types", attributes_t{"xmlns", SCHEMA_CONTENT});
 
   for(const auto& [key, value]: default_types_)
   {
-    xml_data += xml_empty_tag("Default", {
-                                           {"Extension",   key  },
-                                           {"ContentType", value}
-    });
+    xml_data += xml_empty_tag("Default", attributes_t{"Extension", key, "ContentType", value});
   }
 
   for(const auto& [key, value]: overrides_)
   {
-    xml_data += xml_empty_tag("Override", {
-                                            {"PartName",    key  },
-                                            {"ContentType", value}
-    });
+    xml_data += xml_empty_tag("Override", attributes_t{"PartName", key, "ContentType", value});
   }
   xml_data += xml_end_tag("Types");
   return xml_data;

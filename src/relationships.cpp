@@ -49,29 +49,20 @@ void relationships_t::add_ms_package(std::string_view type, std::string_view tar
 std::string relationships_t::assemble_xml_file() const
 {
   std::string xml_data = xml_declaration();
-  xml_data += xml_start_tag("Relationships", {
-                                               {"xmlns", SCHEMA_PACKAGE}
-  });
+  xml_data += xml_start_tag("Relationships", attributes_t{"xmlns", SCHEMA_PACKAGE});
 
   for(size_t rel_id{0}; const auto& [type, target, target_mode]: relationships_)
   {
     rel_id++;
     if(target_mode.empty())
     {
-      xml_data += xml_empty_tag("Relationship", {
-                                                  {"Id", std::format("rId{}", std::to_string(rel_id))},
-                                                  {"Type", type},
-                                                  {"Target", target},
-      });
+      xml_data += xml_empty_tag("Relationship", attributes_t{"Id", std::format("rId{}", std::to_string(rel_id)), "Type",
+                                                             type, "Target", target});
     }
     else
     {
-      xml_data += xml_empty_tag("Relationship", {
-                                                  {"Id", std::format("rId{}", std::to_string(rel_id))},
-                                                  {"Type", type},
-                                                  {"Target", target},
-                                                  {"TargetMode", target_mode},
-      });
+      xml_data += xml_empty_tag("Relationship", attributes_t{"Id", std::format("rId{}", std::to_string(rel_id)), "Type",
+                                                             type, "Target", target, "TargetMode", target_mode});
     }
   }
   xml_data += xml_end_tag("Relationships");

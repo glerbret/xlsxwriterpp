@@ -24,54 +24,42 @@ namespace
 
 [[nodiscard]] std::string write_xml_namespace()
 {
-  return xml_start_tag("xml", {
-                                {"xmlns:v", "urn:schemas-microsoft-com:vml"          },
-                                {"xmlns:o", "urn:schemas-microsoft-com:office:office"},
-                                {"xmlns:x", "urn:schemas-microsoft-com:office:excel" },
-  });
+  return xml_start_tag("xml", attributes_t{"xmlns:v", "urn:schemas-microsoft-com:vml", "xmlns:o",
+                                           "urn:schemas-microsoft-com:office:office", "xmlns:x",
+                                           "urn:schemas-microsoft-com:office:excel"});
 }
 
 [[nodiscard]] std::string write_stroke()
 {
-  return xml_empty_tag("v:stroke", {
-                                     {"joinstyle", "miter"}
-  });
+  return xml_empty_tag("v:stroke", attributes_t{"joinstyle", "miter"});
 }
 
 [[nodiscard]] std::string write_comment_path(bool has_gradient, const std::string& type)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(has_gradient)
   {
-    attributes.emplace_back("gradientshapeok", "t");
+    attributes.add_attribute("gradientshapeok", "t");
   }
-  attributes.emplace_back("o:connecttype", type);
+  attributes.add_attribute("o:connecttype", type);
 
   return xml_empty_tag("v:path", attributes);
 }
 
 [[nodiscard]] std::string write_comment_fill()
 {
-  return xml_empty_tag("v:fill", {
-                                   {"color2", "#ffffe1"}
-  });
+  return xml_empty_tag("v:fill", attributes_t{"color2", "#ffffe1"});
 }
 
 [[nodiscard]] std::string write_shadow()
 {
-  return xml_empty_tag("v:shadow", {
-                                     {"on",       "t"    },
-                                     {"color",    "black"},
-                                     {"obscured", "t"    },
-  });
+  return xml_empty_tag("v:shadow", attributes_t{"on", "t", "color", "black", "obscured", "t"});
 }
 
 [[nodiscard]] std::string write_comment_div()
 {
-  std::string xml_data = xml_start_tag("div", {
-                                                {"style", "text-align:left"}
-  });
+  std::string xml_data = xml_start_tag("div", attributes_t{"style", "text-align:left"});
   xml_data += xml_end_tag("div");
   return xml_data;
 }
@@ -118,79 +106,48 @@ namespace
 
 [[nodiscard]] std::string write_formula(const std::string& equation)
 {
-  return xml_empty_tag("v:f", {
-                                {"eqn", equation}
-  });
+  return xml_empty_tag("v:f", attributes_t{"eqn", equation});
 }
 
 [[nodiscard]] std::string write_image_path()
 {
-  return xml_empty_tag("v:path", {
-                                   {"o:extrusionok",   "f"   },
-                                   {"gradientshapeok", "t"   },
-                                   {"o:connecttype",   "rect"},
-  });
+  return xml_empty_tag("v:path", attributes_t{"o:extrusionok", "f", "gradientshapeok", "t", "o:connecttype", "rect"});
 }
 
 [[nodiscard]] std::string write_aspect_ratio_lock()
 {
-  return xml_empty_tag("o:lock", {
-                                   {"v:ext",       "edit"},
-                                   {"aspectratio", "t"   },
-  });
+  return xml_empty_tag("o:lock", attributes_t{"v:ext", "edit", "aspectratio", "t"});
 }
 
 [[nodiscard]] std::string write_imagedata(uint32_t rel_index, const std::string& name)
 {
-  return xml_empty_tag("v:imagedata", {
-                                        {"o:relid", std::format("rId{}", rel_index)},
-                                        {"o:title", name},
-  });
+  return xml_empty_tag("v:imagedata", attributes_t{"o:relid", std::format("rId{}", rel_index), "o:title", name});
 }
 
 [[nodiscard]] std::string write_rotation_lock()
 {
-  return xml_empty_tag("o:lock", {
-                                   {"v:ext",    "edit"},
-                                   {"rotation", "t"   },
-  });
+  return xml_empty_tag("o:lock", attributes_t{"v:ext", "edit", "rotation", "t"});
 }
 
 [[nodiscard]] std::string write_button_path()
 {
-  return xml_empty_tag("v:path", {
-                                   {"shadowok",      "f"   },
-                                   {"o:extrusionok", "f"   },
-                                   {"strokeok",      "f"   },
-                                   {"fillok",        "f"   },
-                                   {"o:connecttype", "rect"},
-  });
+  return xml_empty_tag("v:path", attributes_t{"shadowok", "f", "o:extrusionok", "f", "strokeok", "f", "fillok", "f",
+                                              "o:connecttype", "rect"});
 }
 
 [[nodiscard]] std::string write_shapetype_lock()
 {
-  return xml_empty_tag("o:lock", {
-                                   {"v:ext",     "edit"},
-                                   {"shapetype", "t"   },
-  });
+  return xml_empty_tag("o:lock", attributes_t{"v:ext", "edit", "shapetype", "t"});
 }
 
 [[nodiscard]] std::string write_button_fill()
 {
-  return xml_empty_tag("v:fill", {
-                                   {"color2",             "buttonFace [67]"},
-                                   {"o:detectmouseclick", "t"              },
-  });
+  return xml_empty_tag("v:fill", attributes_t{"color2", "buttonFace [67]", "o:detectmouseclick", "t"});
 }
 
 [[nodiscard]] std::string write_font(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("font", vml_obj.name_,
-                          {
-                            {"face",  "Calibri"},
-                            {"size",  "220"    },
-                            {"color", "#000000"},
-  });
+  return xml_data_element("font", vml_obj.name_, attributes_t{"face", "Calibri", "size", "220", "color", "#000000"});
 }
 
 [[nodiscard]] std::string write_print_object()
@@ -215,12 +172,9 @@ namespace
 
 [[nodiscard]] std::string write_comment_shapetype()
 {
-  std::string xml_data = xml_start_tag("v:shapetype", {
-                                                        {"id",        "_x0000_t202"              },
-                                                        {"coordsize", "21600,21600"              },
-                                                        {"o:spt",     "202"                      },
-                                                        {"path",      "m,l,21600r21600,l21600,xe"},
-  });
+  std::string xml_data =
+    xml_start_tag("v:shapetype", attributes_t{"id", "_x0000_t202", "coordsize", "21600,21600", "o:spt", "202", "path",
+                                              "m,l,21600r21600,l21600,xe"});
   xml_data += write_stroke();
   xml_data += write_comment_path(true, "rect");
   xml_data += xml_end_tag("v:shapetype");
@@ -230,9 +184,7 @@ namespace
 
 [[nodiscard]] std::string write_comment_textbox()
 {
-  std::string xml_data = xml_start_tag("v:textbox", {
-                                                      {"style", "mso-direction-alt:auto"}
-  });
+  std::string xml_data = xml_start_tag("v:textbox", attributes_t{"style", "mso-direction-alt:auto"});
   xml_data += write_comment_div();
   xml_data += xml_end_tag("v:textbox");
 
@@ -261,12 +213,9 @@ namespace
 
 [[nodiscard]] std::string write_button_shapetype()
 {
-  std::string xml_data = xml_start_tag("v:shapetype", {
-                                                        {"id",        "_x0000_t201"              },
-                                                        {"coordsize", "21600,21600"              },
-                                                        {"o:spt",     "201"                      },
-                                                        {"path",      "m,l,21600r21600,l21600,xe"},
-  });
+  std::string xml_data =
+    xml_start_tag("v:shapetype", attributes_t{"id", "_x0000_t201", "coordsize", "21600,21600", "o:spt", "201", "path",
+                                              "m,l,21600r21600,l21600,xe"});
   xml_data += write_stroke();
   xml_data += write_button_path();
   xml_data += write_shapetype_lock();
@@ -277,9 +226,7 @@ namespace
 
 [[nodiscard]] std::string write_button_client_data(const vml_obj_t& vml_obj)
 {
-  std::string xml_data = xml_start_tag("x:ClientData", {
-                                                         {"ObjectType", "Button"}
-  });
+  std::string xml_data = xml_start_tag("x:ClientData", attributes_t{"ObjectType", "Button"});
   xml_data += write_anchor(vml_obj);
   xml_data += write_print_object();
   xml_data += write_auto_fill();
@@ -293,9 +240,7 @@ namespace
 
 [[nodiscard]] std::string write_button_div(const vml_obj_t& vml_obj)
 {
-  std::string xml_data = xml_start_tag("div", {
-                                                {"style", "text-align:center"}
-  });
+  std::string xml_data = xml_start_tag("div", attributes_t{"style", "text-align:center"});
   xml_data += write_font(vml_obj);
   xml_data += xml_end_tag("div");
 
@@ -304,15 +249,9 @@ namespace
 
 [[nodiscard]] std::string write_image_shapetype()
 {
-  std::string xml_data = xml_start_tag("v:shapetype", {
-                                                        {"id",               "_x0000_t75"            },
-                                                        {"coordsize",        "21600,21600"           },
-                                                        {"o:spt",            "75"                    },
-                                                        {"o:preferrelative", "t"                     },
-                                                        {"path",             "m@4@5l@4@11@9@11@9@5xe"},
-                                                        {"filled",           "f"                     },
-                                                        {"stroked",          "f"                     },
-  });
+  std::string xml_data = xml_start_tag(
+    "v:shapetype", attributes_t{"id", "_x0000_t75", "coordsize", "21600,21600", "o:spt", "75", "o:preferrelative", "t",
+                                "path", "m@4@5l@4@11@9@11@9@5xe", "filled", "f", "stroked", "f"});
   xml_data += write_stroke();
   xml_data += write_formulas();
   xml_data += write_image_path();
@@ -324,10 +263,8 @@ namespace
 
 [[nodiscard]] std::string write_button_textbox(const vml_obj_t& vml_obj)
 {
-  std::string xml_data = xml_start_tag("v:textbox", {
-                                                      {"style",         "mso-direction-alt:auto"},
-                                                      {"o:singleclick", "f"                     },
-  });
+  std::string xml_data =
+    xml_start_tag("v:textbox", attributes_t{"style", "mso-direction-alt:auto", "o:singleclick", "f"});
   xml_data += write_button_div(vml_obj);
   xml_data += xml_end_tag("v:textbox");
 
@@ -401,9 +338,7 @@ std::string vml_t::assemble_xml_file()
 
 std::string vml_t::write_shapelayout() const
 {
-  std::string xml_data = xml_start_tag("o:shapelayout", {
-                                                          {"v:ext", "edit"}
-  });
+  std::string xml_data = xml_start_tag("o:shapelayout", attributes_t{"v:ext", "edit"});
   xml_data += write_idmap();
   xml_data += xml_end_tag("o:shapelayout");
 
@@ -427,22 +362,19 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
                                 ? std::format("#{:06x}", static_cast<uint32_t>(vml_obj.color_) & COLOR_MASK)
                                 : "#ffffe1"};
 
-  std::string xml_data =
-    xml_start_tag("v:shape", {
-                               {"id", std::format("_x0000_s{}", vml_shape_id)},
-                               {"type", "#_x0000_t202"},
-                               {"style", std::format("position:absolute;"
-                                                     "margin-left:{}pt;"
-                                                     "margin-top:{}pt;"
-                                                     "width:{}pt;"
-                                                     "height:{}pt;"
-                                                     "z-index:{};"
-                                                     "visibility:{}", static_cast<double>(vml_obj.col_absolute_) * 0.75,
-                                static_cast<double>(vml_obj.row_absolute_) * 0.75,
-                                vml_obj.width_ * 0.75, vml_obj.height_ * 0.75, z_index, visible)},
-                               {"fillcolor", fillcolor},
-                               {"o:insetmode", "auto"},
-  });
+  std::string xml_data = xml_start_tag(
+    "v:shape", attributes_t{"id", std::format("_x0000_s{}", vml_shape_id), "type", "#_x0000_t202", "style",
+                            std::format("position:absolute;"
+                                        "margin-left:{}pt;"
+                                        "margin-top:{}pt;"
+                                        "width:{}pt;"
+                                        "height:{}pt;"
+                                        "z-index:{};"
+                                        "visibility:{}",
+                                        static_cast<double>(vml_obj.col_absolute_) * 0.75,
+                                        static_cast<double>(vml_obj.row_absolute_) * 0.75, vml_obj.width_ * 0.75,
+                                        vml_obj.height_ * 0.75, z_index, visible),
+                            "fillcolor", fillcolor, "o:insetmode", "auto"});
   xml_data += write_comment_fill();
   xml_data += write_shadow();
   xml_data += write_comment_path(false, "none");
@@ -455,9 +387,7 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
 
 std::string vml_t::write_comment_client_data(const vml_obj_t& vml_obj)
 {
-  std::string xml_data = xml_start_tag("x:ClientData", {
-                                                         {"ObjectType", "Note"}
-  });
+  std::string xml_data = xml_start_tag("x:ClientData", attributes_t{"ObjectType", "Note"});
   xml_data += write_move_with_cells();
   xml_data += write_size_with_cells();
   xml_data += write_anchor(vml_obj);
@@ -484,13 +414,11 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
   height = 72.0 / 96.0 * static_cast<uint32_t>((height * 96.0 / 72) + 0.25);
 
   std::string xml_data = xml_start_tag(
-    "v:shape", {
-                 {"id", image_obj.image_position_},
-                 {"o:spid", std::format("_x0000_s{}", vml_shape_id)},
-                 {"type", "#_x0000_t75"},
-                 {"style", std::format("position:absolute;margin-left:0;margin-top:0;width:{}pt;height:{}pt;z-index:{}",
-                  width, height, z_index)},
-  });
+    "v:shape",
+    attributes_t{"id", image_obj.image_position_, "o:spid", std::format("_x0000_s{}", vml_shape_id), "type",
+                 "#_x0000_t75", "style",
+                 std::format("position:absolute;margin-left:0;margin-top:0;width:{}pt;height:{}pt;z-index:{}", width,
+                             height, z_index)});
   xml_data += write_imagedata(image_obj.rel_index_, image_obj.name_);
   xml_data += write_rotation_lock();
   xml_data += xml_end_tag("v:shape");
@@ -500,25 +428,22 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
 
 std::string vml_t::write_button_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& vml_obj)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"id", std::format("_x0000_s{}", vml_shape_id)},
-    {"type", "#_x0000_t201"},
-  };
+  attributes_t attributes{"id", std::format("_x0000_s{}", vml_shape_id), "type", "#_x0000_t201"};
 
   if(!vml_obj.text_.empty())
   {
-    attributes.emplace_back("alt", vml_obj.text_);
+    attributes.add_attribute("alt", vml_obj.text_);
   }
-  attributes.emplace_back(
+  attributes.add_attribute(
     "style",
     std::format(
       "position:absolute;margin-left:{}pt;margin-top:{}pt;width:{}pt;height:{}pt;z-index:{};mso-wrap-style:tight",
       static_cast<double>(vml_obj.col_absolute_) * 0.75, static_cast<double>(vml_obj.row_absolute_) * 0.75,
       static_cast<double>(vml_obj.width_) * 0.75, static_cast<double>(vml_obj.height_) * 0.75, z_index));
-  attributes.emplace_back("o:button", "t");
-  attributes.emplace_back("fillcolor", "buttonFace [67]");
-  attributes.emplace_back("strokecolor", "windowText [64]");
-  attributes.emplace_back("o:insetmode", "auto");
+  attributes.add_attribute("o:button", "t");
+  attributes.add_attribute("fillcolor", "buttonFace [67]");
+  attributes.add_attribute("strokecolor", "windowText [64]");
+  attributes.add_attribute("o:insetmode", "auto");
 
   std::string xml_data = xml_start_tag("v:shape", attributes);
   xml_data += write_button_fill();

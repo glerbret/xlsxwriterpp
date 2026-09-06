@@ -19,10 +19,8 @@ namespace
 
 [[nodiscard]] std::string write_properties()
 {
-  return xml_start_tag("Properties", {
-                                       {"xmlns",    SCHEMA_OFFICEDOC + "/extended-properties"},
-                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"     },
-  });
+  return xml_start_tag("Properties", attributes_t{"xmlns", SCHEMA_OFFICEDOC + "/extended-properties", "xmlns:vt",
+                                                  SCHEMA_OFFICEDOC + "/docPropsVTypes"});
 }
 
 [[nodiscard]] std::string write_application()
@@ -196,10 +194,8 @@ std::string app_t::write_hyperlink_base() const
 
 std::string app_t::write_vt_vector_heading_pairs() const
 {
-  std::string xml_data = xml_start_tag("vt:vector", {
-                                                      {"size",     std::to_string(heading_pairs_.size() * 2)},
-                                                      {"baseType", "variant"                                },
-  });
+  std::string xml_data =
+    xml_start_tag("vt:vector", attributes_t{"size", heading_pairs_.size() * 2, "baseType", "variant"});
   for(const auto& [key, value]: heading_pairs_)
   {
     xml_data += write_vt_variant(key, value);
@@ -211,10 +207,7 @@ std::string app_t::write_vt_vector_heading_pairs() const
 
 std::string app_t::write_vt_vector_lpstr_named_parts() const
 {
-  std::string xml_data = xml_start_tag("vt:vector", {
-                                                      {"size",     std::to_string(part_names_.size())},
-                                                      {"baseType", "lpstr"                           },
-  });
+  std::string xml_data = xml_start_tag("vt:vector", attributes_t{"size", part_names_.size(), "baseType", "lpstr"});
   for(const auto& part_name: part_names_)
   {
     xml_data += write_vt_lpstr(part_name.name_);

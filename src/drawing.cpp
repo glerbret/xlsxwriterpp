@@ -24,10 +24,8 @@ namespace
 
 [[nodiscard]] std::string write_drawing_workspace()
 {
-  return xml_start_tag("xdr:wsDr", {
-                                     {"xmlns:xdr", SCHEMA_DRAWING + "/spreadsheetDrawing"},
-                                     {"xmlns:a",   SCHEMA_DRAWING + "/main"              },
-  });
+  return xml_start_tag(
+    "xdr:wsDr", attributes_t{"xmlns:xdr", SCHEMA_DRAWING + "/spreadsheetDrawing", "xmlns:a", SCHEMA_DRAWING + "/main"});
 }
 
 [[nodiscard]] std::string write_col(const std::string& data)
@@ -52,38 +50,31 @@ namespace
 
 [[nodiscard]] std::string write_uri_ext(const std::string& uri)
 {
-  return xml_start_tag("a:ext", {
-                                  {"uri", uri}
-  });
+  return xml_start_tag("a:ext", attributes_t{"uri", uri});
 }
 
 [[nodiscard]] std::string write_a16_creation_id()
 {
-  return xml_empty_tag("a16:creationId", {
-                                           {"xmlns:a16", "http://schemas.microsoft.com/office/drawing/2014/main"},
-                                           {"id",        "{00000000-0008-0000-0000-000002000000}"               },
-  });
+  return xml_empty_tag("a16:creationId",
+                       attributes_t{"xmlns:a16", "http://schemas.microsoft.com/office/drawing/2014/main", "id",
+                                    "{00000000-0008-0000-0000-000002000000}"});
 }
 
 [[nodiscard]] std::string write_adec_decorative()
 {
-  return xml_empty_tag("adec:decorative",
-                       {
-                         {"xmlns:adec", "http://schemas.microsoft.com/office/drawing/2017/decorative"},
-                         {"val",        "1"                                                          },
-  });
+  return xml_empty_tag(
+    "adec:decorative",
+    attributes_t{"xmlns:adec", "http://schemas.microsoft.com/office/drawing/2017/decorative", "val", "1"});
 }
 
 [[nodiscard]] std::string write_a_hlink_click(uint32_t rel_index, const std::string& tip)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
-    {"r:id", std::format("rId{}", rel_index)},
-  };
+  attributes_t attributes{"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships", "r:id",
+                          std::format("rId{}", rel_index)};
 
   if(!tip.empty())
   {
-    attributes.emplace_back("tooltip", tip);
+    attributes.add_attribute("tooltip", tip);
   }
 
   return xml_empty_tag("a:hlinkClick", attributes);
@@ -91,17 +82,13 @@ namespace
 
 [[nodiscard]] std::string write_a_pic_locks()
 {
-  return xml_empty_tag("a:picLocks", {
-                                       {"noChangeAspect", "1"}
-  });
+  return xml_empty_tag("a:picLocks", attributes_t{"noChangeAspect", "1"});
 }
 
 [[nodiscard]] std::string write_a_blip(uint32_t index)
 {
-  return xml_empty_tag("a:blip", {
-                                   {"xmlns:r", SCHEMA_OFFICEDOC + "/relationships"},
-                                   {"r:embed", std::format("rId{}", index)},
-  });
+  return xml_empty_tag(
+    "a:blip", attributes_t{"xmlns:r", SCHEMA_OFFICEDOC + "/relationships", "r:embed", std::format("rId{}", index)});
 }
 
 [[nodiscard]] std::string write_a_fill_rect()
@@ -111,18 +98,12 @@ namespace
 
 [[nodiscard]] std::string write_a_ext(const drawing_object_t& drawing_object)
 {
-  return xml_empty_tag("a:ext", {
-                                  {"cx", std::to_string(drawing_object.width_) },
-                                  {"cy", std::to_string(drawing_object.height_)},
-  });
+  return xml_empty_tag("a:ext", attributes_t{"cx", drawing_object.width_, "cy", drawing_object.height_});
 }
 
 [[nodiscard]] std::string write_a_off(const drawing_object_t& drawing_object)
 {
-  return xml_empty_tag("a:off", {
-                                  {"x", std::to_string(drawing_object.col_absolute_)},
-                                  {"y", std::to_string(drawing_object.row_absolute_)},
-  });
+  return xml_empty_tag("a:off", attributes_t{"x", drawing_object.col_absolute_, "y", drawing_object.row_absolute_});
 }
 
 [[nodiscard]] std::string write_a_av_lst()
@@ -137,25 +118,17 @@ namespace
 
 [[nodiscard]] std::string write_a_graphic_frame_locks()
 {
-  return xml_empty_tag("a:graphicFrameLocks", {
-                                                {"noGrp", "1"}
-  });
+  return xml_empty_tag("a:graphicFrameLocks", attributes_t{"noGrp", "1"});
 }
 
 [[nodiscard]] std::string write_xfrm_offset()
 {
-  return xml_empty_tag("a:off", {
-                                  {"x", "0"},
-                                  {"y", "0"},
-  });
+  return xml_empty_tag("a:off", attributes_t{"x", "0", "y", "0"});
 }
 
 [[nodiscard]] std::string write_xfrm_extension()
 {
-  return xml_empty_tag("a:ext", {
-                                  {"cx", "0"},
-                                  {"cy", "0"},
-  });
+  return xml_empty_tag("a:ext", attributes_t{"cx", "0", "cy", "0"});
 }
 
 [[nodiscard]] std::string write_xfrm()
@@ -170,28 +143,20 @@ namespace
 
 [[nodiscard]] std::string write_chart(uint32_t index)
 {
-  return xml_empty_tag("c:chart", {
-                                    {"xmlns:c", SCHEMA_DRAWING + "/chart"},
-                                    {"xmlns:r", SCHEMA_OFFICEDOC + "/relationships"},
-                                    {"r:id", std::format("rId{}", index)},
-  });
+  return xml_empty_tag("c:chart",
+                       attributes_t{"xmlns:c", SCHEMA_DRAWING + "/chart", "xmlns:r",
+                                    SCHEMA_OFFICEDOC + "/relationships", "r:id", std::format("rId{}", index)});
 }
 
 [[nodiscard]] std::string write_ext(uint32_t cx, uint32_t cy)
 {
-  return xml_empty_tag("xdr:ext", {
-                                    {"cx", std::to_string(cx)},
-                                    {"cy", std::to_string(cy)},
-  });
+  return xml_empty_tag("xdr:ext", attributes_t{"cx", cx, "cy", cy});
 }
 
 // NOLINTNEXTLINE(readability-identifier-length)
 [[nodiscard]] std::string write_pos(int32_t x, int32_t y)
 {
-  return xml_empty_tag("xdr:pos", {
-                                    {"x", std::to_string(x)},
-                                    {"y", std::to_string(y)},
-  });
+  return xml_empty_tag("xdr:pos", attributes_t{"x", x, "y", y});
 }
 
 [[nodiscard]] std::string write_coords(const drawing_coords_t& coords)
@@ -251,14 +216,16 @@ namespace
 [[nodiscard]] std::string write_c_nv_pr(const std::string& object_name, uint32_t index,
                                         const std::optional<drawing_object_t>& drawing_object)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"id", std::to_string(index + 1)},
-    {"name", std::format("{} {}", object_name, index)},
+  attributes_t attributes{
+    "id",
+    index + 1,
+    "name",
+    std::format("{} {}", object_name, index),
   };
 
   if(drawing_object.has_value() && !drawing_object->description_.empty() && !drawing_object->decorative_)
   {
-    attributes.emplace_back("descr", drawing_object->description_);
+    attributes.add_attribute("descr", drawing_object->description_);
   }
 
   if(drawing_object.has_value() && (drawing_object->url_rel_index_ != 0 || drawing_object->decorative_))
@@ -296,9 +263,7 @@ namespace
 
 [[nodiscard]] std::string write_a_prst_geom()
 {
-  std::string xml_data = xml_start_tag("a:prstGeom", {
-                                                       {"prst", "rect"}
-  });
+  std::string xml_data = xml_start_tag("a:prstGeom", attributes_t{"prst", "rect"});
   xml_data += write_a_av_lst();
   xml_data += xml_end_tag("a:prstGeom");
 
@@ -357,9 +322,7 @@ namespace
 
 [[nodiscard]] std::string write_a_graphic_data(uint32_t index)
 {
-  std::string xml_data = xml_start_tag("a:graphicData", {
-                                                          {"uri", SCHEMA_DRAWING + "/chart"}
-  });
+  std::string xml_data = xml_start_tag("a:graphicData", attributes_t{"uri", SCHEMA_DRAWING + "/chart"});
   xml_data += write_chart(index);
   xml_data += xml_end_tag("a:graphicData");
 
@@ -427,14 +390,14 @@ std::string drawing_t::write_absolute_anchor(uint32_t frame_index) const
 
 std::string drawing_t::write_two_cell_anchor(uint32_t index, const drawing_object_t& drawing_object) const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE))
   {
-    attributes.emplace_back("editAs", "oneCell");
+    attributes.add_attribute("editAs", "oneCell");
   }
   else if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE))
   {
-    attributes.emplace_back("editAs", "absolute");
+    attributes.add_attribute("editAs", "absolute");
   }
 
   std::string xml_data = xml_start_tag("xdr:twoCellAnchor", attributes);
@@ -492,9 +455,7 @@ std::string drawing_t::write_nv_graphic_frame_pr(uint32_t index,
 std::string drawing_t::write_graphic_frame(uint32_t index, uint32_t rel_index,
                                            const std::optional<drawing_object_t>& drawing_object) const
 {
-  std::string xml_data = xml_start_tag("xdr:graphicFrame", {
-                                                             {"macro", ""}
-  });
+  std::string xml_data = xml_start_tag("xdr:graphicFrame", attributes_t{"macro", ""});
   xml_data += write_nv_graphic_frame_pr(index, drawing_object);
   xml_data += write_xfrm();
   xml_data += write_a_graphic(rel_index);

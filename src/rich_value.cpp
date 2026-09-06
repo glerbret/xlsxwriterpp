@@ -18,9 +18,7 @@ namespace
 
 [[nodiscard]] std::string write_rv()
 {
-  return xml_start_tag("rv", {
-                               {"s", "0"}
-  });
+  return xml_start_tag("rv", attributes_t{"s", "0"});
 }
 
 [[nodiscard]] std::string write_v(const std::string& value)
@@ -43,10 +41,9 @@ std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
 // TODO Move in anonymous namespace after removing friendship with workbook_t
 std::string rich_value_t::write_rv_data(const workbook_t& workbook)
 {
-  return xml_start_tag("rvData", {
-                                   {"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata"},
-                                   {"count", std::to_string(workbook.num_embedded_images_)                    },
-  });
+  return xml_start_tag("rvData",
+                       attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata", "count",
+                                    workbook.num_embedded_images_});
 }
 
 std::string rich_value_t::write_images(const workbook_t& workbook) const

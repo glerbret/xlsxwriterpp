@@ -60,11 +60,8 @@ namespace
 {
   const std::string fmtid{"{D5CDD505-2E9C-101B-9397-08002B2CF9AE}"};
 
-  std::string xml_data = xml_start_tag("property", {
-                                                     {"fmtid", fmtid                  },
-                                                     {"pid",   std::to_string(pid + 1)},
-                                                     {"name",  property.name_         },
-  });
+  std::string xml_data =
+    xml_start_tag("property", attributes_t{"fmtid", fmtid, "pid", pid + 1, "name", property.name_});
 
   if(property.type_ == custom_property_types_t::STRING)
   {
@@ -110,10 +107,8 @@ std::string custom_t::assemble_xml_file() const
 
 std::string custom_t::write_custom_properties() const
 {
-  std::string xml_data = xml_start_tag("Properties", {
-                                                       {"xmlns",    SCHEMA_OFFICEDOC + "/custom-properties"},
-                                                       {"xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"   },
-  });
+  std::string xml_data = xml_start_tag("Properties", attributes_t{"xmlns", SCHEMA_OFFICEDOC + "/custom-properties",
+                                                                  "xmlns:vt", SCHEMA_OFFICEDOC + "/docPropsVTypes"});
 
   for(size_t index{1}; const auto& property: custom_properties_)
   {

@@ -22,18 +22,14 @@ namespace
 
 [[nodiscard]] std::string write_rel(uint32_t rel_index)
 {
-  return xml_empty_tag("rel", {
-                                {"r:id", std::format("rId{}", rel_index)}
-  });
+  return xml_empty_tag("rel", attributes_t{"r:id", std::format("rId{}", rel_index)});
 }
 
 [[nodiscard]] std::string write_rich_value_rels()
 {
   return xml_start_tag("richValueRels",
-                       {
-                         {"xmlns",   "http://schemas.microsoft.com/office/spreadsheetml/2022/richvaluerel"},
-                         {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
-  });
+                       attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2022/richvaluerel",
+                                    "xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"});
 }
 
 }
