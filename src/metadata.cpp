@@ -165,9 +165,7 @@ std::string metadata_t::assemble_xml_file() const
 
 std::string metadata_t::write_metadata() const
 {
-  attributes_t attributes{{
-    {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-  }};
+  attributes_t attributes{{{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}}};
 
   if(has_embedded_images_)
   {

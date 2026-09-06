@@ -3466,7 +3466,7 @@ std::string chart_t::write_err_val_type(chart_error_bar_type_t type)
     default:
       attributes.add_attribute("val", "stdErr");
       break;
-}
+  }
 
   return xml_empty_tag("c:errValType", attributes);
 }

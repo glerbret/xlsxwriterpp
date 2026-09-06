@@ -62,7 +62,6 @@ private:
   [[nodiscard]] std::string escape_attribute_value(std::string_view attribute_value) const;
 };
 
-
 /**
  * Create the XML declaration in an XML file.
  *
@@ -80,8 +79,7 @@ private:
  */
 [[nodiscard]] std::string xml_start_tag(std::string_view tag,
                                         const std::vector<std::tuple<std::string, std::string>>& attributes);
-[[nodiscard]] std::string xml_start_tag(std::string_view tag,
-                                        const attributes_t& attributes);
+[[nodiscard]] std::string xml_start_tag(std::string_view tag, const attributes_t& attributes);
 [[nodiscard]] std::string xml_start_tag(std::string_view tag);
 
 /**
@@ -117,8 +115,7 @@ private:
  */
 [[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data,
                                            const std::vector<std::tuple<std::string, std::string>>& attributes);
-[[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data,
-                                           const attributes_t& attributes);
+[[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data, const attributes_t& attributes);
 [[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data);
 [[nodiscard]] std::string xml_data_element(std::string_view tag);
 [[nodiscard]] std::string xml_rich_si_element(std::string_view str);

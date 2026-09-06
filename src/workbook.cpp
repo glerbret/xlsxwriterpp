@@ -42,10 +42,12 @@ namespace
 
 [[nodiscard]] std::string write_sheet(std::string_view name, size_t sheet_id, bool hidden)
 {
-  attributes_t attributes{{
-    {"name", std::string(name)},
-    {"sheetId", std::format("{}", sheet_id)},
-  }};
+  attributes_t attributes{
+    {
+     {"name", std::string(name)},
+     {"sheetId", std::format("{}", sheet_id)},
+     }
+  };
 
   if(hidden)
   {
@@ -1488,12 +1490,14 @@ void workbook_t::prepare_workbook()
 
 std::string workbook_t::write_file_version() const
 {
-  attributes_t attributes{{
-    {"appName",      "xl"  },
-    {"lastEdited",   "4"   },
-    {"lowestEdited", "4"   },
-    {"rupBuild",     "4505"},
-  }};
+  attributes_t attributes{
+    {
+     {"appName", "xl"},
+     {"lastEdited", "4"},
+     {"lowestEdited", "4"},
+     {"rupBuild", "4505"},
+     }
+  };
 
   if(!vba_project_.empty())
   {
@@ -1536,12 +1540,14 @@ std::string workbook_t::write_workbook_pr() const
 
 std::string workbook_t::write_workbook_view() const
 {
-  attributes_t attributes{{
-    {"xWindow",      "240"                         },
-    {"yWindow",      "15"                          },
-    {"windowWidth",  std::to_string(window_width_) },
-    {"windowHeight", std::to_string(window_height_)},
-  }};
+  attributes_t attributes{
+    {
+     {"xWindow", "240"},
+     {"yWindow", "15"},
+     {"windowWidth", std::to_string(window_width_)},
+     {"windowHeight", std::to_string(window_height_)},
+     }
+  };
 
   if(first_sheet_ != 0)
   {
@@ -1579,9 +1585,7 @@ std::string workbook_t::write_sheets() const
 
 std::string workbook_t::write_defined_name(const defined_name_t& defined_name)
 {
-  attributes_t attributes{{
-    {"name", defined_name.name_}
-  }};
+  attributes_t attributes{{{"name", defined_name.name_}}};
 
   if(defined_name.index_ != std::numeric_limits<size_t>::max())
   {

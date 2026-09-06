@@ -500,10 +500,12 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
 
 std::string vml_t::write_button_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& vml_obj)
 {
-  attributes_t attributes{{
-    {"id", std::format("_x0000_s{}", vml_shape_id)},
-    {"type", "#_x0000_t201"},
-  }};
+  attributes_t attributes{
+    {
+     {"id", std::format("_x0000_s{}", vml_shape_id)},
+     {"type", "#_x0000_t201"},
+     }
+  };
 
   if(!vml_obj.text_.empty())
   {

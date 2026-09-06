@@ -76,10 +76,12 @@ namespace
 
 [[nodiscard]] std::string write_a_hlink_click(uint32_t rel_index, const std::string& tip)
 {
-  attributes_t attributes{{
-    {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
-    {"r:id", std::format("rId{}", rel_index)},
-  }};
+  attributes_t attributes{
+    {
+     {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
+     {"r:id", std::format("rId{}", rel_index)},
+     }
+  };
 
   if(!tip.empty())
   {
@@ -251,10 +253,12 @@ namespace
 [[nodiscard]] std::string write_c_nv_pr(const std::string& object_name, uint32_t index,
                                         const std::optional<drawing_object_t>& drawing_object)
 {
-  attributes_t attributes{{
-    {"id", std::to_string(index + 1)},
-    {"name", std::format("{} {}", object_name, index)},
-  }};
+  attributes_t attributes{
+    {
+     {"id", std::to_string(index + 1)},
+     {"name", std::format("{} {}", object_name, index)},
+     }
+  };
 
   if(drawing_object.has_value() && !drawing_object->description_.empty() && !drawing_object->decorative_)
   {

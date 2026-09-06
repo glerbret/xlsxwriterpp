@@ -30,9 +30,7 @@ namespace
 
 [[nodiscard]] std::string write_num_fmt(uint16_t num_fmt_id, const std::string& format_code)
 {
-  attributes_t attributes{
-    {{"numFmtId", std::to_string(num_fmt_id)}}
-  };
+  attributes_t attributes{{{"numFmtId", std::to_string(num_fmt_id)}}};
 
   if(num_fmt_id < 50)
   {
@@ -398,12 +396,14 @@ namespace
 
 [[nodiscard]] std::string write_style_xf(bool has_hyperlink, int32_t font_id)
 {
-  attributes_t attributes{{
-    {"numFmtId", "0"                    },
-    {"fontId",   std::to_string(font_id)},
-    {"fillId",   "0"                    },
-    {"borderId", "0"                    },
-  }};
+  attributes_t attributes{
+    {
+     {"numFmtId", "0"},
+     {"fontId", std::to_string(font_id)},
+     {"fillId", "0"},
+     {"borderId", "0"},
+     }
+  };
 
   if(has_hyperlink)
   {
@@ -1037,13 +1037,15 @@ std::string style_t::write_xf(const format_t* format)
 {
   const bool has_protection = !format->locked_ || format->hidden_;
 
-  attributes_t attributes{{
-    {"numFmtId", std::to_string(format->num_format_index_)},
-    {"fontId",   std::to_string(format->font_index_)      },
-    {"fillId",   std::to_string(format->fill_index_)      },
-    {"borderId", std::to_string(format->border_index_)    },
-    {"xfId",     std::to_string(format->xf_id_)           },
-  }};
+  attributes_t attributes{
+    {
+     {"numFmtId", std::to_string(format->num_format_index_)},
+     {"fontId", std::to_string(format->font_index_)},
+     {"fillId", std::to_string(format->fill_index_)},
+     {"borderId", std::to_string(format->border_index_)},
+     {"xfId", std::to_string(format->xf_id_)},
+     }
+  };
 
   if(format->quote_prefix_)
   {

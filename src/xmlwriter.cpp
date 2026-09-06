@@ -58,12 +58,6 @@ const std::string XML_NL{"&#xA;"};
   return encoded;
 }
 
-
-
-
-
-
-
 // TODO A enlever
 std::string escape_attribute_value(std::string_view attribute_value)
 {
@@ -114,20 +108,7 @@ std::string escaped_attributes(const std::vector<std::tuple<std::string, std::st
   return out;
 }
 
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
 
 attributes_t::attributes_t(const std::vector<std::tuple<std::string, std::string>>& attributes)
   : attributes_{attributes}
@@ -153,10 +134,6 @@ void attributes_t::add_attribute(std::string_view key, color_t value)
 {
   attributes_.emplace_back(key, std::format("FF{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
 }
-
-
-
-
 
 std::string attributes_t::to_string() const
 {
@@ -212,19 +189,6 @@ bool attributes_t::empty() const
   return encoded;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 std::string xml_declaration()
 {
   return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
@@ -271,8 +235,7 @@ std::string xml_data_element(std::string_view tag, std::string_view data,
   return std::format("<{0}{1}>{2}</{0}>", tag, escaped_attributes(attributes), escape_data(data));
 }
 
-std::string xml_data_element(std::string_view tag, std::string_view data,
-                             const attributes_t& attributes)
+std::string xml_data_element(std::string_view tag, std::string_view data, const attributes_t& attributes)
 {
   return std::format("<{0}{1}>{2}</{0}>", tag, attributes.to_string(), escape_data(data));
 }

@@ -1028,9 +1028,7 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
                                                    const std::string& display, const std::string& tooltip)
 {
   const std::string range = rowcol_to_cell(row_num, col_num);
-  attributes_t attributes{{
-    {"ref", range}
-  }};
+  attributes_t attributes{{{"ref", range}}};
 
   if(!location.empty())
   {
@@ -1076,10 +1074,9 @@ std::string write_selection(const selection_t& selection)
                                                    const std::string& tooltip, uint16_t id)
 {
   const std::string range = rowcol_to_cell(row_num, col_num);
-  attributes_t attributes{{
-    {"ref", range},
-    {"r:id", std::format("rId{}", id)}
-  }};
+  attributes_t attributes{
+    {{"ref", range}, {"r:id", std::format("rId{}", id)}}
+  };
 
   if(!location.empty())
   {
@@ -1155,7 +1152,7 @@ std::string write_selection(const selection_t& selection)
       attributes.add_attribute("operator", "lessThanOrEqual");
       break;
 
-      default:
+    default:
       // NOP
       break;
   }
@@ -1223,7 +1220,7 @@ std::string write_selection(const selection_t& selection)
     default:
       // NOP
       break;
-}
+  }
 
   if(!data_bar_2010 ||
      (rule_type != conditional_format_rule_types_t::MINIMUM && rule_type != conditional_format_rule_types_t::MAXIMUM))
@@ -4555,10 +4552,12 @@ void worksheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, obje
 
 std::string worksheet_t::write_worksheet() const
 {
-  attributes_t attributes{{
-    {"xmlns",   "http://schemas.openxmlformats.org/spreadsheetml/2006/main"          },
-    {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
-  }};
+  attributes_t attributes{
+    {
+     {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
+     {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
+     }
+  };
 
   if(excel_version_ == 2010)
   {
@@ -5056,9 +5055,7 @@ std::string worksheet_t::write_page_setup() const
 
 std::string worksheet_t::write_sheet_format_pr() const
 {
-  attributes_t attributes{{
-    {"defaultRowHeight", std::format("{}", default_row_height_)}
-  }};
+  attributes_t attributes{{{"defaultRowHeight", std::format("{}", default_row_height_)}}};
 
   if(default_row_height_ != DEF_ROW_HEIGHT)
   {
@@ -5702,9 +5699,7 @@ std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) co
   }
 
   // For other cell types use the general functions.
-  attributes_t attributes{{
-    {"r", range}
-  }};
+  attributes_t attributes{{{"r", range}}};
 
   if(style_index != 0)
   {
@@ -6008,9 +6003,7 @@ std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format
     "none",    "equal",      "notEqual", "greaterThan", "lessThan", "greaterThanOrEqual", "lessThanOrEqual",
     "between", "notBetween",
   };
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
   {
@@ -6135,9 +6128,7 @@ std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format
 
 std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
   {
@@ -6177,9 +6168,7 @@ std::string worksheet_t::write_cf_rule_blanks(const cond_format_obj_t& cond_form
 
 std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
   {
@@ -6202,10 +6191,9 @@ std::string worksheet_t::write_cf_rule_formula(const cond_format_obj_t& cond_for
 
 std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond_format)
 {
-  const attributes_t attributes{{
-    {"type",     cond_format.type_string_                 },
-    {"priority", std::to_string(cond_format.dxf_priority_)}
-  }};
+  const attributes_t attributes{
+    {{"type", cond_format.type_string_}, {"priority", std::to_string(cond_format.dxf_priority_)}}
+  };
 
   std::string xml_data = xml_start_tag("cfRule", attributes);
   xml_data += xml_start_tag("colorScale");
@@ -6256,10 +6244,9 @@ std::string worksheet_t::write_cf_rule_color_scale(const cond_format_obj_t& cond
 
 std::string worksheet_t::write_cf_rule_data_bar(cond_format_obj_t& cond_format)
 {
-  const attributes_t attributes{{
-    {"type",     cond_format.type_string_                 },
-    {"priority", std::to_string(cond_format.dxf_priority_)}
-  }};
+  const attributes_t attributes{
+    {{"type", cond_format.type_string_}, {"priority", std::to_string(cond_format.dxf_priority_)}}
+  };
 
   std::string xml_data = xml_start_tag("cfRule", attributes);
   xml_data += write_data_bar(cond_format);
@@ -6324,9 +6311,7 @@ std::string worksheet_t::write_data_bar_ext(cond_format_obj_t& cond_format)
 
 std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
   const std::vector<std::string> time_periods{
     "yesterday", "today",    "tomorrow",  "last7Days", "lastWeek",
     "thisWeek",  "nextWeek", "lastMonth", "thisMonth", "nextMonth",
@@ -6410,9 +6395,7 @@ std::string worksheet_t::write_cf_rule_time_period(cond_format_obj_t& cond_forma
 
 std::string worksheet_t::write_cf_rule_duplicate(const cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
   {
@@ -6426,9 +6409,7 @@ std::string worksheet_t::write_cf_rule_duplicate(const cond_format_obj_t& cond_f
 
 std::string worksheet_t::write_cf_rule_average(const cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
   {
@@ -6480,9 +6461,7 @@ std::string worksheet_t::write_cf_rule_average(const cond_format_obj_t& cond_for
 
 std::string worksheet_t::write_cf_rule_top(const cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"type", cond_format.type_string_}
-  }};
+  attributes_t attributes{{{"type", cond_format.type_string_}}};
 
   if(cond_format.dxf_index_ != format_t::PROPERTY_UNSET)
   {
@@ -6521,10 +6500,9 @@ std::string worksheet_t::write_cf_rule_top(const cond_format_obj_t& cond_format)
 
 std::string worksheet_t::write_cf_rule_icons(cond_format_obj_t& cond_format)
 {
-  const attributes_t attributes{{
-    {"type",     cond_format.type_string_                 },
-    {"priority", std::to_string(cond_format.dxf_priority_)}
-  }};
+  const attributes_t attributes{
+    {{"type", cond_format.type_string_}, {"priority", std::to_string(cond_format.dxf_priority_)}}
+  };
 
   std::string xml_data = xml_start_tag("cfRule", attributes);
   xml_data += write_icon_set(cond_format);
@@ -6649,10 +6627,12 @@ std::string worksheet_t::write_xm_sqref(const cond_format_obj_t& cond_format)
 
 std::string worksheet_t::write_x14_data_bar(cond_format_obj_t& cond_format)
 {
-  attributes_t attributes{{
-    {"minLength", "0"  },
-    {"maxLength", "100"},
-  }};
+  attributes_t attributes{
+    {
+     {"minLength", "0"},
+     {"maxLength", "100"},
+     }
+  };
 
   if(!cond_format.bar_no_border_)
   {
