@@ -165,18 +165,16 @@ std::string metadata_t::assemble_xml_file() const
 
 std::string metadata_t::write_metadata() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-  };
+  attributes_t attributes{{{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}}};
 
   if(has_embedded_images_)
   {
-    attributes.emplace_back("xmlns:xlrd", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata");
+    attributes.add_attribute("xmlns:xlrd", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata");
   }
 
   if(has_dynamic_functions_)
   {
-    attributes.emplace_back("xmlns:xda", "http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray");
+    attributes.add_attribute("xmlns:xda", "http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray");
   }
 
   return xml_start_tag("metadata", attributes);

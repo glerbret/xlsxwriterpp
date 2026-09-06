@@ -39,36 +39,38 @@ std::string table_t::assemble_xml_file() const
 
 std::string table_t::write_table() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
-    {"id",    std::to_string(table_obj_.id_)                             },
+  attributes_t attributes{
+    {
+     {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
+     {"id", std::to_string(table_obj_.id_)},
+     }
   };
 
   if(!table_obj_.name_.empty())
   {
-    attributes.emplace_back("name", table_obj_.name_);
-    attributes.emplace_back("displayName", table_obj_.name_);
+    attributes.add_attribute("name", table_obj_.name_);
+    attributes.add_attribute("displayName", table_obj_.name_);
   }
   else
   {
-    attributes.emplace_back("name", "Table1");
-    attributes.emplace_back("displayName", "Table1");
+    attributes.add_attribute("name", "Table1");
+    attributes.add_attribute("displayName", "Table1");
   }
 
-  attributes.emplace_back("ref", table_obj_.sqref_);
+  attributes.add_attribute("ref", table_obj_.sqref_);
 
   if(table_obj_.no_header_row_)
   {
-    attributes.emplace_back("headerRowCount", "0");
+    attributes.add_attribute("headerRowCount", "0");
   }
 
   if(table_obj_.total_row_)
   {
-    attributes.emplace_back("totalsRowCount", "1");
+    attributes.add_attribute("totalsRowCount", "1");
   }
   else
   {
-    attributes.emplace_back("totalsRowShown", "0");
+    attributes.add_attribute("totalsRowShown", "0");
   }
 
   return xml_start_tag("table", attributes);
@@ -88,55 +90,54 @@ std::string table_t::write_auto_filter() const
 
 std::string table_t::write_table_column(uint16_t id, const table_column_t& column)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"id",   std::to_string(id)},
-    {"name", column.header_    }
+  attributes_t attributes{
+    {{"id", std::to_string(id)}, {"name", column.header_}}
   };
 
   if(!column.total_string_.empty())
   {
-    attributes.emplace_back("totalsRowLabel", column.total_string_);
+    attributes.add_attribute("totalsRowLabel", column.total_string_);
   }
   else if(column.total_function_ != table_total_functions_t::NONE)
   {
     if(column.total_function_ == table_total_functions_t::AVERAGE)
     {
-      attributes.emplace_back("totalsRowFunction", "average");
+      attributes.add_attribute("totalsRowFunction", "average");
     }
     if(column.total_function_ == table_total_functions_t::COUNT_NUMS)
     {
-      attributes.emplace_back("totalsRowFunction", "countNums");
+      attributes.add_attribute("totalsRowFunction", "countNums");
     }
     if(column.total_function_ == table_total_functions_t::COUNT)
     {
-      attributes.emplace_back("totalsRowFunction", "count");
+      attributes.add_attribute("totalsRowFunction", "count");
     }
     if(column.total_function_ == table_total_functions_t::MAX)
     {
-      attributes.emplace_back("totalsRowFunction", "max");
+      attributes.add_attribute("totalsRowFunction", "max");
     }
     if(column.total_function_ == table_total_functions_t::MIN)
     {
-      attributes.emplace_back("totalsRowFunction", "min");
+      attributes.add_attribute("totalsRowFunction", "min");
     }
     if(column.total_function_ == table_total_functions_t::STD_DEV)
     {
-      attributes.emplace_back("totalsRowFunction", "stdDev");
+      attributes.add_attribute("totalsRowFunction", "stdDev");
     }
     if(column.total_function_ == table_total_functions_t::SUM)
     {
-      attributes.emplace_back("totalsRowFunction", "sum");
+      attributes.add_attribute("totalsRowFunction", "sum");
     }
     if(column.total_function_ == table_total_functions_t::VAR)
     {
-      attributes.emplace_back("totalsRowFunction", "var");
+      attributes.add_attribute("totalsRowFunction", "var");
     }
   }
 
   if(column.format_)
   {
     const int32_t dfx_id = column.format_->get_dxf_index_(column.format_);
-    attributes.emplace_back("dataDxfId", std::to_string(dfx_id));
+    attributes.add_attribute("dataDxfId", dfx_id);
   }
 
   if(!column.formula_.empty())
@@ -170,62 +171,62 @@ std::string table_t::write_table_columns() const
 
 std::string table_t::write_table_style_info() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(table_obj_.style_type_ == table_style_type_t::LIGHT)
   {
     if(table_obj_.style_type_number_ != 0)
     {
-      attributes.emplace_back("name", std::format("TableStyleLight{}", table_obj_.style_type_number_));
+      attributes.add_attribute("name", std::format("TableStyleLight{}", table_obj_.style_type_number_));
     }
   }
   else if(table_obj_.style_type_ == table_style_type_t::MEDIUM)
   {
-    attributes.emplace_back("name", std::format("TableStyleMedium{}", table_obj_.style_type_number_));
+    attributes.add_attribute("name", std::format("TableStyleMedium{}", table_obj_.style_type_number_));
   }
   else if(table_obj_.style_type_ == table_style_type_t::DARK)
   {
-    attributes.emplace_back("name", std::format("TableStyleDark{}", table_obj_.style_type_number_));
+    attributes.add_attribute("name", std::format("TableStyleDark{}", table_obj_.style_type_number_));
   }
   else
   {
-    attributes.emplace_back("name", "TableStyleMedium9");
+    attributes.add_attribute("name", "TableStyleMedium9");
   }
 
   if(table_obj_.first_column_)
   {
-    attributes.emplace_back("showFirstColumn", "1");
+    attributes.add_attribute("showFirstColumn", "1");
   }
   else
   {
-    attributes.emplace_back("showFirstColumn", "0");
+    attributes.add_attribute("showFirstColumn", "0");
   }
 
   if(table_obj_.last_column_)
   {
-    attributes.emplace_back("showLastColumn", "1");
+    attributes.add_attribute("showLastColumn", "1");
   }
   else
   {
-    attributes.emplace_back("showLastColumn", "0");
+    attributes.add_attribute("showLastColumn", "0");
   }
 
   if(table_obj_.no_banded_rows_)
   {
-    attributes.emplace_back("showRowStripes", "0");
+    attributes.add_attribute("showRowStripes", "0");
   }
   else
   {
-    attributes.emplace_back("showRowStripes", "1");
+    attributes.add_attribute("showRowStripes", "1");
   }
 
   if(table_obj_.banded_columns_)
   {
-    attributes.emplace_back("showColumnStripes", "1");
+    attributes.add_attribute("showColumnStripes", "1");
   }
   else
   {
-    attributes.emplace_back("showColumnStripes", "0");
+    attributes.add_attribute("showColumnStripes", "0");
   }
 
   return xml_empty_tag("tableStyleInfo", attributes);

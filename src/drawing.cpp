@@ -76,14 +76,16 @@ namespace
 
 [[nodiscard]] std::string write_a_hlink_click(uint32_t rel_index, const std::string& tip)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
-    {"r:id", std::format("rId{}", rel_index)},
+  attributes_t attributes{
+    {
+     {"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"},
+     {"r:id", std::format("rId{}", rel_index)},
+     }
   };
 
   if(!tip.empty())
   {
-    attributes.emplace_back("tooltip", tip);
+    attributes.add_attribute("tooltip", tip);
   }
 
   return xml_empty_tag("a:hlinkClick", attributes);
@@ -251,14 +253,16 @@ namespace
 [[nodiscard]] std::string write_c_nv_pr(const std::string& object_name, uint32_t index,
                                         const std::optional<drawing_object_t>& drawing_object)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"id", std::to_string(index + 1)},
-    {"name", std::format("{} {}", object_name, index)},
+  attributes_t attributes{
+    {
+     {"id", std::to_string(index + 1)},
+     {"name", std::format("{} {}", object_name, index)},
+     }
   };
 
   if(drawing_object.has_value() && !drawing_object->description_.empty() && !drawing_object->decorative_)
   {
-    attributes.emplace_back("descr", drawing_object->description_);
+    attributes.add_attribute("descr", drawing_object->description_);
   }
 
   if(drawing_object.has_value() && (drawing_object->url_rel_index_ != 0 || drawing_object->decorative_))
@@ -427,14 +431,14 @@ std::string drawing_t::write_absolute_anchor(uint32_t frame_index) const
 
 std::string drawing_t::write_two_cell_anchor(uint32_t index, const drawing_object_t& drawing_object) const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE))
   {
-    attributes.emplace_back("editAs", "oneCell");
+    attributes.add_attribute("editAs", "oneCell");
   }
   else if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE))
   {
-    attributes.emplace_back("editAs", "absolute");
+    attributes.add_attribute("editAs", "absolute");
   }
 
   std::string xml_data = xml_start_tag("xdr:twoCellAnchor", attributes);
