@@ -20,7 +20,7 @@ int main()
   struct expense
   {
     std::string item_;
-    int cost_ = 0;
+    int cost_{0};
   };
 
   const std::vector<expense> expenses{
@@ -42,7 +42,7 @@ int main()
   xwpp::format_t* money = workbook.add_format();
   money->set_num_format("$#,##0");
 
-  xwpp::row_num_t row_num = 0;
+  xwpp::row_num_t row_num{0};
 
   // Write some data header.
   worksheet.write_string(row_num, 0, "Item", bold);

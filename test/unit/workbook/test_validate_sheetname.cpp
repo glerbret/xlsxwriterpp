@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(workbook)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_valid)
 {
-  const std::string sheetname = "123456789_123456789_123456789_1";
+  const std::string sheetname{"123456789_123456789_123456789_1"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_NO_THROW(workbook.validate_sheetname(sheetname));
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_valid)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_too_long)
 {
-  const std::string sheetname = "123456789_123456789_123456789_12";
+  const std::string sheetname{"123456789_123456789_123456789_12"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_too_long)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_invalid_char)
 {
-  const std::string sheetname = "Sheet[1]";
+  const std::string sheetname{"Sheet[1]"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_invalid_char)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_single_quote_start)
 {
-  const std::string sheetname = "'Sheet1";
+  const std::string sheetname{"'Sheet1"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_single_quote_start)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_single_quote_end)
 {
-  const std::string sheetname = "Sheet1'";
+  const std::string sheetname{"Sheet1'"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_single_quote_end)
 
 BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists)
 {
-  const std::string sheetname = "Sheet1";
+  const std::string sheetname{"Sheet1"};
   xwpp::workbook_t workbook;
   workbook.add_worksheet(sheetname);
 
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_apostrophe_start)
 {
-  const std::string sheetname = "'Sheet1";
+  const std::string sheetname{"'Sheet1"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_apostrophe_start)
 
 BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_apostrophe_end)
 {
-  const std::string sheetname = "Sheet1'";
+  const std::string sheetname{"Sheet1'"};
   const xwpp::workbook_t workbook;
 
   BOOST_REQUIRE_THROW(workbook.validate_sheetname(sheetname), xwpp::xwpp_exception_t);
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(validate_sheetname_unbalanced_apostrophe_end)
 
 BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_1)
 {
-  const std::string sheetname = "Sheet1";
+  const std::string sheetname{"Sheet1"};
   xwpp::workbook_t workbook;
   workbook.add_worksheet(sheetname);
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_1)
 
 BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_2)
 {
-  const std::string sheetname = "Café";
+  const std::string sheetname{"Café"};
   xwpp::workbook_t workbook;
   workbook.add_worksheet(sheetname);
 
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_2)
 
 BOOST_AUTO_TEST_CASE(validate_worksheet_already_exists_case_insensitive_3)
 {
-  const std::string sheetname = "abcde";
+  const std::string sheetname{"abcde"};
   xwpp::workbook_t workbook;
   workbook.add_worksheet(sheetname);
 

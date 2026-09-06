@@ -46,15 +46,15 @@ private:
   [[nodiscard]] std::string write_dxfs();
   [[nodiscard]] static std::string write_fill(const format_t* format, bool is_dxf);
 
-  uint32_t font_count_       = 0;
-  uint32_t num_format_count_ = 0;
-  uint32_t border_count_     = 0;
-  uint32_t fill_count_       = 0;
+  uint32_t font_count_{0};
+  uint32_t num_format_count_{0};
+  uint32_t border_count_{0};
+  uint32_t fill_count_{0};
   std::vector<format_t*> xf_formats_;
   std::vector<format_t*> dxf_formats_;
-  bool has_hyperlink_        = false;
-  int32_t hyperlink_font_id_ = 0;
-  bool has_comments_         = false;
+  bool has_hyperlink_{false};
+  int32_t hyperlink_font_id_{0};
+  bool has_comments_{false};
 };
 
 }

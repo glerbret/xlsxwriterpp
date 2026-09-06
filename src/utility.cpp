@@ -44,7 +44,7 @@ std::string quote_sheetname(std::string_view sheetname)
   }
 
   // Add single quotes to the start and end of the string.
-  std::string quoted_name = "'";
+  std::string quoted_name{"'"};
   for(auto c: sheetname)
   {
     quoted_name.push_back(c);
@@ -69,7 +69,7 @@ std::string col_to_name(col_num_t col_num, bool absolute)
   while(col_num != 0)
   {
     // Get the remainder in base 26.
-    int remainder = col_num % 26;
+    int remainder{col_num % 26};
     if(remainder == 0)
     {
       remainder = 26;
@@ -177,7 +177,7 @@ std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_
 
 row_num_t name_to_row(std::string_view row_str)
 {
-  row_num_t row_num = 0;
+  row_num_t row_num{0};
 
   if(row_str.empty())
   {
@@ -207,8 +207,7 @@ uint32_t name_to_row_2(std::string_view row_str)
   }
 
   // Find the : separator in the range.
-  const auto found = row_str.find_first_of(':');
-  if(found != std::string_view::npos)
+  if(const auto found = row_str.find_first_of(':'); found != std::string_view::npos)
   {
     return name_to_row(row_str.substr(found + 1));
   }
@@ -220,7 +219,7 @@ uint32_t name_to_row_2(std::string_view row_str)
 
 col_num_t name_to_col(std::string_view col_str)
 {
-  col_num_t col_num = 0;
+  col_num_t col_num{0};
 
   if(col_str.empty())
   {
@@ -285,9 +284,9 @@ std::string dup_formula(const std::string& formula)
 
 double pixels_to_width(double pixels)
 {
-  const double max_digit_width = 7.0;
-  const double padding         = 5.0;
-  double width                 = 0.;
+  const double max_digit_width{7.0};
+  const double padding{5.0};
+  double width{0.};
 
   if(pixels == DEF_COL_WIDTH_PIXELS)
   {
@@ -319,13 +318,13 @@ double pixels_to_height(double pixels)
 
 datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
 {
-  const auto date = std::chrono::floor<std::chrono::days>(datetime);
+  const auto date{std::chrono::floor<std::chrono::days>(datetime)};
   const std::chrono::year_month_day ymd{date};
   const std::chrono::hh_mm_ss time{std::chrono::floor<std::chrono::milliseconds>(datetime - date)};
 
-  const auto year  = static_cast<int>(ymd.year());
-  const auto month = static_cast<int>(static_cast<unsigned int>(ymd.month()));
-  const auto day   = static_cast<int>(static_cast<unsigned int>(ymd.day()));
+  const auto year{static_cast<int>(ymd.year())};
+  const auto month{static_cast<int>(static_cast<unsigned int>(ymd.month()))};
+  const auto day{static_cast<int>(static_cast<unsigned int>(ymd.day()))};
 
   // time_point set to epoch date (1970-01-01) are time only
   if(year == 1970 && month == 1 && day == 1)
@@ -360,19 +359,19 @@ double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& d
 
 double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch)
 {
-  int year         = datetime.year_;
-  int month        = datetime.month_;
-  int day          = datetime.day_;
-  const int hour   = datetime.hour_;
-  const int min    = datetime.min_;
-  const double sec = datetime.sec_;
-  const int epoch  = use_1904_epoch ? 1904 : 1900;
-  const int offset = use_1904_epoch ? 4 : 0;
-  const int norm   = 300;
+  int year{datetime.year_};
+  int month{datetime.month_};
+  int day{datetime.day_};
+  const int hour{datetime.hour_};
+  const int min{datetime.min_};
+  const double sec{datetime.sec_};
+  const int epoch{use_1904_epoch ? 1904 : 1900};
+  const int offset{use_1904_epoch ? 4 : 0};
+  const int norm{300};
   // Set month days and check for leap year.
   std::vector<int> mdays{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  int leap = 0;
-  int days = 0;
+  int leap{0};
+  int days{0};
 
   datetime_validate(datetime);
 
@@ -423,7 +422,7 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
   // number of leap days by normalizing the year in relation to the
   // epoch. Thus the year 2000 becomes 100 for 4-year and 100-year
   // leapdays and 400 for 400-year leapdays.
-  const int range = year - epoch;
+  const int range{year - epoch};
 
   if(year % 4 == 0 && (year % 100 > 0 || year % 400 == 0))
   {
@@ -435,7 +434,7 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
   // since the epoch.
 
   // Add days for previous months.
-  for(size_t i = 0; std::cmp_less(i, month) && i < mdays.size(); i++)
+  for(size_t i{0}; std::cmp_less(i, month) && i < mdays.size(); i++)
   {
     days += mdays[i];
   }
@@ -516,8 +515,8 @@ void datetime_validate(const datetime_t& datetime)
 
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 {
-  const double epoch    = use_1904_epoch ? 24107.0 : 25568.0;
-  double excel_datetime = epoch + (static_cast<double>(unixtime) / (24 * 60 * 60.0));
+  const double epoch{use_1904_epoch ? 24107.0 : 25568.0};
+  double excel_datetime{epoch + (static_cast<double>(unixtime) / (24 * 60 * 60.0))};
 
   if(!use_1904_epoch && excel_datetime >= 60.0)
   {
@@ -539,7 +538,7 @@ uint16_t hash_password(const std::string& password)
     return 0;
   }
 
-  uint16_t hash = 0;
+  uint16_t hash{0};
   for(const unsigned char c: std::ranges::reverse_view(password))
   {
     hash = (static_cast<uint16_t>(hash >> 14U) & 0x01U) | (static_cast<uint16_t>(hash << 1U) & 0x7fffU);

@@ -38,15 +38,15 @@ uint32_t md5_t::leftrotate(uint32_t x, uint32_t n)
 // Process one 512-bit chunks.
 void md5_t::step(const std::array<uint32_t, 16>& chunck)
 {
-  uint32_t a = a0;
-  uint32_t b = b0;
-  uint32_t c = c0;
-  uint32_t d = d0;
+  uint32_t a{a0};
+  uint32_t b{b0};
+  uint32_t c{c0};
+  uint32_t d{d0};
 
-  for(uint32_t i = 0; i < 64; ++i)
+  for(uint32_t i{0}; i < 64; ++i)
   {
-    uint32_t f = 0;
-    uint32_t g = 0;
+    uint32_t f{0};
+    uint32_t g{0};
 
     switch(i / 16)
     {
@@ -88,7 +88,7 @@ void md5_t::step(const std::array<uint32_t, 16>& chunck)
 
 void md5_t::update(const std::vector<uint8_t>& input)
 {
-  size_t offset = size % 64;
+  size_t offset{size % 64};
   size += input.size();
 
   for(const auto byte: input)
@@ -101,7 +101,7 @@ void md5_t::update(const std::vector<uint8_t>& input)
     {
       std::array<uint32_t, 16> chunk{};
 
-      for(size_t i = 0; i < chunk.size(); ++i)
+      for(size_t i{0}; i < chunk.size(); ++i)
       {
         // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
         chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24U |
@@ -118,10 +118,10 @@ void md5_t::update(const std::vector<uint8_t>& input)
 
 std::array<uint8_t, 16> md5_t::finalize()
 {
-  const size_t offset = size % 64;
+  const size_t offset{size % 64};
 
   // Pad the input (always present)
-  const size_t padding_len = offset < 56 ? 56 - offset : 120 - offset;
+  const size_t padding_len{offset < 56 ? 56 - offset : 120 - offset};
   std::vector<uint8_t> padding(padding_len, 0x00);
   padding[0] = 0x80;
   update(padding);
@@ -129,7 +129,7 @@ std::array<uint8_t, 16> md5_t::finalize()
   // Process last block with two last words containing the input size
   size -= padding_len;
   std::array<uint32_t, 16> chunk{};
-  for(size_t i = 0; i < 14; ++i)
+  for(size_t i{0}; i < 14; ++i)
   {
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
     chunk[i] = static_cast<uint32_t>(buffer[(i * 4) + 3]) << 24U | static_cast<uint32_t>(buffer[(i * 4) + 2]) << 16U |
@@ -161,7 +161,7 @@ std::array<uint8_t, 16> md5_t::digest(const std::vector<uint8_t>& input)
 
 std::string md5_t::digest_to_string(const std::vector<uint8_t>& input)
 {
-  auto hash = md5_t::digest(input);
+  const auto hash = md5_t::digest(input);
 
   std::string hash_str;
   for(const auto b: hash)

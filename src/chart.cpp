@@ -23,7 +23,7 @@ namespace
 
 std::optional<chart_font_t> convert_font_args(const std::optional<chart_font_t>& user_font, bool title_font = false)
 {
-  if(!user_font)
+  if(!user_font.has_value())
   {
     return std::nullopt;
   }
@@ -59,7 +59,7 @@ std::optional<chart_font_t> convert_font_args(const std::optional<chart_font_t>&
 
 std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>& user_line)
 {
-  if(!user_line)
+  if(!user_line.has_value())
   {
     return std::nullopt;
   }
@@ -82,7 +82,7 @@ std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>&
 
 std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> user_fill)
 {
-  if(!user_fill)
+  if(!user_fill.has_value())
   {
     return std::nullopt;
   }
@@ -103,7 +103,7 @@ std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> 
 
 std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pattern_t>& user_pattern)
 {
-  if(!user_pattern)
+  if(!user_pattern.has_value())
   {
     return std::nullopt;
   }
@@ -136,7 +136,7 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
 std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layout_t>& user_layout,
                                                   chart_layout_type_t type)
 {
-  if(!user_layout)
+  if(!user_layout.has_value())
   {
     return std::nullopt;
   }
@@ -367,7 +367,7 @@ void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_
 // cppcheck-suppress functionStatic
 void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t type) const
 {
-  if(!series.marker_)
+  if(!series.marker_.has_value())
   {
     series.marker_ = chart_marker_t{};
   }
@@ -985,7 +985,7 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
     // it has already been specified by the user
     if(chart.type_ == chart_type_t::SCATTER && !series.line_)
     {
-      chart_line_t line = {
+      chart_line_t line{
         .color_        = static_cast<color_t>(0x000000),
         .none_         = true,
         .width_        = 2.25,
@@ -1103,15 +1103,8 @@ std::string chart_t::write_auto_title_deleted()
 
 std::string chart_t::write_tx_pr_pie(bool is_horizontal, const std::optional<chart_font_t>& font)
 {
-  int32_t rotation = 0;
-
-  if(font)
-  {
-    rotation = font->rotation_;
-  }
-
   std::string xml_data = xml_start_tag("c:txPr");
-  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_body_pr(font.has_value() ? font->rotation_ : 0, is_horizontal);
   xml_data += write_a_lst_style();
   xml_data += write_a_p_pie(font);
   xml_data += xml_end_tag("c:txPr");
@@ -1180,14 +1173,8 @@ std::string chart_t::write_tx_rich(const std::string& name, bool is_horizontal, 
 std::string chart_t::write_rich(const std::string& name, const std::optional<chart_font_t>& font, bool is_horizontal,
                                 bool ignore_rich_pr)
 {
-  int32_t rotation = 0;
-  if(font)
-  {
-    rotation = font->rotation_;
-  }
-
   std::string xml_data = xml_start_tag("c:rich");
-  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_body_pr(font.has_value() ? font->rotation_ : 0, is_horizontal);
   xml_data += write_a_lst_style();
   xml_data += write_a_p_rich(name, font, ignore_rich_pr);
   xml_data += xml_end_tag("c:rich");
@@ -1266,10 +1253,10 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
 
-  bool has_color = false;
-  bool has_latin = false;
+  bool has_color{false};
+  bool has_latin{false};
 
-  if(font)
+  if(font.has_value())
   {
     has_color                   = font->color_ != color_t::UNSET;
     has_latin                   = !font->name_.empty() || font->pitch_family_ != 0 || font->charset_ != 0;
@@ -1308,6 +1295,7 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
   }
 
   // There are sub-elements if the font name or color have changed.
+  // NOLINTBEGIN(bugprone-unchecked-optional-access)
   if(has_latin || has_color)
   {
     std::string xml_data = xml_start_tag("a:defRPr", attributes);
@@ -1344,6 +1332,7 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
 
     return xml_data;
   }
+  // NOLINTEND(bugprone-unchecked-optional-access)
   else
   {
     return xml_empty_tag("a:defRPr", attributes);
@@ -1363,12 +1352,12 @@ std::string chart_t::write_a_r(const std::string& name, const std::optional<char
 std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
-  bool has_color = false;
-  bool has_latin = false;
+  bool has_color{false};
+  bool has_latin{false};
 
   attributes.emplace_back("lang", "en-US");
 
-  if(font)
+  if(font.has_value())
   {
     has_color                   = font->color_ != color_t::UNSET;
     has_latin                   = !font->name_.empty() || font->pitch_family_ != 0 || font->charset_ != 0;
@@ -1407,6 +1396,7 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
   }
 
   // There are sub-elements if the font name or color have changed.
+  // NOLINTBEGIN(bugprone-unchecked-optional-access)
   if(has_latin || has_color)
   {
     std::string xml_data = xml_start_tag("a:rPr", attributes);
@@ -1441,6 +1431,7 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
 
     return xml_data;
   }
+  // NOLINTEND(bugprone-unchecked-optional-access)
   else
   {
     return xml_empty_tag("a:rPr", attributes);
@@ -1454,7 +1445,7 @@ std::string chart_t::write_a_t(const std::string& name)
 
 std::string chart_t::write_layout(const std::optional<chart_layout_t>& layout)
 {
-  if(!layout)
+  if(!layout.has_value())
   {
     return xml_empty_tag("c:layout");
   }
@@ -1673,13 +1664,13 @@ std::string chart_t::write_f(const std::string& formula)
 std::string chart_t::write_sp_pr(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill,
                                  const std::optional<chart_pattern_t>& pattern)
 {
-  if(!line && !fill && !pattern)
+  if(!line.has_value() && !fill.has_value() && !pattern.has_value())
   {
     return "";
   }
 
   std::string xml_data = xml_start_tag("c:spPr");
-  if(fill && !pattern)
+  if(fill.has_value() && !pattern.has_value())
   {
     if(fill->none_)
     {
@@ -1691,12 +1682,12 @@ std::string chart_t::write_sp_pr(const std::optional<chart_line_t>& line, const 
     }
   }
 
-  if(pattern)
+  if(pattern.has_value())
   {
     xml_data += write_a_patt_fill(*pattern);
   }
 
-  if(line)
+  if(line.has_value())
   {
     xml_data += write_a_ln(*line);
   }
@@ -2080,7 +2071,7 @@ std::string chart_t::write_str_cache(const series_range_t& range)
 {
   std::string xml_data = xml_start_tag("c:strCache");
   xml_data += write_pt_count(range.num_data_points_);
-  for(uint16_t index = 0; const auto& data_point: range.data_cache_)
+  for(uint16_t index{0}; const auto& data_point: range.data_cache_)
   {
     xml_data += write_pt(index, data_point);
     index++;
@@ -2177,7 +2168,7 @@ std::string chart_t::write_num_cache(const series_range_t& range)
   std::string xml_data = xml_start_tag("c:numCache");
   xml_data += write_format_code();
   xml_data += write_pt_count(range.num_data_points_);
-  for(uint16_t index = 0; const auto& data_point: range.data_cache_)
+  for(uint16_t index{0}; const auto& data_point: range.data_cache_)
   {
     xml_data += write_num_pt(index, data_point);
     index++;
@@ -2326,12 +2317,12 @@ std::string chart_t::write_marker(const chart_t& chart, std::optional<chart_mark
 {
   // If there isn't a user defined marker use the default, if this chart
   //  type one. The default usually turns the marker off. */
-  if(!marker)
+  if(!marker.has_value())
   {
     marker = chart.default_marker_;
   }
 
-  if(!marker)
+  if(!marker.has_value())
   {
     return "";
   }
@@ -2417,6 +2408,7 @@ std::string chart_t::write_axis_pos(chart_position_t position, bool reverse)
         attributes.emplace_back("val", "r");
       }
       break;
+
     case chart_position_t::LEFT:
       if(reverse)
       {
@@ -2438,6 +2430,7 @@ std::string chart_t::write_axis_pos(chart_position_t position, bool reverse)
         attributes.emplace_back("val", "t");
       }
       break;
+
     case chart_position_t::BOTTOM:
       if(reverse)
       {
@@ -2470,14 +2463,8 @@ std::string chart_t::write_title_formula(const chart_title_t& title)
 
 std::string chart_t::write_tx_pr(bool is_horizontal, const std::optional<chart_font_t>& font)
 {
-  int32_t rotation = 0;
-  if(font)
-  {
-    rotation = font->rotation_;
-  }
-
   std::string xml_data = xml_start_tag("c:txPr");
-  xml_data += write_a_body_pr(rotation, is_horizontal);
+  xml_data += write_a_body_pr(font.has_value() ? font->rotation_ : 0, is_horizontal);
   xml_data += write_a_lst_style();
   xml_data += write_a_p_formula(font);
   xml_data += xml_end_tag("c:txPr");
@@ -2506,7 +2493,7 @@ std::string chart_t::write_a_p_pr_formula(const std::optional<chart_font_t>& fon
 
 std::string chart_t::write_axis_font(const std::optional<chart_font_t>& font)
 {
-  if(!font)
+  if(!font.has_value())
   {
     return "";
   }
@@ -2568,8 +2555,8 @@ std::string chart_t::write_minor_gridlines(const chart_axis_t& axis)
 std::string chart_t::write_cat_number_format(const chart_t& chart, const chart_axis_t& axis)
 {
   std::string num_format;
-  uint8_t source_linked = 1;
-  bool default_format   = true;
+  uint8_t source_linked{1};
+  bool default_format{true};
 
   // Set the number format to the axis default if not set.
   if(!axis.num_format_.empty())
@@ -2706,7 +2693,7 @@ std::string chart_t::write_label_offset()
 std::string chart_t::write_number_format(const chart_axis_t& axis)
 {
   std::string num_format;
-  uint8_t source_linked = 1;
+  uint8_t source_linked{1};
 
   // Set the number format to the axis default if not set.
   if(!axis.num_format_.empty())
@@ -2776,7 +2763,7 @@ std::string chart_t::write_legend_entry(size_t index)
 
 std::string chart_t::write_legend()
 {
-  bool has_overlay = false;
+  bool has_overlay{false};
 
   if(legend_.position_ == chart_legend_position_t::NONE)
   {
@@ -2789,32 +2776,40 @@ std::string chart_t::write_legend()
     case chart_legend_position_t::LEFT:
       xml_data += write_legend_pos("l");
       break;
+
     case chart_legend_position_t::TOP:
       xml_data += write_legend_pos("t");
       break;
+
     case chart_legend_position_t::BOTTOM:
       xml_data += write_legend_pos("b");
       break;
+
     case chart_legend_position_t::TOP_RIGHT:
       xml_data += write_legend_pos("tr");
       break;
+
     case chart_legend_position_t::OVERLAY_RIGHT:
       xml_data += write_legend_pos("r");
       has_overlay = true;
       break;
+
     case chart_legend_position_t::OVERLAY_LEFT:
       xml_data += write_legend_pos("l");
       has_overlay = true;
       break;
+
     case chart_legend_position_t::OVERLAY_TOP_RIGHT:
       xml_data += write_legend_pos("tr");
       has_overlay = true;
       break;
+
     default:
       xml_data += write_legend_pos("r");
+      break;
   }
 
-  for(size_t index = 0; index < delete_series_.size(); index++)
+  for(size_t index{0}; index < delete_series_.size(); index++)
   {
     xml_data += write_legend_entry(index);
   }
@@ -2952,12 +2947,7 @@ std::string chart_t::write_d_lbls(const chart_series_t& series)
 
 std::string chart_t::write_custom_label_str(const chart_series_t& series, const chart_custom_label_t& data_label)
 {
-  bool ignore_rich_pr = true;
-
-  if(data_label.line_ || data_label.fill_ || data_label.pattern_)
-  {
-    ignore_rich_pr = false;
-  }
+  const bool ignore_rich_pr = !data_label.line_ && !data_label.fill_ && !data_label.pattern_;
 
   std::string xml_data = xml_empty_tag("c:layout");
   xml_data += xml_start_tag("c:tx");
@@ -2992,7 +2982,7 @@ std::string chart_t::write_custom_labels(const chart_series_t& series)
 {
   std::string xml_data;
 
-  for(uint16_t index = 0; const auto& data_label: series.data_labels_)
+  for(uint16_t index{0}; const auto& data_label: series.data_labels_)
   {
     if(!data_label.value_.empty() || data_label.range_ || data_label.hide_ || data_label.font_)
     {
@@ -3313,7 +3303,7 @@ std::string chart_t::write_marker_value()
 
 std::string chart_t::write_up_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill)
 {
-  if(line || fill)
+  if(line.has_value() || fill.has_value())
   {
     std::string xml_data = xml_start_tag("c:upBars");
     xml_data += write_sp_pr(line, fill, std::nullopt);
@@ -3329,7 +3319,7 @@ std::string chart_t::write_up_bars(const std::optional<chart_line_t>& line, cons
 
 std::string chart_t::write_down_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill)
 {
-  if(line || fill)
+  if(line.has_value() || fill.has_value())
   {
     std::string xml_data = xml_start_tag("c:downBars");
     xml_data += write_sp_pr(line, fill, std::nullopt);
@@ -3674,7 +3664,7 @@ std::string chart_t::write_points(const chart_t& chart, const chart_series_t& se
 {
   std::string xml_data;
 
-  for(uint16_t index = 0; const auto& point: series.points_)
+  for(uint16_t index{0}; const auto& point: series.points_)
   {
     // Ignore empty points.
     if(point.line_ || point.fill_ || point.pattern_)
@@ -3849,7 +3839,7 @@ std::string chart_t::write_cat_val_axis(chart_t& chart)
 
 std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
 {
-  const uint16_t index = chart.series_index_++;
+  const auto index = chart.series_index_++;
 
   std::string xml_data = xml_start_tag("c:ser");
   xml_data += write_idx(index);
@@ -3871,7 +3861,7 @@ std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
 
 std::string chart_t::write_x_val(const chart_series_t& series)
 {
-  const bool has_string_cache = series.categories_.has_string_cache_;
+  const bool has_string_cache{series.categories_.has_string_cache_};
 
   std::string xml_data = xml_start_tag("c:xVal");
   xml_data += write_data_cache(series.categories_, has_string_cache);
@@ -4074,8 +4064,8 @@ std::string chart_t::write_layout_dimension(const std::string& dimension, double
 
 void chart_t::add_axis_ids(chart_t& chart)
 {
-  const uint32_t chart_id   = 50010000 + chart.id_;
-  const uint32_t axis_count = 1;
+  const uint32_t chart_id{50010000 + chart.id_};
+  const uint32_t axis_count{1};
 
   chart.axis_id_1_ = chart_id + axis_count;
   chart.axis_id_2_ = chart.axis_id_1_ + 1;
@@ -4537,7 +4527,7 @@ void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_la
 
 void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
 {
-  if(!font)
+  if(!font.has_value())
   {
     return;
   }
@@ -4546,7 +4536,7 @@ void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font
 
 void chart_axis_set_num_font(chart_axis_t& axis, const std::optional<chart_font_t>& font)
 {
-  if(!font)
+  if(!font.has_value())
   {
     return;
   }
@@ -4560,7 +4550,7 @@ void chart_axis_set_num_format(chart_axis_t& axis, std::string_view num_format)
 
 void chart_axis_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line)
 {
-  if(!line)
+  if(!line.has_value())
   {
     return;
   }
@@ -4725,7 +4715,7 @@ void chart_add_data_cache(series_range_t& range, const uint8_t* data, uint16_t r
   range.num_data_points_ = rows;
 
   // Initialize the series range data cache.
-  for(size_t i = 0; i < rows; i++)
+  for(size_t i{0}; i < rows; i++)
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const series_data_point_t data_point{.number_ = static_cast<double>(data[(i * cols) + col])};

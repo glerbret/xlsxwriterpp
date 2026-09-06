@@ -17,12 +17,12 @@ int main()
   worksheet.write_string(CELL("A10"), "Bar");
   worksheet.write_string(CELL("A20"), "Baz");
 
-  for(xwpp::row_num_t row_num = 1; row_num <= 8; row_num++)
+  for(xwpp::row_num_t row_num{1}; row_num <= 8; row_num++)
   {
     worksheet.set_row(row_num, 24);
   }
 
-  for(xwpp::row_num_t row_num = 10; row_num <= 19; row_num++)
+  for(xwpp::row_num_t row_num{10}; row_num <= 19; row_num++)
   {
     worksheet.set_row(row_num, 24);
   }

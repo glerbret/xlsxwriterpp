@@ -29,9 +29,9 @@ private:
   [[nodiscard]] std::string write_value_future_metadata() const;
   [[nodiscard]] std::string write_value_metadata() const;
 
-  bool has_dynamic_functions_   = false;
-  bool has_embedded_images_     = false;
-  uint32_t num_embedded_images_ = 0;
+  bool has_dynamic_functions_{false};
+  bool has_embedded_images_{false};
+  uint32_t num_embedded_images_{0};
 };
 
 }

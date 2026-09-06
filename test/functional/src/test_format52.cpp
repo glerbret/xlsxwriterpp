@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const double value = 123.456;
+  const double value{123.456};
 
   worksheet.set_column(0, 0, 12);
 

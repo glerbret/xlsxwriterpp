@@ -97,10 +97,10 @@ namespace xwpp
  * Get the library version as a "X.Y.Z" version string
  *
  * @code
- *  std::cout << std::format("Xlsxwriter++ version = {}\n", xwpp::version());
+ *  std::cout << std::format("Xlsxwriter++ version: {}\n", xwpp::version());
  * @endcode
  */
-std::string version();
+[[nodiscard]] std::string version();
 
 // Create a quoted version of the worksheet name
 [[nodiscard]] std::string quote_sheetname(std::string_view sheetname);
@@ -112,15 +112,15 @@ std::string version();
                                           col_num_t last_col);
 [[nodiscard]] std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                               col_num_t last_col);
-std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
-                                  row_num_t last_row, col_num_t last_col);
+[[nodiscard]] std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
+                                                row_num_t last_row, col_num_t last_col);
 
-uint32_t name_to_row(std::string_view row_str);
-uint32_t name_to_row_2(std::string_view row_str);
-uint16_t name_to_col(std::string_view col_str);
-uint16_t name_to_col_2(std::string_view col_str);
+[[nodiscard]] uint32_t name_to_row(std::string_view row_str);
+[[nodiscard]] uint32_t name_to_row_2(std::string_view row_str);
+[[nodiscard]] uint16_t name_to_col(std::string_view col_str);
+[[nodiscard]] uint16_t name_to_col_2(std::string_view col_str);
 
-std::string dup_formula(const std::string& formula);
+[[nodiscard]] std::string dup_formula(const std::string& formula);
 
 // Conversion functions.
 [[nodiscard]] double pixels_to_height(double pixels);
@@ -155,9 +155,10 @@ std::string dup_formula(const std::string& formula);
  * @todo Add Other overloads (tm).
  * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
-double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
+[[nodiscard]] double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
 /// @overload
-double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch);
+[[nodiscard]] double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime,
+                                                       bool use_1904_epoch);
 
 /**
  * @brief Converts a `%system_clock::time_point` to an Excel datetime number.
@@ -182,9 +183,9 @@ double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_p
  * @todo Add Other overloads (tm).
  * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
-double datetime_to_excel_datetime(const datetime_t& datetime);
+[[nodiscard]] double datetime_to_excel_datetime(const datetime_t& datetime);
 /// @overload
-double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime);
+[[nodiscard]] double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime);
 
 /**
  * @brief Validate a `datetime_t` struct.

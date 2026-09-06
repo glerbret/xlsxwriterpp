@@ -29,13 +29,13 @@ int main()
 
   // Set the height of empty rows that we want to display even if it is
   // the default height.
-  for(xwpp::row_num_t row_num = 1; row_num <= 6; row_num++)
+  for(xwpp::row_num_t row_num{1}; row_num <= 6; row_num++)
   {
     worksheet.set_row(row_num, 15);
   }
 
   // Columns can be hidden explicitly. This doesn't increase the file size.
-  xwpp::row_col_options_t options = {.hidden_ = true};
+  xwpp::row_col_options_t options{.hidden_ = true};
   worksheet.set_column(COLS("G:XFD"), 8.43, nullptr, options);
 
   workbook.save("hide_row_col.xlsx");

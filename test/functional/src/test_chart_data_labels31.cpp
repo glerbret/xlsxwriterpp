@@ -22,9 +22,9 @@ int main()
     {{1, 2, 3, 10}, {2, 4, 6, 20}, {3, 6, 9, 30}, {4, 8, 12, 40}, {5, 10, 15, 50}}
   };
 
-  for(xwpp::row_num_t row_num = 0; const auto& row: data)
+  for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
-    for(xwpp::col_num_t col_num = 0; const auto value: row)
+    for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
       worksheet.write_number(row_num, col_num, value);
       col_num++;

@@ -33,7 +33,7 @@ int main()
     worksheet.set_footer("&L&G", {});
 
     // Test too many images/not enough placeholders.
-    xwpp::header_footer_options_t options3 = {.image_left_ = "images/red.jpg", .image_right_ = "images/red.jpg"};
+    xwpp::header_footer_options_t options3{.image_left_ = "images/red.jpg", .image_right_ = "images/red.jpg"};
     worksheet.set_header("&L&G", options3);
     worksheet.set_footer("&L&G", options3);
   */

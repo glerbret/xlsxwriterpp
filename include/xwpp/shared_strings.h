@@ -20,9 +20,9 @@ namespace xwpp
 
 struct shared_strings_element_t
 {
-  uint32_t index_ = 0;
+  uint32_t index_{0};
   std::string string_;
-  bool is_rich_string_ = false;
+  bool is_rich_string_{false};
 };
 
 class shared_strings_t
@@ -36,8 +36,8 @@ private:
   [[nodiscard]] std::string write_sst() const;
   [[nodiscard]] std::string write_sst_strings() const;
 
-  uint32_t string_count_ = 0;
-  uint32_t unique_count_ = 0;
+  uint32_t string_count_{0};
+  uint32_t unique_count_{0};
 
   std::vector<shared_strings_element_t> order_list_;
   std::map<std::string, size_t, std::less<>> rb_tree_;

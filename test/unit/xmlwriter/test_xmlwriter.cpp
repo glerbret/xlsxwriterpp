@@ -18,14 +18,14 @@ BOOST_AUTO_TEST_SUITE(xmlwriter)
 
 BOOST_AUTO_TEST_CASE(xml_declaration)
 {
-  const std::string expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+  const std::string expected{"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_declaration());
 }
 
 BOOST_AUTO_TEST_CASE(xml_start_tag)
 {
-  const std::string expected = "<foo>";
+  const std::string expected{"<foo>"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"));
   BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s));
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(xml_start_tag)
 
 BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes)
 {
-  const std::string expected = R"(<foo span="8" baz="7">)";
+  const std::string expected{R"(<foo span="8" baz="7">)"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, {
                                                             {"span", "8"},
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes)
 
 BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes_to_escape)
 {
-  const std::string expected = R"(<foo span="&amp;&lt;&gt;&quot;">)";
+  const std::string expected{R"(<foo span="&amp;&lt;&gt;&quot;">)"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, {
                                                             {"span", "&<>\""},
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes_to_escape)
 
 BOOST_AUTO_TEST_CASE(xml_end_tag)
 {
-  const std::string expected = "</foo>";
+  const std::string expected{"</foo>"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_end_tag("foo"));
   BOOST_CHECK_EQUAL(expected, xwpp::xml_end_tag("foo"s));
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(xml_end_tag)
 
 BOOST_AUTO_TEST_CASE(xml_empty_tag)
 {
-  const std::string expected = "<foo/>";
+  const std::string expected{"<foo/>"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"));
   BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s));
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(xml_empty_tag)
 
 BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes)
 {
-  const std::string expected = R"(<foo span="8" baz="7"/>)";
+  const std::string expected{R"(<foo span="8" baz="7"/>)"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s, {
                                                             {"span", "8"},
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes)
 
 BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes_to_escape)
 {
-  const std::string expected = R"(<foo span="&amp;&lt;&gt;&quot;"/>)";
+  const std::string expected{R"(<foo span="&amp;&lt;&gt;&quot;"/>)"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s, {
                                                             {"span", "&<>\""},
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes_to_escape)
 
 BOOST_AUTO_TEST_CASE(xml_data_element)
 {
-  const std::string expected = "<foo>bar</foo>";
+  const std::string expected{"<foo>bar</foo>"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo", "bar"));
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "bar"s));
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(xml_data_element)
 
 BOOST_AUTO_TEST_CASE(xml_data_element_no_data)
 {
-  const std::string expected = "<foo/>";
+  const std::string expected{"<foo/>"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"));
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s));
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(xml_data_element_no_data)
 
 BOOST_AUTO_TEST_CASE(xml_data_element_with_attributes)
 {
-  const std::string expected = R"(<foo span="8">bar</foo>)";
+  const std::string expected{R"(<foo span="8">bar</foo>)"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "bar"s,
                                                      {
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(xml_data_element_with_attributes)
 
 BOOST_AUTO_TEST_CASE(xml_data_element_with_escapes)
 {
-  const std::string expected = R"(<foo span="8">&amp;&lt;&gt;"</foo>)";
+  const std::string expected{R"(<foo span="8">&amp;&lt;&gt;"</foo>)"};
 
   BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "&<>\""s,
                                                      {

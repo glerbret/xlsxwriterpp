@@ -53,7 +53,7 @@ private:
   std::vector<heading_pair_t> heading_pairs_;
   std::vector<part_name_t> part_names_;
   doc_properties_t properties_;
-  uint8_t doc_security_ = 0;
+  uint8_t doc_security_{0};
 };
 
 }

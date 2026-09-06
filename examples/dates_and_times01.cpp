@@ -13,7 +13,7 @@
 int main()
 {
   // A number to display as a date.
-  const double number = 41333.5;
+  const double number{41333.5};
 
   // Create a new workbook and add a worksheet.
   xwpp::workbook_t workbook;

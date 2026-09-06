@@ -91,7 +91,6 @@ void workbook_t::save(std::string_view filename)
   // Ensure that at least one worksheet has been selected.
   if(active_sheet_ == 0)
   {
-    // TODO sheets_
     auto* sheet = sheets_.front();
     if(!sheet->is_chartsheet())
     {
@@ -528,9 +527,7 @@ void workbook_t::define_name(const std::string& name, const std::string& formula
 
 void workbook_t::set_default_xf_indices()
 {
-  int32_t index = 0;
-
-  for(auto& format: formats_)
+  for(int32_t index{0}; auto& format: formats_)
   {
     // Skip the hyperlink format.
     if(index != 1)
@@ -786,12 +783,12 @@ void workbook_t::prepare_borders()
 
 void workbook_t::prepare_vml()
 {
-  uint32_t comment_id     = 0;
-  uint32_t vml_drawing_id = 0;
-  uint32_t vml_data_id    = 1;
-  uint32_t vml_header_id  = 0;
-  uint32_t vml_shape_id   = 1024;
-  uint32_t comment_count  = 0;
+  uint32_t comment_id{0};
+  uint32_t vml_drawing_id{0};
+  uint32_t vml_data_id{1};
+  uint32_t vml_header_id{0};
+  uint32_t vml_shape_id{1024};
+  uint32_t comment_count{0};
 
   for(auto& worksheet: worksheets_)
   {
@@ -1063,9 +1060,9 @@ void workbook_t::store_image_type(image_types_t image_type)
 
 void workbook_t::prepare_drawings()
 {
-  uint32_t chart_ref_id = 0;
-  uint32_t image_ref_id = 0;
-  uint32_t drawing_id   = 0;
+  uint32_t chart_ref_id{0};
+  uint32_t image_ref_id{0};
+  uint32_t drawing_id{0};
 
   for(auto* sheet: sheets_)
   {
@@ -1091,7 +1088,7 @@ void workbook_t::prepare_drawings()
         }
 
         // Check for duplicate images and only store the first instance.
-        uint32_t ref_id = 0;
+        uint32_t ref_id{0};
         if(const auto it = embedded_image_md5_.find(object_props.md5_); it != std::end(embedded_image_md5_))
         {
           ref_id                     = it->second;
@@ -1115,7 +1112,7 @@ void workbook_t::prepare_drawings()
       auto object_props = sheet->get_background_image();
       store_image_type(object_props.image_type_);
 
-      uint32_t ref_id = 0;
+      uint32_t ref_id{0};
       if(const auto it = background_md5_.find(object_props.md5_); it != std::end(background_md5_))
       {
         ref_id                     = it->second;
@@ -1143,7 +1140,7 @@ void workbook_t::prepare_drawings()
       store_image_type(object_props.image_type_);
 
       // Check for duplicate images and only store the first instance.
-      uint32_t ref_id = 0;
+      uint32_t ref_id{0};
       if(const auto it = image_md5_.find(object_props.md5_); it != std::end(image_md5_))
       {
         ref_id                     = it->second;
@@ -1178,7 +1175,7 @@ void workbook_t::prepare_drawings()
         store_image_type(object_props->image_type_);
 
         // Check for duplicate images and only store the first instance.
-        uint32_t ref_id = 0;
+        uint32_t ref_id{0};
         if(const auto it = header_image_md5_.find(object_props->md5_); it != std::end(header_image_md5_))
         {
           ref_id                      = it->second;
@@ -1298,7 +1295,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
  */
 void workbook_t::populate_range_data_cache(series_range_t& range) const
 {
-  uint16_t num_data_points = 0;
+  uint16_t num_data_points{0};
 
   // If ignore_cache is set then don't try to populate the cache. This flag
   // may be set manually, for testing, or due to a case where the cache can't be calculated.
@@ -1389,9 +1386,7 @@ void workbook_t::add_chart_cache_data() const
 
 void workbook_t::prepare_tables()
 {
-  uint32_t table_id = 0;
-
-  for(auto& worksheet: worksheets_)
+  for(uint32_t table_id{0}; auto& worksheet: worksheets_)
   {
     if(!worksheet.table_objs_.empty())
     {

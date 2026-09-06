@@ -356,7 +356,7 @@ vml_t::vml_t(std::string vml_data_id_str, const std::vector<vml_obj_t>& comment_
 
 std::string vml_t::assemble_xml_file()
 {
-  uint32_t z_index = 1;
+  uint32_t z_index{1};
 
   std::string xml_data = write_xml_namespace();
   xml_data += write_shapelayout();
@@ -422,10 +422,10 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
     vml_obj.visible_ = comment_display_default_;
   }
 
-  const std::string visible   = vml_obj.visible_ == comment_display_t::VISIBLE ? "visible" : "hidden";
-  const std::string fillcolor = vml_obj.color_ != color_t::UNSET
-                                  ? std::format("#{:06x}", static_cast<uint32_t>(vml_obj.color_) & COLOR_MASK)
-                                  : "#ffffe1";
+  const std::string visible{vml_obj.visible_ == comment_display_t::VISIBLE ? "visible" : "hidden"};
+  const std::string fillcolor{vml_obj.color_ != color_t::UNSET
+                                ? std::format("#{:06x}", static_cast<uint32_t>(vml_obj.color_) & COLOR_MASK)
+                                : "#ffffe1"};
 
   std::string xml_data =
     xml_start_tag("v:shape", {
@@ -476,8 +476,8 @@ std::string vml_t::write_comment_client_data(const vml_obj_t& vml_obj)
 std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& image_obj)
 {
   // Scale the height/width by the resolution, relative to 72dpi.
-  double width  = image_obj.width_ * (72.0 / image_obj.x_dpi_);
-  double height = image_obj.height_ * (72.0 / image_obj.y_dpi_);
+  double width{image_obj.width_ * (72.0 / image_obj.x_dpi_)};
+  double height{image_obj.height_ * (72.0 / image_obj.y_dpi_)};
 
   // Excel uses a rounding based around 72 and 96 dpi.
   width  = 72.0 / 96.0 * static_cast<uint32_t>((width * 96.0 / 72) + 0.25);

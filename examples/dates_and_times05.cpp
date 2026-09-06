@@ -16,7 +16,7 @@ using namespace std::literals::chrono_literals;
 int main()
 {
   // A datetime to display.
-  const xwpp::datetime_t datetime = {.year_ = 2013, .month_ = 1, .day_ = 23, .hour_ = 12, .min_ = 30, .sec_ = 5.123};
+  const xwpp::datetime_t datetime{.year_ = 2013, .month_ = 1, .day_ = 23, .hour_ = 12, .min_ = 30, .sec_ = 5.123};
 
   // Examples date and time formats. In the output file compare how changing
   // the format strings changes the appearance of the date.
@@ -53,7 +53,7 @@ int main()
   worksheet.set_column(0, 1, 22);
 
   // Write the same date and time using each of the above formats.
-  for(xwpp::row_num_t row_num = 1; const auto& date_format: date_formats)
+  for(xwpp::row_num_t row_num{1}; const auto& date_format: date_formats)
   {
     // Create a format for the date or time.
     xwpp::format_t* format = workbook.add_format();

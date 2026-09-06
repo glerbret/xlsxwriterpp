@@ -21,9 +21,9 @@ int main()
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  for(xwpp::row_num_t row_num = 0; const auto& row: data)
+  for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
-    for(xwpp::col_num_t col_num = 0; const auto value: row)
+    for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
       worksheet.write_number(row_num, col_num, value);
       col_num++;
@@ -35,7 +35,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t line = {.color_ = xwpp::color_t::RED, .dash_type_ = xwpp::chart_line_dash_type_t::ROUND_DOT};
+  const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED, .dash_type_ = xwpp::chart_line_dash_type_t::ROUND_DOT};
 
   chart.series_set_error_bars(series1.y_error_bars_, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 

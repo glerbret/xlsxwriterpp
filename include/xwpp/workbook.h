@@ -57,8 +57,8 @@ namespace xwpp
 
 struct defined_name_t
 {
-  size_t index_ = 0;
-  bool hidden_  = false;
+  size_t index_{0};
+  bool hidden_{false};
   std::string name_;
   std::string app_name_;
   std::string formula_;
@@ -614,7 +614,7 @@ public:
    *
    * @todo Add builder API to create format.
    */
-  format_t* add_format();
+  [[nodiscard]] format_t* add_format();
 
   /**
    * @brief Get the default URL format used with `worksheet_t::write_url()`.
@@ -883,7 +883,7 @@ private:
   [[nodiscard]] static std::string write_defined_name(const defined_name_t& defined_name);
   [[nodiscard]] std::string write_defined_names() const;
 
-  static const size_t XWPP_SHEETNAME_MAX = 31;
+  static const size_t XWPP_SHEETNAME_MAX{31};
 
   // Use list to not invalidate referenced owned by caller in case of insertion of new items.
   std::list<worksheet_t> worksheets_;
@@ -904,29 +904,29 @@ private:
   shared_strings_t sst_;
   doc_properties_t properties_;
   std::vector<custom_property_t> custom_properties_;
-  size_t first_sheet_                   = 0;
-  size_t active_sheet_                  = 0;
-  uint16_t num_format_count_            = 0;
-  uint16_t drawing_count_               = 0;
-  uint16_t comment_count_               = 0;
-  uint32_t num_embedded_images_         = 0;
-  uint16_t window_width_                = 16095;
-  uint16_t window_height_               = 9660;
-  uint16_t font_count_                  = 0;
-  uint16_t border_count_                = 0;
-  uint16_t fill_count_                  = 0;
-  uint16_t max_url_length_              = 2079;
-  uint8_t read_only_                    = 0;
-  bool has_png_                         = false;
-  bool has_jpeg_                        = false;
-  bool has_bmp_                         = false;
-  bool has_gif_                         = false;
-  bool has_vml_                         = false;
-  bool has_comments_                    = false;
-  bool has_metadata_                    = false;
-  bool has_embedded_images_             = false;
-  bool has_dynamic_functions_           = false;
-  bool has_embedded_image_descriptions_ = false;
+  size_t first_sheet_{0};
+  size_t active_sheet_{0};
+  uint16_t num_format_count_{0};
+  uint16_t drawing_count_{0};
+  uint16_t comment_count_{0};
+  uint32_t num_embedded_images_{0};
+  uint16_t window_width_{16095};
+  uint16_t window_height_{9660};
+  uint16_t font_count_{0};
+  uint16_t border_count_{0};
+  uint16_t fill_count_{0};
+  uint16_t max_url_length_{2079};
+  uint8_t read_only_{0};
+  bool has_png_{false};
+  bool has_jpeg_{false};
+  bool has_bmp_{false};
+  bool has_gif_{false};
+  bool has_vml_{false};
+  bool has_comments_{false};
+  bool has_metadata_{false};
+  bool has_embedded_images_{false};
+  bool has_dynamic_functions_{false};
+  bool has_embedded_image_descriptions_{false};
   // TODO Combine with unordered_set to optimize search and assure uniqueness.
   // TODO And encapsule this combination and related functions in a dedicated types.
   std::vector<format_t*> used_xf_formats_;
@@ -934,9 +934,9 @@ private:
   std::string vba_project_;
   std::string vba_project_signature_;
   std::string vba_codename_;
-  bool use_1904_epoch_ = false;
+  bool use_1904_epoch_{false};
   format_t* default_url_format_;
-  bool use_zip64_ = false;
+  bool use_zip64_{false};
 };
 
 /// @cond

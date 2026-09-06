@@ -42,10 +42,10 @@ namespace xwpp
 /// @endcond
 
 /** Default Excel column width in character units. */
-const double DEF_COL_WIDTH = 8.43;
+const double DEF_COL_WIDTH{8.43};
 
 /** Default Excel row height in character units. */
-const double DEF_ROW_HEIGHT = 15.0;
+const double DEF_ROW_HEIGHT{15.0};
 
 /**
  * @brief Options for headers and footers.
@@ -62,7 +62,7 @@ struct header_footer_options_t
    *
    * @see `worksheet_t::set_header()`.
    */
-  double margin_ = 0.;
+  double margin_{0.};
 
   /**
    * The left header image filename, with path if required. This should
@@ -153,72 +153,72 @@ struct protection_t
   /**
    * Turn off selection of locked cells. This in on in Excel by default.
    */
-  bool no_select_locked_cells_ = false;
+  bool no_select_locked_cells_{false};
 
   /**
    * Turn off selection of unlocked cells. This in on in Excel by default.
    */
-  bool no_select_unlocked_cells_ = false;
+  bool no_select_unlocked_cells_{false};
 
   /**
    * Prevent formatting of cells.
    */
-  bool format_cells_ = false;
+  bool format_cells_{false};
 
   /**
    * Prevent formatting of columns.
    */
-  bool format_columns_ = false;
+  bool format_columns_{false};
 
   /**
    * Prevent formatting of rows.
    */
-  bool format_rows_ = false;
+  bool format_rows_{false};
 
   /**
    * Prevent insertion of columns.
    */
-  bool insert_columns_ = false;
+  bool insert_columns_{false};
 
   /**
    * Prevent insertion of rows.
    */
-  bool insert_rows_ = false;
+  bool insert_rows_{false};
 
   /**
    * Prevent insertion of hyperlinks.
    */
-  bool insert_hyperlinks_ = false;
+  bool insert_hyperlinks_{false};
 
   /**
    * Prevent deletion of columns.
    */
-  bool delete_columns_ = false;
+  bool delete_columns_{false};
 
   /**
    * Prevent deletion of rows.
    */
-  bool delete_rows_ = false;
+  bool delete_rows_{false};
 
   /**
    * Prevent sorting data.
    */
-  bool sort_ = false;
+  bool sort_{false};
 
   /**
    * Prevent filtering data.
    */
-  bool autofilter_ = false;
+  bool autofilter_{false};
 
   /**
    * Prevent insertion of pivot tables.
    */
-  bool pivot_tables_ = false;
+  bool pivot_tables_{false};
 
   /**
    * Protect scenarios.
    */
-  bool scenarios_ = false;
+  bool scenarios_{false};
 
   /**
    * Protect drawing objects. Worksheets only.
@@ -226,22 +226,22 @@ struct protection_t
    * @todo Not clear, why there is two options `%objects_` and `%no_objects_`.
    * @todo And `%objects_` seems to be wrong name as XML object option is set to 1 iff objects_ is false.
    */
-  bool objects_ = false;
+  bool objects_{false};
 
   /**
    * Turn off chartsheet content protection.
    */
-  bool no_content_ = false;
+  bool no_content_{false};
 
   /**
    * Turn off chartsheet objects.
    */
-  bool no_objects_ = false;
+  bool no_objects_{false};
 };
 
 enum class image_position_t
 {
-  HEADER_LEFT = 0,
+  HEADER_LEFT,
   HEADER_CENTER,
   HEADER_RIGHT,
   FOOTER_LEFT,
@@ -252,40 +252,40 @@ enum class image_position_t
 // Worksheet initialization data.
 struct sheet_init_data_t
 {
-  size_t index_          = 0;
-  bool hidden_           = false;
-  size_t* active_sheet_  = nullptr;
-  size_t* first_sheet_   = nullptr;
-  shared_strings_t* sst_ = nullptr;
+  size_t index_{0};
+  bool hidden_{false};
+  size_t* active_sheet_{nullptr};
+  size_t* first_sheet_{nullptr};
+  shared_strings_t* sst_{nullptr};
   std::string name_;
   std::string quoted_name_;
-  format_t* default_url_format_ = nullptr;
-  uint16_t max_url_length_      = 2079;
-  bool use_1904_epoch_          = false;
+  format_t* default_url_format_{nullptr};
+  uint16_t max_url_length_{2079};
+  bool use_1904_epoch_{false};
 };
 
 // Internal struct to copy protection options and internal metadata.
 struct protection_obj_t
 {
-  bool no_select_locked_cells_   = false;
-  bool no_select_unlocked_cells_ = false;
-  bool format_cells_             = false;
-  bool format_columns_           = false;
-  bool format_rows_              = false;
-  bool insert_columns_           = false;
-  bool insert_rows_              = false;
-  bool insert_hyperlinks_        = false;
-  bool delete_columns_           = false;
-  bool delete_rows_              = false;
-  bool sort_                     = false;
-  bool autofilter_               = false;
-  bool pivot_tables_             = false;
-  bool scenarios_                = false;
-  bool objects_                  = false;
-  bool no_content_               = false;
-  bool no_objects_               = false;
-  bool no_sheet_                 = false;
-  bool is_configured_            = false;
+  bool no_select_locked_cells_{false};
+  bool no_select_unlocked_cells_{false};
+  bool format_cells_{false};
+  bool format_columns_{false};
+  bool format_rows_{false};
+  bool insert_columns_{false};
+  bool insert_rows_{false};
+  bool insert_hyperlinks_{false};
+  bool delete_columns_{false};
+  bool delete_rows_{false};
+  bool sort_{false};
+  bool autofilter_{false};
+  bool pivot_tables_{false};
+  bool scenarios_{false};
+  bool objects_{false};
+  bool no_content_{false};
+  bool no_objects_{false};
+  bool no_sheet_{false};
+  bool is_configured_{false};
   std::string hash_;
 };
 
@@ -293,54 +293,54 @@ struct protection_obj_t
 // values as well as internal metadata.
 struct object_properties_t
 {
-  int32_t x_offset_  = 0;
-  int32_t y_offset_  = 0;
-  double x_scale_    = 1.;
-  double y_scale_    = 1.;
-  row_num_t row_num_ = 0;
-  col_num_t col_num_ = 0;
+  int32_t x_offset_{0};
+  int32_t y_offset_{0};
+  double x_scale_{1.};
+  double y_scale_{1.};
+  row_num_t row_num_{0};
+  col_num_t col_num_{0};
   std::string filename_;
   std::string description_;
   std::string url_;
   std::string tip_;
-  object_position_t object_position_ = object_position_t::DEFAULT;
-  image_types_t image_type_          = image_types_t::UNKNOWN;
+  object_position_t object_position_{object_position_t::DEFAULT};
+  image_types_t image_type_{image_types_t::UNKNOWN};
   std::vector<unsigned char> image_buffer_;
-  double width_  = 0.;
-  double height_ = 0.;
+  double width_{0.};
+  double height_{0.};
   std::string extension_;
-  double x_dpi_       = 0.;
-  double y_dpi_       = 0.;
-  chart_t* chart_     = nullptr;
-  bool is_duplicate_  = false;
-  bool is_background_ = false;
+  double x_dpi_{0.};
+  double y_dpi_{0.};
+  chart_t* chart_{nullptr};
+  bool is_duplicate_{false};
+  bool is_background_{false};
   std::string md5_;
   std::string image_position_;
-  bool decorative_  = false;
-  format_t* format_ = nullptr;
+  bool decorative_{false};
+  format_t* format_{nullptr};
 };
 
 // Internal structure for VML object options.
 struct vml_obj_t
 {
-  row_num_t row_num_         = 0;
-  col_num_t col_num_         = 0;
-  row_num_t start_row_       = 0;
-  col_num_t start_col_       = 0;
-  int32_t x_offset_          = 0;
-  int32_t y_offset_          = 0;
-  uint64_t col_absolute_     = 0;
-  uint64_t row_absolute_     = 0;
-  uint32_t width_            = 0;
-  uint32_t height_           = 0;
-  double x_dpi_              = 0.;
-  double y_dpi_              = 0.;
-  color_t color_             = color_t::UNSET;
-  uint8_t font_family_       = 0;
-  comment_display_t visible_ = comment_display_t::DEFAULT;
-  uint32_t author_id_        = 0;
-  uint32_t rel_index_        = 0;
-  double font_size_          = 0.;
+  row_num_t row_num_{0};
+  col_num_t col_num_{0};
+  row_num_t start_row_{0};
+  col_num_t start_col_{0};
+  int32_t x_offset_{0};
+  int32_t y_offset_{0};
+  uint64_t col_absolute_{0};
+  uint64_t row_absolute_{0};
+  uint32_t width_{0};
+  uint32_t height_{0};
+  double x_dpi_{0.};
+  double y_dpi_{0.};
+  color_t color_{color_t::UNSET};
+  uint8_t font_family_{0};
+  comment_display_t visible_{comment_display_t::DEFAULT};
+  uint32_t author_id_{0};
+  uint32_t rel_index_{0};
+  double font_size_{0.};
   drawing_coords_t from_;
   drawing_coords_t to_;
   std::string author_;
@@ -649,7 +649,7 @@ public:
    *   the `&R` section of the header/footer string.
    *
    * @code
-   *  xwpp::header_footer_options_t header_options = { .margin_ = 0.2 };
+   *  xwpp::header_footer_options_t header_options{ .margin_ = 0.2 };
    *
    *  worksheet.set_header("Some text", header_options);
    * @endcode
@@ -658,7 +658,7 @@ public:
    * placeholder and a filename/path to the image:
    *
    * @code
-   *  xwpp::header_footer_options_t header_options = {.image_left_ = "logo.png"};
+   *  xwpp::header_footer_options_t header_options{.image_left_ = "logo.png"};
    *
    *  worksheet1set_header("&L&G", header_options);
    * @endcode
@@ -912,51 +912,51 @@ private:
   // Properties of sheet
   std::string name_;
   std::string quoted_name_;
-  color_t tab_color_  = color_t::UNSET;
-  size_t index_       = 0;
-  bool is_chartsheet_ = false;
-  bool hidden_        = false;
-  bool selected_      = false;
+  color_t tab_color_{color_t::UNSET};
+  size_t index_{0};
+  bool is_chartsheet_{false};
+  bool hidden_{false};
+  bool selected_{false};
 
   // Content
-  uint16_t rel_count_ = 0;
+  uint16_t rel_count_{0};
   std::vector<object_properties_t> chart_data_;
 
   // Zoom properties
-  uint16_t zoom_ = 100;
+  uint16_t zoom_{100};
 
   // Print options
-  uint16_t horizontal_dpi_           = 0;
-  uint16_t vertical_dpi_             = 0;
-  drawing_orientation_t orientation_ = drawing_orientation_t::PORTRAIT;
+  uint16_t horizontal_dpi_{0};
+  uint16_t vertical_dpi_{0};
+  drawing_orientation_t orientation_{drawing_orientation_t::PORTRAIT};
 
   // Header footer
-  bool header_footer_changed_ = false;
-  bool has_header_vml_        = false;
+  bool header_footer_changed_{false};
+  bool has_header_vml_{false};
   std::string header_;
   std::string footer_;
   std::vector<vml_obj_t> header_image_objs_;
-  std::array<std::optional<object_properties_t>, 6> header_footer_objs_ = {std::nullopt, std::nullopt, std::nullopt,
-                                                                           std::nullopt, std::nullopt, std::nullopt};
+  std::array<std::optional<object_properties_t>, 6> header_footer_objs_{std::nullopt, std::nullopt, std::nullopt,
+                                                                        std::nullopt, std::nullopt, std::nullopt};
 
   // Page setup
-  bool page_setup_changed_ = false;
-  uint8_t paper_size_      = 0;
-  double margin_left_      = 0.7;
-  double margin_right_     = 0.7;
-  double margin_top_       = 0.75;
-  double margin_bottom_    = 0.75;
-  double margin_header_    = 0.3;
-  double margin_footer_    = 0.3;
+  bool page_setup_changed_{false};
+  uint8_t paper_size_{0};
+  double margin_left_{0.7};
+  double margin_right_{0.7};
+  double margin_top_{0.75};
+  double margin_bottom_{0.75};
+  double margin_header_{0.3};
+  double margin_footer_{0.3};
   protection_obj_t protection_;
 
   // Image
   std::vector<object_properties_t> image_props_;
   std::optional<drawing_t> drawing_;
   std::map<std::string, uint32_t, std::less<>> vml_drawing_rel_ids_;
-  uint32_t vml_drawing_rel_id_ = 0;
+  uint32_t vml_drawing_rel_id_{0};
   std::map<std::string, uint32_t, std::less<>> drawing_rel_ids_;
-  uint32_t drawing_rel_id_ = 0;
+  uint32_t drawing_rel_id_{0};
 
   // Links
   std::vector<std::tuple<std::string, std::string, std::string>> external_drawing_links_;
@@ -964,8 +964,8 @@ private:
   std::vector<std::tuple<std::string, std::string, std::string>> vml_drawing_links_;
 
   // Access to workbook sheets properties
-  size_t* active_sheet_ = nullptr;
-  size_t* first_sheet_  = nullptr;
+  size_t* active_sheet_{nullptr};
+  size_t* first_sheet_{nullptr};
 };
 
 /// @cond

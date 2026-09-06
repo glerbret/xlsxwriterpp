@@ -81,7 +81,7 @@ shared_strings_element_t shared_strings_t::get_index(const std::string& str, boo
     .is_rich_string_ = is_rich_string,
   };
 
-  const size_t id = order_list_.size();
+  const size_t id{order_list_.size()};
   order_list_.push_back(elt);
   rb_tree_[str] = id;
   string_count_++;

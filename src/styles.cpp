@@ -478,7 +478,7 @@ std::string style_t::write_rich_font(const format_t* format)
 
 std::string style_t::write_num_fmts() const
 {
-  uint16_t last_format_index = 0;
+  uint16_t last_format_index{0};
   if(num_format_count_ == 0)
   {
     return "";
@@ -639,7 +639,7 @@ std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_ric
 
 std::string style_t::write_fonts()
 {
-  uint32_t count = font_count_;
+  uint32_t count{font_count_};
   if(has_comments_)
   {
     count++;
@@ -710,7 +710,7 @@ std::string style_t::write_border(const format_t* format, bool is_dxf)
   }
 
   // Ensure that a default diag border is set if the diag type is set.
-  format_borders_t diag_border = format->diag_border_;
+  format_borders_t diag_border{format->diag_border_};
   if(format->diag_type_ != format_diagonal_types_t::NONE && diag_border == format_borders_t::NONE)
   {
     diag_border = format_borders_t::THIN;
@@ -786,7 +786,7 @@ std::string style_t::write_cell_style_xfs() const
 
 std::string style_t::write_cell_xfs() const
 {
-  size_t count = xf_formats_.size();
+  size_t count{xf_formats_.size()};
   /* If the last format is "font_only" it is for the comment font and
    * shouldn't be counted. This is a workaround to get the last object
    * in the list since STAILQ_LAST() requires __containerof and isn't
@@ -856,10 +856,10 @@ bool style_t::has_alignment(const format_t* format)
 std::string style_t::write_alignment(const format_t* format)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
-  int16_t rotation                 = format->rotation_;
-  format_alignments_t text_h_align = format->text_h_align_;
-  bool shrink                      = format->shrink_;
-  bool just_distrib                = format->just_distrib_;
+  int16_t rotation{format->rotation_};
+  format_alignments_t text_h_align{format->text_h_align_};
+  bool shrink{format->shrink_};
+  bool just_distrib{format->just_distrib_};
 
   // Indent is only allowed for some alignment properties.
   // If it is defined for any other alignment or no alignment has been
@@ -1152,12 +1152,12 @@ std::string style_t::write_dxfs()
 std::string style_t::write_fill(const format_t* format, bool is_dxf)
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
-  const format_patterns_t pattern = format->pattern_;
-  color_t bg_color                = format->bg_color_;
-  color_t fg_color                = format->fg_color_;
+  const format_patterns_t pattern{format->pattern_};
+  color_t bg_color{format->bg_color_};
+  color_t fg_color{format->fg_color_};
 
   // TODO Add function of conversion
-  const std::vector<std::string> patterns = {
+  const std::vector<std::string> patterns{
     "none",     "solid",     "mediumGray",   "darkGray",    "lightGray",       "darkHorizontal", "darkVertical",
     "darkDown", "darkUp",    "darkGrid",     "darkTrellis", "lightHorizontal", "lightVertical",  "lightDown",
     "lightUp",  "lightGrid", "lightTrellis", "gray125",     "gray0625",
