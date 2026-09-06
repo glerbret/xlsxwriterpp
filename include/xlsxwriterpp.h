@@ -13,6 +13,7 @@
 #ifndef XLSXWRITERPP_H
 #define XLSXWRITERPP_H
 
+#include "xwpp/exception.h"
 #include "xwpp/format.h"
 #include "xwpp/utility.h"
 #include "xwpp/workbook.h"

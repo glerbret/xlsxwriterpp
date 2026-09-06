@@ -30,7 +30,8 @@ namespace
 {
   std::vector<std::tuple<std::string, std::string>> attributes;
   // Add attribute to preserve leading or trailing whitespace.
-  if(std::isspace(str.front()) != 0 || std::isspace(str.back()) != 0)
+  if(std::isspace(static_cast<unsigned char>(str.front())) != 0 ||
+     std::isspace(static_cast<unsigned char>(str.back())) != 0)
   {
     attributes.emplace_back("xml:space", "preserve");
   }
