@@ -463,7 +463,8 @@ std::string style_t::write_string_fragment(const std::string& str)
   std::vector<std::tuple<std::string, std::string>> attributes;
 
   // Add attribute to preserve leading or trailing whitespace.
-  if((std::isspace(str[0]) != 0) || (std::isspace(str.back()) != 0))
+  if((std::isspace(static_cast<unsigned char>(str[0])) != 0) ||
+     (std::isspace(static_cast<unsigned char>(str.back())) != 0))
   {
     attributes.emplace_back("xml:space", "preserve");
   }
