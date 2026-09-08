@@ -28,12 +28,12 @@ namespace
 
 [[nodiscard]] std::string write_t(const std::string& str)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   // Add attribute to preserve leading or trailing whitespace.
   if(std::isspace(static_cast<unsigned char>(str.front())) != 0 ||
      std::isspace(static_cast<unsigned char>(str.back())) != 0)
   {
-    attributes.emplace_back("xml:space", "preserve");
+    attributes.add_attribute("xml:space", "preserve");
   }
 
   return xml_data_element("t", str, attributes);
@@ -93,11 +93,8 @@ shared_strings_element_t shared_strings_t::get_index(const std::string& str, boo
 
 std::string shared_strings_t::write_sst() const
 {
-  return xml_start_tag("sst", {
-                                {"xmlns",       "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
-                                {"count",       std::to_string(string_count_)                              },
-                                {"uniqueCount", std::to_string(unique_count_)                              },
-  });
+  return xml_start_tag("sst", attributes_t{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+                                           "count", string_count_, "uniqueCount", unique_count_});
 }
 
 std::string shared_strings_t::write_sst_strings() const

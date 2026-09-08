@@ -1004,18 +1004,14 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
 
 std::string chart_t::write_chart_space()
 {
-  return xml_start_tag("c:chartSpace", {
-                                         {"xmlns:c", SCHEMA_DRAWING + "/chart"          },
-                                         {"xmlns:a", SCHEMA_DRAWING + "/main"           },
-                                         {"xmlns:r", SCHEMA_OFFICEDOC + "/relationships"},
-  });
+  return xml_start_tag("c:chartSpace",
+                       attributes_t{"xmlns:c", SCHEMA_DRAWING + "/chart", "xmlns:a", SCHEMA_DRAWING + "/main",
+                                    "xmlns:r", SCHEMA_OFFICEDOC + "/relationships"});
 }
 
 std::string chart_t::write_lang()
 {
-  return xml_empty_tag("c:lang", {
-                                   {"val", "en-US"}
-  });
+  return xml_empty_tag("c:lang", attributes_t{"val", "en-US"});
 }
 
 std::string chart_t::write_style() const
@@ -1026,9 +1022,7 @@ std::string chart_t::write_style() const
     return "";
   }
 
-  return xml_empty_tag("c:style", {
-                                    {"val", std::to_string(style_id_)}
-  });
+  return xml_empty_tag("c:style", attributes_t{"val", style_id_});
 }
 
 std::string chart_t::write_protection()
@@ -1054,14 +1048,8 @@ std::string chart_t::write_header_footer()
 
 std::string chart_t::write_page_margins()
 {
-  return xml_empty_tag("c:pageMargins", {
-                                          {"b",      "0.75"},
-                                          {"l",      "0.7" },
-                                          {"r",      "0.7" },
-                                          {"t",      "0.75"},
-                                          {"header", "0.3" },
-                                          {"footer", "0.3" },
-  });
+  return xml_empty_tag(
+    "c:pageMargins", attributes_t{"b", "0.75", "l", "0.7", "r", "0.7", "t", "0.75", "header", "0.3", "footer", "0.3"});
 }
 
 std::string chart_t::write_page_setup()
@@ -1096,9 +1084,7 @@ std::string chart_t::write_chart_title() const
 
 std::string chart_t::write_auto_title_deleted()
 {
-  return xml_empty_tag("c:autoTitleDeleted", {
-                                               {"val", "1"}
-  });
+  return xml_empty_tag("c:autoTitleDeleted", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_tx_pr_pie(bool is_horizontal, const std::optional<chart_font_t>& font)
@@ -1124,9 +1110,7 @@ std::string chart_t::write_a_p_pie(const std::optional<chart_font_t>& font)
 
 std::string chart_t::write_a_p_pr_pie(const std::optional<chart_font_t>& font)
 {
-  std::string xml_data = xml_start_tag("a:pPr", {
-                                                  {"rtl", "0"}
-  });
+  std::string xml_data = xml_start_tag("a:pPr", attributes_t{"rtl", "0"});
   xml_data += write_a_def_rpr(font);
   xml_data += xml_end_tag("a:pPr");
 
@@ -1184,7 +1168,7 @@ std::string chart_t::write_rich(const std::string& name, const std::optional<cha
 
 std::string chart_t::write_a_body_pr(int32_t rotation, bool is_horizontal)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(rotation == 0 && is_horizontal)
   {
@@ -1196,25 +1180,25 @@ std::string chart_t::write_a_body_pr(int32_t rotation, bool is_horizontal)
     if(rotation == 16200000)
     {
       // 270 deg/stacked angle.
-      attributes.emplace_back("rot", "0");
-      attributes.emplace_back("vert", "wordArtVert");
+      attributes.add_attribute("rot", "0");
+      attributes.add_attribute("vert", "wordArtVert");
     }
     else if(rotation == 16260000)
     {
       // 271 deg/East Asian vertical.
-      attributes.emplace_back("rot", "0");
-      attributes.emplace_back("vert", "eaVert");
+      attributes.add_attribute("rot", "0");
+      attributes.add_attribute("vert", "eaVert");
     }
     else if(rotation == 21600000)
     {
       // 360 deg = 0 for y axis.
-      attributes.emplace_back("rot", "0");
-      attributes.emplace_back("vert", "horz");
+      attributes.add_attribute("rot", "0");
+      attributes.add_attribute("vert", "horz");
     }
     else
     {
-      attributes.emplace_back("rot", std::to_string(rotation));
-      attributes.emplace_back("vert", "horz");
+      attributes.add_attribute("rot", rotation);
+      attributes.add_attribute("vert", "horz");
     }
   }
 
@@ -1251,7 +1235,7 @@ std::string chart_t::write_a_p_pr_rich(const std::optional<chart_font_t>& font)
 
 std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   bool has_color{false};
   bool has_latin{false};
@@ -1265,32 +1249,32 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
     // Set the font attributes.
     if(font->size_ > 0.0)
     {
-      attributes.emplace_back("sz", std::format("{}", font->size_));
+      attributes.add_attribute("sz", font->size_);
     }
 
     // To manage defautl value for tile
     if(use_font_default)
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_.has_value() ? font->bold_.value() : false));
+      attributes.add_attribute("b", font->bold_.has_value() ? font->bold_.value() : false);
     }
     else if(font->bold_.has_value())
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_.value()));
+      attributes.add_attribute("b", font->bold_.value());
     }
 
     if(use_font_default || font->italic_)
     {
-      attributes.emplace_back("i", std::format("{:d}", font->italic_));
+      attributes.add_attribute("i", font->italic_);
     }
 
     if(font->underline_)
     {
-      attributes.emplace_back("u", "sng");
+      attributes.add_attribute("u", "sng");
     }
 
     if(font->baseline_ != -1)
     {
-      attributes.emplace_back("baseline", std::to_string(font->baseline_));
+      attributes.add_attribute("baseline", font->baseline_);
     }
   }
 
@@ -1307,25 +1291,24 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
 
     if(has_latin)
     {
-      // Free and reuse the attribute list for the latin attributes.
-      attributes.clear();
+      attributes_t attributes_latin;
 
       if(!font->name_.empty())
       {
-        attributes.emplace_back("typeface", font->name_);
+        attributes_latin.add_attribute("typeface", font->name_);
       }
 
       if(font->pitch_family_ != 0)
       {
-        attributes.emplace_back("pitchFamily", std::to_string(font->pitch_family_));
+        attributes_latin.add_attribute("pitchFamily", font->pitch_family_);
       }
 
       if(font->pitch_family_ != 0 || font->charset_ != 0)
       {
-        attributes.emplace_back("charset", std::to_string(font->charset_));
+        attributes_latin.add_attribute("charset", font->charset_);
       }
 
-      xml_data += xml_empty_tag("a:latin", attributes);
+      xml_data += xml_empty_tag("a:latin", attributes_latin);
     }
 
     xml_data += xml_end_tag("a:defRPr");
@@ -1351,11 +1334,11 @@ std::string chart_t::write_a_r(const std::string& name, const std::optional<char
 
 std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   bool has_color{false};
   bool has_latin{false};
 
-  attributes.emplace_back("lang", "en-US");
+  attributes.add_attribute("lang", "en-US");
 
   if(font.has_value())
   {
@@ -1366,32 +1349,32 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
     // Set the font attributes.
     if(font->size_ > 0.0)
     {
-      attributes.emplace_back("sz", std::format("{}", font->size_));
+      attributes.add_attribute("sz", font->size_);
     }
 
     // To manage defautl value for tile
     if(use_font_default)
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_.has_value() ? font->bold_.value() : false));
+      attributes.add_attribute("b", font->bold_.has_value() ? font->bold_.value() : false);
     }
     else if(font->bold_.has_value())
     {
-      attributes.emplace_back("b", std::format("{:d}", font->bold_.value()));
+      attributes.add_attribute("b", font->bold_.value());
     }
 
     if(use_font_default || font->italic_)
     {
-      attributes.emplace_back("i", std::format("{:d}", font->italic_));
+      attributes.add_attribute("i", font->italic_);
     }
 
     if(font->underline_)
     {
-      attributes.emplace_back("u", "sng");
+      attributes.add_attribute("u", "sng");
     }
 
     if(font->baseline_ != -1)
     {
-      attributes.emplace_back("baseline", std::to_string(font->baseline_));
+      attributes.add_attribute("baseline", font->baseline_);
     }
   }
 
@@ -1408,24 +1391,23 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
 
     if(has_latin)
     {
-      // Free and reuse the attribute list for the latin attributes.
-      attributes.clear();
+      attributes_t attributes_latin;
 
       if(!font->name_.empty())
       {
-        attributes.emplace_back("typeface", font->name_);
+        attributes_latin.add_attribute("typeface", font->name_);
       }
 
       if(font->pitch_family_ != 0)
       {
-        attributes.emplace_back("pitchFamily", std::to_string(font->pitch_family_));
+        attributes_latin.add_attribute("pitchFamily", font->pitch_family_);
       }
 
       if(font->pitch_family_ != 0 || font->charset_ != 0)
       {
-        attributes.emplace_back("charset", std::to_string(font->charset_));
+        attributes_latin.add_attribute("charset", font->charset_);
       }
-      xml_data += xml_empty_tag("a:latin", attributes);
+      xml_data += xml_empty_tag("a:latin", attributes_latin);
     }
     xml_data += xml_end_tag("a:rPr");
 
@@ -1486,37 +1468,33 @@ std::string chart_t::write_manual_layout(const chart_layout_t& layout)
 
 std::string chart_t::write_overlay()
 {
-  return xml_empty_tag("c:overlay", {
-                                      {"val", "1"}
-  });
+  return xml_empty_tag("c:overlay", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_bar_dir(const std::string& type)
 {
-  return xml_empty_tag("c:barDir", {
-                                     {"val", type}
-  });
+  return xml_empty_tag("c:barDir", attributes_t{"val", type});
 }
 
 std::string chart_t::write_grouping(chart_grouping_t grouping)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(grouping == chart_grouping_t::STANDARD)
   {
-    attributes.emplace_back("val", "standard");
+    attributes.add_attribute("val", "standard");
   }
   else if(grouping == chart_grouping_t::PERCENTSTACKED)
   {
-    attributes.emplace_back("val", "percentStacked");
+    attributes.add_attribute("val", "percentStacked");
   }
   else if(grouping == chart_grouping_t::STACKED)
   {
-    attributes.emplace_back("val", "stacked");
+    attributes.add_attribute("val", "stacked");
   }
   else
   {
-    attributes.emplace_back("val", "clustered");
+    attributes.add_attribute("val", "clustered");
   }
 
   return xml_empty_tag("c:grouping", attributes);
@@ -1529,9 +1507,7 @@ std::string chart_t::write_gap_width(uint16_t gap)
     return "";
   }
 
-  return xml_empty_tag("c:gapWidth", {
-                                       {"val", std::to_string(gap)}
-  });
+  return xml_empty_tag("c:gapWidth", attributes_t{"val", gap});
 }
 
 std::string chart_t::write_overlap(int8_t overlap)
@@ -1541,16 +1517,12 @@ std::string chart_t::write_overlap(int8_t overlap)
     return "";
   }
 
-  return xml_empty_tag("c:overlap", {
-                                      {"val", std::to_string(overlap)}
-  });
+  return xml_empty_tag("c:overlap", attributes_t{"val", overlap});
 }
 
 std::string chart_t::write_axis_id(uint32_t axis_id)
 {
-  return xml_empty_tag("c:axId", {
-                                   {"val", std::to_string(axis_id)}
-  });
+  return xml_empty_tag("c:axId", attributes_t{"val", axis_id});
 }
 
 std::string chart_t::write_axis_ids(chart_t& chart)
@@ -1594,16 +1566,12 @@ std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
 
 std::string chart_t::write_idx(uint16_t index)
 {
-  return xml_empty_tag("c:idx", {
-                                  {"val", std::to_string(index)}
-  });
+  return xml_empty_tag("c:idx", attributes_t{"val", index});
 }
 
 std::string chart_t::write_order(uint16_t index)
 {
-  return xml_empty_tag("c:order", {
-                                    {"val", std::to_string(index)}
-  });
+  return xml_empty_tag("c:order", attributes_t{"val", index});
 }
 
 std::string chart_t::write_series_name(const chart_series_t& series)
@@ -1712,9 +1680,8 @@ std::string chart_t::write_a_solid_fill(color_t color, uint8_t transparency)
 
 std::string chart_t::write_a_srgb_clr(color_t color, uint8_t transparency)
 {
-  const std::vector<std::tuple<std::string, std::string>> attributes{
-    {"val", std::format("{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-  };
+  attributes_t attributes;
+  attributes.add_attribute("val", color, false);
 
   if(transparency != 0)
   {
@@ -1732,214 +1699,213 @@ std::string chart_t::write_a_srgb_clr(color_t color, uint8_t transparency)
 
 std::string chart_t::write_a_alpha(uint8_t transparency)
 {
-  return xml_empty_tag("a:alpha", {
-                                    {"val", std::to_string((100 - transparency) * 1000)}
-  });
+  return xml_empty_tag("a:alpha", attributes_t{"val", (100 - transparency) * 1000});
 }
 
 std::string chart_t::write_a_patt_fill(const chart_pattern_t& pattern)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
+  // TODO Use switch case
   if(pattern.type_ == chart_pattern_type_t::NONE)
   {
-    attributes.emplace_back("prst", "none");
+    attributes.add_attribute("prst", "none");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_5)
   {
-    attributes.emplace_back("prst", "pct5");
+    attributes.add_attribute("prst", "pct5");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_10)
   {
-    attributes.emplace_back("prst", "pct10");
+    attributes.add_attribute("prst", "pct10");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_20)
   {
-    attributes.emplace_back("prst", "pct20");
+    attributes.add_attribute("prst", "pct20");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_25)
   {
-    attributes.emplace_back("prst", "pct25");
+    attributes.add_attribute("prst", "pct25");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_30)
   {
-    attributes.emplace_back("prst", "pct30");
+    attributes.add_attribute("prst", "pct30");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_40)
   {
-    attributes.emplace_back("prst", "pct40");
+    attributes.add_attribute("prst", "pct40");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_50)
   {
-    attributes.emplace_back("prst", "pct50");
+    attributes.add_attribute("prst", "pct50");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_60)
   {
-    attributes.emplace_back("prst", "pct60");
+    attributes.add_attribute("prst", "pct60");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_70)
   {
-    attributes.emplace_back("prst", "pct70");
+    attributes.add_attribute("prst", "pct70");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_75)
   {
-    attributes.emplace_back("prst", "pct75");
+    attributes.add_attribute("prst", "pct75");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_80)
   {
-    attributes.emplace_back("prst", "pct80");
+    attributes.add_attribute("prst", "pct80");
   }
   else if(pattern.type_ == chart_pattern_type_t::PERCENT_90)
   {
-    attributes.emplace_back("prst", "pct90");
+    attributes.add_attribute("prst", "pct90");
   }
   else if(pattern.type_ == chart_pattern_type_t::LIGHT_DOWNWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "ltDnDiag");
+    attributes.add_attribute("prst", "ltDnDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::LIGHT_UPWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "ltUpDiag");
+    attributes.add_attribute("prst", "ltUpDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::DARK_DOWNWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "dkDnDiag");
+    attributes.add_attribute("prst", "dkDnDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::DARK_UPWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "dkUpDiag");
+    attributes.add_attribute("prst", "dkUpDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::WIDE_DOWNWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "wdDnDiag");
+    attributes.add_attribute("prst", "wdDnDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::WIDE_UPWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "wdUpDiag");
+    attributes.add_attribute("prst", "wdUpDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::LIGHT_VERTICAL)
   {
-    attributes.emplace_back("prst", "ltVert");
+    attributes.add_attribute("prst", "ltVert");
   }
   else if(pattern.type_ == chart_pattern_type_t::LIGHT_HORIZONTAL)
   {
-    attributes.emplace_back("prst", "ltHorz");
+    attributes.add_attribute("prst", "ltHorz");
   }
   else if(pattern.type_ == chart_pattern_type_t::NARROW_VERTICAL)
   {
-    attributes.emplace_back("prst", "narVert");
+    attributes.add_attribute("prst", "narVert");
   }
   else if(pattern.type_ == chart_pattern_type_t::NARROW_HORIZONTAL)
   {
-    attributes.emplace_back("prst", "narHorz");
+    attributes.add_attribute("prst", "narHorz");
   }
   else if(pattern.type_ == chart_pattern_type_t::DARK_VERTICAL)
   {
-    attributes.emplace_back("prst", "dkVert");
+    attributes.add_attribute("prst", "dkVert");
   }
   else if(pattern.type_ == chart_pattern_type_t::DARK_HORIZONTAL)
   {
-    attributes.emplace_back("prst", "dkHorz");
+    attributes.add_attribute("prst", "dkHorz");
   }
   else if(pattern.type_ == chart_pattern_type_t::DASHED_DOWNWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "dashDnDiag");
+    attributes.add_attribute("prst", "dashDnDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::DASHED_UPWARD_DIAGONAL)
   {
-    attributes.emplace_back("prst", "dashUpDiag");
+    attributes.add_attribute("prst", "dashUpDiag");
   }
   else if(pattern.type_ == chart_pattern_type_t::DASHED_HORIZONTAL)
   {
-    attributes.emplace_back("prst", "dashHorz");
+    attributes.add_attribute("prst", "dashHorz");
   }
   else if(pattern.type_ == chart_pattern_type_t::DASHED_VERTICAL)
   {
-    attributes.emplace_back("prst", "dashVert");
+    attributes.add_attribute("prst", "dashVert");
   }
   else if(pattern.type_ == chart_pattern_type_t::SMALL_CONFETTI)
   {
-    attributes.emplace_back("prst", "smConfetti");
+    attributes.add_attribute("prst", "smConfetti");
   }
   else if(pattern.type_ == chart_pattern_type_t::LARGE_CONFETTI)
   {
-    attributes.emplace_back("prst", "lgConfetti");
+    attributes.add_attribute("prst", "lgConfetti");
   }
   else if(pattern.type_ == chart_pattern_type_t::ZIGZAG)
   {
-    attributes.emplace_back("prst", "zigZag");
+    attributes.add_attribute("prst", "zigZag");
   }
   else if(pattern.type_ == chart_pattern_type_t::WAVE)
   {
-    attributes.emplace_back("prst", "wave");
+    attributes.add_attribute("prst", "wave");
   }
   else if(pattern.type_ == chart_pattern_type_t::DIAGONAL_BRICK)
   {
-    attributes.emplace_back("prst", "diagBrick");
+    attributes.add_attribute("prst", "diagBrick");
   }
   else if(pattern.type_ == chart_pattern_type_t::HORIZONTAL_BRICK)
   {
-    attributes.emplace_back("prst", "horzBrick");
+    attributes.add_attribute("prst", "horzBrick");
   }
   else if(pattern.type_ == chart_pattern_type_t::WEAVE)
   {
-    attributes.emplace_back("prst", "weave");
+    attributes.add_attribute("prst", "weave");
   }
   else if(pattern.type_ == chart_pattern_type_t::PLAID)
   {
-    attributes.emplace_back("prst", "plaid");
+    attributes.add_attribute("prst", "plaid");
   }
   else if(pattern.type_ == chart_pattern_type_t::DIVOT)
   {
-    attributes.emplace_back("prst", "divot");
+    attributes.add_attribute("prst", "divot");
   }
   else if(pattern.type_ == chart_pattern_type_t::DOTTED_GRID)
   {
-    attributes.emplace_back("prst", "dotGrid");
+    attributes.add_attribute("prst", "dotGrid");
   }
   else if(pattern.type_ == chart_pattern_type_t::DOTTED_DIAMOND)
   {
-    attributes.emplace_back("prst", "dotDmnd");
+    attributes.add_attribute("prst", "dotDmnd");
   }
   else if(pattern.type_ == chart_pattern_type_t::SHINGLE)
   {
-    attributes.emplace_back("prst", "shingle");
+    attributes.add_attribute("prst", "shingle");
   }
   else if(pattern.type_ == chart_pattern_type_t::TRELLIS)
   {
-    attributes.emplace_back("prst", "trellis");
+    attributes.add_attribute("prst", "trellis");
   }
   else if(pattern.type_ == chart_pattern_type_t::SPHERE)
   {
-    attributes.emplace_back("prst", "sphere");
+    attributes.add_attribute("prst", "sphere");
   }
   else if(pattern.type_ == chart_pattern_type_t::SMALL_GRID)
   {
-    attributes.emplace_back("prst", "smGrid");
+    attributes.add_attribute("prst", "smGrid");
   }
   else if(pattern.type_ == chart_pattern_type_t::LARGE_GRID)
   {
-    attributes.emplace_back("prst", "lgGrid");
+    attributes.add_attribute("prst", "lgGrid");
   }
   else if(pattern.type_ == chart_pattern_type_t::SMALL_CHECK)
   {
-    attributes.emplace_back("prst", "smCheck");
+    attributes.add_attribute("prst", "smCheck");
   }
   else if(pattern.type_ == chart_pattern_type_t::LARGE_CHECK)
   {
-    attributes.emplace_back("prst", "lgCheck");
+    attributes.add_attribute("prst", "lgCheck");
   }
   else if(pattern.type_ == chart_pattern_type_t::OUTLINED_DIAMOND)
   {
-    attributes.emplace_back("prst", "openDmnd");
+    attributes.add_attribute("prst", "openDmnd");
   }
   else if(pattern.type_ == chart_pattern_type_t::SOLID_DIAMOND)
   {
-    attributes.emplace_back("prst", "solidDmnd");
+    attributes.add_attribute("prst", "solidDmnd");
   }
   else
   {
-    attributes.emplace_back("prst", "percent_50");
+    attributes.add_attribute("prst", "percent_50");
   }
 
   std::string xml_data = xml_start_tag("a:pattFill", attributes);
@@ -1979,7 +1945,7 @@ std::string chart_t::write_a_bg_clr(color_t color)
 
 std::string chart_t::write_a_ln(const chart_line_t& line)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   // Round width to nearest 0.25, like Excel.
   const auto width_flt = static_cast<uint32_t>((line.width_ + 0.125) * 4.0F) / 4.0;
@@ -1989,7 +1955,7 @@ std::string chart_t::write_a_ln(const chart_line_t& line)
 
   if(line.width_ > 0.0)
   {
-    attributes.emplace_back("w", std::to_string(width_int));
+    attributes.add_attribute("w", width_int);
   }
 
   if(line.none_ || line.color_ != color_t::UNSET || line.dash_type_ != chart_line_dash_type_t::SOLID)
@@ -2021,47 +1987,48 @@ std::string chart_t::write_a_ln(const chart_line_t& line)
 
 std::string chart_t::write_a_prst_dash(chart_line_dash_type_t dash_type)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
+  // TODO Use switch case
   if(dash_type == chart_line_dash_type_t::ROUND_DOT)
   {
-    attributes.emplace_back("val", "sysDot");
+    attributes.add_attribute("val", "sysDot");
   }
   else if(dash_type == chart_line_dash_type_t::SQUARE_DOT)
   {
-    attributes.emplace_back("val", "sysDash");
+    attributes.add_attribute("val", "sysDash");
   }
   else if(dash_type == chart_line_dash_type_t::DASH_DOT)
   {
-    attributes.emplace_back("val", "dashDot");
+    attributes.add_attribute("val", "dashDot");
   }
   else if(dash_type == chart_line_dash_type_t::LONG_DASH)
   {
-    attributes.emplace_back("val", "lgDash");
+    attributes.add_attribute("val", "lgDash");
   }
   else if(dash_type == chart_line_dash_type_t::LONG_DASH_DOT)
   {
-    attributes.emplace_back("val", "lgDashDot");
+    attributes.add_attribute("val", "lgDashDot");
   }
   else if(dash_type == chart_line_dash_type_t::LONG_DASH_DOT_DOT)
   {
-    attributes.emplace_back("val", "lgDashDotDot");
+    attributes.add_attribute("val", "lgDashDotDot");
   }
   else if(dash_type == chart_line_dash_type_t::DOT)
   {
-    attributes.emplace_back("val", "dot");
+    attributes.add_attribute("val", "dot");
   }
   else if(dash_type == chart_line_dash_type_t::SYSTEM_DASH_DOT)
   {
-    attributes.emplace_back("val", "sysDashDot");
+    attributes.add_attribute("val", "sysDashDot");
   }
   else if(dash_type == chart_line_dash_type_t::SYSTEM_DASH_DOT_DOT)
   {
-    attributes.emplace_back("val", "sysDashDotDot");
+    attributes.add_attribute("val", "sysDashDotDot");
   }
   else
   {
-    attributes.emplace_back("val", "dash");
+    attributes.add_attribute("val", "dash");
   }
 
   return xml_empty_tag("a:prstDash", attributes);
@@ -2083,9 +2050,7 @@ std::string chart_t::write_str_cache(const series_range_t& range)
 
 std::string chart_t::write_pt_count(uint16_t num_data_points)
 {
-  return xml_empty_tag("c:ptCount", {
-                                      {"val", std::to_string(num_data_points)}
-  });
+  return xml_empty_tag("c:ptCount", attributes_t{"val", num_data_points});
 }
 
 std::string chart_t::write_pt(uint16_t index, const series_data_point_t& data_point)
@@ -2093,9 +2058,7 @@ std::string chart_t::write_pt(uint16_t index, const series_data_point_t& data_po
   // Ignore chart points that have no data.
   if(!data_point.no_data_)
   {
-    std::string xml_data = xml_start_tag("c:pt", {
-                                                   {"idx", std::to_string(index)}
-    });
+    std::string xml_data = xml_start_tag("c:pt", attributes_t{"idx", index});
 
     if(data_point.is_string_ && !data_point.str_.empty())
     {
@@ -2191,9 +2154,7 @@ std::string chart_t::write_num_pt(uint16_t index, const series_data_point_t& dat
     return "";
   }
 
-  std::string xml_data = xml_start_tag("c:pt", {
-                                                 {"idx", std::to_string(index)}
-  });
+  std::string xml_data = xml_start_tag("c:pt", attributes_t{"idx", index});
   xml_data += write_v_num(data_point.number_);
   xml_data += xml_end_tag("c:pt");
 
@@ -2262,16 +2223,12 @@ std::string chart_t::write_scaling(bool reverse, bool has_min, double min, bool 
 
 std::string chart_t::write_max(double max)
 {
-  return xml_empty_tag("c:max", {
-                                  {"val", std::format("{}", max)}
-  });
+  return xml_empty_tag("c:max", attributes_t{"val", max});
 }
 
 std::string chart_t::write_min(double min)
 {
-  return xml_empty_tag("c:min", {
-                                  {"val", std::format("{}", min)}
-  });
+  return xml_empty_tag("c:min", attributes_t{"val", min});
 }
 
 std::string chart_t::write_log_base(uint16_t log_base)
@@ -2281,24 +2238,18 @@ std::string chart_t::write_log_base(uint16_t log_base)
     return "";
   }
 
-  return xml_empty_tag("c:logBase", {
-                                      {"val", std::to_string(log_base)}
-  });
+  return xml_empty_tag("c:logBase", attributes_t{"val", log_base});
 }
 
 std::string chart_t::write_orientation(bool reverse)
 {
   if(reverse)
   {
-    return xml_empty_tag("c:orientation", {
-                                            {"val", "maxMin"}
-    });
+    return xml_empty_tag("c:orientation", attributes_t{"val", "maxMin"});
   }
   else
   {
-    return xml_empty_tag("c:orientation", {
-                                            {"val", "minMax"}
-    });
+    return xml_empty_tag("c:orientation", attributes_t{"val", "minMax"});
   }
 }
 
@@ -2387,59 +2338,29 @@ std::string chart_t::write_cat_axis(chart_t& chart)
 
 std::string chart_t::write_delete()
 {
-  return xml_empty_tag("c:delete", {
-                                     {"val", "1"}
-  });
+  return xml_empty_tag("c:delete", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_axis_pos(chart_position_t position, bool reverse)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   switch(position)
   {
     case chart_position_t::RIGHT:
-      if(reverse)
-      {
-        attributes.emplace_back("val", "l");
-      }
-      else
-      {
-        attributes.emplace_back("val", "r");
-      }
+      attributes.add_attribute("val", reverse ? "l" : "r");
       break;
 
     case chart_position_t::LEFT:
-      if(reverse)
-      {
-        attributes.emplace_back("val", "r");
-      }
-      else
-      {
-        attributes.emplace_back("val", "l");
-      }
+      attributes.add_attribute("val", reverse ? "r" : "l");
       break;
 
     case chart_position_t::TOP:
-      if(reverse)
-      {
-        attributes.emplace_back("val", "b");
-      }
-      else
-      {
-        attributes.emplace_back("val", "t");
-      }
+      attributes.add_attribute("val", reverse ? "b" : "t");
       break;
 
     case chart_position_t::BOTTOM:
-      if(reverse)
-      {
-        attributes.emplace_back("val", "t");
-      }
-      else
-      {
-        attributes.emplace_back("val", "b");
-      }
+      attributes.add_attribute("val", reverse ? "t" : "b");
       break;
   }
 
@@ -2587,31 +2508,30 @@ std::string chart_t::write_cat_number_format(const chart_t& chart, const chart_a
     return "";
   }
 
-  return xml_empty_tag("c:numFmt", {
-                                     {"formatCode",   num_format                   },
-                                     {"sourceLinked", std::to_string(source_linked)}
-  });
+  return xml_empty_tag("c:numFmt", attributes_t{"formatCode", num_format, "sourceLinked", source_linked});
 }
 
 std::string chart_t::write_tick_label_pos(const chart_axis_t& axis)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(axis.label_position_ == chart_axis_label_position_t::HIGH)
+  switch(axis.label_position_)
   {
-    attributes.emplace_back("val", "high");
-  }
-  else if(axis.label_position_ == chart_axis_label_position_t::LOW)
-  {
-    attributes.emplace_back("val", "low");
-  }
-  else if(axis.label_position_ == chart_axis_label_position_t::NONE)
-  {
-    attributes.emplace_back("val", "none");
-  }
-  else
-  {
-    attributes.emplace_back("val", "nextTo");
+    case chart_axis_label_position_t::HIGH:
+      attributes.add_attribute("val", "high");
+      break;
+
+    case chart_axis_label_position_t::LOW:
+      attributes.add_attribute("val", "low");
+      break;
+
+    case chart_axis_label_position_t::NONE:
+      attributes.add_attribute("val", "none");
+      break;
+
+    default:
+      attributes.add_attribute("val", "nextTo");
+      break;
   }
 
   return xml_empty_tag("c:tickLblPos", attributes);
@@ -2619,26 +2539,24 @@ std::string chart_t::write_tick_label_pos(const chart_axis_t& axis)
 
 std::string chart_t::write_cross_axis(uint32_t axis_id)
 {
-  return xml_empty_tag("c:crossAx", {
-                                      {"val", std::to_string(axis_id)}
-  });
+  return xml_empty_tag("c:crossAx", attributes_t{"val", axis_id});
 }
 
 std::string chart_t::write_crosses(const chart_axis_t& axis)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(axis.crossing_min_)
   {
-    attributes.emplace_back("val", "min");
+    attributes.add_attribute("val", "min");
   }
   else if(axis.crossing_max_)
   {
-    attributes.emplace_back("val", "max");
+    attributes.add_attribute("val", "max");
   }
   else
   {
-    attributes.emplace_back("val", "autoZero");
+    attributes.add_attribute("val", "autoZero");
   }
 
   return xml_empty_tag("c:crosses", attributes);
@@ -2646,33 +2564,31 @@ std::string chart_t::write_crosses(const chart_axis_t& axis)
 
 std::string chart_t::write_crosses_at(const chart_axis_t& axis)
 {
-  return xml_empty_tag("c:crossesAt", {
-                                        {"val", std::format("{}", axis.crossing_)}
-  });
+  return xml_empty_tag("c:crossesAt", attributes_t{"val", axis.crossing_});
 }
 
 std::string chart_t::write_auto()
 {
-  return xml_empty_tag("c:auto", {
-                                   {"val", "1"}
-  });
+  return xml_empty_tag("c:auto", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_label_align(const chart_axis_t& axis)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(axis.label_align_ == chart_axis_label_alignment_t::LEFT)
+  switch(axis.label_align_)
   {
-    attributes.emplace_back("val", "l");
-  }
-  else if(axis.label_align_ == chart_axis_label_alignment_t::RIGHT)
-  {
-    attributes.emplace_back("val", "r");
-  }
-  else
-  {
-    attributes.emplace_back("val", "ctr");
+    case chart_axis_label_alignment_t::LEFT:
+      attributes.add_attribute("val", "l");
+      break;
+
+    case chart_axis_label_alignment_t::RIGHT:
+      attributes.add_attribute("val", "r");
+      break;
+
+    default:
+      attributes.add_attribute("val", "ctr");
+      break;
   }
 
   return xml_empty_tag("c:lblAlgn", attributes);
@@ -2680,9 +2596,7 @@ std::string chart_t::write_label_align(const chart_axis_t& axis)
 
 std::string chart_t::write_label_offset()
 {
-  return xml_empty_tag("c:lblOffset", {
-                                        {"val", "100"}
-  });
+  return xml_empty_tag("c:lblOffset", attributes_t{"val", "100"});
 }
 
 /*
@@ -2717,15 +2631,12 @@ std::string chart_t::write_number_format(const chart_axis_t& axis)
     source_linked = 1;
   }
 
-  return xml_empty_tag("c:numFmt", {
-                                     {"formatCode",   num_format                   },
-                                     {"sourceLinked", std::to_string(source_linked)},
-  });
+  return xml_empty_tag("c:numFmt", attributes_t{"formatCode", num_format, "sourceLinked", source_linked});
 }
 
 std::string chart_t::write_cross_between(const chart_t& chart, chart_axis_tick_position_t position)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(position == chart_axis_tick_position_t::DEFAULT)
   {
@@ -2734,11 +2645,11 @@ std::string chart_t::write_cross_between(const chart_t& chart, chart_axis_tick_p
 
   if(position == chart_axis_tick_position_t::ON_TICK)
   {
-    attributes.emplace_back("val", "midCat");
+    attributes.add_attribute("val", "midCat");
   }
   else
   {
-    attributes.emplace_back("val", "between");
+    attributes.add_attribute("val", "between");
   }
 
   return xml_empty_tag("c:crossBetween", attributes);
@@ -2746,9 +2657,7 @@ std::string chart_t::write_cross_between(const chart_t& chart, chart_axis_tick_p
 
 std::string chart_t::write_legend_pos(const std::string& position)
 {
-  return xml_empty_tag("c:legendPos", {
-                                        {"val", position}
-  });
+  return xml_empty_tag("c:legendPos", attributes_t{"val", position});
 }
 
 std::string chart_t::write_legend_entry(size_t index)
@@ -2848,9 +2757,7 @@ std::string chart_t::write_plot_vis_only() const
     return "";
   }
 
-  return xml_empty_tag("c:plotVisOnly", {
-                                          {"val", "1"}
-  });
+  return xml_empty_tag("c:plotVisOnly", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_drop_lines(const chart_t& chart)
@@ -3015,43 +2922,45 @@ std::string chart_t::write_custom_labels(const chart_series_t& series)
 
 std::string chart_t::write_d_lbl_pos(chart_label_position_t position)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(position == chart_label_position_t::RIGHT)
+  switch(position)
   {
-    attributes.emplace_back("val", "r");
-  }
-  else if(position == chart_label_position_t::LEFT)
-  {
-    attributes.emplace_back("val", "l");
-  }
-  else if(position == chart_label_position_t::ABOVE)
-  {
-    attributes.emplace_back("val", "t");
-  }
-  else if(position == chart_label_position_t::BELOW)
-  {
-    attributes.emplace_back("val", "b");
-  }
-  else if(position == chart_label_position_t::INSIDE_BASE)
-  {
-    attributes.emplace_back("val", "inBase");
-  }
-  else if(position == chart_label_position_t::INSIDE_END)
-  {
-    attributes.emplace_back("val", "inEnd");
-  }
-  else if(position == chart_label_position_t::OUTSIDE_END)
-  {
-    attributes.emplace_back("val", "outEnd");
-  }
-  else if(position == chart_label_position_t::BEST_FIT)
-  {
-    attributes.emplace_back("val", "bestFit");
-  }
-  else
-  {
-    attributes.emplace_back("val", "ctr");
+    case chart_label_position_t::RIGHT:
+      attributes.add_attribute("val", "r");
+      break;
+
+    case chart_label_position_t::LEFT:
+      attributes.add_attribute("val", "l");
+      break;
+
+    case chart_label_position_t::ABOVE:
+      attributes.add_attribute("val", "t");
+      break;
+
+    case chart_label_position_t::BELOW:
+      attributes.add_attribute("val", "b");
+      break;
+
+    case chart_label_position_t::INSIDE_BASE:
+      attributes.add_attribute("val", "inBase");
+      break;
+
+    case chart_label_position_t::INSIDE_END:
+      attributes.add_attribute("val", "inEnd");
+      break;
+
+    case chart_label_position_t::OUTSIDE_END:
+      attributes.add_attribute("val", "outEnd");
+      break;
+
+    case chart_label_position_t::BEST_FIT:
+      attributes.add_attribute("val", "bestFit");
+      break;
+
+    default:
+      attributes.add_attribute("val", "ctr");
+      break;
   }
 
   return xml_empty_tag("c:dLblPos", attributes);
@@ -3059,23 +2968,17 @@ std::string chart_t::write_d_lbl_pos(chart_label_position_t position)
 
 std::string chart_t::write_show_val()
 {
-  return xml_empty_tag("c:showVal", {
-                                      {"val", "1"}
-  });
+  return xml_empty_tag("c:showVal", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_show_cat_name()
 {
-  return xml_empty_tag("c:showCatName", {
-                                          {"val", "1"}
-  });
+  return xml_empty_tag("c:showCatName", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_show_ser_name()
 {
-  return xml_empty_tag("c:showSerName", {
-                                          {"val", "1"}
-  });
+  return xml_empty_tag("c:showSerName", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_custom_label_formula(const chart_series_t& series, const chart_custom_label_t& data_label)
@@ -3130,17 +3033,12 @@ std::string chart_t::write_custom_label_format_only(const chart_custom_label_t& 
 
 std::string chart_t::write_label_num_fmt(const std::string& format)
 {
-  return xml_empty_tag("c:numFmt", {
-                                     {"formatCode",   format},
-                                     {"sourceLinked", "0"   },
-  });
+  return xml_empty_tag("c:numFmt", attributes_t{"formatCode", format, "sourceLinked", "0"});
 }
 
 std::string chart_t::write_show_legend_key()
 {
-  return xml_empty_tag("c:showLegendKey", {
-                                            {"val", "1"}
-  });
+  return xml_empty_tag("c:showLegendKey", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_separator(chart_label_separator_t separator)
@@ -3169,23 +3067,17 @@ std::string chart_t::write_separator(chart_label_separator_t separator)
 
 std::string chart_t::write_show_percent()
 {
-  return xml_empty_tag("c:showPercent", {
-                                          {"val", "1"}
-  });
+  return xml_empty_tag("c:showPercent", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_show_leader_lines()
 {
-  return xml_empty_tag("c:showLeaderLines", {
-                                              {"val", "1"}
-  });
+  return xml_empty_tag("c:showLeaderLines", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_a_end_para_rpr()
 {
-  return xml_empty_tag("a:endParaRPr", {
-                                         {"lang", "en-US"}
-  });
+  return xml_empty_tag("a:endParaRPr", attributes_t{"lang", "en-US"});
 }
 
 std::string chart_t::write_d_table(const chart_t& chart)
@@ -3216,9 +3108,7 @@ std::string chart_t::write_show_horz_border(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showHorzBorder", {
-                                             {"val", "1"}
-  });
+  return xml_empty_tag("c:showHorzBorder", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_show_vert_border(bool value)
@@ -3228,9 +3118,7 @@ std::string chart_t::write_show_vert_border(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showVertBorder", {
-                                             {"val", "1"}
-  });
+  return xml_empty_tag("c:showVertBorder", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_show_outline(bool value)
@@ -3240,9 +3128,7 @@ std::string chart_t::write_show_outline(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showOutline", {
-                                          {"val", "1"}
-  });
+  return xml_empty_tag("c:showOutline", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_show_keys(bool value)
@@ -3252,9 +3138,7 @@ std::string chart_t::write_show_keys(bool value)
     return "";
   }
 
-  return xml_empty_tag("c:showKeys", {
-                                       {"val", "1"}
-  });
+  return xml_empty_tag("c:showKeys", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_hi_low_lines(const chart_t& chart)
@@ -3296,9 +3180,7 @@ std::string chart_t::write_up_down_bars(const chart_t& chart)
 
 std::string chart_t::write_marker_value()
 {
-  return xml_empty_tag("c:marker", {
-                                     {"val", "1"}
-  });
+  return xml_empty_tag("c:marker", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_up_bars(const std::optional<chart_line_t>& line, const std::optional<chart_fill_t>& fill)
@@ -3335,47 +3217,49 @@ std::string chart_t::write_down_bars(const std::optional<chart_line_t>& line, co
 
 std::string chart_t::write_symbol(chart_marker_type_t type)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(type == chart_marker_type_t::SQUARE)
+  switch(type)
   {
-    attributes.emplace_back("val", "square");
-  }
-  else if(type == chart_marker_type_t::DIAMOND)
-  {
-    attributes.emplace_back("val", "diamond");
-  }
-  else if(type == chart_marker_type_t::TRIANGLE)
-  {
-    attributes.emplace_back("val", "triangle");
-  }
-  else if(type == chart_marker_type_t::X)
-  {
-    attributes.emplace_back("val", "x");
-  }
-  else if(type == chart_marker_type_t::STAR)
-  {
-    attributes.emplace_back("val", "star");
-  }
-  else if(type == chart_marker_type_t::SHORT_DASH)
-  {
-    attributes.emplace_back("val", "short_dash");
-  }
-  else if(type == chart_marker_type_t::LONG_DASH)
-  {
-    attributes.emplace_back("val", "long_dash");
-  }
-  else if(type == chart_marker_type_t::CIRCLE)
-  {
-    attributes.emplace_back("val", "circle");
-  }
-  else if(type == chart_marker_type_t::PLUS)
-  {
-    attributes.emplace_back("val", "plus");
-  }
-  else
-  {
-    attributes.emplace_back("val", "none");
+    case chart_marker_type_t::SQUARE:
+      attributes.add_attribute("val", "square");
+      break;
+
+    case chart_marker_type_t::DIAMOND:
+      attributes.add_attribute("val", "diamond");
+      break;
+
+    case chart_marker_type_t::TRIANGLE:
+      attributes.add_attribute("val", "triangle");
+      break;
+
+    case chart_marker_type_t::X:
+      attributes.add_attribute("val", "x");
+      break;
+
+    case chart_marker_type_t::STAR:
+      attributes.add_attribute("val", "star");
+      break;
+
+    case chart_marker_type_t::SHORT_DASH:
+      attributes.add_attribute("val", "short_dash");
+      break;
+
+    case chart_marker_type_t::LONG_DASH:
+      attributes.add_attribute("val", "long_dash");
+      break;
+
+    case chart_marker_type_t::CIRCLE:
+      attributes.add_attribute("val", "circle");
+      break;
+
+    case chart_marker_type_t::PLUS:
+      attributes.add_attribute("val", "plus");
+      break;
+
+    default:
+      attributes.add_attribute("val", "none");
+      break;
   }
 
   return xml_empty_tag("c:symbol", attributes);
@@ -3383,9 +3267,7 @@ std::string chart_t::write_symbol(chart_marker_type_t type)
 
 std::string chart_t::write_marker_size(uint8_t size)
 {
-  return xml_empty_tag("c:size", {
-                                   {"val", std::to_string(size)}
-  });
+  return xml_empty_tag("c:size", attributes_t{"val", size});
 }
 
 std::string chart_t::write_error_bars(const chart_series_t& series)
@@ -3430,15 +3312,15 @@ std::string chart_t::write_err_bars(const series_error_bars_t& error_bars)
 
 std::string chart_t::write_err_dir(bool is_x)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(is_x)
   {
-    attributes.emplace_back("val", "x");
+    attributes.add_attribute("val", "x");
   }
   else
   {
-    attributes.emplace_back("val", "y");
+    attributes.add_attribute("val", "y");
   }
 
   return xml_empty_tag("c:errDir", attributes);
@@ -3446,19 +3328,21 @@ std::string chart_t::write_err_dir(bool is_x)
 
 std::string chart_t::write_err_bar_type(chart_error_bar_direction_t direction)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(direction == chart_error_bar_direction_t::PLUS)
+  switch(direction)
   {
-    attributes.emplace_back("val", "plus");
-  }
-  else if(direction == chart_error_bar_direction_t::MINUS)
-  {
-    attributes.emplace_back("val", "minus");
-  }
-  else
-  {
-    attributes.emplace_back("val", "both");
+    case chart_error_bar_direction_t::PLUS:
+      attributes.add_attribute("val", "plus");
+      break;
+
+    case chart_error_bar_direction_t::MINUS:
+      attributes.add_attribute("val", "minus");
+      break;
+
+    default:
+      attributes.add_attribute("val", "both");
+      break;
   }
 
   return xml_empty_tag("c:errBarType", attributes);
@@ -3466,23 +3350,25 @@ std::string chart_t::write_err_bar_type(chart_error_bar_direction_t direction)
 
 std::string chart_t::write_err_val_type(chart_error_bar_type_t type)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(type == chart_error_bar_type_t::FIXED)
+  switch(type)
   {
-    attributes.emplace_back("val", "fixedVal");
-  }
-  else if(type == chart_error_bar_type_t::PERCENTAGE)
-  {
-    attributes.emplace_back("val", "percentage");
-  }
-  else if(type == chart_error_bar_type_t::STD_DEV)
-  {
-    attributes.emplace_back("val", "stdDev");
-  }
-  else
-  {
-    attributes.emplace_back("val", "stdErr");
+    case chart_error_bar_type_t::FIXED:
+      attributes.add_attribute("val", "fixedVal");
+      break;
+
+    case chart_error_bar_type_t::PERCENTAGE:
+      attributes.add_attribute("val", "percentage");
+      break;
+
+    case chart_error_bar_type_t::STD_DEV:
+      attributes.add_attribute("val", "stdDev");
+      break;
+
+    default:
+      attributes.add_attribute("val", "stdErr");
+      break;
   }
 
   return xml_empty_tag("c:errValType", attributes);
@@ -3490,16 +3376,12 @@ std::string chart_t::write_err_val_type(chart_error_bar_type_t type)
 
 std::string chart_t::write_no_end_cap()
 {
-  return xml_empty_tag("c:noEndCap", {
-                                       {"val", "1"}
-  });
+  return xml_empty_tag("c:noEndCap", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_error_val(double value)
 {
-  return xml_empty_tag("c:val", {
-                                  {"val", std::format("{}", value)}
-  });
+  return xml_empty_tag("c:val", attributes_t{"val", value});
 }
 
 std::string chart_t::write_trendline(const chart_series_t& series)
@@ -3563,31 +3445,33 @@ std::string chart_t::write_name(const std::string& name)
 
 std::string chart_t::write_trendline_type(chart_trendline_type_t type)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
-  if(type == chart_trendline_type_t::LOG)
+  switch(type)
   {
-    attributes.emplace_back("val", "log");
-  }
-  else if(type == chart_trendline_type_t::POLY)
-  {
-    attributes.emplace_back("val", "poly");
-  }
-  else if(type == chart_trendline_type_t::POWER)
-  {
-    attributes.emplace_back("val", "power");
-  }
-  else if(type == chart_trendline_type_t::EXP)
-  {
-    attributes.emplace_back("val", "exp");
-  }
-  else if(type == chart_trendline_type_t::AVERAGE)
-  {
-    attributes.emplace_back("val", "movingAvg");
-  }
-  else
-  {
-    attributes.emplace_back("val", "linear");
+    case chart_trendline_type_t::LOG:
+      attributes.add_attribute("val", "log");
+      break;
+
+    case chart_trendline_type_t::POLY:
+      attributes.add_attribute("val", "poly");
+      break;
+
+    case chart_trendline_type_t::POWER:
+      attributes.add_attribute("val", "power");
+      break;
+
+    case chart_trendline_type_t::EXP:
+      attributes.add_attribute("val", "exp");
+      break;
+
+    case chart_trendline_type_t::AVERAGE:
+      attributes.add_attribute("val", "movingAvg");
+      break;
+
+    default:
+      attributes.add_attribute("val", "linear");
+      break;
   }
 
   return xml_empty_tag("c:trendlineType", attributes);
@@ -3595,54 +3479,39 @@ std::string chart_t::write_trendline_type(chart_trendline_type_t type)
 
 std::string chart_t::write_period(uint8_t value)
 {
-  return xml_empty_tag("c:period", {
-                                     {"val", std::to_string(value)}
-  });
+  return xml_empty_tag("c:period", attributes_t{"val", value});
 }
 
 std::string chart_t::write_forward(double value)
 {
-  return xml_empty_tag("c:forward", {
-                                      {"val", std::format("{}", value)}
-  });
+  return xml_empty_tag("c:forward", attributes_t{"val", value});
 }
 
 std::string chart_t::write_backward(double value)
 {
-  return xml_empty_tag("c:backward", {
-                                       {"val", std::format("{}", value)}
-  });
+  return xml_empty_tag("c:backward", attributes_t{"val", value});
 }
 
 std::string chart_t::write_intercept(double value)
 {
-  return xml_empty_tag("c:intercept", {
-                                        {"val", std::format("{}", value)}
-  });
+  return xml_empty_tag("c:intercept", attributes_t{"val", value});
 }
 
 std::string chart_t::write_disp_rsqr()
 {
-  return xml_empty_tag("c:dispRSqr", {
-                                       {"val", "1"}
-  });
+  return xml_empty_tag("c:dispRSqr", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_disp_eq()
 {
-  return xml_empty_tag("c:dispEq", {
-                                     {"val", "1"}
-  });
+  return xml_empty_tag("c:dispEq", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_trendline_lbl()
 {
   std::string xml_data = xml_start_tag("c:trendlineLbl");
   xml_data += xml_empty_tag("c:layout");
-  xml_data += xml_empty_tag("c:numFmt", {
-                                          {"formatCode",   "General"},
-                                          {"sourceLinked", "0"      },
-  });
+  xml_data += xml_empty_tag("c:numFmt", attributes_t{"formatCode", "General", "sourceLinked", "0"});
   xml_data += xml_end_tag("c:trendlineLbl");
 
   return xml_data;
@@ -3655,9 +3524,7 @@ std::string chart_t::write_invert_if_negative(const chart_series_t& series)
     return "";
   }
 
-  return xml_empty_tag("c:invertIfNegative", {
-                                               {"val", "1"}
-  });
+  return xml_empty_tag("c:invertIfNegative", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_points(const chart_t& chart, const chart_series_t& series)
@@ -3701,36 +3568,30 @@ std::string chart_t::write_d_pt(const chart_t& chart, const chart_point_t& point
 
 std::string chart_t::write_vary_colors()
 {
-  return xml_empty_tag("c:varyColors", {
-                                         {"val", "1"}
-  });
+  return xml_empty_tag("c:varyColors", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_first_slice_ang(const chart_t& chart)
 {
-  return xml_empty_tag("c:firstSliceAng", {
-                                            {"val", std::to_string(chart.rotation_)}
-  });
+  return xml_empty_tag("c:firstSliceAng", attributes_t{"val", chart.rotation_});
 }
 
 std::string chart_t::write_hole_size(const chart_t& chart)
 {
-  return xml_empty_tag("c:holeSize", {
-                                       {"val", std::to_string(chart.hole_size_)}
-  });
+  return xml_empty_tag("c:holeSize", attributes_t{"val", chart.hole_size_});
 }
 
 std::string chart_t::write_radar_style(const chart_t& chart)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(chart.type_ == chart_type_t::RADAR_FILLED)
   {
-    attributes.emplace_back("val", "filled");
+    attributes.add_attribute("val", "filled");
   }
   else
   {
-    attributes.emplace_back("val", "marker");
+    attributes.add_attribute("val", "marker");
   }
 
   return xml_empty_tag("c:radarStyle", attributes);
@@ -3738,28 +3599,30 @@ std::string chart_t::write_radar_style(const chart_t& chart)
 
 std::string chart_t::write_major_tick_mark(const chart_axis_t& axis)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(axis.major_tick_mark_ == chart_axis_tick_mark_t::DEFAULT)
   {
     return "";
   }
 
-  if(axis.major_tick_mark_ == chart_axis_tick_mark_t::NONE)
+  switch(axis.major_tick_mark_)
   {
-    attributes.emplace_back("val", "none");
-  }
-  else if(axis.major_tick_mark_ == chart_axis_tick_mark_t::INSIDE)
-  {
-    attributes.emplace_back("val", "in");
-  }
-  else if(axis.major_tick_mark_ == chart_axis_tick_mark_t::CROSSING)
-  {
-    attributes.emplace_back("val", "cross");
-  }
-  else
-  {
-    attributes.emplace_back("val", "out");
+    case chart_axis_tick_mark_t::NONE:
+      attributes.add_attribute("val", "none");
+      break;
+
+    case chart_axis_tick_mark_t::INSIDE:
+      attributes.add_attribute("val", "in");
+      break;
+
+    case chart_axis_tick_mark_t::CROSSING:
+      attributes.add_attribute("val", "cross");
+      break;
+
+    default:
+      attributes.add_attribute("val", "out");
+      break;
   }
 
   return xml_empty_tag("c:majorTickMark", attributes);
@@ -3767,28 +3630,30 @@ std::string chart_t::write_major_tick_mark(const chart_axis_t& axis)
 
 std::string chart_t::write_minor_tick_mark(const chart_axis_t& axis)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::DEFAULT)
   {
     return "";
   }
 
-  if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::NONE)
+  switch(axis.minor_tick_mark_)
   {
-    attributes.emplace_back("val", "none");
-  }
-  else if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::INSIDE)
-  {
-    attributes.emplace_back("val", "in");
-  }
-  else if(axis.minor_tick_mark_ == chart_axis_tick_mark_t::CROSSING)
-  {
-    attributes.emplace_back("val", "cross");
-  }
-  else
-  {
-    attributes.emplace_back("val", "out");
+    case chart_axis_tick_mark_t::NONE:
+      attributes.add_attribute("val", "none");
+      break;
+
+    case chart_axis_tick_mark_t::INSIDE:
+      attributes.add_attribute("val", "in");
+      break;
+
+    case chart_axis_tick_mark_t::CROSSING:
+      attributes.add_attribute("val", "cross");
+      break;
+
+    default:
+      attributes.add_attribute("val", "out");
+      break;
   }
 
   return xml_empty_tag("c:minorTickMark", attributes);
@@ -3888,9 +3753,7 @@ std::string chart_t::write_smooth(bool smooth)
     return "";
   }
 
-  return xml_empty_tag("c:smooth", {
-                                     {"val", "1"}
-  });
+  return xml_empty_tag("c:smooth", attributes_t{"val", "1"});
 }
 
 std::string chart_t::write_major_unit(const chart_axis_t& axis)
@@ -3900,9 +3763,7 @@ std::string chart_t::write_major_unit(const chart_axis_t& axis)
     return "";
   }
 
-  return xml_empty_tag("c:majorUnit", {
-                                        {"val", std::format("{}", axis.major_unit_)}
-  });
+  return xml_empty_tag("c:majorUnit", attributes_t{"val", axis.major_unit_});
 }
 
 std::string chart_t::write_minor_unit(const chart_axis_t& axis)
@@ -3912,14 +3773,12 @@ std::string chart_t::write_minor_unit(const chart_axis_t& axis)
     return "";
   }
 
-  return xml_empty_tag("c:minorUnit", {
-                                        {"val", std::format("{}", axis.minor_unit_)}
-  });
+  return xml_empty_tag("c:minorUnit", attributes_t{"val", axis.minor_unit_});
 }
 
 std::string chart_t::write_disp_units(const chart_axis_t& axis)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(axis.display_units_ == chart_axis_display_unit_t::NONE)
   {
@@ -3930,40 +3789,40 @@ std::string chart_t::write_disp_units(const chart_axis_t& axis)
   switch(axis.display_units_)
   {
     case chart_axis_display_unit_t::THOUSANDS:
-      attributes.emplace_back("val", "thousands");
+      attributes.add_attribute("val", "thousands");
       break;
 
     case chart_axis_display_unit_t::TEN_THOUSANDS:
-      attributes.emplace_back("val", "tenThousands");
+      attributes.add_attribute("val", "tenThousands");
       break;
 
     case chart_axis_display_unit_t::HUNDRED_THOUSANDS:
-      attributes.emplace_back("val", "hundredThousands");
+      attributes.add_attribute("val", "hundredThousands");
       break;
 
     case chart_axis_display_unit_t::MILLIONS:
-      attributes.emplace_back("val", "millions");
+      attributes.add_attribute("val", "millions");
       break;
 
     case chart_axis_display_unit_t::TEN_MILLIONS:
-      attributes.emplace_back("val", "tenMillions");
+      attributes.add_attribute("val", "tenMillions");
       break;
 
     case chart_axis_display_unit_t::HUNDRED_MILLIONS:
-      attributes.emplace_back("val", "hundredMillions");
+      attributes.add_attribute("val", "hundredMillions");
       break;
 
     case chart_axis_display_unit_t::BILLIONS:
-      attributes.emplace_back("val", "billions");
+      attributes.add_attribute("val", "billions");
       break;
 
     case chart_axis_display_unit_t::TRILLIONS:
-      attributes.emplace_back("val", "trillions");
+      attributes.add_attribute("val", "trillions");
       break;
 
     case chart_axis_display_unit_t::HUNDREDS:
     default:
-      attributes.emplace_back("val", "hundreds");
+      attributes.add_attribute("val", "hundreds");
       break;
   }
   xml_data += xml_empty_tag("c:builtInUnit", attributes);
@@ -3982,15 +3841,15 @@ std::string chart_t::write_disp_units(const chart_axis_t& axis)
 
 std::string chart_t::write_scatter_style(const chart_t& chart)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(chart.type_ == chart_type_t::SCATTER_SMOOTH || chart.type_ == chart_type_t::SCATTER_SMOOTH_WITH_MARKERS)
   {
-    attributes.emplace_back("val", "smoothMarker");
+    attributes.add_attribute("val", "smoothMarker");
   }
   else
   {
-    attributes.emplace_back("val", "lineMarker");
+    attributes.add_attribute("val", "lineMarker");
   }
 
   return xml_empty_tag("c:scatterStyle", attributes);
@@ -4003,9 +3862,7 @@ std::string chart_t::write_tick_label_skip(const chart_axis_t& axis)
     return "";
   }
 
-  return xml_empty_tag("c:tickLblSkip", {
-                                          {"val", std::to_string(axis.interval_unit_)}
-  });
+  return xml_empty_tag("c:tickLblSkip", attributes_t{"val", axis.interval_unit_});
 }
 
 std::string chart_t::write_tick_mark_skip(const chart_axis_t& axis)
@@ -4015,14 +3872,12 @@ std::string chart_t::write_tick_mark_skip(const chart_axis_t& axis)
     return "";
   }
 
-  return xml_empty_tag("c:tickMarkSkip", {
-                                           {"val", std::to_string(axis.interval_tick_)}
-  });
+  return xml_empty_tag("c:tickMarkSkip", attributes_t{"val", axis.interval_tick_});
 }
 
 std::string chart_t::write_disp_blanks_as() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(show_blanks_as_ != chart_blank_t::AS_ZERO && show_blanks_as_ != chart_blank_t::AS_CONNECTED)
   {
@@ -4031,11 +3886,11 @@ std::string chart_t::write_disp_blanks_as() const
 
   if(show_blanks_as_ == chart_blank_t::AS_ZERO)
   {
-    attributes.emplace_back("val", "zero");
+    attributes.add_attribute("val", "zero");
   }
   else
   {
-    attributes.emplace_back("val", "span");
+    attributes.add_attribute("val", "span");
   }
 
   return xml_empty_tag("c:dispBlanksAs", attributes);
@@ -4043,23 +3898,17 @@ std::string chart_t::write_disp_blanks_as() const
 
 std::string chart_t::write_layout_target()
 {
-  return xml_empty_tag("c:layoutTarget", {
-                                           {"val", "inner"}
-  });
+  return xml_empty_tag("c:layoutTarget", attributes_t{"val", "inner"});
 }
 
 std::string chart_t::write_layout_mode(const std::string& mode)
 {
-  return xml_empty_tag(mode, {
-                               {"val", "edge"}
-  });
+  return xml_empty_tag(mode, attributes_t{"val", "edge"});
 }
 
 std::string chart_t::write_layout_dimension(const std::string& dimension, double value)
 {
-  return xml_empty_tag(dimension, {
-                                    {"val", std::format("{}", value)}
-  });
+  return xml_empty_tag(dimension, attributes_t{"val", value});
 }
 
 void chart_t::add_axis_ids(chart_t& chart)

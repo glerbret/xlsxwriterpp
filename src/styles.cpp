@@ -23,16 +23,13 @@ namespace
 
 [[nodiscard]] std::string write_style_sheet()
 {
-  return xml_start_tag("styleSheet", {
-                                       {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-  });
+  return xml_start_tag("styleSheet",
+                       attributes_t{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"});
 }
 
 [[nodiscard]] std::string write_num_fmt(uint16_t num_fmt_id, const std::string& format_code)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"numFmtId", std::to_string(num_fmt_id)}
-  };
+  attributes_t attributes{"numFmtId", num_fmt_id};
 
   if(num_fmt_id < 50)
   {
@@ -87,15 +84,15 @@ namespace
                                                 "##0.0E+0",
                                                 "@"};
 
-    attributes.emplace_back("formatCode", format_codes[num_fmt_id]);
+    attributes.add_attribute("formatCode", format_codes[num_fmt_id]);
   }
   else if(num_fmt_id < 164)
   {
-    attributes.emplace_back("formatCode", "General");
+    attributes.add_attribute("formatCode", "General");
   }
   else
   {
-    attributes.emplace_back("formatCode", format_code);
+    attributes.add_attribute("formatCode", format_code);
   }
 
   return xml_empty_tag("numFmt", attributes);
@@ -103,16 +100,12 @@ namespace
 
 [[nodiscard]] std::string write_font_condense()
 {
-  return xml_empty_tag("condense", {
-                                     {"val", "0"}
-  });
+  return xml_empty_tag("condense", attributes_t{"val", "0"});
 }
 
 [[nodiscard]] std::string write_font_extend()
 {
-  return xml_empty_tag("extend", {
-                                   {"val", "0"}
-  });
+  return xml_empty_tag("extend", attributes_t{"val", "0"});
 }
 
 [[nodiscard]] std::string write_font_underline(format_underlines_t underline)
@@ -123,19 +116,13 @@ namespace
       return xml_empty_tag("u");
 
     case format_underlines_t::DOUBLE:
-      return xml_empty_tag("u", {
-                                  {"val", "double"}
-      });
+      return xml_empty_tag("u", attributes_t{"val", "double"});
 
     case format_underlines_t::SINGLE_ACCOUNTING:
-      return xml_empty_tag("u", {
-                                  {"val", "singleAccounting"}
-      });
+      return xml_empty_tag("u", attributes_t{"val", "singleAccounting"});
 
     case format_underlines_t::DOUBLE_ACCOUNTING:
-      return xml_empty_tag("u", {
-                                  {"val", "doubleAccounting"}
-      });
+      return xml_empty_tag("u", attributes_t{"val", "doubleAccounting"});
 
     case format_underlines_t::NONE:
       return "";
@@ -146,50 +133,40 @@ namespace
 
 [[nodiscard]] std::string write_font_vert_align(const std::string& align)
 {
-  return xml_empty_tag("vertAlign", {
-                                      {"val", align}
-  });
+  return xml_empty_tag("vertAlign", attributes_t{"val", align});
 }
 
 [[nodiscard]] std::string write_font_size(double font_size)
 {
-  return xml_empty_tag("sz", {
-                               {"val", std::format("{}", font_size)}
-  });
+  return xml_empty_tag("sz", attributes_t{"val", font_size});
 }
 
 [[nodiscard]] std::string write_font_color_theme(uint8_t theme)
 {
-  return xml_empty_tag("color", {
-                                  {"theme", std::format("{:d}", theme)}
-  });
+  return xml_empty_tag("color", attributes_t{"theme", theme});
 }
 
 [[nodiscard]] std::string write_font_color_indexed(uint8_t index)
 {
-  return xml_empty_tag("color", {
-                                  {"indexed", std::format("{:d}", index)}
-  });
+  return xml_empty_tag("color", attributes_t{"indexed", index});
 }
 
 [[nodiscard]] std::string write_font_color_rgb(color_t rgb)
 {
-  return xml_empty_tag("color", {
-                                  {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(rgb) & COLOR_MASK)}
-  });
+  return xml_empty_tag("color", attributes_t{"rgb", rgb});
 }
 
 [[nodiscard]] std::string write_font_name(const std::string& font_name, bool is_rich_string)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(!font_name.empty())
   {
-    attributes.emplace_back("val", font_name);
+    attributes.add_attribute("val", font_name);
   }
   else
   {
-    attributes.emplace_back("val", format_t::DEFAULT_FONT_NAME);
+    attributes.add_attribute("val", format_t::DEFAULT_FONT_NAME);
   }
 
   if(is_rich_string)
@@ -204,28 +181,24 @@ namespace
 
 [[nodiscard]] std::string write_font_family(uint8_t font_family)
 {
-  return xml_empty_tag("family", {
-                                   {"val", std::format("{:d}", font_family)}
-  });
+  return xml_empty_tag("family", attributes_t{"val", font_family});
 }
 
 [[nodiscard]] std::string write_font_charset(uint8_t font_charset)
 {
-  return xml_empty_tag("charset", {
-                                    {"val", std::format("{:d}", font_charset)}
-  });
+  return xml_empty_tag("charset", attributes_t{"val", font_charset});
 }
 
 [[nodiscard]] std::string write_font_scheme(const std::string& font_scheme)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   if(!font_scheme.empty())
   {
-    attributes.emplace_back("val", font_scheme);
+    attributes.add_attribute("val", font_scheme);
   }
   else
   {
-    attributes.emplace_back("val", "minor");
+    attributes.add_attribute("val", "minor");
   }
 
   return xml_empty_tag("scheme", attributes);
@@ -234,9 +207,7 @@ namespace
 [[nodiscard]] std::string write_default_fill(const std::string& pattern)
 {
   std::string xml_data = xml_start_tag("fill");
-  xml_data += xml_empty_tag("patternFill", {
-                                             {"patternType", pattern}
-  });
+  xml_data += xml_empty_tag("patternFill", attributes_t{"patternType", pattern});
   xml_data += xml_end_tag("fill");
 
   return xml_data;
@@ -294,15 +265,15 @@ namespace
 
 [[nodiscard]] std::string write_border_color(color_t color)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(color != color_t::UNSET)
   {
-    attributes.emplace_back("rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK));
+    attributes.add_attribute("rgb", color, true);
   }
   else
   {
-    attributes.emplace_back("auto", "1");
+    attributes.add_attribute("auto", "1");
   }
 
   return xml_empty_tag("color", attributes);
@@ -315,9 +286,7 @@ namespace
     return xml_empty_tag(type);
   }
 
-  std::string xml_data = xml_start_tag(type, {
-                                               {"style", convert_format_borders_style(style)}
-  });
+  std::string xml_data = xml_start_tag(type, attributes_t{"style", convert_format_borders_style(style)});
   xml_data += write_border_color(color);
   xml_data += xml_end_tag(type);
 
@@ -326,41 +295,28 @@ namespace
 
 [[nodiscard]] std::string write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id)
 {
-  return xml_empty_tag("cellStyle", {
-                                      {"name",      name                      },
-                                      {"xfId",      std::to_string(xf_id)     },
-                                      {"builtinId", std::to_string(builtin_id)},
-  });
+  return xml_empty_tag("cellStyle", attributes_t{"name", name, "xfId", xf_id, "builtinId", builtin_id});
 }
 
 [[nodiscard]] std::string write_table_styles()
 {
-  return xml_empty_tag("tableStyles", {
-                                        {"count",             "0"                },
-                                        {"defaultTableStyle", "TableStyleMedium9"},
-                                        {"defaultPivotStyle", "PivotStyleLight16"},
-  });
+  return xml_empty_tag("tableStyles", attributes_t{"count", "0", "defaultTableStyle", "TableStyleMedium9",
+                                                   "defaultPivotStyle", "PivotStyleLight16"});
 }
 
 [[nodiscard]] std::string write_hyperlink_alignment()
 {
-  return xml_empty_tag("alignment", {
-                                      {"vertical", "top"}
-  });
+  return xml_empty_tag("alignment", attributes_t{"vertical", "top"});
 }
 
 [[nodiscard]] std::string write_hyperlink_protection()
 {
-  return xml_empty_tag("protection", {
-                                       {"locked", "0"}
-  });
+  return xml_empty_tag("protection", attributes_t{"locked", "0"});
 }
 
 [[nodiscard]] std::string write_fg_color(color_t color)
 {
-  return xml_empty_tag("fgColor", {
-                                    {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-  });
+  return xml_empty_tag("fgColor", attributes_t{"rgb", color});
 }
 
 [[nodiscard]] std::string write_bg_color(color_t color, format_patterns_t pattern)
@@ -369,16 +325,12 @@ namespace
   {
     if(pattern == format_patterns_t::SOLID || pattern == format_patterns_t::NONE)
     {
-      return xml_empty_tag("bgColor", {
-                                        {"indexed", "64"}
-      });
+      return xml_empty_tag("bgColor", attributes_t{"indexed", "64"});
     }
   }
   else
   {
-    return xml_empty_tag("bgColor", {
-                                      {"rgb", std::format("FF{:06X}", static_cast<uint32_t>(color) & COLOR_MASK)}
-    });
+    return xml_empty_tag("bgColor", attributes_t{"rgb", color});
   }
 
   return "";
@@ -398,20 +350,17 @@ namespace
 
 [[nodiscard]] std::string write_style_xf(bool has_hyperlink, int32_t font_id)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"numFmtId", "0"                    },
-    {"fontId",   std::to_string(font_id)},
-    {"fillId",   "0"                    },
-    {"borderId", "0"                    },
-  };
+  attributes_t attributes{
+
+    "numFmtId", "0", "fontId", font_id, "fillId", "0", "borderId", "0"};
 
   if(has_hyperlink)
   {
-    attributes.emplace_back("applyNumberFormat", "0");
-    attributes.emplace_back("applyFill", "0");
-    attributes.emplace_back("applyBorder", "0");
-    attributes.emplace_back("applyAlignment", "0");
-    attributes.emplace_back("applyProtection", "0");
+    attributes.add_attribute("applyNumberFormat", "0");
+    attributes.add_attribute("applyFill", "0");
+    attributes.add_attribute("applyBorder", "0");
+    attributes.add_attribute("applyAlignment", "0");
+    attributes.add_attribute("applyProtection", "0");
 
     std::string xml_data = xml_start_tag("xf", attributes);
     xml_data += write_hyperlink_alignment();
@@ -460,13 +409,13 @@ std::string style_t::assemble_xml_file()
 
 std::string style_t::write_string_fragment(const std::string& str)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   // Add attribute to preserve leading or trailing whitespace.
   if((std::isspace(static_cast<unsigned char>(str[0])) != 0) ||
      (std::isspace(static_cast<unsigned char>(str.back())) != 0))
   {
-    attributes.emplace_back("xml:space", "preserve");
+    attributes.add_attribute("xml:space", "preserve");
   }
 
   return xml_data_element("t", str, attributes);
@@ -485,9 +434,7 @@ std::string style_t::write_num_fmts() const
     return "";
   }
 
-  std::string xml_data = xml_start_tag("numFmts", {
-                                                    {"count", std::to_string(num_format_count_)}
-  });
+  std::string xml_data = xml_start_tag("numFmts", attributes_t{"count", num_format_count_});
 
   for(const auto* format: xf_formats_)
   {
@@ -646,9 +593,7 @@ std::string style_t::write_fonts()
     count++;
   }
 
-  std::string xml_data = xml_start_tag("fonts", {
-                                                  {"count", std::to_string(count)}
-  });
+  std::string xml_data = xml_start_tag("fonts", attributes_t{"count", count});
 
   for(const auto* format: xf_formats_)
   {
@@ -670,9 +615,7 @@ std::string style_t::write_fonts()
 
 std::string style_t::write_fills() const
 {
-  std::string xml_data = xml_start_tag("fills", {
-                                                  {"count", std::to_string(fill_count_)}
-  });
+  std::string xml_data = xml_start_tag("fills", attributes_t{"count", fill_count_});
 
   // Write the default fills.
   xml_data += write_default_fill("none");
@@ -693,21 +636,21 @@ std::string style_t::write_fills() const
 
 std::string style_t::write_border(const format_t* format, bool is_dxf)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   // Add attributes for diagonal borders.
   if(format->diag_type_ == format_diagonal_types_t::BORDER_UP)
   {
-    attributes.emplace_back("diagonalUp", "1");
+    attributes.add_attribute("diagonalUp", "1");
   }
   else if(format->diag_type_ == format_diagonal_types_t::BORDER_DOWN)
   {
-    attributes.emplace_back("diagonalDown", "1");
+    attributes.add_attribute("diagonalDown", "1");
   }
   else if(format->diag_type_ == format_diagonal_types_t::BORDER_UP_DOWN)
   {
-    attributes.emplace_back("diagonalUp", "1");
-    attributes.emplace_back("diagonalDown", "1");
+    attributes.add_attribute("diagonalUp", "1");
+    attributes.add_attribute("diagonalDown", "1");
   }
 
   // Ensure that a default diag border is set if the diag type is set.
@@ -742,9 +685,7 @@ std::string style_t::write_border(const format_t* format, bool is_dxf)
 
 std::string style_t::write_borders() const
 {
-  std::string xml_data = xml_start_tag("borders", {
-                                                    {"count", std::to_string(border_count_)}
-  });
+  std::string xml_data = xml_start_tag("borders", attributes_t{"count", border_count_});
 
   for(const auto* format: xf_formats_)
   {
@@ -761,15 +702,15 @@ std::string style_t::write_borders() const
 
 std::string style_t::write_cell_style_xfs() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(has_hyperlink_)
   {
-    attributes.emplace_back("count", "2");
+    attributes.add_attribute("count", "2");
   }
   else
   {
-    attributes.emplace_back("count", "1");
+    attributes.add_attribute("count", "1");
   }
 
   std::string xml_data = xml_start_tag("cellStyleXfs", attributes);
@@ -797,9 +738,7 @@ std::string style_t::write_cell_xfs() const
     count--;
   }
 
-  std::string xml_data = xml_start_tag("cellXfs", {
-                                                    {"count", std::to_string(count)}
-  });
+  std::string xml_data = xml_start_tag("cellXfs", attributes_t{"count", count});
   for(const auto* format: xf_formats_)
   {
     if(!format->font_only_)
@@ -814,15 +753,15 @@ std::string style_t::write_cell_xfs() const
 
 std::string style_t::write_cell_styles() const
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(has_hyperlink_)
   {
-    attributes.emplace_back("count", "2");
+    attributes.add_attribute("count", "2");
   }
   else
   {
-    attributes.emplace_back("count", "1");
+    attributes.add_attribute("count", "1");
   }
 
   std::string xml_data = xml_start_tag("cellStyles", attributes);
@@ -856,7 +795,7 @@ bool style_t::has_alignment(const format_t* format)
 
 std::string style_t::write_alignment(const format_t* format)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   int16_t rotation{format->rotation_};
   format_alignments_t text_h_align{format->text_h_align_};
   bool shrink{format->shrink_};
@@ -908,62 +847,62 @@ std::string style_t::write_alignment(const format_t* format)
 
   if(text_h_align == format_alignments_t::HORIZONTAL_LEFT)
   {
-    attributes.emplace_back("horizontal", "left");
+    attributes.add_attribute("horizontal", "left");
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_CENTER)
   {
-    attributes.emplace_back("horizontal", "center");
+    attributes.add_attribute("horizontal", "center");
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_RIGHT)
   {
-    attributes.emplace_back("horizontal", "right");
+    attributes.add_attribute("horizontal", "right");
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_FILL)
   {
-    attributes.emplace_back("horizontal", "fill");
+    attributes.add_attribute("horizontal", "fill");
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_JUSTIFY)
   {
-    attributes.emplace_back("horizontal", "justify");
+    attributes.add_attribute("horizontal", "justify");
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_CENTER_ACROSS)
   {
-    attributes.emplace_back("horizontal", "centerContinuous");
+    attributes.add_attribute("horizontal", "centerContinuous");
   }
 
   if(text_h_align == format_alignments_t::HORIZONTAL_DISTRIBUTED)
   {
-    attributes.emplace_back("horizontal", "distributed");
+    attributes.add_attribute("horizontal", "distributed");
   }
 
   if(just_distrib)
   {
-    attributes.emplace_back("justifyLastLine", "1");
+    attributes.add_attribute("justifyLastLine", "1");
   }
 
   if(format->text_v_align_ == format_alignments_t::VERTICAL_TOP)
   {
-    attributes.emplace_back("vertical", "top");
+    attributes.add_attribute("vertical", "top");
   }
 
   if(format->text_v_align_ == format_alignments_t::VERTICAL_CENTER)
   {
-    attributes.emplace_back("vertical", "center");
+    attributes.add_attribute("vertical", "center");
   }
 
   if(format->text_v_align_ == format_alignments_t::VERTICAL_JUSTIFY)
   {
-    attributes.emplace_back("vertical", "justify");
+    attributes.add_attribute("vertical", "justify");
   }
 
   if(format->text_v_align_ == format_alignments_t::VERTICAL_DISTRIBUTED)
   {
-    attributes.emplace_back("vertical", "distributed");
+    attributes.add_attribute("vertical", "distributed");
   }
 
   // Map rotation to Excel values.
@@ -980,32 +919,32 @@ std::string style_t::write_alignment(const format_t* format)
       rotation = -rotation + 90;
     }
 
-    attributes.emplace_back("textRotation", std::to_string(rotation));
+    attributes.add_attribute("textRotation", rotation);
   }
 
   if(format->indent_ != 0)
   {
-    attributes.emplace_back("indent", std::to_string(format->indent_));
+    attributes.add_attribute("indent", format->indent_);
   }
 
   if(format->text_wrap_)
   {
-    attributes.emplace_back("wrapText", "1");
+    attributes.add_attribute("wrapText", "1");
   }
 
   if(shrink)
   {
-    attributes.emplace_back("shrinkToFit", "1");
+    attributes.add_attribute("shrinkToFit", "1");
   }
 
   if(format->reading_order_ == 1)
   {
-    attributes.emplace_back("readingOrder", "1");
+    attributes.add_attribute("readingOrder", "1");
   }
 
   if(format->reading_order_ == 2)
   {
-    attributes.emplace_back("readingOrder", "2");
+    attributes.add_attribute("readingOrder", "2");
   }
 
   if(!attributes.empty())
@@ -1020,15 +959,15 @@ std::string style_t::write_alignment(const format_t* format)
 
 std::string style_t::write_protection(const format_t* format)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   if(!format->locked_)
   {
-    attributes.emplace_back("locked", "0");
+    attributes.add_attribute("locked", "0");
   }
 
   if(format->hidden_)
   {
-    attributes.emplace_back("hidden", "1");
+    attributes.add_attribute("hidden", "1");
   }
 
   return xml_empty_tag("protection", attributes);
@@ -1038,47 +977,44 @@ std::string style_t::write_xf(const format_t* format)
 {
   const bool has_protection = !format->locked_ || format->hidden_;
 
-  std::vector<std::tuple<std::string, std::string>> attributes{
-    {"numFmtId", std::to_string(format->num_format_index_)},
-    {"fontId",   std::to_string(format->font_index_)      },
-    {"fillId",   std::to_string(format->fill_index_)      },
-    {"borderId", std::to_string(format->border_index_)    },
-    {"xfId",     std::to_string(format->xf_id_)           },
+  attributes_t attributes{
+    "numFmtId", format->num_format_index_, "fontId", format->font_index_, "fillId", format->fill_index_,
+    "borderId", format->border_index_,     "xfId",   format->xf_id_,
   };
 
   if(format->quote_prefix_)
   {
-    attributes.emplace_back("quotePrefix", "1");
+    attributes.add_attribute("quotePrefix", "1");
   }
 
   if(format->num_format_index_ > 0)
   {
-    attributes.emplace_back("applyNumberFormat", "1");
+    attributes.add_attribute("applyNumberFormat", "1");
   }
 
   if(format->font_index_ > 0 && !format->hyperlink_)
   {
-    attributes.emplace_back("applyFont", "1");
+    attributes.add_attribute("applyFont", "1");
   }
 
   if(format->fill_index_ > 0)
   {
-    attributes.emplace_back("applyFill", "1");
+    attributes.add_attribute("applyFill", "1");
   }
 
   if(format->border_index_ > 0)
   {
-    attributes.emplace_back("applyBorder", "1");
+    attributes.add_attribute("applyBorder", "1");
   }
 
   if(apply_alignment(format) || format->hyperlink_)
   {
-    attributes.emplace_back("applyAlignment", "1");
+    attributes.add_attribute("applyAlignment", "1");
   }
 
   if(has_protection || format->hyperlink_)
   {
-    attributes.emplace_back("applyProtection", "1");
+    attributes.add_attribute("applyProtection", "1");
   }
 
   if(has_alignment(format) || has_protection)
@@ -1107,9 +1043,8 @@ std::string style_t::write_xf(const format_t* format)
 
 std::string style_t::write_dxfs()
 {
-  const std::vector<std::tuple<std::string, std::string>> attributes{
-    {"count", std::to_string(dxf_formats_.size())}
-  };
+  attributes_t attributes;
+  attributes.add_attribute("count", dxf_formats_.size());
 
   if(!dxf_formats_.empty())
   {
@@ -1152,7 +1087,7 @@ std::string style_t::write_dxfs()
 
 std::string style_t::write_fill(const format_t* format, bool is_dxf)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
   const format_patterns_t pattern{format->pattern_};
   color_t bg_color{format->bg_color_};
   color_t fg_color{format->fg_color_};
@@ -1182,7 +1117,7 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf)
   if(pattern != format_patterns_t::NONE &&
      (!is_dxf || static_cast<uint32_t>(pattern) > static_cast<uint32_t>(format_patterns_t::SOLID)))
   {
-    attributes.emplace_back("patternType", patterns[static_cast<uint32_t>(pattern)]);
+    attributes.add_attribute("patternType", patterns[static_cast<uint32_t>(pattern)]);
   }
 
   xml_data += xml_start_tag("patternFill", attributes);

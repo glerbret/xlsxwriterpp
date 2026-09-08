@@ -19,10 +19,7 @@ namespace
 
 [[nodiscard]] std::string write_k(const std::string& name, const std::string& type)
 {
-  return xml_empty_tag("k", {
-                              {"n", name},
-                              {"t", type},
-  });
+  return xml_empty_tag("k", attributes_t{"n", name, "t", type});
 }
 
 }
@@ -43,11 +40,9 @@ std::string rich_value_structure_t::assemble_xml_file() const
 
 std::string rich_value_structure_t::write_rv_structures() const
 {
-  std::string xml_data =
-    xml_start_tag("rvStructures", {
-                                    {"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata"},
-                                    {"count", "1"                                                              },
-  });
+  std::string xml_data = xml_start_tag(
+    "rvStructures",
+    attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata", "count", "1"});
   xml_data += write_s();
 
   return xml_data;
@@ -55,9 +50,7 @@ std::string rich_value_structure_t::write_rv_structures() const
 
 std::string rich_value_structure_t::write_s() const
 {
-  std::string xml_data = xml_start_tag("s", {
-                                              {"t", "_localImage"}
-  });
+  std::string xml_data = xml_start_tag("s", attributes_t{"t", "_localImage"});
   xml_data += write_k("_rvRel:LocalImageIdentifier", "i");
   xml_data += write_k("CalcOrigin", "i");
   if(has_embedded_image_descriptions_)

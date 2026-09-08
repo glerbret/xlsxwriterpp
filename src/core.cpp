@@ -33,14 +33,11 @@ namespace
 
 [[nodiscard]] std::string write_cp_core_properties()
 {
-  return xml_start_tag("cp:coreProperties",
-                       {
-                         {"xmlns:cp",       "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"},
-                         {"xmlns:dc",       "http://purl.org/dc/elements/1.1/"                                       },
-                         {"xmlns:dcterms",  "http://purl.org/dc/terms/"                                              },
-                         {"xmlns:dcmitype", "http://purl.org/dc/dcmitype/"                                           },
-                         {"xmlns:xsi",      "http://www.w3.org/2001/XMLSchema-instance"                              },
-  });
+  return xml_start_tag(
+    "cp:coreProperties",
+    attributes_t{"xmlns:cp", "http://schemas.openxmlformats.org/package/2006/metadata/core-properties", "xmlns:dc",
+                 "http://purl.org/dc/elements/1.1/", "xmlns:dcterms", "http://purl.org/dc/terms/", "xmlns:dcmitype",
+                 "http://purl.org/dc/dcmitype/", "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"});
 }
 
 }
@@ -137,9 +134,7 @@ std::string core_t::write_cp_last_modified_by() const
 std::string core_t::write_dcterms_created() const
 {
   return xml_data_element("dcterms:created", datetime_to_iso8601_date(properties_.created_),
-                          {
-                            {"xsi:type", "dcterms:W3CDTF"}
-  });
+                          attributes_t{"xsi:type", "dcterms:W3CDTF"});
 }
 
 std::string core_t::write_dcterms_modified() const
@@ -150,9 +145,7 @@ std::string core_t::write_dcterms_modified() const
   }
 
   return xml_data_element("dcterms:modified", datetime_to_iso8601_date(properties_.modified_),
-                          {
-                            {"xsi:type", "dcterms:W3CDTF"}
-  });
+                          attributes_t{"xsi:type", "dcterms:W3CDTF"});
 }
 
 std::string core_t::write_cp_category() const

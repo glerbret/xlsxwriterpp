@@ -19,17 +19,62 @@
 #ifndef XWPP_XMLWRITER_H
 #define XWPP_XMLWRITER_H
 
+#include <concepts>
+#include <format>
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
-// TODO Create type for attributes with support of different types (string, integer float, ...)
+#include "format.h"
 
 namespace xwpp
 {
 
-const size_t MAX_ATTRIBUTE_LENGTH{2080};
+class attributes_t
+{
+public:
+  template<class... T>
+  explicit attributes_t(T... args)
+  {
+    initAttribute(args...);
+  }
+
+  void add_attribute(std::string_view key, std::string_view value);
+  void add_attribute(std::string_view key, const char* value);
+  void add_attribute(std::string_view key, bool value);
+  template<std::integral T>
+  void add_attribute(std::string_view key, T value)
+  {
+    attributes_.emplace_back(key, std::format("{:d}", value));
+  }
+  template<std::floating_point T>
+  void add_attribute(std::string_view key, T value)
+  {
+    attributes_.emplace_back(key, std::format("{}", value));
+  }
+  void add_attribute(std::string_view key, color_t value, bool padding = true);
+
+  [[nodiscard]] std::string to_string() const;
+  [[nodiscard]] bool empty() const;
+
+private:
+  void initAttribute()
+  {
+  }
+
+  template<class T, class U, class... V>
+  void initAttribute(T key, U value, V... args)
+  {
+    add_attribute(key, value);
+    initAttribute(args...);
+  }
+
+  [[nodiscard]] std::string escape_attribute_value(std::string_view attribute_value) const;
+
+  std::vector<std::tuple<std::string, std::string>> attributes_;
+};
 
 /**
  * Create the XML declaration in an XML file.
@@ -46,8 +91,7 @@ const size_t MAX_ATTRIBUTE_LENGTH{2080};
  *
  * @return XML content.
  */
-[[nodiscard]] std::string xml_start_tag(std::string_view tag,
-                                        const std::vector<std::tuple<std::string, std::string>>& attributes);
+[[nodiscard]] std::string xml_start_tag(std::string_view tag, const attributes_t& attributes);
 [[nodiscard]] std::string xml_start_tag(std::string_view tag);
 
 /**
@@ -67,8 +111,7 @@ const size_t MAX_ATTRIBUTE_LENGTH{2080};
  *
  * @return XML content.
  */
-[[nodiscard]] std::string xml_empty_tag(std::string_view tag,
-                                        const std::vector<std::tuple<std::string, std::string>>& attributes);
+[[nodiscard]] std::string xml_empty_tag(std::string_view tag, const attributes_t& attributes);
 [[nodiscard]] std::string xml_empty_tag(std::string_view tag);
 
 /**
@@ -80,14 +123,12 @@ const size_t MAX_ATTRIBUTE_LENGTH{2080};
  *
  * @return XML content.
  */
-[[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data,
-                                           const std::vector<std::tuple<std::string, std::string>>& attributes);
+[[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data, const attributes_t& attributes);
 [[nodiscard]] std::string xml_data_element(std::string_view tag, std::string_view data);
 [[nodiscard]] std::string xml_data_element(std::string_view tag);
 [[nodiscard]] std::string xml_rich_si_element(std::string_view str);
 [[nodiscard]] std::string escape_control_characters(std::string_view str);
 [[nodiscard]] std::string escape_url_characters(const std::string& str, bool escape_hash);
-[[nodiscard]] std::string escape_data(std::string_view data);
 
 }
 

@@ -35,19 +35,14 @@ BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes)
 {
   const std::string expected{R"(<foo span="8" baz="7">)"};
 
-  BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, {
-                                                            {"span", "8"},
-                                                            {"baz",  "7"},
-  }));
+  BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, xwpp::attributes_t{"span", "8", "baz", "7"}));
 }
 
 BOOST_AUTO_TEST_CASE(xml_start_tag_with_attributes_to_escape)
 {
   const std::string expected{R"(<foo span="&amp;&lt;&gt;&quot;">)"};
 
-  BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, {
-                                                            {"span", "&<>\""},
-  }));
+  BOOST_CHECK_EQUAL(expected, xwpp::xml_start_tag("foo"s, xwpp::attributes_t{"span", "&<>\""}));
 }
 
 BOOST_AUTO_TEST_CASE(xml_end_tag)
@@ -70,19 +65,14 @@ BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes)
 {
   const std::string expected{R"(<foo span="8" baz="7"/>)"};
 
-  BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s, {
-                                                            {"span", "8"},
-                                                            {"baz",  "7"},
-  }));
+  BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s, xwpp::attributes_t{"span", "8", "baz", "7"}));
 }
 
 BOOST_AUTO_TEST_CASE(xml_empty_tag_with_attributes_to_escape)
 {
   const std::string expected{R"(<foo span="&amp;&lt;&gt;&quot;"/>)"};
 
-  BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s, {
-                                                            {"span", "&<>\""},
-  }));
+  BOOST_CHECK_EQUAL(expected, xwpp::xml_empty_tag("foo"s, xwpp::attributes_t{"span", "&<>\""}));
 }
 
 BOOST_AUTO_TEST_CASE(xml_data_element)
@@ -105,20 +95,14 @@ BOOST_AUTO_TEST_CASE(xml_data_element_with_attributes)
 {
   const std::string expected{R"(<foo span="8">bar</foo>)"};
 
-  BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "bar"s,
-                                                     {
-                                                       {"span", "8"}
-  }));
+  BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "bar"s, xwpp::attributes_t{"span", "8"}));
 }
 
 BOOST_AUTO_TEST_CASE(xml_data_element_with_escapes)
 {
   const std::string expected{R"(<foo span="8">&amp;&lt;&gt;"</foo>)"};
 
-  BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "&<>\""s,
-                                                     {
-                                                       {"span", "8"}
-  }));
+  BOOST_CHECK_EQUAL(expected, xwpp::xml_data_element("foo"s, "&<>\""s, xwpp::attributes_t{"span", "8"}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

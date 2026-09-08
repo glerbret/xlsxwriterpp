@@ -24,9 +24,7 @@ namespace
 
 [[nodiscard]] std::string write_comments()
 {
-  return xml_start_tag("comments", {
-                                     {"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-  });
+  return xml_start_tag("comments", attributes_t{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"});
 }
 
 [[nodiscard]] std::string write_author(const std::string& author)
@@ -41,22 +39,20 @@ namespace
 
 [[nodiscard]] std::string write_family(const vml_obj_t& comment)
 {
-  return xml_empty_tag("family", {
-                                   {"val", std::to_string(comment.font_family_)}
-  });
+  return xml_empty_tag("family", attributes_t{"val", comment.font_family_});
 }
 
 [[nodiscard]] std::string write_r_font(const vml_obj_t& comment)
 {
-  std::vector<std::tuple<std::string, std::string>> attributes;
+  attributes_t attributes;
 
   if(!comment.font_name_.empty())
   {
-    attributes.emplace_back("val", comment.font_name_);
+    attributes.add_attribute("val", comment.font_name_);
   }
   else
   {
-    attributes.emplace_back("val", "Tahoma");
+    attributes.add_attribute("val", "Tahoma");
   }
 
   return xml_empty_tag("rFont", attributes);
@@ -64,16 +60,12 @@ namespace
 
 [[nodiscard]] std::string write_color()
 {
-  return xml_empty_tag("color", {
-                                  {"indexed", "81"}
-  });
+  return xml_empty_tag("color", attributes_t{"indexed", "81"});
 }
 
 [[nodiscard]] std::string write_sz(const vml_obj_t& comment)
 {
-  return xml_empty_tag("sz", {
-                               {"val", std::format("{}", comment.font_size_)}
-  });
+  return xml_empty_tag("sz", attributes_t{"val", comment.font_size_});
 }
 
 [[nodiscard]] std::string write_r_pr(const vml_obj_t& comment)
@@ -110,10 +102,7 @@ namespace
 [[nodiscard]] std::string write_comment(const vml_obj_t& comment)
 {
   const std::string ref = rowcol_to_cell(comment.row_num_, comment.col_num_);
-  std::string xml_data  = xml_start_tag("comment", {
-                                                    {"ref",      ref                               },
-                                                    {"authorId", std::to_string(comment.author_id_)},
-  });
+  std::string xml_data  = xml_start_tag("comment", attributes_t{"ref", ref, "authorId", comment.author_id_});
   xml_data += write_text(comment);
   xml_data += xml_end_tag("comment");
 
