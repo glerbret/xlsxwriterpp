@@ -15,13 +15,13 @@ int main()
   xwpp::format_t* border2 = workbook.add_format();
   xwpp::format_t* border3 = workbook.add_format();
 
-  border1->set_bg_color(xwpp::color_t::RED);
+  border1->set_bg_color(xwpp::color_t::red());
 
-  border2->set_bg_color(xwpp::color_t::YELLOW);
+  border2->set_bg_color(xwpp::color_t::yellow());
   border2->set_pattern(xwpp::format_patterns_t::DARK_VERTICAL);
 
-  border3->set_bg_color(xwpp::color_t::YELLOW);
-  border3->set_fg_color(xwpp::color_t::RED);
+  border3->set_bg_color(xwpp::color_t::yellow());
+  border3->set_fg_color(xwpp::color_t::red());
   border3->set_pattern(xwpp::format_patterns_t::GRAY_0625);
 
   worksheet.write_blank(1, 1, border1);

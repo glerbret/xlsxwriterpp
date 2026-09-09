@@ -18,7 +18,7 @@ int main()
   merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
   merge_format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
   merge_format->set_bold();
-  merge_format->set_bg_color(xwpp::color_t::YELLOW);
+  merge_format->set_bg_color(xwpp::color_t::yellow());
   merge_format->set_border(xwpp::format_borders_t::THIN);
 
   // Increase the cell size of the merged cells to highlight the formatting.

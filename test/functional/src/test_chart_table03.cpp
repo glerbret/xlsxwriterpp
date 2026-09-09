@@ -37,7 +37,7 @@ int main()
 
   chart.set_table_grid(false, false, false, true);
 
-  const xwpp::chart_font_t font{.bold_ = true, .italic_ = true, .color_ = xwpp::color_t::RED, .baseline_ = -1};
+  const xwpp::chart_font_t font{.bold_ = true, .italic_ = true, .color_ = xwpp::color_t::red(), .baseline_ = -1};
 
   chart.set_table_font(font);
 

@@ -15,7 +15,7 @@ int main()
 
   xwpp::format_t* red_format = workbook.add_format();
 
-  red_format->set_font_color(xwpp::color_t::RED);
+  red_format->set_font_color(xwpp::color_t::red());
 
   worksheet.write_string(CELL("A1"), "Foo", red_format);
   worksheet.write_string(CELL("A2"), "Bar", nullptr);

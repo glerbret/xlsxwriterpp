@@ -675,7 +675,7 @@ struct chart_line_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_{color_t::UNSET};
+  color_t color_;
 
   /** Turn off/hide line.*/
   bool none_{false};
@@ -708,7 +708,7 @@ struct chart_fill_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_{color_t::UNSET};
+  color_t color_;
 
   /** Turn off/hide line.*/
   bool none_{false};
@@ -731,14 +731,14 @@ struct chart_pattern_t
    *
    * @see @ref working_with_colors.
    */
-  color_t fg_color_{color_t::UNSET};
+  color_t fg_color_;
 
   /**
    * The pattern background color.
    *
    * @see @ref working_with_colors.
    */
-  color_t bg_color_{color_t::UNSET};
+  color_t bg_color_;
 
   /** The pattern type. See `chart_pattern_type_t`. */
   chart_pattern_type_t type_{chart_pattern_type_t::NONE};
@@ -785,7 +785,7 @@ struct chart_font_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_{color_t::UNSET};
+  color_t color_;
 
   /** The chart font pitch family property. Rarely required, set to 0. */
   uint8_t pitch_family_{0};
@@ -1447,7 +1447,7 @@ public:
    * chart title:
    *
    * @code
-   *  xwpp::chart_font_t font{.color_ = xwpp::color_t::BLUE};
+   *  xwpp::chart_font_t font{.color_ = xwpp::color_t::blue()};
    *
    *  chart.title_set_name("Year End Results");
    *  chart.title_set_name_font(font);
@@ -1570,7 +1570,7 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_     = xwpp::color_t::RED,
+   *    .color_     = xwpp::color_t::red(),
    *    .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
@@ -1601,7 +1601,7 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_     = xwpp::color_t::RED,
+   *    .color_     = xwpp::color_t::red(),
    *    .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
@@ -1646,11 +1646,11 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_ = xwpp::color_t::BLACK};
+   *    .color_ = xwpp::color_t::black()};
    *  xwpp::chart_fill_t up_fill{
-   *    .color_ = xwpp::color_t(0x00B050)};
+   *    .color_ = xwpp::color_t{0x00B050}};
    *  xwpp::chart_fill_t down_fill{
-   *    .color_ = xwpp::color_t::RED};
+   *    .color_ = xwpp::color_t::red()};
    *
    *  chart.set_up_down_bars_format(line, up_fill, line, down_fill);
    * @endcode
@@ -1831,7 +1831,7 @@ public:
    * @code
    *  xwpp::chart_font_t font{
    *    .bold_ = true,
-   *    .color_ = xwpp::color_t::BLUE,
+   *    .color_ = xwpp::color_t::blue(),
    *  };
    *
    *  chart.legend_set_font(font);
@@ -1874,7 +1874,7 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{.none_  = true};
-   *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::RED};
+   *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::red()};
    *
    *  chart.chartarea_set_line(line);
    *  chart.chartarea_set_fill(fill);
@@ -1913,12 +1913,12 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_     = xwpp::color_t::RED,
+   *    .color_     = xwpp::color_t::red(),
    *    .width_     = 2,
    *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH,
    *  };
    *  xwpp::chart_fill_t fill{
-   *    .color_     = xwpp::color_t(0xFFFFC2)
+   *    .color_     = xwpp::color_t{0xFFFFC2}
    *  };
    *
    *  chart.plotarea_set_line(line);
@@ -2533,7 +2533,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  * Set the line/border properties of a chart series:
  *
  * @code
- *  xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
+ *  xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
  *
  *  chart_series_set_line(series1, line);
  *  chart_series_set_line(series2, line);
@@ -2555,9 +2555,9 @@ void chart_series_set_line(chart_series_t& series, const std::optional<chart_lin
  * Set the fill properties of a chart series:
  *
  * @code
- *  xwpp::chart_fill_t fill1{.color_ = xwpp::color_t::RED};
- *  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::YELLOW};
- *  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::GREEN};
+ *  xwpp::chart_fill_t fill1{.color_ = xwpp::color_t::red()};
+ *  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::yellow()};
+ *  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::green()};
  *
  *  chart_series_set_fill(series1, fill1);
  *  chart_series_set_fill(series2, fill2);
@@ -2595,14 +2595,14 @@ void chart_series_set_invert_if_negative(chart_series_t& series);
  * @code
  *  xwpp::chart_pattern_t pattern1{
  *    .type_     = xwpp::chart_pattern_type_t::SHINGLE,
- *    .fg_color_ = xwpp::color_t(0x804000),
- *    .bg_color_ = xwpp::color_t(0xC68C53),
+ *    .fg_color_ = xwpp::color_t{0x804000},
+ *    .bg_color_ = xwpp::color_t{0xC68C53},
  *  };
  *
  *  xwpp::chart_pattern_t pattern2{
  *    .type_     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
- *    .fg_color_ = xwpp::color_t(0xB30000),
- *    .bg_color_ = xwpp::color_t(0xFF6666),
+ *    .fg_color_ = xwpp::color_t{0xB30000},
+ *    .bg_color_ = xwpp::color_t{0xFF6666},
  *  };
  *
  *  chart_series_set_pattern(series1, pattern1);
@@ -2642,8 +2642,8 @@ void chart_series_set_marker_size(chart_series_t& series, uint8_t size);
  * Set the line/border properties of a chart marker:
  *
  * @code
- *  xwpp::chart_line_t line{.color_ = xwpp::color_t::BLACK};
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::RED};
+ *  xwpp::chart_line_t line{.color_ = xwpp::color_t::black()};
+ *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::red()};
  *
  *  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
  *  chart.series_set_marker_size(series, 8);
@@ -2981,7 +2981,7 @@ void chart_series_set_labels_num_format(chart_series_t& series, std::string_view
  * @code
  *  xwpp::chart_font_t font{
  *    .name_ = "Consolas",
- *    .color_ = xwpp::color_t::RED,
+ *    .color_ = xwpp::color_t::red(),
  *  };
  *
  *  chart_series_set_labels(series);
@@ -3003,8 +3003,8 @@ void chart_series_set_labels_font(chart_series_t& series, const std::optional<ch
  * Set the line/border properties of the data labels in a chart series:
  *
  * @code
- *  xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::YELLOW};
+ *  xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
+ *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
  *
  *  chart_series_set_labels_line(series, line);
  *  chart_series_set_labels_fill(series, fill);
@@ -3025,7 +3025,7 @@ void chart_series_set_labels_line(chart_series_t& series, const std::optional<ch
  * Set the fill properties of the data labels in a chart series:
  *
  * @code
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::YELLOW};
+ *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
  *
  *  chart_series_set_labels_fill(series, fill);
  * @endcode
@@ -3246,7 +3246,7 @@ void chart_series_set_trendline_name(chart_series_t& series, std::string_view na
  *
  * @code
  *  xwpp::chart_line_t line{
- *    .color_     = xwpp::color_t::RED,
+ *    .color_     = xwpp::color_t::red(),
  *    .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH
  *  };
  *
@@ -3329,7 +3329,7 @@ void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_e
  *
  * @code
  *  xwpp::chart_line_t line{
- *    .color_     = xwpp::color_t::RED,
+ *    .color_     = xwpp::color_t::red(),
  *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
  *  };
  *
@@ -3424,7 +3424,7 @@ void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_la
  * @code
  *  xwpp::chart_font_t font{
  *    .bold_  = true,
- *    .color_ = xwpp::color_t::BLUE,
+ *    .color_ = xwpp::color_t::blue(),
  *  };
  *
  *  chart_axis_set_name(chart->x_axis, "Yearly data");
@@ -3452,7 +3452,7 @@ void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font
  * @code
  *  xwpp::chart_font_t font{
  *    .bold_  = true,
- *    .color_ = xwpp::color_t::BLUE
+ *    .color_ = xwpp::color_t::blue()
  *  };
  *
  *  chart_axis_set_num_font(chart->x_axis, font1);
@@ -3524,7 +3524,7 @@ void chart_axis_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& 
  * Set the fill properties of a chart axis:
  *
  * @code
- *  xwpp::chart_fill_t fill{.color_ = xwpp:color_t::YELLOW};
+ *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
  *
  *  chart_axis_set_fill(chart->y_axis, fill);
  * @endcode
@@ -4037,13 +4037,13 @@ void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible);
  *
  * @code
  *  xwpp::chart_line_t line1{
- *    .color_      = xwpp::color_t::RED,
+ *    .color_      = xwpp::color_t::red(),
  *    .width_      = 0.5,
  *    .dash_type_  = xwpp::xwpp::chart_line_dash_type_t::SQUARE_DOT,
  *  };
  *
  *  xwpp::chart_line_t line2{
- *    .color_      = xwpp::color_t::YELLOW,
+ *    .color_      = xwpp::color_t::yellow(),
  *  };
  *
  *  xwpp::chart_line_t line3{
@@ -4052,7 +4052,7 @@ void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible);
  *  };
  *
  *  xwpp::chart_line_t line4{
- *    .color_      = xwpp::color_t(0x00B050),
+ *    .color_      = xwpp::color_t{0x00B050},
  *  };
  *
  *  chart_axis_major_gridlines_set_line(chart->x_axis, line1);

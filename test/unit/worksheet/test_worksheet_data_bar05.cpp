@@ -131,15 +131,15 @@ BOOST_AUTO_TEST_CASE(data_bar05)
 
   conditional_format = xwpp::conditional_format_t{
     .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_color_     = xwpp::color_t(0x63C384),
+    .bar_color_     = xwpp::color_t{0x63C384},
     .bar_direction_ = xwpp::conditional_format_bar_direction_t::RIGHT_TO_LEFT,
   };
   worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
     .type_               = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_color_          = xwpp::color_t(0xFF555A),
-    .bar_negative_color_ = xwpp::color_t(0xFFFF00),
+    .bar_color_          = xwpp::color_t{0xFF555A},
+    .bar_negative_color_ = xwpp::color_t{0xFFFF00},
   };
   worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
 

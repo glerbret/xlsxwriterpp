@@ -12,8 +12,8 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::format_t* format = workbook.add_format();
-  format->set_font_color(xwpp::color_t(0x9C6500));
-  format->set_bg_color(xwpp::color_t(0xFFEB9C));
+  format->set_font_color(xwpp::color_t{0x9C6500});
+  format->set_bg_color(xwpp::color_t{0xFFEB9C});
   format->set_font_condense();
   format->set_font_extend();
 

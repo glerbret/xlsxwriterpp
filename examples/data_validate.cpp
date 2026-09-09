@@ -53,7 +53,7 @@ int main()
   // Add a format to use to highlight the header cells.
   xwpp::format_t* format = workbook.add_format();
   format->set_border(xwpp::format_borders_t::THIN);
-  format->set_fg_color(static_cast<xwpp::color_t>(0xC6EFCE));
+  format->set_fg_color(xwpp::color_t{0xC6EFCE});
   format->set_bold();
   format->set_text_wrap();
   format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);

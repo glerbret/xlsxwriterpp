@@ -267,7 +267,7 @@ namespace
 {
   attributes_t attributes;
 
-  if(color != color_t::UNSET)
+  if(color)
   {
     attributes.add_attribute("rgb", color, true);
   }
@@ -321,7 +321,7 @@ namespace
 
 [[nodiscard]] std::string write_bg_color(color_t color, format_patterns_t pattern)
 {
-  if(color == color_t::UNSET)
+  if(!color)
   {
     if(pattern == format_patterns_t::SOLID || pattern == format_patterns_t::NONE)
     {
@@ -536,7 +536,7 @@ std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_ric
   {
     xml_data += write_font_color_indexed(format->color_indexed_);
   }
-  else if(format->font_color_ != color_t::UNSET)
+  else if(format->font_color_)
   {
     xml_data += write_font_color_rgb(format->font_color_);
   }
@@ -668,8 +668,8 @@ std::string style_t::write_border(const format_t* format, bool is_dxf)
 
   if(is_dxf)
   {
-    xml_data += write_sub_border("vertical", format_borders_t::NONE, color_t::UNSET);
-    xml_data += write_sub_border("horizontal", format_borders_t::NONE, color_t::UNSET);
+    xml_data += write_sub_border("vertical", format_borders_t::NONE, color_t{});
+    xml_data += write_sub_border("horizontal", format_borders_t::NONE, color_t{});
   }
 
   // Conditional DXF formats don't allow diagonal borders.
@@ -1106,7 +1106,7 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf)
   }
 
   // Special handling for pattern only case.
-  if(bg_color == color_t::UNSET && fg_color == color_t::UNSET && pattern != format_patterns_t::NONE)
+  if(!bg_color && !fg_color && pattern != format_patterns_t::NONE)
   {
     return write_default_fill(patterns[static_cast<uint32_t>(pattern)]);
   }
@@ -1122,7 +1122,7 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf)
 
   xml_data += xml_start_tag("patternFill", attributes);
 
-  if(fg_color != color_t::UNSET)
+  if(fg_color)
   {
     xml_data += write_fg_color(fg_color);
   }

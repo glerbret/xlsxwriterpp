@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   worksheet.write_string(CELL("A1"), "Foo");
-  worksheet.set_tab_color(xwpp::color_t::red());
+  worksheet.set_tab_color(xwpp::color_t{0xFF0000});
 
-  workbook.save("test_tab_color01.xlsx");
+  workbook.save("test_tab_color02.xlsx");
 }

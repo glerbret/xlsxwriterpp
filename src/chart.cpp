@@ -113,7 +113,7 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
     return chart_pattern_t{};
   }
 
-  if(user_pattern->fg_color_ == color_t::UNSET)
+  if(!user_pattern->fg_color_)
   {
     return chart_pattern_t{};
   }
@@ -124,10 +124,10 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
     .type_     = user_pattern->type_,
   };
 
-  if(pattern.bg_color_ == color_t::UNSET)
+  if(!pattern.bg_color_)
   {
     // Default background color in Excel is white, when unspecified.
-    pattern.bg_color_ = color_t::WHITE;
+    pattern.bg_color_ = color_t::white();
   }
 
   return pattern;
@@ -486,7 +486,7 @@ void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
   // The maximum number of series in a chart is 255.
   if(delete_series.size() > 255)
   {
-    throw xwpp_exception_t("chart_t::legend_delete_series(): too manu elements in 'delete_series'.");
+    throw xwpp_exception_t("chart_t::legend_delete_series(): too many elements in 'delete_series'.");
   }
 
   delete_series_ = delete_series;
@@ -986,7 +986,7 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
     if(chart.type_ == chart_type_t::SCATTER && !series.line_)
     {
       chart_line_t line{
-        .color_        = static_cast<color_t>(0x000000),
+        .color_        = color_t{0x000000},
         .none_         = true,
         .width_        = 2.25,
         .dash_type_    = chart_line_dash_type_t::SOLID,
@@ -1242,7 +1242,7 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
 
   if(font.has_value())
   {
-    has_color                   = font->color_ != color_t::UNSET;
+    has_color                   = static_cast<bool>(font->color_);
     has_latin                   = !font->name_.empty() || font->pitch_family_ != 0 || font->charset_ != 0;
     const bool use_font_default = !has_color && !has_latin && font->baseline_ != -1;
 
@@ -1342,7 +1342,7 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
 
   if(font.has_value())
   {
-    has_color                   = font->color_ != color_t::UNSET;
+    has_color                   = static_cast<bool>(font->color_);
     has_latin                   = !font->name_.empty() || font->pitch_family_ != 0 || font->charset_ != 0;
     const bool use_font_default = !has_color && !has_latin && font->baseline_ != -1;
 
@@ -1910,12 +1910,12 @@ std::string chart_t::write_a_patt_fill(const chart_pattern_t& pattern)
 
   std::string xml_data = xml_start_tag("a:pattFill", attributes);
 
-  if(pattern.fg_color_ != color_t::UNSET)
+  if(pattern.fg_color_)
   {
     xml_data += write_a_fg_clr(pattern.fg_color_);
   }
 
-  if(pattern.bg_color_ != color_t::UNSET)
+  if(pattern.bg_color_)
   {
     xml_data += write_a_bg_clr(pattern.bg_color_);
   }
@@ -1958,14 +1958,14 @@ std::string chart_t::write_a_ln(const chart_line_t& line)
     attributes.add_attribute("w", width_int);
   }
 
-  if(line.none_ || line.color_ != color_t::UNSET || line.dash_type_ != chart_line_dash_type_t::SOLID)
+  if(line.none_ || line.color_ || line.dash_type_ != chart_line_dash_type_t::SOLID)
   {
     std::string xml_data = xml_start_tag("a:ln", attributes);
     if(line.none_)
     {
       xml_data += write_a_no_fill();
     }
-    else if(line.color_ != color_t::UNSET)
+    else if(line.color_)
     {
       xml_data += write_a_solid_fill(line.color_, line.transparency_);
     }

@@ -104,7 +104,7 @@ int main()
     // Add the series data labels.
     xwpp::chart_series_set_labels(series);
 
-    const xwpp::chart_font_t font{.bold_ = true, .rotation_ = -30, .color_ = xwpp::color_t::RED};
+    const xwpp::chart_font_t font{.bold_ = true, .rotation_ = -30, .color_ = xwpp::color_t::red()};
     xwpp::chart_series_set_labels_font(series, font);
 
     // Turn off the legend.
@@ -128,8 +128,8 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Set the border/line and fill for the data labels.
-    const xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
-    const xwpp::chart_fill_t fill{.color_ = xwpp::color_t::YELLOW};
+    const xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
+    const xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
 
     xwpp::chart_series_set_labels_line(series, line);
     xwpp::chart_series_set_labels_fill(series, fill);
@@ -208,7 +208,7 @@ int main()
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
-    const xwpp::chart_font_t font{.color_ = xwpp::color_t::RED};
+    const xwpp::chart_font_t font{.color_ = xwpp::color_t::red()};
 
     // Add the series data labels.
     xwpp::chart_series_set_labels(series);
@@ -275,10 +275,10 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Set the border/line and fill for the data labels.
-    xwpp::chart_line_t line2{.color_ = xwpp::color_t::RED};
-    xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::YELLOW};
-    xwpp::chart_line_t line3{.color_ = xwpp::color_t::BLUE};
-    xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::GREEN};
+    xwpp::chart_line_t line2{.color_ = xwpp::color_t::red()};
+    xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::yellow()};
+    xwpp::chart_line_t line3{.color_ = xwpp::color_t::blue()};
+    xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::green()};
 
     // Set the default formatting for the data labels in the series.
     xwpp::chart_series_set_labels_line(series, line2);

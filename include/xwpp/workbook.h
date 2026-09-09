@@ -603,7 +603,7 @@ public:
    *
    *  // Set some of the format properties.
    *  format.set_bold();
-   *  format.set_font_color(xwpp::color_t::RED);
+   *  format.set_font_color(xwpp::color_t::red());
    *
    *  // Use the format to change the text format in a cell.
    *  worksheet.write_string(0, 0, "Hello", format);

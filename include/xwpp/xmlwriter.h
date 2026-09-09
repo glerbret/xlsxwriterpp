@@ -19,6 +19,8 @@
 #ifndef XWPP_XMLWRITER_H
 #define XWPP_XMLWRITER_H
 
+#include "color.h"
+
 #include <concepts>
 #include <format>
 #include <string>

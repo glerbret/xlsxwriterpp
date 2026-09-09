@@ -239,12 +239,12 @@ BOOST_AUTO_TEST_CASE(condtional_format13b)
   const xwpp::conditional_format_t conditional_format{
     .type_          = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
     .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
-    .min_color_     = xwpp::color_t(0xF8696B),
+    .min_color_     = xwpp::color_t{0xF8696B},
     .mid_value_     = 50,
     .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
-    .mid_color_     = xwpp::color_t(0xFFEB84),
+    .mid_color_     = xwpp::color_t{0xFFEB84},
     .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
-    .max_color_     = xwpp::color_t(0x63BE7B),
+    .max_color_     = xwpp::color_t{0x63BE7B},
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 

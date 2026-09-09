@@ -38,7 +38,7 @@
  *
  *  // Set some of the format properties.
  *  format->set_bold();
- *  format->set_font_color(xwpp::color_t::RED);
+ *  format->set_font_color(xwpp::color_t::red());
  *
  *  // Use the format to change the text format in a cell.
  *  worksheet.write_string(0, 0, "Hello", format);
@@ -48,6 +48,8 @@
 #ifndef XWPP_FORMAT_H
 #define XWPP_FORMAT_H
 
+#include "color.h"
+
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -56,61 +58,6 @@
 namespace xwpp
 {
 /// @endcond
-
-/**
- * @brief The type for RGB colors in `Xlsxwriter++`.
- *
- * The type for RGB colors in `Xlsxwriter++`. The valid range is `0x000000`
- * (black) to `0xFFFFFF` (white).
- *
- * @see @ref working_with_colors.
- *
- * Few predefined colors are provided through enumerates.
- *
- * @todo Replace by a class or struct.
- * @todo With predefined value in an enum class, function to build `%color_t`, ...
- *
- * @showenumvalues
- */
-enum class color_t : uint32_t
-{
-  /** <span style="color:#000000">Black.</span>*/
-  BLACK   = 0x000000,
-  /** <span style="color:#0000FF">Blue.</span>*/
-  BLUE    = 0x0000FF,
-  /** <span style="color:#800000">Brown.</span>*/
-  BROWN   = 0x800000,
-  /** <span style="color:#00FFFF">Cyan.</span>*/
-  CYAN    = 0x00FFFF,
-  /** <span style="color:#808080">Gray.</span>*/
-  GRAY    = 0x808080,
-  /** <span style="color:#008000">Green.</span>*/
-  GREEN   = 0x008000,
-  /** <span style="color:#00FF00">Lime.</span>*/
-  LIME    = 0x00FF00,
-  /** <span style="color:#FF00FF">Magenta.</span>*/
-  MAGENTA = 0xFF00FF,
-  /** <span style="color:#000080">Navy.</span>*/
-  NAVY    = 0x000080,
-  /** <span style="color:#FF6600">Orange.</span>*/
-  ORANGE  = 0xFF6600,
-  /** <span style="color:#FF00FF">Pink.</span>*/
-  PINK    = 0xFF00FF,
-  /** <span style="color:#800080">Purple.</span>*/
-  PURPLE  = 0x800080,
-  /** <span style="color:#FF0000">Red.</span>*/
-  RED     = 0xFF0000,
-  /** <span style="color:#C0C0C0">Silver.</span>*/
-  SILVER  = 0xC0C0C0,
-  /** <span style="color:#FFFFFF">White.</span>*/
-  WHITE   = 0xFFFFFF,
-  /** <span style="color:#FFFF00">Yellow.</span>*/
-  YELLOW  = 0xFFFF00,
-
-  // Special value
-  UNSET = 0xFFFFFFFFU,
-};
-const uint32_t COLOR_MASK{0xFFFFFF};
 
 const double MIN_FONT_SIZE{1.0};
 const double MAX_FONT_SIZE{409.0};
@@ -351,7 +298,7 @@ enum class format_borders_t
  *
  *  // Set some of the format properties.
  *  format->set_bold();
- *  format->set_font_color(xwpp::color_t::RED);
+ *  format->set_font_color(xwpp::color_t::red());
  *
  *  // Use the format to change the text format in a cell.
  *  worksheet.write_string(0, 0, "Hello", format);
@@ -495,18 +442,18 @@ public:
    *
    * @code
    *  format = workbook.add_format();
-   *  format->set_font_color(xwpp::color_t::RED);
+   *  format->set_font_color(xwpp::color_t::red());
    *
    *  worksheet.write_string(0, 0, "Wheelbarrow", format);
    * @endcode
    *
    * @image html format_font_color.png
    *
-   * The color should be an RGB integer value, see @ref working_with_colors.
-   *
    * @note The `%set_font_color()` method is used to set the font color in a
    * cell. To set the color of a cell background use the `set_bg_color()`
    * and `set_pattern()` methods.
+   *
+   * @see @ref working_with_colors.
    */
   void set_font_color(color_t color);
 
@@ -518,7 +465,7 @@ public:
    * The `%set_fg_color()` method can be used to set the foreground color of
    * a pattern.
    *
-   * The color should be an RGB integer value, see @ref working_with_colors.
+   * @see @ref working_with_colors.
    */
   void set_fg_color(color_t color);
 
@@ -537,14 +484,14 @@ public:
    * @code
    *  format = workbook.add_format();
    *  format->set_pattern(xwpp::format_patterns_t::SOLID);
-   *  format->set_bg_color(xwpp::color_t::GREEN);
+   *  format->set_bg_color(xwpp::color_t::green());
    *
    *  worksheet.write_string(0, 0, "Ray", format);
    * @endcode
    *
    * @image html formats_set_bg_color.png
    *
-   * The color should be an RGB integer value, see @ref working_with_colors.
+   * @see @ref working_with_colors.
    */
   void set_bg_color(color_t color);
 
@@ -702,7 +649,7 @@ public:
    *  format = workbook.add_format();
    *
    *  format->set_pattern(xwpp::format_patterns_t::SOLID);
-   *  format->set_bg_color(xwpp::color_t::YELLOW);
+   *  format->set_bg_color(xwpp::color_t::yellow());
    * @endcode
    *
    * The available fill patterns are:
@@ -748,7 +695,7 @@ public:
    * using `set_border_color()` or individually using the relevant method
    * calls shown above.
    *
-   * The color should be an RGB integer value, see @ref working_with_colors.
+   * @see @ref working_with_colors.
    */
   void set_border_color(color_t color);
 
@@ -808,7 +755,7 @@ public:
    *  xwpp::format_t* format4 = workbook.add_format();
    *  format4->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
    *  format4->set_diag_border(xwpp::format_borders_t::HAIR);
-   *  format4->set_diag_color(xwpp::color_t::RED);
+   *  format4->set_diag_color(xwpp::color_t::red());
    *
    *  worksheet.write_string(CELL("B3"), "Text", format1);
    *  worksheet.write_string(CELL("B6"), "Text", format2);
@@ -848,7 +795,7 @@ public:
    *
    * @param color The cell diagonal border color.
    *
-   * Set the diagonal border color. The color should be an RGB integer value,
+   * Set the diagonal border color.
    *
    * @see @ref working_with_colors and the above example.
    */
@@ -1343,7 +1290,7 @@ private:
   double font_size_{11.0};
   bool bold_{false};
   bool italic_{false};
-  color_t font_color_{color_t::UNSET};
+  color_t font_color_;
   format_underlines_t underline_{format_underlines_t::NONE};
   bool font_strikeout_{false};
   bool font_outline_{false};
@@ -1362,10 +1309,10 @@ private:
   format_alignments_t text_v_align_{format_alignments_t::NONE};
   bool text_justlast_{false};
   int16_t rotation_{0};
-  color_t fg_color_{color_t::UNSET};
-  color_t bg_color_{color_t::UNSET};
-  color_t dxf_fg_color_{color_t::UNSET};
-  color_t dxf_bg_color_{color_t::UNSET};
+  color_t fg_color_;
+  color_t bg_color_;
+  color_t dxf_fg_color_;
+  color_t dxf_bg_color_;
   format_patterns_t pattern_{format_patterns_t::NONE};
   bool has_fill_{false};
   bool has_dxf_fill_{false};
@@ -1381,11 +1328,11 @@ private:
   format_borders_t left_{format_borders_t::NONE};
   format_borders_t right_{format_borders_t::NONE};
   format_borders_t top_{format_borders_t::NONE};
-  color_t bottom_color_{color_t::UNSET};
-  color_t diag_color_{color_t::UNSET};
-  color_t left_color_{color_t::UNSET};
-  color_t right_color_{color_t::UNSET};
-  color_t top_color_{color_t::UNSET};
+  color_t bottom_color_;
+  color_t diag_color_;
+  color_t left_color_;
+  color_t right_color_;
+  color_t top_color_;
   uint8_t indent_{0};
   bool shrink_{false};
   bool merge_range_{false};

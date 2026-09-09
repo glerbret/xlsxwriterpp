@@ -37,7 +37,7 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   chartsheet.set_chart(&chart);
-  chartsheet.set_tab_color(xwpp::color_t::RED);
+  chartsheet.set_tab_color(xwpp::color_t::red());
 
   workbook.save("test_chartsheet06.xlsx");
 }

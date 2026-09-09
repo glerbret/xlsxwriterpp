@@ -224,7 +224,7 @@ std::string chartsheet_t::write_page_setup() const
 
 std::string chartsheet_t::write_sheet_pr() const
 {
-  if(get_tab_color() != color_t::UNSET || is_outline_changed())
+  if(get_tab_color() || is_outline_changed())
   {
     std::string xml_data = xml_start_tag("sheetPr");
     xml_data += write_tab_color();

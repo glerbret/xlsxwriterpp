@@ -124,9 +124,9 @@ BOOST_AUTO_TEST_CASE(condtional_format16)
 
   const xwpp::conditional_format_t conditional_format{
     .type_      = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-    .min_color_ = xwpp::color_t(0xC5D9F1),
-    .mid_color_ = xwpp::color_t(0x8DB4E3),
-    .max_color_ = xwpp::color_t(0x538ED5),
+    .min_color_ = xwpp::color_t{0xC5D9F1},
+    .mid_color_ = xwpp::color_t{0x8DB4E3},
+    .max_color_ = xwpp::color_t{0x538ED5},
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 

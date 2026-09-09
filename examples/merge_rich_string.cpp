@@ -23,10 +23,10 @@ int main()
 
   // Configure formats for the rich string.
   xwpp::format_t* red = workbook.add_format();
-  red->set_font_color(xwpp::color_t::RED);
+  red->set_font_color(xwpp::color_t::red());
 
   xwpp::format_t* blue = workbook.add_format();
-  blue->set_font_color(xwpp::color_t::BLUE);
+  blue->set_font_color(xwpp::color_t::blue());
 
   // Create the fragments for the rich string.
 

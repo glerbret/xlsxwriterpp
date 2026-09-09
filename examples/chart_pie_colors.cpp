@@ -33,8 +33,8 @@ int main()
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$2", "=Sheet1!$B$1:$B$2");
 
   // Create some fills for the chart points/segments.
-  xwpp::chart_fill_t red_fill{.color_ = xwpp::color_t::RED};
-  xwpp::chart_fill_t green_fill{.color_ = xwpp::color_t::GREEN};
+  xwpp::chart_fill_t red_fill{.color_ = xwpp::color_t::red()};
+  xwpp::chart_fill_t green_fill{.color_ = xwpp::color_t::green()};
 
   // Add the fills to the point objects.
   const std::vector<xwpp::chart_point_t> points{

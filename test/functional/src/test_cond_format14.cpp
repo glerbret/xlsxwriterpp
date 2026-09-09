@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::format_t* format = workbook.add_format();
-  format->set_bg_color(xwpp::color_t::RED);
+  format->set_bg_color(xwpp::color_t::red());
 
   worksheet.write_number(CELL("A1"), 10);
   worksheet.write_number(CELL("A2"), 20);

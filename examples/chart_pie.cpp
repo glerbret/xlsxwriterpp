@@ -81,9 +81,9 @@ int main()
     chart.title_set_name("Pie Chart with user defined colors");
 
     // Add for fills for use in the chart.
-    xwpp::chart_fill_t fill1{.color_ = static_cast<xwpp::color_t>(0x5ABA10)};
-    xwpp::chart_fill_t fill2{.color_ = static_cast<xwpp::color_t>(0xFE110E)};
-    xwpp::chart_fill_t fill3{.color_ = static_cast<xwpp::color_t>(0xCA5C05)};
+    xwpp::chart_fill_t fill1{.color_ = xwpp::color_t{0x5ABA10}};
+    xwpp::chart_fill_t fill2{.color_ = xwpp::color_t{0xFE110E}};
+    xwpp::chart_fill_t fill3{.color_ = xwpp::color_t{0xCA5C05}};
 
     // Add some points with the above fills.
     const std::vector<xwpp::chart_point_t> points{

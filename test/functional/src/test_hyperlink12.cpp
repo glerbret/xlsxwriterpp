@@ -13,7 +13,7 @@ int main()
   xwpp::format_t* format       = workbook.add_format();
 
   format->set_underline(xwpp::format_underlines_t::SINGLE);
-  format->set_font_color(xwpp::color_t::BLUE);
+  format->set_font_color(xwpp::color_t::blue());
 
   worksheet.write_url(CELL("A1"), "mailto:jmcnamara@cpan.org", format);
   worksheet.write_url(CELL("A3"), "ftp://perl.org/", format);

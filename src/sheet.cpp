@@ -745,13 +745,12 @@ void sheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_t& o
 
 std::string sheet_t::write_tab_color() const
 {
-  if(tab_color_ == color_t::UNSET)
+  if(!tab_color_)
   {
     return "";
   }
 
-  return xml_empty_tag("tabColor",
-                       attributes_t{"rgb", std::format("FF{:06X}", static_cast<uint32_t>(tab_color_) & COLOR_MASK)});
+  return xml_empty_tag("tabColor", attributes_t{"rgb", tab_color_});
 }
 
 std::string sheet_t::write_sheet_views()

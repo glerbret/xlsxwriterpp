@@ -53,13 +53,13 @@ int main()
 
   // Add a format. Light red fill with dark red text.
   xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(static_cast<xwpp::color_t>(0xFFC7CE));
-  format1->set_font_color(static_cast<xwpp::color_t>(0x9C0006));
+  format1->set_bg_color(xwpp::color_t{0xFFC7CE});
+  format1->set_font_color(xwpp::color_t{0x9C0006});
 
   // Add a format. Green fill with dark green text.
   xwpp::format_t* format2 = workbook.add_format();
-  format2->set_bg_color(static_cast<xwpp::color_t>(0xC6EFCE));
-  format2->set_font_color(static_cast<xwpp::color_t>(0x006100));
+  format2->set_bg_color(xwpp::color_t{0xC6EFCE});
+  format2->set_font_color(xwpp::color_t{0x006100});
 
   // Example 1. Conditional formatting based on simple cell based criteria.
   {
@@ -238,8 +238,8 @@ int main()
     // 2 color scale with user defined colors.
     const xwpp::conditional_format_t conditional_format2{
       .type_      = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-      .min_color_ = static_cast<xwpp::color_t>(0xFF0000),
-      .max_color_ = static_cast<xwpp::color_t>(0x00FF00),
+      .min_color_ = xwpp::color_t{0xFF0000},
+      .max_color_ = xwpp::color_t{0x00FF00},
     };
     worksheet.conditional_format_range(RANGE("D3:D14"), conditional_format2);
 
@@ -252,9 +252,9 @@ int main()
     // 3 color scale with user defined colors.
     const xwpp::conditional_format_t conditional_format4{
       .type_      = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-      .min_color_ = static_cast<xwpp::color_t>(0xC5D9F1),
-      .mid_color_ = static_cast<xwpp::color_t>(0x8DB4E3),
-      .max_color_ = static_cast<xwpp::color_t>(0x538ED5),
+      .min_color_ = xwpp::color_t{0xC5D9F1},
+      .mid_color_ = xwpp::color_t{0x8DB4E3},
+      .max_color_ = xwpp::color_t{0x538ED5},
     };
     worksheet.conditional_format_range(RANGE("I3:I14"), conditional_format4);
   }
@@ -304,7 +304,7 @@ int main()
 
     const xwpp::conditional_format_t conditional_format3{
       .type_      = xwpp::conditional_format_types_t::DATA_BAR,
-      .bar_color_ = static_cast<xwpp::color_t>(0x63C384),
+      .bar_color_ = xwpp::color_t{0x63C384},
     };
     worksheet.conditional_format_range(RANGE("F3:F14"), conditional_format3);
 

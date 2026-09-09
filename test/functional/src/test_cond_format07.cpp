@@ -14,10 +14,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp::color_t(0xFF0000));
+  format1->set_bg_color(xwpp::color_t{0xFF0000});
 
   xwpp::format_t* format2 = workbook.add_format();
-  format2->set_bg_color(xwpp::color_t(0x92D050));
+  format2->set_bg_color(xwpp::color_t{0x92D050});
 
   const std::array<std::array<uint8_t, 10>, 10> data{
     {
