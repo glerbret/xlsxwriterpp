@@ -1102,6 +1102,7 @@ INPUT                  = src/mainpage.dox \
                          ../include/xwpp/chartsheet.h \
                          ../include/xwpp/utility.h \
                          ../include/xwpp/common.h \
+                         ../include/xwpp/color.h \
                          ../include/xwpp/exception.h \
                          src/working_with_formats.dox \
                          src/working_with_colors.dox \

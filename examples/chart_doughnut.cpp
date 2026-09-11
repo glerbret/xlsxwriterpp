@@ -45,9 +45,9 @@ int main()
   bold->set_bold();
 
   // Add for fills for use in the chart.
-  xwpp::chart_fill_t fill1{.color_ = static_cast<xwpp::color_t>(0xFA58D0)};
-  xwpp::chart_fill_t fill2{.color_ = static_cast<xwpp::color_t>(0x61210B)};
-  xwpp::chart_fill_t fill3{.color_ = static_cast<xwpp::color_t>(0xF5F6CE)};
+  xwpp::chart_fill_t fill1{.color_ = xwpp::color_t{0xFA58D0}};
+  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t{0x61210B}};
+  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t{0xF5F6CE}};
 
   // Add some points with the above fills.
   const xwpp::chart_point_t point1{.fill_ = fill1};

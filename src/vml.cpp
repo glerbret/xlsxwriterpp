@@ -358,9 +358,7 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
   }
 
   const std::string visible{vml_obj.visible_ == comment_display_t::VISIBLE ? "visible" : "hidden"};
-  const std::string fillcolor{vml_obj.color_ != color_t::UNSET
-                                ? std::format("#{:06x}", static_cast<uint32_t>(vml_obj.color_) & COLOR_MASK)
-                                : "#ffffe1"};
+  const std::string fillcolor{vml_obj.color_ ? std::format("#{:x}", vml_obj.color_) : "#ffffe1"};
 
   std::string xml_data = xml_start_tag(
     "v:shape", attributes_t{"id", std::format("_x0000_s{}", vml_shape_id), "type", "#_x0000_t202", "style",

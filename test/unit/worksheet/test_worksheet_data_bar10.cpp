@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(data_bar10)
     .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
     .max_value_     = 0,
     .max_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
-    .bar_color_     = xwpp::color_t(0x63C384),
+    .bar_color_     = xwpp::color_t{0x63C384},
     .data_bar_2010_ = true,
   };
   worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(data_bar10)
     .min_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
     .max_value_     = 100,
     .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
-    .bar_color_     = xwpp::color_t(0xFF555A),
+    .bar_color_     = xwpp::color_t{0xFF555A},
     .data_bar_2010_ = true,
   };
   worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);

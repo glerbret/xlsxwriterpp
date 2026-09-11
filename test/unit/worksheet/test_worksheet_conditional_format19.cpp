@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(condtional_format19)
     .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
     .max_value_     = 90,
     .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
-    .bar_color_     = xwpp::color_t(0x8DB4E3),
+    .bar_color_     = xwpp::color_t{0x8DB4E3},
   };
   worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
 

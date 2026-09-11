@@ -19,9 +19,9 @@ int main()
   format1->set_hyperlink();
 
   format2->set_underline(xwpp::format_underlines_t::SINGLE);
-  format2->set_font_color(xwpp::color_t::RED);
+  format2->set_font_color(xwpp::color_t::red());
 
-  format3->set_font_color(xwpp::color_t::BLUE);
+  format3->set_font_color(xwpp::color_t::blue());
   format3->set_underline(xwpp::format_underlines_t::SINGLE);
 
   worksheet.write_url(CELL("A1"), "http://www.python.org/1", format1);

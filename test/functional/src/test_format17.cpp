@@ -13,7 +13,7 @@ int main()
 
   xwpp::format_t* pattern = workbook.add_format();
   pattern->set_pattern(xwpp::format_patterns_t::MEDIUM_GRAY);
-  pattern->set_fg_color(xwpp::color_t::RED);
+  pattern->set_fg_color(xwpp::color_t::red());
 
   worksheet.write_string(CELL("A1"), "", pattern);
 

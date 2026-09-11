@@ -1017,7 +1017,7 @@ struct conditional_format_t
    * The color used for the minimum Color Scale conditional format.
    * See @ref working_with_colors.
    */
-  color_t min_color_{color_t::UNSET};
+  color_t min_color_;
 
   /**
    * The middle value used for Color Scale and Data Bar conditional formats.
@@ -1042,7 +1042,7 @@ struct conditional_format_t
    *
    * @see @ref working_with_colors.
    */
-  color_t mid_color_{color_t::UNSET};
+  color_t mid_color_;
 
   /**
    * The maximum value used for Cell, Color Scale and Data Bar conditional
@@ -1069,14 +1069,14 @@ struct conditional_format_t
    *
    * @see @ref working_with_colors.
    */
-  color_t max_color_{color_t::UNSET};
+  color_t max_color_;
 
   /**
    * The `%bar_color_` field sets the fill color for data bars.
    *
    * @see @ref working_with_colors.
    */
-  color_t bar_color_{color_t::UNSET};
+  color_t bar_color_;
 
   /**
    * The `%bar_only_` field sets The bar_only field displays a bar data but
@@ -1110,7 +1110,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_negative_color_{color_t::UNSET};
+  color_t bar_negative_color_;
 
   /**
    * The `%bar_border_color_` field sets the color for the border line of a
@@ -1120,7 +1120,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_border_color_{color_t::UNSET};
+  color_t bar_border_color_;
 
   /**
    * The `%bar_negative_border_color_` field sets the color for the border of
@@ -1130,7 +1130,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_negative_border_color_{color_t::UNSET};
+  color_t bar_negative_border_color_;
 
   /**
    * The `%bar_negative_color_same_` field sets the fill color for the negative
@@ -1188,7 +1188,7 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_axis_color_{color_t::UNSET};
+  color_t bar_axis_color_;
 
   /**
    * The Icons Sets style is specified by the `%icon_style_` parameter. Should
@@ -1706,12 +1706,12 @@ struct comment_options_t
 
   /**
    * This option is used to set the background color of cell comment
-   * box. The color should be an RGB integer value.
+   * box.
    *
    * @see @ref working_with_colors.
    * @see @ref ww_comments_color.
    */
-  color_t color_{color_t::UNSET};
+  color_t color_;
 
   /**
    * This option is used to set the font for the comment. The default font
@@ -1989,17 +1989,17 @@ struct cond_format_obj_t
   double min_value_{0.};
   std::string min_value_string_;
   conditional_format_rule_types_t min_rule_type_{conditional_format_rule_types_t::NONE};
-  color_t min_color_{color_t::UNSET};
+  color_t min_color_;
   double mid_value_{0.};
   std::string mid_value_string_;
   // TODO ?    uint8_t mid_value_type;
   conditional_format_rule_types_t mid_rule_type_{conditional_format_rule_types_t::NONE};
-  color_t mid_color_{color_t::UNSET};
+  color_t mid_color_;
   double max_value_{0.};
   std::string max_value_string_;
   // TODO ?     uint8_t max_value_type;
   conditional_format_rule_types_t max_rule_type_{conditional_format_rule_types_t::NONE};
-  color_t max_color_{color_t::UNSET};
+  color_t max_color_;
   bool data_bar_2010_{false};
   bool auto_min_{false};
   bool auto_max_{false};
@@ -2010,11 +2010,11 @@ struct cond_format_obj_t
   bool bar_no_border_{false};
   conditional_format_bar_direction_t bar_direction_{conditional_format_bar_direction_t::CONTEXT};
   conditional_bar_axis_position_t bar_axis_position_{conditional_bar_axis_position_t::AUTOMATIC};
-  color_t bar_color_{color_t::UNSET};
-  color_t bar_negative_color_{color_t::UNSET};
-  color_t bar_border_color_{color_t::UNSET};
-  color_t bar_negative_border_color_{color_t::UNSET};
-  color_t bar_axis_color_{color_t::UNSET};
+  color_t bar_color_;
+  color_t bar_negative_color_;
+  color_t bar_border_color_;
+  color_t bar_negative_border_color_;
+  color_t bar_axis_color_;
   conditional_icon_types_t icon_style_{conditional_icon_types_t::THREE_ARROWS_COLORED};
   bool reverse_icons_{false};
   bool icons_only_{false};
@@ -2717,7 +2717,7 @@ public:
    *  xwpp::format_t* url_format = workbook.add_format();
    *
    *  url_format->set_underline(xwpp::format_underlines_t::SINGLE);
-   *  url_format->set_font_color(xwpp::color_t::RED);
+   *  url_format->set_font_color(xwpp::color_t::red());
    * @endcode
    *
    * The usual web style URI's are supported: `%http://`, `%https://`, `%ftp://`
@@ -3203,7 +3203,7 @@ public:
    *  merge_format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
    *  merge_format->set_border(xwpp::format_borders_t::DOUBLE);
    *  merge_format->set_bold();
-   *  merge_format->set_bg_color(xwpp::color_t(0xD7E4BC));
+   *  merge_format->set_bg_color(xwpp::color_t{0xD7E4BC});
    *
    *  worksheet.merge_range(2, 1, 3, 3, "Merged Range", merge_format);
    * @endcode

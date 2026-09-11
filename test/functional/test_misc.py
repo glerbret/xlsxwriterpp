@@ -17,6 +17,15 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     def test_tab_color01(self):
         self.run_exe_test('test_tab_color01')
 
+    def test_tab_color02(self):
+        self.run_exe_test('test_tab_color02', 'tab_color01.xlsx')
+
+    def test_tab_color03(self):
+        self.run_exe_test('test_tab_color03', 'tab_color01.xlsx')
+
+    def test_tab_color04(self):
+        self.run_exe_test('test_tab_color04', 'tab_color01.xlsx')
+
     def test_firstsheet01(self):
         self.run_exe_test('test_firstsheet01')
 

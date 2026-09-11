@@ -29,7 +29,7 @@ int main()
 
   // Add a format with red text.
   xwpp::format_t* custom_format = workbook.add_format();
-  custom_format->set_font_color(xwpp::color_t::RED);
+  custom_format->set_font_color(xwpp::color_t::red());
 
   // Create a conditional format object. A static object would also work.
   const xwpp::conditional_format_t conditional_format{

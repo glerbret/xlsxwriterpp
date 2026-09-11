@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(data_bar11)
     .min_rule_type_    = xwpp::conditional_format_rule_types_t::FORMULA,
     .max_value_string_ = "=$C$1",
     .max_rule_type_    = xwpp::conditional_format_rule_types_t::FORMULA,
-    .bar_color_        = xwpp::color_t(0x63C384),
+    .bar_color_        = xwpp::color_t{0x63C384},
     .data_bar_2010_    = true,
   };
   worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(data_bar11)
     .min_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
     .max_value_     = 90,
     .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
-    .bar_color_     = xwpp::color_t(0xFF555A),
+    .bar_color_     = xwpp::color_t{0xFF555A},
     .data_bar_2010_ = true,
   };
   worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);

@@ -12,10 +12,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp::color_t::RED);
+  format1->set_bg_color(xwpp::color_t::red());
 
   xwpp::format_t* format2 = workbook.add_format();
-  format2->set_bg_color(xwpp::color_t(0x92D050));
+  format2->set_bg_color(xwpp::color_t{0x92D050});
 
   worksheet.write_number(CELL("A1"), 10);
   worksheet.write_number(CELL("A2"), 20);

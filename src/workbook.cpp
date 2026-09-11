@@ -660,8 +660,8 @@ void workbook_t::prepare_fonts()
   {
     // The only font properties that can change for a DXF format are:
     // color, bold, italic, underline and strikethrough.
-    if(format->font_color_ != color_t::UNSET || format->bold_ || format->italic_ ||
-       format->underline_ != format_underlines_t::NONE || format->font_strikeout_)
+    if(format->font_color_ || format->bold_ || format->italic_ || format->underline_ != format_underlines_t::NONE ||
+       format->font_strikeout_)
     {
       format->has_dxf_font_ = true;
     }
@@ -1401,15 +1401,15 @@ void workbook_t::prepare_fills()
   // Add the default fills.
   // NOLINTNEXTLINE(modernize-avoid-bind)
   format_t default_fill_1(std::bind_front(&workbook_t::get_dxf_index, this));
-  default_fill_1.fg_color_   = color_t::UNSET;
-  default_fill_1.bg_color_   = color_t::UNSET;
+  default_fill_1.fg_color_   = color_t{};
+  default_fill_1.bg_color_   = color_t{};
   default_fill_1.pattern_    = format_patterns_t::NONE;
   default_fill_1.fill_index_ = 0;
   fills.push_back(&default_fill_1);
   // NOLINTNEXTLINE(modernize-avoid-bind)
   format_t default_fill_2(std::bind_front(&workbook_t::get_dxf_index, this));
-  default_fill_2.fg_color_   = color_t::UNSET;
-  default_fill_2.bg_color_   = color_t::UNSET;
+  default_fill_2.fg_color_   = color_t{};
+  default_fill_2.bg_color_   = color_t{};
   default_fill_2.pattern_    = format_patterns_t::GRAY_125;
   default_fill_2.fill_index_ = 1;
   fills.push_back(&default_fill_2);
@@ -1417,8 +1417,7 @@ void workbook_t::prepare_fills()
   // For DXF formats we only need to check if the properties have changed.
   for(auto* format: used_dxf_formats_)
   {
-    if(format->pattern_ != format_patterns_t::NONE || format->bg_color_ != color_t::UNSET ||
-       format->fg_color_ != color_t::UNSET)
+    if(format->pattern_ != format_patterns_t::NONE || format->bg_color_ || format->fg_color_)
     {
       format->has_dxf_fill_ = true;
       format->dxf_bg_color_ = format->bg_color_;
@@ -1437,19 +1436,18 @@ void workbook_t::prepare_fills()
     /*    without a pattern they probably wanted a solid fill, so    */
     /*    we fill in the defaults.
      */
-    if(format->pattern_ == format_patterns_t::SOLID && format->bg_color_ != color_t::UNSET &&
-       format->fg_color_ != color_t::UNSET)
+    if(format->pattern_ == format_patterns_t::SOLID && format->bg_color_ && format->fg_color_)
     {
       std::swap(format->bg_color_, format->fg_color_);
     }
     else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
-            format->bg_color_ != color_t::UNSET && format->fg_color_ == color_t::UNSET)
+            format->bg_color_ && !format->fg_color_)
     {
       std::swap(format->bg_color_, format->fg_color_);
       format->pattern_ = format_patterns_t::SOLID;
     }
     else if((format->pattern_ == format_patterns_t::SOLID || format->pattern_ == format_patterns_t::NONE) &&
-            format->bg_color_ == color_t::UNSET && format->fg_color_ != color_t::UNSET)
+            !format->bg_color_ && format->fg_color_)
     {
       format->pattern_ = format_patterns_t::SOLID;
     }

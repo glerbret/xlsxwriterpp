@@ -38,8 +38,8 @@ int main()
   const xwpp::chart_line_t line1{.dash_type_ = xwpp::chart_line_dash_type_t::ROUND_DOT};
   const xwpp::chart_line_t line2{.dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
 
-  const xwpp::chart_fill_t fill1{.color_ = xwpp::color_t(0x9999FF)};
-  const xwpp::chart_fill_t fill2{.color_ = xwpp::color_t(0xFFC000)};
+  const xwpp::chart_fill_t fill1{.color_ = xwpp::color_t{0x9999FF}};
+  const xwpp::chart_fill_t fill2{.color_ = xwpp::color_t{0xFFC000}};
 
   chart.chartarea_set_line(line1);
   chart.chartarea_set_fill(fill1);

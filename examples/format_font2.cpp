@@ -43,7 +43,7 @@ int main()
 
   {
     xwpp::format_t* format = workbook.add_format();
-    format->set_font_color(xwpp::color_t::RED);
+    format->set_font_color(xwpp::color_t::red());
 
     worksheet.write_string(3, 0, "Red", format);
   }

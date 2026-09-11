@@ -160,7 +160,7 @@ int main()
 
     worksheet.write_string(CELL("C3"), "This cell comment has a different color.", text_wrap);
 
-    const xwpp::comment_options_t options1{.color_ = xwpp::color_t::GREEN};
+    const xwpp::comment_options_t options1{.color_ = xwpp::color_t::green()};
     worksheet.write_comment(2, 2, "Hello", options1);
 
     worksheet.write_string(CELL("C6"), "This cell comment has the default color.", text_wrap);
@@ -169,7 +169,7 @@ int main()
 
     worksheet.write_string(CELL("C9"), "This cell comment has a different color.", text_wrap);
 
-    const xwpp::comment_options_t options2{.color_ = static_cast<xwpp::color_t>(0xFF6600)};
+    const xwpp::comment_options_t options2{.color_ = xwpp::color_t{0xFF6600}};
     worksheet.write_comment(CELL("C9"), "Hello", options2);
   }
 

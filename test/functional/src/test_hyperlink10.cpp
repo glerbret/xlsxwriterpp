@@ -13,7 +13,7 @@ int main()
   xwpp::format_t* format       = workbook.add_format();
 
   format->set_underline(xwpp::format_underlines_t::SINGLE);
-  format->set_font_color(xwpp::color_t::RED);
+  format->set_font_color(xwpp::color_t::red());
 
   worksheet.write_url(CELL("A1"), "http://www.perl.org/", format);
 

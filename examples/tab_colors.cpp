@@ -16,14 +16,18 @@ int main()
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet4 = workbook.add_worksheet();
+  xwpp::worksheet_t& worksheet5 = workbook.add_worksheet();
+  xwpp::worksheet_t& worksheet6 = workbook.add_worksheet();
 
   // Set the tab colors.
-  worksheet1.set_tab_color(xwpp::color_t::RED);
-  worksheet2.set_tab_color(xwpp::color_t::GREEN);
-  worksheet3.set_tab_color(static_cast<xwpp::color_t>(0xFF9900)); /* Orange. */
+  worksheet1.set_tab_color(xwpp::color_t::red());
+  worksheet2.set_tab_color(xwpp::color_t::green());
+  worksheet3.set_tab_color(xwpp::color_t{0xFF9900});              // Orange.
+  worksheet4.set_tab_color(xwpp::color_t::rgb(0xFF, 0x99, 0x00)); // Orange.
+  worksheet5.set_tab_color(xwpp::color_t::cmyk(0, 40, 100, 0));   // Orange.
 
-  // worksheet4 will have the default color.
-  worksheet4.write_string(0, 0, "Hello");
+  // worksheet6 will have the default color.
+  worksheet6.write_string(0, 0, "Hello");
 
   workbook.save("tab_colors.xlsx");
 }

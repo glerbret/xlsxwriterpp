@@ -8,6 +8,8 @@
 
 #include "xwpp/xmlwriter.h"
 
+#include "xwpp/color.h"
+
 #include <cctype>
 #include <format>
 #include <string>
@@ -79,11 +81,11 @@ void attributes_t::add_attribute(std::string_view key, color_t value, bool paddi
 {
   if(padding)
   {
-    attributes_.emplace_back(key, std::format("FF{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
+    attributes_.emplace_back(key, std::format("{:P}", value));
   }
   else
   {
-    attributes_.emplace_back(key, std::format("{:06X}", static_cast<uint32_t>(value) & COLOR_MASK));
+    attributes_.emplace_back(key, std::format("{:X}", value));
   }
 }
 

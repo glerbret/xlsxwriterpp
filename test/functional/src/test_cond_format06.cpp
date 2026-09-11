@@ -14,8 +14,8 @@ int main()
   xwpp::format_t* format = workbook.add_format();
 
   format->set_pattern(xwpp::format_patterns_t::LIGHT_GRID);
-  format->set_bg_color(xwpp::color_t(0xFFFF00));
-  format->set_fg_color(xwpp::color_t(0xFF0000));
+  format->set_bg_color(xwpp::color_t{0xFFFF00});
+  format->set_fg_color(xwpp::color_t{0xFF0000});
 
   worksheet.write_number(CELL("A1"), 10);
   worksheet.write_number(CELL("A2"), 20);

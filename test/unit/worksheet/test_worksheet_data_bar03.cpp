@@ -129,10 +129,10 @@ BOOST_AUTO_TEST_CASE(data_bar03)
   };
   worksheet.conditional_format_cell(CELL("A1"), conditional_format);
 
-  conditional_format.bar_color_ = xwpp::color_t(0x63C384);
+  conditional_format.bar_color_ = xwpp::color_t{0x63C384};
   worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
 
-  conditional_format.bar_color_ = xwpp::color_t(0xFF555A);
+  conditional_format.bar_color_ = xwpp::color_t{0xFF555A};
   worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

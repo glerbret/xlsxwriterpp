@@ -22,6 +22,7 @@
 #define XWPP_SHEET_H
 
 #include "xwpp/chart.h"
+#include "xwpp/color.h"
 #include "xwpp/common.h"
 #include "xwpp/drawing.h"
 #include "xwpp/format.h"
@@ -335,7 +336,7 @@ struct vml_obj_t
   uint32_t height_{0};
   double x_dpi_{0.};
   double y_dpi_{0.};
-  color_t color_{color_t::UNSET};
+  color_t color_;
   uint8_t font_family_{0};
   comment_display_t visible_{comment_display_t::DEFAULT};
   uint32_t author_id_{0};
@@ -365,12 +366,12 @@ public:
    * the sheet tab:
    *
    * @code
-   *  worksheet1.set_tab_color(xwpp::color_t::RED);
-   *  worksheet2.set_tab_color(xwpp::color_t::GREEN);
-   *  worksheet3.set_tab_color(xwpp::color_t(0xFF9900)); // Orange.
+   *  worksheet1.set_tab_color(xwpp::color_t::red());
+   *  worksheet2.set_tab_color(xwpp::color_t::green());
+   *  worksheet3.set_tab_color(xwpp::color_t{0xFF9900}); // Orange.
    * @endcode
    *
-   * The color should be an RGB integer value, see @ref working_with_colors.
+   * @see @ref working_with_colors.
    */
   void set_tab_color(color_t color);
 
@@ -912,7 +913,7 @@ private:
   // Properties of sheet
   std::string name_;
   std::string quoted_name_;
-  color_t tab_color_{color_t::UNSET};
+  color_t tab_color_;
   size_t index_{0};
   bool is_chartsheet_{false};
   bool hidden_{false};

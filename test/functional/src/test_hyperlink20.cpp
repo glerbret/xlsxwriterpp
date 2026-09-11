@@ -14,10 +14,10 @@ int main()
   xwpp::format_t* format2      = workbook.add_format();
 
   format1->set_underline(xwpp::format_underlines_t::SINGLE);
-  format1->set_font_color(xwpp::color_t::BLUE);
+  format1->set_font_color(xwpp::color_t::blue());
 
   format2->set_underline(xwpp::format_underlines_t::SINGLE);
-  format2->set_font_color(xwpp::color_t::RED);
+  format2->set_font_color(xwpp::color_t::red());
 
   worksheet.write_url(CELL("A1"), "http://www.python.org/1", format1);
   worksheet.write_url(CELL("A2"), "http://www.python.org/2", format2);

@@ -760,43 +760,43 @@ void validate_conditional_scale(cond_format_obj_t& cond_format, const conditiona
     }
   }
 
-  if(user_options.min_color_ != color_t::UNSET)
+  if(user_options.min_color_)
   {
     cond_format.min_color_ = user_options.min_color_;
   }
   else
   {
-    cond_format.min_color_ = static_cast<color_t>(0xFF7128);
+    cond_format.min_color_ = color_t{0xFF7128};
   }
 
-  if(user_options.max_color_ != color_t::UNSET)
+  if(user_options.max_color_)
   {
     cond_format.max_color_ = user_options.max_color_;
   }
   else
   {
-    cond_format.max_color_ = static_cast<color_t>(0xFFEF9C);
+    cond_format.max_color_ = color_t{0xFFEF9C};
   }
 
   if(cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
   {
-    if(user_options.min_color_ == color_t::UNSET)
+    if(!user_options.min_color_)
     {
-      cond_format.min_color_ = static_cast<color_t>(0xF8696B);
+      cond_format.min_color_ = color_t{0xF8696B};
     }
 
-    if(user_options.mid_color_ != color_t::UNSET)
+    if(user_options.mid_color_)
     {
       cond_format.mid_color_ = user_options.mid_color_;
     }
     else
     {
-      cond_format.mid_color_ = static_cast<color_t>(0xFFEB84);
+      cond_format.mid_color_ = color_t{0xFFEB84};
     }
 
-    if(user_options.max_color_ == color_t::UNSET)
+    if(!user_options.max_color_)
     {
-      cond_format.max_color_ = static_cast<color_t>(0x63BE7B);
+      cond_format.max_color_ = color_t{0x63BE7B};
     }
   }
 }
@@ -3836,8 +3836,8 @@ void worksheet_t::validate_conditional_data_bar(cond_format_obj_t& cond_format,
      user_options.bar_direction_ != conditional_format_bar_direction_t::CONTEXT ||
      user_options.bar_axis_position_ != conditional_bar_axis_position_t::AUTOMATIC ||
      user_options.bar_negative_color_same_ || user_options.bar_negative_border_color_same_ ||
-     user_options.bar_negative_color_ != color_t::UNSET || user_options.bar_border_color_ != color_t::UNSET ||
-     user_options.bar_negative_border_color_ != color_t::UNSET || user_options.bar_axis_color_ != color_t::UNSET)
+     user_options.bar_negative_color_ || user_options.bar_border_color_ || user_options.bar_negative_border_color_ ||
+     user_options.bar_axis_color_)
   {
     cond_format.data_bar_2010_ = true;
     excel_version_             = 2010;
@@ -3889,25 +3889,25 @@ void worksheet_t::validate_conditional_data_bar(cond_format_obj_t& cond_format,
   cond_format.bar_negative_color_same_        = user_options.bar_negative_color_same_;
   cond_format.bar_negative_border_color_same_ = user_options.bar_negative_border_color_same_;
 
-  if(user_options.bar_color_ != color_t::UNSET)
+  if(user_options.bar_color_)
   {
     cond_format.bar_color_ = user_options.bar_color_;
   }
   else
   {
-    cond_format.bar_color_ = static_cast<color_t>(0x638EC6);
+    cond_format.bar_color_ = color_t{0x638EC6};
   }
 
-  if(user_options.bar_negative_color_ != color_t::UNSET)
+  if(user_options.bar_negative_color_)
   {
     cond_format.bar_negative_color_ = user_options.bar_negative_color_;
   }
   else
   {
-    cond_format.bar_negative_color_ = static_cast<color_t>(0xFF0000);
+    cond_format.bar_negative_color_ = color_t{0xFF0000};
   }
 
-  if(user_options.bar_border_color_ != color_t::UNSET)
+  if(user_options.bar_border_color_)
   {
     cond_format.bar_border_color_ = user_options.bar_border_color_;
   }
@@ -3916,22 +3916,22 @@ void worksheet_t::validate_conditional_data_bar(cond_format_obj_t& cond_format,
     cond_format.bar_border_color_ = cond_format.bar_color_;
   }
 
-  if(user_options.bar_negative_border_color_ != color_t::UNSET)
+  if(user_options.bar_negative_border_color_)
   {
     cond_format.bar_negative_border_color_ = user_options.bar_negative_border_color_;
   }
   else
   {
-    cond_format.bar_negative_border_color_ = static_cast<color_t>(0xFF0000);
+    cond_format.bar_negative_border_color_ = color_t{0xFF0000};
   }
 
-  if(user_options.bar_axis_color_ != color_t::UNSET)
+  if(user_options.bar_axis_color_)
   {
     cond_format.bar_axis_color_ = user_options.bar_axis_color_;
   }
   else
   {
-    cond_format.bar_axis_color_ = static_cast<color_t>(0x000000);
+    cond_format.bar_axis_color_ = color_t{0x000000};
   }
 }
 
@@ -4911,7 +4911,7 @@ std::string worksheet_t::write_sheet_pr() const
 {
   attributes_t attributes;
 
-  if(!fit_page_ && !filter_on_ && get_tab_color() == color_t::UNSET && !is_outline_changed() && vba_codename_.empty())
+  if(!fit_page_ && !filter_on_ && !get_tab_color() && !is_outline_changed() && vba_codename_.empty())
   {
     return "";
   }
@@ -4926,7 +4926,7 @@ std::string worksheet_t::write_sheet_pr() const
     attributes.add_attribute("filterMode", "1");
   }
 
-  if(fit_page_ || get_tab_color() != color_t::UNSET || is_outline_changed())
+  if(fit_page_ || get_tab_color() || is_outline_changed())
   {
     std::string xml_data = xml_start_tag("sheetPr", attributes);
     xml_data += write_tab_color();

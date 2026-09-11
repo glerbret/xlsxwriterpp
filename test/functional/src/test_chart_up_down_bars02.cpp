@@ -35,11 +35,11 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t up_line{.color_ = xwpp::color_t::YELLOW};
-  const xwpp::chart_fill_t up_fill{.color_ = xwpp::color_t::RED};
-  const xwpp::chart_line_t down_line{.color_     = xwpp::color_t(0x00B0F0),
+  const xwpp::chart_line_t up_line{.color_ = xwpp::color_t::yellow()};
+  const xwpp::chart_fill_t up_fill{.color_ = xwpp::color_t::red()};
+  const xwpp::chart_line_t down_line{.color_     = xwpp::color_t{0x00B0F0},
                                      .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT};
-  const xwpp::chart_fill_t down_fill{.color_ = xwpp::color_t(0x00B050)};
+  const xwpp::chart_fill_t down_fill{.color_ = xwpp::color_t{0x00B050}};
 
   chart.set_up_down_bars_format(up_line, up_fill, down_line, down_fill);
 
