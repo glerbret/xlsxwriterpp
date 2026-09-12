@@ -26,8 +26,7 @@ int main()
   workbook.set_custom_property("Group", 1.2345678901234);
 
   worksheet.set_column(0, 0, 70);
-  worksheet.write_string(CELL("A1"), "Select 'Office Button -> Prepare -> Properties' to see the file properties.",
-                         nullptr);
+  worksheet.write(CELL("A1"), "Select 'Office Button -> Prepare -> Properties' to see the file properties.");
 
   workbook.save("test_properties40.xlsx");
 }

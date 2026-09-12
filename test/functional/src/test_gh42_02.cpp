@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_string(0, 0, "\xe5\x9b\xbe\x20\xe5\x9b\xbe");
+  worksheet.write(0, 0, "\xe5\x9b\xbe\x20\xe5\x9b\xbe");
 
   workbook.save("test_gh42_02.xlsx");
 }

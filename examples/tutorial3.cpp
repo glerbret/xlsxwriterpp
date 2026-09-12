@@ -53,22 +53,22 @@ int main()
   xwpp::row_num_t row_num{0};
 
   // Write some data header.
-  worksheet.write_string(row_num, 0, "Item", bold);
-  worksheet.write_string(row_num, 1, "Date", bold);
-  worksheet.write_string(row_num, 2, "Cost", bold);
+  worksheet.write(row_num, 0, "Item", bold);
+  worksheet.write(row_num, 1, "Date", bold);
+  worksheet.write(row_num, 2, "Cost", bold);
   row_num++;
 
   // Iterate over the data and write it out element by element.
   for(const auto& value: expenses)
   {
-    worksheet.write_string(row_num, 0, value.item_);
+    worksheet.write(row_num, 0, value.item_);
     worksheet.write_datetime(row_num, 1, value.datetime_, date_format);
-    worksheet.write_number(row_num, 2, value.cost_, money);
+    worksheet.write(row_num, 2, value.cost_, money);
     row_num++;
   }
 
   // Write a total using a formula.
-  worksheet.write_string(row_num, 0, "Total", bold);
+  worksheet.write(row_num, 0, "Total", bold);
   worksheet.write_formula(row_num, 2, "=SUM(C2:C5)", money);
 
   workbook.save("tutorial03.xlsx");

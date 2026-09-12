@@ -22,9 +22,9 @@ int main()
   format3->set_bold();
   format3->set_italic();
 
-  worksheet.write_string(CELL("A1"), "Foo", format1);
-  worksheet.write_string(CELL("A2"), "Bar", format2);
-  worksheet.write_string(CELL("A3"), "Baz", format3);
+  worksheet.write(CELL("A1"), "Foo", format1);
+  worksheet.write(CELL("A2"), "Bar", format2);
+  worksheet.write(CELL("A3"), "Baz", format3);
 
   workbook.save("test_data06.xlsx");
 }

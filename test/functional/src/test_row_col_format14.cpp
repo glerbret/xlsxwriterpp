@@ -18,9 +18,9 @@ int main()
 
   worksheet.set_column(1, 3, 5);
   worksheet.set_column(5, 5, 8);
-  worksheet.set_column(7, 7, xwpp::DEF_COL_WIDTH, bold);
+  worksheet.set_column(7, 7, bold);
   worksheet.set_column(9, 9, 2);
-  worksheet.set_column(11, 11, xwpp::DEF_COL_WIDTH, nullptr, options);
+  worksheet.set_column(11, 11, options);
 
   workbook.save("test_row_col_format14.xlsx");
 }

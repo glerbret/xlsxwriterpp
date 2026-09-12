@@ -16,12 +16,12 @@ int main()
   format->set_bg_color(xwpp::color_t{0xFFFF00});
   format->set_fg_color(xwpp::color_t{0xFF0000});
 
-  worksheet.write_string(CELL("A1"), "Hello", format);
+  worksheet.write(CELL("A1"), "Hello", format);
 
-  worksheet.write_number(CELL("B3"), 10);
-  worksheet.write_number(CELL("B4"), 20);
-  worksheet.write_number(CELL("B5"), 30);
-  worksheet.write_number(CELL("B6"), 40);
+  worksheet.write(CELL("B3"), 10);
+  worksheet.write(CELL("B4"), 20);
+  worksheet.write(CELL("B5"), 30);
+  worksheet.write(CELL("B6"), 40);
 
   const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,

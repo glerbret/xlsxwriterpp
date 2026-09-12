@@ -39,14 +39,14 @@ int main()
     // Some worksheet text to demonstrate scrolling.
     for(xwpp::col_num_t col{0}; col < 9; col++)
     {
-      worksheet.write_string(0, col, "Scroll down", header);
+      worksheet.write(0, col, "Scroll down", header);
     }
 
     for(xwpp::row_num_t row_num{1}; row_num < 100; row_num++)
     {
       for(xwpp::col_num_t col_num{0}; col_num < 9; col_num++)
       {
-        worksheet.write_number(row_num, col_num, row_num + 1, center);
+        worksheet.write(row_num, col_num, row_num + 1, center);
       }
     }
   }
@@ -64,11 +64,11 @@ int main()
     // Some worksheet text to demonstrate scrolling.
     for(xwpp::row_num_t row_num{0}; row_num < 50; row_num++)
     {
-      worksheet.write_string(row_num, 0, "Scroll right", header);
+      worksheet.write(row_num, 0, "Scroll right", header);
 
       for(xwpp::col_num_t col_num{1}; col_num < 26; col_num++)
       {
-        worksheet.write_number(row_num, col_num, col_num, center);
+        worksheet.write(row_num, col_num, col_num, center);
       }
     }
   }
@@ -82,22 +82,22 @@ int main()
     // Some sheet formatting.
     worksheet.set_column(0, 25, 16);
     worksheet.set_row(0, 20);
-    worksheet.write_string(0, 0, "", header);
+    worksheet.write(0, 0, "", header);
     worksheet.set_selection(4, 3, 4, 3);
 
     // Some worksheet text to demonstrate scrolling.
     for(xwpp::col_num_t col{1}; col < 26; col++)
     {
-      worksheet.write_string(0, col, "Scroll down", header);
+      worksheet.write(0, col, "Scroll down", header);
     }
 
     for(xwpp::row_num_t row_num{1}; row_num < 50; row_num++)
     {
-      worksheet.write_string(row_num, 0, "Scroll right", header);
+      worksheet.write(row_num, 0, "Scroll right", header);
 
       for(xwpp::col_num_t col_num{1}; col_num < 26; col_num++)
       {
-        worksheet.write_number(row_num, col_num, col_num, center);
+        worksheet.write(row_num, col_num, col_num, center);
       }
     }
   }
@@ -114,16 +114,16 @@ int main()
     // Some worksheet text to demonstrate scrolling.
     for(xwpp::col_num_t col{1}; col < 26; col++)
     {
-      worksheet.write_string(0, col, "Scroll", center);
+      worksheet.write(0, col, "Scroll", center);
     }
 
     for(xwpp::row_num_t row_num{1}; row_num < 50; row_num++)
     {
-      worksheet.write_string(row_num, 0, "Scroll", center);
+      worksheet.write(row_num, 0, "Scroll", center);
 
       for(xwpp::col_num_t col_num{1}; col_num < 26; col_num++)
       {
-        worksheet.write_number(row_num, col_num, col_num, center);
+        worksheet.write(row_num, col_num, col_num, center);
       }
     }
   }

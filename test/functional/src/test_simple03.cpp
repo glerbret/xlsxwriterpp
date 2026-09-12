@@ -16,12 +16,12 @@ int main()
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  worksheet1.write_string(CELL("A1"), "Foo");
-  worksheet1.write_number(CELL("A2"), 123);
+  worksheet1.write(CELL("A1"), "Foo");
+  worksheet1.write(CELL("A2"), 123);
 
-  worksheet3.write_string(CELL("B2"), "Foo");
-  worksheet3.write_string(CELL("B3"), "Bar", bold);
-  worksheet3.write_number(CELL("C4"), 234);
+  worksheet3.write(CELL("B2"), "Foo");
+  worksheet3.write(CELL("B3"), "Bar", bold);
+  worksheet3.write(CELL("C4"), 234);
 
   // Ensure the active worksheet is overwritten, below.
   worksheet2.activate();

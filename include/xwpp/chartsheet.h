@@ -112,9 +112,7 @@ public:
    * If several similar charts are required then each one must be created
    * separately.
    */
-  void set_chart(chart_t* chart, const std::optional<chart_options_t>& options);
-  /// @overload
-  void set_chart(chart_t* chart);
+  void set_chart(chart_t* chart, const std::optional<chart_options_t>& options = std::nullopt);
 
   /**
    * @brief Protect elements of a chartsheet from modification.
@@ -168,11 +166,11 @@ public:
    * since it requires a completely different file format.
    */
   void protect(const std::string& password, std::optional<protection_t> options);
-  /// @overload
+  /// @brief Overload without options.
   void protect(const std::string& password);
-  /// @overload
+  /// @brief Overload without password.
   void protect(std::optional<protection_t> options);
-  /// @overload
+  /// @brief Overload without password neither options.
   void protect();
 
   [[nodiscard]] std::string assemble_xml_file();

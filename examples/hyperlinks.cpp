@@ -31,7 +31,7 @@ int main()
   // Write a hyperlink but overwrite the displayed string. Note, we need to
   // specify the format for the string to match the default hyperlink.
   worksheet.write_url(2, 0, "https://github.com/glerbret/xlsxwriterpp");
-  worksheet.write_string(2, 0, "Read the documentation.", url_format);
+  worksheet.write(2, 0, "Read the documentation.", url_format);
 
   // Write a hyperlink with a different format.
   worksheet.write_url(4, 0, "https://github.com/glerbret/xlsxwriterpp", red_format);
@@ -42,7 +42,7 @@ int main()
   // Write a mail hyperlink and overwrite the displayed string. We again
   // specify the format for the string to match the default hyperlink.
   worksheet.write_url(8, 0, "mailto:john@doe.com");
-  worksheet.write_string(8, 0, "Drop me a line.", url_format);
+  worksheet.write(8, 0, "Drop me a line.", url_format);
 
   // Write a hyperlink with a text and a tooltip
   worksheet.write_url(10, 0, "https://github.com/glerbret/xlsxwriterpp", url_format, "With text and tooltip",

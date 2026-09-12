@@ -20,9 +20,9 @@ int main()
 
   worksheet.protect();
 
-  worksheet.write_number(CELL("A1"), 1);
-  worksheet.write_number(CELL("A2"), 2, unlocked);
-  worksheet.write_number(CELL("A3"), 3, hidden);
+  worksheet.write(CELL("A1"), 1);
+  worksheet.write(CELL("A2"), 2, unlocked);
+  worksheet.write(CELL("A3"), 3, hidden);
 
   workbook.save("test_protect02.xlsx");
 }

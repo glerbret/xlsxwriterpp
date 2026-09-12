@@ -14,7 +14,7 @@ int main()
 
   format->set_bold();
 
-  worksheet.write_string(0, 0, "Foo", format);
+  worksheet.write(0, 0, "Foo", format);
 
   workbook.save("test_data05.xlsx");
 }

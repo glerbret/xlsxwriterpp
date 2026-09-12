@@ -45,21 +45,21 @@ int main()
   xwpp::row_num_t row_num{0};
 
   // Write some data header.
-  worksheet.write_string(row_num, 0, "Item", bold);
-  worksheet.write_string(row_num, 1, "Cost", bold);
+  worksheet.write(row_num, 0, "Item", bold);
+  worksheet.write(row_num, 1, "Cost", bold);
   row_num++;
 
   // Iterate over the data and write it out element by element.
   for(const auto& value: expenses)
   {
     // Write from the first cell below the headers.
-    worksheet.write_string(row_num, 0, value.item_);
-    worksheet.write_number(row_num, 1, value.cost_, money);
+    worksheet.write(row_num, 0, value.item_);
+    worksheet.write(row_num, 1, value.cost_, money);
     row_num++;
   }
 
   // Write a total using a formula.
-  worksheet.write_string(row_num, 0, "Total", bold);
+  worksheet.write(row_num, 0, "Total", bold);
   worksheet.write_formula(row_num, 1, "=SUM(B2:B5)", money);
 
   workbook.save("tutorial02.xlsx");

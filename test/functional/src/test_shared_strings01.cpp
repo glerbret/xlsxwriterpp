@@ -17,13 +17,13 @@ int main()
 
   std::string c = "\0"s;
 
-  worksheet.write_string(0, 0, "_x0000_");
+  worksheet.write(0, 0, "_x0000_");
   for(xwpp::row_num_t i{1}; i < 127; i++)
   {
     c[0]++;
     if(i != 34)
     {
-      worksheet.write_string(i, 0, c);
+      worksheet.write(i, 0, c);
     }
   }
 

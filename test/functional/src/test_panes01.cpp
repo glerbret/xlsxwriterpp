@@ -23,19 +23,19 @@ int main()
   xwpp::worksheet_t& worksheet12 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet13 = workbook.add_worksheet();
 
-  worksheet01.write_string(CELL("A1"), "Foo");
-  worksheet02.write_string(CELL("A1"), "Foo");
-  worksheet03.write_string(CELL("A1"), "Foo");
-  worksheet04.write_string(CELL("A1"), "Foo");
-  worksheet05.write_string(CELL("A1"), "Foo");
-  worksheet06.write_string(CELL("A1"), "Foo");
-  worksheet07.write_string(CELL("A1"), "Foo");
-  worksheet08.write_string(CELL("A1"), "Foo");
-  worksheet09.write_string(CELL("A1"), "Foo");
-  worksheet10.write_string(CELL("A1"), "Foo");
-  worksheet11.write_string(CELL("A1"), "Foo");
-  worksheet12.write_string(CELL("A1"), "Foo");
-  worksheet13.write_string(CELL("A1"), "Foo");
+  worksheet01.write(CELL("A1"), "Foo");
+  worksheet02.write(CELL("A1"), "Foo");
+  worksheet03.write(CELL("A1"), "Foo");
+  worksheet04.write(CELL("A1"), "Foo");
+  worksheet05.write(CELL("A1"), "Foo");
+  worksheet06.write(CELL("A1"), "Foo");
+  worksheet07.write(CELL("A1"), "Foo");
+  worksheet08.write(CELL("A1"), "Foo");
+  worksheet09.write(CELL("A1"), "Foo");
+  worksheet10.write(CELL("A1"), "Foo");
+  worksheet11.write(CELL("A1"), "Foo");
+  worksheet12.write(CELL("A1"), "Foo");
+  worksheet13.write(CELL("A1"), "Foo");
 
   worksheet01.freeze_panes(CELL("A2"));
   worksheet02.freeze_panes(CELL("A3"));

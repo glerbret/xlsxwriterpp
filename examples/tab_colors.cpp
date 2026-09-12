@@ -27,7 +27,7 @@ int main()
   worksheet5.set_tab_color(xwpp::color_t::cmyk(0, 40, 100, 0));   // Orange.
 
   // worksheet6 will have the default color.
-  worksheet6.write_string(0, 0, "Hello");
+  worksheet6.write(0, 0, "Hello");
 
   workbook.save("tab_colors.xlsx");
 }

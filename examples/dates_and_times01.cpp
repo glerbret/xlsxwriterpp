@@ -27,13 +27,13 @@ int main()
   worksheet.set_column(0, 0, 22);
 
   // Write the number without formatting.
-  worksheet.write_number(0, 0, number); // 41333.5
+  worksheet.write(0, 0, number); // 41333.5
 
   /* Write the number with formatting. Note: the worksheet_write_datetime()
    * or worksheet_write_unixtime() functions are preferable for writing
    * dates and times. This is for demonstration purposes only.
    */
-  worksheet.write_number(1, 0, number, format); // Feb 28 2013 12:00 PM
+  worksheet.write(1, 0, number, format); // Feb 28 2013 12:00 PM
 
   workbook.save("date_and_times01.xlsx");
 }

@@ -38,7 +38,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet)
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;
@@ -67,7 +67,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write_string(CELL("A1"), "Cells with values >= 50 are in light red. Values < 50 are in light green.");
+    worksheet.write(CELL("A1"), "Cells with values >= 50 are in light red. Values < 50 are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_     = xwpp::conditional_format_types_t::CELL,
@@ -92,8 +92,8 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write_string(CELL("A1"),
-                           "Values between 30 and 70 are in light red. Values outside that range are in light green.");
+    worksheet.write(CELL("A1"),
+                    "Values between 30 and 70 are in light red. Values outside that range are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_      = xwpp::conditional_format_types_t::CELL,
@@ -120,7 +120,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write_string(CELL("A1"), "Duplicate values are in light red. Unique values are in light green.");
+    worksheet.write(CELL("A1"), "Duplicate values are in light red. Unique values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_   = xwpp::conditional_format_types_t::DUPLICATE,
@@ -141,8 +141,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write_string(CELL("A1"),
-                           "Above average values are in light red. Below average values are in light green.");
+    worksheet.write(CELL("A1"), "Above average values are in light red. Below average values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_     = xwpp::conditional_format_types_t::AVERAGE,
@@ -165,7 +164,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write_string(CELL("A1"), "Top 10 values are in light red. Bottom 10 values are in light green.");
+    worksheet.write(CELL("A1"), "Top 10 values are in light red. Bottom 10 values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_   = xwpp::conditional_format_types_t::TOP,
@@ -188,8 +187,8 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write_string(
-      CELL("A1"), "Cells with values >= 50 are in light red.Values < 50 are in light green. Non-contiguous ranges.");
+    worksheet.write(CELL("A1"),
+                    "Cells with values >= 50 are in light red.Values < 50 are in light green. Non-contiguous ranges.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_        = xwpp::conditional_format_types_t::CELL,
@@ -217,17 +216,17 @@ int main()
     // Write the worksheet data.
     for(int i{1}; i <= 12; i++)
     {
-      worksheet.write_number(i + 1, 1, i);
-      worksheet.write_number(i + 1, 3, i);
-      worksheet.write_number(i + 1, 6, i);
-      worksheet.write_number(i + 1, 8, i);
+      worksheet.write(i + 1, 1, i);
+      worksheet.write(i + 1, 3, i);
+      worksheet.write(i + 1, 6, i);
+      worksheet.write(i + 1, 8, i);
     }
-    worksheet.write_string(CELL("A1"), "Examples of color scales with default and user colors.");
+    worksheet.write(CELL("A1"), "Examples of color scales with default and user colors.");
 
-    worksheet.write_string(CELL("B2"), "2 Color Scale");
-    worksheet.write_string(CELL("D2"), "2 Color Scale + user colors");
-    worksheet.write_string(CELL("G2"), "3 Color Scale");
-    worksheet.write_string(CELL("I2"), "3 Color Scale + user colors");
+    worksheet.write(CELL("B2"), "2 Color Scale");
+    worksheet.write(CELL("D2"), "2 Color Scale + user colors");
+    worksheet.write(CELL("G2"), "3 Color Scale");
+    worksheet.write(CELL("I2"), "3 Color Scale + user colors");
 
     // 2 color scale with standard colors.
     const xwpp::conditional_format_t conditional_format1{
@@ -266,30 +265,30 @@ int main()
     // Write the worksheet data.
     for(int i{1}; i <= 12; i++)
     {
-      worksheet.write_number(i + 1, 1, i);
-      worksheet.write_number(i + 1, 3, i);
-      worksheet.write_number(i + 1, 5, i);
-      worksheet.write_number(i + 1, 7, i);
-      worksheet.write_number(i + 1, 9, i);
+      worksheet.write(i + 1, 1, i);
+      worksheet.write(i + 1, 3, i);
+      worksheet.write(i + 1, 5, i);
+      worksheet.write(i + 1, 7, i);
+      worksheet.write(i + 1, 9, i);
     }
 
     const std::vector<int> data{-1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1, 0};
     for(xwpp::row_num_t row_num{2}; const auto value: data)
     {
-      worksheet.write_number(row_num, 11, value);
-      worksheet.write_number(row_num, 13, value);
+      worksheet.write(row_num, 11, value);
+      worksheet.write(row_num, 13, value);
       row_num++;
     }
 
-    worksheet.write_string(CELL("A1"), "Examples of data bars.");
+    worksheet.write(CELL("A1"), "Examples of data bars.");
 
-    worksheet.write_string(CELL("B2"), "Default data bars");
-    worksheet.write_string(CELL("D2"), "Bars only");
-    worksheet.write_string(CELL("F2"), "With user color");
-    worksheet.write_string(CELL("H2"), "Solid bars");
-    worksheet.write_string(CELL("J2"), "Right to left");
-    worksheet.write_string(CELL("L2"), "Excel 2010 style");
-    worksheet.write_string(CELL("N2"), "Negative same as positive");
+    worksheet.write(CELL("B2"), "Default data bars");
+    worksheet.write(CELL("D2"), "Bars only");
+    worksheet.write(CELL("F2"), "With user color");
+    worksheet.write(CELL("H2"), "Solid bars");
+    worksheet.write(CELL("J2"), "Right to left");
+    worksheet.write(CELL("L2"), "Excel 2010 style");
+    worksheet.write(CELL("N2"), "Negative same as positive");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_ = xwpp::conditional_format_types_t::DATA_BAR,
@@ -341,24 +340,24 @@ int main()
     // Write the worksheet data.
     for(int i{1}; i <= 3; i++)
     {
-      worksheet.write_number(2, static_cast<xwpp::col_num_t>(i), i);
-      worksheet.write_number(3, static_cast<xwpp::col_num_t>(i), i);
-      worksheet.write_number(4, static_cast<xwpp::col_num_t>(i), i);
-      worksheet.write_number(5, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(2, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(3, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(4, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(5, static_cast<xwpp::col_num_t>(i), i);
     }
 
     for(int i{1}; i <= 4; i++)
     {
-      worksheet.write_number(6, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(6, static_cast<xwpp::col_num_t>(i), i);
     }
 
     for(int i{1}; i <= 5; i++)
     {
-      worksheet.write_number(7, static_cast<xwpp::col_num_t>(i), i);
-      worksheet.write_number(8, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(7, static_cast<xwpp::col_num_t>(i), i);
+      worksheet.write(8, static_cast<xwpp::col_num_t>(i), i);
     }
 
-    worksheet.write_string(CELL("A1"), "Examples of conditional formats with icon sets.");
+    worksheet.write(CELL("A1"), "Examples of conditional formats with icon sets.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,

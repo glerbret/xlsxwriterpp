@@ -14,7 +14,7 @@ int main()
   workbook.unset_default_url_format();
 
   worksheet.write_url(CELL("A1"), "https://en.wikipedia.org/wiki/Microsoft_Excel#Data_storage_and_communication",
-                      nullptr, "Display text", "");
+                      "Display text");
 
   workbook.save("test_hyperlink23.xlsx");
 }

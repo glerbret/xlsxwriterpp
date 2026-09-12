@@ -27,15 +27,15 @@ BOOST_AUTO_TEST_CASE(bound_checks)
   const xwpp::format_t* format = workbook.add_format();
   worksheet.select();
 
-  BOOST_CHECK_THROW(worksheet.write_number(0, MAX_COL, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(MAX_ROW, 0, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(MAX_ROW, MAX_COL, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_string(MAX_ROW, 0, "Foo"), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_string(0, MAX_COL, "Foo"), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_string(MAX_ROW, MAX_COL, "Foo"), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(MAX_ROW, 0, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(0, MAX_COL, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(MAX_ROW, MAX_COL, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(0, MAX_COL, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(MAX_ROW, 0, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(MAX_ROW, MAX_COL, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(MAX_ROW, 0, "Foo"), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(0, MAX_COL, "Foo"), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(MAX_ROW, MAX_COL, "Foo"), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(MAX_ROW, 0, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(0, MAX_COL, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(MAX_ROW, MAX_COL, 123), xwpp::xwpp_exception_t);
   BOOST_CHECK_THROW(worksheet.write_blank(MAX_ROW, 0, format), xwpp::xwpp_exception_t);
   BOOST_CHECK_THROW(worksheet.write_blank(0, MAX_COL, format), xwpp::xwpp_exception_t);
   BOOST_CHECK_THROW(worksheet.write_blank(MAX_ROW, MAX_COL, format), xwpp::xwpp_exception_t);

@@ -11,12 +11,12 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("B:C"), 10.288, nullptr);
+  worksheet.set_column(COLS("B:C"), 10.288);
 
-  worksheet.write_string(CELL("B2"), "apple", nullptr);
-  worksheet.write_string(CELL("C2"), "pie", nullptr);
-  worksheet.write_string(CELL("B3"), "pine", nullptr);
-  worksheet.write_string(CELL("C3"), "tree", nullptr);
+  worksheet.write(CELL("B2"), "apple", nullptr);
+  worksheet.write(CELL("C2"), "pie", nullptr);
+  worksheet.write(CELL("B3"), "pine", nullptr);
+  worksheet.write(CELL("C3"), "tree", nullptr);
 
   const xwpp::table_options_t options{.no_header_row_ = true};
 

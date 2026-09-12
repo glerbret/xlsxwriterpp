@@ -23,7 +23,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet)
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;

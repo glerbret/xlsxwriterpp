@@ -17,7 +17,7 @@ int main()
   worksheet.print_area(RANGE("A1:G20"));
   worksheet.repeat_rows(0, 0);
 
-  worksheet.write_string(CELL("A1"), "Foo", nullptr);
+  worksheet.write(CELL("A1"), "Foo");
 
   workbook.save("test_print_options06.xlsx");
 }

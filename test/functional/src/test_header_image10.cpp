@@ -16,7 +16,7 @@ int main()
 
   worksheet1.set_header("&L&G", header_options);
 
-  worksheet2.write_string(CELL("A1"), "Foo");
+  worksheet2.write(CELL("A1"), "Foo");
   worksheet2.write_comment(CELL("B2"), "Some text");
 
   worksheet2.set_comments_author("John");

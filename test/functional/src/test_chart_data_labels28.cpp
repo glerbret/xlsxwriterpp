@@ -26,14 +26,14 @@ int main()
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;
   }
 
-  worksheet.write_string(CELL("D1"), "foo");
-  worksheet.write_string(CELL("D2"), "bar");
+  worksheet.write(CELL("D1"), "foo");
+  worksheet.write(CELL("D2"), "bar");
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
 

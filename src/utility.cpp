@@ -270,15 +270,15 @@ uint16_t name_to_col_2(std::string_view col_str)
   }
 }
 
-std::string dup_formula(const std::string& formula)
+std::string dup_formula(std::string_view formula)
 {
-  if(formula[0] == '=')
+  if(!formula.empty() && formula[0] == '=')
   {
-    return formula.substr(1);
+    return std::string{formula.substr(1)};
   }
   else
   {
-    return formula;
+    return std::string{formula};
   }
 }
 

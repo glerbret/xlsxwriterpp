@@ -27,8 +27,8 @@ int main()
   format2->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
   format2->set_align(xwpp::format_alignments_t::VERTICAL_BOTTOM);
 
-  worksheet.write_string(0, 0, "Foo", format1);
-  worksheet.write_string(0, 1, "Bar", format2);
+  worksheet.write(0, 0, "Foo", format1);
+  worksheet.write(0, 1, "Bar", format2);
 
   workbook.save("test_format02.xlsx");
 }

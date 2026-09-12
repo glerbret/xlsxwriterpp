@@ -29,11 +29,10 @@ results. Examples of such applications are Excel Viewer, PDF Converters, and
 some mobile device applications.
 
 If required, it is also possible to specify the calculated result of the
-formula using the `result` parameter for
-`worksheet_t::write_formula_num()`:
+formula using the `%result` parameter for `worksheet_t::write_formula()`:
 
 @code
-  worksheet.write_formula_num(0, 0, "=2+2", nullptr, 4);
+  worksheet.write_formula(0, 0, "=2+2", 4);
 @endcode
 
 @section ww_formulas_non_us Non US Excel functions and syntax

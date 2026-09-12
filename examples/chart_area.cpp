@@ -19,15 +19,15 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
     {{2, 40, 30}, {3, 40, 25}, {4, 50, 30}, {5, 30, 10}, {6, 25, 5}, {7, 50, 10}}
   };
 
-  worksheet.write_string(CELL("A1"), "Number", bold);
-  worksheet.write_string(CELL("B1"), "Batch 1", bold);
-  worksheet.write_string(CELL("C1"), "Batch 2", bold);
+  worksheet.write(CELL("A1"), "Number", bold);
+  worksheet.write(CELL("B1"), "Batch 1", bold);
+  worksheet.write(CELL("C1"), "Batch 2", bold);
 
   for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;

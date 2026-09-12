@@ -15,23 +15,23 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(41671680, 41669376);
 
-  worksheet.write_number(0, 0, 1);
-  worksheet.write_number(1, 0, 2);
-  worksheet.write_string(2, 0, "Foo");
-  worksheet.write_number(3, 0, 4);
-  worksheet.write_number(4, 0, 5);
+  worksheet.write(0, 0, 1);
+  worksheet.write(1, 0, 2);
+  worksheet.write(2, 0, "Foo");
+  worksheet.write(3, 0, 4);
+  worksheet.write(4, 0, 5);
 
-  worksheet.write_number(0, 1, 2);
-  worksheet.write_number(1, 1, 4);
-  worksheet.write_string(2, 1, "Bar");
-  worksheet.write_number(3, 1, 8);
-  worksheet.write_number(4, 1, 10);
+  worksheet.write(0, 1, 2);
+  worksheet.write(1, 1, 4);
+  worksheet.write(2, 1, "Bar");
+  worksheet.write(3, 1, 8);
+  worksheet.write(4, 1, 10);
 
-  worksheet.write_number(0, 2, 3);
-  worksheet.write_number(1, 2, 6);
-  worksheet.write_string(2, 2, "Baz");
-  worksheet.write_number(3, 2, 12);
-  worksheet.write_number(4, 2, 15);
+  worksheet.write(0, 2, 3);
+  worksheet.write(1, 2, 6);
+  worksheet.write(2, 2, "Baz");
+  worksheet.write(3, 2, 12);
+  worksheet.write(4, 2, 15);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
 

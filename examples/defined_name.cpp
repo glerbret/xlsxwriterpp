@@ -27,15 +27,15 @@ int main()
 
   // Write some text to the worksheets and one of the defined name in a formula.
   worksheet1.set_column(0, 0, 45);
-  worksheet1.write_string(0, 0, "This worksheet contains some defined names.");
-  worksheet1.write_string(1, 0, "See Formulas -> Name Manager above.");
-  worksheet1.write_string(2, 0, "Example formula in cell B3 ->");
+  worksheet1.write(0, 0, "This worksheet contains some defined names.");
+  worksheet1.write(1, 0, "See Formulas -> Name Manager above.");
+  worksheet1.write(2, 0, "Example formula in cell B3 ->");
   worksheet1.write_formula(2, 1, "=Exchange_rate");
 
   worksheet2.set_column(0, 0, 45);
-  worksheet2.write_string(0, 0, "This worksheet contains some defined names.");
-  worksheet2.write_string(1, 0, "See Formulas -> Name Manager above.");
-  worksheet2.write_string(2, 0, "Example formula in cell B3 ->");
+  worksheet2.write(0, 0, "This worksheet contains some defined names.");
+  worksheet2.write(1, 0, "See Formulas -> Name Manager above.");
+  worksheet2.write(2, 0, "Example formula in cell B3 ->");
   worksheet2.write_formula(2, 1, "=Exchange_rate");
 
   workbook.save("defined_name.xlsx");

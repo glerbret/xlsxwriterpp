@@ -25,13 +25,13 @@ int main()
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;
   }
 
-  worksheet.write_string(CELL("A7"), "Pear");
+  worksheet.write(CELL("A7"), "Pear");
 
   chart.add_series("", "=Sheet1!$A$1:$A$5");
   xwpp::chart_series_t& series2 = chart.add_series("", "=Sheet1!$B$1:$B$5");

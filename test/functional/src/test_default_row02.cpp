@@ -13,8 +13,8 @@ int main()
 
   worksheet.set_default_row(15, true);
 
-  worksheet.write_string(CELL("A1"), "Foo");
-  worksheet.write_string(CELL("A10"), "Bar");
+  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write(CELL("A10"), "Bar");
 
   for(xwpp::row_num_t row{1}; row <= 8; row++)
   {

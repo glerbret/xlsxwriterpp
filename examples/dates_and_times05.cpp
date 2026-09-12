@@ -46,8 +46,8 @@ int main()
   bold->set_bold();
 
   // Write the column headers.
-  worksheet.write_string(0, 0, "Formatted date", bold);
-  worksheet.write_string(0, 1, "Format", bold);
+  worksheet.write(0, 0, "Formatted date", bold);
+  worksheet.write(0, 1, "Format", bold);
 
   // Widen the first column to make the text clearer.
   worksheet.set_column(0, 1, 22);
@@ -64,10 +64,10 @@ int main()
     worksheet.write_datetime(row_num, 0, datetime, format);
 
     // Also write the format string for comparison.
-    worksheet.write_string(row_num, 1, date_format);
+    worksheet.write(row_num, 1, date_format);
 
     row_num++;
   }
 
-  workbook.save("date_and_times04.xlsx");
+  workbook.save("date_and_times05.xlsx");
 }

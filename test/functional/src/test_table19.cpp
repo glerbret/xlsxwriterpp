@@ -13,7 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("C:F"), 10.288, nullptr);
+  worksheet.set_column(COLS("C:F"), 10.288);
 
   const std::vector<xwpp::table_column_t> columns{{}, {}, {}, {.header_ = " Column4 "}};
   const xwpp::table_options_t options{.columns_ = columns};

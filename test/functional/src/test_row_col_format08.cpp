@@ -27,10 +27,10 @@ int main()
   worksheet.set_row(0, 15, bold);
   worksheet.set_column(0, 0, 8.43, italic);
 
-  worksheet.write_string(0, 0, "Foo", mixed);
-  worksheet.write_string(0, 1, "Foo", nullptr);
-  worksheet.write_string(1, 0, "Foo", nullptr);
-  worksheet.write_string(1, 1, "Foo", nullptr);
+  worksheet.write(0, 0, "Foo", mixed);
+  worksheet.write(0, 1, "Foo");
+  worksheet.write(1, 0, "Foo");
+  worksheet.write(1, 1, "Foo");
 
   workbook.save("test_row_col_format08.xlsx");
 }

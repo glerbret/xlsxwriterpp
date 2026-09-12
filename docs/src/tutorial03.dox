@@ -44,11 +44,10 @@ shortly.
 
 Excel treats different types of input data, such as strings and numbers,
 differently although it generally does it transparently to the user.
-`Xlsxwriter++` tries to emulate this in the `worksheet_t::write_*()` functions by
+`Xlsxwriter++` tries to emulate this in the `worksheet_t::write*()` functions by
 mapping C++ data types to types that Excel supports.
 
-- `worksheet_t::write_string()`
-- `worksheet_t::write_number()`
+- `worksheet_t::write()`
 - `worksheet_t::write_formula()`
 - `worksheet_t::write_datetime()`
 - `worksheet_t::write_blank()`

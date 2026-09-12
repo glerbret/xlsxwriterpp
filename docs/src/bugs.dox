@@ -53,7 +53,7 @@ have a facility to calculate formulas, such as Excel Viewer, or several mobile
 applications, will only display the 0 results.
 
 If required, it is also possible to specify the calculated result of the
-formula using the `worksheet_t::write_formula_num()` function.
+formula using the `%result` parameter of the `worksheet_t::write_formula()` function.
 
 See also @ref working_with_formulas.
 

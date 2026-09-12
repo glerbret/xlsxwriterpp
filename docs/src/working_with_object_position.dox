@@ -63,7 +63,7 @@ may appear as if it is sized incorrectly. For example::
     xwpp::format_t* wrap = workbook.add_format();
     wrap->set_text_wrap();
 
-    worksheet.write_string(CELL("A10"), "Some text that wraps", wrap);
+    worksheet.write(CELL("A10"), "Some text that wraps", wrap);
 
     worksheet.insert_image(CELL("B1"),  "logo.png");
     worksheet.insert_image(CELL("B10"), "logo.png");

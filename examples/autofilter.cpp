@@ -21,11 +21,11 @@ void write_worksheet_header(xwpp::worksheet_t& worksheet, const xwpp::format_t* 
   worksheet.set_column(0, 3, 12);
 
   // Write the column headers.
-  worksheet.set_row(0, 20, header, std::nullopt);
-  worksheet.write_string(0, 0, "Region");
-  worksheet.write_string(0, 1, "Item");
-  worksheet.write_string(0, 2, "Volume");
-  worksheet.write_string(0, 3, "Month");
+  worksheet.set_row(0, 20, header);
+  worksheet.write(0, 0, "Region");
+  worksheet.write(0, 1, "Item");
+  worksheet.write(0, 2, "Volume");
+  worksheet.write(0, 3, "Month");
 }
 
 }
@@ -108,10 +108,10 @@ int main()
     // Write the row data.
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
       i++;
     }
 
@@ -128,10 +128,10 @@ int main()
     // Write the row data.
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
       // It isn't sufficient to just apply the filter condition below. We
       // must also hide the rows that don't match the criteria since Excel
@@ -143,7 +143,7 @@ int main()
       else
       {
         // Hide rows that don't match the filter.
-        worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+        worksheet.set_row(i + 1, hidden);
       }
 
       // Note, the if() statement above is written to match the logic of the
@@ -152,7 +152,7 @@ int main()
       //
       //     if (region != "East")
       //     {
-      //       worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+      //       worksheet.set_row(i + 1, hidden);
       //     }
       //
       // The same applies to the Examples 3-6 as well.
@@ -179,10 +179,10 @@ int main()
     // Write the row data.
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
       if(region == "East" || region == "South")
       {
@@ -191,7 +191,7 @@ int main()
       else
       {
         // We need to hide rows that don't match the filter.
-        worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+        worksheet.set_row(i + 1, hidden);
       }
       i++;
     }
@@ -220,10 +220,10 @@ int main()
     // Write the row data.
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
       if(region == "East" && volume > 3000 && volume < 8000)
       {
@@ -232,7 +232,7 @@ int main()
       else
       {
         // We need to hide rows that don't match the filter.
-        worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+        worksheet.set_row(i + 1, hidden);
       }
       i++;
     }
@@ -266,10 +266,10 @@ int main()
     // Write the row data.
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
       if(region == "East" || region == "North" || region == "South")
       {
@@ -278,7 +278,7 @@ int main()
       else
       {
         // We need to hide rows that don't match the filter.
-        worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+        worksheet.set_row(i + 1, hidden);
       }
       i++;
     }
@@ -302,10 +302,10 @@ int main()
 
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
       if(region.empty())
       {
@@ -314,7 +314,7 @@ int main()
       else
       {
         // We need to hide rows that don't match the filter.
-        worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+        worksheet.set_row(i + 1, hidden);
       }
       i++;
     }
@@ -335,10 +335,10 @@ int main()
 
     for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
     {
-      worksheet.write_string(i + 1, 0, region);
-      worksheet.write_string(i + 1, 1, item);
-      worksheet.write_number(i + 1, 2, volume);
-      worksheet.write_string(i + 1, 3, month);
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
       if(!region.empty())
       {
@@ -347,7 +347,7 @@ int main()
       else
       {
         // We need to hide rows that don't match the filter.
-        worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+        worksheet.set_row(i + 1, hidden);
       }
       i++;
     }

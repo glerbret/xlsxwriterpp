@@ -16,7 +16,7 @@ int main()
 
   worksheet.set_row(0, 15, bold);
 
-  worksheet.write_string(0, 0, "Foo");
+  worksheet.write(0, 0, "Foo");
 
   workbook.save("test_row_col_format02.xlsx");
 }

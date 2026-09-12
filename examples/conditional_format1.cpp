@@ -17,15 +17,15 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write some sample data.
-  worksheet.write_number(CELL("B1"), 34);
-  worksheet.write_number(CELL("B2"), 32);
-  worksheet.write_number(CELL("B3"), 31);
-  worksheet.write_number(CELL("B4"), 35);
-  worksheet.write_number(CELL("B5"), 36);
-  worksheet.write_number(CELL("B6"), 30);
-  worksheet.write_number(CELL("B7"), 38);
-  worksheet.write_number(CELL("B8"), 38);
-  worksheet.write_number(CELL("B9"), 32);
+  worksheet.write(CELL("B1"), 34);
+  worksheet.write(CELL("B2"), 32);
+  worksheet.write(CELL("B3"), 31);
+  worksheet.write(CELL("B4"), 35);
+  worksheet.write(CELL("B5"), 36);
+  worksheet.write(CELL("B6"), 30);
+  worksheet.write(CELL("B7"), 38);
+  worksheet.write(CELL("B8"), 38);
+  worksheet.write(CELL("B9"), 32);
 
   // Add a format with red text.
   xwpp::format_t* custom_format = workbook.add_format();

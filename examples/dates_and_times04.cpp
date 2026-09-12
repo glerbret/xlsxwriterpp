@@ -9,6 +9,8 @@
 
 #include "xlsxwriterpp.h"
 
+#include <ctime>
+
 int main()
 {
   // Create a new workbook and add a worksheet.
@@ -24,13 +26,13 @@ int main()
 
   // Write some Unix datetimes with formatting.
   // 1970-01-01. The Unix epoch.
-  worksheet.write_unixtime(0, 0, 0, format);
+  worksheet.write_datetime(0, 0, static_cast<time_t>(0), format);
 
   // 2000-01-01.
-  worksheet.write_unixtime(1, 0, 1577836800LL, format);
+  worksheet.write_datetime(1, 0, static_cast<time_t>(1577836800LL), format);
 
   // 1900-01-01.
-  worksheet.write_unixtime(2, 0, -2208988800LL, format);
+  worksheet.write_datetime(2, 0, static_cast<time_t>(-2208988800LL), format);
 
-  workbook.save("date_and_times03.xlsx");
+  workbook.save("date_and_times04.xlsx");
 }

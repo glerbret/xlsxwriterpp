@@ -19,11 +19,11 @@ int main()
   format2->set_num_format("0.00000");
   format3->set_num_format("0.000000");
 
-  worksheet.write_number(0, 0, 1.2222);
-  worksheet.write_number(1, 0, 1.2222, format1);
-  worksheet.write_number(2, 0, 1.2222, format2);
-  worksheet.write_number(3, 0, 1.2222, format3);
-  worksheet.write_number(4, 0, 1.2222);
+  worksheet.write(0, 0, 1.2222);
+  worksheet.write(1, 0, 1.2222, format1);
+  worksheet.write(2, 0, 1.2222, format2);
+  worksheet.write(3, 0, 1.2222, format3);
+  worksheet.write(4, 0, 1.2222);
 
   workbook.save("test_format07.xlsx");
 }

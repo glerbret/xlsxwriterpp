@@ -70,11 +70,11 @@ also specify a name:
 @endcode
 
 We can then use the worksheet object to write data via the
-`worksheet_t::write_string()` and `worksheet_t::write_number()` functions:
+`worksheet_t::write()` and `worksheet_t::write()` functions:
 
 @code
-  worksheet.write_string(0, 0, "Hello");
-  worksheet.write_number(1, 0, 1234.56);
+  worksheet.write(0, 0, "Hello");
+  worksheet.write(1, 0, 1234.56);
 @endcode
 
 @note

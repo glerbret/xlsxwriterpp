@@ -31,20 +31,20 @@ int main()
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;
   }
 
-  worksheet.write_string(CELL("A1"), "Foo", bold);
-  worksheet.write_string(CELL("B1"), "Bar", italic);
+  worksheet.write(CELL("A1"), "Foo", bold);
+  worksheet.write(CELL("B1"), "Bar", italic);
 
   const xwpp::row_col_options_t row_hidden{.hidden_ = true};
-  worksheet.set_row(12, xwpp::DEF_ROW_HEIGHT, nullptr, row_hidden);
+  worksheet.set_row(12, row_hidden);
 
   const xwpp::row_col_options_t col_hidden{.hidden_ = true};
-  worksheet.set_column(COLS("F:F"), xwpp::DEF_COL_WIDTH, nullptr, col_hidden);
+  worksheet.set_column(COLS("F:F"), col_hidden);
 
   chart.add_series("", "=Sheet1!$A$2:$A$6");
   chart.add_series("", "=Sheet1!$B$2:$B$6");

@@ -26,7 +26,7 @@
  *    xwpp::workbook_t workbook;
  *    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
  *
- *    worksheet.write_string(0, 0, "Hello Excel");
+ *    worksheet.write(0, 0, "Hello Excel");
  *
  *    workbook.save("filename.xlsx");
  *  }
@@ -606,7 +606,7 @@ public:
    *  format.set_font_color(xwpp::color_t::red());
    *
    *  // Use the format to change the text format in a cell.
-   *  worksheet.write_string(0, 0, "Hello", format);
+   *  worksheet.write(0, 0, "Hello", format);
    * @endcode
    *
    * See @ref format.h "the Format object" and @ref working_with_formats

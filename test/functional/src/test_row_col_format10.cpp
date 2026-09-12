@@ -14,7 +14,7 @@ int main()
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  worksheet.set_column(2, 2, xwpp::DEF_COL_WIDTH, bold);
+  worksheet.set_column(2, 2, bold);
 
   workbook.save("test_row_col_format10.xlsx");
 }

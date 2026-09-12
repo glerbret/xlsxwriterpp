@@ -16,11 +16,11 @@ int main()
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  worksheet.set_column(COLS("B:D"), 5, nullptr);
+  worksheet.set_column(COLS("B:D"), 5);
   worksheet.set_column(COLS("F:F"), 8, nullptr, options);
-  worksheet.set_column(COLS("H:H"), xwpp::DEF_COL_WIDTH, bold);
-  worksheet.set_column(COLS("J:J"), 2, nullptr);
-  worksheet.set_column(COLS("L:L"), xwpp::DEF_COL_WIDTH, nullptr, options);
+  worksheet.set_column(COLS("H:H"), bold);
+  worksheet.set_column(COLS("J:J"), 2);
+  worksheet.set_column(COLS("L:L"), options);
 
   workbook.save("test_row_col_format13.xlsx");
 }

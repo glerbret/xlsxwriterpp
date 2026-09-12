@@ -23,7 +23,7 @@ int main()
   worksheet3.repeat_rows(2, 3);
   worksheet3.repeat_columns(1, 5);
 
-  worksheet1.write_string(CELL("A1"), "Foo");
+  worksheet1.write(CELL("A1"), "Foo");
 
   workbook.save("test_repeat05.xlsx");
 }

@@ -26,7 +26,7 @@ int main()
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;
@@ -36,7 +36,10 @@ int main()
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  chartsheet.set_margins(0.511811023622047, 0.511811023622047, 0.551181102362204, 0.944881889763779);
+  chartsheet.set_left_margin(0.511811023622047);
+  chartsheet.set_right_margin(0.511811023622047);
+  chartsheet.set_top_margin(0.551181102362204);
+  chartsheet.set_bottom_margin(0.944881889763779);
 
   chartsheet.set_paper(xwpp::paper_size_t::A4);
   chartsheet.set_portrait();

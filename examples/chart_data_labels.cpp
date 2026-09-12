@@ -24,29 +24,29 @@ int main()
   xwpp::chart_options_t options{.x_offset_ = 25, .y_offset_ = 10};
 
   // Write some data for the chart.
-  worksheet.write_string(0, 0, "Number", bold);
-  worksheet.write_number(1, 0, 2);
-  worksheet.write_number(2, 0, 3);
-  worksheet.write_number(3, 0, 4);
-  worksheet.write_number(4, 0, 5);
-  worksheet.write_number(5, 0, 6);
-  worksheet.write_number(6, 0, 7);
+  worksheet.write(0, 0, "Number", bold);
+  worksheet.write(1, 0, 2);
+  worksheet.write(2, 0, 3);
+  worksheet.write(3, 0, 4);
+  worksheet.write(4, 0, 5);
+  worksheet.write(5, 0, 6);
+  worksheet.write(6, 0, 7);
 
-  worksheet.write_string(0, 1, "Data", bold);
-  worksheet.write_number(1, 1, 20);
-  worksheet.write_number(2, 1, 10);
-  worksheet.write_number(3, 1, 20);
-  worksheet.write_number(4, 1, 30);
-  worksheet.write_number(5, 1, 40);
-  worksheet.write_number(6, 1, 30);
+  worksheet.write(0, 1, "Data", bold);
+  worksheet.write(1, 1, 20);
+  worksheet.write(2, 1, 10);
+  worksheet.write(3, 1, 20);
+  worksheet.write(4, 1, 30);
+  worksheet.write(5, 1, 40);
+  worksheet.write(6, 1, 30);
 
-  worksheet.write_string(0, 2, "Text", bold);
-  worksheet.write_string(1, 2, "Jan");
-  worksheet.write_string(2, 2, "Feb");
-  worksheet.write_string(3, 2, "Mar");
-  worksheet.write_string(4, 2, "Apr");
-  worksheet.write_string(5, 2, "May");
-  worksheet.write_string(6, 2, "Jun");
+  worksheet.write(0, 2, "Text", bold);
+  worksheet.write(1, 2, "Jan");
+  worksheet.write(2, 2, "Feb");
+  worksheet.write(3, 2, "Mar");
+  worksheet.write(4, 2, "Apr");
+  worksheet.write(5, 2, "May");
+  worksheet.write(6, 2, "Jun");
 
   // Chart 1. Example with standard data labels.
   {

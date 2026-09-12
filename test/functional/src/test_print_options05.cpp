@@ -19,7 +19,7 @@ int main()
   worksheet.center_horizontally();
   worksheet.center_vertically();
 
-  worksheet.write_string(CELL("A1"), "Foo", nullptr);
+  worksheet.write(CELL("A1"), "Foo");
 
   workbook.save("test_print_options05.xlsx");
 }

@@ -1478,14 +1478,14 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   col_size_changed_ = true;
 }
 
-void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format)
+void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, const format_t* format)
 {
-  set_column(first_col, last_col, width, format, std::nullopt);
+  set_column(first_col, last_col, DEF_COL_WIDTH, format, std::nullopt);
 }
 
-void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double width)
+void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, const std::optional<row_col_options_t>& options)
 {
-  set_column(first_col, last_col, width, nullptr, std::nullopt);
+  set_column(first_col, last_col, DEF_COL_WIDTH, nullptr, options);
 }
 
 void worksheet_t::set_row(row_num_t row_num, double height, const format_t* format,
@@ -1533,14 +1533,14 @@ void worksheet_t::set_row(row_num_t row_num, double height, const format_t* form
   }
 }
 
-void worksheet_t::set_row(row_num_t row_num, double height, const format_t* format)
+void worksheet_t::set_row(row_num_t row_num, const format_t* format)
 {
-  set_row(row_num, height, format, std::nullopt);
+  set_row(row_num, DEF_ROW_HEIGHT, format, std::nullopt);
 }
 
-void worksheet_t::set_row(row_num_t row, double height)
+void worksheet_t::set_row(row_num_t row_num, const std::optional<row_col_options_t>& options)
 {
-  set_row(row, height, nullptr, std::nullopt);
+  set_row(row_num, DEF_ROW_HEIGHT, nullptr, options);
 }
 
 void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format,
@@ -1551,11 +1551,6 @@ void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uin
   set_column(first_col, last_col, width, format, options);
 }
 
-void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels)
-{
-  set_column_pixels(first_col, last_col, pixels, nullptr, std::nullopt);
-}
-
 void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format,
                                  const std::optional<row_col_options_t>& options)
 {
@@ -1564,19 +1559,9 @@ void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const forma
   set_row(row_num, height, format, options);
 }
 
-void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format)
+void worksheet_t::write(row_num_t row_num, col_num_t col_num, std::string_view data, const format_t* format)
 {
-  set_row_pixels(row_num, pixels, format, std::nullopt);
-}
-
-void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels)
-{
-  set_row_pixels(row_num, pixels, nullptr, std::nullopt);
-}
-
-void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::string& str, const format_t* format)
-{
-  if(str.empty())
+  if(data.empty())
   {
     // Treat an empty string with formatting as a blank cell.
     // Empty strings without formats should be ignored.
@@ -1590,50 +1575,39 @@ void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::
 
   check_dimensions(row_num, col_num, false, false);
 
-  if(str.size() > STR_MAX)
+  if(data.size() > STR_MAX)
   {
     throw xwpp_exception_t(
-      std::format("worksheet_t::write_string(): string size '{}' too large (max '{}').", str.size(), STR_MAX));
+      std::format("worksheet_t::write(): string size '{}' too large (max '{}').", data.size(), STR_MAX));
   }
 
-  const shared_strings_element_t sst_element = sst_->get_index(str, false);
+  const shared_strings_element_t sst_element = sst_->get_index(std::string{data}, false);
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
 
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_string(row_num_t row_num, col_num_t col_num, const std::string& str)
+void worksheet_t::write(row_num_t row_num, col_num_t col_num, const char* data, const format_t* format)
 {
-  write_string(row_num, col_num, str, nullptr);
+  write(row_num, col_num, std::string(data), format);
 }
 
-void worksheet_t::write_number(row_num_t row_num, col_num_t col_num, double number, const format_t* format)
+void worksheet_t::write(row_num_t row_num, col_num_t col_num, double data, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
 
-  const cell_t cell = new_number_cell(row_num, col_num, number, format);
+  const cell_t cell = new_number_cell(row_num, col_num, data, format);
 
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_number(row_num_t row_num, col_num_t col_num, double number)
-{
-  write_number(row_num, col_num, number, nullptr);
-}
-
-void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
-                                 const std::chrono::system_clock::time_point& datetime, const format_t* format)
+void worksheet_t::write(row_num_t row_num, col_num_t col_num, bool data, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
-  const double excel_date = datetime_to_excel_date_with_epoch(datetime, use_1904_epoch_);
-  const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
-  insert_cell(row_num, col_num, cell);
-}
 
-void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
-                                 const std::chrono::system_clock::time_point& datetime)
-{
-  write_datetime(row_num, col_num, datetime, nullptr);
+  const cell_t cell = new_boolean_cell(row_num, col_num, data, format);
+
+  insert_cell(row_num, col_num, cell);
 }
 
 void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime,
@@ -1646,36 +1620,33 @@ void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const dat
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime)
-{
-  write_datetime(row_num, col_num, datetime, nullptr);
-}
-
-void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format)
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num,
+                                 const std::chrono::system_clock::time_point& datetime, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
-  const double excel_date = unixtime_to_excel_date_with_epoch(unixtime, use_1904_epoch_);
+  const double excel_date = datetime_to_excel_date_with_epoch(datetime, use_1904_epoch_);
   const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime)
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const tm& datetime, const format_t* format)
 {
-  write_unixtime(row_num, col_num, unixtime, nullptr);
+  const datetime_t datetime_int{.year_  = datetime.tm_year + 1900,
+                                .month_ = datetime.tm_mon + 1,
+                                .day_   = datetime.tm_mday,
+                                .hour_  = datetime.tm_hour,
+                                .min_   = datetime.tm_min,
+                                .sec_   = static_cast<double>(datetime.tm_sec)};
+
+  write_datetime(row_num, col_num, datetime_int, format);
 }
 
-void worksheet_t::write_boolean(row_num_t row_num, col_num_t col_num, bool value, const format_t* format)
+void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, time_t datetime, const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
-
-  const cell_t cell = new_boolean_cell(row_num, col_num, value, format);
-
+  const double excel_date = unixtime_to_excel_date_with_epoch(datetime, use_1904_epoch_);
+  const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
   insert_cell(row_num, col_num, cell);
-}
-
-void worksheet_t::write_boolean(row_num_t row_num, col_num_t col_num, bool value)
-{
-  write_boolean(row_num, col_num, value, nullptr);
 }
 
 void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format_t* format)
@@ -1878,7 +1849,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_vi
   // Use the default URL format if none is specified.
   if(!storing_embedded_image_)
   {
-    write_string(row_num, col_num, string_copy, format ? format : default_url_format_);
+    write(row_num, col_num, string_copy, format ? format : default_url_format_);
   }
 
   const cell_t link = new_hyperlink_cell(row_num, col_num, link_type, url_copy, url_string, tooltip);
@@ -1886,17 +1857,13 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_vi
   hlink_count_++;
 }
 
-void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format)
+void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_view url, std::string_view str,
+                            std::string_view tooltip)
 {
-  write_url(row_num, col_num, url, format, "", "");
+  write_url(row_num, col_num, url, nullptr, str, tooltip);
 }
 
-void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, const std::string& url)
-{
-  write_url(row_num, col_num, url, nullptr, "", "");
-}
-
-void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std::string& text,
+void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, std::string_view text,
                                 const std::optional<comment_options_t>& options)
 {
   check_dimensions(row_num, col_num, false, false);
@@ -1931,30 +1898,14 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std:
   insert_cell_placeholder(row_num, col_num);
 }
 
-void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, const std::string& text)
-{
-  write_comment(row_num, col_num, text, std::nullopt);
-}
-
-void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                                const format_t* format)
-{
-  write_formula_num(row_num, col_num, formula, format, 0);
-}
-
-void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula)
-{
-  write_formula(row_num, col_num, formula, nullptr);
-}
-
-void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                                    const format_t* format, double result)
+void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
+                                double result)
 {
   std::string formula_copy;
 
   if(formula.empty())
   {
-    throw xwpp_exception_t("worksheet_t::write_formula_num(): formula must not be empty.");
+    throw xwpp_exception_t("worksheet_t::write_formula(): formula must not be empty.");
   }
 
   check_dimensions(row_num, col_num, false, false);
@@ -1974,19 +1925,14 @@ void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const 
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula, double result)
-{
-  write_formula_num(row_num, col_num, formula, nullptr, result);
-}
-
-void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                                    const format_t* format, const std::string& result)
+void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
+                                std::string_view result)
 {
   std::string formula_copy;
 
   if(formula.empty())
   {
-    throw xwpp_exception_t("worksheet_t::write_formula_str(): formula must not be empty.");
+    throw xwpp_exception_t("worksheet_t::write_formula(): formula must not be empty.");
   }
 
   check_dimensions(row_num, col_num, false, false);
@@ -2006,63 +1952,21 @@ void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const 
   insert_cell(row_num, col_num, cell);
 }
 
-void worksheet_t::write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                                    const std::string& result)
-{
-  write_formula_str(row_num, col_num, formula, nullptr, result);
-}
-
 void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                                      const std::string& formula, const format_t* format)
-{
-  store_array_formula(first_row, first_col, last_row, last_col, formula, format, 0, false);
-}
-
-void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                                      const std::string& formula)
-{
-  write_array_formula(first_row, first_col, last_row, last_col, formula, nullptr);
-}
-
-void worksheet_t::write_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row,
-                                          col_num_t last_col, const std::string& formula, const format_t* format,
-                                          double result)
+                                      std::string_view formula, const format_t* format, double result)
 {
   store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, false);
 }
 
 void worksheet_t::write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row,
-                                              col_num_t last_col, const std::string& formula, const format_t* format)
-{
-  store_array_formula(first_row, first_col, last_row, last_col, formula, format, 0, true);
-}
-
-void worksheet_t::write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row,
-                                              col_num_t last_col, const std::string& formula)
-{
-  write_dynamic_array_formula(first_row, first_col, last_row, last_col, formula, nullptr);
-}
-
-void worksheet_t::write_dynamic_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row,
-                                                  col_num_t last_col, const std::string& formula,
-                                                  const format_t* format, double result)
+                                              col_num_t last_col, std::string_view formula, const format_t* format,
+                                              double result)
 {
   store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, true);
 }
 
 void worksheet_t::write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                                        const format_t* format)
-{
-  store_array_formula(row_num, col_num, row_num, col_num, formula, format, 0, true);
-}
-
-void worksheet_t::write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula)
-{
-  write_dynamic_formula(row_num, col_num, formula, nullptr);
-}
-
-void worksheet_t::write_dynamic_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula,
-                                            const format_t* format, double result)
+                                        const format_t* format, double result)
 {
   store_array_formula(row_num, col_num, row_num, col_num, formula, format, result, true);
 }
@@ -2100,7 +2004,7 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
   merged_ranges_.push_back(merged_range);
 
   // Write the first cell.
-  write_string(first_row, first_col, str, format);
+  write(first_row, first_col, str, format);
 
   // Pad out the rest of the area with formatted blank cells.
   for(row_num_t tmp_row{first_row}; tmp_row <= last_row; tmp_row++)
@@ -2191,12 +2095,7 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   table_objs_.push_back(table_obj);
 }
 
-void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
-{
-  add_table(first_row, first_col, last_row, last_col, std::nullopt);
-}
-
-void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
+void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
                                std::optional<image_options_t> options)
 {
   if(filename.empty())
@@ -2209,13 +2108,13 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
     const std::ifstream image_stream(filename);
     if(!image_stream)
     {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::insert_image(): image file '{}' doesn't exist or cannot be opened.", filename));
+      throw xwpp_exception_t(std::format(
+        "worksheet_t::insert_image(): image file '{}' doesn't exist or cannot be opened.", filename.string()));
     }
   }
 
   // Use the filename as the default description, like Excel.
-  std::string description = std::filesystem::path(filename).filename().string();
+  std::string description = filename.filename().string();
 
   // Create a new object to hold the image properties.
   object_properties_t object_props;
@@ -2238,7 +2137,7 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   }
 
   // Copy other options or set defaults.
-  object_props.filename_    = filename;
+  object_props.filename_    = filename.string();
   object_props.description_ = description;
   object_props.row_num_     = row_num;
   object_props.col_num_     = col_num;
@@ -2255,11 +2154,6 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
 
   get_image_properties(object_props);
   add_image_properties(object_props);
-}
-
-void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename)
-{
-  insert_image(row_num, col_num, filename, std::nullopt);
 }
 
 void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
@@ -2309,13 +2203,7 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
   add_image_properties(object_props);
 }
 
-void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
-                                      const std::vector<unsigned char>& image_buffer)
-{
-  insert_image_buffer(row_num, col_num, image_buffer, std::nullopt);
-}
-
-void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
+void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
                               std::optional<image_options_t> options)
 {
   if(filename.empty())
@@ -2328,8 +2216,8 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
     const std::ifstream image_stream(filename);
     if(!image_stream)
     {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::embed_image(): image file '{}' doesn't exist or cannot be opened.", filename));
+      throw xwpp_exception_t(std::format(
+        "worksheet_t::embed_image(): image file '{}' doesn't exist or cannot be opened.", filename.string()));
     }
   }
 
@@ -2368,7 +2256,7 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
     }
   }
   // Copy other options or set defaults.
-  object_props.filename_ = filename;
+  object_props.filename_ = filename.string();
   object_props.row_num_  = row_num;
   object_props.col_num_  = col_num;
 
@@ -2384,11 +2272,6 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::s
 
   get_image_properties(object_props);
   embedded_image_props_.push_back(object_props);
-}
-
-void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename)
-{
-  embed_image(row_num, col_num, filename, std::nullopt);
 }
 
 void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
@@ -2452,12 +2335,6 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
   embedded_image_props_.push_back(object_props);
 }
 
-void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
-                                     const std::vector<unsigned char>& image_buffer)
-{
-  embed_image_buffer(row_num, col_num, image_buffer, std::nullopt);
-}
-
 void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
                                const std::optional<chart_options_t>& user_options)
 {
@@ -2509,11 +2386,6 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
   chart->in_use_ = true;
 }
 
-void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart)
-{
-  insert_chart(row_num, col_num, chart, std::nullopt);
-}
-
 void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options)
 {
   check_dimensions(row_num, col_num, true, true);
@@ -2530,11 +2402,6 @@ void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std:
 
   has_vml_ = true;
   button_objs_.emplace_back(button);
-}
-
-void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num)
-{
-  insert_button(row_num, col_num, std::nullopt);
 }
 
 void worksheet_t::set_h_pagebreaks(const std::vector<row_num_t>& breaks)
@@ -3299,7 +3166,7 @@ void worksheet_t::set_default_row(double height, bool hide_unused_rows)
   default_row_set_ = true;
 }
 
-void worksheet_t::set_background(const std::string& filename)
+void worksheet_t::set_background(const std::filesystem::path& filename)
 {
   if(filename.empty())
   {
@@ -3311,14 +3178,14 @@ void worksheet_t::set_background(const std::string& filename)
     const std::ifstream image_stream(filename);
     if(!image_stream)
     {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::set_background(): image file '{}' doesn't exist or cannot be opened.", filename));
+      throw xwpp_exception_t(std::format(
+        "worksheet_t::set_background(): image file '{}' doesn't exist or cannot be opened.", filename.string()));
     }
   }
 
   // Create a new object to hold the image properties.
   object_properties_t object_props;
-  object_props.filename_      = filename;
+  object_props.filename_      = filename.string();
   object_props.is_background_ = true;
 
   get_image_properties(object_props);
@@ -3722,8 +3589,7 @@ void worksheet_t::insert_cell_placeholder(row_num_t row_num, col_num_t col_num)
 }
 
 void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                                      const std::string& formula, const format_t* format, double result,
-                                      bool is_dynamic)
+                                      std::string_view formula, const format_t* format, double result, bool is_dynamic)
 {
   // Swap last row/col with first row/col as necessary.
   if(first_row > last_row)
@@ -3807,7 +3673,7 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
         continue;
       }
 
-      write_number(tmp_row, tmp_col, 0, format);
+      write(tmp_row, tmp_col, 0, format);
     }
   }
 }
@@ -3959,12 +3825,12 @@ void worksheet_t::write_table_column_data(const table_obj_t& table_obj)
 
     if(!table_obj.no_header_row_)
     {
-      write_string(first_row, col_num, column.header_, column.header_format_);
+      write(first_row, col_num, column.header_, column.header_format_);
     }
 
     if(!column.total_string_.empty())
     {
-      write_string(last_row, col_num, column.total_string_);
+      write(last_row, col_num, column.total_string_);
     }
 
     if(column.total_function_ != table_total_functions_t::NONE)
@@ -4010,7 +3876,7 @@ void worksheet_t::write_column_function(row_num_t row_num, col_num_t col_num, co
   // Write the end of the string.
   formula += "])";
 
-  write_formula_num(row_num, col_num, formula, column.format_, column.total_value_);
+  write_formula(row_num, col_num, formula, column.format_, column.total_value_);
 }
 
 void worksheet_t::write_column_formula(row_num_t first_row, row_num_t last_row, col_num_t col,

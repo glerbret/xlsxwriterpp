@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_string(CELL("A1"), "Foo");
+  worksheet.write(CELL("A1"), "Foo");
   worksheet.write_comment(CELL("A1"), "Some text");
   worksheet.write_comment(CELL("XFD1048576"), "Some text");
 

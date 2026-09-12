@@ -31,8 +31,8 @@ int main()
 
   for(xwpp::row_num_t row_num{0}; const auto& value: data)
   {
-    worksheet.write_string(row_num, 0, std::get<std::string>(value));
-    worksheet.write_number(row_num, 1, std::get<int>(value));
+    worksheet.write(row_num, 0, std::get<std::string>(value));
+    worksheet.write(row_num, 1, std::get<int>(value));
     row_num++;
   }
 

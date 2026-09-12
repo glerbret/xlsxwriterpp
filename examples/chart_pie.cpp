@@ -21,15 +21,15 @@ namespace
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-  worksheet.write_string(CELL("A1"), "Category", bold);
-  worksheet.write_string(CELL("A2"), "Apple");
-  worksheet.write_string(CELL("A3"), "Cherry");
-  worksheet.write_string(CELL("A4"), "Pecan");
+  worksheet.write(CELL("A1"), "Category", bold);
+  worksheet.write(CELL("A2"), "Apple");
+  worksheet.write(CELL("A3"), "Cherry");
+  worksheet.write(CELL("A4"), "Pecan");
 
-  worksheet.write_string(CELL("B1"), "Values", bold);
-  worksheet.write_number(CELL("B2"), 60);
-  worksheet.write_number(CELL("B3"), 30);
-  worksheet.write_number(CELL("B4"), 10);
+  worksheet.write(CELL("B1"), "Values", bold);
+  worksheet.write(CELL("B2"), 60);
+  worksheet.write(CELL("B3"), 30);
+  worksheet.write(CELL("B4"), 10);
 }
 
 }

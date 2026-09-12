@@ -14,7 +14,7 @@ int main()
   worksheet.set_row(0, 21);
   worksheet.set_column(1, 1, 10);
 
-  worksheet.write_string(CELL("A1"), "Foo");
+  worksheet.write(CELL("A1"), "Foo");
   worksheet.write_comment(CELL("A1"), "Some text");
 
   worksheet.set_comments_author("John");

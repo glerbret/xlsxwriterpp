@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(spans01)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write_number(2, 1, 2000);
+  worksheet.write(2, 1, 2000);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(spans02)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write_number(1048575, 0, 123);
+  worksheet.write(1048575, 0, 123);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(spans03)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write_number(0, 16383, 123);
+  worksheet.write(0, 16383, 123);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(spans04)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write_number(1048575, 16383, 123);
+  worksheet.write(1048575, 16383, 123);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
@@ -264,8 +264,7 @@ BOOST_AUTO_TEST_CASE(spans05)
 
   for(size_t i{0}; i < 20; i++)
   {
-    worksheet.write_number(static_cast<xwpp::row_num_t>(i), static_cast<xwpp::col_num_t>(i),
-                           static_cast<double>(i + 1));
+    worksheet.write(static_cast<xwpp::row_num_t>(i), static_cast<xwpp::col_num_t>(i), static_cast<double>(i + 1));
   }
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
@@ -277,9 +276,9 @@ BOOST_AUTO_TEST_CASE(spans06)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  BOOST_CHECK_THROW(worksheet.write_number(0, 16384, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(1048576, 0, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write_number(1048576, 16384, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(0, 16384, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(1048576, 0, 123), xwpp::xwpp_exception_t);
+  BOOST_CHECK_THROW(worksheet.write(1048576, 16384, 123), xwpp::xwpp_exception_t);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

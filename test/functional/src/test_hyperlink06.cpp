@@ -15,7 +15,7 @@ int main()
 
   worksheet.write_url(CELL("A1"), "external:C:\\Temp\\foo.xlsx");
   worksheet.write_url(CELL("A3"), "external:C:\\Temp\\foo.xlsx#Sheet1!A1");
-  worksheet.write_url(CELL("A5"), "external:C:\\Temp\\foo.xlsx#Sheet1!A1", nullptr, "External", "Tip");
+  worksheet.write_url(CELL("A5"), "external:C:\\Temp\\foo.xlsx#Sheet1!A1", "External", "Tip");
 
   workbook.save("test_hyperlink06.xlsx");
 }

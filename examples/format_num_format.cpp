@@ -40,28 +40,28 @@ int main()
   format08->set_num_format("dd/mm/yyyy hh:mm AM/PM");
   format09->set_num_format(R"(0 "dollar and" .00 "cents")");
 
-  worksheet.write_number(2, 0, 123);
+  worksheet.write(2, 0, 123);
 
   // Write data using the formats.
-  worksheet.write_number(0, 0, 3.1415926);           // 3.1415926
-  worksheet.write_number(1, 0, 3.1415926, format01); // 3.142
-  worksheet.write_number(2, 0, 1234.56, format02);   // 1,235
-  worksheet.write_number(3, 0, 1234.56, format03);   // 1,234.56
-  worksheet.write_number(4, 0, 49.99, format04);     // 49.99
-  worksheet.write_number(5, 0, 36892.521, format05); // 01/01/01
-  worksheet.write_number(6, 0, 36892.521, format06); // Jan 1 2001
-  worksheet.write_number(7, 0, 36892.521, format07); // 1 January 2001
-  worksheet.write_number(8, 0, 36892.521, format08); // 01/01/2001 12:30 AM
-  worksheet.write_number(9, 0, 1.87, format09);      // 1 dollar and .87 cents
+  worksheet.write(0, 0, 3.1415926);           // 3.1415926
+  worksheet.write(1, 0, 3.1415926, format01); // 3.142
+  worksheet.write(2, 0, 1234.56, format02);   // 1,235
+  worksheet.write(3, 0, 1234.56, format03);   // 1,234.56
+  worksheet.write(4, 0, 49.99, format04);     // 49.99
+  worksheet.write(5, 0, 36892.521, format05); // 01/01/01
+  worksheet.write(6, 0, 36892.521, format06); // Jan 1 2001
+  worksheet.write(7, 0, 36892.521, format07); // 1 January 2001
+  worksheet.write(8, 0, 36892.521, format08); // 01/01/2001 12:30 AM
+  worksheet.write(9, 0, 1.87, format09);      // 1 dollar and .87 cents
 
   // Show limited conditional number formats.
   {
     xwpp::format_t* format = workbook.add_format();
     format->set_num_format("[Green]General;[Red]-General;General");
 
-    worksheet.write_number(10, 0, 123, format); // > 0 Green
-    worksheet.write_number(11, 0, -45, format); // < 0 Red
-    worksheet.write_number(12, 0, 0, format);   // = 0 Default color
+    worksheet.write(10, 0, 123, format); // > 0 Green
+    worksheet.write(11, 0, -45, format); // < 0 Red
+    worksheet.write(12, 0, 0, format);   // = 0 Default color
   }
 
   // Format a Zip code.
@@ -69,7 +69,7 @@ int main()
     xwpp::format_t* format = workbook.add_format();
     format->set_num_format("00000");
 
-    worksheet.write_number(13, 0, 1209, format); // 01209
+    worksheet.write(13, 0, 1209, format); // 01209
   }
 
   workbook.save("format_num_format.xlsx");

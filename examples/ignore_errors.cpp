@@ -15,8 +15,8 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write strings that looks like numbers. This will cause an Excel warning.
-  worksheet.write_string(CELL("C2"), "123");
-  worksheet.write_string(CELL("C3"), "123");
+  worksheet.write(CELL("C2"), "123");
+  worksheet.write(CELL("C3"), "123");
 
   // Write a divide by zero formula. This will also cause an Excel warning.
   worksheet.write_formula(CELL("C5"), "=1/0");
@@ -28,10 +28,10 @@ int main()
 
   // Write some descriptions for the cells and make the column wider for clarity.
   worksheet.set_column(1, 1, 16);
-  worksheet.write_string(CELL("B2"), "Warning:");
-  worksheet.write_string(CELL("B3"), "Warning turned off:");
-  worksheet.write_string(CELL("B5"), "Warning:");
-  worksheet.write_string(CELL("B6"), "Warning turned off:");
+  worksheet.write(CELL("B2"), "Warning:");
+  worksheet.write(CELL("B3"), "Warning turned off:");
+  worksheet.write(CELL("B5"), "Warning:");
+  worksheet.write(CELL("B6"), "Warning turned off:");
 
   workbook.save("ignore_errors.xlsx");
 }

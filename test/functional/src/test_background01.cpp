@@ -6,12 +6,15 @@
 
 #include "xlsxwriterpp.h"
 
+#include <filesystem>
+
 int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.insert_image(CELL("E9"), "images/logo.jpg");
+  const std::filesystem::path path = std::filesystem::path{"images"} / "logo.jpg";
+  worksheet.insert_image(CELL("E9"), path);
 
   workbook.save("test_background01.xlsx");
 }

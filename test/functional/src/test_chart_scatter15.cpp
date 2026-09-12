@@ -17,12 +17,12 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(58843520, 58845440);
 
-  worksheet.write_string(0, 0, "X");
-  worksheet.write_string(0, 1, "Y");
-  worksheet.write_number(1, 0, 1);
-  worksheet.write_number(1, 1, 10);
-  worksheet.write_number(2, 0, 3);
-  worksheet.write_number(2, 1, 30);
+  worksheet.write(0, 0, "X");
+  worksheet.write(0, 1, "Y");
+  worksheet.write(1, 0, 1);
+  worksheet.write(1, 1, 10);
+  worksheet.write(2, 0, 3);
+  worksheet.write(2, 1, 30);
 
   chart.add_series("=Sheet1!$A$2:$A$3", "=Sheet1!$B$2:$B$3");
 

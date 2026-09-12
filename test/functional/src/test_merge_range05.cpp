@@ -15,7 +15,7 @@ int main()
   format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
 
   worksheet.merge_range(1, 1, 1, 3, "", format);
-  worksheet.write_number(1, 1, 123, format);
+  worksheet.write(1, 1, 123, format);
 
   workbook.save("test_merge_range05.xlsx");
 }

@@ -28,13 +28,13 @@ have a facility to calculate formulas, such as Excel Viewer, or several mobile
 applications, will only display the 0 results.
 
 If required, it is also possible to specify the calculated result of the
-formula using the `worksheet_t::write_formula_num()` function.
+formula using the `%result` parameter of the `worksheet_t::write_formula()` function.
 
 @code
-  worksheet.write_formula_num(0, 0, "=2 + 2", 4);
+  worksheet.write_formula(0, 0, "=2 + 2", 4);
 @endcode
 
-@note LibreOffice doesn't recalculate Excel formulas that reference other
+Note that LibreOffice doesn't recalculate Excel formulas that reference other
 cells by default, in which case you will get the default XlsxWriter value of 0.
 You can work around this by setting the "LibreOffice Preferences ->
 LibreOffice Calc -> Formula -> Recalculation on File Load" option to "Always
@@ -44,7 +44,7 @@ you can set a blank string result in the formula, which will also force
 recalculation:
 
 @code
-  worksheet.write_formula_str(worksheet, 0, 0, "=Sheet1!$A$1", "");
+  worksheet.write_formula(worksheet, 0, 0, "=Sheet1!$A$1", "");
 @endcode
 
 @section faq_autofit Q. Is there an "AutoFit" option for columns?

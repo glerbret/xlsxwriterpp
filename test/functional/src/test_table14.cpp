@@ -32,25 +32,25 @@ int main()
   const xwpp::table_options_t options{.columns_ = columns};
   worksheet.add_table(RANGE("C2:F6"), options);
 
-  worksheet.write_string(2, 2, "Foo");
-  worksheet.write_string(3, 2, "Bar");
-  worksheet.write_string(4, 2, "Baz");
-  worksheet.write_string(5, 2, "Bop");
+  worksheet.write(2, 2, "Foo");
+  worksheet.write(3, 2, "Bar");
+  worksheet.write(4, 2, "Baz");
+  worksheet.write(5, 2, "Bop");
 
-  worksheet.write_number(2, 3, 1234, format1);
-  worksheet.write_number(3, 3, 1256, format1);
-  worksheet.write_number(4, 3, 2234, format1);
-  worksheet.write_number(5, 3, 1324, format1);
+  worksheet.write(2, 3, 1234, format1);
+  worksheet.write(3, 3, 1256, format1);
+  worksheet.write(4, 3, 2234, format1);
+  worksheet.write(5, 3, 1324, format1);
 
-  worksheet.write_number(2, 4, 2000, format2);
-  worksheet.write_number(3, 4, 4000, format2);
-  worksheet.write_number(4, 4, 3000, format2);
-  worksheet.write_number(5, 4, 1000, format2);
+  worksheet.write(2, 4, 2000, format2);
+  worksheet.write(3, 4, 4000, format2);
+  worksheet.write(4, 4, 3000, format2);
+  worksheet.write(5, 4, 1000, format2);
 
-  worksheet.write_number(2, 5, 4321, format3);
-  worksheet.write_number(3, 5, 4320, format3);
-  worksheet.write_number(4, 5, 4332, format3);
-  worksheet.write_number(5, 5, 4333, format3);
+  worksheet.write(2, 5, 4321, format3);
+  worksheet.write(3, 5, 4320, format3);
+  worksheet.write(4, 5, 4332, format3);
+  worksheet.write(5, 5, 4333, format3);
 
   workbook.save("test_table14.xlsx");
 }
