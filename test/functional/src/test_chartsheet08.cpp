@@ -38,7 +38,7 @@ int main()
 
   chartsheet.set_margins(0.511811023622047, 0.511811023622047, 0.551181102362204, 0.944881889763779);
 
-  chartsheet.set_paper(9);
+  chartsheet.set_paper(xwpp::paper_size_t::A4);
   chartsheet.set_portrait();
 
   const xwpp::header_footer_options_t header_options{.margin_ = 0.118110236220472};

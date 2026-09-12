@@ -145,6 +145,140 @@ enum class comment_display_t
 };
 
 /**
+ * @brief Paper size.
+ *
+ * Predefined paper size.
+ */
+enum class paper_size_t : uint8_t
+{
+  /** Printer default size. */
+  DEFAULT = 0,
+
+  /** 8 1/2 x 11 in. */
+  LETTER = 1,
+
+  /** 8 1/2 x 11 in. */
+  LETTER_SMALL = 2,
+
+  /** 11 x 17 in. */
+  TABLOID = 3,
+
+  /** 17 x 11 in. */
+  LEDGER = 4,
+
+  /** 8 1/2 x 14 in */
+  LEGAL = 5,
+
+  /** 5 1/2 x 8 1/2 in. */
+  STATEMENT = 6,
+
+  /** 7 1/4 x 10 1/2 in. */
+  EXECUTIVE = 7,
+
+  /** 297 x 420 mm. */
+  A3 = 8,
+
+  /** 210 x 297 mm. */
+  A4 = 9,
+
+  /** 210 x 297 mm. */
+  A4_SMALL = 10,
+
+  /** 148 x 210 mm. */
+  A5 = 11,
+
+  /** 250 x 354 mm. */
+  B4 = 12,
+
+  /** 182 x 257 mm. */
+  B5 = 13,
+
+  /** 8 1/2 x 13 in. */
+  FOLIO = 14,
+
+  /** 215 x 275 mm. */
+  QUARTO = 15,
+
+  /** 10x14 in. */
+  NARROW = 16,
+
+  /** 11 x 17 in. */
+  PAPER_11x17 = 17,
+
+  /** 8 1/2 x 11 in. */
+  NOTE = 18,
+
+  /** 3 7/8 x 8 7/8. */
+  ENVELOPE_9 = 19,
+
+  /** 4 1/8 x 9 1/2. */
+  ENVELOPE_10 = 20,
+
+  /** 4 1/2 x 10 3/8. */
+  ENVELOPE_11 = 21,
+
+  /** 4 3/4 x 11. */
+  ENVELOPE_12 = 22,
+
+  /**  5 x 11 1/2. */
+  ENVELOPE_14 = 23,
+
+  /** 17 × 22 in. */
+  C_SIZE = 24,
+
+  /** 22 × 34 in. */
+  D_SIZE = 25,
+
+  /** 34 × 44 in. */
+  E_SIZE = 26,
+
+  /** 110 x 220 mm. */
+  ENVELOPE_DL = 27,
+
+  /** 324 x 458 mm. */
+  ENVELOPE_C3 = 28,
+
+  /** 229 x 324 mm. */
+  ENVELOPE_C4 = 29,
+
+  /** 162 x 229 mm. */
+  ENVELOPE_C5 = 30,
+
+  /** 114 x 162 mm. */
+  ENVELOPE_C6 = 31,
+
+  /** 114 x 229 mm. */
+  ENVELOPE_C65 = 32,
+
+  /** 250 x 353 mm. */
+  ENVELOPE_B4 = 33,
+
+  /** 176 x 250 mm. */
+  ENVELOPE_B5 = 34,
+
+  /** 176 x 125 mm. */
+  ENVELOPE_B6 = 35,
+
+  /** 110 x 230 mm. */
+  ENVELOPE_ITALY = 36,
+
+  /** 3.875 x 7.5 in. */
+  MONARCH = 37,
+
+  /** 3 5/8 x 6 1/2 in. */
+  ENVELOPE_PERSONAL = 38,
+
+  /** 14 7/8 x 11 in. */
+  FANFOLD = 39,
+
+  /** 8 1/2 x 12 in. */
+  GERMAN_STD = 40,
+
+  /** 8 1/2 x 13 in. */
+  GERMAN_LEGAL = 41,
+};
+
+/**
  * @brief Worksheet protection options.
  *
  * Worksheet protection options.
@@ -403,56 +537,58 @@ public:
    * @param paper_size The Excel paper format type.
    *
    * This function is used to set the paper format for the printed output of a
-   * sheet. The following paper styles are available:
+   * sheet.
    *
-   *   Index    | Paper format            | Paper size
-   *   :------- | :---------------------- | :-------------------
-   *   0        | Printer default         | Printer default
-   *   1        | Letter                  | 8 1/2 x 11 in
-   *   2        | Letter Small            | 8 1/2 x 11 in
-   *   3        | Tabloid                 | 11 x 17 in
-   *   4        | Ledger                  | 17 x 11 in
-   *   5        | Legal                   | 8 1/2 x 14 in
-   *   6        | Statement               | 5 1/2 x 8 1/2 in
-   *   7        | Executive               | 7 1/4 x 10 1/2 in
-   *   8        | A3                      | 297 x 420 mm
-   *   9        | A4                      | 210 x 297 mm
-   *   10       | A4 Small                | 210 x 297 mm
-   *   11       | A5                      | 148 x 210 mm
-   *   12       | B4                      | 250 x 354 mm
-   *   13       | B5                      | 182 x 257 mm
-   *   14       | Folio                   | 8 1/2 x 13 in
-   *   15       | Quarto                  | 215 x 275 mm
-   *   16       | ---                     | 10x14 in
-   *   17       | ---                     | 11x17 in
-   *   18       | Note                    | 8 1/2 x 11 in
-   *   19       | Envelope 9              | 3 7/8 x 8 7/8
-   *   20       | Envelope 10             | 4 1/8 x 9 1/2
-   *   21       | Envelope 11             | 4 1/2 x 10 3/8
-   *   22       | Envelope 12             | 4 3/4 x 11
-   *   23       | Envelope 14             | 5 x 11 1/2
-   *   24       | C size sheet            | ---
-   *   25       | D size sheet            | ---
-   *   26       | E size sheet            | ---
-   *   27       | Envelope DL             | 110 x 220 mm
-   *   28       | Envelope C3             | 324 x 458 mm
-   *   29       | Envelope C4             | 229 x 324 mm
-   *   30       | Envelope C5             | 162 x 229 mm
-   *   31       | Envelope C6             | 114 x 162 mm
-   *   32       | Envelope C65            | 114 x 229 mm
-   *   33       | Envelope B4             | 250 x 353 mm
-   *   34       | Envelope B5             | 176 x 250 mm
-   *   35       | Envelope B6             | 176 x 125 mm
-   *   36       | Envelope                | 110 x 230 mm
-   *   37       | Monarch                 | 3.875 x 7.5 in
-   *   38       | Envelope                | 3 5/8 x 6 1/2 in
-   *   39       | Fanfold                 | 14 7/8 x 11 in
-   *   40       | German Std Fanfold      | 8 1/2 x 12 in
-   *   41       | German Legal Fanfold    | 8 1/2 x 13 in
+   * `paper_size_t` provided the following predefined paper styles:
+   *
+   *   Name              | Value    | Paper format            | Paper size
+   *   :---------------- | :------- | :---------------------- | :-------------------
+   *   DEFAULT           | 0        | Printer default         | Printer default
+   *   LETTER            | 1        | Letter                  | 8 1/2 x 11 in
+   *   LETTER_SMALL      | 2        | Letter Small            | 8 1/2 x 11 in
+   *   TABLOID           | 3        | Tabloid                 | 11 x 17 in
+   *   LEDGER            | 4        | Ledger                  | 17 x 11 in
+   *   LEGAL             | 5        | Legal                   | 8 1/2 x 14 in
+   *   STATEMENT         | 6        | Statement               | 5 1/2 x 8 1/2 in
+   *   EXECUTIVE         | 7        | Executive               | 7 1/4 x 10 1/2 in
+   *   A3                | 8        | A3                      | 297 x 420 mm
+   *   A4                | 9        | A4                      | 210 x 297 mm
+   *   A4_SMALL          | 10       | A4 Small                | 210 x 297 mm
+   *   A5                | 11       | A5                      | 148 x 210 mm
+   *   B4                | 12       | B4                      | 250 x 354 mm
+   *   B5                | 13       | B5                      | 182 x 257 mm
+   *   FOLIO             | 14       | Folio                   | 8 1/2 x 13 in
+   *   QUARTO            | 15       | Quarto                  | 215 x 275 mm
+   *   NARROW            | 16       | Narrow                  | 10x14 in
+   *   PAPER_11x17       | 17       | ---                     | 11x17 in
+   *   NOTE              | 18       | Note                    | 8 1/2 x 11 in
+   *   ENVELOPE_9        | 19       | Envelope 9              | 3 7/8 x 8 7/8
+   *   ENVELOPE_10       | 20       | Envelope 10             | 4 1/8 x 9 1/2
+   *   ENVELOPE_11       | 21       | Envelope 11             | 4 1/2 x 10 3/8
+   *   ENVELOPE_12       | 22       | Envelope 12             | 4 3/4 x 11
+   *   ENVELOPE_14       | 23       | Envelope 14             | 5 x 11 1/2
+   *   C_SIZE            | 24       | C size sheet            | 17 × 22 in
+   *   D_SIZE            | 25       | D size sheet            | 22 × 34 in
+   *   E_SIZE            | 26       | E size sheet            | 34 × 44 in
+   *   ENVELOPE_DL       | 27       | Envelope DL             | 110 x 220 mm
+   *   ENVELOPE_C3       | 28       | Envelope C3             | 324 x 458 mm
+   *   ENVELOPE_C4       | 29       | Envelope C4             | 229 x 324 mm
+   *   ENVELOPE_C5       | 30       | Envelope C5             | 162 x 229 mm
+   *   ENVELOPE_C6       | 31       | Envelope C6             | 114 x 162 mm
+   *   ENVELOPE_C65      | 32       | Envelope C65            | 114 x 229 mm
+   *   ENVELOPE_B4       | 33       | Envelope B4             | 250 x 353 mm
+   *   ENVELOPE_B5       | 34       | Envelope B5             | 176 x 250 mm
+   *   ENVELOPE_B6       | 35       | Envelope B6             | 176 x 125 mm
+   *   ENVELOPE_ITALY    | 36       | Envelope                | 110 x 230 mm
+   *   MONARCH           | 37       | Monarch                 | 3.875 x 7.5 in
+   *   ENVELOPE_PERSONAL | 38       | Envelope                | 3 5/8 x 6 1/2 in
+   *   FANFOLD           | 39       | Fanfold                 | 14 7/8 x 11 in
+   *   GERMAN_STD        | 40       | German Std Fanfold      | 8 1/2 x 12 in
+   *   GERMAN_LEGAL      | 41       | German Legal Fanfold    | 8 1/2 x 13 in
    *
    * @code
-   *  worksheet1.set_paper(1);  // US Letter
-   *  worksheet2.set_paper(9);  // A4
+   *  worksheet1.set_paper(1);                      // US Letter
+   *  worksheet2.set_paper(xwpp::paper_size_t::A4); // A4
    * @endcode
    *
    * If you do not specify a paper type the sheet will print using the
@@ -461,10 +597,10 @@ public:
    * @note It is likely that not all of these paper types will be available to
    * the end user since it will depend on the paper formats that the user's
    * printer supports. Therefore, it is best to stick to standard paper types:
-   *
-   * @todo Use enum as `paper_size`.
    */
   void set_paper(uint8_t paper_size);
+  /** @brief  @overload */
+  void set_paper(paper_size_t paper_size);
 
   /**
    * @brief Set the printed page header caption.

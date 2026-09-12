@@ -20,7 +20,7 @@ int main()
     breaks.push_back(i + 1);
   }
 
-  worksheet.set_paper(9);
+  worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);
 
   worksheet.set_h_pagebreaks(breaks);

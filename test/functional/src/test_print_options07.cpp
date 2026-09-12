@@ -13,7 +13,7 @@ int main()
 
   worksheet.write_string(0, 0, "Foo", nullptr);
 
-  worksheet.set_paper(9);
+  worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);
 
   worksheet.print_black_and_white();

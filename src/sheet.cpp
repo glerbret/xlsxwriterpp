@@ -365,6 +365,11 @@ void sheet_t::set_paper(uint8_t paper_size)
   page_setup_changed_ = true;
 }
 
+void sheet_t::set_paper(paper_size_t paper_size)
+{
+  sheet_t::set_paper(static_cast<uint8_t>(paper_size));
+}
+
 void sheet_t::set_landscape()
 {
   orientation_        = drawing_orientation_t::LANDSCAPE;

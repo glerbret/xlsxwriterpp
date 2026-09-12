@@ -15,7 +15,7 @@ int main()
 
   worksheet.write_string(CELL("A1"), "Foo");
 
-  worksheet.set_paper(9);
+  worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);
 
   workbook.save("test_page_view01.xlsx");

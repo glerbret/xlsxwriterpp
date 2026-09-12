@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   worksheet.set_start_page(101);
-  worksheet.set_paper(9);
+  worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);
 
   worksheet.write_string(CELL("A1"), "Foo");
