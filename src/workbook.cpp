@@ -64,8 +64,9 @@ namespace
 
 }
 
-workbook_t::workbook_t(bool use_zip64)
-  : use_zip64_{use_zip64}
+workbook_t::workbook_t(bool use_1904_epoch, bool use_zip64)
+  : use_1904_epoch_{use_1904_epoch}
+  , use_zip64_{use_zip64}
 {
   // Add the default cell format.
   auto* format = add_format();
@@ -78,7 +79,7 @@ workbook_t::workbook_t(bool use_zip64)
   default_url_format_->set_hyperlink();
 }
 
-void workbook_t::save(std::string_view filename)
+void workbook_t::save(const std::filesystem::path& filename)
 {
   // Add a default worksheet if none have been added.
   if(sheets_.empty())
@@ -148,7 +149,7 @@ void workbook_t::set_properties(const doc_properties_t& properties)
   properties_ = properties;
 }
 
-void workbook_t::set_custom_property(std::string_view name, const std::string& value)
+void workbook_t::set_custom_property(std::string_view name, std::string_view value)
 {
   if(name.empty())
   {
@@ -267,19 +268,14 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::y
   set_custom_property(name, std::chrono::sys_days{value} + 0h + 0min + 0s + 0ms);
 }
 
+void workbook_t::set_custom_property(std::string_view name, const tm& value)
+{
+  set_custom_property(name, to_datetime(value));
+}
+
 void workbook_t::read_only_recommended()
 {
   read_only_ = 2;
-}
-
-void workbook_t::use_1904_epoch()
-{
-  use_1904_epoch_ = true;
-}
-
-void workbook_t::set_max_url_length(uint16_t max_url_length)
-{
-  max_url_length_ = max_url_length;
 }
 
 void workbook_t::set_size(uint16_t width, uint16_t height)
@@ -298,8 +294,10 @@ void workbook_t::set_size(uint16_t width, uint16_t height)
 
 worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
 {
-  // Check that the worksheet name is valid.
-  validate_sheetname(sheetname);
+  if(!validate_sheetname(sheetname))
+  {
+    throw xwpp_exception_t(std::format("workbook_t::add_worksheet(): sheetname '{}' is not valid.", sheetname));
+  }
 
   const sheet_init_data_t init_data{
     .index_              = sheets_.size(),
@@ -310,7 +308,6 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
     .name_               = std::string{sheetname},
     .quoted_name_        = quote_sheetname(sheetname),
     .default_url_format_ = default_url_format_,
-    .max_url_length_     = max_url_length_,
     .use_1904_epoch_     = use_1904_epoch_,
   };
 
@@ -330,8 +327,10 @@ worksheet_t& workbook_t::add_worksheet()
 
 chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
 {
-  // Check that the worksheet name is valid.
-  validate_sheetname(sheetname);
+  if(!validate_sheetname(sheetname))
+  {
+    throw xwpp_exception_t(std::format("workbook_t::add_worksheet(): sheetname '{}' is not valid.", sheetname));
+  }
 
   const sheet_init_data_t init_data{
     .index_              = sheets_.size(),
@@ -342,7 +341,6 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
     .name_               = std::string{sheetname},
     .quoted_name_        = quote_sheetname(sheetname),
     .default_url_format_ = default_url_format_,
-    .max_url_length_     = max_url_length_,
     .use_1904_epoch_     = use_1904_epoch_,
   };
 
@@ -389,45 +387,45 @@ const chartsheet_t* workbook_t::get_chartsheet_by_name(std::string_view name) co
   return nullptr;
 }
 
-void workbook_t::validate_sheetname(std::string_view sheetname) const
+bool workbook_t::validate_sheetname(std::string_view sheetname) const
 {
   // Check for empty worksheet name.
   if(sheetname.empty())
   {
-    throw xwpp_exception_t("workbook_t::validate_sheetname(): sheetname is empty.");
+    return false;
   }
 
   // Check the length of the worksheet name.
   if(sheetname.size() > XWPP_SHEETNAME_MAX)
   {
-    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' is too long.", sheetname));
+    return false;
   }
 
   // Check that the worksheet name doesn't contain invalid characters.
   if(sheetname.find_first_of("[]:*?/\\") != std::string::npos)
   {
-    throw xwpp_exception_t(
-      std::format("workbook_t::validate_sheetname(): sheetname '{}' contains invalid characters.", sheetname));
+    return false;
   }
 
   // Check that the worksheet doesn't start or end with an apostrophe.
   if(sheetname[0] == '\'' || sheetname[sheetname.size() - 1] == '\'')
   {
-    throw xwpp_exception_t(
-      std::format("workbook_t::validate_sheetname(): sheetname '{}' contains unbalanced single quote.", sheetname));
+    return false;
   }
 
   // Check if the worksheet name is already in use.
   if(get_worksheet_by_name(sheetname) != nullptr)
   {
-    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used.", sheetname));
+    return false;
   }
 
   // Check if the chartsheet name is already in use.
   if(get_chartsheet_by_name(sheetname) != nullptr)
   {
-    throw xwpp_exception_t(std::format("workbook_t::validate_sheetname(): sheetname '{}' already used.", sheetname));
+    return false;
   }
+
+  return true;
 }
 
 // TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
@@ -466,7 +464,7 @@ chart_t& workbook_t::add_chart(chart_type_t chart_type)
   return charts_.back();
 }
 
-void workbook_t::add_vba_project(const std::string& filename)
+void workbook_t::add_vba_project(const std::filesystem::path& filename)
 {
   if(filename.empty())
   {
@@ -479,14 +477,14 @@ void workbook_t::add_vba_project(const std::string& filename)
     if(!vba_stream)
     {
       throw xwpp_exception_t(
-        std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened.", filename));
+        std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened.", filename.string()));
     }
   }
 
-  vba_project_ = filename;
+  vba_project_ = filename.string();
 }
 
-void workbook_t::add_signed_vba_project(const std::string& vba_project, const std::string& signature)
+void workbook_t::add_signed_vba_project(const std::filesystem::path& vba_project, const std::filesystem::path& signature)
 {
   add_vba_project(vba_project);
 
@@ -501,11 +499,11 @@ void workbook_t::add_signed_vba_project(const std::string& vba_project, const st
     if(!signature_file)
     {
       throw xwpp_exception_t(std::format(
-        "workbook_t::add_signed_vba_project(): signature file {} doesn't exist or can't be opened.", signature));
+        "workbook_t::add_signed_vba_project(): signature file {} doesn't exist or can't be opened.", signature.string()));
     }
   }
 
-  vba_project_signature_ = signature;
+  vba_project_signature_ = signature.string();
 }
 
 void workbook_t::set_vba_name(std::string_view name)
