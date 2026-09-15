@@ -13,37 +13,37 @@ namespace
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-  worksheet.write_string(0, 0, "Types", bold);
-  worksheet.write_string(1, 0, "Type 1");
-  worksheet.write_string(4, 0, "Type 2");
+  worksheet.write(0, 0, "Types", bold);
+  worksheet.write(1, 0, "Type 1");
+  worksheet.write(4, 0, "Type 2");
 
-  worksheet.write_string(0, 1, "Sub Type", bold);
-  worksheet.write_string(1, 1, "Sub Type A");
-  worksheet.write_string(2, 1, "Sub Type B");
-  worksheet.write_string(3, 1, "Sub Type C");
-  worksheet.write_string(4, 1, "Sub Type D");
-  worksheet.write_string(5, 1, "Sub Type E");
+  worksheet.write(0, 1, "Sub Type", bold);
+  worksheet.write(1, 1, "Sub Type A");
+  worksheet.write(2, 1, "Sub Type B");
+  worksheet.write(3, 1, "Sub Type C");
+  worksheet.write(4, 1, "Sub Type D");
+  worksheet.write(5, 1, "Sub Type E");
 
-  worksheet.write_string(0, 2, "Value 1", bold);
-  worksheet.write_number(1, 2, 5000);
-  worksheet.write_number(2, 2, 2000);
-  worksheet.write_number(3, 2, 250);
-  worksheet.write_number(4, 2, 6000);
-  worksheet.write_number(5, 2, 500);
+  worksheet.write(0, 2, "Value 1", bold);
+  worksheet.write(1, 2, 5000);
+  worksheet.write(2, 2, 2000);
+  worksheet.write(3, 2, 250);
+  worksheet.write(4, 2, 6000);
+  worksheet.write(5, 2, 500);
 
-  worksheet.write_string(0, 3, "Value 2", bold);
-  worksheet.write_number(1, 3, 8000);
-  worksheet.write_number(2, 3, 3000);
-  worksheet.write_number(3, 3, 1000);
-  worksheet.write_number(4, 3, 6000);
-  worksheet.write_number(5, 3, 300);
+  worksheet.write(0, 3, "Value 2", bold);
+  worksheet.write(1, 3, 8000);
+  worksheet.write(2, 3, 3000);
+  worksheet.write(3, 3, 1000);
+  worksheet.write(4, 3, 6000);
+  worksheet.write(5, 3, 300);
 
-  worksheet.write_string(0, 4, "Value 3", bold);
-  worksheet.write_number(1, 4, 6000);
-  worksheet.write_number(2, 4, 4000);
-  worksheet.write_number(3, 4, 2000);
-  worksheet.write_number(4, 4, 6500);
-  worksheet.write_number(5, 4, 200);
+  worksheet.write(0, 4, "Value 3", bold);
+  worksheet.write(1, 4, 6000);
+  worksheet.write(2, 4, 4000);
+  worksheet.write(3, 4, 2000);
+  worksheet.write(4, 4, 6500);
+  worksheet.write(5, 4, 200);
 }
 
 }

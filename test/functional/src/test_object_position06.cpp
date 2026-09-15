@@ -15,7 +15,7 @@ int main()
   worksheet.insert_image(CELL("E9"), "images/red.png", options);
 
   const xwpp::row_col_options_t hidden{.hidden_ = true};
-  worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+  worksheet.set_row(8, hidden);
 
   workbook.save("test_object_position06.xlsx");
 }

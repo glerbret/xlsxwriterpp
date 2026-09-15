@@ -15,35 +15,35 @@ int main()
 
   worksheet.set_column(COLS("B:K"), 10.288);
 
-  worksheet.write_string(CELL("A1"), "Column1");
-  worksheet.write_string(CELL("B1"), "Column2");
-  worksheet.write_string(CELL("C1"), "Column3");
-  worksheet.write_string(CELL("D1"), "Column4");
-  worksheet.write_string(CELL("E1"), "Column5");
-  worksheet.write_string(CELL("F1"), "Column6");
-  worksheet.write_string(CELL("G1"), "Column7");
-  worksheet.write_string(CELL("H1"), "Column8");
-  worksheet.write_string(CELL("I1"), "Column9");
-  worksheet.write_string(CELL("J1"), "Column10");
-  worksheet.write_string(CELL("K1"), "Total");
+  worksheet.write(CELL("A1"), "Column1");
+  worksheet.write(CELL("B1"), "Column2");
+  worksheet.write(CELL("C1"), "Column3");
+  worksheet.write(CELL("D1"), "Column4");
+  worksheet.write(CELL("E1"), "Column5");
+  worksheet.write(CELL("F1"), "Column6");
+  worksheet.write(CELL("G1"), "Column7");
+  worksheet.write(CELL("H1"), "Column8");
+  worksheet.write(CELL("I1"), "Column9");
+  worksheet.write(CELL("J1"), "Column10");
+  worksheet.write(CELL("K1"), "Total");
 
-  worksheet.write_number(3, 1, 0);
-  worksheet.write_number(3, 2, 0);
-  worksheet.write_number(3, 3, 0);
-  worksheet.write_number(3, 6, 4);
-  worksheet.write_number(3, 7, 0);
-  worksheet.write_number(3, 8, 1);
-  worksheet.write_number(3, 9, 0);
-  worksheet.write_number(3, 10, 0);
+  worksheet.write(3, 1, 0);
+  worksheet.write(3, 2, 0);
+  worksheet.write(3, 3, 0);
+  worksheet.write(3, 6, 4);
+  worksheet.write(3, 7, 0);
+  worksheet.write(3, 8, 1);
+  worksheet.write(3, 9, 0);
+  worksheet.write(3, 10, 0);
 
-  worksheet.write_number(4, 1, 0);
-  worksheet.write_number(4, 2, 0);
-  worksheet.write_number(4, 3, 0);
-  worksheet.write_number(4, 6, 5);
-  worksheet.write_number(4, 7, 0);
-  worksheet.write_number(4, 8, 2);
-  worksheet.write_number(4, 9, 0);
-  worksheet.write_number(4, 10, 0);
+  worksheet.write(4, 1, 0);
+  worksheet.write(4, 2, 0);
+  worksheet.write(4, 3, 0);
+  worksheet.write(4, 6, 5);
+  worksheet.write(4, 7, 0);
+  worksheet.write(4, 8, 2);
+  worksheet.write(4, 9, 0);
+  worksheet.write(4, 10, 0);
 
   const std::vector<xwpp::table_column_t> columns{
     {.total_string_ = "Total"},

@@ -11,10 +11,10 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_number(CELL("A1"), 10);
-  worksheet.write_number(CELL("A2"), 20);
-  worksheet.write_number(CELL("A3"), 30);
-  worksheet.write_number(CELL("A4"), 40);
+  worksheet.write(CELL("A1"), 10);
+  worksheet.write(CELL("A2"), 20);
+  worksheet.write(CELL("A3"), 30);
+  worksheet.write(CELL("A4"), 40);
 
   const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,

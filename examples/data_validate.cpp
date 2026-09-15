@@ -24,23 +24,23 @@ namespace
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* format)
 {
-  worksheet.write_string(CELL("A1"), "Some examples of data validation in Xlsxwriter++", format);
-  worksheet.write_string(CELL("B1"), "Enter values in this column", format);
-  worksheet.write_string(CELL("D1"), "Sample Data", format);
+  worksheet.write(CELL("A1"), "Some examples of data validation in Xlsxwriter++", format);
+  worksheet.write(CELL("B1"), "Enter values in this column", format);
+  worksheet.write(CELL("D1"), "Sample Data", format);
 
-  worksheet.write_string(CELL("D3"), "Integers");
-  worksheet.write_number(CELL("E3"), 1);
-  worksheet.write_number(CELL("F3"), 10);
+  worksheet.write(CELL("D3"), "Integers");
+  worksheet.write(CELL("E3"), 1);
+  worksheet.write(CELL("F3"), 10);
 
-  worksheet.write_string(CELL("D4"), "List data");
-  worksheet.write_string(CELL("E4"), "open");
-  worksheet.write_string(CELL("F4"), "high");
-  worksheet.write_string(CELL("G4"), "close");
+  worksheet.write(CELL("D4"), "List data");
+  worksheet.write(CELL("E4"), "open");
+  worksheet.write(CELL("F4"), "high");
+  worksheet.write(CELL("G4"), "close");
 
-  worksheet.write_string(CELL("D5"), "Formula");
+  worksheet.write(CELL("D5"), "Formula");
   worksheet.write_formula(CELL("E5"), "=AND(F5=50,G5=60)");
-  worksheet.write_number(CELL("F5"), 50);
-  worksheet.write_number(CELL("G5"), 60);
+  worksheet.write(CELL("F5"), 50);
+  worksheet.write(CELL("G5"), 60);
 }
 
 }
@@ -70,7 +70,7 @@ int main()
 
   // Example 1. Limiting input to an integer in a fixed range.
   {
-    worksheet.write_string(CELL("A3"), "Enter an integer between 1 and 10");
+    worksheet.write(CELL("A3"), "Enter an integer between 1 and 10");
 
     const xwpp::data_validation_t data_validation{
       .validate_       = xwpp::validation_types_t::INTEGER,
@@ -83,7 +83,7 @@ int main()
 
   // Example 2. Limiting input to an integer outside a fixed range.
   {
-    worksheet.write_string(CELL("A5"), "Enter an integer that is not between 1 and 10 (using cell references)");
+    worksheet.write(CELL("A5"), "Enter an integer that is not between 1 and 10 (using cell references)");
 
     const xwpp::data_validation_t data_validation{
       .validate_        = xwpp::validation_types_t::INTEGER_FORMULA,
@@ -96,7 +96,7 @@ int main()
 
   // Example 3. Limiting input to an integer greater than a fixed value.
   {
-    worksheet.write_string(CELL("A7"), "Enter an integer greater than 0");
+    worksheet.write(CELL("A7"), "Enter an integer greater than 0");
 
     const xwpp::data_validation_t data_validation{
       .validate_     = xwpp::validation_types_t::INTEGER,
@@ -108,7 +108,7 @@ int main()
 
   // Example 4. Limiting input to an integer less than a fixed value.
   {
-    worksheet.write_string(CELL("A9"), "Enter an integer less than 10");
+    worksheet.write(CELL("A9"), "Enter an integer less than 10");
 
     const xwpp::data_validation_t data_validation{
       .validate_     = xwpp::validation_types_t::INTEGER,
@@ -120,7 +120,7 @@ int main()
 
   // Example 5. Limiting input to a decimal in a fixed range.
   {
-    worksheet.write_string(CELL("A11"), "Enter a decimal between 0.1 and 0.5");
+    worksheet.write(CELL("A11"), "Enter a decimal between 0.1 and 0.5");
 
     const xwpp::data_validation_t data_validation{
       .validate_       = xwpp::validation_types_t::DECIMAL,
@@ -133,7 +133,7 @@ int main()
 
   // Example 6. Limiting input to a value in a dropdown list.
   {
-    worksheet.write_string(CELL("A13"), "Select a value from a dropdown list");
+    worksheet.write(CELL("A13"), "Select a value from a dropdown list");
 
     const std::vector<std::string> list{"open", "high", "close"};
 
@@ -146,7 +146,7 @@ int main()
 
   // Example 7. Limiting input to a value in a dropdown list.
   {
-    worksheet.write_string(CELL("A15"), "Select a value from a dropdown list (using a cell range)");
+    worksheet.write(CELL("A15"), "Select a value from a dropdown list (using a cell range)");
 
     const xwpp::data_validation_t data_validation{
       .validate_      = xwpp::validation_types_t::LIST_FORMULA,
@@ -157,7 +157,7 @@ int main()
 
   // Example 8. Limiting input to a date in a fixed range.
   {
-    worksheet.write_string(CELL("A17"), "Enter a date between 1/1/2024 and 12/12/2024");
+    worksheet.write(CELL("A17"), "Enter a date between 1/1/2024 and 12/12/2024");
 
     const xwpp::data_validation_t data_validation{
       .validate_         = xwpp::validation_types_t::DATE,
@@ -170,7 +170,7 @@ int main()
 
   // Example 9. Limiting input to a time in a fixed range.
   {
-    worksheet.write_string(CELL("A19"), "Enter a time between 6:00 and 12:00");
+    worksheet.write(CELL("A19"), "Enter a time between 6:00 and 12:00");
 
     const xwpp::data_validation_t data_validation{
       .validate_         = xwpp::validation_types_t::TIME,
@@ -183,7 +183,7 @@ int main()
 
   // Example 10. Limiting input to a string greater than a fixed length.
   {
-    worksheet.write_string(CELL("A21"), "Enter a string longer than 3 characters");
+    worksheet.write(CELL("A21"), "Enter a string longer than 3 characters");
 
     const xwpp::data_validation_t data_validation{
       .validate_     = xwpp::validation_types_t::LENGTH,
@@ -195,7 +195,7 @@ int main()
 
   // Example 11. Limiting input based on a formula.
   {
-    worksheet.write_string(CELL("A23"), "Enter a value if the following is true \"=AND(F5=50,G5=60)\"");
+    worksheet.write(CELL("A23"), "Enter a value if the following is true \"=AND(F5=50,G5=60)\"");
 
     const xwpp::data_validation_t data_validation{
       .validate_      = xwpp::validation_types_t::CUSTOM_FORMULA,
@@ -206,7 +206,7 @@ int main()
 
   // Example 12. Displaying and modifying data validation messages.
   {
-    worksheet.write_string(CELL("A25"), "Displays a message when you select the cell");
+    worksheet.write(CELL("A25"), "Displays a message when you select the cell");
 
     const xwpp::data_validation_t data_validation{
       .validate_       = xwpp::validation_types_t::INTEGER,
@@ -221,7 +221,7 @@ int main()
 
   // Example 13. Displaying and modifying data validation messages.
   {
-    worksheet.write_string(CELL("A27"), "Display a custom error message when integer isn't between 1 and 100");
+    worksheet.write(CELL("A27"), "Display a custom error message when integer isn't between 1 and 100");
 
     const xwpp::data_validation_t data_validation{
       .validate_       = xwpp::validation_types_t::INTEGER,
@@ -238,7 +238,7 @@ int main()
 
   // Example 14. Displaying and modifying data validation messages.
   {
-    worksheet.write_string(CELL("A29"), "Display a custom info message when integer isn't between 1 and 100");
+    worksheet.write(CELL("A29"), "Display a custom info message when integer isn't between 1 and 100");
 
     const xwpp::data_validation_t data_validation{
       .validate_       = xwpp::validation_types_t::INTEGER,

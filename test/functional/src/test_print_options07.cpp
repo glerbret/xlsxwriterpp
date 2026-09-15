@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_string(0, 0, "Foo", nullptr);
+  worksheet.write(0, 0, "Foo");
 
   worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);

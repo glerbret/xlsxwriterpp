@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(worksheet02)
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
-  worksheet.write_number(0, 0, 123);
+  worksheet.write(0, 0, 123);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE(worksheet03)
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
-  worksheet.write_string(0, 0, "Foo");
-  worksheet.write_number(1, 2, 123);
-  worksheet.write_string(3, 1, "Bar");
-  worksheet.write_number(8, 4, 890);
+  worksheet.write(0, 0, "Foo");
+  worksheet.write(1, 2, 123);
+  worksheet.write(3, 1, "Bar");
+  worksheet.write(8, 4, 890);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

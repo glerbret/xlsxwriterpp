@@ -356,8 +356,8 @@ User defined functions or formulas aren't supported.
 It is also possible to set a calculated value for the `%total_function_` using
 the `%total_value_` sub property. This is only necessary when creating workbooks
 for applications that cannot calculate the value of formulas automatically.
-This is similar to setting the `result` property in
-`worksheet_t::write_formula_num()`. See also @ref ww_formulas_results.
+This is similar to setting the `%result` property in
+`worksheet_t::write_formula()`. See also @ref ww_formulas_results.
 
 Formatting can also be applied to columns using the `%format_` and to the header
 using `%header_format_` (although you will also need to add it to the data in
@@ -421,30 +421,30 @@ the rows and columns. This is done with the standard worksheet `%write()`
 functions. For example the data in the examples above was written as follows:
 
 @code
-  worksheet.write_string(3, 1, "Apples");
-  worksheet.write_string(4, 1, "Pears");
-  worksheet.write_string(5, 1, "Bananas");
-  worksheet.write_string(6, 1, "Oranges");
+  worksheet.write(3, 1, "Apples");
+  worksheet.write(4, 1, "Pears");
+  worksheet.write(5, 1, "Bananas");
+  worksheet.write(6, 1, "Oranges");
 
-  worksheet.write_number(3, 2, 10000,  format);
-  worksheet.write_number(4, 2,  2000,  format);
-  worksheet.write_number(5, 2,  6000,  format);
-  worksheet.write_number(6, 2,   500,  format);
+  worksheet.write(3, 2, 10000,  format);
+  worksheet.write(4, 2,  2000,  format);
+  worksheet.write(5, 2,  6000,  format);
+  worksheet.write(6, 2,   500,  format);
 
-  worksheet.write_number(3, 3,  5000,  format);
-  worksheet.write_number(4, 3,  3000,  format);
-  worksheet.write_number(5, 3,  6000,  format);
-  worksheet.write_number(6, 3,   300,  format);
+  worksheet.write(3, 3,  5000,  format);
+  worksheet.write(4, 3,  3000,  format);
+  worksheet.write(5, 3,  6000,  format);
+  worksheet.write(6, 3,   300,  format);
 
-  worksheet.write_number(3, 4,  8000,  format);
-  worksheet.write_number(4, 4,  4000,  format);
-  worksheet.write_number(5, 4,  6500,  format);
-  worksheet.write_number(6, 4,   200,  format);
+  worksheet.write(3, 4,  8000,  format);
+  worksheet.write(4, 4,  4000,  format);
+  worksheet.write(5, 4,  6500,  format);
+  worksheet.write(6, 4,   200,  format);
 
-  worksheet.write_number(3, 5,  6000,  format);
-  worksheet.write_number(4, 5,  5000,  format);
-  worksheet.write_number(5, 5,  6000,  format);
-  worksheet.write_number(6, 5,   700,  format);
+  worksheet.write(3, 5,  6000,  format);
+  worksheet.write(4, 5,  5000,  format);
+  worksheet.write(5, 5,  6000,  format);
+  worksheet.write(6, 5,   700,  format);
 @endcode
 
 @image html tables2.png

@@ -14,7 +14,7 @@ int main()
   workbook.add_signed_vba_project("images/vbaProject05.bin", "images/vbaProject05Signature.bin");
 
   worksheet.set_column(COLS("A:A"), 30);
-  worksheet.write_string(2, 0, "Press the button to say hello.");
+  worksheet.write(2, 0, "Press the button to say hello.");
 
   const xwpp::button_options_t options{.caption_ = "Press Me", .macro_ = "say_hello", .width_ = 80, .height_ = 30};
 

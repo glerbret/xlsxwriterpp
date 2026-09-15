@@ -33,21 +33,21 @@ int main()
   worksheet1.set_column(0, 0, 20);
 
   // Write some unformatted data.
-  worksheet1.write_string(0, 0, "Peach");
-  worksheet1.write_string(1, 0, "Plum");
+  worksheet1.write(0, 0, "Peach");
+  worksheet1.write(1, 0, "Plum");
 
   // Write formatted data.
-  worksheet1.write_string(2, 0, "Pear", myformat1);
+  worksheet1.write(2, 0, "Pear", myformat1);
 
   // Formats can be reused.
-  worksheet1.write_string(3, 0, "Persimmon", myformat1);
+  worksheet1.write(3, 0, "Persimmon", myformat1);
 
   // Write some numbers.
-  worksheet1.write_number(5, 0, 123);
-  worksheet1.write_number(6, 0, 4567.555, myformat2);
+  worksheet1.write(5, 0, 123);
+  worksheet1.write(6, 0, 4567.555, myformat2);
 
   // Write to the second worksheet.
-  worksheet2.write_string(0, 0, "Some text", myformat1);
+  worksheet2.write(0, 0, "Some text", myformat1);
 
   workbook.save("anatomy.xlsx");
 }

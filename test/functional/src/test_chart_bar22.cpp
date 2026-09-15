@@ -15,29 +15,29 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(43706240, 43727104);
 
-  worksheet.write_string(0, 1, "Series 1");
-  worksheet.write_string(0, 2, "Series 2");
-  worksheet.write_string(0, 3, "Series 3");
+  worksheet.write(0, 1, "Series 1");
+  worksheet.write(0, 2, "Series 2");
+  worksheet.write(0, 3, "Series 3");
 
-  worksheet.write_string(1, 0, "Category 1");
-  worksheet.write_string(2, 0, "Category 2");
-  worksheet.write_string(3, 0, "Category 3");
-  worksheet.write_string(4, 0, "Category 4");
+  worksheet.write(1, 0, "Category 1");
+  worksheet.write(2, 0, "Category 2");
+  worksheet.write(3, 0, "Category 3");
+  worksheet.write(4, 0, "Category 4");
 
-  worksheet.write_number(1, 1, 4.3);
-  worksheet.write_number(2, 1, 2.5);
-  worksheet.write_number(3, 1, 3.5);
-  worksheet.write_number(4, 1, 4.5);
+  worksheet.write(1, 1, 4.3);
+  worksheet.write(2, 1, 2.5);
+  worksheet.write(3, 1, 3.5);
+  worksheet.write(4, 1, 4.5);
 
-  worksheet.write_number(1, 2, 2.4);
-  worksheet.write_number(2, 2, 4.5);
-  worksheet.write_number(3, 2, 1.8);
-  worksheet.write_number(4, 2, 2.8);
+  worksheet.write(1, 2, 2.4);
+  worksheet.write(2, 2, 4.5);
+  worksheet.write(3, 2, 1.8);
+  worksheet.write(4, 2, 2.8);
 
-  worksheet.write_number(1, 3, 2);
-  worksheet.write_number(2, 3, 2);
-  worksheet.write_number(3, 3, 3);
-  worksheet.write_number(4, 3, 5);
+  worksheet.write(1, 3, 2);
+  worksheet.write(2, 3, 2);
+  worksheet.write(3, 3, 3);
+  worksheet.write(4, 3, 5);
 
   worksheet.set_column(COLS("A:D"), 11);
 

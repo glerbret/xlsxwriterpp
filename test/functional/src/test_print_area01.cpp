@@ -16,7 +16,7 @@ int main()
 
   worksheet.print_area(0, 0, 0, 0);
 
-  worksheet.write_string(CELL("A1"), "Foo", nullptr);
+  worksheet.write(CELL("A1"), "Foo");
 
   workbook.save("test_print_area01.xlsx");
 }

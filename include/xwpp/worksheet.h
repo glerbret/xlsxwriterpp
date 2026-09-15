@@ -25,7 +25,7 @@
  *    xwpp::workbook_t workbook;
  *    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
  *
- *    worksheet.write_string(0, 0, "Hello Excel");
+ *    worksheet.write(0, 0, "Hello Excel");
  *
  *    workbook.save("filename.xlsx");
  *  }
@@ -43,11 +43,16 @@
 
 #include <chrono>
 #include <cstdint>
+#include <ctime>
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <optional>
 #include <string>
 #include <variant>
+
+// NOLINTNEXTLINE(google-global-names-in-headers)
+using namespace std::literals;
 
 /// @cond
 namespace xwpp
@@ -2082,13 +2087,6 @@ struct filter_rule_obj_t
  * @code
  *  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
  * @endcode
-
- * @todo Add API with different for:
- *  - integer (int, short, long, unsigned, uint16_t, ...).
- *  - date (chrono, time_t, string that contains date, ...).
- *  - ...
- * @todo Add API with col and row names instead of number.
- * @todo Replace few overload by default-valued parameters (in particular `nullptr` for `format`)
  */
 class worksheet_t : public sheet_t
 {
@@ -2101,9 +2099,9 @@ public:
    *
    * @param first_col The zero indexed first column.
    * @param last_col  The zero indexed last column.
-   * @param width     The width of the column(s).
-   * @param format    A pointer to a Format instance or `nullptr`.
-   * @param options   Optional row parameters: hidden, level, collapsed.
+   * @param width     The optional width of the column(s).
+   * @param format    An optional format.
+   * @param options   Optional column parameters: hidden, level, collapsed.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -2149,16 +2147,15 @@ public:
    * width of the data in the column as your write it and then adjusting the
    * column width at the end.
    *
-   * As usual the @ref format.h `format` parameter is optional. If you wish to
-   * set the format without changing the width you can pass a default column
-   * width of DEF_COL_WIDTH:
+   * The `%width` parameter is optional, if not provided the width is set to
+   * `DEF_COL_WIDTH`:
    *
    * @code
    *  xwpp::format_t* bold = workbook.add_format();
    *  bold->set_bold();
    *
    *  // Set the first column to bold.
-   *  worksheet.set_column(0, 0, xwpp::DEF_COL_WIDTH, bold);
+   *  worksheet.set_column(0, 0, bold);
    * @endcode
    *
    * The `format` parameter will be applied to any cells in the column that
@@ -2166,13 +2163,13 @@ public:
    *
    * @code
    *  // Column 1 has format1.
-   *  worksheet.set_column(COLS("A:A"), 8.43, format1);
+   *  worksheet.set_column(COLS("A:A"), format1);
    *
    *  // Cell A1 in column 1 defaults to format1.
-   *  worksheet.write_string(0, 0, "Hello");
+   *  worksheet.write(0, 0, "Hello");
    *
    *  // Cell A2 in column 1 keeps format2.
-   *  worksheet.write_string(1, 0, "Hello", format2);
+   *  worksheet.write(1, 0, "Hello", format2);
    * @endcode
    *
    * As in Excel a row format takes precedence over a default column format:
@@ -2182,13 +2179,13 @@ public:
    *  worksheet.set_row(0, 15, format1);
    *
    *  // Col 1 has format2.
-   *  worksheet.set_column(COLS("A:A"), 8.43, format2);
+   *  worksheet.set_column(COLS("A:A"), format2);
    *
    *  // Cell A1 defaults to format1, the row format.
-   *  worksheet.write_string(0, 0, "Hello");
+   *  worksheet.write(0, 0, "Hello");
    *
    *  // Cell A2 keeps format2, the column format.
-   *  worksheet.write_string(1, 0, "Hello");
+   *  worksheet.write(1, 0, "Hello");
    * @endcode
    *
    * The optional `options` parameter is a `row_col_options_t` struct. It has the
@@ -2204,7 +2201,7 @@ public:
    * @code
    *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
    *
-   *  worksheet.set_column(COLS("D:E"), xwpp::DEF_COL_WIDTH, nullptr, options);
+   *  worksheet.set_column(COLS("D:E"), options);
    * @endcode
    *
    * @image html hide_row_col3.png
@@ -2215,27 +2212,26 @@ public:
    * @code
    *  xwpp::row_col_options_t options{.hidden_ = false, .level = 1, .collapsed = false};
    *
-   *  worksheet.set_column(COLS("B:G"), 5, nullptr, &options1);
+   *  worksheet.set_column(COLS("B:G"), 5, &options1);
    * @endcode
    *
    * @image html outline8.png
    *
-   * @todo Add API with only format or option (no width).
-   * @todo Add API with options but no format.
+   * @todo Add API with col and row names instead of number.
    */
-  void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format,
-                  const std::optional<row_col_options_t>& options);
-  /// @overload
-  void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format);
-  /// @overload
-  void set_column(col_num_t first_col, col_num_t last_col, double width);
+  void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format = nullptr,
+                  const std::optional<row_col_options_t>& options = std::nullopt);
+  /// @brief Overload that only set format.
+  void set_column(col_num_t first_col, col_num_t last_col, const format_t* format);
+  /// @brief Overload that only set column parameters.
+  void set_column(col_num_t first_col, col_num_t last_col, const std::optional<row_col_options_t>& options);
 
   /**
    * @brief Set the properties for a row of cells.
    *
    * @param row_num The zero indexed row number.
-   * @param height  The row height.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param height  The optional row height.
+   * @param format  An optional format.
    * @param options Optional row parameters: hidden, level, collapsed.
    *
    * @throw xwpp::xwpp_exception_t.
@@ -2263,12 +2259,8 @@ public:
    *  worksheet.set_row(0, 15, bold);
    * @endcode
    *
-   * If you wish to set the format of a row without changing the height you can
-   * pass the default row height of `DEF_ROW_HEIGHT`:
-   *
    * @code
-   *  worksheet.set_row(0, xwpp::DEF_ROW_HEIGHT, format);
-   *  worksheet.set_row(0, 15, format); // Same as above.
+   *  worksheet.set_row(0, format);
    * @endcode
    *
    * The `format` parameter will be applied to any cells in the row that don't
@@ -2280,10 +2272,10 @@ public:
    *  worksheet.set_row(0, 15, format1);
    *
    *  // Cell A1 in Row 1 defaults to format1.
-   *  worksheet.write_string(0, 0, "Hello");
+   *  worksheet.write(0, 0, "Hello");
    *
    *  // Cell B1 in Row 1 keeps format2.
-   *  worksheet.write_string(0, 1, "Hello", format2);
+   *  worksheet.write(0, 1, "Hello", format2);
    * @endcode
    *
    * The `options` parameter is a `row_col_options_t` struct. It has the
@@ -2300,8 +2292,8 @@ public:
    *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
    *
    *  // Hide the fourth and fifth (zero indexed) rows.
-   *  worksheet.set_row(3, 15, nullptr, options);
-   *  worksheet.set_row(4, 15, nullptr, options);
+   *  worksheet.set_row(3, 15, options);
+   *  worksheet.set_row(4, 15, options);
    * @endcode
    *
    * @image html hide_row_col2.png
@@ -2315,29 +2307,28 @@ public:
    *  xwpp::row_col_options_t options2{.hidden_ = false, .level_ = 1, .collapsed_ = false};
    *
    *  // Set the row options with the outline level.
-   *  worksheet.set_row(1, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(2, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(3, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(4, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(5, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
-   *  worksheet.set_row(6, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(7, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(8, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(9, xwpp::DEF_ROW_HEIGHT, nullptr, options1);
-   *  worksheet.set_row(10, xwpp::DEF_ROW_HEIGHT, nullptr, options2);
+   *  worksheet.set_row(1, options1);
+   *  worksheet.set_row(2, options1);
+   *  worksheet.set_row(3, options1);
+   *  worksheet.set_row(4, options1);
+   *  worksheet.set_row(5, options2);
+   *  worksheet.set_row(6, options1);
+   *  worksheet.set_row(7, options1);
+   *  worksheet.set_row(8, options1);
+   *  worksheet.set_row(9, options1);
+   *  worksheet.set_row(10, options2);
    * @endcode
    *
    * @image html outline1.png
    *
-   * @todo Add API with only format or option (no height).
-   * @todo Add API with options but no format.
+   * @todo Add API with col and row names instead of number.
    */
-  void set_row(row_num_t row_num, double height, const format_t* format,
-               const std::optional<row_col_options_t>& options);
-  /// @overload
-  void set_row(row_num_t row_num, double height, const format_t* format);
-  /// @overload
-  void set_row(row_num_t row_num, double height);
+  void set_row(row_num_t row_num, double height, const format_t* format = nullptr,
+               const std::optional<row_col_options_t>& options = std::nullopt);
+  /// @brief Overload that only set format.
+  void set_row(row_num_t row_num, const format_t* format);
+  /// @brief Overload that only set row parameters.
+  void set_row(row_num_t row_num, const std::optional<row_col_options_t>& options);
 
   /**
    * @brief Set the properties for one or more columns of cells, with the width
@@ -2345,8 +2336,8 @@ public:
    *
    * @param first_col The zero indexed first column.
    * @param last_col  The zero indexed last column.
-   * @param pixels    The width of the column(s) in pixels.
-   * @param format    A pointer to a Format instance or nullptr.
+   * @param pixels    The optional width of the column(s) in pixels.
+   * @param format    An optional format.
    * @param options   Optional row parameters: hidden, level, collapsed.
    *
    * @throw xwpp::xwpp_exception_t.
@@ -2362,22 +2353,17 @@ public:
    *
    * @image html set_column_pixels.png
    *
-   * If you wish to set the format of a column without changing the width you can
-   * pass the default column width in pixels: `DEF_COL_WIDTH_PIXELS`.
-   *
-   * @todo Add API with only format or options.
+   * @todo Add API with col and row names instead of number.
    */
-  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format,
-                         const std::optional<row_col_options_t>& options);
-  /// @overload
-  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels);
+  void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format = nullptr,
+                         const std::optional<row_col_options_t>& options = std::nullopt);
 
   /**
    * @brief Set the properties for a row of cells, with the height in pixels.
    *
    * @param row_num The zero indexed row number.
-   * @param pixels  The row height in pixels.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param pixels  The optional row height in pixels.
+   * @param format  An optional format.
    * @param options Optional row parameters: hidden, level, collapsed.
    *
    * @throw xwpp::xwpp_exception_t.
@@ -2390,110 +2376,98 @@ public:
    *  worksheet.set_row_pixels(0, 20, nullptr);
    * @endcode
    *
-   * If you wish to set the format of a row without changing the height you can
-   * pass the default row height in pixels: `DEF_ROW_HEIGHT_PIXELS`.
+   * @todo Add API with col and row names instead of number.
    */
-  void set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format,
-                      const std::optional<row_col_options_t>& options);
-  /// @overload
-  void set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format);
-  /// @overload
-  void set_row_pixels(row_num_t row_num, uint32_t pixels);
+  void set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format = nullptr,
+                      const std::optional<row_col_options_t>& options = std::nullopt);
 
   /**
-   * @brief Write a string to a worksheet cell.
+   * @brief Write simple data to a worksheet cell.
    *
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
-   * @param str     String to write to cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param data    Data to write to cell.
+   * @param format  An optional pointer to a Format instance.
    *
    * @throw xwpp::xwpp_exception_t.
    *
-   * The `%write_string()` function writes a string to the cell
-   * specified by `%row` and `%column`:
+   * The `%write()` function writes simple data to the cell
+   * specified by `%row` and `%column`. Supported data type are:
+   *
+   * - String:
    *
    * @code
-   *  worksheet.write_string(0, 0, "This phrase is English!");
+   *  worksheet.write(0, 0, "This phrase is English!");
    * @endcode
    *
    * @image html write_string01.png
    *
+   * Unicode strings are supported in [UTF-8](https://www.rfc-editor.org/info/rfc3629/) encoding. This generally
+   * requires that your source file is UTF-8 encoded or that the data has been read from a UTF-8 source:
+   *
+   * @code
+   *  worksheet.write(0, 0, "Это фраза на русском!");
+   * @endcode
+   *
+   * @image html write_string03.png
+   *
+   * - Integral and floating-point numeric:
+   *
+   * @code
+   *  worksheet.write(0, 0, 123456);
+   *  worksheet.write(1, 0, 2.3451);
+   * @endcode
+   *
+   * @image html write_number01.png
+   *
+   * The native data type for all numbers in Excel is a [IEEE-754](https://ieeexplore.ieee.org/document/4610935)
+   * 64-bit double-precision floating point, which is also the default
+   * type used by `%write()`.
+   *
+   * @note Excel doesn't support `NaN`, `Inf` or `-Inf` as a number value. If
+   * you are writing data that contains these values then your application
+   * should convert them to a string or handle them in some other way.
+   *
+   * - Boolean:
+   *
+   * @code
+   *  worksheet.write(2, 2, false, my_format);
+   * @endcode
+   *
    * The `format` parameter is used to apply formatting to the cell. This
-   * parameter can be `nullptr` to indicate no formatting or it can be a
+   * parameter can be omitted to indicate no formatting or it can be a
    * @ref format.h "Format" object:
    *
    * @code
    *  xwpp::format* format = workbook.add_format();
    *  format->set_bold();
    *
-   *  worksheet.write_string(0, 0, "This phrase is Bold!", format);
+   *  worksheet.write(0, 0, "This phrase is Bold!", format);
    * @endcode
    *
    * @image html write_string02.png
    *
-   * Unicode strings are supported in UTF-8 encoding. This generally requires
-   * that your source file is UTF-8 encoded or that the data has been read from
-   * a UTF-8 source:
-   *
-   * @code
-   *  worksheet.write_string(0, 0, "Это фраза на русском!");
-   * @endcode
-   *
-   * @image html write_string03.png
-   *
-   * @todo Use overload of write (don't use suffix like "_string").
+   * @todo Add API with col and row names instead of number.
    */
-  void write_string(row_num_t row_num, col_num_t col_num, const std::string& str, const format_t* format);
-  /// @overload
-  void write_string(row_num_t row_num, col_num_t col_num, const std::string& str);
-
-  /**
-   * @brief Write a number to a worksheet cell.
-   *
-   * @param row_num The zero indexed row number.
-   * @param col_num The zero indexed column number.
-   * @param number  The number to write to the cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * The `%write_number()` function writes numeric types to the cell
-   * specified by `%row` and `%column`:
-   *
-   * @code
-   *  worksheet.write_number(0, 0, 123456);
-   *  worksheet.write_number(1, 0, 2.3451);
-   * @endcode
-   *
-   * @image html write_number01.png
-   *
-   * The native data type for all numbers in Excel is a IEEE-754 64-bit
-   * double-precision floating point, which is also the default type used by
-   * `%write_number()`.
-   *
-   * The `format` parameter is used to apply formatting to the cell. This
-   * parameter can be `nullptr` to indicate no formatting or it can be a
-   * @ref format.h "Format" object.
-   *
-   * @code
-   *  xwpp::format_t* format = workbook.add_format();
-   *  format->set_num_format("$#,##0.00");
-   *
-   *  worksheet.write_number(0, 0, 1234.567, format);
-   * @endcode
-   *
-   * @image html write_number02.png
-   *
-   * @note Excel doesn't support `NaN`, `Inf` or `-Inf` as a number value. If
-   * you are writing data that contains these values then your application
-   * should convert them to a string or handle them in some other way.
-   *
-   * @todo Add overload for all integer and number types (template).
-   */
-  void write_number(row_num_t row_num, col_num_t col_num, double number, const format_t* format);
-  /// @overload
-  void write_number(row_num_t row_num, col_num_t col_num, double number);
+  void write(row_num_t row_num, col_num_t col_num, std::string_view data, const format_t* format = nullptr);
+  /// @brief C string overload.
+  void write(row_num_t row_num, col_num_t col_num, const char* data, const format_t* format = nullptr);
+  /// @brief Boolean overload.
+  void write(row_num_t row_num, col_num_t col_num, bool data, const format_t* format = nullptr);
+  /// @brief Double overload.
+  void write(row_num_t row_num, col_num_t col_num, double data, const format_t* format = nullptr);
+  /// @brief Integer type overload.
+  template<std::integral T>
+  void write(row_num_t row_num, col_num_t col_num, T data, const format_t* format = nullptr)
+  {
+    write(row_num, col_num, static_cast<double>(data), format);
+  }
+  /// @brief Floating-point type overload.
+  template<std::floating_point T>
+  void write(row_num_t row_num, col_num_t col_num, T data, const format_t* format = nullptr)
+  {
+    write(row_num, col_num, static_cast<double>(data), format);
+  }
 
   /**
    * @brief Write a date or time to a worksheet cell.
@@ -2501,104 +2475,69 @@ public:
    * @param row_num  The zero indexed row number.
    * @param col_num  The zero indexed column number.
    * @param datetime The datetime to write to the cell.
-   * @param format   A pointer to a Format instance or `nullptr`.
+   * @param format   An optional format.
    *
    * @throw xwpp::xwpp_exception_t.
    *
    * The `%write_datetime()` function can be used to write a date or
-   * time to the cell specified by `%row` and `%column`:
+   * time to the cell specified by `%row` and `%column`. Date and time
+   * may be provided as:
    *
-   * @dontinclude dates_and_times02.cpp
-   * @skip include
-   * @until num_format
-   * @skip Feb
-   * @until }
-   *
-   * The `format` parameter should be used to apply formatting to the cell using
-   * a @ref format.h "Format" object as shown above. Without a date format the
-   * datetime will appear as a number only.
-   *
-   * @see @ref working_with_dates for more information about handling dates and
-   * times in Xlsxwriter++.
-   *
-   * @todo Add overload with other date and time type (including lxw_datetime).
-   */
-  void write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime, const format_t* format);
-  /// @overload
-  void write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime);
-  /// @overload
-  void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime,
-                      const format_t* format);
-  /// @overload
-  void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime);
-
-  /**
-   * @brief Write a Unix datetime to a worksheet cell.
-   *
-   * @param row_num  The zero indexed row number.
-   * @param col_num  The zero indexed column number.
-   * @param unixtime The Unix datetime to write to the cell.
-   * @param format   A pointer to a Format instance or `nullptr`.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * The `%write_unixtime()` function can be used to write dates and
-   * times in Unix date format to the cell specified by `%row` and
-   * `%column`. [Unix Time](https://en.wikipedia.org/wiki/Unix_time) which is a
-   * common integer time format. It is defined as the number of seconds since
-   * the Unix epoch (1970-01-01 00:00 UTC). Negative values can also be used for
-   * dates prior to 1970:
-   *
-   * @dontinclude dates_and_times04.cpp
-   * @skip 1970
-   * @until 2208988800
-   *
-   * The `format` parameter should be used to apply formatting to the cell using
-   * a @ref format.h "Format" object as shown above. Without a date format the
-   * datetime will appear as a number only.
-   *
-   * The output from this code sample is:
-   *
-   * @image html date_example03.png
-   *
-   * Unixtime is generally represented with a 32 bit `time_t` type which has a
-   * range of approximately 1900-12-14 to 2038-01-19. To access the full Excel
-   * date range of 1900-01-01 to 9999-12-31 this function uses a 64 bit
-   * parameter.
-   *
-   * @see @ref working_with_dates for more information about handling dates and
-   * times in Xlsxwriter++.
-   */
-  void write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime, const format_t* format);
-  /// @overload
-  void write_unixtime(row_num_t row_num, col_num_t col_num, int64_t unixtime);
-
-  /**
-   * @brief Write a formatted boolean worksheet cell.
-   *
-   * @param row_num The zero indexed row number.
-   * @param col_num The zero indexed column number.
-   * @param value   The boolean value to write to the cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * Write an Excel boolean to the cell specified by `%row` and `%column`:
+   * - `datetime_t` stucture:
    *
    * @code
-   *  worksheet.write_boolean(2, 2, false, my_format);
+   *  // A datetime to display.
+   *  const xwpp::datetime_t datetime{.year_ = 2013, .month_ = 2, .day_ = 28, .hour_ = 12};
+   *
+   *  // Write the datetime without formatting.
+   *  worksheet.write_datetime(0, 0, datetime); // 41333.5
+   *
+   *  // Write the datetime with formatting.
+   *  worksheet.write_datetime(1, 0, datetime, format); // Feb 28 2013 12:00 PM
    * @endcode
+   *
+   * - `%std::chrono`.
+   * - `%struct tm`.
+   * - [Unix Time](https://en.wikipedia.org/wiki/Unix_time) as `%time_t`:
+   *
+   * @code
+   *  // Write some Unix datetimes with formatting.
+   *  // 1970-01-01. The Unix epoch.
+   *  worksheet.write_datetime(0, 0, static_cast<time_t>(0), format);
+   *
+   *  // 2000-01-01.
+   *  worksheet.write_datetime(1, 0, static_cast<time_t>(1577836800LL), format);
+   *
+   *  // 1900-01-01.
+   *  worksheet.write_datetime(2, 0, static_cast<time_t>(-2208988800LL), format);
+   * @endcode
+   *
+   *
+   * The `format` parameter should be used to apply formatting to the cell using
+   * a @ref format.h "Format" object as shown above. Without a date format the
+   * datetime will appear as a number only.
+   *
+   * @see @ref working_with_dates for more information about handling dates and
+   * times in Xlsxwriter++.
+   *
+   * @todo Add API with col and row names instead of number.
    */
-  void write_boolean(row_num_t row_num, col_num_t col_num, bool value, const format_t* format);
-  /// @overload
-  void write_boolean(row_num_t row_num, col_num_t col_num, bool value);
+  void write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime,
+                      const format_t* format = nullptr);
+  /// @brief `std::chrono` overload.
+  void write_datetime(row_num_t row_num, col_num_t col_num, const std::chrono::system_clock::time_point& datetime,
+                      const format_t* format = nullptr);
+  /// @brief `tm` overload.
+  void write_datetime(row_num_t row_num, col_num_t col_num, const tm& datetime, const format_t* format = nullptr);
+  /// @brief Unix time (`time_t`) overload.
+  void write_datetime(row_num_t row_num, col_num_t col_num, time_t datetime, const format_t* format = nullptr);
 
   /**
    * @brief Write a formatted blank worksheet cell.
    *
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param format  An optional pointer to a Format instance.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -2617,6 +2556,8 @@ public:
    * but ignores Empty cells.
    *
    * As such, if you write an empty cell without formatting it is ignored.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void write_blank(row_num_t row_num, col_num_t col_num, const format_t* format);
 
@@ -2686,16 +2627,18 @@ public:
    * an empty string fragment. For either of these conditions a warning is
    * raised and the input to `%write_rich_string()` is ignored.
    *
-   * @todo Add API without `format`.
+   * @todo Add API with col and row names instead of number.
    */
   void write_rich_string(row_num_t row_num, col_num_t col_num, const std::vector<rich_string_tuple_t>& rich_strings,
-                         const format_t* format);
+                         const format_t* format = nullptr);
 
   /**
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
    * @param url     The url to write to the cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param format  An optional format.
+   * @param str     The optional text to display.
+   * @param tooltip An optional tooltip.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -2733,7 +2676,7 @@ public:
    * An Excel hyperlink is comprised of two elements: the displayed string and
    * the non-displayed link. By default the displayed string is the same as the
    * link. However, it is possible to overwrite it with any other
-   * `Xlsxwriter++` type using the appropriate `%write_*()`
+   * `Xlsxwriter++` type using the appropriate `%write*()`
    * function. The most common case is to overwrite the displayed link text with
    * another string. To do this we must also match the default URL format using
    * `workbook_t::get_default_url_format()`:
@@ -2746,7 +2689,7 @@ public:
    *  xwpp::format_t* url_format = workbook.get_default_url_format();
    *
    *  // Overwrite the hyperlink with a user defined string and default format.
-   *  worksheet.write_string(2, 0, "Read the documentation.", url_format);
+   *  worksheet.write(2, 0, "Read the documentation.", url_format);
    * @endcode
    *
    * @image html hyperlinks_short2.png
@@ -2817,17 +2760,13 @@ public:
    * characters. In older versions of Excel (and Xlsxwriter++ <= 0.8.8) the
    * limit was 255 characters.
    *
-   * @todo Document version with str and tooltip.
+   * @todo Add API with col and row names instead of number.
    */
-  void write_url(row_num_t row_num, col_num_t col_num, const std::string& url, const format_t* format);
-  /// @overload
-  void write_url(row_num_t row_num, col_num_t col_num, const std::string& url);
-
-  /* Don't document for now since the string option can be achieved by a
-   * subsequent cell `write()` as shown in the docs, and the
-   * tooltip option isn't very useful. */
-  void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format,
-                 std::string_view str, std::string_view tooltip);
+  void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format = nullptr,
+                 std::string_view str = ""s, std::string_view tooltip = ""s);
+  /// @brief Overload with string and tooltip but no format.
+  void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, std::string_view str,
+                 std::string_view tooltip = ""s);
 
   /**
    * @brief Write a comment to a worksheet cell with options.
@@ -2884,11 +2823,11 @@ public:
    *
    * Comment options are explained in detail in the @ref ww_comments_properties
    * section of the docs.
+   *
+   * @todo Add API with col and row names instead of number.
    */
-  void write_comment(row_num_t row_num, col_num_t col_num, const std::string& text,
-                     const std::optional<comment_options_t>& options);
-  /// @overload
-  void write_comment(row_num_t row_num, col_num_t col_num, const std::string& text);
+  void write_comment(row_num_t row_num, col_num_t col_num, std::string_view text,
+                     const std::optional<comment_options_t>& options = std::nullopt);
 
   /**
    * @brief Write a formula to a worksheet cell.
@@ -2896,7 +2835,8 @@ public:
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
    * @param formula Formula string to write to cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param format  An optional format.
+   * @param result  An optional user defined result for the formula.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -2921,54 +2861,7 @@ public:
    * `Xlsxwriter++` doesn't calculate the value of a formula and instead stores a
    * default value of `0`. The correct formula result is displayed in Excel, as
    * shown in the example above, since it recalculates the formulas when it loads
-   * the file. For cases where this is an issue see the
-   * `write_formula_num()` function and the discussion in that section.
-   *
-   * Formulas must be written with the US style separator/range operator which
-   * is a comma (not semi-colon). Therefore a formula with multiple values
-   * should be written as follows:
-   *
-   * @code
-   *  // OK.
-   *  worksheet.write_formula(0, 0, "=SUM(1, 2, 3)");
-   *
-   *  // NO. Error on load.
-   *  worksheet.write_formula(1, 0, "=SUM(1; 2; 3)");
-   * @endcode
-   *
-   * @see also @ref working_with_formulas.
-   *
-   * @todo Add overload with `%value` instead of other functions.
-   */
-  void write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format);
-  /// @overload
-  void write_formula(row_num_t row_num, col_num_t col_num, const std::string& formula);
-
-  /**
-   * @brief Write a formula to a worksheet cell with a user defined numeric
-   * result.
-   *
-   * @param row_num The zero indexed row number.
-   * @param col_num The zero indexed column number.
-   * @param formula Formula string to write to cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
-   * @param result  A user defined numeric result for the formula.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * The `%write_formula_num()` function writes a formula or Excel
-   * function to the cell specified by `%row` and `%column` with a user defined
-   * numeric result:
-   *
-   * @code
-   *  // Required as a workaround only.
-   *  worksheet.write_formula_num(0, 0, "=1 + 2", 3);
-   * @endcode
-   *
-   * `Xlsxwriter++` doesn't calculate the value of a formula and instead stores
-   * the value `0` as the formula result. It then sets a global flag in the XLSX
-   * file to say that all formulas and functions should be recalculated when the
-   * file is opened.
+   * the file.
    *
    * This is the method recommended in the Excel documentation and in general it
    * works fine with spreadsheet applications.
@@ -2977,63 +2870,28 @@ public:
    * such as Excel Viewer, or some mobile applications will only display the `0`
    * results.
    *
-   * If required, the `%write_formula_num()` function can be used to
+   * If required, the parameter `%result` of the `%write_formula()` function can be used to
    * specify a formula and its result.
    *
    * This function is rarely required and is only provided for compatibility
    * with some third party applications. For most applications the
-   * `write_formula()` function is the recommended way of writing
-   * formulas.
-   *
-   * @see @ref working_with_formulas.
-   */
-  void write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
-                         double result);
-  /// @overload
-  void write_formula_num(row_num_t row_num, col_num_t col_num, const std::string& formula, double result);
-
-  /**
-   * @brief Write a formula to a worksheet cell with a user defined string
-   * result.
-   *
-   * @param row_num The zero indexed row number.
-   * @param col_num The zero indexed column number.
-   * @param formula Formula string to write to cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
-   * @param result  A user defined string result for the formula.
-   *
-   * @throw xwpp::xwpp_exception_t.
-   *
-   * The `%write_formula_str()` function writes a formula or Excel
-   * function to the cell specified by `row` and `column` with a user defined
-   * string result:
+   * `write_formula()` function without `%result` parameter is the recommended
+   * way of writing formulas.
    *
    * @code
-   *  // The example formula is A & B -> AB.
-   *  worksheet.write_formula_str(0, 0, "=\"A\" & \"B\"", "AB");
+   *  // Required as a workaround only.
+   *  worksheet.write_formula(0, 0, "=1 + 2", nullptr, 3);
    * @endcode
    *
-   * The `%write_formula_str()` function is similar to the
-   * `%write_formula_num()` function except it writes a string result
-   * instead or a numeric result. See `write_formula_num()`  for more
-   * details on why/when these functions are required.
+   * @see also @ref working_with_formulas.
    *
-   * One place where the `%write_formula_str()` function may be required
-   * is to specify an empty result which will force a recalculation of the formula
-   * when loaded in LibreOffice.
-   *
-   * @code
-   *  worksheet.write_formula_str(0, 0, "=Sheet1!$A$1", "");
-   * @endcode
-   *
-   * @see the FAQ @ref faq_formula_zero.
-   *
-   * @see @ref working_with_formulas.
+   * @todo Add API with col and row names instead of number.
    */
-  void write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format,
-                         const std::string& result);
-  /// @overload
-  void write_formula_str(row_num_t row_num, col_num_t col_num, const std::string& formula, const std::string& result);
+  void write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format = nullptr,
+                     double result = 0);
+  /// @brief Overload with string result
+  void write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
+                     std::string_view result);
 
   /**
    * @brief Write an array formula to a worksheet cell.
@@ -3043,7 +2901,8 @@ public:
    * @param last_row  The last row of the range.
    * @param last_col  The last col of the range.
    * @param formula   Array formula to write to cell.
-   * @param format    A pointer to a Format instance or `nullptr`.
+   * @param format    An optional format.
+   * @param result    An optional user defined result for the formula.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -3075,15 +2934,10 @@ public:
    *  worksheet.write_array_formula(RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}");
    * @endcode
    *
-   * @todo Add documentation of `%write_array_formula_num` (as `%write_array_formula_num` overload).
+   * @todo Add API with col and row names instead of number.
    */
   void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                           const std::string& formula, const format_t* format);
-  /// @overload
-  void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                           const std::string& formula);
-  void write_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                               const std::string& formula, const format_t* format, double result);
+                           std::string_view formula, const format_t* format = nullptr, double result = 0);
 
   /**
    * @brief Write an Excel 365 dynamic array formula to a worksheet range.
@@ -3093,7 +2947,8 @@ public:
    * @param last_row  The last row of the range.
    * @param last_col  The last col of the range.
    * @param formula   Dynamic Array formula to write to cell.
-   * @param format    A pointer to a Format instance or `nullptr`.
+   * @param format    An optional format.
+   * @param result    An optional user defined result for the formula.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -3124,15 +2979,10 @@ public:
    * The need for the `_xlfn._xlws.` prefix in the formula is explained in @ref
    * ww_formulas_future.
    *
-   * @todo Add documentation of `%write_dynamic_array_formula_num` (as overload of `%write_dynamic_array_formula`).
+   * @todo Add API with col and row names instead of number.
    */
   void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                                   const std::string& formula, const format_t* format);
-  /// @overload
-  void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                                   const std::string& formula);
-  void write_dynamic_array_formula_num(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                                       const std::string& formula, const format_t* format, double result);
+                                   std::string_view formula, const format_t* format = nullptr, double result = 0);
 
   /**
    * @brief Write an Excel 365 dynamic array formula to a worksheet cell.
@@ -3140,7 +2990,8 @@ public:
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
    * @param formula Formula string to write to cell.
-   * @param format  A pointer to a Format instance or `nullptr`.
+   * @param format  An optional format.
+   * @param result  An optional user defined result for the formula.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -3162,13 +3013,10 @@ public:
    * The need for the `_xlfn.` and `_xlfn._xlws.` prefixes in the formula is
    * explained in @ref ww_formulas_future.
    *
-   * @todo Add documentation of `%write_dynamic_formula_num` (as overload of `%write_dynamic_formula`).
+   * @todo Add API with col and row names instead of number.
    */
-  void write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula, const format_t* format);
-  /// @overload
-  void write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula);
-  void write_dynamic_formula_num(row_num_t row, col_num_t col, const std::string& formula, const format_t* format,
-                                 double result);
+  void write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
+                             const format_t* format = nullptr, double result = 0);
 
   /**
    * @brief Merge a range of cells.
@@ -3178,7 +3026,7 @@ public:
    * @param last_row  The last row of the range.
    * @param last_col  The last col of the range.
    * @param str       String to write to the merged range.
-   * @param format    A pointer to a Format instance or `nullptr`.
+   * @param format    An optional format.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -3210,7 +3058,7 @@ public:
    *
    * @image html merge.png
    *
-   * The `%merge_range()` function writes a string using `write_string()`.
+   * The `%merge_range()` function writes a string using `write()`.
    * In order to write other data types, such as a number or a formula,
    * you can overwrite the first cell with a call to one of the other write
    * functions. The same Format should be used as was used in
@@ -3221,11 +3069,13 @@ public:
    *  worksheet.merge_range(1, 1, 1, 3, "", format);
    *
    *  // Then overwrite the first cell with a number.
-   *  worksheet.write_number(1, 1, 123, format);
+   *  worksheet.write(1, 1, 123, format);
    * @endcode
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                   const std::string& str, const format_t* format);
+                   const std::string& str, const format_t* format = nullptr);
 
   /**
    * @brief Add an Excel table to a worksheet.
@@ -3234,7 +3084,7 @@ public:
    * @param first_col The first column of the range.
    * @param last_row  The last row of the range.
    * @param last_col  The last col of the range.
-   * @param options   A table_options_t struct to define the table options.
+   * @param options   Optional table options.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -3251,11 +3101,11 @@ public:
    * @image html tables1.png
    *
    * @see @ref working_with_tables for more detailed usage information
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                 const std::optional<table_options_t>& options);
-  /// @overload
-  void add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+                 const std::optional<table_options_t>& options = std::nullopt);
 
   /**
    * @brief Insert an image in a worksheet cell, with options.
@@ -3348,12 +3198,10 @@ public:
    * @note See the notes about row scaling and `BMP` images in
    * `insert_image()` above.
    *
-   * @todo Add overload with path, ...
+   * @todo Add API with col and row names instead of number.
    */
-  void insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
-                    std::optional<image_options_t> options);
-  /// @overload
-  void insert_image(row_num_t row_num, col_num_t col_num, const std::string& filename);
+  void insert_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
+                    std::optional<image_options_t> options = std::nullopt);
 
   /**
    * @brief Insert an image in a worksheet cell, from a memory buffer.
@@ -3405,11 +3253,11 @@ public:
    *
    * @see `insert_image_buffer()` for details about the supported
    * image formats, and other image options.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void insert_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,
-                           std::optional<image_options_t> options);
-  /// @overload
-  void insert_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer);
+                           std::optional<image_options_t> options = std::nullopt);
 
   /**
    * @brief Embed an image in a worksheet cell.
@@ -3445,12 +3293,10 @@ public:
    * - `%url_`: Add an optional hyperlink to the image.
    * - `%cell_format_`: Add a format for the cell behind the embedded image.
    *
-   * @todo Doesn't work on LibreOffice, to investigate.
+   * @todo Add API with col and row names instead of number.
    */
-  void embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename,
-                   std::optional<image_options_t> options);
-  /// @overload
-  void embed_image(row_num_t row_num, col_num_t col_num, const std::string& filename);
+  void embed_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
+                   std::optional<image_options_t> options = std::nullopt);
 
   /**
    * @brief Embed an image in a worksheet cell, from a memory buffer.
@@ -3481,11 +3327,11 @@ public:
    *
    * See `embed_image()` for details about the supported image
    * formats, options, and other image features.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,
-                          std::optional<image_options_t> options);
-  /// @overload
-  void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer);
+                          std::optional<image_options_t> options = std::nullopt);
 
   /**
    * @brief Insert a chart object into a worksheet.
@@ -3533,18 +3379,18 @@ public:
    * @endcode
    *
    * @image html chart_line_opt.png
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
-                    const std::optional<chart_options_t>& options);
-  /// @overload
-  void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart); // TODO Ptr or ref
+                    const std::optional<chart_options_t>& options = std::nullopt);
 
   /**
    * @brief Insert a button object into a worksheet.
    *
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
-   * @param options A button_options_t object to set the button properties.
+   * @param options Optional button properties.
    *
    * @throw xwpp::xwpp_exception_t.
    *
@@ -3567,10 +3413,11 @@ public:
    * The button properties are set using the `button_options_t` struct.
    *
    * @see @ref working_with_macros
+   *
+   * @todo Add API with col and row names instead of number.
    */
-  void insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options);
-  /// @overload
-  void insert_button(row_num_t row_num, col_num_t col_num);
+  void insert_button(row_num_t row_num, col_num_t col_num,
+                     const std::optional<button_options_t>& options = std::nullopt);
 
   /**
    * @brief Set the horizontal page breaks on a worksheet.
@@ -3697,6 +3544,8 @@ public:
    * filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void autofilter(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
@@ -3732,6 +3581,8 @@ public:
    * hide any rows that don't match the filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void filter_column(col_num_t col_num, const filter_rule_t& rule);
 
@@ -3778,6 +3629,8 @@ public:
    * hide any rows that don't match the filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
                       filter_operator_t and_or);
@@ -3818,6 +3671,8 @@ public:
    * hide any rows that don't match the filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void filter_list(col_num_t col_num, const std::vector<std::string>& list);
 
@@ -3846,7 +3701,7 @@ public:
    *  worksheet3.freeze_panes(1, 1); // Freeze first row/column.
    * @endcode
    *
-   * @todo Document the second API.
+   * @todo Add API with col and row names instead of number.
    */
   void freeze_panes(row_num_t row_num, col_num_t col_num);
 
@@ -3878,12 +3733,10 @@ public:
    *  worksheet2.split_panes(0,  8.43); // First column.
    *  worksheet3.split_panes(15, 8.43); // First row and column.
    * @endcode
-   *
-   * @todo Document the second API.
    */
   void split_panes(double y_split, double x_split);
 
-  /* split_panes() with infrequent options. Undocumented for now. */
+  /* todo split_panes() with infrequent options. Undocumented for now. */
   void split_panes(double y_split, double x_split, row_num_t top_row, col_num_t left_col);
 
   /**
@@ -3908,6 +3761,8 @@ public:
    *  worksheet3.set_selection(6, 6, 3, 3);     // Cells G7 to D4.
    *  worksheet4.set_selection(RANGE("D4:G7")); // Using the RANGE macro.
    * @endcode
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void set_selection(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
@@ -3935,6 +3790,8 @@ public:
    * The conditional format parameters is specified in `conditional_format_t`.
    *
    * See @ref working_with_conditional_formatting for full details.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void conditional_format_cell(row_num_t row_num, col_num_t col_num, const conditional_format_t& conditional_format);
 
@@ -3973,6 +3830,8 @@ public:
    * The conditional format parameters is specified in `conditional_format_t`.
    *
    * @see @ref working_with_conditional_formatting for full details.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void conditional_format_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                 const conditional_format_t& conditional_format);
@@ -4008,6 +3867,8 @@ public:
    *
    * Data validation and the various options of `data_validation_t` are
    * described in more detail in @ref working_with_data_validation.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void data_validation_cell(row_num_t row_num, col_num_t col_num, const data_validation_t& validation);
 
@@ -4042,6 +3903,8 @@ public:
    *
    * Data validation and the various options of `data_validation_t` are
    * described in more detail in @ref working_with_data_validation.
+   *
+   * @todo Add API with col and row names instead of number.
    */
   void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                              const data_validation_t& validation);
@@ -4060,7 +3923,7 @@ public:
    * string that looks like a number:
    *
    * @code
-   *  worksheet.write_string(CELL("D2"), "123");
+   *  worksheet.write(CELL("D2"), "123");
    * @endcode
    *
    * This causes Excel to display a small green triangle in the top left hand
@@ -4203,10 +4066,8 @@ public:
    * @endcode
    *
    * [watermark]:https://support.microsoft.com/en-us/office/add-a-watermark-in-excel-a372182a-d733-484e-825c-18ddf3edf009
-   *
-   * @todo Add API with std::filesystem::path.
    */
-  void set_background(const std::string& filename);
+  void set_background(const std::filesystem::path& filename);
 
   /**
    * @brief Set the background image for a worksheet, from a buffer.
@@ -4289,6 +4150,8 @@ public:
    * @endcode
    *
    * @image html top_left_cell.png
+   *
+   * @todo Add API with col and row name
    */
   void set_top_left_cell(row_num_t row_num, col_num_t col_num);
 
@@ -4424,11 +4287,11 @@ public:
    * since it requires a completely different file format.
    */
   void protect(const std::string& password, std::optional<protection_t> options);
-  /// @overload
+  /// @brief Overload without options.
   void protect(const std::string& password);
-  /// @overload
+  /// @brief Overload without password.
   void protect(std::optional<protection_t> options);
-  /// @overload
+  /// @brief Overload without password neither options.
   void protect();
 
   /**
@@ -4521,6 +4384,8 @@ public:
    * @code
    *  worksheet.print_area(RANGE("A1:H1048576")); // Same as A:H.
    * @endcode
+   *
+   * @todo Add API with names
    */
   void print_area(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
@@ -4651,6 +4516,8 @@ public:
    *  worksheet1.repeat_rows(0, 0); // Repeat the first row.
    *  worksheet2.repeat_rows(0, 1); // Repeat the first two rows.
    * @endcode
+   *
+   * @todo Add API with names
    */
   void repeat_rows(row_num_t first_row, row_num_t last_row);
 
@@ -4672,6 +4539,8 @@ public:
    *  worksheet1.repeat_columns(0, 0); // Repeat the first col.
    *  worksheet2.repeat_columns(0, 1); // Repeat the first two cols.
    * @endcode
+   *
+   * @todo Add API with names
    */
   void repeat_columns(col_num_t first_col, col_num_t last_col);
 
@@ -4754,7 +4623,7 @@ private:
   void insert_comment(row_num_t row_num, col_num_t col_num, const cell_t& link);
   void insert_cell_placeholder(row_num_t row_num, col_num_t col_num);
   void store_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
-                           const std::string& formula, const format_t* format, double result, bool is_dynamic);
+                           std::string_view formula, const format_t* format, double result, bool is_dynamic);
   void store_conditional_format_object(const cond_format_obj_t& cond_format);
   void validate_conditional_data_bar(cond_format_obj_t& cond_format, const conditional_format_t& user_options);
   void write_table_column_data(const table_obj_t& table_obj);

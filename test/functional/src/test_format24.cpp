@@ -20,7 +20,7 @@ int main()
 
   worksheet.set_row(0, 75);
 
-  worksheet.write_string(0, 0, "ABCD", format);
+  worksheet.write(0, 0, "ABCD", format);
 
   workbook.save("test_format24.xlsx");
 }

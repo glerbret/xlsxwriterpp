@@ -26,7 +26,7 @@ int main()
   // Add a macro file extracted from an Excel workbook.
   workbook.add_vba_project("vbaProject.bin");
 
-  worksheet.write_string(2, 0, "Press the button to say hello.");
+  worksheet.write(2, 0, "Press the button to say hello.");
 
   const xwpp::button_options_t options{
     .caption_ = "Press Me",

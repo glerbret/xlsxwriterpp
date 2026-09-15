@@ -32,7 +32,7 @@ int main()
 
   // Add some text to the file.
   worksheet.set_column(0, 0, 50);
-  worksheet.write_string(0, 0, "Select 'Workbook Properties' to see properties.");
+  worksheet.write(0, 0, "Select 'Workbook Properties' to see properties.");
 
   workbook.save("doc_properties.xlsx");
 }

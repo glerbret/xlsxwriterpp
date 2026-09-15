@@ -50,12 +50,12 @@ int main()
 
   // Create a worksheet with data for the charts.
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Data");
-  worksheet.write_number(0, 0, 10);
-  worksheet.write_number(1, 0, 40);
-  worksheet.write_number(2, 0, 50);
-  worksheet.write_number(3, 0, 20);
-  worksheet.write_number(4, 0, 10);
-  worksheet.write_number(5, 0, 50);
+  worksheet.write(0, 0, 10);
+  worksheet.write(1, 0, 40);
+  worksheet.write(2, 0, 50);
+  worksheet.write(3, 0, 20);
+  worksheet.write(4, 0, 10);
+  worksheet.write(5, 0, 50);
 
   workbook.save("chart_styles.xlsx");
 }

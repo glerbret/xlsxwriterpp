@@ -75,11 +75,6 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   chart_                = chart;
 }
 
-void chartsheet_t::set_chart(chart_t* chart)
-{
-  set_chart(chart, std::nullopt);
-}
-
 void chartsheet_t::protect(const std::string& password, std::optional<protection_t> options)
 {
   // Copy any user parameters to the internal structure.

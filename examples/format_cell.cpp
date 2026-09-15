@@ -22,7 +22,7 @@ int main()
     xwpp::format_t* format = workbook.add_format();
     format->set_bg_color(xwpp::color_t::yellow());
 
-    worksheet.write_string(1, 1, "Yellow cell", format);
+    worksheet.write(1, 1, "Yellow cell", format);
   }
 
   {
@@ -30,7 +30,7 @@ int main()
     format->set_border(xwpp::format_borders_t::MEDIUM);
     format->set_border_color(xwpp::color_t::red());
 
-    worksheet.write_string(3, 1, "Cell with red borders", format);
+    worksheet.write(3, 1, "Cell with red borders", format);
   }
 
   {
@@ -44,7 +44,7 @@ int main()
     format->set_right(xwpp::format_borders_t::DOUBLE);
     format->set_right_color(xwpp::color_t::green());
 
-    worksheet.write_string(5, 1, "Cell with different borders", format);
+    worksheet.write(5, 1, "Cell with different borders", format);
   }
 
   {
@@ -53,7 +53,7 @@ int main()
     format->set_diag_border(xwpp::format_borders_t::THICK);
     format->set_diag_color(xwpp::color_t::blue());
 
-    worksheet.write_string(7, 1, "Cell with diag", format);
+    worksheet.write(7, 1, "Cell with diag", format);
   }
 
   workbook.save("format_cell.xlsx");

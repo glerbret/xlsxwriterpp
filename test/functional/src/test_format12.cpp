@@ -27,9 +27,9 @@ int main()
   xwpp::format_t* unused = workbook.add_format();
   unused->set_left(xwpp::format_borders_t::THIN);
 
-  worksheet.write_string(CELL("B2"), "test", top_left_bottom);
-  worksheet.write_string(CELL("D2"), "test", top_left);
-  worksheet.write_string(CELL("F2"), "test", top_bottom);
+  worksheet.write(CELL("B2"), "test", top_left_bottom);
+  worksheet.write(CELL("D2"), "test", top_left);
+  worksheet.write(CELL("F2"), "test", top_bottom);
 
   workbook.save("test_format12.xlsx");
 }

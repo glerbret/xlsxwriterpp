@@ -17,19 +17,19 @@ int main()
 
   xwpp::format_t* format1 = workbook.add_format();
   format1->set_num_format("0.0");
-  worksheet.write_number(0, 0, value, format1);
+  worksheet.write(0, 0, value, format1);
 
   xwpp::format_t* format2 = workbook.add_format();
   format2->set_num_format("0.000");
-  worksheet.write_number(1, 0, value, format2);
+  worksheet.write(1, 0, value, format2);
 
   xwpp::format_t* format3 = workbook.add_format();
   format3->set_num_format("0.0000");
-  worksheet.write_number(2, 0, value, format3);
+  worksheet.write(2, 0, value, format3);
 
   xwpp::format_t* format4 = workbook.add_format();
   format4->set_num_format("0.00000");
-  worksheet.write_number(3, 0, value, format4);
+  worksheet.write(3, 0, value, format4);
 
   workbook.save("test_format51.xlsx");
 }

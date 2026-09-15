@@ -14,9 +14,9 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-  worksheet.write_number(0, 0, 2);
-  worksheet.write_number(1, 0, 5);
-  worksheet.write_number(2, 0, 4);
+  worksheet.write(0, 0, 2);
+  worksheet.write(1, 0, 5);
+  worksheet.write(2, 0, 4);
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$3");
 

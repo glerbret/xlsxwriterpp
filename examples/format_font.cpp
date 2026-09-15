@@ -24,7 +24,7 @@ int main()
     xwpp::format_t* format = workbook.add_format();
     format->set_bold();
 
-    worksheet.write_string(0, 0, "This is bold", format);
+    worksheet.write(0, 0, "This is bold", format);
   }
 
   {
@@ -32,7 +32,7 @@ int main()
     xwpp::format_t* format = workbook.add_format();
     format->set_italic();
 
-    worksheet.write_string(1, 0, "This is italic", format);
+    worksheet.write(1, 0, "This is italic", format);
   }
 
   {
@@ -41,7 +41,7 @@ int main()
     format->set_bold();
     format->set_italic();
 
-    worksheet.write_string(2, 0, "Bold and italic", format);
+    worksheet.write(2, 0, "Bold and italic", format);
   }
 
   workbook.save("format_font.xlsx");

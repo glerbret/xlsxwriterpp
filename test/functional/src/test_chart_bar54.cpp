@@ -28,8 +28,8 @@ int main()
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet1.write_number(row_num, col_num, value);
-      worksheet2.write_number(row_num, col_num, value);
+      worksheet1.write(row_num, col_num, value);
+      worksheet2.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;

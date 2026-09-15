@@ -49,7 +49,7 @@ int main()
       {.format_ = italic, .str_ = "italic"},
     };
 
-    worksheet.write_rich_string(CELL("A1"), rich_string, nullptr);
+    worksheet.write_rich_string(CELL("A1"), rich_string);
   }
 
   // Example 2. Some red and blue coloring in the same string.
@@ -61,7 +61,7 @@ int main()
       {.format_ = blue, .str_ = "blue"},
     };
 
-    worksheet.write_rich_string(CELL("A3"), rich_string, nullptr);
+    worksheet.write_rich_string(CELL("A3"), rich_string);
   }
 
   // Example 3. A rich string plus cell formatting.

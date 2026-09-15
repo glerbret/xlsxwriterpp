@@ -41,7 +41,7 @@
  *  format->set_font_color(xwpp::color_t::red());
  *
  *  // Use the format to change the text format in a cell.
- *  worksheet.write_string(0, 0, "Hello", format);
+ *  worksheet.write(0, 0, "Hello", format);
  * @endcode
  */
 
@@ -301,7 +301,7 @@ enum class format_borders_t
  *  format->set_font_color(xwpp::color_t::red());
  *
  *  // Use the format to change the text format in a cell.
- *  worksheet.write_string(0, 0, "Hello", format);
+ *  worksheet.write(0, 0, "Hello", format);
  * @endcode
  *
  * @todo Rework this to improve format (builder, encapsulation in higher-level class,
@@ -359,7 +359,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_bold();
    *
-   *  worksheet.write_string(0, 0, "Bold Text", format);
+   *  worksheet.write(0, 0, "Bold Text", format);
    * @endcode
    *
    * @image html format_font_bold.png
@@ -375,7 +375,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_italic();
    *
-   *  worksheet.write_string(0, 0, "Italic Text", format);
+   *  worksheet.write(0, 0, "Italic Text", format);
    * @endcode
    *
    * @image html format_font_italic.png
@@ -415,7 +415,7 @@ public:
    *  format_set_align(format, xwpp::format_alignments_t::VERTICAL_CENTER);
    *
    *  worksheet.set_row(0, 30);
-   *  worksheet.write_string(0, 0, "Some Text", format);
+   *  worksheet.write(0, 0, "Some Text", format);
    * @endcode
    *
    * @image html format_font_align.png
@@ -444,7 +444,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_font_color(xwpp::color_t::red());
    *
-   *  worksheet.write_string(0, 0, "Wheelbarrow", format);
+   *  worksheet.write(0, 0, "Wheelbarrow", format);
    * @endcode
    *
    * @image html format_font_color.png
@@ -486,7 +486,7 @@ public:
    *  format->set_pattern(xwpp::format_patterns_t::SOLID);
    *  format->set_bg_color(xwpp::color_t::green());
    *
-   *  worksheet.write_string(0, 0, "Ray", format);
+   *  worksheet.write(0, 0, "Ray", format);
    * @endcode
    *
    * @image html formats_set_bg_color.png
@@ -528,7 +528,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_text_wrap();
    *
-   *  worksheet.write_string(0, 0, "Some long text to wrap in a cell", format);
+   *  worksheet.write(0, 0, "Some long text to wrap in a cell", format);
    * @endcode
    *
    * If you wish to control where the text is wrapped you can add newline
@@ -538,7 +538,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_text_wrap(format);
    *
-   *  worksheet.write_string(0, 0, "It's\na bum\nwrap", format);
+   *  worksheet.write(0, 0, "It's\na bum\nwrap", format);
    * @endcode
    *
    * @image html format_font_text_wrap.png
@@ -757,10 +757,10 @@ public:
    *  format4->set_diag_border(xwpp::format_borders_t::HAIR);
    *  format4->set_diag_color(xwpp::color_t::red());
    *
-   *  worksheet.write_string(CELL("B3"), "Text", format1);
-   *  worksheet.write_string(CELL("B6"), "Text", format2);
-   *  worksheet.write_string(CELL("B9"), "Text", format3);
-   *  worksheet.write_string(CELL("B12"), "Text", format4);
+   *  worksheet.write(CELL("B3"), "Text", format1);
+   *  worksheet.write(CELL("B6"), "Text", format2);
+   *  worksheet.write(CELL("B9"), "Text", format3);
+   *  worksheet.write(CELL("B12"), "Text", format4);
    * @endcode
    *
    * @image html diagonal_border.png
@@ -1108,7 +1108,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_rotation(30);
    *
-   *  worksheet.write_string(0, 0, "This text is rotated", format);
+   *  worksheet.write(0, 0, "This text is rotated", format);
    * @endcode
    *
    * @image html format_font_text_rotated.png
@@ -1135,8 +1135,8 @@ public:
    *  format1->set_indent(1);
    *  format2->set_indent(2);
    *
-   *  worksheet.write_string(0, 0, "This text is indented 1 level", format1);
-   *  worksheet_write_string(1, 0, "This text is indented 2 levels", format2);
+   *  worksheet.write(0, 0, "This text is indented 1 level", format1);
+   *  worksheet_write(1, 0, "This text is indented 2 levels", format2);
    * @endcode
    *
    * @image html text_indent.png
@@ -1156,7 +1156,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_shrink();
    *
-   *  worksheet.write_string(0, 0, "Honey, I shrunk the text!", format);
+   *  worksheet.write(0, 0, "Honey, I shrunk the text!", format);
    * @endcode
    */
   void set_shrink();
@@ -1173,7 +1173,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_valign(xwpp::format_alignments_t::VERTICAL_BOTTOM);
    *
-   *  worksheet.write_string(0, 0, "Bottom alignment", format);
+   *  worksheet.write(0, 0, "Bottom alignment", format);
    * @endcode
    *
    * @todo Add image in documentation.
@@ -1190,7 +1190,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_halign(xwpp::format_alignments_t::HORIZONTAL_RIGHT);
    *
-   *  worksheet.write_string(0, 0, "Right alignment", format);
+   *  worksheet.write(0, 0, "Right alignment", format);
    * @endcode
    *
    * @todo Add image in documentation.
@@ -1248,7 +1248,7 @@ public:
    *  format = workbook.add_format();
    *  format->set_quote_prefix();
    *
-   *  worksheet.write_string(0, 0, "=Foo", format);
+   *  worksheet.write(0, 0, "=Foo", format);
    * @endcode
    */
   void set_quote_prefix();

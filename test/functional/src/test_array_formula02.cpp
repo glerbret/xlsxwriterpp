@@ -14,12 +14,12 @@ int main()
   xwpp::format_t* bold = workbook.add_format();
   bold->set_bold();
 
-  worksheet.write_number(0, 1, 0);
-  worksheet.write_number(1, 1, 0);
-  worksheet.write_number(2, 1, 0);
-  worksheet.write_number(0, 2, 0);
-  worksheet.write_number(1, 2, 0);
-  worksheet.write_number(2, 2, 0);
+  worksheet.write(0, 1, 0);
+  worksheet.write(1, 1, 0);
+  worksheet.write(2, 1, 0);
+  worksheet.write(0, 2, 0);
+  worksheet.write(1, 2, 0);
+  worksheet.write(2, 2, 0);
 
   worksheet.write_array_formula(RANGE("A1:A3"), "{=SUM(B1:C1*B2:C2)}", bold);
 

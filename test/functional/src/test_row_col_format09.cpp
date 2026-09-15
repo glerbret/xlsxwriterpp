@@ -27,9 +27,9 @@ int main()
   worksheet.set_row(4, 15, bold);
   worksheet.set_column(2, 2, 8.43, italic);
 
-  worksheet.write_string(0, 2, "Foo");
-  worksheet.write_string(4, 0, "Foo");
-  worksheet.write_string(4, 2, "Foo", mixed);
+  worksheet.write(0, 2, "Foo");
+  worksheet.write(4, 0, "Foo");
+  worksheet.write(4, 2, "Foo", mixed);
 
   workbook.save("test_row_col_format09.xlsx");
 }

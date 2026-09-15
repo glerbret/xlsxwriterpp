@@ -15,7 +15,7 @@ int main()
   // to is a string. If it isn't be have to add a display attribute. However,
   // looking up the cell is currently too expensive.
   worksheet.write_url(CELL("A1"), "http://www.perl.com/");
-  worksheet.write_formula_num(CELL("A1"), "=1+1", nullptr, 2);
+  worksheet.write_formula(CELL("A1"), "=1+1", nullptr, 2);
 
   workbook.save("test_hyperlink19.xlsx");
 }

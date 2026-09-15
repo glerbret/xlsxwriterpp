@@ -24,14 +24,14 @@ int main()
   worksheet.set_column(0, 0, 20);
 
   // Write some simple text.
-  worksheet.write_string(0, 0, "Hello");
+  worksheet.write(0, 0, "Hello");
 
   // Text with formatting.
-  worksheet.write_string(1, 0, "World", format);
+  worksheet.write(1, 0, "World", format);
 
   // Write some numbers.
-  worksheet.write_number(2, 0, 123);
-  worksheet.write_number(3, 0, 123.456);
+  worksheet.write(2, 0, 123);
+  worksheet.write(3, 0, 123.456);
 
   // Insert an image.
   worksheet.insert_image(1, 2, "logo.png");

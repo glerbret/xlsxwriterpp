@@ -29,7 +29,7 @@ int main()
 
   worksheet.add_table(RANGE("C3:F13"), options);
 
-  worksheet.write_string(CELL("A16"), "hello");
+  worksheet.write(CELL("A16"), "hello");
 
   workbook.save("test_table18.xlsx");
 }

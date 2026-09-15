@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_formula_num(0, 0, "=1+2", nullptr, 3);
+  worksheet.write_formula(0, 0, "=1+2", nullptr, 3);
 
   workbook.save("test_data07.xlsx");
 }

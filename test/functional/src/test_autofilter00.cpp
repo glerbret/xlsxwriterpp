@@ -76,18 +76,18 @@ int main()
   };
 
   // Write the column headers.
-  worksheet.write_string(0, 0, "Region");
-  worksheet.write_string(0, 1, "Item");
-  worksheet.write_string(0, 2, "Volume");
-  worksheet.write_string(0, 3, "Month");
+  worksheet.write(0, 0, "Region");
+  worksheet.write(0, 1, "Item");
+  worksheet.write(0, 2, "Volume");
+  worksheet.write(0, 3, "Month");
 
   // Write the row data.
   for(xwpp::row_num_t row_num{1}; const auto& [region, item, volume, month]: data)
   {
-    worksheet.write_string(row_num, 0, region);
-    worksheet.write_string(row_num, 1, item);
-    worksheet.write_number(row_num, 2, volume);
-    worksheet.write_string(row_num, 3, month);
+    worksheet.write(row_num, 0, region);
+    worksheet.write(row_num, 1, item);
+    worksheet.write(row_num, 2, volume);
+    worksheet.write(row_num, 3, month);
 
     row_num++;
   }

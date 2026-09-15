@@ -13,7 +13,7 @@ int main()
 
   const xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
 
-  worksheet.set_column(2, 2, xwpp::DEF_COL_WIDTH, nullptr, options);
+  worksheet.set_column(2, 2, options);
 
   workbook.save("test_row_col_format12.xlsx");
 }

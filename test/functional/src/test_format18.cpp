@@ -14,7 +14,7 @@ int main()
   xwpp::format_t* format = workbook.add_format();
   format->set_quote_prefix();
 
-  worksheet.write_string(0, 0, "= Hello", format);
+  worksheet.write(0, 0, "= Hello", format);
 
   workbook.save("test_format18.xlsx");
 }

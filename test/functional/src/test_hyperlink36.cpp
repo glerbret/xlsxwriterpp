@@ -14,8 +14,8 @@ int main()
 
   const xwpp::image_options_t options{.url_ = "https://github.com/jmcnamara"};
 
-  worksheet.write_number(CELL("A1"), 1);
-  worksheet.write_number(CELL("A2"), 2);
+  worksheet.write(CELL("A1"), 1);
+  worksheet.write(CELL("A2"), 2);
 
   worksheet.insert_image(CELL("E9"), "images/red.png", options);
 

@@ -20,16 +20,16 @@ int main()
   bold->set_bold();
 
   // Write some data for the chart.
-  worksheet.write_string(0, 0, "Shingle", bold);
-  worksheet.write_number(1, 0, 105);
-  worksheet.write_number(2, 0, 150);
-  worksheet.write_number(3, 0, 130);
-  worksheet.write_number(4, 0, 90);
-  worksheet.write_string(0, 1, "Brick", bold);
-  worksheet.write_number(1, 1, 50);
-  worksheet.write_number(2, 1, 120);
-  worksheet.write_number(3, 1, 100);
-  worksheet.write_number(4, 1, 110);
+  worksheet.write(0, 0, "Shingle", bold);
+  worksheet.write(1, 0, 105);
+  worksheet.write(2, 0, 150);
+  worksheet.write(3, 0, 130);
+  worksheet.write(4, 0, 90);
+  worksheet.write(0, 1, "Brick", bold);
+  worksheet.write(1, 1, 50);
+  worksheet.write(2, 1, 120);
+  worksheet.write(3, 1, 100);
+  worksheet.write(4, 1, 110);
 
   // Create a chart object.
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);

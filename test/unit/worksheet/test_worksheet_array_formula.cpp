@@ -94,21 +94,21 @@ BOOST_AUTO_TEST_CASE(array_formula01)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write_array_formula_num(0, 0, 0, 0, "{=SUM(B1:C1*B2:C2)}", nullptr, 9500);
-  worksheet.write_array_formula_num(1, 0, 1, 0, "{=SUM(B1:C1*B2:C2)}", nullptr, 9500);
-  worksheet.write_array_formula_num(4, 0, 6, 0, "{=TREND(C5:C7,B5:B7)}", nullptr, 22196);
+  worksheet.write_array_formula(0, 0, 0, 0, "{=SUM(B1:C1*B2:C2)}", nullptr, 9500);
+  worksheet.write_array_formula(1, 0, 1, 0, "{=SUM(B1:C1*B2:C2)}", nullptr, 9500);
+  worksheet.write_array_formula(4, 0, 6, 0, "{=TREND(C5:C7,B5:B7)}", nullptr, 22196);
 
-  worksheet.write_number(0, 1, 500);
-  worksheet.write_number(1, 1, 10);
-  worksheet.write_number(4, 1, 1);
-  worksheet.write_number(5, 1, 2);
-  worksheet.write_number(6, 1, 3);
+  worksheet.write(0, 1, 500);
+  worksheet.write(1, 1, 10);
+  worksheet.write(4, 1, 1);
+  worksheet.write(5, 1, 2);
+  worksheet.write(6, 1, 3);
 
-  worksheet.write_number(0, 2, 300);
-  worksheet.write_number(1, 2, 15);
-  worksheet.write_number(4, 2, 20234);
-  worksheet.write_number(5, 2, 21003);
-  worksheet.write_number(6, 2, 10000);
+  worksheet.write(0, 2, 300);
+  worksheet.write(1, 2, 15);
+  worksheet.write(4, 2, 20234);
+  worksheet.write(5, 2, 21003);
+  worksheet.write(6, 2, 10000);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

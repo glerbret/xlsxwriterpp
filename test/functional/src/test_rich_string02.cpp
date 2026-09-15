@@ -19,15 +19,15 @@ int main()
   bold->set_bold();
   italic->set_italic();
 
-  worksheet.write_string(CELL("A1"), "Foo", bold);
-  worksheet.write_string(CELL("A2"), "Bar", italic);
+  worksheet.write(CELL("A1"), "Foo", bold);
+  worksheet.write(CELL("A2"), "Bar", italic);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "abcd"},
     {.format_ = italic, .str_ = "ef"},
     {.str_ = "g"}
   };
-  worksheet.write_rich_string(CELL("A3"), rich_strings, nullptr);
+  worksheet.write_rich_string(CELL("A3"), rich_strings);
 
   workbook.save("test_rich_string02.xlsx");
 }

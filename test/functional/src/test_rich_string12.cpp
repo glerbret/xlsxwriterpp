@@ -24,8 +24,8 @@ int main()
   worksheet.set_column(0, 0, 30);
   worksheet.set_row(2, 60);
 
-  worksheet.write_string(CELL("A1"), "Foo", bold);
-  worksheet.write_string(CELL("A2"), "Bar", italic);
+  worksheet.write(CELL("A1"), "Foo", bold);
+  worksheet.write(CELL("A2"), "Bar", italic);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "This is\n"},

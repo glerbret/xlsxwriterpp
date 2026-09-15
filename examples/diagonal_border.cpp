@@ -30,10 +30,10 @@ int main()
   format4->set_diag_border(xwpp::format_borders_t::HAIR);
   format4->set_diag_color(xwpp::color_t::red());
 
-  worksheet.write_string(CELL("B3"), "Text", format1);
-  worksheet.write_string(CELL("B6"), "Text", format2);
-  worksheet.write_string(CELL("B9"), "Text", format3);
-  worksheet.write_string(CELL("B12"), "Text", format4);
+  worksheet.write(CELL("B3"), "Text", format1);
+  worksheet.write(CELL("B6"), "Text", format2);
+  worksheet.write(CELL("B9"), "Text", format3);
+  worksheet.write(CELL("B12"), "Text", format4);
 
   workbook.save("diagonal_border.xlsx");
 }

@@ -19,8 +19,8 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  worksheet.write_number(0, 0, 1234.5, format1);
-  worksheet.write_number(1, 0, 1234.5, format2);
+  worksheet.write(0, 0, 1234.5, format1);
+  worksheet.write(1, 0, 1234.5, format2);
 
   workbook.save("test_format50.xlsx");
 }

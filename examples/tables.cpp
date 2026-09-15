@@ -18,30 +18,30 @@ namespace
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* format)
 {
-  worksheet.write_string(CELL("B4"), "Apples");
-  worksheet.write_string(CELL("B5"), "Pears");
-  worksheet.write_string(CELL("B6"), "Bananas");
-  worksheet.write_string(CELL("B7"), "Oranges");
+  worksheet.write(CELL("B4"), "Apples");
+  worksheet.write(CELL("B5"), "Pears");
+  worksheet.write(CELL("B6"), "Bananas");
+  worksheet.write(CELL("B7"), "Oranges");
 
-  worksheet.write_number(CELL("C4"), 10000, format);
-  worksheet.write_number(CELL("C5"), 2000, format);
-  worksheet.write_number(CELL("C6"), 6000, format);
-  worksheet.write_number(CELL("C7"), 500, format);
+  worksheet.write(CELL("C4"), 10000, format);
+  worksheet.write(CELL("C5"), 2000, format);
+  worksheet.write(CELL("C6"), 6000, format);
+  worksheet.write(CELL("C7"), 500, format);
 
-  worksheet.write_number(CELL("D4"), 5000, format);
-  worksheet.write_number(CELL("D5"), 3000, format);
-  worksheet.write_number(CELL("D6"), 6000, format);
-  worksheet.write_number(CELL("D7"), 300, format);
+  worksheet.write(CELL("D4"), 5000, format);
+  worksheet.write(CELL("D5"), 3000, format);
+  worksheet.write(CELL("D6"), 6000, format);
+  worksheet.write(CELL("D7"), 300, format);
 
-  worksheet.write_number(CELL("E4"), 8000, format);
-  worksheet.write_number(CELL("E5"), 4000, format);
-  worksheet.write_number(CELL("E6"), 6500, format);
-  worksheet.write_number(CELL("E7"), 200, format);
+  worksheet.write(CELL("E4"), 8000, format);
+  worksheet.write(CELL("E5"), 4000, format);
+  worksheet.write(CELL("E6"), 6500, format);
+  worksheet.write(CELL("E7"), 200, format);
 
-  worksheet.write_number(CELL("F4"), 6000, format);
-  worksheet.write_number(CELL("F5"), 5000, format);
-  worksheet.write_number(CELL("F6"), 6000, format);
-  worksheet.write_number(CELL("F7"), 700, format);
+  worksheet.write(CELL("F4"), 6000, format);
+  worksheet.write(CELL("F5"), 5000, format);
+  worksheet.write(CELL("F6"), 6000, format);
+  worksheet.write(CELL("F7"), 700, format);
 }
 
 }
@@ -61,7 +61,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Default table with no data.");
+    worksheet.write(CELL("B1"), "Default table with no data.");
 
     // Add a table to the worksheet.
     worksheet.add_table(RANGE("B3:F7"));
@@ -75,7 +75,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Default table with data.");
+    worksheet.write(CELL("B1"), "Default table with data.");
 
     // Add a table to the worksheet.
     worksheet.add_table(RANGE("B3:F7"));
@@ -92,7 +92,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table without default autofilter.");
+    worksheet.write(CELL("B1"), "Table without default autofilter.");
 
     // Set the table options.
     const xwpp::table_options_t options{.no_autofilter_ = true};
@@ -112,7 +112,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table without default header row.");
+    worksheet.write(CELL("B1"), "Table without default header row.");
 
     // Set the table options.
     const xwpp::table_options_t options{.no_header_row_ = true};
@@ -132,7 +132,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), R"(Default table with "First Column" and "Last Column" options.)");
+    worksheet.write(CELL("B1"), R"(Default table with "First Column" and "Last Column" options.)");
 
     // Set the table options.
     const xwpp::table_options_t options{
@@ -155,7 +155,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with banded columns but without default banded rows.");
+    worksheet.write(CELL("B1"), "Table with banded columns but without default banded rows.");
 
     // Set the table options.
     const xwpp::table_options_t options{.no_banded_rows_ = true, .banded_columns_ = true};
@@ -175,7 +175,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with user defined column headers.");
+    worksheet.write(CELL("B1"), "Table with user defined column headers.");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{
@@ -199,7 +199,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with user defined column headers.");
+    worksheet.write(CELL("B1"), "Table with user defined column headers.");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{
@@ -227,7 +227,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with totals row (but no caption or totals).");
+    worksheet.write(CELL("B1"), "Table with totals row (but no caption or totals).");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{
@@ -255,7 +255,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with totals row with user captions and functions.");
+    worksheet.write(CELL("B1"), "Table with totals row with user captions and functions.");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{
@@ -285,7 +285,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with alternative Excel style.");
+    worksheet.write(CELL("B1"), "Table with alternative Excel style.");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{
@@ -320,7 +320,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with Excel style removed.");
+    worksheet.write(CELL("B1"), "Table with Excel style removed.");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{
@@ -355,7 +355,7 @@ int main()
     worksheet.set_column(COLS("B:G"), 12);
 
     // Write the worksheet caption to explain the example.
-    worksheet.write_string(CELL("B1"), "Table with column formats.");
+    worksheet.write(CELL("B1"), "Table with column formats.");
 
     // Set the table options.
     const std::vector<xwpp::table_column_t> columns{

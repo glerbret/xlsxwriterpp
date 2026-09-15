@@ -40,13 +40,13 @@ int main()
   // Iterate over the data and write it out element by element.
   for(const auto& value: expenses)
   {
-    worksheet.write_string(row_num, 0, value.item_);
-    worksheet.write_number(row_num, 1, value.cost_);
+    worksheet.write(row_num, 0, value.item_);
+    worksheet.write(row_num, 1, value.cost_);
     row_num++;
   }
 
   // Write a total using a formula.
-  worksheet.write_string(row_num, 0, "Total");
+  worksheet.write(row_num, 0, "Total");
   worksheet.write_formula(row_num, 1, "=SUM(B1:B4)");
 
   workbook.save("tutorial01.xlsx");

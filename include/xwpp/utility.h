@@ -31,10 +31,10 @@ namespace xwpp
  * This is a little syntactic shortcut to help with worksheet layout:
  *
  * @code
- *  worksheet.write_string(CELL("A1"), "Foo");
+ *  worksheet.write(CELL("A1"), "Foo");
  *
  *  //Same as:
- *  worksheet.write_string(0, 0, "Foo");
+ *  worksheet.write(0, 0, "Foo");
  * @endcode
  *
  * @note This macro shouldn't be used in performance critical situations since it
@@ -120,7 +120,7 @@ namespace xwpp
 [[nodiscard]] uint16_t name_to_col(std::string_view col_str);
 [[nodiscard]] uint16_t name_to_col_2(std::string_view col_str);
 
-[[nodiscard]] std::string dup_formula(const std::string& formula);
+[[nodiscard]] std::string dup_formula(std::string_view formula);
 
 // Conversion functions.
 [[nodiscard]] double pixels_to_height(double pixels);
@@ -156,7 +156,7 @@ namespace xwpp
  * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
 [[nodiscard]] double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
-/// @overload
+/// @brief `std::chrono` overload.
 [[nodiscard]] double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime,
                                                        bool use_1904_epoch);
 
@@ -184,7 +184,7 @@ namespace xwpp
  * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
 [[nodiscard]] double datetime_to_excel_datetime(const datetime_t& datetime);
-/// @overload
+/// @brief `std::chrono` overload.
 [[nodiscard]] double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& datetime);
 
 /**

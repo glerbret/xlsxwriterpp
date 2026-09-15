@@ -20,12 +20,12 @@ as set using the various functions shown below:
 @endcode
 
 Once a Format object has been created  and its properties have been
-set it can be passed as an argument to the `worksheet_t::write*()` methods as
+set it can be passed as an argument to the `worksheet_t::write()` methods as
 follows:
 
 @code
-  worksheet.write_string(0, 0, "Hello", format);
-  worksheet.write_number(1, 0, 123.456, format);
+  worksheet.write(0, 0, "Hello", format);
+  worksheet.write(1, 0, 123.456, format);
 @endcode
 
 Formats can also be passed to the worksheet `worksheet_t::set_row()` and
@@ -104,19 +104,19 @@ for example:
 @section ww_formats_reusing Modifying and Reusing Formats
 
 Once a format has been created it can be used and reused in
-`worksheet_t::write*()` functions across any number of worksheets:
+`worksheet_t::write()` functions across any number of worksheets:
 
 @code
   xwpp::format_t* format = workbook.add_format();
   format->set_bold();
 
-  worksheet1.write_string(1, 4, "Some text", format);
-  worksheet2.write_string(1, 4, "Some text", format);
+  worksheet1.write(1, 4, "Some text", format);
+  worksheet2.write(1, 4, "Some text", format);
 @endcode
 
 However, each unique cell format in an `Xlsxwriter++` spreadsheet must have a
 corresponding Format object. It isn't possible to use a Format with a
-`worksheet_t::write*()` method and then redefine it for use at a later
+`worksheet_t::write()` method and then redefine it for use at a later
 stage. This is because a Format is applied to a cell not in its current state
 but in its final state. Consider the following example:
 
@@ -124,11 +124,11 @@ but in its final state. Consider the following example:
   xwpp::format_t* format = workbook.add_format();
   format->set_bold();
 
-  worksheet.write_string(0, 0, "Hello", format);
+  worksheet.write(0, 0, "Hello", format);
 
   format->set_italic();
 
-  worksheet.write_string(1, 0, "World", format);
+  worksheet.write(1, 0, "World", format);
 @endcode
 
 Cell `(0, 0)` is assigned a format which with the font set to bold. However, the

@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_string(0, 0, "Hello");
+  worksheet.write(0, 0, "Hello");
 
   workbook.save("test_data01.xlsx");
 }

@@ -22,15 +22,15 @@ int main()
 
     format->set_bold();
 
-    worksheet1.write_string(0, 0, "Foo");
-    worksheet1.write_number(1, 0, 123);
+    worksheet1.write(0, 0, "Foo");
+    worksheet1.write(1, 0, 123);
 
-    worksheet3.write_string(1, 1, "Foo");
-    worksheet3.write_string(2, 1, "Bar", format);
-    worksheet3.write_number(3, 2, 234);
+    worksheet3.write(1, 1, "Foo");
+    worksheet3.write(2, 1, "Bar", format);
+    worksheet3.write(3, 2, 234);
 
     // For testing. This doesn't have a string or format and should be ignored.
-    worksheet1.write_string(0, 0, "");
+    worksheet1.write(0, 0, "");
 
     // For testing. This doesn't have a formula and should throw exception.
     worksheet1.write_formula(0, 0, "");

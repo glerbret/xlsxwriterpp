@@ -13,7 +13,7 @@ int main()
 
   worksheet.print_area(RANGE("A1:XFD1048576"));
 
-  worksheet.write_string(CELL("A1"), "Foo", nullptr);
+  worksheet.write(CELL("A1"), "Foo");
 
   workbook.save("test_print_area07.xlsx");
 }

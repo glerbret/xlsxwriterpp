@@ -507,11 +507,6 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
   header_footer_changed_ = true;
 }
 
-void sheet_t::set_header(const std::string& str)
-{
-  set_header(str, std::nullopt);
-}
-
 // TODO Quite similar to set_header. Maybe merged in one generic function
 void sheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
@@ -581,11 +576,6 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
   header_footer_changed_ = true;
 }
 
-void sheet_t::set_footer(const std::string& str)
-{
-  set_footer(str, std::nullopt);
-}
-
 void sheet_t::set_margins(double left, double right, double top, double bottom)
 {
   if(left >= 0)
@@ -607,6 +597,34 @@ void sheet_t::set_margins(double left, double right, double top, double bottom)
   {
     margin_bottom_ = bottom;
   }
+}
+
+void sheet_t::set_left_margin(double margin)
+{
+  assert(margin >= 0);
+
+  margin_left_ = margin;
+}
+
+void sheet_t::set_right_margin(double margin)
+{
+  assert(margin >= 0);
+
+  margin_right_ = margin;
+}
+
+void sheet_t::set_top_margin(double margin)
+{
+  assert(margin >= 0);
+
+  margin_top_ = margin;
+}
+
+void sheet_t::set_bottom_margin(double margin)
+{
+  assert(margin >= 0);
+
+  margin_bottom_ = margin;
 }
 
 sheet_t::sheet_t(bool is_chartsheet, const sheet_init_data_t& init_data)

@@ -35,17 +35,17 @@ int main()
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
-      worksheet.write_number(row_num, col_num, value);
+      worksheet.write(row_num, col_num, value);
       col_num++;
     }
     row_num++;
   }
 
-  worksheet.write_string(CELL("A1"), "Foo", italic);
-  worksheet.write_string(CELL("B1"), "Bar", bold);
+  worksheet.write(CELL("A1"), "Foo", italic);
+  worksheet.write(CELL("B1"), "Bar", bold);
 
-  worksheet.set_row(12, xwpp::DEF_ROW_HEIGHT, italic);
-  worksheet.set_column(COLS("F:F"), xwpp::DEF_COL_WIDTH, bold);
+  worksheet.set_row(12, italic);
+  worksheet.set_column(COLS("F:F"), bold);
 
   worksheet.write_blank(CELL("F13"), bold_italic);
 

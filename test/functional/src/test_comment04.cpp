@@ -13,10 +13,10 @@ int main()
   /* xwpp::worksheet_t& worksheet2 = */ workbook.add_worksheet();
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
 
-  worksheet1.write_string(CELL("A1"), "Foo");
+  worksheet1.write(CELL("A1"), "Foo");
   worksheet1.write_comment(CELL("B2"), "Some text");
 
-  worksheet3.write_string(CELL("A1"), "Bar");
+  worksheet3.write(CELL("A1"), "Bar");
   worksheet3.write_comment(CELL("C7"), "More text");
 
   worksheet1.set_comments_author("John");

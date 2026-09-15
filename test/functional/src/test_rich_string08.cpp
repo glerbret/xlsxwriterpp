@@ -22,8 +22,8 @@ int main()
   xwpp::format_t* centered = workbook.add_format();
   centered->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
 
-  worksheet.write_string(CELL("A1"), "Foo", bold);
-  worksheet.write_string(CELL("A2"), "Bar", italic);
+  worksheet.write(CELL("A1"), "Foo", bold);
+  worksheet.write(CELL("A2"), "Bar", italic);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "ab"},

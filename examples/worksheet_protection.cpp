@@ -27,9 +27,9 @@ int main()
   worksheet.protect();
 
   // Write a locked, unlocked and hidden cell.
-  worksheet.write_string(0, 0, "B1 is locked. It cannot be edited.");
-  worksheet.write_string(1, 0, "B2 is unlocked. It can be edited.");
-  worksheet.write_string(2, 0, "B3 is hidden. The formula isn't visible.");
+  worksheet.write(0, 0, "B1 is locked. It cannot be edited.");
+  worksheet.write(1, 0, "B2 is unlocked. It can be edited.");
+  worksheet.write(2, 0, "B3 is hidden. The formula isn't visible.");
 
   worksheet.write_formula(0, 1, "=1+2"); /* Locked by default. */
   worksheet.write_formula(1, 1, "=1+2", unlocked);

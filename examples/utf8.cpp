@@ -15,7 +15,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_string(2, 1, "Это фраза на русском!");
+  worksheet.write(2, 1, "Это фраза на русском!");
 
   workbook.save("utf8.xlsx");
 }

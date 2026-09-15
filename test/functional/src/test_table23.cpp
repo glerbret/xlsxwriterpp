@@ -15,12 +15,12 @@ int main()
 
   worksheet.set_column(COLS("B:F"), 10.288);
 
-  worksheet.write_string(CELL("A1"), "Column1");
-  worksheet.write_string(CELL("F1"), "Total");
-  worksheet.write_string(CELL("B1"), "Column'");
-  worksheet.write_string(CELL("C1"), "Column#");
-  worksheet.write_string(CELL("D1"), "Column[");
-  worksheet.write_string(CELL("E1"), "Column]");
+  worksheet.write(CELL("A1"), "Column1");
+  worksheet.write(CELL("F1"), "Total");
+  worksheet.write(CELL("B1"), "Column'");
+  worksheet.write(CELL("C1"), "Column#");
+  worksheet.write(CELL("D1"), "Column[");
+  worksheet.write(CELL("E1"), "Column]");
 
   const std::vector<xwpp::table_column_t> columns{
     {.header_ = "Column1", .total_string_ = "Total"                             },

@@ -15,7 +15,7 @@ int main()
   workbook.set_vba_name("MyWorkbook");
   worksheet.set_vba_name("MySheet1");
 
-  worksheet.write_number(CELL("A1"), 123);
+  worksheet.write(CELL("A1"), 123);
 
   workbook.save("test_macro02.xlsm");
 }

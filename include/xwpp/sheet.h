@@ -599,7 +599,7 @@ public:
    * printer supports. Therefore, it is best to stick to standard paper types:
    */
   void set_paper(uint8_t paper_size);
-  /** @brief  @overload */
+  /// @brief Overload with predefined values.
   void set_paper(paper_size_t paper_size);
 
   /**
@@ -802,9 +802,7 @@ public:
    *
    * @image html headers_footers.png
    */
-  void set_header(const std::string& str, const std::optional<header_footer_options_t>& options);
-  /// @overload
-  void set_header(const std::string& str);
+  void set_header(const std::string& str, const std::optional<header_footer_options_t>& options = std::nullopt);
 
   /**
    * @brief Set the printed page footer caption with additional options.
@@ -816,9 +814,7 @@ public:
    *
    * The syntax of this function is the same as `set_header()`.
    */
-  void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options);
-  /// @overload
-  void set_footer(const std::string& str);
+  void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options = std::nullopt);
 
   /**
    * @brief Set the sheet margins for the printed page.
@@ -836,13 +832,63 @@ public:
    *  worksheet.set_margins(1.3, 1.2, -1, -1);
    * @endcode
    *
-   * @todo Use a structure?
-   *
    * @note The Excel defaults are:
    *  - Left and right margins: 0.7.
    *  - Top and bottem margins: 0.75.
    */
   void set_margins(double left, double right, double top, double bottom);
+
+  /**
+   * @brief Set the sheet left margin for the printed page.
+   *
+   * @param margin Margin in inches.
+   *
+   * @code
+   *  worksheet.set_left_margin(1.3);
+   * @endcode
+   *
+   * @pre margin >= 0
+   */
+  void set_left_margin(double margin);
+
+  /**
+   * @brief Set the sheet right margin for the printed page.
+   *
+   * @param margin Margin in inches.
+   *
+   * @code
+   *  worksheet.set_right_margin(1.3);
+   * @endcode
+   *
+   * @pre margin >= 0
+   */
+  void set_right_margin(double margin);
+
+  /**
+   * @brief Set the sheet top margin for the printed page.
+   *
+   * @param margin Margin in inches.
+   *
+   * @code
+   *  worksheet.set_top_margin(1.3);
+   * @endcode
+   *
+   * @pre margin >= 0
+   */
+  void set_top_margin(double margin);
+
+  /**
+   * @brief Set the sheet bottom margin for the printed page.
+   *
+   * @param margin Margin in inches.
+   *
+   * @code
+   *  worksheet.set_bottom_margin(1.3);
+   * @endcode
+   *
+   * @pre margin >= 0
+   */
+  void set_bottom_margin(double margin);
 
   /**
    * @brief Set the page orientation as landscape.

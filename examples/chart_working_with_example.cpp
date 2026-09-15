@@ -15,12 +15,12 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write some data for the chart.
-  worksheet.write_number(0, 0, 10);
-  worksheet.write_number(1, 0, 40);
-  worksheet.write_number(2, 0, 50);
-  worksheet.write_number(3, 0, 20);
-  worksheet.write_number(4, 0, 10);
-  worksheet.write_number(5, 0, 50);
+  worksheet.write(0, 0, 10);
+  worksheet.write(1, 0, 40);
+  worksheet.write(2, 0, 50);
+  worksheet.write(3, 0, 20);
+  worksheet.write(4, 0, 10);
+  worksheet.write(5, 0, 50);
 
   // Create a chart object.
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);

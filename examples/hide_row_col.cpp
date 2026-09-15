@@ -21,8 +21,8 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write some data.
-  worksheet.write_string(0, 3, "Some hidden columns.");
-  worksheet.write_string(7, 0, "Some hidden rows.");
+  worksheet.write(0, 3, "Some hidden columns.");
+  worksheet.write(7, 0, "Some hidden rows.");
 
   // Hide all rows without data.
   worksheet.set_default_row(15, true);

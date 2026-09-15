@@ -19,12 +19,12 @@ int main()
   worksheet.set_column(0, 0, 30);
 
   // Insert an image.
-  worksheet.write_string(CELL("A2"), "Insert an image in a cell:");
+  worksheet.write(CELL("A2"), "Insert an image in a cell:");
 
   worksheet.insert_image(CELL("B2"), "logo.png");
 
   // Insert an image offset in the cell.
-  worksheet.write_string(CELL("A12"), "Insert an offset image:");
+  worksheet.write(CELL("A12"), "Insert an offset image:");
 
   {
     const xwpp::image_options_t options{.x_offset_ = 15, .y_offset_ = 10};
@@ -32,7 +32,7 @@ int main()
   }
 
   // Insert an image with scaling.
-  worksheet.write_string(CELL("A22"), "Insert a scaled image:");
+  worksheet.write(CELL("A22"), "Insert a scaled image:");
 
   {
     const xwpp::image_options_t options{.x_scale_ = 0.5, .y_scale_ = 0.5};
@@ -40,7 +40,7 @@ int main()
   }
 
   // Insert an image with a hyperlink.
-  worksheet.write_string(CELL("A32"), "Insert an image with a hyperlink:");
+  worksheet.write(CELL("A32"), "Insert an image with a hyperlink:");
 
   {
     const xwpp::image_options_t options{.url_ = "https://github.com/glerbret"};

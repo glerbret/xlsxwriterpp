@@ -17,7 +17,7 @@ int main()
   const xwpp::header_footer_options_t header_options{.image_center_ = "images/blue.jpg"};
   worksheet.set_header("&C&G", header_options);
 
-  worksheet.write_string(CELL("A1"), "Foo");
+  worksheet.write(CELL("A1"), "Foo");
   worksheet.write_comment(CELL("B2"), "Some text");
   worksheet.set_comments_author("John");
 

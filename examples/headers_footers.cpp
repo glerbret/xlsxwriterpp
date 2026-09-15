@@ -52,7 +52,7 @@ int main()
     worksheet.set_footer("&LHere is some left aligned text.");
 
     worksheet.set_column(0, 0, 50);
-    worksheet.write_string(0, 0, preview);
+    worksheet.write(0, 0, preview);
   }
 
   // A simple example to start
@@ -64,7 +64,7 @@ int main()
 
     worksheet.set_margins(-1, -1, 1.3, -1);
     worksheet.set_column(0, 0, 50);
-    worksheet.write_string(0, 0, preview);
+    worksheet.write(0, 0, preview);
   }
 
   // This is an example of some of the header/footer variables.
@@ -78,10 +78,10 @@ int main()
                          "&RCurrent time: &T");
 
     worksheet.set_column(0, 0, 50);
-    worksheet.write_string(0, 0, preview);
+    worksheet.write(0, 0, preview);
 
     worksheet.set_h_pagebreaks({20});
-    worksheet.write_string(20, 0, "Next page");
+    worksheet.write(20, 0, "Next page");
   }
 
   // This example shows how to use more than one font.
@@ -92,7 +92,7 @@ int main()
     worksheet.set_footer(R"(&C&"Symbol"e&"Arial" = mc&X2)");
 
     worksheet.set_column(0, 0, 50);
-    worksheet.write_string(0, 0, preview);
+    worksheet.write(0, 0, preview);
   }
 
   // Example of line wrapping.
@@ -102,7 +102,7 @@ int main()
     worksheet.set_header("&CHeading 1\nHeading 2");
 
     worksheet.set_column(0, 0, 50);
-    worksheet.write_string(0, 0, preview);
+    worksheet.write(0, 0, preview);
   }
 
   // Example of inserting a literal ampersand &
@@ -112,7 +112,7 @@ int main()
     worksheet.set_header("&CCuriouser && Curiouser - Attorneys at Law");
 
     worksheet.set_column(0, 0, 50);
-    worksheet.write_string(0, 0, preview);
+    worksheet.write(0, 0, preview);
   }
 
   workbook.save("headers_footers.xlsx");

@@ -21,10 +21,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write some data for the chart.
-  worksheet.write_string(CELL("A1"), "Pass");
-  worksheet.write_string(CELL("A2"), "Fail");
-  worksheet.write_number(CELL("B1"), 90);
-  worksheet.write_number(CELL("B2"), 10);
+  worksheet.write(CELL("A1"), "Pass");
+  worksheet.write(CELL("A2"), "Fail");
+  worksheet.write(CELL("B1"), 90);
+  worksheet.write(CELL("B2"), 10);
 
   // Create a pie chart.
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
