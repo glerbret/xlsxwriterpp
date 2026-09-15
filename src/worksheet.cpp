@@ -6739,4 +6739,6 @@ row_t& worksheet_t::get_row(row_num_t row_num)
   return table_.get_row_list(row_num);
 }
 
+const uint16_t worksheet_t::max_url_length_ = 2079;
+
 }

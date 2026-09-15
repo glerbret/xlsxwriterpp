@@ -38,9 +38,7 @@ BOOST_AUTO_TEST_CASE(to_datetime_chrono)
 BOOST_AUTO_TEST_CASE(to_datetime_tm)
 {
   const xwpp::datetime_t expected{.year_ = 2010, .month_ = 2, .day_ = 25, .hour_ = 12, .min_ = 35, .sec_ = 56.};
-  const struct tm datetime = {.tm_sec = 56, .tm_min = 35, .tm_hour = 12, .tm_mday = 25, .tm_mon = 1, .tm_year = 110};
-
-  const std::chrono::system_clock::time_point date{std::chrono::sys_days{2010y / std::chrono::February / 25d} + 12h + 35min + 56s};
+  const struct tm date = {.tm_sec = 56, .tm_min = 35, .tm_hour = 12, .tm_mday = 25, .tm_mon = 1, .tm_year = 110};
 
   BOOST_CHECK(expected == xwpp::to_datetime(date));
 }
