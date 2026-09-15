@@ -4805,7 +4805,7 @@ private:
   // Links
   table_rows_t hyperlinks_;
   uint16_t hlink_count_{0};
-  uint16_t max_url_length_{2079};
+  static const uint16_t max_url_length_{2079};
   std::vector<std::tuple<std::string, std::string, std::string>> external_hyperlinks_;
   std::vector<std::tuple<std::string, std::string, std::string>> external_table_links_;
 

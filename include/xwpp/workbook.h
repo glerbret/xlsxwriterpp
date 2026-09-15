@@ -187,13 +187,22 @@ public:
   /**
    * @brief Create a new workbook.
    *
-   * @param use_zip64 Allow ZIP64 extensions when creating the xlsx file zip container.
+   * @param use_zip64      Allow ZIP64 extensions when creating the xlsx file zip container.
+   * @param use_1904_epoch Set the workbook to use the 1904 epoch instead of the default 1900 epoch.
+   *
+   * Create a new workbook.
+   *
+   * Excel supports two date epochs. The first based on 1900-01-01 is the default
+   * for all Windows versions of Excel and for recent versions of Excel for macOS.
+   * Older versions of Excel for macOS used a 1904-01-01 epoch. The 1904 epoch can
+   * be set for compatibility with older versions of Excel or to work around the
+   * Excel limitation of not being able to handle negative times.
    *
    * @code
    *  xwpp::workbook_t workbook;
    * @endcode
    */
-  explicit workbook_t(bool use_zip64 = false);
+  explicit workbook_t(bool use_1904_epoch = false, bool use_zip64 = false);
 
   /**
    * @brief Saves the workbook objet in Excel file.
@@ -341,42 +350,8 @@ public:
    * Which will raise a dialog like the following when opening the file:
    *
    * @image html read_only.png
-   *
-   * @todo Add to ctor.
    */
   void read_only_recommended();
-
-  /**
-   * @brief Set the workbook to use the 1904 epoch.
-   *
-   * The `%use_1904_epoch()` function can be used to set the workbook to
-   * use the 1904 epoch instead of the default 1900 epoch.
-   *
-   * Excel supports two date epochs. The first based on 1900-01-01 is the default
-   * for all Windows versions of Excel and for recent versions of Excel for macOS.
-   * Older versions of Excel for macOS used a 1904-01-01 epoch. The 1904 epoch can
-   * be set for compatibility with older versions of Excel or to work around the
-   * Excel limitation of not being able to handle negative times.
-   *
-   * This function should be called before `add_worksheet()`.
-   *
-   * @code
-   *  workbook.use_1904_epoch();
-   * @endcode
-   *
-   * @todo Move to ctor.
-   */
-  void use_1904_epoch();
-
-  /**
-   * @brief Set the maximal length of URL.
-   *
-   * @param max_url_length Maximal length of URL.
-   *
-   * @todo Add to ctor.
-   * @todo For test, check if can be removed.
-   */
-  void set_max_url_length(uint16_t max_url_length);
 
   /**
    * @brief Set the size of a workbook window.
@@ -528,6 +503,8 @@ public:
    *
    * @return A pointer on @ref worksheet.h "Worksheet" object.
    *
+   * @throw xwpp::xwpp_exception_t.
+   *
    * This function returns a @ref worksheet.h "Worksheet" object reference based on its name:
    *
    * @code
@@ -546,6 +523,8 @@ public:
    *
    * @return A pointer on @ref chartsheet.h "Chartsheet" object.
    *
+   * @throw xwpp::xwpp_exception_t.
+   *
    * This function returns a @ref chartsheet.h "Chartsheet" object reference based on its name:
    *
    * @code
@@ -562,8 +541,6 @@ public:
    *
    * @param sheetname Sheet name to validate.
    *
-   * @throw xwpp::xwpp_exception_t.
-   *
    * This function is used to validate a worksheet or chartsheet name according
    * to the rules used by Excel:
    *
@@ -574,7 +551,7 @@ public:
    * - The name isn't already in use. (Case insensitive, see the note below).
    *
    * @code
-   *  workbook.validate_sheetname("Foglio");
+   *  bool is_valid = workbook.validate_sheetname("Foglio");
    * @endcode
    *
    * This function is called by `add_worksheet()` and
@@ -590,10 +567,8 @@ public:
    * account. Thus it would flag "Café" and "café" as a duplicate (just like
    * Excel) but it wouldn't catch "CAFÉ". If you need a full UTF-8 case
    * insensitive check you should use a third party library to implement it.
-   *
-   * @todo Return boolean to indicate if name is valid (and remove throw).
    */
-  void validate_sheetname(std::string_view sheetname) const;
+  bool validate_sheetname(std::string_view sheetname) const;
 
   /**
    * @brief Create a new @ref format.h "Format" object to formats cells in
@@ -918,7 +893,6 @@ private:
   uint16_t font_count_{0};
   uint16_t border_count_{0};
   uint16_t fill_count_{0};
-  uint16_t max_url_length_{2079};
   uint8_t read_only_{0};
   bool has_png_{false};
   bool has_jpeg_{false};

@@ -52,6 +52,9 @@ using col_num_t = uint16_t;
  */
 struct datetime_t
 {
+  friend bool operator==(const datetime_t& lhs, const datetime_t& rhs) = default;
+  friend bool operator!=(const datetime_t& lhs, const datetime_t& rhs) = default;
+
   /** Year     : 1900 - 9999 */
   int year_{0};
   /** Month    : 1 - 12 */

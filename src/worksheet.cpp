@@ -1403,7 +1403,6 @@ worksheet_t::worksheet_t(const sheet_init_data_t& init_data, std::function<int32
   , use_1904_epoch_{init_data.use_1904_epoch_}
   , default_url_format_{init_data.default_url_format_}
   , sst_{init_data.sst_}
-  , max_url_length_{init_data.max_url_length_}
 {
   col_formats_.resize(COL_META_MAX);
 }
