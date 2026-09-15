@@ -15,11 +15,6 @@
 
 using namespace std::literals::chrono_literals;
 
-#ifdef _WIN32
-#define timegm _mkgmtime
-#define strdup _strdup
-#endif
-
 BOOST_AUTO_TEST_SUITE(core)
 
 BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
@@ -36,7 +31,7 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file_1)
 
   const xwpp::doc_properties_t properties{
     .author_  = "A User",
-    .created_ = std::chrono::sys_days{2010y / std::chrono::January / 01d} + 0h + 0min + 0s,
+    .created_ = std::chrono::sys_days{2010y / std::chrono::January / 1d} + 0h + 0min + 0s,
   };
   const xwpp::core_t core(properties);
 
