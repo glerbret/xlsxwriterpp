@@ -9,6 +9,7 @@
 #ifndef XWPP_PACKAGER_H
 #define XWPP_PACKAGER_H
 
+#include <filesystem>
 #include <string_view>
 
 // cppcheck-suppress-begin missingInclude
@@ -30,7 +31,7 @@ namespace xwpp
 class packager_t
 {
 public:
-  explicit packager_t(std::string_view filename, bool use_zip64 = false);
+  explicit packager_t(const std::filesystem::path& filename, bool use_zip64 = false);
 
   // Write the xml files that make up the XLSX OPC package.
   void create_package(workbook_t& workbook);
@@ -76,7 +77,7 @@ private:
 
   zipFile zipfile_{nullptr};
   zip_fileinfo zip_fileinfo_;
-  std::string filename_;
+  std::filesystem::path filename_;
   bool use_zip64_{false};
 };
 

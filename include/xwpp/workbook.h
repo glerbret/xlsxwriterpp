@@ -46,6 +46,8 @@
 
 #include <chrono>
 #include <cstdint>
+#include <ctime>
+#include <filesystem>
 #include <list>
 #include <string_view>
 #include <vector>
@@ -71,7 +73,7 @@ struct defined_name_t
  *
  * `%doc_properties_t` contains the properties of the Excel document.
  *
- * @todo Add "dc:language" and "cp:revision".
+ * @todo Add "dc:language" and "cp:revision" and "cp:version".
  */
 struct doc_properties_t
 {
@@ -203,10 +205,8 @@ public:
    * @code
    *  workbook.save("filename.xlsx");
    * @endcode
-   *
-   * @todo Add API with C++ filesystem (std::path)
    */
-  void save(std::string_view filename);
+  void save(const std::filesystem::path& filename);
 
   /**
    * @brief Set the document properties such as Title, Author etc.
@@ -294,27 +294,36 @@ public:
    *
    * @note The name and value parameters are limited to 255 characters
    * by Excel.
-   *
-   * @todo Add overload for all integer types (template)
-   * @todo Add overload for all float types (template)
-   * @todo Add overload with tm, ...
-   * @todo Use string_view instead of two overloads (std::string and char*)
    */
-  void set_custom_property(std::string_view name, const std::string& value);
-  /// @overload
+  void set_custom_property(std::string_view name, std::string_view value);
+  /// @brief C string overload.
   void set_custom_property(std::string_view name, const char* value);
-  /// @overload
+  /// @brief `int32_t` overload.
   void set_custom_property(std::string_view name, int32_t value);
-  /// @overload
+  /// @brief Integer type overload.
+  template<std::integral T>
+  void set_custom_property(std::string_view name, T value)
+  {
+    set_custom_property(name, static_cast<int32_t>(value));
+  }
+  /// @brief `double` overload.
   void set_custom_property(std::string_view name, double value);
-  /// @overload
+  /// @brief Floating-point type overload.
+  template<std::floating_point T>
+  void set_custom_property(std::string_view name, T value)
+  {
+    set_custom_property(name, static_cast<double>(value));
+  }
+  /// @brief `bool` overload.
   void set_custom_property(std::string_view name, bool value);
-  /// @overload
-  void set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value);
-  /// @overload
+  /// @brief `datetime_t` overload.
   void set_custom_property(std::string_view name, const datetime_t& value);
-  /// @overload
+  /// @brief `std::chrono::system_clock::time_point` overload
+  void set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value);
+  /// @brief `std::chrono::year_month_day` overload
   void set_custom_property(std::string_view name, const std::chrono::year_month_day& value);
+  /// @brief `tm` overload
+  void set_custom_property(std::string_view name, const tm& value);
 
   /**
    * @brief Add a recommendation to open the file in "read-only" mode.
@@ -382,8 +391,6 @@ public:
    * The resulting pixel sizes may not exactly match the target screen and
    * resolution since it is based on the original Excel for Windows sizes. Some
    * trial and error may be required to get an exact size.
-   *
-   * @todo Add to ctor.
    */
   void set_size(uint16_t width, uint16_t height);
 
@@ -725,10 +732,8 @@ public:
    * giving a warning when it opens the file.
    *
    * See also @ref working_with_macros
-   *
-   * @todo Add API with `std::filesystem`.
    */
-  void add_vba_project(const std::string& filename);
+  void add_vba_project(const std::filesystem::path& filename);
 
   /**
    * @brief Add a vbaProject binary and a vbaProjectSignature binary to the Excel
@@ -756,10 +761,8 @@ public:
    * file will do. The same applies for `vbaProjectSignature.bin`.
    *
    * See also @ref working_with_macros
-   *
-   * @todo Add API with `std::filesystem`.
    */
-  void add_signed_vba_project(const std::string& vba_project, const std::string& signature);
+  void add_signed_vba_project(const std::filesystem::path& vba_project, const std::filesystem::path& signature);
 
   /**
    * @brief Set the VBA name for the workbook.

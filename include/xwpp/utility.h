@@ -136,6 +136,15 @@ namespace xwpp
 [[nodiscard]] datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime);
 
 /**
+ * @brief Convert a `%tm` to a `datetime_t`.
+ *
+ * @param datetime  The `%stm` to convert.
+ *
+ * @return The converted `datetime_t`.
+ */
+[[nodiscard]] datetime_t to_datetime(const tm& datetime);
+
+/**
  * @brief Converts a `%system_clock::time_point` to an Excel datetime number with
  * 1900/1904 epoch.
  *
@@ -151,9 +160,6 @@ namespace xwpp
  * you to specify whether to use the 1900 or 1904 epoch.
  *
  * @see The `workbook_t::use_1904_epoch()` function.
- *
- * @todo Add Other overloads (tm).
- * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
 [[nodiscard]] double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
 /// @brief `std::chrono` overload.
@@ -179,9 +185,6 @@ namespace xwpp
  * @endcode
  *
  * @see @ref working_with_dates for more details on the Excel datetime format.
- *
- * @todo Add Other overloads (tm).
- * @todo Add Note about range of std::chrono::system_clock::time_point(up to 2062).
  */
 [[nodiscard]] double datetime_to_excel_datetime(const datetime_t& datetime);
 /// @brief `std::chrono` overload.

@@ -347,6 +347,16 @@ datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
                             (static_cast<double>(time.subseconds().count()) / 1000.0)};
 }
 
+datetime_t to_datetime(const tm& datetime)
+{
+  return {.year_  = datetime.tm_year + 1900,
+                                .month_ = datetime.tm_mon + 1,
+                                .day_   = datetime.tm_mday,
+                                .hour_  = datetime.tm_hour,
+                                .min_   = datetime.tm_min,
+                                .sec_   = static_cast<double>(datetime.tm_sec)};
+}
+
 double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
 {
   return datetime_to_excel_date_with_epoch(to_datetime(datetime), use_1904_epoch);

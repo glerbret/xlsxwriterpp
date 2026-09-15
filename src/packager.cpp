@@ -73,7 +73,7 @@
 namespace xwpp
 {
 
-packager_t::packager_t(std::string_view filename, bool use_zip64)
+packager_t::packager_t(const std::filesystem::path& filename, bool use_zip64)
     // Initialize the zip_fileinfo struct to Jan 1 1980 like Excel.
     // TODO To set locally in create function.
     : zip_fileinfo_{
@@ -100,7 +100,7 @@ packager_t::packager_t(std::string_view filename, bool use_zip64)
 void packager_t::create_package(workbook_t& workbook)
 {
   // TODO Use it as local variable (not data member) and use unique_ptr.
-  zipfile_ = zipOpen(filename_.c_str(), 0);
+  zipfile_ = zipOpen(filename_.string().c_str(), 0);
 
   write_content_types_file(workbook);
   write_root_rels_file(workbook);

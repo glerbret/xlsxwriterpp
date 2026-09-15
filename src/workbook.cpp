@@ -78,7 +78,7 @@ workbook_t::workbook_t(bool use_zip64)
   default_url_format_->set_hyperlink();
 }
 
-void workbook_t::save(std::string_view filename)
+void workbook_t::save(const std::filesystem::path& filename)
 {
   // Add a default worksheet if none have been added.
   if(sheets_.empty())
@@ -148,7 +148,7 @@ void workbook_t::set_properties(const doc_properties_t& properties)
   properties_ = properties;
 }
 
-void workbook_t::set_custom_property(std::string_view name, const std::string& value)
+void workbook_t::set_custom_property(std::string_view name, std::string_view value)
 {
   if(name.empty())
   {
@@ -265,6 +265,11 @@ void workbook_t::set_custom_property(std::string_view name, const datetime_t& va
 void workbook_t::set_custom_property(std::string_view name, const std::chrono::year_month_day& value)
 {
   set_custom_property(name, std::chrono::sys_days{value} + 0h + 0min + 0s + 0ms);
+}
+
+void workbook_t::set_custom_property(std::string_view name, const tm& value)
+{
+  set_custom_property(name, to_datetime(value));
 }
 
 void workbook_t::read_only_recommended()
@@ -466,7 +471,7 @@ chart_t& workbook_t::add_chart(chart_type_t chart_type)
   return charts_.back();
 }
 
-void workbook_t::add_vba_project(const std::string& filename)
+void workbook_t::add_vba_project(const std::filesystem::path& filename)
 {
   if(filename.empty())
   {
@@ -479,14 +484,14 @@ void workbook_t::add_vba_project(const std::string& filename)
     if(!vba_stream)
     {
       throw xwpp_exception_t(
-        std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened.", filename));
+        std::format("workbook_t::add_vba_project(): project file '{}' doesn't exist or cannot be opened.", filename.string()));
     }
   }
 
-  vba_project_ = filename;
+  vba_project_ = filename.string();
 }
 
-void workbook_t::add_signed_vba_project(const std::string& vba_project, const std::string& signature)
+void workbook_t::add_signed_vba_project(const std::filesystem::path& vba_project, const std::filesystem::path& signature)
 {
   add_vba_project(vba_project);
 
@@ -501,11 +506,11 @@ void workbook_t::add_signed_vba_project(const std::string& vba_project, const st
     if(!signature_file)
     {
       throw xwpp_exception_t(std::format(
-        "workbook_t::add_signed_vba_project(): signature file {} doesn't exist or can't be opened.", signature));
+        "workbook_t::add_signed_vba_project(): signature file {} doesn't exist or can't be opened.", signature.string()));
     }
   }
 
-  vba_project_signature_ = signature;
+  vba_project_signature_ = signature.string();
 }
 
 void workbook_t::set_vba_name(std::string_view name)
