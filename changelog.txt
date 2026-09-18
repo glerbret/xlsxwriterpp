@@ -9,20 +9,9 @@
 
 ## 0.2.0
 
-- Improve build process and CI:
-  - Build with different options, including shared library.
-  - Add clang-tidy and Cppcheck checks.
-  - Treat warnings as errors.
-- Improve code quality and robustness:
-  - Fix clang-tidy and Cppcheck warnings.
-  - Name consistency.
-  - Use scope.
-  - Add const.
-- Simplify exception (no inheritance).
-- Use dedicated implementation of MD5 instead of OpenSSL.
-- Port datetime_t (lxw_datetime) from libxlsxwriter.
-- Report "image: fix issue with top-down DIB bmp".
-- Use `sheet_t` base class to `worksheet_t` and `chartsheet_t`.
+- Improve build process and CI.
+- Improve code quality and robustness.
+- Refactoring and API improvements.
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 
