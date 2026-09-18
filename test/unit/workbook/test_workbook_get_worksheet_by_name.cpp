@@ -8,6 +8,8 @@
 
 #include "xwpp/workbook.h"
 
+#include "xwpp/exception.h"
+
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(workbook)
@@ -15,17 +17,19 @@ BOOST_AUTO_TEST_SUITE(workbook)
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_default_name)
 {
   xwpp::workbook_t workbook;
-  const xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+  workbook.add_worksheet();
 
-  BOOST_CHECK_EQUAL(&worksheet, workbook.get_worksheet_by_name("Sheet1"));
+  BOOST_CHECK(workbook.is_worksheet_present("Sheet1"));
+  BOOST_CHECK_NO_THROW((void)workbook.get_worksheet_by_name("Sheet1"));
 }
 
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_provided_name)
 {
   xwpp::workbook_t workbook;
-  const xwpp::worksheet_t& worksheet = workbook.add_worksheet("FOO");
+  workbook.add_worksheet("FOO");
 
-  BOOST_CHECK_EQUAL(&worksheet, workbook.get_worksheet_by_name("FOO"));
+  BOOST_CHECK(workbook.is_worksheet_present("FOO"));
+  BOOST_CHECK_NO_THROW((void)workbook.get_worksheet_by_name("FOO"));
 }
 
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_different_name)
@@ -33,14 +37,16 @@ BOOST_AUTO_TEST_CASE(get_worksheet_by_name_different_name)
   xwpp::workbook_t workbook;
   workbook.add_worksheet();
 
-  BOOST_TEST(workbook.get_worksheet_by_name("FOO") == nullptr);
+  BOOST_CHECK(!workbook.is_worksheet_present("FOO"));
+  BOOST_CHECK_THROW((void)workbook.get_worksheet_by_name("FOO"), xwpp::xwpp_exception_t);
 }
 
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_no_sheetname)
 {
   const xwpp::workbook_t workbook;
 
-  BOOST_TEST(workbook.get_worksheet_by_name("FOO") == nullptr);
+  BOOST_CHECK(!workbook.is_worksheet_present("FOO"));
+  BOOST_CHECK_THROW((void)workbook.get_worksheet_by_name("FOO"), xwpp::xwpp_exception_t);
 }
 
 BOOST_AUTO_TEST_CASE(get_worksheet_by_name_no_name)
@@ -48,7 +54,8 @@ BOOST_AUTO_TEST_CASE(get_worksheet_by_name_no_name)
   xwpp::workbook_t workbook;
   workbook.add_worksheet();
 
-  BOOST_TEST(workbook.get_worksheet_by_name("") == nullptr);
+  BOOST_CHECK(!workbook.is_worksheet_present(""));
+  BOOST_CHECK_THROW((void)workbook.get_worksheet_by_name(""), xwpp::xwpp_exception_t);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

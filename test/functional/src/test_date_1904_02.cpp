@@ -8,10 +8,7 @@
 
 int main()
 {
-  xwpp::workbook_t workbook;
-  // TODO Currently use_1904_epoch must be called before creating worksheet.
-  // Must be provides as workbook option on creation or push to worksheet on file encoding
-  workbook.use_1904_epoch();
+  xwpp::workbook_t workbook(true);
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   xwpp::format_t* format = workbook.add_format();

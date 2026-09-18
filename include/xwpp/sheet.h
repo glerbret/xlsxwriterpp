@@ -395,7 +395,6 @@ struct sheet_init_data_t
   std::string name_;
   std::string quoted_name_;
   format_t* default_url_format_{nullptr};
-  uint16_t max_url_length_{2079};
   bool use_1904_epoch_{false};
 };
 
