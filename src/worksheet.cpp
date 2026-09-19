@@ -1483,6 +1483,25 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, const std:
   set_column(first_col, last_col, DEF_COL_WIDTH, nullptr, options);
 }
 
+void worksheet_t::set_column(std::string_view cols_range, double width, const format_t* format,
+                             const std::optional<row_col_options_t>& options)
+{
+  const auto[first_col, last_col] = xwpp::cols_from_name(cols_range);
+  set_column(first_col, last_col, width, format, options);
+}
+
+void worksheet_t::set_column(std::string_view cols_range, const format_t* format)
+{
+  const auto[first_col, last_col] = xwpp::cols_from_name(cols_range);
+  set_column(first_col, last_col, format);
+}
+
+void worksheet_t::set_column(std::string_view cols_range, const std::optional<row_col_options_t>& options)
+{
+  const auto[first_col, last_col] = xwpp::cols_from_name(cols_range);
+  set_column(first_col, last_col, options);
+}
+
 void worksheet_t::set_row(row_num_t row_num, double height, const format_t* format,
                           const std::optional<row_col_options_t>& user_options)
 {
@@ -1544,6 +1563,13 @@ void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uin
   const double width = pixels_to_width(pixels);
 
   set_column(first_col, last_col, width, format, options);
+}
+
+void worksheet_t::set_column_pixels(std::string_view cols_range, uint32_t pixels, const format_t* format,
+                                    const std::optional<row_col_options_t>& options)
+{
+  const auto[first_col, last_col] = xwpp::cols_from_name(cols_range);
+  set_column_pixels(first_col, last_col, pixels, format, options);
 }
 
 void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format,

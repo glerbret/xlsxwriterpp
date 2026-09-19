@@ -12,8 +12,8 @@ int main()
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
 
-  worksheet1.set_column(COLS("B:J"), 10.288);
-  worksheet2.set_column(COLS("C:L"), 10.288);
+  worksheet1.set_column("B:J", 10.288);
+  worksheet2.set_column("C:L", 10.288);
 
   // Add the tables in reverse worksheet order to test_table02.c
   worksheet2.add_table(RANGE("I4:L11"));

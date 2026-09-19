@@ -17,7 +17,7 @@ int main()
   const xwpp::row_col_options_t options1{.hidden_ = false, .level_ = 2, .collapsed_ = false};
   const xwpp::row_col_options_t options2{.hidden_ = false, .level_ = 1, .collapsed_ = false};
 
-  worksheet.set_column(COLS("A:A"), 20);
+  worksheet.set_column("A:A", 20);
 
   worksheet.set_row(1, options1);
   worksheet.set_row(2, options1);

@@ -13,7 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("B:F"), 10.288);
+  worksheet.set_column("B:F", 10.288);
 
   worksheet.write(CELL("A1"), "Column1");
   worksheet.write(CELL("F1"), "Total");

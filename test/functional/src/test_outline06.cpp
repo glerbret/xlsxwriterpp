@@ -19,7 +19,7 @@ int main()
 
   worksheet.outline_settings(false, false, false, true);
 
-  worksheet.set_column(COLS("A:A"), 20);
+  worksheet.set_column("A:A", 20);
 
   worksheet.set_row(1, options1);
   worksheet.set_row(2, options1);

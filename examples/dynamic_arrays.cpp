@@ -90,8 +90,8 @@ int main()
     worksheet.write(CELL("I1"), "Units", header2);
 
     write_worksheet_data(worksheet, header1);
-    worksheet.set_column_pixels(COLS("E:E"), 20);
-    worksheet.set_column_pixels(COLS("J:J"), 20);
+    worksheet.set_column_pixels("E:E", 20);
+    worksheet.set_column_pixels("J:J", 20);
   }
 
   // Example of using the UNIQUE() function.
@@ -108,8 +108,8 @@ int main()
     worksheet.write(CELL("H1"), "Sales Rep", header2);
 
     write_worksheet_data(worksheet, header1);
-    worksheet.set_column_pixels(COLS("E:E"), 20);
-    worksheet.set_column_pixels(COLS("G:G"), 20);
+    worksheet.set_column_pixels("E:E", 20);
+    worksheet.set_column_pixels("G:G", 20);
   }
 
   // Example of using the SORT() function.
@@ -127,8 +127,8 @@ int main()
     worksheet.write(CELL("I1"), "Units", header2);
 
     write_worksheet_data(worksheet, header1);
-    worksheet.set_column_pixels(COLS("E:E"), 20);
-    worksheet.set_column_pixels(COLS("G:G"), 20);
+    worksheet.set_column_pixels("E:E", 20);
+    worksheet.set_column_pixels("G:G", 20);
   }
 
   // Example of using the SORTBY() function.
@@ -162,7 +162,7 @@ int main()
     worksheet.write(CELL("D1"), "Name", header2);
     worksheet.write(CELL("E1"), "Age", header2);
 
-    worksheet.set_column_pixels(COLS("C:C"), 20);
+    worksheet.set_column_pixels("C:C", 20);
   }
 
   // Example of using the XLOOKUP() function.
@@ -205,8 +205,8 @@ int main()
 
     worksheet.write(CELL("E1"), "Brazil", header2);
 
-    worksheet.set_column_pixels(COLS("A:A"), 100);
-    worksheet.set_column_pixels(COLS("D:D"), 20);
+    worksheet.set_column_pixels("A:A", 100);
+    worksheet.set_column_pixels("D:D", 20);
   }
 
   // Example of using the XMATCH() function.
@@ -228,7 +228,7 @@ int main()
     worksheet.write(CELL("D1"), "Position", header2);
     worksheet.write(CELL("C2"), "Grape");
 
-    worksheet.set_column_pixels(COLS("B:B"), 20);
+    worksheet.set_column_pixels("B:B", 20);
   }
 
   // Example of using the RANDARRAY() function.
@@ -260,9 +260,9 @@ int main()
     worksheet.write(CELL("J1"), "Spill", header2);
 
     write_worksheet_data(worksheet, header1);
-    worksheet.set_column_pixels(COLS("E:E"), 20);
-    worksheet.set_column_pixels(COLS("G:G"), 20);
-    worksheet.set_column_pixels(COLS("I:I"), 20);
+    worksheet.set_column_pixels("E:E", 20);
+    worksheet.set_column_pixels("G:G", 20);
+    worksheet.set_column_pixels("I:I", 20);
   }
 
   // Example of using dynamic ranges with older Excel functions.

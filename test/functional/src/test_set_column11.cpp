@@ -43,7 +43,7 @@ int main()
   worksheet.write(CELL("B1"), "Bar", italic);
 
   worksheet.set_row(12, options);
-  worksheet.set_column(COLS("F:F"), options);
+  worksheet.set_column("F:F", options);
 
   chart.add_series("", "=Sheet1!$A$2:$A$6");
   chart.add_series("", "=Sheet1!$B$2:$B$6");

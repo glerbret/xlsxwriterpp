@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("C:H"), 10.288);
+  worksheet.set_column("C:H", 10.288);
 
   worksheet.add_table(RANGE("C3:F13"));
   worksheet.add_table(RANGE("F15:H20"));

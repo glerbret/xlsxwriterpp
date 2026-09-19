@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("B:B"), 5);
+  worksheet.set_column("B:B", 5);
 
   worksheet.insert_image(CELL("E9"), "images/red.png");
 

@@ -17,6 +17,7 @@
 
 #include <string>
 #include <string_view>
+#include <tuple>
 
 /// @cond
 namespace xwpp
@@ -45,26 +46,6 @@ namespace xwpp
  */
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define CELL(cell) xwpp::name_to_row(cell), xwpp::name_to_col(cell)
-
-/**
- * @brief Convert an Excel `A:B` column range into a `(col1, col2)` pair.
- *
- * Convert an Excel `A:B` column range into a `(col1, col2)` pair.
- *
- * This is a little syntactic shortcut to help with worksheet layout:
- *
- * @code
- *  worksheet.set_column(COLS("B:D"), 20);
- *
- *  // Same as:
- *  worksheet_set_column(1, 3, 20);
- * @endcode
- *
- * @todo Replace by a constexpr function or overload of function using `%col_num`
- * and `%row_num`.
- */
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define COLS(cols) xwpp::name_to_col(cols), xwpp::name_to_col_2(cols)
 
 /**
  * @brief Convert an Excel `A1:B2` range into a `(first_row, first_col,
@@ -119,6 +100,7 @@ namespace xwpp
 [[nodiscard]] uint32_t name_to_row_2(std::string_view row_str);
 [[nodiscard]] uint16_t name_to_col(std::string_view col_str);
 [[nodiscard]] uint16_t name_to_col_2(std::string_view col_str);
+[[nodiscard]] std::tuple<col_num_t, col_num_t> cols_from_name(std::string_view name);
 
 [[nodiscard]] std::string dup_formula(std::string_view formula);
 

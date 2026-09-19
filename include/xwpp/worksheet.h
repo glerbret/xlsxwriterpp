@@ -2121,18 +2121,6 @@ public:
    *  worksheet.set_column(1, 1, 30);
    * @endcode
    *
-   * It is also possible, and generally clearer, to specify a column range using
-   * the form of `COLS()` macro:
-   *
-   * @code
-   *  worksheet.set_column(4, 4, 20);
-   *  worksheet.set_column(5, 8, 30);
-   *
-   *  // Same as the examples above but clearer.
-   *  worksheet.set_column(COLS("E:E"), 20);
-   *  worksheet.set_column(COLS("F:H"), 30);
-   * @endcode
-   *
    * The `%width` parameter sets the column width in the same units used by Excel
    * which is: the number of characters in the default font. The default width
    * is 8.43 in the default font of `Calibri 11`. The actual relationship between
@@ -2163,7 +2151,7 @@ public:
    *
    * @code
    *  // Column 1 has format1.
-   *  worksheet.set_column(COLS("A:A"), format1);
+   *  worksheet.set_column("A:A", format1);
    *
    *  // Cell A1 in column 1 defaults to format1.
    *  worksheet.write(0, 0, "Hello");
@@ -2179,7 +2167,7 @@ public:
    *  worksheet.set_row(0, 15, format1);
    *
    *  // Col 1 has format2.
-   *  worksheet.set_column(COLS("A:A"), format2);
+   *  worksheet.set_column(0, 0, format2);
    *
    *  // Cell A1 defaults to format1, the row format.
    *  worksheet.write(0, 0, "Hello");
@@ -2201,7 +2189,7 @@ public:
    * @code
    *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
    *
-   *  worksheet.set_column(COLS("D:E"), options);
+   *  worksheet.set_column(3, 4, options);
    * @endcode
    *
    * @image html hide_row_col3.png
@@ -2212,12 +2200,10 @@ public:
    * @code
    *  xwpp::row_col_options_t options{.hidden_ = false, .level = 1, .collapsed = false};
    *
-   *  worksheet.set_column(COLS("B:G"), 5, &options1);
+   *  worksheet.set_column(1, 6, 5, &options1);
    * @endcode
    *
    * @image html outline8.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format = nullptr,
                   const std::optional<row_col_options_t>& options = std::nullopt);
@@ -2225,6 +2211,39 @@ public:
   void set_column(col_num_t first_col, col_num_t last_col, const format_t* format);
   /// @brief Overload that only set column parameters.
   void set_column(col_num_t first_col, col_num_t last_col, const std::optional<row_col_options_t>& options);
+
+  /**
+   * @brief Set the properties for one or more columns of cells with options.
+   *
+   * @param cols_range Columns range in Excel notation ("A:E") or single column name ("A").
+   * @param width      The optional width of the column(s).
+   * @param format     An optional format.
+   * @param options    Optional column parameters: hidden, level, collapsed.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * Overload of `%set_column()` that used column name instead of index:
+   *
+   * @code
+   *  // Width of columns B:D set to 30.
+   *  worksheet.set_column("B:D", 30);
+   * @endcode
+   *
+   * @code
+   *  // Width of column B set to 30.
+   *  worksheet.set_column("B", 30);
+   * @endcode
+   *
+   * @pre `%cols_range` is a valid columns ranges ("A:B") or a valid column name ("A").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void set_column(std::string_view cols_range, double width, const format_t* format = nullptr,
+                  const std::optional<row_col_options_t>& options = std::nullopt);
+  /// @brief Overload that only set format.
+  void set_column(std::string_view cols_range, const format_t* format);
+  /// @brief Overload that only set column parameters.
+  void set_column(std::string_view cols_range, const std::optional<row_col_options_t>& options);
 
   /**
    * @brief Set the properties for a row of cells.
@@ -2352,10 +2371,37 @@ public:
    * @endcode
    *
    * @image html set_column_pixels.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format = nullptr,
+                         const std::optional<row_col_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Set the properties for one or more columns of cells, with the width
+   *        in pixels.
+   *
+   * @param cols_range Columns range in Excel notation ("A:E") or single column name ("A").
+   * @param pixels     The optional width of the column(s) in pixels.
+   * @param format     An optional format.
+   * @param options    Optional row parameters: hidden, level, collapsed.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * The `%set_column_pixels()` function is similar to
+   * `set_column()` function except that the width can be set in
+   * pixels:
+   *
+   * @code
+   *  // Column width set to 75 pixels, the same as 10 character units.
+   *  worksheet.set_column_pixels("F:F", 75);
+   * @endcode
+   *
+   * @image html set_column_pixels.png
+   *
+   * @pre `%cols_range` is a valid columns ranges ("A:B") or a valid column name ("A").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void set_column_pixels(std::string_view cols_range, uint32_t pixels, const format_t* format = nullptr,
                          const std::optional<row_col_options_t>& options = std::nullopt);
 
   /**

@@ -16,7 +16,7 @@ int main()
   xwpp::format_t* format = workbook.add_format();
   format->set_num_format_index(2);
 
-  worksheet.set_column(COLS("B:K"), 10.288);
+  worksheet.set_column("B:K", 10.288);
 
   worksheet.write(CELL("A1"), "Column1");
   worksheet.write(CELL("B1"), "Column2");

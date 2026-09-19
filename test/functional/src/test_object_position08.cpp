@@ -44,7 +44,7 @@ int main()
   worksheet.set_row(12, row_hidden);
 
   const xwpp::row_col_options_t col_hidden{.hidden_ = true};
-  worksheet.set_column(COLS("F:F"), col_hidden);
+  worksheet.set_column("F:F", col_hidden);
 
   chart.add_series("", "=Sheet1!$A$2:$A$6");
   chart.add_series("", "=Sheet1!$B$2:$B$6");

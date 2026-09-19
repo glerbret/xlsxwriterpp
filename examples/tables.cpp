@@ -58,7 +58,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Default table with no data.");
@@ -72,7 +72,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Default table with data.");
@@ -89,7 +89,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table without default autofilter.");
@@ -109,7 +109,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table without default header row.");
@@ -129,7 +129,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), R"(Default table with "First Column" and "Last Column" options.)");
@@ -152,7 +152,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with banded columns but without default banded rows.");
@@ -172,7 +172,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with user defined column headers.");
@@ -196,7 +196,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with user defined column headers.");
@@ -224,7 +224,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with totals row (but no caption or totals).");
@@ -252,7 +252,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with totals row with user captions and functions.");
@@ -282,7 +282,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with alternative Excel style.");
@@ -317,7 +317,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with Excel style removed.");
@@ -352,7 +352,7 @@ int main()
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    worksheet.set_column(COLS("B:G"), 12);
+    worksheet.set_column("B:G", 12);
 
     // Write the worksheet caption to explain the example.
     worksheet.write(CELL("B1"), "Table with column formats.");

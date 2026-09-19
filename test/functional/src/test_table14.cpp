@@ -26,7 +26,7 @@ int main()
   format2->get_dxf_index_(format2);
   format1->get_dxf_index_(format1);
 
-  worksheet.set_column(COLS("C:F"), 10.288);
+  worksheet.set_column("C:F", 10.288);
 
   const std::vector<xwpp::table_column_t> columns{{}, {.format_ = format1}, {.format_ = format2}, {.format_ = format3}};
   const xwpp::table_options_t options{.columns_ = columns};

@@ -12,6 +12,7 @@
 #include "xwpp/exception.h"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <format>
 #include <ranges>
@@ -269,6 +270,56 @@ uint16_t name_to_col_2(std::string_view col_str)
     return 0;
   }
 }
+
+std::tuple<col_num_t, col_num_t> cols_from_name(std::string_view name)
+{
+  col_num_t first_col{0};
+  col_num_t last_col{0};
+  bool is_last_col{false};
+
+  for(const auto c : name)
+  {
+    assert(c == '$' || (!is_last_col && c == ':') || isupper(c) != 0);
+
+    if(c == ':')
+    {
+      if(!is_last_col)
+      {
+        is_last_col = true;
+      }
+    }
+    else if(isupper(c) != 0)
+    {
+      if(!is_last_col)
+      {
+        first_col = static_cast<col_num_t>((first_col * 26) + (c - 'A' + 1));
+      }
+      else
+      {
+        last_col = static_cast<col_num_t>((last_col * 26) + (c - 'A' + 1));
+      }
+    }
+  }
+
+  // Last col not present, it's a single col range
+  if(!is_last_col)
+  {
+    last_col = first_col;
+  }
+
+  if(first_col != 0)
+  {
+    first_col--;
+  }
+
+  if(last_col != 0)
+  {
+    last_col--;
+  }
+
+  return {first_col, last_col};
+}
+
 
 std::string dup_formula(std::string_view formula)
 {

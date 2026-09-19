@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::row_col_options_t col_options{.hidden_ = true};
-  worksheet.set_column(COLS("B:B"), col_options);
+  worksheet.set_column("B:B", col_options);
 
   worksheet.insert_image(CELL("E9"), "images/red.png");
 

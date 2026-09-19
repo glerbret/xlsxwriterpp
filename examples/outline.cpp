@@ -45,7 +45,7 @@ int main()
     };
 
     // Set the column width for clarity.
-    worksheet.set_column(COLS("A:A"), 20);
+    worksheet.set_column("A:A", 20);
 
     // Set the row options with the outline level.
     worksheet.set_row(1, options1);
@@ -116,7 +116,7 @@ int main()
     };
 
     // Set the column width for clarity.
-    worksheet.set_column(COLS("A:A"), 20);
+    worksheet.set_column("A:A", 20);
 
     // Set the row options with the outline level.
     worksheet.set_row(1, options1);
@@ -225,9 +225,9 @@ int main()
     worksheet.set_row(0, bold);
 
     // Set column formatting and the outline level.
-    worksheet.set_column(COLS("A:A"), 10, bold);
-    worksheet.set_column(COLS("B:G"), 5, nullptr, options);
-    worksheet.set_column(COLS("H:H"), 10);
+    worksheet.set_column("A:A", 10, bold);
+    worksheet.set_column("B:G", 5, nullptr, options);
+    worksheet.set_column("H:H", 10);
   }
 
   // Example 4: Show all possible outline levels.

@@ -65,9 +65,9 @@ int main()
 
   worksheet.set_row(0, bold);
 
-  worksheet.set_column(COLS("A:A"), 10, bold);
-  worksheet.set_column(COLS("H:H"), 10);
-  worksheet.set_column(COLS("B:G"), 6, nullptr, options6);
+  worksheet.set_column("A:A", 10, bold);
+  worksheet.set_column("H:H", 10);
+  worksheet.set_column("B:G", 6, nullptr, options6);
 
   workbook.save("test_outline03.xlsx");
 }

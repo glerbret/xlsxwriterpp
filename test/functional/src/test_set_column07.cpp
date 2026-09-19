@@ -41,7 +41,7 @@ int main()
   worksheet.write(CELL("B1"), "Bar", bold);
 
   worksheet.set_row(12, italic);
-  worksheet.set_column(COLS("F:F"), bold);
+  worksheet.set_column("F:F", bold);
 
   worksheet.write_blank(CELL("F13"), bold_italic);
 

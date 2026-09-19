@@ -39,7 +39,7 @@ int main()
   worksheet.write(CELL("B1"), "Bar", italic);
 
   worksheet.set_row(12, options);
-  worksheet.set_column(COLS("F:F"), options);
+  worksheet.set_column("F:F", options);
 
   worksheet.insert_image(CELL("E12"), "images/logo.png");
 

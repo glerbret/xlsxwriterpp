@@ -16,7 +16,7 @@ int main()
 
   wrap->set_text_wrap();
 
-  worksheet.set_column(COLS("C:F"), 10.288);
+  worksheet.set_column("C:F", 10.288);
   worksheet.set_row(2, 39);
 
   const std::vector<xwpp::table_column_t> columns{

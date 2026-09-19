@@ -19,7 +19,7 @@ namespace
 void create_row_example_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
   // Set the column width for clarity.
-  worksheet.set_column(COLS("A:A"), 20);
+  worksheet.set_column("A", 20);
 
   // Add data and formulas to the worksheet.
   worksheet.write(CELL("A1"), "Region", bold);
@@ -283,9 +283,9 @@ int main()
     worksheet.set_row(0, bold);
 
     // Set column formatting and the outline level.
-    worksheet.set_column(COLS("A:A"), 10, bold);
-    worksheet.set_column(COLS("B:G"), 5, nullptr, options);
-    worksheet.set_column(COLS("H:H"), 10);
+    worksheet.set_column("A:A", 10, bold);
+    worksheet.set_column("B:G", 5, nullptr, options);
+    worksheet.set_column("H:H", 10);
   }
 
   // Example 6: Create a worksheet with outlined columns.
@@ -310,9 +310,9 @@ int main()
     worksheet.set_row(0, bold);
 
     // Set column formatting and the outline level.
-    worksheet.set_column(COLS("A:A"), 10, bold);
-    worksheet.set_column(COLS("B:G"), 5, nullptr, options1);
-    worksheet.set_column(COLS("H:H"), 10, nullptr, options2);
+    worksheet.set_column("A:A", 10, bold);
+    worksheet.set_column("B:G", 5, nullptr, options1);
+    worksheet.set_column("H:H", 10, nullptr, options2);
   }
 
   workbook.save("outline_collapsed.xlsx");

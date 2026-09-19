@@ -16,7 +16,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Change some of the column widths for clarity.
-  worksheet.set_column(COLS("A:B"), 30);
+  worksheet.set_column("A:B", 30);
 
   // Embed an image.
   worksheet.write(CELL("A2"), "Embed an image in a cell:");
