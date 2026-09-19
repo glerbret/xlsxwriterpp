@@ -43,7 +43,7 @@ int main()
   chart.series_set_marker_type(series1, xwpp::chart_marker_type_t::AUTOMATIC);
   chart.series_set_marker_type(series2, xwpp::chart_marker_type_t::AUTOMATIC);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_points06.xlsx");
 }

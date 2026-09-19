@@ -16,7 +16,7 @@ int main()
   worksheet.set_column(2, 4, 3.29);
   worksheet.set_column(5, 5, 10.71);
 
-  worksheet.insert_image(CELL("C2"), "images/logo.png");
+  worksheet.insert_image("C2", "images/logo.png");
 
   workbook.save("test_image14.xlsx");
 }

@@ -16,7 +16,7 @@ int main()
 
   worksheet.set_v_pagebreaks({1});
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_page_breaks04.xlsx");
 }

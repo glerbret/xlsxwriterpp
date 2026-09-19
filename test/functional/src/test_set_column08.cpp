@@ -35,13 +35,13 @@ int main()
     row_num++;
   }
 
-  worksheet.write(CELL("A1"), "Foo", bold);
-  worksheet.write(CELL("B1"), "Bar", italic);
+  worksheet.write("A1", "Foo", bold);
+  worksheet.write("B1", "Bar", italic);
 
   worksheet.set_row(12, options);
-  worksheet.set_column(COLS("F:F"), options);
+  worksheet.set_column("F:F", options);
 
-  worksheet.insert_image(CELL("E12"), "images/logo.png");
+  worksheet.insert_image("E12", "images/logo.png");
 
   workbook.save("test_set_column08.xlsx");
 }

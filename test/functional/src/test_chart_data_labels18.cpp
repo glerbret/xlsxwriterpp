@@ -46,7 +46,7 @@ int main()
   xwpp::chart_series_set_labels_separator(series2, xwpp::chart_label_separator_t::SEMICOLON);
   xwpp::chart_series_set_labels_separator(series3, xwpp::chart_label_separator_t::PERIOD);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_data_labels18.xlsx");
 }

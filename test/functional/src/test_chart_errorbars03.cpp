@@ -41,7 +41,7 @@ int main()
 
   chart_series_set_error_bars_line(series1.y_error_bars_, line);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_errorbars03.xlsx");
 }

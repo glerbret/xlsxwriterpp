@@ -21,7 +21,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("A:A"), 30);
+  worksheet.set_column("A:A", 30);
 
   // Add a macro file extracted from an Excel workbook.
   workbook.add_vba_project("vbaProject.bin");

@@ -14,7 +14,7 @@ int main()
   workbook.unset_default_url_format();
 
   // URL with whitespace.
-  worksheet.write_url(CELL("A1"), "http://google.com/some link");
+  worksheet.write_url("A1", "http://google.com/some link");
 
   workbook.save("test_hyperlink17.xlsx");
 }

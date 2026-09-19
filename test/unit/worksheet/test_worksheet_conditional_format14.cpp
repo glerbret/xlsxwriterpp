@@ -106,23 +106,23 @@ BOOST_AUTO_TEST_CASE(condtional_format14)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write(CELL("A1"), 1);
-  worksheet.write(CELL("A2"), 2);
-  worksheet.write(CELL("A3"), 3);
-  worksheet.write(CELL("A4"), 4);
-  worksheet.write(CELL("A5"), 5);
-  worksheet.write(CELL("A6"), 6);
-  worksheet.write(CELL("A7"), 7);
-  worksheet.write(CELL("A8"), 8);
-  worksheet.write(CELL("A9"), 9);
-  worksheet.write(CELL("A10"), 10);
-  worksheet.write(CELL("A11"), 11);
-  worksheet.write(CELL("A12"), 12);
+  worksheet.write("A1", 1);
+  worksheet.write("A2", 2);
+  worksheet.write("A3", 3);
+  worksheet.write("A4", 4);
+  worksheet.write("A5", 5);
+  worksheet.write("A6", 6);
+  worksheet.write("A7", 7);
+  worksheet.write("A8", 8);
+  worksheet.write("A9", 9);
+  worksheet.write("A10", 10);
+  worksheet.write("A11", 11);
+  worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
     .type_ = xwpp::conditional_format_types_t::DATA_BAR,
   };
-  worksheet.conditional_format_range(RANGE("A1:A12"), conditional_format);
+  worksheet.conditional_format_range("A1:A12", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

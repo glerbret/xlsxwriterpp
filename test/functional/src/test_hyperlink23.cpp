@@ -13,7 +13,7 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "https://en.wikipedia.org/wiki/Microsoft_Excel#Data_storage_and_communication",
+  worksheet.write_url("A1", "https://en.wikipedia.org/wiki/Microsoft_Excel#Data_storage_and_communication",
                       "Display text");
 
   workbook.save("test_hyperlink23.xlsx");

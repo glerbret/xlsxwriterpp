@@ -36,7 +36,7 @@ int main()
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
   chart.series_set_marker_type(series, xwpp::chart_marker_type_t::AUTOMATIC);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format05.xlsx");
 }

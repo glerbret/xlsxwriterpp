@@ -13,7 +13,7 @@ int main()
 
   const xwpp::format_t* default_url_format = workbook.get_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "http://www.perl.org/", default_url_format);
+  worksheet.write_url("A1", "http://www.perl.org/", default_url_format);
 
   workbook.save("test_hyperlink78.xlsx");
 }

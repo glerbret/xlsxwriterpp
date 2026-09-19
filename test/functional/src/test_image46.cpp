@@ -13,7 +13,7 @@ int main()
 
   const xwpp::image_options_t image_options{.y_offset_        = 4,
                                             .object_position_ = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
-  worksheet.insert_image(CELL("E9"), "images/red.png", image_options);
+  worksheet.insert_image("E9", "images/red.png", image_options);
 
   const xwpp::row_col_options_t row_options{.hidden_ = true};
   worksheet.set_row(8, 30, nullptr, row_options);

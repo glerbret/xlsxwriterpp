@@ -19,9 +19,9 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
     {{2, 30, 25}, {3, 60, 40}, {4, 70, 50}, {5, 50, 30}, {6, 40, 50}, {7, 30, 40}}
   };
 
-  worksheet.write(CELL("A1"), "Number", bold);
-  worksheet.write(CELL("B1"), "Batch 1", bold);
-  worksheet.write(CELL("C1"), "Batch 2", bold);
+  worksheet.write("A1", "Number", bold);
+  worksheet.write("B1", "Batch 1", bold);
+  worksheet.write("C1", "Batch 2", bold);
 
   for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
@@ -75,7 +75,7 @@ int main()
     chart.set_style(11);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E2"), &chart);
+    worksheet.insert_chart("E2", &chart);
   }
 
   // Chart 2. Create a radar chart with markers.
@@ -101,7 +101,7 @@ int main()
     chart.set_style(12);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E18"), &chart);
+    worksheet.insert_chart("E18", &chart);
   }
 
   // Chart 3. Create a filled radar chart.
@@ -127,7 +127,7 @@ int main()
     chart.set_style(13);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E34"), &chart);
+    worksheet.insert_chart("E34", &chart);
   }
 
   workbook.save("chart_radar.xlsx");

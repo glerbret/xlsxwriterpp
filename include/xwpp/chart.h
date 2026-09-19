@@ -45,7 +45,7 @@
  *    chart.add_series("", "=Sheet1!$C$1:$C$5");
  *
  *    // Insert the chart into the worksheet
- *    worksheet.insert_chart(CELL("B7"), &chart);
+ *    worksheet.insert_chart("B7", &chart);
  *
  *    return workbook.save("chart.xlsx");
  *  }
@@ -2241,7 +2241,7 @@ private:
   [[nodiscard]] static std::string write_axis_id(uint32_t axis_id);
   [[nodiscard]] static std::string write_axis_ids(chart_t& chart);
   [[nodiscard]] static std::string write_ser(chart_t& chart, chart_series_t& series);
-  [[nodiscard]] static std::string write_idx(uint16_t index);
+  [[nodiscard]] static std::string write(uint16_t index);
   [[nodiscard]] static std::string write_order(uint16_t index);
   [[nodiscard]] static std::string write_series_name(const chart_series_t& series);
   [[nodiscard]] static std::string write_tx_value(const std::string& name);

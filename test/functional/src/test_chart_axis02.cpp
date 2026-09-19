@@ -38,7 +38,7 @@ int main()
   xwpp::chart_axis_set_name(chart.x_axis_, "XXX");
   xwpp::chart_axis_set_name(chart.y_axis_, "YYY");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis02.xlsx");
 }

@@ -13,20 +13,20 @@ int main()
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
 
-  worksheet1.insert_image(CELL("A1"), "images/blue.png");
-  worksheet1.insert_image(CELL("B3"), "images/red.jpg");
-  worksheet1.insert_image(CELL("D5"), "images/yellow.jpg");
-  worksheet1.insert_image(CELL("F9"), "images/grey.png");
+  worksheet1.insert_image("A1", "images/blue.png");
+  worksheet1.insert_image("B3", "images/red.jpg");
+  worksheet1.insert_image("D5", "images/yellow.jpg");
+  worksheet1.insert_image("F9", "images/grey.png");
 
-  worksheet2.insert_image(CELL("A1"), "images/blue.png");
-  worksheet2.insert_image(CELL("B3"), "images/red.jpg");
-  worksheet2.insert_image(CELL("D5"), "images/yellow.jpg");
-  worksheet2.insert_image(CELL("F9"), "images/grey.png");
+  worksheet2.insert_image("A1", "images/blue.png");
+  worksheet2.insert_image("B3", "images/red.jpg");
+  worksheet2.insert_image("D5", "images/yellow.jpg");
+  worksheet2.insert_image("F9", "images/grey.png");
 
-  worksheet3.insert_image(CELL("A1"), "images/blue.png");
-  worksheet3.insert_image(CELL("B3"), "images/red.jpg");
-  worksheet3.insert_image(CELL("D5"), "images/yellow.jpg");
-  worksheet3.insert_image(CELL("F9"), "images/grey.png");
+  worksheet3.insert_image("A1", "images/blue.png");
+  worksheet3.insert_image("B3", "images/red.jpg");
+  worksheet3.insert_image("D5", "images/yellow.jpg");
+  worksheet3.insert_image("F9", "images/grey.png");
 
   workbook.save("test_image49.xlsx");
 }

@@ -14,7 +14,7 @@ int main()
   workbook.unset_default_url_format();
 
   // Test an already escaped string.
-  worksheet.write_url(CELL("A1"), "http://example.com/%5b0%5d", "http://example.com/[0]");
+  worksheet.write_url("A1", "http://example.com/%5b0%5d", "http://example.com/[0]");
 
   workbook.save("test_escapes08.xlsx");
 }

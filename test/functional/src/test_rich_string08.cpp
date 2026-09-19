@@ -22,15 +22,15 @@ int main()
   xwpp::format_t* centered = workbook.add_format();
   centered->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
 
-  worksheet.write(CELL("A1"), "Foo", bold);
-  worksheet.write(CELL("A2"), "Bar", italic);
+  worksheet.write("A1", "Foo", bold);
+  worksheet.write("A2", "Bar", italic);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "ab"},
     {.format_ = bold, .str_ = "cd"},
     {.str_ = "efg"}
   };
-  worksheet.write_rich_string(CELL("A3"), rich_strings, centered);
+  worksheet.write_rich_string("A3", rich_strings, centered);
 
   workbook.save("test_rich_string08.xlsx");
 }

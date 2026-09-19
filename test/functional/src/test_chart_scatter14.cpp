@@ -40,7 +40,7 @@ int main()
   chart.series_set_marker_type(series2, xwpp::chart_marker_type_t::PLUS);
   chart_series_set_marker_size(series2, 5);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_scatter14.xlsx");
 }

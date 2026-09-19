@@ -37,7 +37,7 @@ int main()
 
   chart.set_style(48);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_column12.xlsx");
 }

@@ -38,7 +38,7 @@ int main()
   xwpp::chart_axis_set_min(chart.y_axis_, 0);
   xwpp::chart_axis_set_max(chart.y_axis_, 16);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis12.xlsx");
 }

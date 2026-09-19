@@ -63,30 +63,30 @@ BOOST_AUTO_TEST_CASE(condtional_format06a)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write(CELL("A1"), 10);
-  worksheet.write(CELL("A2"), 20);
-  worksheet.write(CELL("A3"), 30);
-  worksheet.write(CELL("A4"), 40);
+  worksheet.write("A1", 10);
+  worksheet.write("A2", 20);
+  worksheet.write("A3", 30);
+  worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
     .type_  = xwpp::conditional_format_types_t::TOP,
     .value_ = 15,
   };
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   conditional_format.type_  = xwpp::conditional_format_types_t::BOTTOM;
   conditional_format.value_ = 16;
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   conditional_format.type_     = xwpp::conditional_format_types_t::TOP;
   conditional_format.criteria_ = xwpp::conditional_criteria_t::TOP_OR_BOTTOM_PERCENT;
   conditional_format.value_    = 17;
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   conditional_format.type_     = xwpp::conditional_format_types_t::BOTTOM;
   conditional_format.criteria_ = xwpp::conditional_criteria_t::TOP_OR_BOTTOM_PERCENT;
   conditional_format.value_    = 18;
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
@@ -138,30 +138,30 @@ BOOST_AUTO_TEST_CASE(condtional_format06b)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write(CELL("A1"), 10);
-  worksheet.write(CELL("A2"), 20);
-  worksheet.write(CELL("A3"), 30);
-  worksheet.write(CELL("A4"), 40);
+  worksheet.write("A1", 10);
+  worksheet.write("A2", 20);
+  worksheet.write("A3", 30);
+  worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
     .type_  = xwpp::conditional_format_types_t::TOP,
     .value_ = 10.1,
   };
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   conditional_format.type_  = xwpp::conditional_format_types_t::BOTTOM;
   conditional_format.value_ = 10.2;
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   conditional_format.type_     = xwpp::conditional_format_types_t::TOP;
   conditional_format.criteria_ = xwpp::conditional_criteria_t::TOP_OR_BOTTOM_PERCENT;
   conditional_format.value_    = 10.3;
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   conditional_format.type_     = xwpp::conditional_format_types_t::BOTTOM;
   conditional_format.criteria_ = xwpp::conditional_criteria_t::TOP_OR_BOTTOM_PERCENT;
   conditional_format.value_    = 10.4;
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

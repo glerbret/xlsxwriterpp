@@ -17,15 +17,15 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write some sample data.
-  worksheet.write(CELL("B1"), 34);
-  worksheet.write(CELL("B2"), 32);
-  worksheet.write(CELL("B3"), 31);
-  worksheet.write(CELL("B4"), 35);
-  worksheet.write(CELL("B5"), 36);
-  worksheet.write(CELL("B6"), 30);
-  worksheet.write(CELL("B7"), 38);
-  worksheet.write(CELL("B8"), 38);
-  worksheet.write(CELL("B9"), 32);
+  worksheet.write("B1", 34);
+  worksheet.write("B2", 32);
+  worksheet.write("B3", 31);
+  worksheet.write("B4", 35);
+  worksheet.write("B5", 36);
+  worksheet.write("B6", 30);
+  worksheet.write("B7", 38);
+  worksheet.write("B8", 38);
+  worksheet.write("B9", 32);
 
   // Add a format with red text.
   xwpp::format_t* custom_format = workbook.add_format();
@@ -40,7 +40,7 @@ int main()
   };
 
   // Now apply the format to data range.
-  worksheet.conditional_format_range(RANGE("B1:B9"), conditional_format);
+  worksheet.conditional_format_range("B1:B9", conditional_format);
 
   workbook.save("conditional_format_simple.xlsx");
 }

@@ -32,7 +32,7 @@ int main()
     row_num++;
   }
 
-  worksheet1.write(CELL("A1"), "Foo");
+  worksheet1.write("A1", "Foo");
 
   xwpp::chart_series_t& series1 = chart.add_series("Sheet2!$A$1:$A$5", "Sheet2!$B$1:$B$5");
   xwpp::chart_series_t& series2 = chart.add_series("Sheet2!$A$1:$A$5", "Sheet2!$C$1:$C$5");
@@ -43,7 +43,7 @@ int main()
   xwpp::chart_add_data_cache(series1.values_, data[0].data(), 5, 3, 1);
   xwpp::chart_add_data_cache(series2.values_, data[0].data(), 5, 3, 2);
 
-  worksheet2.insert_chart(CELL("E9"), &chart);
+  worksheet2.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar52.xlsx");
 }

@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.insert_image(CELL("A1048573"), "images/red.png");
+  worksheet.insert_image("A1048573", "images/red.png");
 
   workbook.save("test_image58.xlsx");
 }

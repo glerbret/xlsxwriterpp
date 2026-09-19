@@ -37,7 +37,7 @@ int main()
 
   chart.series_set_marker_type(series2, xwpp::chart_marker_type_t::NONE);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_scatter13.xlsx");
 }

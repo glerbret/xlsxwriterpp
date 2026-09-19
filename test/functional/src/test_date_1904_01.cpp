@@ -23,12 +23,12 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  worksheet.write_datetime(CELL("A1"), datetime1, format);
-  worksheet.write_datetime(CELL("A2"), datetime2, format);
-  worksheet.write_datetime(CELL("A3"), datetime3, format);
-  worksheet.write_datetime(CELL("A4"), datetime4, format);
-  worksheet.write_datetime(CELL("A5"), datetime5, format);
-  worksheet.write_datetime(CELL("A6"), datetime6, format);
+  worksheet.write_datetime("A1", datetime1, format);
+  worksheet.write_datetime("A2", datetime2, format);
+  worksheet.write_datetime("A3", datetime3, format);
+  worksheet.write_datetime("A4", datetime4, format);
+  worksheet.write_datetime("A5", datetime5, format);
+  worksheet.write_datetime("A6", datetime6, format);
 
   workbook.save("test_date_1904_01.xlsx");
 }

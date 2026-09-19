@@ -26,9 +26,9 @@ int main()
 
   const xwpp::image_options_t options{.description_ = "red.png", .url_ = "https://github.com/jmcnamara"};
 
-  worksheet.write_url(CELL("A1"), "https://github.com/jmcnamara");
+  worksheet.write_url("A1", "https://github.com/jmcnamara");
 
-  worksheet.insert_image_buffer(CELL("E9"), image_buffer, options);
+  worksheet.insert_image_buffer("E9", image_buffer, options);
 
   workbook.save("test_hyperlink81.xlsx");
 }

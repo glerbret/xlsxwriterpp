@@ -35,7 +35,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
   chart.series_set_error_bars(series1.y_error_bars_, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_errorbars06.xlsx");
 }

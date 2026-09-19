@@ -38,7 +38,7 @@ int main()
   chart_axis_set_label_position(chart.x_axis_, xwpp::chart_axis_label_position_t::NEXT_TO);
   chart_axis_set_label_position(chart.y_axis_, xwpp::chart_axis_label_position_t::NONE);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis20.xlsx");
 }

@@ -21,15 +21,15 @@ namespace
 
 void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
 {
-  worksheet.write(CELL("A1"), "Category", bold);
-  worksheet.write(CELL("A2"), "Apple");
-  worksheet.write(CELL("A3"), "Cherry");
-  worksheet.write(CELL("A4"), "Pecan");
+  worksheet.write("A1", "Category", bold);
+  worksheet.write("A2", "Apple");
+  worksheet.write("A3", "Cherry");
+  worksheet.write("A4", "Pecan");
 
-  worksheet.write(CELL("B1"), "Values", bold);
-  worksheet.write(CELL("B2"), 60);
-  worksheet.write(CELL("B3"), 30);
-  worksheet.write(CELL("B4"), 10);
+  worksheet.write("B1", "Values", bold);
+  worksheet.write("B2", 60);
+  worksheet.write("B3", 30);
+  worksheet.write("B4", 10);
 }
 
 }
@@ -64,7 +64,7 @@ int main()
     chart.set_style(10);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D2"), &chart);
+    worksheet.insert_chart("D2", &chart);
   }
 
   // Chart 2: Create a pie chart with user defined segment colors.
@@ -96,7 +96,7 @@ int main()
     series_set_points(series, points);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D18"), &chart);
+    worksheet.insert_chart("D18", &chart);
   }
 
   // Chart 3: Create a pie chart with rotation of the segments.
@@ -116,7 +116,7 @@ int main()
     chart.set_rotation(90);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D34"), &chart);
+    worksheet.insert_chart("D34", &chart);
   }
 
   workbook.save("chart_pie.xlsx");

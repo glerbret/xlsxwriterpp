@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::button_options_t options{.caption_ = "Hello", .macro_ = "say_hello"};
-  worksheet.insert_button(CELL("C2"), options);
+  worksheet.insert_button("C2", options);
   workbook.add_vba_project("images/vbaProject02.bin");
 
   workbook.save("test_button07.xlsm");

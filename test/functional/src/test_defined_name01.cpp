@@ -16,10 +16,10 @@ int main()
   worksheet1.set_paper(9);
   worksheet1.set_dpi(0, 200);
 
-  worksheet1.print_area(RANGE("A1:E6"));
-  worksheet1.autofilter(RANGE("F1:G1"));
-  worksheet1.write(CELL("G1"), "Filter");
-  worksheet1.write(CELL("F1"), "Auto");
+  worksheet1.print_area("A1:E6");
+  worksheet1.autofilter("F1:G1");
+  worksheet1.write("G1", "Filter");
+  worksheet1.write("F1", "Auto");
   worksheet1.fit_to_pages(2, 2);
 
   workbook.define_name("'Sheet 3'!Bar", "='Sheet 3'!$A$1");

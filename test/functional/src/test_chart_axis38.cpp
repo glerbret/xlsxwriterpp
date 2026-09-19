@@ -41,7 +41,7 @@ int main()
   xwpp::chart_axis_set_line(chart.y_axis_, line);
   xwpp::chart_axis_set_fill(chart.y_axis_, fill);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis38.xlsx");
 }

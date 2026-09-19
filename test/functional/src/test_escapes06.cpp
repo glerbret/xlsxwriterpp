@@ -16,7 +16,7 @@ int main()
 
   worksheet.set_column(0, 0, 14);
 
-  worksheet.write(CELL("A1"), 123, num_format);
+  worksheet.write("A1", 123, num_format);
 
   workbook.save("test_escapes06.xlsx");
 }

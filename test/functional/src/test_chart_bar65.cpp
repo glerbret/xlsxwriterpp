@@ -39,7 +39,7 @@ int main()
   xwpp::chart_series_set_values(series2, "Sheet1", 0, 1, 4, 1);
   xwpp::chart_series_set_values(series3, "Sheet1", 0, 2, 4, 2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar65.xlsx");
 }

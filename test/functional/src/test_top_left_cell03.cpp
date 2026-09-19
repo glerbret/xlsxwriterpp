@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_top_left_cell(CELL("AA32"));
+  worksheet.set_top_left_cell("AA32");
 
   workbook.save("test_top_left_cell03.xlsx");
 }

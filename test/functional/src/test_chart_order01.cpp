@@ -46,10 +46,10 @@ int main()
   chart3.add_series("", "=Sheet3!$A$1:$A$5");
   chart4.add_series("", "=Sheet1!$B$1:$B$5");
 
-  worksheet1.insert_chart(CELL("E9"), &chart1);
-  worksheet2.insert_chart(CELL("E9"), &chart2);
-  worksheet3.insert_chart(CELL("E9"), &chart3);
-  worksheet1.insert_chart(CELL("E24"), &chart4);
+  worksheet1.insert_chart("E9", &chart1);
+  worksheet2.insert_chart("E9", &chart2);
+  worksheet3.insert_chart("E9", &chart3);
+  worksheet1.insert_chart("E24", &chart4);
 
   workbook.save("test_chart_order01.xlsx");
 }

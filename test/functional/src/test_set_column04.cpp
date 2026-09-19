@@ -37,13 +37,13 @@ int main()
     row_num++;
   }
 
-  worksheet.write(CELL("A1"), "Foo", italic);
-  worksheet.write(CELL("B1"), "Bar", bold);
+  worksheet.write("A1", "Foo", italic);
+  worksheet.write("B1", "Bar", bold);
 
   worksheet.set_row(12, italic);
-  worksheet.set_column(COLS("F:F"), bold);
+  worksheet.set_column("F:F", bold);
 
-  worksheet.write_blank(CELL("F13"), bold_italic);
+  worksheet.write_blank("F13", bold_italic);
 
   workbook.save("test_set_column04.xlsx");
 }

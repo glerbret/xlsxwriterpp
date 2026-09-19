@@ -12,8 +12,8 @@ int main()
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
 
-  worksheet2.insert_button(CELL("C2"));
-  worksheet1.write_comment(CELL("A1"), "Foo");
+  worksheet2.insert_button("C2");
+  worksheet1.write_comment("A1", "Foo");
   worksheet1.set_comments_author("John");
 
   workbook.save("test_button09.xlsx");

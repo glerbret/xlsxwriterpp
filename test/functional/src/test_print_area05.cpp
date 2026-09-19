@@ -14,9 +14,9 @@ int main()
   worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);
 
-  worksheet.print_area(RANGE("A1:A1048576"));
+  worksheet.print_area("A1:A1048576");
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_print_area05.xlsx");
 }

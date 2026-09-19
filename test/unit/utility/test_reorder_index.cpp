@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(reorder_index_col)
 {
   {
     xwpp::col_num_t first_col = 0;
-    xwpp::col_num_t last_col = 5;
+    xwpp::col_num_t last_col  = 5;
 
     xwpp::reorder_index(first_col, last_col);
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(reorder_index_col)
 
   {
     xwpp::col_num_t first_col = 5;
-    xwpp::col_num_t last_col = 0;
+    xwpp::col_num_t last_col  = 0;
 
     xwpp::reorder_index(first_col, last_col);
 
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(reorder_index_row)
 {
   {
     xwpp::row_num_t first_row = 0;
-    xwpp::row_num_t last_row = 5;
+    xwpp::row_num_t last_row  = 5;
 
     xwpp::reorder_index(first_row, last_row);
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(reorder_index_row)
 
   {
     xwpp::row_num_t first_row = 5;
-    xwpp::row_num_t last_row = 0;
+    xwpp::row_num_t last_row  = 0;
 
     xwpp::reorder_index(first_row, last_row);
 
@@ -62,9 +62,9 @@ BOOST_AUTO_TEST_CASE(reorder_index_row_col)
 {
   {
     xwpp::row_num_t first_row = 0;
-    xwpp::row_num_t last_row = 5;
+    xwpp::row_num_t last_row  = 5;
     xwpp::col_num_t first_col = 1;
-    xwpp::col_num_t last_col = 4;
+    xwpp::col_num_t last_col  = 4;
 
     xwpp::reorder_index(first_row, last_row, first_col, last_col);
 
@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE(reorder_index_row_col)
 
   {
     xwpp::row_num_t first_row = 5;
-    xwpp::row_num_t last_row = 0;
+    xwpp::row_num_t last_row  = 0;
     xwpp::col_num_t first_col = 1;
-    xwpp::col_num_t last_col = 4;
+    xwpp::col_num_t last_col  = 4;
 
     xwpp::reorder_index(first_row, last_row, first_col, last_col);
 
@@ -90,9 +90,9 @@ BOOST_AUTO_TEST_CASE(reorder_index_row_col)
 
   {
     xwpp::row_num_t first_row = 0;
-    xwpp::row_num_t last_row = 5;
+    xwpp::row_num_t last_row  = 5;
     xwpp::col_num_t first_col = 4;
-    xwpp::col_num_t last_col = 1;
+    xwpp::col_num_t last_col  = 1;
 
     xwpp::reorder_index(first_row, last_row, first_col, last_col);
 
@@ -104,9 +104,9 @@ BOOST_AUTO_TEST_CASE(reorder_index_row_col)
 
   {
     xwpp::row_num_t first_row = 5;
-    xwpp::row_num_t last_row = 0;
+    xwpp::row_num_t last_row  = 0;
     xwpp::col_num_t first_col = 4;
-    xwpp::col_num_t last_col = 1;
+    xwpp::col_num_t last_col  = 1;
 
     xwpp::reorder_index(first_row, last_row, first_col, last_col);
 

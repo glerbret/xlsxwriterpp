@@ -14,8 +14,8 @@ int main()
   workbook.unset_default_url_format();
 
   // Test with forward slashes instead of back slashes in test_hyperlink07.c.
-  worksheet.write_url(CELL("A1"), "external://VBOXSVR/share/foo.xlsx", "J:/foo.xlsx");
-  worksheet.write_url(CELL("A3"), "external:foo.xlsx");
+  worksheet.write_url("A1", "external://VBOXSVR/share/foo.xlsx", "J:/foo.xlsx");
+  worksheet.write_url("A3", "external:foo.xlsx");
 
   workbook.save("test_hyperlink08.xlsx");
 }

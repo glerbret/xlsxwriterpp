@@ -17,10 +17,10 @@ int main()
   format->set_bg_color(xwpp::color_t{0xFFFF00});
   format->set_fg_color(xwpp::color_t{0xFF0000});
 
-  worksheet.write(CELL("A1"), 10);
-  worksheet.write(CELL("A2"), 20);
-  worksheet.write(CELL("A3"), 30);
-  worksheet.write(CELL("A4"), 40);
+  worksheet.write("A1", 10);
+  worksheet.write("A2", 20);
+  worksheet.write("A3", 30);
+  worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,
@@ -28,7 +28,7 @@ int main()
     .value_    = 7,
     .format_   = format,
   };
-  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+  worksheet.conditional_format_cell("A1", conditional_format);
 
   workbook.save("test_cond_format06.xlsx");
 }

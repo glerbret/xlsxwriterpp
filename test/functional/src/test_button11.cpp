@@ -13,9 +13,9 @@ int main()
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
 
-  worksheet1.insert_button(CELL("C2"));
-  worksheet2.write_comment(CELL("B2"), "Some text");
-  worksheet3.write_comment(CELL("C3"), "More text");
+  worksheet1.insert_button("C2");
+  worksheet2.write_comment("B2", "Some text");
+  worksheet3.write_comment("C3", "More text");
   worksheet2.set_comments_author("John");
   worksheet3.set_comments_author("John");
 

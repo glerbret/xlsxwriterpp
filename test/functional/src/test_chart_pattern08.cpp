@@ -67,7 +67,7 @@ int main()
   chart_series_set_pattern(series7, pattern7);
   chart_series_set_pattern(series8, pattern8);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_pattern08.xlsx");
 }

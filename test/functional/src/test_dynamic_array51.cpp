@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_dynamic_array_formula(RANGE("A1:A1"), "=AVERAGE(TIMEVALUE(B1:B2))", nullptr, 0);
-  worksheet.write(CELL("B1"), "12:00");
-  worksheet.write(CELL("B2"), "12:00");
+  worksheet.write_dynamic_array_formula("A1:A1", "=AVERAGE(TIMEVALUE(B1:B2))", nullptr, 0);
+  worksheet.write("B1", "12:00");
+  worksheet.write("B2", "12:00");
 
   workbook.save("test_dynamic_array51.xlsx");
 }

@@ -14,10 +14,10 @@ int main()
   worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);
 
-  worksheet.print_area(RANGE("A1:G20"));
+  worksheet.print_area("A1:G20");
   worksheet.repeat_rows(0, 0);
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_print_options06.xlsx");
 }

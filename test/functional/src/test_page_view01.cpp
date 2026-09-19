@@ -13,7 +13,7 @@ int main()
 
   worksheet.set_page_view();
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   worksheet.set_paper(xwpp::paper_size_t::A4);
   worksheet.set_dpi(0, 200);

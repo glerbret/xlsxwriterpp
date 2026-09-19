@@ -38,7 +38,7 @@ int main()
   chart_axis_set_major_unit(chart.y_axis_, 2);
   chart_axis_set_minor_unit(chart.y_axis_, 0.4);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis15.xlsx");
 }

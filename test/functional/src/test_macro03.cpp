@@ -13,7 +13,7 @@ int main()
 
   workbook.add_vba_project("images/vbaProject04.bin");
 
-  worksheet.write(CELL("A1"), 123);
+  worksheet.write("A1", 123);
 
   workbook.save("test_macro03.xlsm");
 }

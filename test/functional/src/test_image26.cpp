@@ -11,10 +11,10 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.insert_image(CELL("B2"), "images/black_72.png");
-  worksheet.insert_image(CELL("B8"), "images/black_96.png");
-  worksheet.insert_image(CELL("B13"), "images/black_150.png");
-  worksheet.insert_image(CELL("B17"), "images/black_300.png");
+  worksheet.insert_image("B2", "images/black_72.png");
+  worksheet.insert_image("B8", "images/black_96.png");
+  worksheet.insert_image("B13", "images/black_150.png");
+  worksheet.insert_image("B17", "images/black_300.png");
 
   workbook.save("test_image26.xlsx");
 }

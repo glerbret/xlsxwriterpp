@@ -13,13 +13,13 @@ int main()
 
   const xwpp::comment_options_t options{.visible_ = xwpp::comment_display_t::VISIBLE};
 
-  worksheet.write_comment(CELL("A1"), "Some text");
-  worksheet.write_comment(CELL("A2"), "Some text");
+  worksheet.write_comment("A1", "Some text");
+  worksheet.write_comment("A2", "Some text");
 
-  worksheet.write_comment(CELL("A3"), "Some text", options);
+  worksheet.write_comment("A3", "Some text", options);
 
-  worksheet.write_comment(CELL("A4"), "Some text");
-  worksheet.write_comment(CELL("A5"), "Some text");
+  worksheet.write_comment("A4", "Some text");
+  worksheet.write_comment("A5", "Some text");
 
   worksheet.set_comments_author("John");
 

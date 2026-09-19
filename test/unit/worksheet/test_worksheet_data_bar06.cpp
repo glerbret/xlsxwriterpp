@@ -125,21 +125,21 @@ BOOST_AUTO_TEST_CASE(data_bar06)
     .type_                    = xwpp::conditional_format_types_t::DATA_BAR,
     .bar_negative_color_same_ = true,
   };
-  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+  worksheet.conditional_format_cell("A1", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
     .type_                      = xwpp::conditional_format_types_t::DATA_BAR,
     .bar_color_                 = xwpp::color_t{0x63C384},
     .bar_negative_border_color_ = xwpp::color_t{0x92D050},
   };
-  worksheet.conditional_format_range(RANGE("A2:B2"), conditional_format);
+  worksheet.conditional_format_range("A2:B2", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
     .type_                           = xwpp::conditional_format_types_t::DATA_BAR,
     .bar_color_                      = xwpp::color_t{0xFF555A},
     .bar_negative_border_color_same_ = true,
   };
-  worksheet.conditional_format_range(RANGE("A3:C3"), conditional_format);
+  worksheet.conditional_format_range("A3:C3", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

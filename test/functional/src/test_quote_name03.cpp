@@ -41,7 +41,7 @@ int main()
     chart_series_set_values(series, name, 0, 0, 4, 0);
 
     const xwpp::chart_options_t options{.x_offset_ = 26, .y_offset_ = 17};
-    worksheet.insert_chart(CELL("E6"), &chart, options);
+    worksheet.insert_chart("E6", &chart, options);
   }
 
   workbook.save("test_quote_name03.xlsx");

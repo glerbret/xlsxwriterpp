@@ -19,9 +19,9 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
     {{2, 10, 30}, {3, 40, 60}, {4, 50, 70}, {5, 20, 50}, {6, 10, 40}, {7, 50, 30}}
   };
 
-  worksheet.write(CELL("A1"), "Number", bold);
-  worksheet.write(CELL("B1"), "Batch 1", bold);
-  worksheet.write(CELL("C1"), "Batch 2", bold);
+  worksheet.write("A1", "Number", bold);
+  worksheet.write("B1", "Batch 1", bold);
+  worksheet.write("C1", "Batch 2", bold);
 
   for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {

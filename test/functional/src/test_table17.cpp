@@ -13,19 +13,19 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("B:K"), 10.288);
+  worksheet.set_column("B:K", 10.288);
 
-  worksheet.write(CELL("A1"), "Column1");
-  worksheet.write(CELL("B1"), "Column2");
-  worksheet.write(CELL("C1"), "Column3");
-  worksheet.write(CELL("D1"), "Column4");
-  worksheet.write(CELL("E1"), "Column5");
-  worksheet.write(CELL("F1"), "Column6");
-  worksheet.write(CELL("G1"), "Column7");
-  worksheet.write(CELL("H1"), "Column8");
-  worksheet.write(CELL("I1"), "Column9");
-  worksheet.write(CELL("J1"), "Column10");
-  worksheet.write(CELL("K1"), "Total");
+  worksheet.write("A1", "Column1");
+  worksheet.write("B1", "Column2");
+  worksheet.write("C1", "Column3");
+  worksheet.write("D1", "Column4");
+  worksheet.write("E1", "Column5");
+  worksheet.write("F1", "Column6");
+  worksheet.write("G1", "Column7");
+  worksheet.write("H1", "Column8");
+  worksheet.write("I1", "Column9");
+  worksheet.write("J1", "Column10");
+  worksheet.write("K1", "Total");
 
   worksheet.write(3, 1, 0);
   worksheet.write(3, 2, 0);
@@ -58,7 +58,7 @@ int main()
     {.total_function_ = xwpp::table_total_functions_t::VAR}
   };
   const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
-  worksheet.add_table(RANGE("B3:K6"), options);
+  worksheet.add_table("B3:K6", options);
 
   workbook.save("test_table17.xlsx");
 }

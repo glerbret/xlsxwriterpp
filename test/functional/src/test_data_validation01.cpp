@@ -20,7 +20,7 @@ int main()
     .value_list_ = list,
   };
 
-  worksheet.data_validation_cell(CELL("C2"), data_validation);
+  worksheet.data_validation_cell("C2", data_validation);
 
   workbook.save("test_data_validation01.xlsx");
 }

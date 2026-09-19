@@ -29,8 +29,8 @@ int main()
 
   const xwpp::image_options_t options{.description_ = "red.png"};
 
-  worksheet1.insert_image_buffer(CELL("E9"), image_buffer, options);
-  worksheet2.insert_image_buffer(CELL("E9"), image_buffer, options);
+  worksheet1.insert_image_buffer("E9", image_buffer, options);
+  worksheet2.insert_image_buffer("E9", image_buffer, options);
 
   workbook.save("test_image86.xlsx");
 }

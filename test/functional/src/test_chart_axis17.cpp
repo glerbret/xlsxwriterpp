@@ -37,7 +37,7 @@ int main()
 
   chart_axis_set_log_base(chart.y_axis_, 10);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis17.xlsx");
 }

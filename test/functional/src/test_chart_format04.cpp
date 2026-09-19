@@ -38,7 +38,7 @@ int main()
   const xwpp::chart_fill_t fill{.color_ = xwpp::color_t{0xFF0000}};
   chart_series_set_fill(series1, fill);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format04.xlsx");
 }

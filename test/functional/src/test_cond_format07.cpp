@@ -54,7 +54,7 @@ int main()
     .value_    = 50,
     .format_   = format1,
   };
-  worksheet.conditional_format_range(RANGE("A1:J10"), conditional_format1);
+  worksheet.conditional_format_range("A1:J10", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
     .type_     = xwpp::conditional_format_types_t::CELL,
@@ -62,7 +62,7 @@ int main()
     .value_    = 50,
     .format_   = format2,
   };
-  worksheet.conditional_format_range(RANGE("A1:J10"), conditional_format2);
+  worksheet.conditional_format_range("A1:J10", conditional_format2);
 
   workbook.save("test_cond_format07.xlsx");
 }

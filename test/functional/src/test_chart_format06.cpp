@@ -38,7 +38,7 @@ int main()
   chart.series_set_marker_type(series, xwpp::chart_marker_type_t::DIAMOND);
   chart_series_set_marker_size(series, 7);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format06.xlsx");
 }

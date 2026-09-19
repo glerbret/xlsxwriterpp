@@ -20,7 +20,7 @@ int main()
     .input_message_ = "This is the input message",
   };
 
-  worksheet.data_validation_cell(CELL("C2"), data_validation);
+  worksheet.data_validation_cell("C2", data_validation);
 
   workbook.save("test_data_validation08.xlsx");
 }

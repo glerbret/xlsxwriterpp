@@ -14,7 +14,7 @@ int main()
   xwpp::format_t* pattern = workbook.add_format();
   pattern->set_pattern(xwpp::format_patterns_t::MEDIUM_GRAY);
 
-  worksheet.write(CELL("A1"), "", pattern);
+  worksheet.write("A1", "", pattern);
 
   workbook.save("test_format16.xlsx");
 }

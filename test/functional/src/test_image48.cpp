@@ -12,8 +12,8 @@ int main()
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
 
-  worksheet1.insert_image(CELL("E9"), "images/red.png");
-  worksheet2.insert_image(CELL("E9"), "images/red.png");
+  worksheet1.insert_image("E9", "images/red.png");
+  worksheet2.insert_image("E9", "images/red.png");
 
   workbook.save("test_image48.xlsx");
 }

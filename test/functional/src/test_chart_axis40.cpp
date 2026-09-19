@@ -38,7 +38,7 @@ int main()
   xwpp::chart_axis_set_interval_unit(chart.x_axis_, 3);
   xwpp::chart_axis_set_interval_tick(chart.x_axis_, 2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis40.xlsx");
 }

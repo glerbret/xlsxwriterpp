@@ -37,7 +37,7 @@ int main()
 
   chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_legend01.xlsx");
 }

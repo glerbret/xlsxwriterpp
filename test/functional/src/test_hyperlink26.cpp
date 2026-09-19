@@ -13,7 +13,7 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "http://www.google.com/foo#bar#baz");
+  worksheet.write_url("A1", "http://www.google.com/foo#bar#baz");
 
   workbook.save("test_hyperlink26.xlsx");
 }

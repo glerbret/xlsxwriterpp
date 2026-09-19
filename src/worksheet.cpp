@@ -1483,6 +1483,25 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, const std:
   set_column(first_col, last_col, DEF_COL_WIDTH, nullptr, options);
 }
 
+void worksheet_t::set_column(std::string_view cols_name, double width, const format_t* format,
+                             const std::optional<row_col_options_t>& options)
+{
+  const auto [first_col, last_col] = xwpp::cols_from_name(cols_name);
+  set_column(first_col, last_col, width, format, options);
+}
+
+void worksheet_t::set_column(std::string_view cols_name, const format_t* format)
+{
+  const auto [first_col, last_col] = xwpp::cols_from_name(cols_name);
+  set_column(first_col, last_col, format);
+}
+
+void worksheet_t::set_column(std::string_view cols_name, const std::optional<row_col_options_t>& options)
+{
+  const auto [first_col, last_col] = xwpp::cols_from_name(cols_name);
+  set_column(first_col, last_col, options);
+}
+
 void worksheet_t::set_row(row_num_t row_num, double height, const format_t* format,
                           const std::optional<row_col_options_t>& user_options)
 {
@@ -1546,6 +1565,13 @@ void worksheet_t::set_column_pixels(col_num_t first_col, col_num_t last_col, uin
   set_column(first_col, last_col, width, format, options);
 }
 
+void worksheet_t::set_column_pixels(std::string_view cols_name, uint32_t pixels, const format_t* format,
+                                    const std::optional<row_col_options_t>& options)
+{
+  const auto [first_col, last_col] = xwpp::cols_from_name(cols_name);
+  set_column_pixels(first_col, last_col, pixels, format, options);
+}
+
 void worksheet_t::set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format,
                                  const std::optional<row_col_options_t>& options)
 {
@@ -1605,6 +1631,24 @@ void worksheet_t::write(row_num_t row_num, col_num_t col_num, bool data, const f
   insert_cell(row_num, col_num, cell);
 }
 
+void worksheet_t::write(const std::string& cell_name, std::string_view data, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write(row_num, col_num, data, format);
+}
+
+void worksheet_t::write(const std::string& cell_name, const char* data, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write(row_num, col_num, data, format);
+}
+
+void worksheet_t::write(const std::string& cell_name, bool data, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write(row_num, col_num, data, format);
+}
+
 void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime,
                                  const format_t* format)
 {
@@ -1644,6 +1688,31 @@ void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, time_t da
   insert_cell(row_num, col_num, cell);
 }
 
+void worksheet_t::write_datetime(std::string_view cell_name, const datetime_t& datetime, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_datetime(row_num, col_num, datetime, format);
+}
+
+void worksheet_t::write_datetime(std::string_view cell_name, const std::chrono::system_clock::time_point& datetime,
+                                 const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_datetime(row_num, col_num, datetime, format);
+}
+
+void worksheet_t::write_datetime(std::string_view cell_name, const tm& datetime, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_datetime(row_num, col_num, datetime, format);
+}
+
+void worksheet_t::write_datetime(std::string_view cell_name, time_t datetime, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_datetime(row_num, col_num, datetime, format);
+}
+
 void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format_t* format)
 {
   // Blank cells without formatting are ignored by Excel.
@@ -1656,6 +1725,12 @@ void worksheet_t::write_blank(row_num_t row_num, col_num_t col_num, const format
 
   const cell_t cell = new_blank_cell(row_num, col_num, format);
   insert_cell(row_num, col_num, cell);
+}
+
+void worksheet_t::write_blank(std::string_view cell_name, const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_blank(row_num, col_num, format);
 }
 
 void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
@@ -1711,6 +1786,13 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   const shared_strings_element_t sst_element = sst_->get_index(rich_string, true);
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
   insert_cell(row_num, col_num, cell);
+}
+
+void worksheet_t::write_rich_string(std::string_view cell_name, const std::vector<rich_string_tuple_t>& rich_strings,
+                                    const format_t* format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_rich_string(row_num, col_num, rich_strings, format);
 }
 
 void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format,
@@ -1858,6 +1940,20 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_vi
   write_url(row_num, col_num, url, nullptr, str, tooltip);
 }
 
+void worksheet_t::write_url(std::string_view cell_name, std::string_view url, const format_t* format,
+                            std::string_view str, std::string_view tooltip)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_url(row_num, col_num, url, format, str, tooltip);
+}
+
+void worksheet_t::write_url(std::string_view cell_name, std::string_view url, std::string_view str,
+                            std::string_view tooltip)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_url(row_num, col_num, url, nullptr, str, tooltip);
+}
+
 void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, std::string_view text,
                                 const std::optional<comment_options_t>& options)
 {
@@ -1891,6 +1987,13 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, std::strin
   // Insert a placeholder in the cell RB table in the same position so
   // that the worksheet row "spans" calculations are correct.
   insert_cell_placeholder(row_num, col_num);
+}
+
+void worksheet_t::write_comment(std::string_view cell_name, std::string_view text,
+                                const std::optional<comment_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_comment(row_num, col_num, text, options);
 }
 
 void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
@@ -1947,9 +2050,30 @@ void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::strin
   insert_cell(row_num, col_num, cell);
 }
 
+void worksheet_t::write_formula(std::string_view cell_name, std::string_view formula, const format_t* format,
+                                double result)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_formula(row_num, col_num, formula, format, result);
+}
+
+void worksheet_t::write_formula(std::string_view cell_name, std::string_view formula, const format_t* format,
+                                std::string_view result)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  write_formula(row_num, col_num, formula, format, result);
+}
+
 void worksheet_t::write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                       std::string_view formula, const format_t* format, double result)
 {
+  store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, false);
+}
+
+void worksheet_t::write_array_formula(std::string_view range_name, std::string_view formula, const format_t* format,
+                                      double result)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
   store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, false);
 }
 
@@ -1960,9 +2084,23 @@ void worksheet_t::write_dynamic_array_formula(row_num_t first_row, col_num_t fir
   store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, true);
 }
 
+void worksheet_t::write_dynamic_array_formula(std::string_view range_name, std::string_view formula,
+                                              const format_t* format, double result)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  store_array_formula(first_row, first_col, last_row, last_col, formula, format, result, true);
+}
+
 void worksheet_t::write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
                                         const format_t* format, double result)
 {
+  store_array_formula(row_num, col_num, row_num, col_num, formula, format, result, true);
+}
+
+void worksheet_t::write_dynamic_formula(std::string_view cell_name, const std::string& formula, const format_t* format,
+                                        double result)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
   store_array_formula(row_num, col_num, row_num, col_num, formula, format, result, true);
 }
 
@@ -2005,6 +2143,12 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
       }
     }
   }
+}
+
+void worksheet_t::merge_range(std::string_view range_name, const std::string& str, const format_t* format)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  merge_range(first_row, first_col, last_row, last_col, str, format);
 }
 
 void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
@@ -2076,8 +2220,14 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   table_objs_.push_back(table_obj);
 }
 
+void worksheet_t::add_table(std::string_view range_name, const std::optional<table_options_t>& options)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  add_table(first_row, first_col, last_row, last_col, options);
+}
+
 void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
-                               std::optional<image_options_t> options)
+                               const std::optional<image_options_t>& options)
 {
   if(filename.empty())
   {
@@ -2137,9 +2287,16 @@ void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::
   add_image_properties(object_props);
 }
 
+void worksheet_t::insert_image(std::string_view cell_name, const std::filesystem::path& filename,
+                               const std::optional<image_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  insert_image(row_num, col_num, filename, options);
+}
+
 void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
                                       const std::vector<unsigned char>& image_buffer,
-                                      std::optional<image_options_t> user_options)
+                                      const std::optional<image_options_t>& options)
 {
   if(image_buffer.empty())
   {
@@ -2149,20 +2306,20 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
   object_properties_t object_props;
 
   object_props.image_buffer_ = image_buffer;
-  if(user_options.has_value())
+  if(options.has_value())
   {
-    object_props.x_offset_        = user_options->x_offset_;
-    object_props.y_offset_        = user_options->y_offset_;
-    object_props.x_scale_         = user_options->x_scale_;
-    object_props.y_scale_         = user_options->y_scale_;
-    object_props.url_             = user_options->url_;
-    object_props.tip_             = user_options->tip_;
-    object_props.object_position_ = user_options->object_position_;
-    if(user_options->description_)
+    object_props.x_offset_        = options->x_offset_;
+    object_props.y_offset_        = options->y_offset_;
+    object_props.x_scale_         = options->x_scale_;
+    object_props.y_scale_         = options->y_scale_;
+    object_props.url_             = options->url_;
+    object_props.tip_             = options->tip_;
+    object_props.object_position_ = options->object_position_;
+    if(options->description_)
     {
-      object_props.description_ = user_options->description_.value();
+      object_props.description_ = options->description_.value();
     }
-    object_props.decorative_ = user_options->decorative_;
+    object_props.decorative_ = options->decorative_;
   }
 
   // Copy other options or set defaults.
@@ -2184,8 +2341,15 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
   add_image_properties(object_props);
 }
 
+void worksheet_t::insert_image_buffer(std::string_view cell_name, const std::vector<unsigned char>& image_buffer,
+                                      const std::optional<image_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  insert_image_buffer(row_num, col_num, image_buffer, options);
+}
+
 void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
-                              std::optional<image_options_t> options)
+                              const std::optional<image_options_t>& options)
 {
   if(filename.empty())
   {
@@ -2255,9 +2419,16 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::f
   embedded_image_props_.push_back(object_props);
 }
 
+void worksheet_t::embed_image(std::string_view cell_name, const std::filesystem::path& filename,
+                              const std::optional<image_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  embed_image(row_num, col_num, filename, options);
+}
+
 void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
                                      const std::vector<unsigned char>& image_buffer,
-                                     std::optional<image_options_t> options)
+                                     const std::optional<image_options_t>& options)
 {
   if(image_buffer.empty())
   {
@@ -2316,6 +2487,13 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
   embedded_image_props_.push_back(object_props);
 }
 
+void worksheet_t::embed_image_buffer(std::string_view cell_name, const std::vector<unsigned char>& image_buffer,
+                                     const std::optional<image_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  embed_image_buffer(row_num, col_num, image_buffer, options);
+}
+
 void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
                                const std::optional<chart_options_t>& user_options)
 {
@@ -2367,6 +2545,13 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
   chart->in_use_ = true;
 }
 
+void worksheet_t::insert_chart(std::string_view cell_name, chart_t* chart,
+                               const std::optional<chart_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  insert_chart(row_num, col_num, chart, options);
+}
+
 void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std::optional<button_options_t>& options)
 {
   check_dimensions(row_num, col_num, true, true);
@@ -2383,6 +2568,12 @@ void worksheet_t::insert_button(row_num_t row_num, col_num_t col_num, const std:
 
   has_vml_ = true;
   button_objs_.emplace_back(button);
+}
+
+void worksheet_t::insert_button(std::string_view cell_name, const std::optional<button_options_t>& options)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  insert_button(row_num, col_num, options);
 }
 
 void worksheet_t::set_h_pagebreaks(const std::vector<row_num_t>& breaks)
@@ -2431,6 +2622,12 @@ void worksheet_t::autofilter(row_num_t first_row, col_num_t first_col, row_num_t
   autofilter_.last_col_  = last_col;
 }
 
+void worksheet_t::autofilter(std::string_view range_name)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  autofilter(first_row, first_col, last_row, last_col);
+}
+
 void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
 {
   filter_rule_obj_t rule_obj;
@@ -2475,6 +2672,11 @@ void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
   filter_rules_[rule_index] = rule_obj;
   filter_on_                = true;
   autofilter_.has_rules_    = true;
+}
+
+void worksheet_t::filter_column(std::string_view col_num, const filter_rule_t& rule)
+{
+  filter_column(col_from_name(col_num), rule);
 }
 
 void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
@@ -2551,6 +2753,12 @@ void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, 
   autofilter_.has_rules_    = true;
 }
 
+void worksheet_t::filter_column2(std::string_view col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
+                                 filter_operator_t and_or)
+{
+  filter_column2(col_from_name(col_num), rule1, rule2, and_or);
+}
+
 void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>& list)
 {
   filter_rule_obj_t rule_obj;
@@ -2605,8 +2813,19 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
   autofilter_.has_rules_    = true;
 }
 
+void worksheet_t::filter_list(std::string_view col_num, const std::vector<std::string>& list)
+{
+  filter_list(col_from_name(col_num), list);
+}
+
 void worksheet_t::freeze_panes(row_num_t row_num, col_num_t col_num)
 {
+  freeze_panes(row_num, col_num, row_num, col_num, false);
+}
+
+void worksheet_t::freeze_panes(std::string_view cell_name)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
   freeze_panes(row_num, col_num, row_num, col_num, false);
 }
 
@@ -2688,10 +2907,21 @@ void worksheet_t::set_selection(row_num_t first_row, col_num_t first_col, row_nu
 
   selections_.push_back(selection);
 }
+void worksheet_t::set_selection(std::string_view range_name)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  set_selection(first_row, first_col, last_row, last_col);
+}
 
 void worksheet_t::conditional_format_cell(row_num_t row_num, col_num_t col_num,
                                           const conditional_format_t& conditional_format)
 {
+  conditional_format_range(row_num, col_num, row_num, col_num, conditional_format);
+}
+
+void worksheet_t::conditional_format_cell(std::string_view cell_name, const conditional_format_t& conditional_format)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
   conditional_format_range(row_num, col_num, row_num, col_num, conditional_format);
 }
 
@@ -2824,8 +3054,20 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   store_conditional_format_object(cond_format);
 }
 
+void worksheet_t::conditional_format_range(std::string_view range_name, const conditional_format_t& conditional_format)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  conditional_format_range(first_row, first_col, last_row, last_col, conditional_format);
+}
+
 void worksheet_t::data_validation_cell(row_num_t row_num, col_num_t col_num, const data_validation_t& validation)
 {
+  data_validation_range(row_num, col_num, row_num, col_num, validation);
+}
+
+void worksheet_t::data_validation_cell(std::string_view cell_name, const data_validation_t& validation)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
   data_validation_range(row_num, col_num, row_num, col_num, validation);
 }
 
@@ -3049,6 +3291,12 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   data_validations_.push_back(copy);
 }
 
+void worksheet_t::data_validation_range(std::string_view range_name, const data_validation_t& validation)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  data_validation_range(first_row, first_col, last_row, last_col, validation);
+}
+
 void worksheet_t::ignore_errors(ignore_errors_t type, std::string_view range)
 {
   if(range.empty())
@@ -3195,6 +3443,12 @@ void worksheet_t::set_top_left_cell(row_num_t row_num, col_num_t col_num)
   top_left_cell_ = rowcol_to_cell(row_num, col_num);
 }
 
+void worksheet_t::set_top_left_cell(std::string_view cell_name)
+{
+  const auto [row_num, col_num] = cell_from_name(cell_name);
+  set_top_left_cell(row_num, col_num);
+}
+
 void worksheet_t::set_page_view()
 {
   page_view_ = true;
@@ -3318,6 +3572,12 @@ void worksheet_t::print_area(row_num_t first_row, col_num_t first_col, row_num_t
   print_area_.last_col_  = last_col;
 }
 
+void worksheet_t::print_area(std::string_view range_name)
+{
+  const auto [first_row, first_col, last_row, last_col] = range_from_name(range_name);
+  print_area(first_row, first_col, last_row, last_col);
+}
+
 void worksheet_t::fit_to_pages(uint16_t width, uint16_t height)
 {
   fit_page_   = true;
@@ -3360,6 +3620,12 @@ void worksheet_t::repeat_rows(row_num_t first_row, row_num_t last_row)
   repeat_rows_.last_row_  = last_row;
 }
 
+void worksheet_t::repeat_rows(std::string_view row_names)
+{
+  auto [first_row, last_row] = rows_from_name(row_names);
+  repeat_rows(first_row, last_row);
+}
+
 void worksheet_t::repeat_columns(col_num_t first_col, col_num_t last_col)
 {
   reorder_index(first_col, last_col);
@@ -3368,6 +3634,11 @@ void worksheet_t::repeat_columns(col_num_t first_col, col_num_t last_col)
   repeat_cols_.in_use_    = true;
   repeat_cols_.first_col_ = first_col;
   repeat_cols_.last_col_  = last_col;
+}
+void worksheet_t::repeat_columns(std::string_view col_names)
+{
+  auto [first_col, last_col] = cols_from_name(col_names);
+  repeat_columns(first_col, last_col);
 }
 
 void worksheet_t::print_black_and_white()

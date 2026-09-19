@@ -38,7 +38,7 @@ int main()
   const xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
   chart_series_set_line(series1, line);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format02.xlsx");
 }

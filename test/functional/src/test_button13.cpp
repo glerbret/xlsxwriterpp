@@ -14,7 +14,7 @@ int main()
   const xwpp::button_options_t options{.caption_ = "Hello", .macro_ = "say_hello"};
   workbook.set_vba_name("ThisWorkbook");
   worksheet.set_vba_name("Sheet1");
-  worksheet.insert_button(CELL("C2"), options);
+  worksheet.insert_button("C2", options);
   workbook.add_vba_project("images/vbaProject02.bin");
 
   workbook.save("test_button13.xlsm");

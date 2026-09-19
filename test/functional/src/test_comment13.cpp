@@ -13,9 +13,9 @@ int main()
 
   const xwpp::comment_options_t options{.font_name_ = "Courier", .font_size_ = 10, .font_family_ = 3};
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
-  worksheet.write_comment(CELL("B2"), "Some text", options);
+  worksheet.write_comment("B2", "Some text", options);
 
   worksheet.set_comments_author("John");
 

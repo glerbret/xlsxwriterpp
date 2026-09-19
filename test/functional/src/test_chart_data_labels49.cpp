@@ -45,7 +45,7 @@ int main()
   xwpp::chart_series_set_labels_custom(series1, data_labels1);
   xwpp::chart_series_set_labels_custom(series2, data_labels2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_data_labels49.xlsx");
 }

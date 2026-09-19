@@ -40,6 +40,7 @@
 #include "xwpp/format.h"
 #include "xwpp/shared_strings.h"
 #include "xwpp/sheet.h"
+#include "xwpp/utility.h"
 
 #include <chrono>
 #include <cstdint>
@@ -1302,7 +1303,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{.name_ = "Sales"};
    *
-   *  worksheet.add_table(RANGE("B3:G8"), options);
+   *  worksheet.add_table("B3:G8", options);
    * @endcode
    *
    * If you override the table name you must ensure that it doesn't clash
@@ -1320,7 +1321,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{.no_header_row_ = true};
    *
-   *  worksheet.add_table(RANGE("B4:F7"), options);
+   *  worksheet.add_table("B4:F7", options);
    * @endcode
    *
    * @image html tables4.png
@@ -1338,7 +1339,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{.no_autofilter_ = true};
    *
-   *  worksheet.add_table(RANGE("B3:F7"), options);
+   *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * @image html tables3.png
@@ -1355,7 +1356,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{.no_banded_rows_ = true};
    *
-   *  worksheet.add_table(RANGE("B3:F7"), options);
+   *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * @image html tables6.png
@@ -1369,7 +1370,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{.banded_columns_ = true};
    *
-   *  worksheet.add_table(RANGE("B3:F7"), options);
+   *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * The banded columns formatting is shown in the image in the previous
@@ -1389,7 +1390,7 @@ struct table_options_t
    *    .last_column_  = true,
    *  };
    *
-   *  worksheet.add_table(RANGE("B3:F7"), options);
+   *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * @image html tables5.png
@@ -1407,7 +1408,7 @@ struct table_options_t
    *    .last_column_  = true,
    *  };
    *
-   *  worksheet.add_table(RANGE("B3:F7"), options);
+   *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * The `%last_column_` formatting is shown in the image in the previous
@@ -1425,7 +1426,7 @@ struct table_options_t
    *    .style_type_number_ = 11,
    *  };
    *
-   *  worksheet.add_table(RANGE("B3:G8"), options);
+   *  worksheet.add_table("B3:G8", options);
    * @endcode
    *
    * @image html tables11.png
@@ -1482,7 +1483,7 @@ struct table_options_t
    * @code
    *  xwpp::table_options_t options{.total_row_ = true};
    *
-   *  worksheet.add_table(RANGE("B3:G8"), options);
+   *  worksheet.add_table("B3:G8", options);
    * @endcode
    *
    * @image html tables9.png
@@ -2121,18 +2122,6 @@ public:
    *  worksheet.set_column(1, 1, 30);
    * @endcode
    *
-   * It is also possible, and generally clearer, to specify a column range using
-   * the form of `COLS()` macro:
-   *
-   * @code
-   *  worksheet.set_column(4, 4, 20);
-   *  worksheet.set_column(5, 8, 30);
-   *
-   *  // Same as the examples above but clearer.
-   *  worksheet.set_column(COLS("E:E"), 20);
-   *  worksheet.set_column(COLS("F:H"), 30);
-   * @endcode
-   *
    * The `%width` parameter sets the column width in the same units used by Excel
    * which is: the number of characters in the default font. The default width
    * is 8.43 in the default font of `Calibri 11`. The actual relationship between
@@ -2163,7 +2152,7 @@ public:
    *
    * @code
    *  // Column 1 has format1.
-   *  worksheet.set_column(COLS("A:A"), format1);
+   *  worksheet.set_column("A:A", format1);
    *
    *  // Cell A1 in column 1 defaults to format1.
    *  worksheet.write(0, 0, "Hello");
@@ -2179,7 +2168,7 @@ public:
    *  worksheet.set_row(0, 15, format1);
    *
    *  // Col 1 has format2.
-   *  worksheet.set_column(COLS("A:A"), format2);
+   *  worksheet.set_column(0, 0, format2);
    *
    *  // Cell A1 defaults to format1, the row format.
    *  worksheet.write(0, 0, "Hello");
@@ -2201,7 +2190,7 @@ public:
    * @code
    *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
    *
-   *  worksheet.set_column(COLS("D:E"), options);
+   *  worksheet.set_column(3, 4, options);
    * @endcode
    *
    * @image html hide_row_col3.png
@@ -2212,12 +2201,10 @@ public:
    * @code
    *  xwpp::row_col_options_t options{.hidden_ = false, .level = 1, .collapsed = false};
    *
-   *  worksheet.set_column(COLS("B:G"), 5, &options1);
+   *  worksheet.set_column(1, 6, 5, &options1);
    * @endcode
    *
    * @image html outline8.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_column(col_num_t first_col, col_num_t last_col, double width, const format_t* format = nullptr,
                   const std::optional<row_col_options_t>& options = std::nullopt);
@@ -2225,6 +2212,39 @@ public:
   void set_column(col_num_t first_col, col_num_t last_col, const format_t* format);
   /// @brief Overload that only set column parameters.
   void set_column(col_num_t first_col, col_num_t last_col, const std::optional<row_col_options_t>& options);
+
+  /**
+   * @brief Set the properties for one or more columns of cells with options.
+   *
+   * @param cols_name Columns range in Excel notation ("A:E") or single column name ("A").
+   * @param width     The optional width of the column(s).
+   * @param format    An optional format.
+   * @param options   Optional column parameters: hidden, level, collapsed.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * Overload of `%set_column()` that used column name instead of index:
+   *
+   * @code
+   *  // Width of columns B:D set to 30.
+   *  worksheet.set_column("B:D", 30);
+   * @endcode
+   *
+   * @code
+   *  // Width of column B set to 30.
+   *  worksheet.set_column("B", 30);
+   * @endcode
+   *
+   * @pre `%cols_name` is a valid columns ranges ("A:B") or a valid column name ("A").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void set_column(std::string_view cols_name, double width, const format_t* format = nullptr,
+                  const std::optional<row_col_options_t>& options = std::nullopt);
+  /// @brief Overload that only set format.
+  void set_column(std::string_view cols_name, const format_t* format);
+  /// @brief Overload that only set column parameters.
+  void set_column(std::string_view cols_name, const std::optional<row_col_options_t>& options);
 
   /**
    * @brief Set the properties for a row of cells.
@@ -2320,8 +2340,6 @@ public:
    * @endcode
    *
    * @image html outline1.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_row(row_num_t row_num, double height, const format_t* format = nullptr,
                const std::optional<row_col_options_t>& options = std::nullopt);
@@ -2352,10 +2370,37 @@ public:
    * @endcode
    *
    * @image html set_column_pixels.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_column_pixels(col_num_t first_col, col_num_t last_col, uint32_t pixels, const format_t* format = nullptr,
+                         const std::optional<row_col_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Set the properties for one or more columns of cells, with the width
+   *        in pixels.
+   *
+   * @param cols_name Columns range in Excel notation ("A:E") or single column name ("A").
+   * @param pixels    The optional width of the column(s) in pixels.
+   * @param format    An optional format.
+   * @param options   Optional row parameters: hidden, level, collapsed.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * The `%set_column_pixels()` function is similar to
+   * `set_column()` function except that the width can be set in
+   * pixels:
+   *
+   * @code
+   *  // Column width set to 75 pixels, the same as 10 character units.
+   *  worksheet.set_column_pixels("F:F", 75);
+   * @endcode
+   *
+   * @image html set_column_pixels.png
+   *
+   * @pre `%cols_name` is a valid columns ranges ("A:B") or a valid column name ("A").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void set_column_pixels(std::string_view cols_name, uint32_t pixels, const format_t* format = nullptr,
                          const std::optional<row_col_options_t>& options = std::nullopt);
 
   /**
@@ -2375,8 +2420,6 @@ public:
    *  // Set the height of Row 1 to 20 pixels.
    *  worksheet.set_row_pixels(0, 20, nullptr);
    * @endcode
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_row_pixels(row_num_t row_num, uint32_t pixels, const format_t* format = nullptr,
                       const std::optional<row_col_options_t>& options = std::nullopt);
@@ -2446,8 +2489,6 @@ public:
    * @endcode
    *
    * @image html write_string02.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write(row_num_t row_num, col_num_t col_num, std::string_view data, const format_t* format = nullptr);
   /// @brief C string overload.
@@ -2457,15 +2498,59 @@ public:
   /// @brief Double overload.
   void write(row_num_t row_num, col_num_t col_num, double data, const format_t* format = nullptr);
   /// @brief Integer type overload.
-  template<std::integral T>
-  void write(row_num_t row_num, col_num_t col_num, T data, const format_t* format = nullptr)
+  void write(row_num_t row_num, col_num_t col_num, std::integral auto data, const format_t* format = nullptr)
   {
     write(row_num, col_num, static_cast<double>(data), format);
   }
   /// @brief Floating-point type overload.
-  template<std::floating_point T>
-  void write(row_num_t row_num, col_num_t col_num, T data, const format_t* format = nullptr)
+  void write(row_num_t row_num, col_num_t col_num, std::floating_point auto data, const format_t* format = nullptr)
   {
+    write(row_num, col_num, static_cast<double>(data), format);
+  }
+
+  // Undocument overload present to fix overload resolution.
+  template<typename T>
+    requires(std::is_integral_v<T> && !std::is_same_v<T, row_num_t>)
+  void write(T row_num, std::integral auto col_num, auto data)
+  {
+    write(static_cast<row_num_t>(row_num), static_cast<col_num_t>(col_num), data);
+  }
+
+  /**
+   * @brief Write simple data to a worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param data      Data to write to cell.
+   * @param format    An optional pointer to a Format instance.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * These functions are similar to index-based ones except they use name of the cell.
+   *
+   * @code
+   *  worksheet.write("A1", "This phrase is English!");
+   * @endcode
+   *
+   * @image html write_string01.png
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write(const std::string& cell_name, std::string_view data, const format_t* format = nullptr);
+  /// @brief C string overload.
+  void write(const std::string& cell_name, const char* data, const format_t* format = nullptr);
+  /// @brief Boolean overload.
+  void write(const std::string& cell_name, bool data, const format_t* format = nullptr);
+  /// @brief Integer type overload.
+  void write(const std::string& cell_name, std::integral auto data, const format_t* format = nullptr)
+  {
+    const auto [row_num, col_num] = cell_from_name(cell_name);
+    write(row_num, col_num, static_cast<double>(data), format);
+  }
+  /// @brief Floating-point type overload.
+  void write(const std::string& cell_name, std::floating_point auto data, const format_t* format = nullptr)
+  {
+    const auto [row_num, col_num] = cell_from_name(cell_name);
     write(row_num, col_num, static_cast<double>(data), format);
   }
 
@@ -2512,15 +2597,12 @@ public:
    *  worksheet.write_datetime(2, 0, static_cast<time_t>(-2208988800LL), format);
    * @endcode
    *
-   *
    * The `format` parameter should be used to apply formatting to the cell using
    * a @ref format.h "Format" object as shown above. Without a date format the
    * datetime will appear as a number only.
    *
    * @see @ref working_with_dates for more information about handling dates and
    * times in Xlsxwriter++.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_datetime(row_num_t row_num, col_num_t col_num, const datetime_t& datetime,
                       const format_t* format = nullptr);
@@ -2531,6 +2613,41 @@ public:
   void write_datetime(row_num_t row_num, col_num_t col_num, const tm& datetime, const format_t* format = nullptr);
   /// @brief Unix time (`time_t`) overload.
   void write_datetime(row_num_t row_num, col_num_t col_num, time_t datetime, const format_t* format = nullptr);
+
+  /**
+   * @brief Write a date or time to a worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param datetime  The datetime to write to the cell.
+   * @param format    An optional format.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * These functions are similar to index-based ones except they use name of the cell.
+   *
+   * @code
+   *  // A datetime to display.
+   *  const xwpp::datetime_t datetime{.year_ = 2013, .month_ = 2, .day_ = 28, .hour_ = 12};
+   *
+   *  // Write the datetime without formatting.
+   *  worksheet.write_datetime("A1", datetime); // 41333.5
+   *
+   *  // Write the datetime with formatting.
+   *  worksheet.write_datetime("A2", datetime, format); // Feb 28 2013 12:00 PM
+   * @endcode
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_datetime(std::string_view cell_name, const datetime_t& datetime, const format_t* format = nullptr);
+  /// @brief `std::chrono` overload.
+  void write_datetime(std::string_view cell_name, const std::chrono::system_clock::time_point& datetime,
+                      const format_t* format = nullptr);
+  /// @brief `tm` overload.
+  void write_datetime(std::string_view cell_name, const tm& datetime, const format_t* format = nullptr);
+  /// @brief Unix time (`time_t`) overload.
+  void write_datetime(std::string_view cell_name, time_t datetime, const format_t* format = nullptr);
 
   /**
    * @brief Write a formatted blank worksheet cell.
@@ -2556,10 +2673,28 @@ public:
    * but ignores Empty cells.
    *
    * As such, if you write an empty cell without formatting it is ignored.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_blank(row_num_t row_num, col_num_t col_num, const format_t* format);
+
+  /**
+   * @brief Write a formatted blank worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param format    An optional pointer to a Format instance.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the cell.
+   *
+   * @code
+   *  worksheet.write_blank("B2", border_format);
+   * @endcode
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_blank(std::string_view cell_name, const format_t* format);
 
   /**
    * @brief Write a "Rich" multi-format string to a worksheet cell.
@@ -2592,7 +2727,7 @@ public:
    *    fragment3, fragment4,
    *  };
    *
-   *  worksheet.write_rich_string(CELL("A1"), rich_string, nullptr);
+   *  worksheet.write_rich_string(0, 0, rich_string, nullptr);
    * @endcode
    *
    * @image html rich_strings_small.png
@@ -2620,16 +2755,54 @@ public:
    *    fragment1, fragment2,
    *    fragment3, fragment4};
    *
-   *  worksheet.write_rich_string(CELL("A1"), rich_string, nullptr);
+   *  worksheet.write_rich_string(0, 0, rich_string, nullptr);
    * @endcode
    *
    * @note Excel doesn't allow the use of two consecutive formats in a rich string or
    * an empty string fragment. For either of these conditions a warning is
    * raised and the input to `%write_rich_string()` is ignored.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_rich_string(row_num_t row_num, col_num_t col_num, const std::vector<rich_string_tuple_t>& rich_strings,
+                         const format_t* format = nullptr);
+
+  /**
+   * @brief Write a "Rich" multi-format string to a worksheet cell.
+   *
+   * @param cell_name    The name of the cell ("A1").
+   * @param rich_strings An array of format/string rich_string_tuple_t fragments.
+   * @param format       A pointer to a Format instance or `nullptr`.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the cell.
+   *
+   * @code
+   *  xwpp::format_t* bold = workbook.add_format();
+   *  bold->set_bold();
+   *
+   *  xwpp::format_t* italic = workbook.add_format();
+   *  italic->set_italic();
+   *
+   *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
+   *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
+   *  xwpp::rich_string_tuple_t fragment3{.str_  = " and this is "};
+   *  xwpp::rich_string_tuple_t fragment4{.format_ = italic, .str_ = "italic"};
+   *
+   *  std::vector<xwpp::rich_string_tuple_t> rich_string{
+   *    fragment1, fragment2,
+   *    fragment3, fragment4,
+   *  };
+   *
+   *  worksheet.write_rich_string("A1", rich_string, nullptr);
+   * @endcode
+   *
+   * @image html rich_strings_small.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_rich_string(std::string_view cell_name, const std::vector<rich_string_tuple_t>& rich_strings,
                          const format_t* format = nullptr);
 
   /**
@@ -2706,7 +2879,7 @@ public:
    *  worksheet.write_url(4, 0, "external:c:\\temp\\foo.xlsx");
    *  worksheet.write_url(5, 0, "external:c:\\foo.xlsx#Sheet2!A1");
    *  worksheet.write_url(6, 0, "external:..\\foo.xlsx");
-   *  worksheet.write_url( 7, 0, "external:..\\foo.xlsx#Sheet2!A1");
+   *  worksheet.write_url(7, 0, "external:..\\foo.xlsx#Sheet2!A1");
    *  worksheet.write_url(8, 0, "external:\\\\NET\\share\\foo.xlsx");
    * @endcode
    *
@@ -2759,13 +2932,38 @@ public:
    * @note The maximum allowable URL length in recent versions of Excel is 2079
    * characters. In older versions of Excel (and Xlsxwriter++ <= 0.8.8) the
    * limit was 255 characters.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format = nullptr,
                  std::string_view str = ""s, std::string_view tooltip = ""s);
   /// @brief Overload with string and tooltip but no format.
   void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, std::string_view str,
+                 std::string_view tooltip = ""s);
+
+  /**
+   * @param cell_name The name of the cell ("A1").
+   * @param url       The url to write to the cell.
+   * @param format    An optional format.
+   * @param str       The optional text to display.
+   * @param tooltip   An optional tooltip.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * These functions are similar to index-based ones except they use name of the cell.
+   *
+   * @code
+   *  worksheet.write_url("A1", "http://libxlsxwriter.github.io");
+   * @endcode
+   *
+   * @image html hyperlinks_short.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_url(std::string_view cell_name, std::string_view url, const format_t* format = nullptr,
+                 std::string_view str = ""s, std::string_view tooltip = ""s);
+  /// @brief Overload with string and tooltip but no format.
+  void write_url(std::string_view cell_name, std::string_view url, std::string_view str,
                  std::string_view tooltip = ""s);
 
   /**
@@ -2800,7 +2998,7 @@ public:
    * @code
    *  xwpp::comment_options_t options{.visible_ = LXW_COMMENT_DISPLAY_VISIBLE};
    *
-   *  worksheet.write_comment(CELL("C6"), "Hello.", options);
+   *  worksheet.write_comment(2, 5, "Hello.", options);
    * @endcode
    *
    * The following options are available in `comment_options_t`:
@@ -2823,10 +3021,32 @@ public:
    *
    * Comment options are explained in detail in the @ref ww_comments_properties
    * section of the docs.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_comment(row_num_t row_num, col_num_t col_num, std::string_view text,
+                     const std::optional<comment_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Write a comment to a worksheet cell with options.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param text      The comment string to be written.
+   * @param options   Optional comment_options_t to control position and format of the comment.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the cell.
+   *
+   * @code
+   *  worksheet.write_comment("A1", "This is a comment");
+   * @endcode
+   *
+   * @image html comments1.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_comment(std::string_view cell_name, std::string_view text,
                      const std::optional<comment_options_t>& options = std::nullopt);
 
   /**
@@ -2884,13 +3104,44 @@ public:
    * @endcode
    *
    * @see also @ref working_with_formulas.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format = nullptr,
                      double result = 0);
   /// @brief Overload with string result
   void write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
+                     std::string_view result);
+
+  /**
+   * @brief Write a formula to a worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param formula   Formula string to write to cell.
+   * @param format    An optional format.
+   * @param result    An optional user defined result for the formula.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * These functions are similar to index-based ones except they use name of the cell.
+   *
+   * @code
+   *  worksheet.write_formula("A1", "=B3 + 6");
+   *  worksheet.write_formula("A2", "=SIN(PI()/4)");
+   *  worksheet.write_formula("A3", "=SUM(A1:A2)");
+   *  worksheet.write_formula("A4", "=IF(A3>1,\"Yes\", \"No\")");
+   *  worksheet.write_formula("A5", "=AVERAGE(1, 2, 3, 4)");
+   *  worksheet.write_formula("A6", "=DATEVALUE(\"1-Jan-2013\")");
+   * @endcode
+   *
+   * @image html write_formula01.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_formula(std::string_view cell_name, std::string_view formula, const format_t* format = nullptr,
+                     double result = 0);
+  /// @brief Overload with string result
+  void write_formula(std::string_view cell_name, std::string_view formula, const format_t* format,
                      std::string_view result);
 
   /**
@@ -2917,13 +3168,9 @@ public:
    * formulas that return a range of values you must specify the range that the
    * return values will be written to. This is why this function has `first_row`
    * `last_row`, `first_col` and `last_col` parameters.
-   * The `RANGE()` macro can also be used to specify the range:
    *
    * @code
    *  worksheet.write_array_formula(4, 0, 6, 0, "{=TREND(C5:C7,B5:B7)}");
-   *
-   *  // Same as above using the RANGE() macro.
-   *  worksheet.write_array_formula(RANGE("A5:A7"), "{=TREND(C5:C7,B5:B7)}");
    * @endcode
    *
    * If the array formula returns a single value then the `first_` and `last_`
@@ -2931,13 +3178,33 @@ public:
    *
    * @code
    *  worksheet.write_array_formula(1, 0, 1, 0, "{=SUM(B1:C1*B2:C2)}");
-   *  worksheet.write_array_formula(RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}");
    * @endcode
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                            std::string_view formula, const format_t* format = nullptr, double result = 0);
+
+  /**
+   * @brief Write an array formula to a worksheet cell.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * @param formula    Array formula to write to cell.
+   * @param format     An optional format.
+   * @param result     An optional user defined result for the formula.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  worksheet.write_array_formula("A5:A7", "{=TREND(C5:C7,B5:B7)}");
+   * @endcode
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_array_formula(std::string_view range_name, std::string_view formula, const format_t* format = nullptr,
+                           double result = 0);
 
   /**
    * @brief Write an Excel 365 dynamic array formula to a worksheet range.
@@ -2978,11 +3245,36 @@ public:
    *
    * The need for the `_xlfn._xlws.` prefix in the formula is explained in @ref
    * ww_formulas_future.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_dynamic_array_formula(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                    std::string_view formula, const format_t* format = nullptr, double result = 0);
+
+  /**
+   * @brief Write an Excel 365 dynamic array formula to a worksheet range.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * @param formula    Dynamic Array formula to write to cell.
+   * @param format     An optional format.
+   * @param result     An optional user defined result for the formula.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  worksheet.write_dynamic_array_formula("F2:F2", "=_xlfn._xlws.FILTER(A1:D17,C1:C17=K2)");
+   * @endcode
+   *
+   * This formula gives the results shown in the image below.
+   *
+   * @image html dynamic_arrays02.png
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_dynamic_array_formula(std::string_view range_name, std::string_view formula,
+                                   const format_t* format = nullptr, double result = 0);
 
   /**
    * @brief Write an Excel 365 dynamic array formula to a worksheet cell.
@@ -3012,11 +3304,37 @@ public:
    *
    * The need for the `_xlfn.` and `_xlfn._xlws.` prefixes in the formula is
    * explained in @ref ww_formulas_future.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void write_dynamic_formula(row_num_t row_num, col_num_t col_num, const std::string& formula,
                              const format_t* format = nullptr, double result = 0);
+
+  /**
+   * @brief Write an Excel 365 dynamic array formula to a worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param formula   Formula string to write to cell.
+   * @param format    An optional format.
+   * @param result    An optional user defined result for the formula.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it use name of the cell and not index.
+   *
+   * @code
+   *  worksheet.write_dynamic_formula("B8", "=_xlfn._xlws.SORT(_xlfn.UNIQUE(B2:B17))");
+   * @endcode
+   *
+   * This formula gives the following result:
+   *
+   * @image html dynamic_arrays01.png
+   *
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void write_dynamic_formula(std::string_view cell_name, const std::string& formula, const format_t* format = nullptr,
+                             double result = 0);
 
   /**
    * @brief Merge a range of cells.
@@ -3071,11 +3389,33 @@ public:
    *  // Then overwrite the first cell with a number.
    *  worksheet.write(1, 1, 123, format);
    * @endcode
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void merge_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                    const std::string& str, const format_t* format = nullptr);
+
+  /**
+   * @brief Merge a range of cells.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * @param str       String to write to the merged range.
+   * @param format    An optional format.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  xwpp::format_t* merge_format = workbook.add_format();
+   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+   *
+   *  worksheet.merge_range("B2:D2", "Merged Range", merge_format);
+   * @endcode
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void merge_range(std::string_view range_name, const std::string& str, const format_t* format = nullptr);
 
   /**
    * @brief Add an Excel table to a worksheet.
@@ -3101,11 +3441,31 @@ public:
    * @image html tables1.png
    *
    * @see @ref working_with_tables for more detailed usage information
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                  const std::optional<table_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Add an Excel table to a worksheet.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * @param options   Optional table options.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  worksheet.add_table("B3:F7");
+   * @endcode
+   *
+   * @image html tables1.png
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void add_table(std::string_view range_name, const std::optional<table_options_t>& options = std::nullopt);
 
   /**
    * @brief Insert an image in a worksheet cell, with options.
@@ -3197,11 +3557,34 @@ public:
    *
    * @note See the notes about row scaling and `BMP` images in
    * `insert_image()` above.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void insert_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
-                    std::optional<image_options_t> options = std::nullopt);
+                    const std::optional<image_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Insert an image in a worksheet cell, with options.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param filename  The image filename, with path if required.
+   * @param options   Optional image parameters.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the cell.
+   *
+   * @code
+   *  worksheet.insert_image("B3", "logo.png");
+   * @endcode
+   *
+   * @image html insert_image.png
+   *
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void insert_image(std::string_view cell_name, const std::filesystem::path& filename,
+                    const std::optional<image_options_t>& options = std::nullopt);
 
   /**
    * @brief Insert an image in a worksheet cell, from a memory buffer.
@@ -3217,7 +3600,7 @@ public:
    * buffer:
    *
    * @code
-   *  worksheet.insert_image_buffer(CELL("B3"), image_buffer);
+   *  worksheet.insert_image_buffer(1, 2, image_buffer);
    * @endcode
    *
    * @image html image_buffer.png
@@ -3244,7 +3627,7 @@ public:
    *  xwpp::image_options_t options{.x_offset_ = 32, .y_offset_ = 4,
    *                                .x_scale_  = 2,  .y_scale_  = 1};
    *
-   *  worksheet.insert_image_buffer(CELL("B3"), image_buffer, options);
+   *  worksheet.insert_image_buffer(1, 2, image_buffer, options);
    * @endcode
    *
    * @image html image_buffer_opt.png
@@ -3253,11 +3636,33 @@ public:
    *
    * @see `insert_image_buffer()` for details about the supported
    * image formats, and other image options.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void insert_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,
-                           std::optional<image_options_t> options = std::nullopt);
+                           const std::optional<image_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Insert an image in a worksheet cell, from a memory buffer.
+   *
+   * @param cell_name    The name of the cell ("A1").
+   * @param image_buffer Vector of bytes that holds the image data.
+   * @param options      Optional image parameters.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  worksheet.insert_image_buffer("B3", image_buffer);
+   * @endcode
+   *
+   * @image html image_buffer.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void insert_image_buffer(std::string_view cell_name, const std::vector<unsigned char>& image_buffer,
+                           const std::optional<image_options_t>& options = std::nullopt);
 
   /**
    * @brief Embed an image in a worksheet cell.
@@ -3292,11 +3697,27 @@ public:
    * - `%decorative_`: Optional parameter to mark image as decorative.
    * - `%url_`: Add an optional hyperlink to the image.
    * - `%cell_format_`: Add a format for the cell behind the embedded image.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void embed_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
-                   std::optional<image_options_t> options = std::nullopt);
+                   const std::optional<image_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Embed an image in a worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param filename  The image filename, with path if required.
+   * @param options   Optional image parameters.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void embed_image(std::string_view cell_name, const std::filesystem::path& filename,
+                   const std::optional<image_options_t>& options = std::nullopt);
 
   /**
    * @brief Embed an image in a worksheet cell, from a memory buffer.
@@ -3327,11 +3748,28 @@ public:
    *
    * See `embed_image()` for details about the supported image
    * formats, options, and other image features.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void embed_image_buffer(row_num_t row_num, col_num_t col_num, const std::vector<unsigned char>& image_buffer,
-                          std::optional<image_options_t> options = std::nullopt);
+                          const std::optional<image_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Embed an image in a worksheet cell, from a memory buffer.
+   *
+   * @param cell_name The name of the cell ("A1").
+
+   * @param image_buffer Vector of bytes that holds the image data.
+   * @param options      Optional image parameters.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void embed_image_buffer(std::string_view cell_name, const std::vector<unsigned char>& image_buffer,
+                          const std::optional<image_options_t>& options = std::nullopt);
 
   /**
    * @brief Insert a chart object into a worksheet.
@@ -3379,10 +3817,37 @@ public:
    * @endcode
    *
    * @image html chart_line_opt.png
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
+                    const std::optional<chart_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Insert a chart object into a worksheet.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param chart     A xwpp::chart_t object created via xwpp::workbook_t::add_chart().
+   * @param options   Optional chart parameters.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  // Create a chart object.
+   *  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+   *
+   *  // Add a data series to the chart.
+   *  chart.add_series("", "=Sheet1!$A$1:$A$6");
+   *
+   *  // Insert the chart into the worksheet.
+   *  worksheet.insert_chart("C1", &chart);
+   * @endcode
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void insert_chart(std::string_view cell_name, chart_t* chart,
                     const std::optional<chart_options_t>& options = std::nullopt);
 
   /**
@@ -3413,11 +3878,36 @@ public:
    * The button properties are set using the `button_options_t` struct.
    *
    * @see @ref working_with_macros
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void insert_button(row_num_t row_num, col_num_t col_num,
                      const std::optional<button_options_t>& options = std::nullopt);
+
+  /**
+   * @brief Insert a button object into a worksheet.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param options   Optional button properties.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  xwpp::button_options_t options{
+   *    .caption_ = "Press Me",
+   *    .macro_   = "say_hello",
+   *  };
+   *
+   *  worksheet.insert_button("B3", options);
+   * @endcode
+   *
+   * @image html macros.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void insert_button(std::string_view cell_name, const std::optional<button_options_t>& options = std::nullopt);
 
   /**
    * @brief Set the horizontal page breaks on a worksheet.
@@ -3522,9 +4012,6 @@ public:
    *
    * @code
    *  worksheet.autofilter(0, 0, 50, 3);
-   *
-   *  // Same as above using the RANGE() macro.
-   *  worksheet.autofilter(RANGE("A1:D51"));
    * @endcode
    *
    * In order to apply a filter condition it is necessary to add filter rules to
@@ -3544,10 +4031,27 @@ public:
    * filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void autofilter(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+
+  /**
+   * @brief Set the autofilter area in the worksheet.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  worksheet.autofilter("A1:D51");
+   * @endcode
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void autofilter(std::string_view range_name);
 
   /**
    * @brief Write a filter rule to an autofilter column.
@@ -3581,10 +4085,10 @@ public:
    * hide any rows that don't match the filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void filter_column(col_num_t col_num, const filter_rule_t& rule);
+  /// @brief Overload with name of column.
+  void filter_column(std::string_view col_num, const filter_rule_t& rule);
 
   /**
    * @brief Write two filter rules to an autofilter column.
@@ -3629,10 +4133,11 @@ public:
    * hide any rows that don't match the filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
+                      filter_operator_t and_or);
+  /// @brief Overload with name of column.
+  void filter_column2(std::string_view col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
                       filter_operator_t and_or);
 
   /**
@@ -3671,10 +4176,10 @@ public:
    * hide any rows that don't match the filter condition.
    *
    * @see @ref ww_autofilters_data for more details.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void filter_list(col_num_t col_num, const std::vector<std::string>& list);
+  /// @brief Overload with name of column.
+  void filter_list(std::string_view col_num, const std::vector<std::string>& list);
 
   /**
    * @brief Split and freeze a worksheet into panes.
@@ -3700,10 +4205,27 @@ public:
    *  worksheet2.freeze_panes(0, 1); // Freeze the first column.
    *  worksheet3.freeze_panes(1, 1); // Freeze first row/column.
    * @endcode
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void freeze_panes(row_num_t row_num, col_num_t col_num);
+
+  /**
+   * @brief Split and freeze a worksheet into panes.
+   *
+   * @param cell_name The name of the cell ("A1").
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  worksheet1.freeze_panes("A2"); // Freeze the first row.
+   *  worksheet2.freeze_panes("B1"); // Freeze the first column.
+   *  worksheet3.freeze_panes("B2"); // Freeze first row/column.
+   * @endcode
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void freeze_panes(std::string_view cell_name);
 
   /* freeze_panes() with infrequent options. Undocumented for now. */
   void freeze_panes(row_num_t first_row, col_num_t first_col, row_num_t top_row, col_num_t left_col, bool type);
@@ -3736,7 +4258,7 @@ public:
    */
   void split_panes(double y_split, double x_split);
 
-  /* todo split_panes() with infrequent options. Undocumented for now. */
+  /* split_panes() with infrequent options. Undocumented for now. */
   void split_panes(double y_split, double x_split, row_num_t top_row, col_num_t left_col);
 
   /**
@@ -3759,12 +4281,25 @@ public:
    *  worksheet1.set_selection(3, 3, 3, 3);     // Cell D4.
    *  worksheet2.set_selection(3, 3, 6, 6);     // Cells D4 to G7.
    *  worksheet3.set_selection(6, 6, 3, 3);     // Cells G7 to D4.
-   *  worksheet4.set_selection(RANGE("D4:G7")); // Using the RANGE macro.
    * @endcode
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void set_selection(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+
+  /**
+   * @brief Set the selected cell or cells in a worksheet:
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  worksheet4.set_selection("D4:G7");
+   * @endcode
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void set_selection(std::string_view range_name);
 
   /**
    * @brief Add a conditional format to a worksheet cell.
@@ -3784,16 +4319,39 @@ public:
    *  conditional_format->value_    = 50;
    *  conditional_format->format_   = format;
    *
-   *  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+   *  worksheet.conditional_format_cell(0, 0, conditional_format);
    * @endcode
    *
    * The conditional format parameters is specified in `conditional_format_t`.
    *
    * See @ref working_with_conditional_formatting for full details.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void conditional_format_cell(row_num_t row_num, col_num_t col_num, const conditional_format_t& conditional_format);
+
+  /**
+   * @brief Add a conditional format to a worksheet cell.
+   *
+   * @param cell_name The name of the cell ("A1").
+   * @param conditional_format A `conditional_format_t` object to control the conditional format.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+   *  conditional_format->value_    = 50;
+   *  conditional_format->format_   = format;
+   *
+   *  worksheet.conditional_format_cell("A1", conditional_format);
+   * @endcode
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void conditional_format_cell(std::string_view cell_name, const conditional_format_t& conditional_format);
 
   /**
    * @brief Add a conditional format to a worksheet range.
@@ -3815,14 +4373,14 @@ public:
    *  conditional_format->value_    = 50;
    *  conditional_format->format_   = format1;
    *
-   *  worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format);
+   *  worksheet.conditional_format_range(2, 1, 11, 10, conditional_format);
    *
    *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
    *  conditional_format->criteria_ = xwpp::conditional_criteria_t::LESS_THAN;
    *  conditional_format->value_    = 50;
    *  conditional_format->format_   = format2;
    *
-   *  worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format);
+   *  worksheet.conditional_format_range(2, 1, 11, 10, conditional_format);
    * @endcode
    *
    * @image html conditional_format1.png
@@ -3830,11 +4388,36 @@ public:
    * The conditional format parameters is specified in `conditional_format_t`.
    *
    * @see @ref working_with_conditional_formatting for full details.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void conditional_format_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                                 const conditional_format_t& conditional_format);
+
+  /**
+   * @brief Add a conditional format to a worksheet range.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * @param conditional_format A `conditional_format_t` object to control the conditional format.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+   *  conditional_format->value_    = 50;
+   *  conditional_format->format_   = format1;
+   *
+   *  worksheet.conditional_format_range("B3:K12", conditional_format);
+   * @endcode
+   *
+   * @image html conditional_format1.png
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void conditional_format_range(std::string_view range_name, const conditional_format_t& conditional_format);
 
   /**
    * @brief Add a data validation to a cell.
@@ -3858,19 +4441,43 @@ public:
    *  };
    *
    *  worksheet.data_validation_cell(2, 1, data_validation);
-   *
-   *  // Same as above with the CELL() macro.
-   *  worksheet.data_validation_cell(CELL("B3"), data_validation);
    * @endcode
    *
    * @image html data_validate4.png
    *
    * Data validation and the various options of `data_validation_t` are
    * described in more detail in @ref working_with_data_validation.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void data_validation_cell(row_num_t row_num, col_num_t col_num, const data_validation_t& validation);
+
+  /**
+   * @brief Add a data validation to a cell.
+   *
+   * @param cell_name  The name of the cell ("A1").
+   * @param validation A data_validation_t object to control the validation.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  xwpp::data_validation_t{
+   *    .validate_       = xwpp::validation_types_t::INTEGER;
+   *    .criteria_       = xwpp::validation_criteria_t::BETWEEN;
+   *    .minimum_number_ = 1;
+   *    .maximum_number_ = 10
+   *  };
+   *
+   *  worksheet.data_validation_cell("B3", data_validation);
+   * @endcode
+   *
+   * @image html data_validate4.png
+   *
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void data_validation_cell(std::string_view cell_name, const data_validation_t& validation);
 
   /**
    * @brief Add a data validation to a range.
@@ -3896,18 +4503,40 @@ public:
    *  };
    *
    *  worksheet.data_validation_range(2, 1, 4, 1, data_validation);
-   *
-   *  // Same as above with the RANGE() macro.
-   *  worksheet.data_validation_range(RANGE("B3:B5"), data_validation);
    * @endcode
    *
    * Data validation and the various options of `data_validation_t` are
    * described in more detail in @ref working_with_data_validation.
-   *
-   * @todo Add API with col and row names instead of number.
    */
   void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                              const data_validation_t& validation);
+
+  /**
+   * @brief Add a data validation to a range.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   * @param validation A data_validation_t object to control the validation.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  xwpp::data_validation_t{
+   *    .validate_       = xwpp::validation_types_t::INTEGER;
+   *    .criteria_       = xwpp::validation_criteria_t::BETWEEN;
+   *    .minimum_number_ = 1;
+   *    .maximum_number_ = 10
+   *  };
+   *
+   *  worksheet.data_validation_range("B3:B5", data_validation);
+   * @endcode
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void data_validation_range(std::string_view range_name, const data_validation_t& validation);
 
   /**
    * @brief Ignore various Excel errors/warnings in a worksheet for user
@@ -3923,7 +4552,7 @@ public:
    * string that looks like a number:
    *
    * @code
-   *  worksheet.write(CELL("D2"), "123");
+   *  worksheet.write("D2", "123");
    * @endcode
    *
    * This causes Excel to display a small green triangle in the top left hand
@@ -4146,14 +4775,30 @@ public:
    *
    * @code
    *  worksheet.set_top_left_cell(31, 26);
-   *  worksheet.set_top_left_cell(CELL("AA32")); // Same as above.
+   * @endcode
+   *
+   * @image html top_left_cell.png
+   */
+  void set_top_left_cell(row_num_t row_num, col_num_t col_num);
+
+  /**
+   * @brief Set the first visible cell at the top left of a worksheet.
+   *
+   * @param cell_name The name of the cell ("A1").
+   *
+   * This function is similar to index-based one except they use name of the cell.
+   *
+   * @code
+   *  worksheet.set_top_left_cell("AA32");
    * @endcode
    *
    * @image html top_left_cell.png
    *
-   * @todo Add API with col and row name
+   * @pre `%cell_name` is a valid cell name ("A1").
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
    */
-  void set_top_left_cell(row_num_t row_num, col_num_t col_num);
+  void set_top_left_cell(std::string_view cell_name);
 
   /**
    * @brief Set the page layout to page view mode.
@@ -4370,24 +5015,38 @@ public:
    * @throw xwpp::xwpp_exception_t.
    *
    * This function is used to specify the area of the worksheet that will be
-   * printed. The `RANGE()` macro is often convenient for this.
+   * printed.
    *
    * @code
    *  worksheet.print_area(0, 0, 41, 10); // A1:K42.
-   *
-   *  // Same as:
-   *  worksheet.print_area(RANGE("A1:K42"));
    * @endcode
    *
    * In order to set a row or column range you must specify the entire range:
    *
    * @code
-   *  worksheet.print_area(RANGE("A1:H1048576")); // Same as A:H.
+   *  worksheet.print_area("A1:H1048576"); // Same as A:H.
    * @endcode
-   *
-   * @todo Add API with names
    */
   void print_area(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+
+  /**
+   * @brief Set the print area for a worksheet.
+   *
+   * @param range_name The name of the range ("A1:B2").
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except it uses name of the range.
+   *
+   * @code
+   *  worksheet.print_area("A1:K42");
+   * @endcode
+   *
+   * @pre `%range_name` is a valid range name.
+   *
+   * @note Due to string parsing, these functions are less performant than index-base ones.
+   */
+  void print_area(std::string_view range_name);
 
   /**
    * @brief Fit the printed area to a specific number of pages both vertically
@@ -4516,10 +5175,24 @@ public:
    *  worksheet1.repeat_rows(0, 0); // Repeat the first row.
    *  worksheet2.repeat_rows(0, 1); // Repeat the first two rows.
    * @endcode
-   *
-   * @todo Add API with names
    */
   void repeat_rows(row_num_t first_row, row_num_t last_row);
+
+  /**
+   * @brief Set the number of rows to repeat at the top of each printed page.
+   *
+   * @param row_names Names of rows range.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use names of the rows.
+   *
+   * @code
+   *  worksheet1.repeat_rows("1:1"); // Repeat the first row.
+   *  worksheet2.repeat_rows("1:2"); // Repeat the first two rows.
+   * @endcode
+   */
+  void repeat_rows(std::string_view row_names);
 
   /**
    * @brief Set the number of columns to repeat at the top of each printed page.
@@ -4539,10 +5212,24 @@ public:
    *  worksheet1.repeat_columns(0, 0); // Repeat the first col.
    *  worksheet2.repeat_columns(0, 1); // Repeat the first two cols.
    * @endcode
-   *
-   * @todo Add API with names
    */
   void repeat_columns(col_num_t first_col, col_num_t last_col);
+
+  /**
+   * @brief Set the number of columns to repeat at the top of each printed page.
+   *
+   * @param col_names Names of cols range.
+   *
+   * @throw xwpp::xwpp_exception_t.
+   *
+   * This function is similar to index-based one except they use names of the colss.
+   *
+   * @code
+   *  worksheet1.repeat_columns("A:A"); // Repeat the first col.
+   *  worksheet2.repeat_columns("A:B"); // Repeat the first two cols.
+   * @endcode
+   */
+  void repeat_columns(std::string_view col_names);
 
   /**
    * @brief Set the worksheet to print in black and white

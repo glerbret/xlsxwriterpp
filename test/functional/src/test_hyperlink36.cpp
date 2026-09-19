@@ -14,14 +14,14 @@ int main()
 
   const xwpp::image_options_t options{.url_ = "https://github.com/jmcnamara"};
 
-  worksheet.write(CELL("A1"), 1);
-  worksheet.write(CELL("A2"), 2);
+  worksheet.write("A1", 1);
+  worksheet.write("A2", 2);
 
-  worksheet.insert_image(CELL("E9"), "images/red.png", options);
+  worksheet.insert_image("E9", "images/red.png", options);
 
   chart.add_series("", "=Sheet1!$A$1:$A$2");
 
-  worksheet.insert_chart(CELL("E12"), &chart);
+  worksheet.insert_chart("E12", &chart);
 
   workbook.save("test_hyperlink36.xlsx");
 }

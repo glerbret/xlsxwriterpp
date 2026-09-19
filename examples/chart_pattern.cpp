@@ -72,7 +72,7 @@ int main()
   chart.set_series_gap(70);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("D2"), &chart);
+  worksheet.insert_chart("D2", &chart);
 
   workbook.save("chart_pattern.xlsx");
 }

@@ -14,8 +14,8 @@ int main()
   xwpp::format_t* format1 = workbook.add_format();
   format1->set_bold();
 
-  worksheet.write(CELL("A1"), "Foo", format1);
-  worksheet.write_comment(CELL("B2"), "Some text");
+  worksheet.write("A1", "Foo", format1);
+  worksheet.write_comment("B2", "Some text");
 
   worksheet.set_comments_author("John");
 

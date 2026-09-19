@@ -38,7 +38,7 @@ int main()
   xwpp::chart_axis_set_crossing(chart.x_axis_, 3);
   xwpp::chart_axis_set_crossing(chart.y_axis_, 8);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_crossing02.xlsx");
 }

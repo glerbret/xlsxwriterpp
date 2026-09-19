@@ -13,7 +13,7 @@ int main()
 
   const xwpp::image_options_t options{.x_offset_ = 8, .y_offset_ = 5};
 
-  worksheet.insert_image(CELL("C2"), "images/logo.png", options);
+  worksheet.insert_image("C2", "images/logo.png", options);
 
   workbook.save("test_image11.xlsx");
 }

@@ -17,14 +17,14 @@ int main()
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(60474496, 78612736);
 
-  worksheet.write(CELL("A1"), "1.1_1");
-  worksheet.write(CELL("B1"), "2.2_2");
-  worksheet.write(CELL("A2"), 1);
-  worksheet.write(CELL("B2"), 2);
+  worksheet.write("A1", "1.1_1");
+  worksheet.write("B1", "2.2_2");
+  worksheet.write("A2", 1);
+  worksheet.write("B2", 2);
 
   chart.add_series("=Sheet1!$A$1:$B$1", "=Sheet1!$A$2:$B$2");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_column13.xlsx");
 }

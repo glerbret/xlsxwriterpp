@@ -22,9 +22,9 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
     {{2, 10, 30}, {3, 40, 60}, {4, 50, 70}, {5, 20, 50}, {6, 10, 40}, {7, 50, 30}}
   };
 
-  worksheet.write(CELL("A1"), "Number", bold);
-  worksheet.write(CELL("B1"), "Batch 1", bold);
-  worksheet.write(CELL("C1"), "Batch 2", bold);
+  worksheet.write("A1", "Number", bold);
+  worksheet.write("B1", "Batch 1", bold);
+  worksheet.write("C1", "Batch 2", bold);
 
   for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
@@ -66,7 +66,7 @@ int main()
     chart.set_high_low_lines(std::nullopt);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E2"), &chart);
+    worksheet.insert_chart("E2", &chart);
   }
 
   // Chart 2. Example with Drop Lines.
@@ -84,7 +84,7 @@ int main()
     chart.set_drop_lines(std::nullopt);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E18"), &chart);
+    worksheet.insert_chart("E18", &chart);
   }
 
   // Chart 3. Example with Up-Down bars.
@@ -102,7 +102,7 @@ int main()
     chart.set_up_down_bars();
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E34"), &chart);
+    worksheet.insert_chart("E34", &chart);
   }
 
   // Chart 4. Example with Up-Down bars with formatting.
@@ -124,7 +124,7 @@ int main()
     chart.set_up_down_bars_format(line, up_fill, line, down_fill);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E50"), &chart);
+    worksheet.insert_chart("E50", &chart);
   }
 
   // Chart 5. Example with Markers and data labels.
@@ -145,7 +145,7 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E66"), &chart);
+    worksheet.insert_chart("E66", &chart);
   }
 
   // Chart 6. Example with Error Bars.
@@ -166,7 +166,7 @@ int main()
     xwpp::chart_series_set_labels(series);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E82"), &chart);
+    worksheet.insert_chart("E82", &chart);
   }
 
   // Chart 7. Example with a trendline
@@ -188,7 +188,7 @@ int main()
     xwpp::series_set_trendline_line(series, poly_line);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("E98"), &chart);
+    worksheet.insert_chart("E98", &chart);
   }
 
   workbook.save("chart_data_tools.xlsx");

@@ -34,7 +34,7 @@ int main()
 
   const xwpp::image_options_t options{.x_offset_ = 1, .y_offset_ = 2, .description_ = "yellow.png"};
 
-  worksheet.insert_image_buffer(CELL("D7"), image_buffer, options);
+  worksheet.insert_image_buffer("D7", image_buffer, options);
 
   workbook.save("test_image83.xlsx");
 }

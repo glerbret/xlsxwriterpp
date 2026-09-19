@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_formula(CELL("A1"), "=1+_xlfn.XOR(1)", nullptr, 2);
+  worksheet.write_formula("A1", "=1+_xlfn.XOR(1)", nullptr, 2);
 
   workbook.save("test_dynamic_array03.xlsx");
 }

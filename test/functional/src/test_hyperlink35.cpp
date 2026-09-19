@@ -16,10 +16,10 @@ int main()
   const xwpp::image_options_t options3{.url_ = "https://github.com/baz"};
   const xwpp::image_options_t options4{.url_ = "https://github.com/boo"};
 
-  worksheet.insert_image(CELL("A1"), "images/blue.png", options1);
-  worksheet.insert_image(CELL("B3"), "images/red.jpg", options2);
-  worksheet.insert_image(CELL("D5"), "images/yellow.jpg", options3);
-  worksheet.insert_image(CELL("F9"), "images/grey.png", options4);
+  worksheet.insert_image("A1", "images/blue.png", options1);
+  worksheet.insert_image("B3", "images/red.jpg", options2);
+  worksheet.insert_image("D5", "images/yellow.jpg", options3);
+  worksheet.insert_image("F9", "images/grey.png", options4);
 
   workbook.save("test_hyperlink35.xlsx");
 }

@@ -39,7 +39,7 @@ int main()
   chart_series_set_labels_options(series, true, true, true);
   chart_series_set_labels_position(series, xwpp::chart_label_position_t::CENTER);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format16.xlsx");
 }

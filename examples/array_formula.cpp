@@ -31,8 +31,8 @@ int main()
   // Write an array formula that returns a single value.
   worksheet.write_array_formula(0, 0, 0, 0, "{=SUM(B1:C1*B2:C2)}");
 
-  // Similar to above but using the RANGE macro.
-  worksheet.write_array_formula(RANGE("A2:A2"), "{=SUM(B1:C1*B2:C2)}");
+  // Similar to above but using a range name.
+  worksheet.write_array_formula("A2:A2", "{=SUM(B1:C1*B2:C2)}");
 
   // Write an array formula that returns a range of values.
   worksheet.write_array_formula(4, 0, 6, 0, "{=TREND(C5:C7,B5:B7)}");

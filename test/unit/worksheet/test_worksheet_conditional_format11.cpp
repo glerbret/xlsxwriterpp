@@ -66,10 +66,10 @@ BOOST_AUTO_TEST_CASE(condtional_format11)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write(CELL("A1"), 10);
-  worksheet.write(CELL("A2"), 20);
-  worksheet.write(CELL("A3"), 30);
-  worksheet.write(CELL("A4"), 40);
+  worksheet.write("A1", 10);
+  worksheet.write("A2", 20);
+  worksheet.write("A3", 30);
+  worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format{
     .type_      = xwpp::conditional_format_types_t::CELL,
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(condtional_format11)
     .max_value_ = xwpp::datetime_to_excel_datetime(
       xwpp::datetime_t{.year_ = 2011, .month_ = 12, .day_ = 31, .hour_ = 0, .min_ = 0, .sec_ = 0}),
   };
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format);
+  worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

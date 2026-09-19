@@ -13,10 +13,10 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "http://www.perl.org/");
-  worksheet.write_url(CELL("A3"), "http://www.perl.org/", "Perl home");
-  worksheet.write_url(CELL("A5"), "http://www.perl.org/", "Perl home", "Tool Tip");
-  worksheet.write_url(CELL("A7"), "http://www.cpan.org/", "CPAN", "Download");
+  worksheet.write_url("A1", "http://www.perl.org/");
+  worksheet.write_url("A3", "http://www.perl.org/", "Perl home");
+  worksheet.write_url("A5", "http://www.perl.org/", "Perl home", "Tool Tip");
+  worksheet.write_url("A7", "http://www.cpan.org/", "CPAN", "Download");
 
   workbook.save("test_hyperlink05.xlsx");
 }

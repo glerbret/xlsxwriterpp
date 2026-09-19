@@ -40,7 +40,7 @@ int main()
   xwpp::chart_series_set_labels_position(series1, xwpp::chart_label_position_t::OUTSIDE_END);
   xwpp::chart_series_set_labels_position(series2, xwpp::chart_label_position_t::INSIDE_BASE);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_data_labels03.xlsx");
 }

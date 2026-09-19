@@ -50,7 +50,7 @@ int main()
   chart_axis_set_name(chart.y_axis_, "YYY");
   chart_axis_set_name_layout(chart.y_axis_, layout_y);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_layout05.xlsx");
 }

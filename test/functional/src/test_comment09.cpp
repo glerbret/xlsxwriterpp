@@ -14,9 +14,9 @@ int main()
   const xwpp::comment_options_t options1{.author_ = "John"};
   const xwpp::comment_options_t options2{.author_ = "Perl"};
 
-  worksheet.write_comment(CELL("A1"), "Some text", options1);
-  worksheet.write_comment(CELL("A2"), "Some text", options2);
-  worksheet.write_comment(CELL("A3"), "Some text");
+  worksheet.write_comment("A1", "Some text", options1);
+  worksheet.write_comment("A2", "Some text", options2);
+  worksheet.write_comment("A3", "Some text");
 
   worksheet.set_comments_author("John");
 

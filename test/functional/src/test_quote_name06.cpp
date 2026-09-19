@@ -47,7 +47,7 @@ int main()
   chart_series_set_values(series2, sheetname, 0, 1, 4, 1);
   chart_series_set_values(series3, sheetname, 0, 2, 4, 2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_quote_name06.xlsx");
 }

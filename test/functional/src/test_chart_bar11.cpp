@@ -37,9 +37,9 @@ int main()
     row_num++;
   }
 
-  worksheet.write_url(CELL("A7"), "http://www.perl.com/");
-  worksheet.write_url(CELL("A8"), "http://www.perl.org/");
-  worksheet.write_url(CELL("A9"), "http://www.perl.net/");
+  worksheet.write_url("A7", "http://www.perl.com/");
+  worksheet.write_url("A8", "http://www.perl.org/");
+  worksheet.write_url("A9", "http://www.perl.net/");
 
   chart1.add_series("", "=Sheet1!$A$1:$A$5");
   chart1.add_series("", "=Sheet1!$B$1:$B$5");
@@ -50,9 +50,9 @@ int main()
 
   chart3.add_series("", "=Sheet1!$A$1:$A$5");
 
-  worksheet.insert_chart(CELL("E9"), &chart1);
-  worksheet.insert_chart(CELL("D25"), &chart2);
-  worksheet.insert_chart(CELL("L32"), &chart3);
+  worksheet.insert_chart("E9", &chart1);
+  worksheet.insert_chart("D25", &chart2);
+  worksheet.insert_chart("L32", &chart3);
 
   workbook.save("test_chart_bar11.xlsx");
 }

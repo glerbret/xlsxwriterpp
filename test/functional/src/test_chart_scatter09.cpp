@@ -37,7 +37,7 @@ int main()
 
   chart_series_set_smooth(series, false);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_scatter09.xlsx");
 }

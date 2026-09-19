@@ -39,7 +39,7 @@ int main()
   chart_axis_set_line(chart.x_axis_, line);
   chart_axis_set_line(chart.y_axis_, line);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis39.xlsx");
 }

@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
   worksheet.set_tab_color(xwpp::color_t::rgb(0xFF, 0x00, 0x00));
 
   workbook.save("test_tab_color03.xlsx");

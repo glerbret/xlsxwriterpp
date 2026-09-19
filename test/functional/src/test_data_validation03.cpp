@@ -26,7 +26,7 @@ int main()
     .input_title_   = "This is the input title",
     .input_message_ = "This is the input message",
   };
-  worksheet.data_validation_cell(CELL("C2"), data_validation1);
+  worksheet.data_validation_cell("C2", data_validation1);
 
   const xwpp::data_validation_t data_validation2{
     .validate_    = xwpp::validation_types_t::LIST,
@@ -37,7 +37,7 @@ int main()
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   };
-  worksheet.data_validation_cell(CELL("D6"), data_validation2);
+  worksheet.data_validation_cell("D6", data_validation2);
 
   workbook.save("test_data_validation03.xlsx");
 }

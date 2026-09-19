@@ -40,7 +40,7 @@ int main()
   chart.add_series("", "=Sheet1!$G$1:$G$3");
   chart.add_series("", "=Sheet1!$H$1:$H$3");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_pattern01.xlsx");
 }

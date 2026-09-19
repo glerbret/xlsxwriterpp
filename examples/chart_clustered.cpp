@@ -80,7 +80,7 @@ int main()
   chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("G3"), &chart);
+  worksheet.insert_chart("G3", &chart);
 
   workbook.save("chart_clustered2.xlsx");
 }

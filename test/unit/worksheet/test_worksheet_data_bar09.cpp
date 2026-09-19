@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(data_bar09)
     .bar_only_      = true,
     .data_bar_2010_ = true,
   };
-  worksheet.conditional_format_cell(CELL("A1"), conditional_format);
+  worksheet.conditional_format_cell("A1", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

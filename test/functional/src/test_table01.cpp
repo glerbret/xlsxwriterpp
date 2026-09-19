@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("C:F"), 10.288);
+  worksheet.set_column("C:F", 10.288);
 
-  worksheet.add_table(RANGE("C3:F13"));
+  worksheet.add_table("C3:F13");
 
   workbook.save("test_table01.xlsx");
 }

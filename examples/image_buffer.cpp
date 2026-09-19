@@ -39,10 +39,10 @@ int main()
   };
 
   // Insert the image from the buffer.
-  worksheet.insert_image_buffer(CELL("B3"), image_buffer);
+  worksheet.insert_image_buffer("B3", image_buffer);
 
   // Insert the image from the same buffer, with some options.
-  worksheet.insert_image_buffer(CELL("B7"), image_buffer, options);
+  worksheet.insert_image_buffer("B7", image_buffer, options);
 
   workbook.save("image_buffer.xlsx");
 }

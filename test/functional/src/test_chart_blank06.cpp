@@ -37,7 +37,7 @@ int main()
 
   chart.show_hidden_data();
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_blank06.xlsx");
 }

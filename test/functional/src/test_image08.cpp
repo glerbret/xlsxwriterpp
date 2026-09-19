@@ -13,7 +13,7 @@ int main()
 
   const xwpp::image_options_t options{.x_scale_ = 0.5, .y_scale_ = 0.5};
 
-  worksheet.insert_image(CELL("B3"), "images/grey.png", options);
+  worksheet.insert_image("B3", "images/grey.png", options);
 
   workbook.save("test_image08.xlsx");
 }

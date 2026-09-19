@@ -38,7 +38,7 @@ int main()
   chart_series_set_labels(series);
   chart_series_set_labels_position(series, xwpp::chart_label_position_t::INSIDE_BASE);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format19.xlsx");
 }

@@ -41,7 +41,7 @@ int main()
   const std::vector<int16_t> names{2, 0};
   chart.legend_delete_series(names);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format15.xlsx");
 }

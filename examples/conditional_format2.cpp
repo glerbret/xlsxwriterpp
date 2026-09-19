@@ -67,7 +67,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write(CELL("A1"), "Cells with values >= 50 are in light red. Values < 50 are in light green.");
+    worksheet.write("A1", "Cells with values >= 50 are in light red. Values < 50 are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_     = xwpp::conditional_format_types_t::CELL,
@@ -75,7 +75,7 @@ int main()
       .value_    = 50,
       .format_   = format1,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format1);
+    worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_     = xwpp::conditional_format_types_t::CELL,
@@ -83,7 +83,7 @@ int main()
       .value_    = 50,
       .format_   = format2,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format2);
+    worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
 
   // Example 2. Conditional formatting based on max and min values.
@@ -92,8 +92,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write(CELL("A1"),
-                    "Values between 30 and 70 are in light red. Values outside that range are in light green.");
+    worksheet.write("A1", "Values between 30 and 70 are in light red. Values outside that range are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_      = xwpp::conditional_format_types_t::CELL,
@@ -102,7 +101,7 @@ int main()
       .min_value_ = 30,
       .max_value_ = 70,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format1);
+    worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_      = xwpp::conditional_format_types_t::CELL,
@@ -111,7 +110,7 @@ int main()
       .min_value_ = 30,
       .max_value_ = 70,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format2);
+    worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
 
   // Example 3. Conditional formatting with duplicate and unique values.
@@ -120,19 +119,19 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write(CELL("A1"), "Duplicate values are in light red. Unique values are in light green.");
+    worksheet.write("A1", "Duplicate values are in light red. Unique values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_   = xwpp::conditional_format_types_t::DUPLICATE,
       .format_ = format1,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format1);
+    worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_   = xwpp::conditional_format_types_t::UNIQUE,
       .format_ = format2,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format2);
+    worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
 
   // Example 4. Conditional formatting with above and below average values.
@@ -141,21 +140,21 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write(CELL("A1"), "Above average values are in light red. Below average values are in light green.");
+    worksheet.write("A1", "Above average values are in light red. Below average values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_     = xwpp::conditional_format_types_t::AVERAGE,
       .criteria_ = xwpp::conditional_criteria_t::AVERAGE_ABOVE,
       .format_   = format1,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format1);
+    worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_     = xwpp::conditional_format_types_t::AVERAGE,
       .criteria_ = xwpp::conditional_criteria_t::AVERAGE_BELOW,
       .format_   = format2,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format2);
+    worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
 
   // Example 5. Conditional formatting with top and bottom values.
@@ -164,21 +163,21 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write(CELL("A1"), "Top 10 values are in light red. Bottom 10 values are in light green.");
+    worksheet.write("A1", "Top 10 values are in light red. Bottom 10 values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_   = xwpp::conditional_format_types_t::TOP,
       .value_  = 10,
       .format_ = format1,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format1);
+    worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_   = xwpp::conditional_format_types_t::BOTTOM,
       .value_  = 10,
       .format_ = format2,
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format2);
+    worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
 
   // Example 6. Conditional formatting with multiple ranges.
@@ -187,7 +186,7 @@ int main()
 
     write_worksheet_data(worksheet);
 
-    worksheet.write(CELL("A1"),
+    worksheet.write("A1",
                     "Cells with values >= 50 are in light red.Values < 50 are in light green. Non-contiguous ranges.");
 
     const xwpp::conditional_format_t conditional_format1{
@@ -197,7 +196,7 @@ int main()
       .format_      = format1,
       .multi_range_ = "B3:K6 B9:K12",
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format1);
+    worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_        = xwpp::conditional_format_types_t::CELL,
@@ -206,7 +205,7 @@ int main()
       .format_      = format2,
       .multi_range_ = "B3:K6 B9:K12",
     };
-    worksheet.conditional_format_range(RANGE("B3:K12"), conditional_format2);
+    worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
 
   // Example 7. Conditional formatting with 2 color scales.
@@ -221,18 +220,18 @@ int main()
       worksheet.write(i + 1, 6, i);
       worksheet.write(i + 1, 8, i);
     }
-    worksheet.write(CELL("A1"), "Examples of color scales with default and user colors.");
+    worksheet.write("A1", "Examples of color scales with default and user colors.");
 
-    worksheet.write(CELL("B2"), "2 Color Scale");
-    worksheet.write(CELL("D2"), "2 Color Scale + user colors");
-    worksheet.write(CELL("G2"), "3 Color Scale");
-    worksheet.write(CELL("I2"), "3 Color Scale + user colors");
+    worksheet.write("B2", "2 Color Scale");
+    worksheet.write("D2", "2 Color Scale + user colors");
+    worksheet.write("G2", "3 Color Scale");
+    worksheet.write("I2", "3 Color Scale + user colors");
 
     // 2 color scale with standard colors.
     const xwpp::conditional_format_t conditional_format1{
       .type_ = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
     };
-    worksheet.conditional_format_range(RANGE("B3:B14"), conditional_format1);
+    worksheet.conditional_format_range("B3:B14", conditional_format1);
 
     // 2 color scale with user defined colors.
     const xwpp::conditional_format_t conditional_format2{
@@ -240,13 +239,13 @@ int main()
       .min_color_ = xwpp::color_t{0xFF0000},
       .max_color_ = xwpp::color_t{0x00FF00},
     };
-    worksheet.conditional_format_range(RANGE("D3:D14"), conditional_format2);
+    worksheet.conditional_format_range("D3:D14", conditional_format2);
 
     // 3 color scale with standard colors.
     const xwpp::conditional_format_t conditional_format3{
       .type_ = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
     };
-    worksheet.conditional_format_range(RANGE("G3:G14"), conditional_format3);
+    worksheet.conditional_format_range("G3:G14", conditional_format3);
 
     // 3 color scale with user defined colors.
     const xwpp::conditional_format_t conditional_format4{
@@ -255,7 +254,7 @@ int main()
       .mid_color_ = xwpp::color_t{0x8DB4E3},
       .max_color_ = xwpp::color_t{0x538ED5},
     };
-    worksheet.conditional_format_range(RANGE("I3:I14"), conditional_format4);
+    worksheet.conditional_format_range("I3:I14", conditional_format4);
   }
 
   // Example 8. Conditional formatting with data bars.
@@ -280,57 +279,57 @@ int main()
       row_num++;
     }
 
-    worksheet.write(CELL("A1"), "Examples of data bars.");
+    worksheet.write("A1", "Examples of data bars.");
 
-    worksheet.write(CELL("B2"), "Default data bars");
-    worksheet.write(CELL("D2"), "Bars only");
-    worksheet.write(CELL("F2"), "With user color");
-    worksheet.write(CELL("H2"), "Solid bars");
-    worksheet.write(CELL("J2"), "Right to left");
-    worksheet.write(CELL("L2"), "Excel 2010 style");
-    worksheet.write(CELL("N2"), "Negative same as positive");
+    worksheet.write("B2", "Default data bars");
+    worksheet.write("D2", "Bars only");
+    worksheet.write("F2", "With user color");
+    worksheet.write("H2", "Solid bars");
+    worksheet.write("J2", "Right to left");
+    worksheet.write("L2", "Excel 2010 style");
+    worksheet.write("N2", "Negative same as positive");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_ = xwpp::conditional_format_types_t::DATA_BAR,
     };
-    worksheet.conditional_format_range(RANGE("B3:B14"), conditional_format1);
+    worksheet.conditional_format_range("B3:B14", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_     = xwpp::conditional_format_types_t::DATA_BAR,
       .bar_only_ = true,
     };
-    worksheet.conditional_format_range(RANGE("D3:D14"), conditional_format2);
+    worksheet.conditional_format_range("D3:D14", conditional_format2);
 
     const xwpp::conditional_format_t conditional_format3{
       .type_      = xwpp::conditional_format_types_t::DATA_BAR,
       .bar_color_ = xwpp::color_t{0x63C384},
     };
-    worksheet.conditional_format_range(RANGE("F3:F14"), conditional_format3);
+    worksheet.conditional_format_range("F3:F14", conditional_format3);
 
     const xwpp::conditional_format_t conditional_format4{
       .type_      = xwpp::conditional_format_types_t::DATA_BAR,
       .bar_solid_ = true,
     };
-    worksheet.conditional_format_range(RANGE("H3:H14"), conditional_format4);
+    worksheet.conditional_format_range("H3:H14", conditional_format4);
 
     const xwpp::conditional_format_t conditional_format5{
       .type_          = xwpp::conditional_format_types_t::DATA_BAR,
       .bar_direction_ = xwpp::conditional_format_bar_direction_t::RIGHT_TO_LEFT,
     };
-    worksheet.conditional_format_range(RANGE("J3:J14"), conditional_format5);
+    worksheet.conditional_format_range("J3:J14", conditional_format5);
 
     const xwpp::conditional_format_t conditional_format6{
       .type_          = xwpp::conditional_format_types_t::DATA_BAR,
       .data_bar_2010_ = true,
     };
-    worksheet.conditional_format_range(RANGE("L3:L14"), conditional_format6);
+    worksheet.conditional_format_range("L3:L14", conditional_format6);
 
     const xwpp::conditional_format_t conditional_format7{
       .type_                           = xwpp::conditional_format_types_t::DATA_BAR,
       .bar_negative_color_same_        = true,
       .bar_negative_border_color_same_ = true,
     };
-    worksheet.conditional_format_range(RANGE("N3:N14"), conditional_format7);
+    worksheet.conditional_format_range("N3:N14", conditional_format7);
   }
 
   // Example 9. Conditional formatting with icon sets.
@@ -357,51 +356,51 @@ int main()
       worksheet.write(8, static_cast<xwpp::col_num_t>(i), i);
     }
 
-    worksheet.write(CELL("A1"), "Examples of conditional formats with icon sets.");
+    worksheet.write("A1", "Examples of conditional formats with icon sets.");
 
     const xwpp::conditional_format_t conditional_format1{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_ = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
     };
-    worksheet.conditional_format_range(RANGE("B3:D3"), conditional_format1);
+    worksheet.conditional_format_range("B3:D3", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
       .type_          = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_    = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
       .reverse_icons_ = true,
     };
-    worksheet.conditional_format_range(RANGE("B4:D4"), conditional_format2);
+    worksheet.conditional_format_range("B4:D4", conditional_format2);
 
     const xwpp::conditional_format_t conditional_format3{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_ = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
       .icons_only_ = true,
     };
-    worksheet.conditional_format_range(RANGE("B5:D5"), conditional_format3);
+    worksheet.conditional_format_range("B5:D5", conditional_format3);
 
     const xwpp::conditional_format_t conditional_format4{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
     };
-    worksheet.conditional_format_range(RANGE("B6:D6"), conditional_format4);
+    worksheet.conditional_format_range("B6:D6", conditional_format4);
 
     const xwpp::conditional_format_t conditional_format5{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_ = xwpp::conditional_icon_types_t::FOUR_ARROWS_COLORED,
     };
-    worksheet.conditional_format_range(RANGE("B7:E7"), conditional_format5);
+    worksheet.conditional_format_range("B7:E7", conditional_format5);
 
     const xwpp::conditional_format_t conditional_format6{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_ = xwpp::conditional_icon_types_t::FIVE_ARROWS_COLORED,
     };
-    worksheet.conditional_format_range(RANGE("B8:F8"), conditional_format6);
+    worksheet.conditional_format_range("B8:F8", conditional_format6);
 
     const xwpp::conditional_format_t conditional_format7{
       .type_       = xwpp::conditional_format_types_t::ICON_SETS,
       .icon_style_ = xwpp::conditional_icon_types_t::FIVE_RATINGS,
     };
-    worksheet.conditional_format_range(RANGE("B9:F9"), conditional_format7);
+    worksheet.conditional_format_range("B9:F9", conditional_format7);
   }
 
   workbook.save("conditional_format.xlsx");

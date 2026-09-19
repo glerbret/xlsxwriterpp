@@ -308,16 +308,14 @@ public:
   /// @brief `int32_t` overload.
   void set_custom_property(std::string_view name, int32_t value);
   /// @brief Integer type overload.
-  template<std::integral T>
-  void set_custom_property(std::string_view name, T value)
+  void set_custom_property(std::string_view name, std::integral auto value)
   {
     set_custom_property(name, static_cast<int32_t>(value));
   }
   /// @brief `double` overload.
   void set_custom_property(std::string_view name, double value);
   /// @brief Floating-point type overload.
-  template<std::floating_point T>
-  void set_custom_property(std::string_view name, T value)
+  void set_custom_property(std::string_view name, std::floating_point auto value)
   {
     set_custom_property(name, static_cast<double>(value));
   }
@@ -646,7 +644,7 @@ public:
    *  chart.add_series("", "Sheet1!$C$1:$C$5");
    *
    *  // Insert the chart into the worksheet
-   *  worksheet.insert_chart(CELL("B7"), &chart);
+   *  worksheet.insert_chart("B7", &chart);
    * @endcode
    *
    * The available chart types are defined in `chart_type_t`. The types of

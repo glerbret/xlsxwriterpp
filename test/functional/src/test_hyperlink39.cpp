@@ -13,7 +13,7 @@ int main()
 
   const xwpp::image_options_t options{.url_ = "external:c:\\temp\\foo.xlsx"};
 
-  worksheet.insert_image(CELL("E9"), "images/red.png", options);
+  worksheet.insert_image("E9", "images/red.png", options);
 
   workbook.save("test_hyperlink39.xlsx");
 }

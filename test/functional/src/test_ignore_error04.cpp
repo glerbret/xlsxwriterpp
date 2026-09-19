@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write(CELL("A1"), "123");
-  worksheet.write(CELL("C3"), "123");
-  worksheet.write(CELL("E5"), "123");
+  worksheet.write("A1", "123");
+  worksheet.write("C3", "123");
+  worksheet.write("E5", "123");
 
   worksheet.ignore_errors(xwpp::ignore_errors_t::NUMBER_STORED_AS_TEXT, "A1 C3 E5");
 

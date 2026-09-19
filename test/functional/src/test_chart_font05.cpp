@@ -46,7 +46,7 @@ int main()
   chart_axis_set_num_font(chart.x_axis_, font1);
   chart_axis_set_num_font(chart.y_axis_, font2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_font05.xlsx");
 }

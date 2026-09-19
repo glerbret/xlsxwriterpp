@@ -29,7 +29,7 @@ int main()
   /* const xwpp::chart_series_t& series = */ chart.add_series("", "Sheet1!$A$1:$A$6");
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("C1"), &chart);
+  worksheet.insert_chart("C1", &chart);
 
   workbook.save("chart_working_with_example.xlsx");
 }
