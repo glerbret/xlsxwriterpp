@@ -316,6 +316,35 @@ double pixels_to_height(double pixels)
   }
 }
 
+void reorder_index(col_num_t& first_col, col_num_t& last_col) noexcept(true)
+{
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+}
+
+void reorder_index(row_num_t& first_row, row_num_t& last_row) noexcept(true)
+{
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+}
+
+void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_col, col_num_t& last_col) noexcept(true)
+{
+  if(first_row > last_row)
+  {
+    std::swap(first_row, last_row);
+  }
+
+  if(first_col > last_col)
+  {
+    std::swap(first_col, last_col);
+  }
+}
+
 datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
 {
   const auto date{std::chrono::floor<std::chrono::days>(datetime)};

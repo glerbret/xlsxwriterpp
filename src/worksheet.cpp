@@ -1423,11 +1423,7 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
     collapsed = options->collapsed_;
   }
 
-  // Ensure second col is larger than first.
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_col, last_col);
 
   // Ensure that the cols are valid and store max and min values.
   // NOTE: The check shouldn't modify the row dimensions and should only
@@ -1980,14 +1976,7 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
   }
 
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   // Check that column number is valid and store the max value.
   check_dimensions(last_row, last_col, false, false);
@@ -2022,14 +2011,7 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
                             const std::optional<table_options_t>& user_options)
 {
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   // Check that column number is valid and store the max value.
   check_dimensions(last_row, last_col, true, true);
@@ -2429,16 +2411,8 @@ void worksheet_t::set_v_pagebreaks(const std::vector<col_num_t>& breaks)
 
 void worksheet_t::autofilter(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
-  // TODO Create a function to do that.
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   // Check that column number is valid and store the max value.
   check_dimensions(last_row, last_col, false, false);
@@ -2695,14 +2669,7 @@ void worksheet_t::set_selection(row_num_t first_row, col_num_t first_col, row_nu
   const std::string active_cell = rowcol_to_cell(first_row, first_col);
 
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   std::string sqref;
   // If the first and last cell are the same write a single cell.
@@ -2754,14 +2721,7 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   };
 
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   // Check that dimensions are valid but don't store them.
   check_dimensions(last_row, last_col, true, true);
@@ -3007,14 +2967,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   }
 
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   // Check that dimensions are valid but don't store them.
   check_dimensions(last_row, last_col, true, true);
@@ -3348,14 +3301,7 @@ void worksheet_t::outline_settings(bool visible, bool symbols_below, bool symbol
 void worksheet_t::print_area(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   check_dimensions(last_row, last_col, true, true);
 
@@ -3406,11 +3352,7 @@ void worksheet_t::print_row_col_headers()
 
 void worksheet_t::repeat_rows(row_num_t first_row, row_num_t last_row)
 {
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-
+  reorder_index(first_row, last_row);
   check_dimensions(last_row, 0, true, true);
 
   repeat_rows_.in_use_    = true;
@@ -3420,11 +3362,7 @@ void worksheet_t::repeat_rows(row_num_t first_row, row_num_t last_row)
 
 void worksheet_t::repeat_columns(col_num_t first_col, col_num_t last_col)
 {
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
-
+  reorder_index(first_col, last_col);
   check_dimensions(last_col, 0, true, true);
 
   repeat_cols_.in_use_    = true;
@@ -3591,14 +3529,7 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
                                       std::string_view formula, const format_t* format, double result, bool is_dynamic)
 {
   // Swap last row/col with first row/col as necessary.
-  if(first_row > last_row)
-  {
-    std::swap(first_row, last_row);
-  }
-  if(first_col > last_col)
-  {
-    std::swap(first_col, last_col);
-  }
+  reorder_index(first_row, last_row, first_col, last_col);
 
   if(formula.empty())
   {

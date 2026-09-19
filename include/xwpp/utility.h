@@ -126,6 +126,10 @@ namespace xwpp
 [[nodiscard]] double pixels_to_height(double pixels);
 [[nodiscard]] double pixels_to_width(double pixels);
 
+void reorder_index(col_num_t& first_col, col_num_t& last_col) noexcept(true);
+void reorder_index(row_num_t& first_row, row_num_t& last_row) noexcept(true);
+void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_col, col_num_t& last_col) noexcept(true);
+
 /**
  * @brief Convert a `%system_clock::time_point` to a `datetime_t`.
  *
