@@ -21,10 +21,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Write some data for the chart.
-  worksheet.write(CELL("A1"), "Pass");
-  worksheet.write(CELL("A2"), "Fail");
-  worksheet.write(CELL("B1"), 90);
-  worksheet.write(CELL("B2"), 10);
+  worksheet.write("A1", "Pass");
+  worksheet.write("A2", "Fail");
+  worksheet.write("B1", 90);
+  worksheet.write("B2", 10);
 
   // Create a pie chart.
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
@@ -46,7 +46,7 @@ int main()
   series_set_points(series, points);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("D2"), &chart);
+  worksheet.insert_chart("D2", &chart);
 
   workbook.save("chart_pie_colors.xlsx");
 }

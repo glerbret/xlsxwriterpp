@@ -35,7 +35,7 @@ int main()
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_options_t chart_options{.description_ = "Some alternative text", .decorative_ = true};
-  worksheet.insert_chart(CELL("E9"), &chart, chart_options);
+  worksheet.insert_chart("E9", &chart, chart_options);
 
   workbook.save("test_chart_area06.xlsx");
 }

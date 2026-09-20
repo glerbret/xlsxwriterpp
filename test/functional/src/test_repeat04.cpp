@@ -16,7 +16,7 @@ int main()
 
   worksheet.repeat_rows(0, 0);
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_repeat04.xlsx");
 }

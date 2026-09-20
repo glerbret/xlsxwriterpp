@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.insert_image(CELL("B3"), "images/red.jpg");
+  worksheet.insert_image("B3", "images/red.jpg");
 
   const xwpp::header_footer_options_t header_options{.image_left_ = "images/blue.jpg"};
 

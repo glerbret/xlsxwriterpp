@@ -11,8 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write(CELL("A1"), true);
-  worksheet.write(CELL("A2"), false);
+  worksheet.write("A1", true);
+  worksheet.write("A2", false);
 
   workbook.save("test_types02.xlsx");
 }

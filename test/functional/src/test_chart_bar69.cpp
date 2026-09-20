@@ -43,7 +43,7 @@ int main()
   xwpp::chart_axis_set_name_range(chart.y_axis_, "Sheet1", 2, 0);
   chart.title_set_name_range("Sheet1", 0, 0);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar69.xlsx");
 }

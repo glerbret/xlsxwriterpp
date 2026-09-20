@@ -32,7 +32,7 @@ int main()
 
   chart_axis_set_name_range(chart.y_axis_, "Sheet1", 0, 1);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_scatter15.xlsx");
 }

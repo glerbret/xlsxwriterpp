@@ -38,7 +38,7 @@ int main()
   chart_series_set_smooth(series1, true);
   chart_series_set_smooth(series3, true);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_line04.xlsx");
 }

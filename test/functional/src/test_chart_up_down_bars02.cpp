@@ -43,7 +43,7 @@ int main()
 
   chart.set_up_down_bars_format(up_line, up_fill, down_line, down_fill);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_up_down_bars02.xlsx");
 }

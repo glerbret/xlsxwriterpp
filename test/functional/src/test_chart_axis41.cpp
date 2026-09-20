@@ -39,7 +39,7 @@ int main()
   xwpp::chart_axis_set_minor_tick_mark(chart.x_axis_, xwpp::chart_axis_tick_mark_t::INSIDE);
   xwpp::chart_axis_set_minor_tick_mark(chart.y_axis_, xwpp::chart_axis_tick_mark_t::CROSSING);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis41.xlsx");
 }

@@ -44,7 +44,7 @@ int main()
 
   chart.legend_set_layout(layout);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_layout02.xlsx");
 }

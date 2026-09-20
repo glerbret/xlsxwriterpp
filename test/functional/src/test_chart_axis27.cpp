@@ -38,7 +38,7 @@ int main()
   const xwpp::chart_font_t font1{.rotation_ = -35, .baseline_ = -1};
   xwpp::chart_axis_set_num_font(chart.x_axis_, font1);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis27.xlsx");
 }

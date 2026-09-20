@@ -49,7 +49,7 @@ int main()
       {.format_ = italic, .str_ = "italic"},
     };
 
-    worksheet.write_rich_string(CELL("A1"), rich_string);
+    worksheet.write_rich_string("A1", rich_string);
   }
 
   // Example 2. Some red and blue coloring in the same string.
@@ -61,7 +61,7 @@ int main()
       {.format_ = blue, .str_ = "blue"},
     };
 
-    worksheet.write_rich_string(CELL("A3"), rich_string);
+    worksheet.write_rich_string("A3", rich_string);
   }
 
   // Example 3. A rich string plus cell formatting.
@@ -73,7 +73,7 @@ int main()
     };
 
     // Note that this example also has a "center" cell format.
-    worksheet.write_rich_string(CELL("A5"), rich_string, center);
+    worksheet.write_rich_string("A5", rich_string, center);
   }
 
   // Example 4. A math example with a superscript.
@@ -83,7 +83,7 @@ int main()
       {.format_ = superscript, .str_ = "(n-1)"},
     };
 
-    worksheet.write_rich_string(CELL("A7"), rich_string, center);
+    worksheet.write_rich_string("A7", rich_string, center);
   }
 
   workbook.save("rich_strings.xlsx");

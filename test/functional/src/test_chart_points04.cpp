@@ -43,7 +43,7 @@ int main()
   series_set_points(series1, points1);
   series_set_points(series2, points2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_points04.xlsx");
 }

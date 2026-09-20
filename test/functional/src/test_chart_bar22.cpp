@@ -39,13 +39,13 @@ int main()
   worksheet.write(3, 3, 3);
   worksheet.write(4, 3, 5);
 
-  worksheet.set_column(COLS("A:D"), 11);
+  worksheet.set_column("A:D", 11);
 
   chart.add_series("=Sheet1!$A$2:$A$5", "=Sheet1!$B$2:$B$5");
   chart.add_series("=Sheet1!$A$2:$A$5", "=Sheet1!$C$2:$C$5");
   chart.add_series("=Sheet1!$A$2:$A$5", "=Sheet1!$D$2:$D$5");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar22.xlsx");
 }

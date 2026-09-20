@@ -32,12 +32,12 @@ int main()
     row_num++;
   }
 
-  worksheet1.write(CELL("A1"), "Foo");
+  worksheet1.write("A1", "Foo");
 
   chart.add_series("Sheet2!$A$1:$A$5", "Sheet2!$B$1:$B$5");
   chart.add_series("Sheet2!$A$1:$A$5", "Sheet2!$C$1:$C$5");
 
-  worksheet2.insert_chart(CELL("E9"), &chart);
+  worksheet2.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar02.xlsx");
 }

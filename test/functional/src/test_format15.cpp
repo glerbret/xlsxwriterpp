@@ -18,8 +18,8 @@ int main()
   format2->set_bold();
   format2->set_num_format_index(1);
 
-  worksheet.write(CELL("A1"), 1, format1);
-  worksheet.write(CELL("A2"), 2, format2);
+  worksheet.write("A1", 1, format1);
+  worksheet.write("A2", 2, format2);
 
   workbook.save("test_format15.xlsx");
 }

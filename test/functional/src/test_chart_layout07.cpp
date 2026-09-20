@@ -43,7 +43,7 @@ int main()
   chart.title_set_name_range("Sheet1", 0, 0);
   chart.title_set_layout(layout);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_layout07.xlsx");
 }

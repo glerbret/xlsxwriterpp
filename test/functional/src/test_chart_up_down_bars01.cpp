@@ -35,7 +35,7 @@ int main()
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
   chart.set_up_down_bars();
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_up_down_bars01.xlsx");
 }

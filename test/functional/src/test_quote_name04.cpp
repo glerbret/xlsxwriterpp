@@ -39,7 +39,7 @@ int main()
 
   chart.title_set_name("Foo");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_quote_name04.xlsx");
 }

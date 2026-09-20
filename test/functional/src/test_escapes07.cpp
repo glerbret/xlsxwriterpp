@@ -13,9 +13,8 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"),
-                      "http://example.com/!\"$%&'( "
-                      ")*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+  worksheet.write_url("A1", "http://example.com/!\"$%&'( "
+                            ")*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
 
   workbook.save("test_escapes07.xlsx");
 }

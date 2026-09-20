@@ -65,7 +65,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D2"), &chart, options);
+    worksheet.insert_chart("D2", &chart, options);
   }
 
   // Chart 2. Example with value and category data labels.
@@ -88,7 +88,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D18"), &chart, options);
+    worksheet.insert_chart("D18", &chart, options);
   }
 
   // Chart 3. Example with standard data labels with different font.
@@ -111,7 +111,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D34"), &chart, options);
+    worksheet.insert_chart("D34", &chart, options);
   }
 
   // Chart 4. Example with standard data labels and formatting.
@@ -138,7 +138,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D50"), &chart, options);
+    worksheet.insert_chart("D50", &chart, options);
   }
 
   // Chart 5.Example with custom string data labels.
@@ -166,7 +166,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D66"), &chart, options);
+    worksheet.insert_chart("D66", &chart, options);
   }
 
   // Chart 6. Example with custom data labels from cells.
@@ -195,7 +195,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D82"), &chart, options);
+    worksheet.insert_chart("D82", &chart, options);
   }
 
   // Chart 7. Example with custom and default data labels.
@@ -228,7 +228,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D98"), &chart, options);
+    worksheet.insert_chart("D98", &chart, options);
   }
 
   // Chart 8. Example with deleted/hidden custom data labels.
@@ -258,7 +258,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D114"), &chart, options);
+    worksheet.insert_chart("D114", &chart, options);
   }
 
   // Chart 9.Example with custom string data labels and formatting.
@@ -301,7 +301,7 @@ int main()
     chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart(CELL("D130"), &chart, options);
+    worksheet.insert_chart("D130", &chart, options);
   }
 
   workbook.save("chart_data_labels.xlsx");

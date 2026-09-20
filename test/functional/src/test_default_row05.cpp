@@ -13,9 +13,9 @@ int main()
 
   worksheet.set_default_row(24, true);
 
-  worksheet.write(CELL("A1"), "Foo");
-  worksheet.write(CELL("A10"), "Bar");
-  worksheet.write(CELL("A20"), "Baz");
+  worksheet.write("A1", "Foo");
+  worksheet.write("A10", "Bar");
+  worksheet.write("A20", "Baz");
 
   for(xwpp::row_num_t row_num{1}; row_num <= 8; row_num++)
   {

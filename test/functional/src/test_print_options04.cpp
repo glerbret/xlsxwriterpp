@@ -16,7 +16,7 @@ int main()
 
   worksheet.print_row_col_headers();
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_print_options04.xlsx");
 }

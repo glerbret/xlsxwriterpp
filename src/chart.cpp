@@ -1543,7 +1543,7 @@ std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
   const uint16_t index = chart.series_index_++;
 
   std::string xml_data = xml_start_tag("c:ser");
-  xml_data += write_idx(index);
+  xml_data += write(index);
   xml_data += write_order(index);
   xml_data += write_series_name(series);
   xml_data += write_sp_pr(series.line_, series.fill_, series.pattern_);
@@ -1564,7 +1564,7 @@ std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
   return xml_data;
 }
 
-std::string chart_t::write_idx(uint16_t index)
+std::string chart_t::write(uint16_t index)
 {
   return xml_empty_tag("c:idx", attributes_t{"val", index});
 }
@@ -2663,7 +2663,7 @@ std::string chart_t::write_legend_pos(const std::string& position)
 std::string chart_t::write_legend_entry(size_t index)
 {
   std::string xml_data = xml_start_tag("c:legendEntry");
-  xml_data += write_idx(delete_series_[index]);
+  xml_data += write(delete_series_[index]);
   xml_data += write_delete();
   xml_data += xml_end_tag("c:legendEntry");
 
@@ -2894,7 +2894,7 @@ std::string chart_t::write_custom_labels(const chart_series_t& series)
     if(!data_label.value_.empty() || data_label.range_ || data_label.hide_ || data_label.font_)
     {
       xml_data += xml_start_tag("c:dLbl");
-      xml_data += write_idx(index);
+      xml_data += write(index);
       if(data_label.hide_)
       {
         xml_data += write_delete();
@@ -3547,7 +3547,7 @@ std::string chart_t::write_points(const chart_t& chart, const chart_series_t& se
 std::string chart_t::write_d_pt(const chart_t& chart, const chart_point_t& point, uint16_t index)
 {
   std::string xml_data = xml_start_tag("c:dPt");
-  xml_data += write_idx(index);
+  xml_data += write(index);
 
   if(chart.chart_group_ == chart_type_t::SCATTER || chart.chart_group_ == chart_type_t::LINE)
   {
@@ -3707,7 +3707,7 @@ std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
   const auto index = chart.series_index_++;
 
   std::string xml_data = xml_start_tag("c:ser");
-  xml_data += write_idx(index);
+  xml_data += write(index);
   xml_data += write_order(index);
   xml_data += write_series_name(series);
   xml_data += write_sp_pr(series.line_, series.fill_, series.pattern_);

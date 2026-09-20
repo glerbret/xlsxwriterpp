@@ -13,7 +13,7 @@ int main()
 
   const xwpp::image_options_t options{.url_ = "mailto:jmcnamara@cpan.org"};
 
-  worksheet.insert_image(CELL("E9"), "images/red.png", options);
+  worksheet.insert_image("E9", "images/red.png", options);
 
   workbook.save("test_hyperlink42.xlsx");
 }

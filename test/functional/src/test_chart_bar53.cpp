@@ -35,11 +35,11 @@ int main()
 
   xwpp::chart_series_t& series1 = chart1.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
   xwpp::chart_series_t& series2 = chart1.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
-  worksheet.insert_chart(CELL("E9"), &chart1);
+  worksheet.insert_chart("E9", &chart1);
 
   xwpp::chart_series_t& series3 = chart2.add_series("=Sheet1!$A$1:$A$4", "=Sheet1!$B$1:$B$4");
   xwpp::chart_series_t& series4 = chart2.add_series("=Sheet1!$A$1:$A$4", "=Sheet1!$C$1:$C$4");
-  worksheet.insert_chart(CELL("F25"), &chart2);
+  worksheet.insert_chart("F25", &chart2);
 
   // Add cache data for testing.
   xwpp::chart_add_data_cache(series1.categories_, data[0].data(), 5, 3, 0);

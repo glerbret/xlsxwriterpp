@@ -14,15 +14,15 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet1.write_url(CELL("A1"), "http://www.perl.org/");
-  worksheet1.write_url(CELL("D4"), "http://www.perl.org/");
-  worksheet1.write_url(CELL("A8"), "http://www.perl.org/");
-  worksheet1.write_url(CELL("B6"), "http://www.cpan.org/");
-  worksheet1.write_url(CELL("F12"), "http://www.cpan.org/");
+  worksheet1.write_url("A1", "http://www.perl.org/");
+  worksheet1.write_url("D4", "http://www.perl.org/");
+  worksheet1.write_url("A8", "http://www.perl.org/");
+  worksheet1.write_url("B6", "http://www.cpan.org/");
+  worksheet1.write_url("F12", "http://www.cpan.org/");
 
-  worksheet2.write_url(CELL("C2"), "http://www.google.com/");
-  worksheet2.write_url(CELL("C5"), "http://www.cpan.org/");
-  worksheet2.write_url(CELL("C7"), "http://www.perl.org/");
+  worksheet2.write_url("C2", "http://www.google.com/");
+  worksheet2.write_url("C5", "http://www.cpan.org/");
+  worksheet2.write_url("C7", "http://www.perl.org/");
 
   workbook.save("test_hyperlink03.xlsx");
 }

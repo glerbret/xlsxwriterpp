@@ -16,7 +16,7 @@ int main()
 
   worksheet.gridlines(xwpp::gridlines_t::SHOW_PRINT_GRIDLINES);
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_print_options01.xlsx");
 }

@@ -12,6 +12,7 @@
 #include "xwpp/exception.h"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <format>
 #include <ranges>
@@ -175,71 +176,17 @@ std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_
   return formula;
 }
 
-row_num_t name_to_row(std::string_view row_str)
-{
-  row_num_t row_num{0};
-
-  if(row_str.empty())
-  {
-    return row_num;
-  }
-
-  // Skip the column letters and absolute symbol of the A1 cell.
-  // Convert the row part of the A1 cell to a number.
-  if(const auto found = row_str.find_first_of("0123456789"); found != std::string_view::npos)
-  {
-    row_num = std::stoul(std::string{row_str.substr(found)});
-  }
-
-  if(row_num != 0)
-  {
-    row_num--;
-  }
-
-  return row_num;
-}
-
-uint32_t name_to_row_2(std::string_view row_str)
-{
-  if(row_str.empty())
-  {
-    return 0;
-  }
-
-  // Find the : separator in the range.
-  if(const auto found = row_str.find_first_of(':'); found != std::string_view::npos)
-  {
-    return name_to_row(row_str.substr(found + 1));
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-col_num_t name_to_col(std::string_view col_str)
+col_num_t col_from_name(std::string_view name)
 {
   col_num_t col_num{0};
 
-  if(col_str.empty())
+  for(const auto c: name)
   {
-    return col_num;
-  }
+    assert(c == '$' || isupper(c) != 0);
 
-  for(const auto c: col_str)
-  {
     if(isupper(c) != 0)
     {
       col_num = static_cast<col_num_t>((col_num * 26) + (c - 'A' + 1));
-    }
-    else if(c == '$')
-    {
-      // NOP
-    }
-    else
-    {
-      // Stop the reading
-      break;
     }
   }
 
@@ -251,22 +198,82 @@ col_num_t name_to_col(std::string_view col_str)
   return col_num;
 }
 
-uint16_t name_to_col_2(std::string_view col_str)
+std::tuple<col_num_t, col_num_t> cols_from_name(std::string_view name)
 {
-  if(col_str.empty())
-  {
-    return 0;
-  }
+  col_num_t first_col{0};
+  col_num_t last_col{0};
 
-  // Find the : separator in the range.
-  const auto found = col_str.find_first_of(':');
+  // Find the : separator in the name.
+  const auto found = name.find_first_of(':');
   if(found != std::string_view::npos)
   {
-    return name_to_col(col_str.substr(found + 1));
+    first_col = col_from_name(name.substr(0, found));
+    last_col  = col_from_name(name.substr(found + 1));
   }
   else
   {
-    return 0;
+    first_col = col_from_name(name);
+    last_col  = first_col;
+  }
+
+  return {first_col, last_col};
+}
+std::tuple<row_num_t, row_num_t> rows_from_name(std::string_view name)
+{
+  row_num_t first_row{0};
+  row_num_t last_row{0};
+
+  // Find the : separator in the name.
+  const auto found = name.find_first_of(':');
+  if(found != std::string_view::npos)
+  {
+    first_row = static_cast<row_num_t>(std::stoi(std::string{name.substr(0, found)})) - 1;
+    last_row  = static_cast<row_num_t>(std::stoi(std::string{name.substr(found + 1)})) - 1;
+  }
+  else
+  {
+    first_row = static_cast<row_num_t>(std::stoi(std::string{name.substr(0, found)})) - 1;
+    last_row  = first_row;
+  }
+
+  return {first_row, last_row};
+}
+
+std::tuple<row_num_t, col_num_t> cell_from_name(std::string_view name)
+{
+  row_num_t row_num{0};
+  col_num_t col_num{0};
+
+  // Find the first digit in the name.
+  const auto found = name.find_first_of("0123456789");
+  if(found != std::string_view::npos)
+  {
+    row_num = static_cast<row_num_t>(std::stoi(std::string{name.substr(found)})) - 1;
+    col_num = col_from_name(name.substr(0, found));
+  }
+  else
+  {
+    assert(false);
+  }
+
+  return {row_num, col_num};
+}
+
+std::tuple<row_num_t, col_num_t, row_num_t, col_num_t> range_from_name(std::string_view name)
+{
+  const auto found = name.find_first_of(':');
+  if(found != std::string_view::npos)
+  {
+    const auto [first_row, first_col] = cell_from_name(name.substr(0, found));
+    const auto [last_row, last_col]   = cell_from_name(name.substr(found + 1));
+
+    return {first_row, first_col, last_row, last_col};
+  }
+  else
+  {
+    const auto [first_row, first_col] = cell_from_name(name);
+
+    return {first_row, first_col, first_row, first_col};
   }
 }
 

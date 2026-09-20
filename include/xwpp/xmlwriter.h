@@ -37,8 +37,7 @@ namespace xwpp
 class attributes_t
 {
 public:
-  template<class... T>
-  explicit attributes_t(T... args)
+  explicit attributes_t(auto... args)
   {
     initAttribute(args...);
   }
@@ -46,13 +45,11 @@ public:
   void add_attribute(std::string_view key, std::string_view value);
   void add_attribute(std::string_view key, const char* value);
   void add_attribute(std::string_view key, bool value);
-  template<std::integral T>
-  void add_attribute(std::string_view key, T value)
+  void add_attribute(std::string_view key, std::integral auto value)
   {
     attributes_.emplace_back(key, std::format("{:d}", value));
   }
-  template<std::floating_point T>
-  void add_attribute(std::string_view key, T value)
+  void add_attribute(std::string_view key, std::floating_point auto value)
   {
     attributes_.emplace_back(key, std::format("{}", value));
   }
@@ -66,8 +63,7 @@ private:
   {
   }
 
-  template<class T, class U, class... V>
-  void initAttribute(T key, U value, V... args)
+  void initAttribute(auto key, auto value, auto... args)
   {
     add_attribute(key, value);
     initAttribute(args...);

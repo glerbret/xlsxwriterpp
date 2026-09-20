@@ -42,7 +42,7 @@ int main()
   xwpp::chart_series_set_labels_font(series1, font);
   xwpp::chart_series_set_labels_position(series2, xwpp::chart_label_position_t::INSIDE_BASE);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_data_labels24.xlsx");
 }

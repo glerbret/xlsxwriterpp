@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"),
+  worksheet.write_url("A1",
                       "http://google.com/"
                       "000000000011111111112222222222333333333344444444445555555555666666666667777777777788888888889999"
                       "999999900000000001111111111222222222233333333334444444444555555555566666666666777777777778888888"

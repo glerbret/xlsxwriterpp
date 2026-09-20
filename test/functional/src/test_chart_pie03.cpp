@@ -34,7 +34,7 @@ int main()
   const std::vector<int16_t> series{1};
   chart.legend_delete_series(series);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_pie03.xlsx");
 }

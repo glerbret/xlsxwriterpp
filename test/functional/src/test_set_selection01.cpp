@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_selection(RANGE("B4:C5"));
+  worksheet.set_selection("B4:C5");
 
   workbook.save("test_set_selection01.xlsx");
 }

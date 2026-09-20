@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::image_options_t options{.object_position_ = xwpp::object_position_t::DONT_MOVE_DONT_SIZE};
-  worksheet.insert_image(CELL("E9"), "images/red.png", options);
+  worksheet.insert_image("E9", "images/red.png", options);
 
   workbook.save("test_object_position03.xlsx");
 }

@@ -14,7 +14,7 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet1.write_url(CELL("A1"), "internal:'A & B'!A1", "Jump to A & B");
+  worksheet1.write_url("A1", "internal:'A & B'!A1", "Jump to A & B");
 
   workbook.save("test_escapes05.xlsx");
 }

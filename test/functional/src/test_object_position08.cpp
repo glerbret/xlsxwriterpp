@@ -37,21 +37,21 @@ int main()
     row_num++;
   }
 
-  worksheet.write(CELL("A1"), "Foo", bold);
-  worksheet.write(CELL("B1"), "Bar", italic);
+  worksheet.write("A1", "Foo", bold);
+  worksheet.write("B1", "Bar", italic);
 
   const xwpp::row_col_options_t row_hidden{.hidden_ = true};
   worksheet.set_row(12, row_hidden);
 
   const xwpp::row_col_options_t col_hidden{.hidden_ = true};
-  worksheet.set_column(COLS("F:F"), col_hidden);
+  worksheet.set_column("F:F", col_hidden);
 
   chart.add_series("", "=Sheet1!$A$2:$A$6");
   chart.add_series("", "=Sheet1!$B$2:$B$6");
   chart.add_series("", "=Sheet1!$C$2:$C$6");
 
   const xwpp::chart_options_t chart_options{.object_position_ = xwpp::object_position_t::MOVE_DONT_SIZE};
-  worksheet.insert_chart(CELL("E9"), &chart, chart_options);
+  worksheet.insert_chart("E9", &chart, chart_options);
 
   workbook.save("test_object_position08.xlsx");
 }

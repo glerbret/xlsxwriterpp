@@ -45,7 +45,7 @@ int main()
   xwpp::chart_axis_set_name_font(chart.x_axis_, font1);
   xwpp::chart_axis_set_name_font(chart.y_axis_, font1);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis44.xlsx");
 }

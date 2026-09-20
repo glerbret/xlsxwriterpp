@@ -26,7 +26,7 @@ int main()
   workbook.set_properties(properties);
 
   worksheet.set_column(0, 0, 70);
-  worksheet.write(CELL("A1"), "Select 'Office Button -> Prepare -> Properties' to see the file properties.");
+  worksheet.write("A1", "Select 'Office Button -> Prepare -> Properties' to see the file properties.");
 
   workbook.save("test_properties01.xlsx");
 }

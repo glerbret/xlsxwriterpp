@@ -18,8 +18,8 @@ int main()
   format2->set_underline(xwpp::format_underlines_t::SINGLE);
   format2->set_font_color(xwpp::color_t::red());
 
-  worksheet.write_url(CELL("A1"), "http://www.perl.org/", format1);
-  worksheet.write_url(CELL("A2"), "http://www.perl.com/", format2);
+  worksheet.write_url("A1", "http://www.perl.org/", format1);
+  worksheet.write_url("A2", "http://www.perl.com/", format2);
 
   workbook.save("test_hyperlink29.xlsx");
 }

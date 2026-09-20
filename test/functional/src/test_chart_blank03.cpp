@@ -37,7 +37,7 @@ int main()
 
   chart.show_blanks_as(xwpp::chart_blank_t::AS_CONNECTED);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_blank03.xlsx");
 }

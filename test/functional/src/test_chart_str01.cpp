@@ -33,13 +33,13 @@ int main()
   worksheet.write(3, 2, 12);
   worksheet.write(4, 2, 15);
 
-  worksheet.write(CELL("A6"), "Foo");
+  worksheet.write("A6", "Foo");
 
   chart.add_series("", "=Sheet1!$A$1:$A$5");
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_str01.xlsx");
 }

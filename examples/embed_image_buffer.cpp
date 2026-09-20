@@ -32,7 +32,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Embed the image from the buffer.
-  worksheet.embed_image_buffer(CELL("B3"), image_buffer);
+  worksheet.embed_image_buffer("B3", image_buffer);
 
   workbook.save("embed_image_buffer.xlsx");
 }

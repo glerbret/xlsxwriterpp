@@ -16,21 +16,21 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Change some of the column widths for clarity.
-  worksheet.set_column(COLS("A:B"), 30);
+  worksheet.set_column("A:B", 30);
 
   // Embed an image.
-  worksheet.write(CELL("A2"), "Embed an image in a cell:");
-  worksheet.embed_image(CELL("B2"), "logo.png");
+  worksheet.write("A2", "Embed an image in a cell:");
+  worksheet.embed_image("B2", "logo.png");
 
   // Make a row bigger and embed the image.
   worksheet.set_row(3, 72);
-  worksheet.write(CELL("A4"), "Embed an image in a cell:");
-  worksheet.embed_image(CELL("B4"), "logo.png");
+  worksheet.write("A4", "Embed an image in a cell:");
+  worksheet.embed_image("B4", "logo.png");
 
   // Make a row bigger and embed the image.
   worksheet.set_row(5, 150);
-  worksheet.write(CELL("A6"), "Embed an image in a cell:");
-  worksheet.embed_image(CELL("B6"), "logo.png");
+  worksheet.write("A6", "Embed an image in a cell:");
+  worksheet.embed_image("B6", "logo.png");
 
   workbook.save("embed_images.xlsx");
 }

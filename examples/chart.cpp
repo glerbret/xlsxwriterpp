@@ -56,7 +56,7 @@ int main()
   chart.title_set_name_font(font);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart(CELL("B7"), &chart);
+  worksheet.insert_chart("B7", &chart);
 
   workbook.save("chart.xlsx");
 }

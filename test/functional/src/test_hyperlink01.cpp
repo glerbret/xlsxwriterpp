@@ -13,7 +13,7 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "http://www.perl.org/");
+  worksheet.write_url("A1", "http://www.perl.org/");
 
   workbook.save("test_hyperlink01.xlsx");
 }

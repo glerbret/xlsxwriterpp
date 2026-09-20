@@ -38,7 +38,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$6", // Ranges exceeds the data.
                    "=Sheet1!$C$1:$C$6");
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_sparse01.xlsx");
 }

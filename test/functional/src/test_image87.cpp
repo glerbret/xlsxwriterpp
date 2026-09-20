@@ -28,8 +28,8 @@ int main()
 
   const xwpp::image_options_t options{.description_ = "red.png"};
 
-  worksheet.insert_image_buffer(CELL("E9"), image_buffer, options);
-  worksheet.insert_image_buffer(CELL("E13"), image_buffer, options);
+  worksheet.insert_image_buffer("E9", image_buffer, options);
+  worksheet.insert_image_buffer("E13", image_buffer, options);
 
   workbook.save("test_image87.xlsx");
 }

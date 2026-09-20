@@ -37,7 +37,7 @@ int main()
   chart.set_series_overlap(-100);
   chart.set_series_gap(0);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_gap02.xlsx");
 }

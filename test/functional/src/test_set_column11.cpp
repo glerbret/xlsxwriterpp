@@ -39,17 +39,17 @@ int main()
     row_num++;
   }
 
-  worksheet.write(CELL("A1"), "Foo", bold);
-  worksheet.write(CELL("B1"), "Bar", italic);
+  worksheet.write("A1", "Foo", bold);
+  worksheet.write("B1", "Bar", italic);
 
   worksheet.set_row(12, options);
-  worksheet.set_column(COLS("F:F"), options);
+  worksheet.set_column("F:F", options);
 
   chart.add_series("", "=Sheet1!$A$2:$A$6");
   chart.add_series("", "=Sheet1!$B$2:$B$6");
   chart.add_series("", "=Sheet1!$C$2:$C$6");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_set_column11.xlsx");
 }

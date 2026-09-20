@@ -43,7 +43,7 @@ int main()
   chart_series_set_trendline_name(series, "My trend name");
   chart_series_set_trendline_forecast(series, 0.5, 0.5);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format11.xlsx");
 }

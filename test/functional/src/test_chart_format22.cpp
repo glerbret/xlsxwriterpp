@@ -41,7 +41,7 @@ int main()
   chart_series_set_line(series1, line);
   chart_series_set_fill(series1, fill);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format22.xlsx");
 }

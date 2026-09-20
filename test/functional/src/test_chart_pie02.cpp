@@ -33,7 +33,7 @@ int main()
   const xwpp::chart_font_t font{.bold_ = true, .italic_ = true, .baseline_ = -1};
   chart.legend_set_font(font);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_pie02.xlsx");
 }

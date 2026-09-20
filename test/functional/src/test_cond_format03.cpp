@@ -21,10 +21,10 @@ int main()
   format2->get_dxf_index_(format2);
   format1->get_dxf_index_(format1);
 
-  worksheet.write(CELL("A1"), 10);
-  worksheet.write(CELL("A2"), 20);
-  worksheet.write(CELL("A3"), 30);
-  worksheet.write(CELL("A4"), 40);
+  worksheet.write("A1", 10);
+  worksheet.write("A2", 20);
+  worksheet.write("A3", 30);
+  worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
     .type_      = xwpp::conditional_format_types_t::CELL,
@@ -33,7 +33,7 @@ int main()
     .min_value_ = 2,
     .max_value_ = 6,
   };
-  worksheet.conditional_format_cell(CELL("A1"), conditional_format1);
+  worksheet.conditional_format_cell("A1", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
     .type_     = xwpp::conditional_format_types_t::CELL,
@@ -41,7 +41,7 @@ int main()
     .value_    = 1,
     .format_   = format2,
   };
-  worksheet.conditional_format_cell(CELL("A1"), conditional_format2);
+  worksheet.conditional_format_cell("A1", conditional_format2);
 
   workbook.save("test_cond_format03.xlsx");
 }

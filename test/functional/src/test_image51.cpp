@@ -14,8 +14,8 @@ int main()
   const xwpp::image_options_t options1{.url_ = "https://duckduckgo.com/?q=1"};
   const xwpp::image_options_t options2{.url_ = "https://duckduckgo.com/?q=2"};
 
-  worksheet.insert_image(CELL("E9"), "images/red.png", options1);
-  worksheet.insert_image(CELL("E13"), "images/red2.png", options2);
+  worksheet.insert_image("E9", "images/red.png", options1);
+  worksheet.insert_image("E13", "images/red2.png", options2);
 
   workbook.save("test_image51.xlsx");
 }

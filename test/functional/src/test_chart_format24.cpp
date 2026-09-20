@@ -41,7 +41,7 @@ int main()
   chart.chartarea_set_fill(fill1);
   chart.plotarea_set_fill(fill2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format24.xlsx");
 }

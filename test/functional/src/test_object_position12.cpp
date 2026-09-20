@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.set_column(COLS("B:B"), 5);
+  worksheet.set_column("B:B", 5);
 
-  worksheet.insert_image(CELL("E9"), "images/red.png");
+  worksheet.insert_image("E9", "images/red.png");
 
   workbook.save("test_object_position12.xlsx");
 }

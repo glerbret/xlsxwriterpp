@@ -28,7 +28,7 @@ int main()
 
   const xwpp::image_options_t options{.decorative_ = true};
 
-  worksheet.insert_image_buffer(CELL("E9"), image_buffer, options);
+  worksheet.insert_image_buffer("E9", image_buffer, options);
 
   workbook.save("test_image88.xlsx");
 }

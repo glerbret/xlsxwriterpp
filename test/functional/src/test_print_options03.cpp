@@ -16,7 +16,7 @@ int main()
 
   worksheet.center_vertically();
 
-  worksheet.write(CELL("A1"), "Foo");
+  worksheet.write("A1", "Foo");
 
   workbook.save("test_print_options03.xlsx");
 }

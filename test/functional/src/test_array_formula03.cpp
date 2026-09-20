@@ -18,7 +18,7 @@ int main()
   worksheet.write(1, 2, 0);
   worksheet.write(2, 2, 0);
 
-  worksheet.write_array_formula(RANGE("A1:A1"), "{=SUM(B1:C1*B2:C2)}");
+  worksheet.write_array_formula("A1:A1", "{=SUM(B1:C1*B2:C2)}");
 
   workbook.save("test_array_formula03.xlsx");
 }

@@ -14,8 +14,8 @@ int main()
 
   format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
 
-  worksheet.merge_range(RANGE("C4:E5"), "http://www.perl.org/", format);
-  worksheet.write_url(CELL("C4"), "http://www.perl.org/", format);
+  worksheet.merge_range("C4:E5", "http://www.perl.org/", format);
+  worksheet.write_url("C4", "http://www.perl.org/", format);
 
   workbook.save("test_hyperlink13.xlsx");
 }

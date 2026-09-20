@@ -61,20 +61,20 @@ BOOST_AUTO_TEST_CASE(condtional_format04)
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
 
-  worksheet.write(CELL("A1"), 10);
-  worksheet.write(CELL("A2"), 20);
-  worksheet.write(CELL("A3"), 30);
-  worksheet.write(CELL("A4"), 40);
+  worksheet.write("A1", 10);
+  worksheet.write("A2", 20);
+  worksheet.write("A3", 30);
+  worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
     .type_ = xwpp::conditional_format_types_t::DUPLICATE,
   };
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format1);
+  worksheet.conditional_format_range("A1:A4", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
     .type_ = xwpp::conditional_format_types_t::UNIQUE,
   };
-  worksheet.conditional_format_range(RANGE("A1:A4"), conditional_format2);
+  worksheet.conditional_format_range("A1:A4", conditional_format2);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }

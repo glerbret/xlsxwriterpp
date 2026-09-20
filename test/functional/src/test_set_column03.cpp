@@ -33,10 +33,10 @@ int main()
     row_num++;
   }
 
-  worksheet.write(CELL("A1"), "Foo", italic);
-  worksheet.write(CELL("B1"), "Bar", bold);
+  worksheet.write("A1", "Foo", italic);
+  worksheet.write("B1", "Bar", bold);
 
-  worksheet.set_column(COLS("F:F"), bold);
+  worksheet.set_column("F:F", bold);
 
   workbook.save("test_set_column03.xlsx");
 }

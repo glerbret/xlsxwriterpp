@@ -38,7 +38,7 @@ int main()
   chart_axis_set_crossing_max(chart.x_axis_);
   chart_axis_set_crossing_max(chart.y_axis_);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_crossing03.xlsx");
 }

@@ -46,8 +46,8 @@ int main()
   series_set_trendline(series2, xwpp::chart_trendline_type_t::LINEAR, 0);
   series_set_trendline_line(series2, line);
 
-  worksheet.insert_chart(CELL("E9"), &chart1);
-  worksheet.insert_chart(CELL("E25"), &chart2);
+  worksheet.insert_chart("E9", &chart1);
+  worksheet.insert_chart("E25", &chart2);
 
   workbook.save("test_chart_format20.xlsx");
 }

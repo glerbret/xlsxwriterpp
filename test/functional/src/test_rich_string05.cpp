@@ -21,8 +21,8 @@ int main()
 
   worksheet.set_column(0, 0, 30);
 
-  worksheet.write(CELL("A1"), "Foo", bold);
-  worksheet.write(CELL("A2"), "Bar", italic);
+  worksheet.write("A1", "Foo", bold);
+  worksheet.write("A2", "Bar", italic);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "This is "},
@@ -30,7 +30,7 @@ int main()
     {.str_ = " and this is "},
     {.format_ = italic, .str_ = "italic"}
   };
-  worksheet.write_rich_string(CELL("A3"), rich_strings);
+  worksheet.write_rich_string("A3", rich_strings);
 
   workbook.save("test_rich_string05.xlsx");
 }

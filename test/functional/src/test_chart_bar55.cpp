@@ -40,7 +40,7 @@ int main()
   xwpp::chart_add_data_cache(series2.values_, data[0].data(), 5, 3, 1);
   xwpp::chart_add_data_cache(series3.values_, data[0].data(), 5, 3, 2);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar55.xlsx");
 }

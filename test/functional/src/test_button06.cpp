@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::button_options_t options{.macro_ = "my_macro", .width_ = 128, .height_ = 30};
-  worksheet.insert_button(CELL("C2"), options);
+  worksheet.insert_button("C2", options);
 
   workbook.save("test_button06.xlsx");
 }

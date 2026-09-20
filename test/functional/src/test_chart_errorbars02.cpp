@@ -41,7 +41,7 @@ int main()
   chart_series_set_error_bars_direction(series2.y_error_bars_, xwpp::chart_error_bar_direction_t::PLUS);
   chart_series_set_error_bars_endcap(series2.y_error_bars_, xwpp::chart_error_bar_cap_t::END_CAP);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_errorbars02.xlsx");
 }

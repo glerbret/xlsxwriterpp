@@ -45,7 +45,7 @@ int main()
   chart_series_set_trendline_equation(series);
   chart_series_set_trendline_r_squared(series);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_format29.xlsx");
 }

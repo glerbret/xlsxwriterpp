@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write(CELL("A1"), "Foo");
-  worksheet.write_comment(CELL("A1"), "Some text");
-  worksheet.write_comment(CELL("XFD1048576"), "Some text");
+  worksheet.write("A1", "Foo");
+  worksheet.write_comment("A1", "Some text");
+  worksheet.write_comment("XFD1048576", "Some text");
 
   worksheet.set_comments_author("John");
 

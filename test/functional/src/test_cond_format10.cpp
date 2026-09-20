@@ -15,12 +15,12 @@ int main()
   format->set_bold();
   format->set_italic();
 
-  worksheet.write(CELL("A1"), "Hello", format);
+  worksheet.write("A1", "Hello", format);
 
-  worksheet.write(CELL("B3"), 10);
-  worksheet.write(CELL("B4"), 20);
-  worksheet.write(CELL("B5"), 30);
-  worksheet.write(CELL("B6"), 40);
+  worksheet.write("B3", 10);
+  worksheet.write("B4", 20);
+  worksheet.write("B5", 30);
+  worksheet.write("B6", 40);
 
   const xwpp::conditional_format_t conditional_format{
     .type_     = xwpp::conditional_format_types_t::CELL,
@@ -28,7 +28,7 @@ int main()
     .value_    = 20,
     .format_   = format,
   };
-  worksheet.conditional_format_range(RANGE("B3:B6"), conditional_format);
+  worksheet.conditional_format_range("B3:B6", conditional_format);
 
   workbook.save("test_cond_format10.xlsx");
 }

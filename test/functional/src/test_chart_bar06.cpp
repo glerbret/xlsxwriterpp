@@ -39,7 +39,7 @@ int main()
   xwpp::chart_axis_set_name(chart.y_axis_, "Pear");
   chart.title_set_name("Title");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_bar06.xlsx");
 }

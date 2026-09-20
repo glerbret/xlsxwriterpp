@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write(CELL("A1"), "123");
+  worksheet.write("A1", "123");
 
   workbook.save("test_ignore_error01.xlsx");
 }

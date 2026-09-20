@@ -25,7 +25,7 @@ int main()
 
   chart_axis_set_display_units(chart.y_axis_, xwpp::chart_axis_display_unit_t::HUNDREDS);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_display_units11.xlsx");
 }

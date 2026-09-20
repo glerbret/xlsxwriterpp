@@ -41,7 +41,7 @@ int main()
   chart_axis_major_gridlines_set_visible(x_axis, true);
   chart_axis_major_gridlines_set_visible(y_axis, false);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_gridlines01.xlsx");
 }

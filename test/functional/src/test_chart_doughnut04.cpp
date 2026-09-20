@@ -32,7 +32,7 @@ int main()
 
   chart.set_rotation(30);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_doughnut04.xlsx");
 }

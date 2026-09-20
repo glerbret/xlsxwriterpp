@@ -45,7 +45,7 @@ int main()
   xwpp::chart_series_set_labels_num_format(series1, "#,##0.00");
   xwpp::chart_series_set_labels_font(series1, font);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_data_labels21.xlsx");
 }

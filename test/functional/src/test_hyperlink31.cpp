@@ -14,8 +14,8 @@ int main()
 
   format1->set_bold();
 
-  worksheet.write(CELL("A1"), "Test", format1);
-  worksheet.write_url(CELL("A3"), "http://www.python.org/");
+  worksheet.write("A1", "Test", format1);
+  worksheet.write_url("A3", "http://www.python.org/");
 
   workbook.save("test_hyperlink31.xlsx");
 }

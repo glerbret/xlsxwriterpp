@@ -11,9 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.write_formula(CELL("A1"), "=B1");
-  worksheet.write_formula(CELL("A2"), "=B1");
-  worksheet.write_formula(CELL("A3"), "=B3");
+  worksheet.write_formula("A1", "=B1");
+  worksheet.write_formula("A2", "=B1");
+  worksheet.write_formula("A3", "=B3");
 
   worksheet.ignore_errors(xwpp::ignore_errors_t::FORMULA_DIFFERS, "A2");
 

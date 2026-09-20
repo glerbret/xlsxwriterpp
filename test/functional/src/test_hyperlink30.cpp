@@ -24,9 +24,9 @@ int main()
   format3->set_font_color(xwpp::color_t::blue());
   format3->set_underline(xwpp::format_underlines_t::SINGLE);
 
-  worksheet.write_url(CELL("A1"), "http://www.python.org/1", format1);
-  worksheet.write_url(CELL("A2"), "http://www.python.org/2", format2);
-  worksheet.write_url(CELL("A3"), "http://www.python.org/3", format3);
+  worksheet.write_url("A1", "http://www.python.org/1", format1);
+  worksheet.write_url("A2", "http://www.python.org/2", format2);
+  worksheet.write_url("A3", "http://www.python.org/3", format3);
 
   workbook.save("test_hyperlink30.xlsx");
 }

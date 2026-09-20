@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  worksheet.insert_image(CELL("E9"), "images/logo.jpg");
+  worksheet.insert_image("E9", "images/logo.jpg");
   worksheet.set_background("images/logo.jpg");
 
   workbook.save("test_background03.xlsx");

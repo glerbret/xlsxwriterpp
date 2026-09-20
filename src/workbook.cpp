@@ -1270,7 +1270,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
   const std::string formula = range.formula_;
 
   // Check for valid formula. Note, This needs stronger validation.
-  size_t found_string = formula.find('!');
+  const size_t found_string = formula.find('!');
   if(found_string == std::string::npos)
   {
     range.ignore_cache_ = true;
@@ -1307,22 +1307,12 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
     }
 
     range.sheetname_ = sheetname;
-    range.first_row_ = name_to_row(tmp_str);
-    range.first_col_ = name_to_col(tmp_str);
 
-    found_string = formula.find(':');
-    if(found_string == std::string::npos)
-    {
-      // 1D range.
-      range.last_row_ = range.first_row_;
-      range.last_col_ = range.first_col_;
-    }
-    else
-    {
-      // 2D range.
-      range.last_row_ = name_to_row_2(tmp_str);
-      range.last_col_ = name_to_col_2(tmp_str);
-    }
+    const auto [first_row, first_col, last_row, last_col] = range_from_name(tmp_str);
+    range.first_row_                                      = first_row;
+    range.first_col_                                      = first_col;
+    range.last_row_                                       = last_row;
+    range.last_col_                                       = last_col;
   }
 }
 

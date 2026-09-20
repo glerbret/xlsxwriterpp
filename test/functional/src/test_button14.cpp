@@ -16,7 +16,7 @@ int main()
   workbook.set_vba_name("ThisWorkbook");
   worksheet.set_vba_name("Sheet1");
   */
-  worksheet.insert_button(CELL("C2"), options);
+  worksheet.insert_button("C2", options);
   workbook.add_vba_project("images/vbaProject02.bin");
 
   workbook.save("test_button14.xlsm");

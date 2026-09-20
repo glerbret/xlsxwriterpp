@@ -24,7 +24,7 @@ int main()
     }
   }
 
-  worksheet3.write_comment(CELL("A1"), "More text");
+  worksheet3.write_comment("A1", "More text");
 
   worksheet1.set_comments_author("John");
   worksheet3.set_comments_author("John");

@@ -19,32 +19,32 @@ int main()
   worksheet.set_column(0, 0, 30);
 
   // Insert an image.
-  worksheet.write(CELL("A2"), "Insert an image in a cell:");
+  worksheet.write("A2", "Insert an image in a cell:");
 
-  worksheet.insert_image(CELL("B2"), "logo.png");
+  worksheet.insert_image("B2", "logo.png");
 
   // Insert an image offset in the cell.
-  worksheet.write(CELL("A12"), "Insert an offset image:");
+  worksheet.write("A12", "Insert an offset image:");
 
   {
     const xwpp::image_options_t options{.x_offset_ = 15, .y_offset_ = 10};
-    worksheet.insert_image(CELL("B12"), "logo.png", options);
+    worksheet.insert_image("B12", "logo.png", options);
   }
 
   // Insert an image with scaling.
-  worksheet.write(CELL("A22"), "Insert a scaled image:");
+  worksheet.write("A22", "Insert a scaled image:");
 
   {
     const xwpp::image_options_t options{.x_scale_ = 0.5, .y_scale_ = 0.5};
-    worksheet.insert_image(CELL("B22"), "logo.png", options);
+    worksheet.insert_image("B22", "logo.png", options);
   }
 
   // Insert an image with a hyperlink.
-  worksheet.write(CELL("A32"), "Insert an image with a hyperlink:");
+  worksheet.write("A32", "Insert an image with a hyperlink:");
 
   {
     const xwpp::image_options_t options{.url_ = "https://github.com/glerbret"};
-    worksheet.insert_image(CELL("B32"), "logo.png", options);
+    worksheet.insert_image("B32", "logo.png", options);
   }
 
   workbook.save("images.xlsx");

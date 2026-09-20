@@ -17,8 +17,8 @@ int main()
   xwpp::format_t* italic = workbook.add_format();
   italic->set_italic();
 
-  worksheet.write(CELL("A1"), true, bold);
-  worksheet.write(CELL("A2"), false, italic);
+  worksheet.write("A1", true, bold);
+  worksheet.write("A2", false, italic);
 
   workbook.save("test_types08.xlsx");
 }

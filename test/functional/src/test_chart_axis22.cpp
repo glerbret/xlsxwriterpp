@@ -37,7 +37,7 @@ int main()
 
   chart_axis_set_num_format(chart.x_axis_, "#,##0.00");
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_axis22.xlsx");
 }

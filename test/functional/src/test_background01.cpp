@@ -14,7 +14,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const std::filesystem::path path = std::filesystem::path{"images"} / "logo.jpg";
-  worksheet.insert_image(CELL("E9"), path);
+  worksheet.insert_image("E9", path);
 
   workbook.save("test_background01.xlsx");
 }

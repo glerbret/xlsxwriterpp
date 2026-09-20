@@ -38,7 +38,7 @@ int main()
   chart.title_set_name("Title!");
   chart.title_set_name_font(font);
 
-  worksheet.insert_chart(CELL("E9"), &chart);
+  worksheet.insert_chart("E9", &chart);
 
   workbook.save("test_chart_title03.xlsx");
 }

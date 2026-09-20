@@ -13,7 +13,7 @@ int main()
 
   workbook.unset_default_url_format();
 
-  worksheet.write_url(CELL("A1"), "http://www.perl.com/?a=1&b=2");
+  worksheet.write_url("A1", "http://www.perl.com/?a=1&b=2");
 
   workbook.save("test_escapes04.xlsx");
 }
