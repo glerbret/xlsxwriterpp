@@ -36,7 +36,7 @@ uint32_t md5_t::leftrotate(uint32_t x, uint32_t n)
 }
 
 // Process one 512-bit chunks.
-void md5_t::step(const std::array<uint32_t, 16>& chunck)
+void md5_t::step(const std::array<uint32_t, 16>& chunk)
 {
   uint32_t a{a0};
   uint32_t b{b0};
@@ -72,7 +72,7 @@ void md5_t::step(const std::array<uint32_t, 16>& chunck)
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    f = f + a + k_sine[i] + chunck[g];
+    f = f + a + k_sine[i] + chunk[g];
     a = d;
     d = c;
     c = b;

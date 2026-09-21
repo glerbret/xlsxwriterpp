@@ -110,19 +110,7 @@ void format_t::set_bg_color(color_t color)
 
 void format_t::set_underline(format_underlines_t style)
 {
-  switch(style)
-  {
-    case format_underlines_t::SINGLE:
-    case format_underlines_t::DOUBLE:
-    case format_underlines_t::SINGLE_ACCOUNTING:
-    case format_underlines_t::DOUBLE_ACCOUNTING:
-      underline_ = style;
-      break;
-
-    case format_underlines_t::NONE:
-      // NOP
-      break;
-  }
+  underline_ = style;
 }
 
 void format_t::set_text_wrap()

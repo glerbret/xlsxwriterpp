@@ -28,33 +28,21 @@ std::optional<chart_font_t> convert_font_args(const std::optional<chart_font_t>&
     return std::nullopt;
   }
 
-  chart_font_t font{
+  return chart_font_t{
     .name_         = user_font->name_,
-    .size_         = user_font->size_,
+    // Convert font size units.
+    .size_         = user_font->size_ * 100.,
     .bold_         = user_font->bold_,
     .italic_       = user_font->italic_,
     .underline_    = user_font->underline_,
-    .rotation_     = user_font->rotation_,
+    // Convert rotation into 60,000ths of a degree.
+    .rotation_     = user_font->rotation_ * 60000,
     .color_        = user_font->color_,
     .pitch_family_ = user_font->pitch_family_,
     .charset_      = user_font->charset_,
     .baseline_     = user_font->baseline_,
     .title_font_   = title_font,
   };
-
-  // Convert font size units.
-  if(font.size_ > 0.0)
-  {
-    font.size_ = font.size_ * 100.0;
-  }
-
-  // Convert rotation into 60,000ths of a degree.
-  if(font.rotation_ != 0)
-  {
-    font.rotation_ = font.rotation_ * 60000;
-  }
-
-  return font;
 }
 
 std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>& user_line)
@@ -64,20 +52,13 @@ std::optional<chart_line_t> convert_line_args(const std::optional<chart_line_t>&
     return std::nullopt;
   }
 
-  chart_line_t line{
+  return chart_line_t{
     .color_        = user_line->color_,
     .none_         = user_line->none_,
     .width_        = user_line->width_,
     .dash_type_    = user_line->dash_type_,
-    .transparency_ = user_line->transparency_,
+    .transparency_ = user_line->transparency_ <= 100 ? user_line->transparency_ : uint8_t{0},
   };
-
-  if(line.transparency_ > 100)
-  {
-    line.transparency_ = 0;
-  }
-
-  return line;
 }
 
 std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> user_fill)
@@ -87,18 +68,11 @@ std::optional<chart_fill_t> convert_fill_args(const std::optional<chart_fill_t> 
     return std::nullopt;
   }
 
-  chart_fill_t fill{
+  return chart_fill_t{
     .color_        = user_fill->color_,
     .none_         = user_fill->none_,
-    .transparency_ = user_fill->transparency_,
+    .transparency_ = user_fill->transparency_ <= 100 ? user_fill->transparency_ : uint8_t{0},
   };
-
-  if(fill.transparency_ > 100)
-  {
-    fill.transparency_ = 0;
-  }
-
-  return fill;
 }
 
 std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pattern_t>& user_pattern)
@@ -108,29 +82,16 @@ std::optional<chart_pattern_t> convert_pattern_args(const std::optional<chart_pa
     return std::nullopt;
   }
 
-  if(user_pattern->type_ == chart_pattern_type_t::NONE)
+  if(user_pattern->type_ == chart_pattern_type_t::NONE || !user_pattern->fg_color_)
   {
     return chart_pattern_t{};
   }
 
-  if(!user_pattern->fg_color_)
-  {
-    return chart_pattern_t{};
-  }
-
-  chart_pattern_t pattern{
+  return chart_pattern_t{
     .fg_color_ = user_pattern->fg_color_,
-    .bg_color_ = user_pattern->bg_color_,
+    .bg_color_ = user_pattern->bg_color_.value_or(color_t::white()),
     .type_     = user_pattern->type_,
   };
-
-  if(!pattern.bg_color_)
-  {
-    // Default background color in Excel is white, when unspecified.
-    pattern.bg_color_ = color_t::white();
-  }
-
-  return pattern;
 }
 
 std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layout_t>& user_layout,
@@ -141,35 +102,35 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
     return std::nullopt;
   }
 
-  chart_layout_t layout;
   switch(type)
   {
     case chart_layout_type_t::LEGEND:
-      layout.x_         = user_layout->x_;
-      layout.y_         = user_layout->y_;
-      layout.width_     = user_layout->width_;
-      layout.height_    = user_layout->height_;
-      layout.has_inner_ = false;
-      break;
+      return chart_layout_t{
+        .x_         = user_layout->x_,
+        .y_         = user_layout->y_,
+        .width_     = user_layout->width_,
+        .height_    = user_layout->height_,
+        .has_inner_ = false,
+      };
 
     case chart_layout_type_t::PLOTAREA:
-      layout.x_         = user_layout->x_;
-      layout.y_         = user_layout->y_;
-      layout.width_     = user_layout->width_;
-      layout.height_    = user_layout->height_;
-      layout.has_inner_ = true;
-      break;
+      return chart_layout_t{
+        .x_         = user_layout->x_,
+        .y_         = user_layout->y_,
+        .width_     = user_layout->width_,
+        .height_    = user_layout->height_,
+        .has_inner_ = true,
+      };
 
     default:
-      layout.x_         = user_layout->x_;
-      layout.y_         = user_layout->y_;
-      layout.width_     = 0.0;
-      layout.height_    = 0.0;
-      layout.has_inner_ = false;
-      break;
+      return chart_layout_t{
+        .x_         = user_layout->x_,
+        .y_         = user_layout->y_,
+        .width_     = 0.0,
+        .height_    = 0.0,
+        .has_inner_ = false,
+      };
   }
-
-  return layout;
 }
 
 // Verify that a X/Y error bar property is supported for the chart type.

@@ -517,7 +517,7 @@ void workbook_t::add_vba_project(const std::filesystem::path& filename)
 
   // Check that the VBA file exists and can be opened.
   {
-    const std::ifstream vba_stream(filename);
+    const std::ifstream vba_stream{filename};
     if(!vba_stream)
     {
       throw xwpp_exception_t(std::format(
@@ -540,7 +540,7 @@ void workbook_t::add_signed_vba_project(const std::filesystem::path& vba_project
 
   // Check that the vbaProjectSignature file exists and can be opened.
   {
-    const std::ifstream signature_file(signature);
+    const std::ifstream signature_file{signature};
     if(!signature_file)
     {
       throw xwpp_exception_t(
@@ -868,13 +868,11 @@ void workbook_t::prepare_vml()
   }
 }
 
-/*
- * Process and store the defined names. The defined names are stored with
- * the Workbook.xml but also with the App.xml if they refer to a sheet
- * range like "Sheet1!:A1". The defined names are store in sorted
- * order for consistency with Excel. The names need to be normalized before
- * sorting.
- */
+// Process and store the defined names. The defined names are stored with
+// the Workbook.xml but also with the App.xml if they refer to a sheet
+// range like "Sheet1!:A1". The defined names are store in sorted
+// order for consistency with Excel. The names need to be normalized before
+// sorting.
 void workbook_t::store_defined_name(std::string_view name, std::string_view app_name, std::string_view formula,
                                     size_t index, bool hidden)
 {
@@ -1238,10 +1236,9 @@ void workbook_t::prepare_drawings()
   drawing_count_ = static_cast<uint16_t>(drawing_id);
 }
 
-/* Convert a chart range such as Sheet1!$A$1:$A$5 to a sheet name and row-col
- * dimensions, or vice-versa. This gives us the dimensions to read data back
- * from the worksheet.
- */
+// Convert a chart range such as Sheet1!$A$1:$A$5 to a sheet name and row-col
+// dimensions, or vice-versa. This gives us the dimensions to read data back
+// from the worksheet.
 void workbook_t::populate_range_dimensions(series_range_t& range) const
 {
   // If neither the range formula or sheetname is defined then this probably
@@ -1316,15 +1313,13 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
   }
 }
 
-/*
- * Populate the data cache of a chart data series by reading the data from the
- * relevant worksheet and adding it to the cached in the range object as a
- * list of points.
- *
- * Note, the data cache isn't strictly required by Excel but it helps if the
- * chart is embedded in another application such as PowerPoint and it also
- * helps with comparison testing.
- */
+// Populate the data cache of a chart data series by reading the data from the
+// relevant worksheet and adding it to the cached in the range object as a
+// list of points.
+//
+// Note, the data cache isn't strictly required by Excel but it helps if the
+// chart is embedded in another application such as PowerPoint and it also
+// helps with comparison testing.
 void workbook_t::populate_range_data_cache(series_range_t& range) const
 {
   uint16_t num_data_points{0};
@@ -1462,14 +1457,13 @@ void workbook_t::prepare_fills()
   // TODO Use unordered_set to optimise this search.
   for(auto* format: used_xf_formats_)
   {
-    /* The following logical statements jointly take care of special */
-    /* cases in relation to cell colors and patterns:                */
-    /* 1. For a solid fill (pattern == 1) Excel reverses the role of */
-    /*    foreground and background colors, and                      */
-    /* 2. If the user specifies a foreground or background color     */
-    /*    without a pattern they probably wanted a solid fill, so    */
-    /*    we fill in the defaults.
-     */
+    // The following logical statements jointly take care of special
+    // cases in relation to cell colors and patterns:
+    // 1. For a solid fill (pattern == 1) Excel reverses the role of
+    //    foreground and background colors, and
+    // 2. If the user specifies a foreground or background color
+    //    without a pattern they probably wanted a solid fill, so
+    //    we fill in the defaults.
     if(format->pattern_ == format_patterns_t::SOLID && format->bg_color_ && format->fg_color_)
     {
       std::swap(format->bg_color_, format->fg_color_);

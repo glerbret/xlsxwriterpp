@@ -683,11 +683,7 @@ struct chart_line_t
   /** Width of the line in increments of 0.25. Default is 2.25. */
   double width_{0.};
 
-  /**
-   * The line dash type.
-   *
-   * @see `chart_line_dash_type_t`.
-   */
+  /** The line dash type. */
   chart_line_dash_type_t dash_type_{chart_line_dash_type_t::SOLID};
 
   /** Set the transparency of the line. 0 - 100. Default 0. */

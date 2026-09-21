@@ -39,14 +39,7 @@ namespace
 
 [[nodiscard]] std::string write(bool value)
 {
-  if(value)
-  {
-    return xml_data_element("vt:bool", "true");
-  }
-  else
-  {
-    return xml_data_element("vt:bool", "false");
-  }
+  return xml_data_element("vt:bool", value ? "true" : "false");
 }
 
 [[nodiscard]] std::string write(const datetime_t& value)

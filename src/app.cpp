@@ -77,6 +77,7 @@ namespace
 
   return xml_data;
 }
+
 }
 
 void app_t::add_part_name(const std::string& name)
@@ -196,6 +197,7 @@ std::string app_t::write_vt_vector_heading_pairs() const
 {
   std::string xml_data =
     xml_start_tag("vt:vector", attributes_t{"size", heading_pairs_.size() * 2, "baseType", "variant"});
+
   for(const auto& [key, value]: heading_pairs_)
   {
     xml_data += write_vt_variant(key, value);

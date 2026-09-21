@@ -31,7 +31,7 @@ private:
 
   [[nodiscard]] static uint32_t leftrotate(uint32_t x, uint32_t n);
 
-  void step(const std::array<uint32_t, 16>& chunck);
+  void step(const std::array<uint32_t, 16>& chunk);
   void update(const std::vector<uint8_t>& input);
   [[nodiscard]] std::array<uint8_t, 16> finalize();
 

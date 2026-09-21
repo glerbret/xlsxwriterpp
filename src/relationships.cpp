@@ -73,22 +73,18 @@ std::string relationships_t::assemble_xml_file() const
 void relationships_t::add(std::string_view schema, std::string_view type, std::string_view target,
                           std::string_view target_mode)
 {
-  if(schema.empty() || type.empty() || target.empty())
+  if(!schema.empty() && !type.empty() && !target.empty())
   {
-    return;
+    relationships_.emplace_back(std::string(schema) + std::string(type), target, target_mode);
   }
-
-  relationships_.emplace_back(std::string(schema) + std::string(type), target, target_mode);
 }
 
 void relationships_t::add(std::string_view schema, std::string_view type, std::string_view target)
 {
-  if(schema.empty() || type.empty() || target.empty())
+  if(!schema.empty() && !type.empty() && !target.empty())
   {
-    return;
+    relationships_.emplace_back(std::string(schema) + std::string(type), target, "");
   }
-
-  relationships_.emplace_back(std::string(schema) + std::string(type), target, "");
 }
 
 }

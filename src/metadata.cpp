@@ -146,22 +146,27 @@ std::string metadata_t::assemble_xml_file() const
   std::string xml_data = xml_declaration();
   xml_data += write_metadata();
   xml_data += write_metadata_types();
+
   if(has_dynamic_functions_)
   {
     xml_data += write_cell_future_metadata();
   }
+
   if(has_embedded_images_)
   {
     xml_data += write_value_future_metadata();
   }
+
   if(has_dynamic_functions_)
   {
     xml_data += write_cell_metadata();
   }
+
   if(has_embedded_images_)
   {
     xml_data += write_value_metadata();
   }
+
   xml_data += xml_end_tag("metadata");
 
   return xml_data;
@@ -217,6 +222,7 @@ std::string metadata_t::write_value_future_metadata() const
 {
   std::string xml_data =
     xml_start_tag("futureMetadata", attributes_t{"name", "XLRICHVALUE", "count", num_embedded_images_});
+
   for(uint32_t i{0}; i < num_embedded_images_; i++)
   {
     xml_data += xml_start_tag("bk");
@@ -233,6 +239,7 @@ std::string metadata_t::write_value_future_metadata() const
 std::string metadata_t::write_value_metadata() const
 {
   std::string xml_data = xml_start_tag("valueMetadata", attributes_t{"count", num_embedded_images_});
+
   for(uint32_t i{0}; i < num_embedded_images_; i++)
   {
     xml_data += xml_start_tag("bk");
