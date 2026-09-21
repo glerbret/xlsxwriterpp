@@ -100,6 +100,18 @@ namespace
   };
 }
 
+cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const format_t* format)
+{
+  return {
+    .row_num_ = row_num,
+    .col_num_ = col_num,
+    .type_    = cell_types_t::BOOLEAN_CELL,
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    .format_  = const_cast<format_t*>(format),
+    .data_    = static_cast<uint32_t>(value),
+  };
+}
+
 [[nodiscard]] cell_t new_hyperlink_cell(row_num_t row_num, col_num_t col_num, cell_types_t link_type,
                                         std::string_view url, std::string_view str, std::string_view tooltip)
 {
@@ -110,32 +122,27 @@ namespace
     .data_       = std::string{url},
     .user_data1_ = std::string{str},
     .user_data2_ = std::string{tooltip},
-
   };
 }
 
 [[nodiscard]] cell_t new_comment_cell(row_num_t row_num, col_num_t col_num, const vml_obj_t& comment)
 {
   return {
-
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::COMMENT,
     .comment_ = comment,
-
   };
 }
 
 [[nodiscard]] cell_t new_blank_cell(row_num_t row_num, col_num_t col_num, const format_t* format)
 {
   return {
-
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::BLANK_CELL,
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     .format_  = const_cast<format_t*>(format),
-
   };
 }
 
@@ -143,7 +150,6 @@ namespace
                                       const format_t* format, double result)
 {
   return {
-
     .row_num_        = row_num,
     .col_num_        = col_num,
     .type_           = cell_types_t::FORMULA_CELL,
@@ -151,7 +157,6 @@ namespace
     .format_         = const_cast<format_t*>(format),
     .data_           = std::string{formula},
     .formula_result_ = result,
-
   };
 }
 
@@ -159,7 +164,6 @@ namespace
                                       const format_t* format, std::string_view result)
 {
   return {
-
     .row_num_    = row_num,
     .col_num_    = col_num,
     .type_       = cell_types_t::FORMULA_CELL,
@@ -167,7 +171,6 @@ namespace
     .format_     = const_cast<format_t*>(format),
     .data_       = std::string{formula},
     .user_data2_ = std::string{result},
-
   };
 }
 
@@ -175,7 +178,6 @@ namespace
                                             std::string_view range, const format_t* format, bool is_dynamic)
 {
   return {
-
     .row_num_    = row_num,
     .col_num_    = col_num,
     .type_       = is_dynamic ? cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL : cell_types_t::ARRAY_FORMULA_CELL,
@@ -183,21 +185,18 @@ namespace
     .format_     = const_cast<format_t*>(format),
     .data_       = std::string{formula},
     .user_data1_ = std::string{range},
-
   };
 }
 
 [[nodiscard]] cell_t new_error_cell(row_num_t row_num, col_num_t col_num, uint32_t value, const format_t* format)
 {
   return {
-
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::ERROR_CELL,
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     .format_  = const_cast<format_t*>(format),
     .data_    = value,
-
   };
 }
 
@@ -355,20 +354,6 @@ void get_comment_params(vml_obj_t& comment, const std::optional<comment_options_
   comment.start_row_ = start_row;
   comment.x_offset_  = x_offset;
   comment.y_offset_  = y_offset;
-}
-
-cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const format_t* format)
-{
-  cell_t cell;
-
-  cell.type_    = cell_types_t::BOOLEAN_CELL;
-  cell.row_num_ = row_num;
-  cell.col_num_ = col_num;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  cell.format_  = const_cast<format_t*>(format);
-  cell.data_    = static_cast<uint32_t>(value);
-
-  return cell;
 }
 
 size_t validation_list_length(const std::vector<std::string>& list)
@@ -3151,44 +3136,32 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   }
 
   // Check Excel limitations on input strings.
-  if(!validation.input_title_.empty())
+  if(validation.input_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
   {
-    if(validation.input_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
-    {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::data_validation_range(): 'input_title' length > Excel limit of {}.",
-                    VALIDATION_MAX_TITLE_LENGTH));
-    }
+    throw xwpp_exception_t(
+      std::format("worksheet_t::data_validation_range(): 'input_title' length > Excel limit of {}.",
+                  VALIDATION_MAX_TITLE_LENGTH));
   }
 
-  if(!validation.error_title_.empty())
+  if(validation.error_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
   {
-    if(validation.error_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
-    {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::data_validation_range(): 'error_title' length > Excel limit of {}.",
-                    VALIDATION_MAX_TITLE_LENGTH));
-    }
+    throw xwpp_exception_t(
+      std::format("worksheet_t::data_validation_range(): 'error_title' length > Excel limit of {}.",
+                  VALIDATION_MAX_TITLE_LENGTH));
   }
 
-  if(!validation.input_message_.empty())
+  if(validation.input_message_.size() > VALIDATION_MAX_STRING_LENGTH)
   {
-    if(validation.input_message_.size() > VALIDATION_MAX_STRING_LENGTH)
-    {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::data_validation_range(): 'input_message' length > Excel limit of {}.",
-                    VALIDATION_MAX_STRING_LENGTH));
-    }
+    throw xwpp_exception_t(
+      std::format("worksheet_t::data_validation_range(): 'input_message' length > Excel limit of {}.",
+                  VALIDATION_MAX_STRING_LENGTH));
   }
 
-  if(!validation.error_message_.empty())
+  if(validation.error_message_.size() > VALIDATION_MAX_STRING_LENGTH)
   {
-    if(validation.error_message_.size() > VALIDATION_MAX_STRING_LENGTH)
-    {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::data_validation_range(): 'error_message' length > Excel limit of {}.",
-                    VALIDATION_MAX_STRING_LENGTH));
-    }
+    throw xwpp_exception_t(
+      std::format("worksheet_t::data_validation_range(): 'error_message' length > Excel limit of {}.",
+                  VALIDATION_MAX_STRING_LENGTH));
   }
 
   if(validation.validate_ == validation_types_t::LIST)
