@@ -20,14 +20,16 @@ namespace
 [[nodiscard]] std::string write_rv_types_info()
 {
   return xml_start_tag(
-    "rvTypesInfo", attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2", "xmlns:mc",
-                                "http://schemas.openxmlformats.org/markup-compatibility/2006", "mc:Ignorable", "x",
-                                "xmlns:x", "http://schemas.openxmlformats.org/spreadsheetml/2006/main"});
+    "rvTypesInfo",
+    attributes_t{std::make_pair("xmlns"s, "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2"),
+                 std::make_pair("xmlns:mc"s, "http://schemas.openxmlformats.org/markup-compatibility/2006"),
+                 std::make_pair("mc:Ignorable"s, "x"),
+                 std::make_pair("xmlns:x"s, "http://schemas.openxmlformats.org/spreadsheetml/2006/main")});
 }
 
 [[nodiscard]] std::string write_flag(const std::string& name)
 {
-  return xml_empty_tag("flag", attributes_t{"name", name, "value", "1"});
+  return xml_empty_tag("flag", attributes_t{std::make_pair("name"s, name), std::make_pair("value"s, "1")});
 }
 
 [[nodiscard]] std::string write_key(const std::string& name)

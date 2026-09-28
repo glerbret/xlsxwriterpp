@@ -27,9 +27,10 @@ namespace
 
 [[nodiscard]] std::string write_rich_value_rels()
 {
-  return xml_start_tag("richValueRels",
-                       attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2022/richvaluerel",
-                                    "xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"});
+  return xml_start_tag(
+    "richValueRels",
+    attributes_t{std::make_pair("xmlns"s, "http://schemas.microsoft.com/office/spreadsheetml/2022/richvaluerel"),
+                 std::make_pair("xmlns:r"s, "http://schemas.openxmlformats.org/officeDocument/2006/relationships")});
 }
 
 }
@@ -43,6 +44,7 @@ std::string rich_value_rel_t::assemble_xml_file() const
 {
   std::string xml_data = xml_declaration();
   xml_data += write_rich_value_rels();
+
   for(uint32_t i{1}; i <= num_embedded_images_; i++)
   {
     xml_data += write_rel(i);

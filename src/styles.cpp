@@ -295,13 +295,15 @@ namespace
 
 [[nodiscard]] std::string write_cell_style(const std::string& name, uint8_t xf_id, uint8_t builtin_id)
 {
-  return xml_empty_tag("cellStyle", attributes_t{"name", name, "xfId", xf_id, "builtinId", builtin_id});
+  return xml_empty_tag("cellStyle", attributes_t{std::make_pair("name"s, name), std::make_pair("xfId"s, xf_id),
+                                                 std::make_pair("builtinId"s, builtin_id)});
 }
 
 [[nodiscard]] std::string write_table_styles()
 {
-  return xml_empty_tag("tableStyles", attributes_t{"count", "0", "defaultTableStyle", "TableStyleMedium9",
-                                                   "defaultPivotStyle", "PivotStyleLight16"});
+  return xml_empty_tag("tableStyles", attributes_t{std::make_pair("count"s, "0"),
+                                                   std::make_pair("defaultTableStyle"s, "TableStyleMedium9"),
+                                                   std::make_pair("defaultPivotStyle"s, "PivotStyleLight16")});
 }
 
 [[nodiscard]] std::string write_hyperlink_alignment()
@@ -350,9 +352,8 @@ namespace
 
 [[nodiscard]] std::string write_style_xf(bool has_hyperlink, int32_t font_id)
 {
-  attributes_t attributes{
-
-    "numFmtId", "0", "fontId", font_id, "fillId", "0", "borderId", "0"};
+  attributes_t attributes{std::make_pair("numFmtId"s, "0"), std::make_pair("fontId"s, font_id),
+                          std::make_pair("fillId"s, "0"), std::make_pair("borderId"s, "0")};
 
   if(has_hyperlink)
   {
@@ -428,7 +429,6 @@ std::string style_t::write_rich_font(const format_t* format)
 
 std::string style_t::write_num_fmts() const
 {
-  uint16_t last_format_index{0};
   if(num_format_count_ == 0)
   {
     return "";
@@ -436,7 +436,7 @@ std::string style_t::write_num_fmts() const
 
   std::string xml_data = xml_start_tag("numFmts", attributes_t{"count", num_format_count_});
 
-  for(const auto* format: xf_formats_)
+  for(uint16_t last_format_index{0}; const auto* format: xf_formats_)
   {
     // Ignore built-in number formats, i.e., < 0xA4.
     // TODO Add constantes for 0xA4
@@ -729,10 +729,8 @@ std::string style_t::write_cell_style_xfs() const
 std::string style_t::write_cell_xfs() const
 {
   size_t count{xf_formats_.size()};
-  /* If the last format is "font_only" it is for the comment font and
-   * shouldn't be counted. This is a workaround to get the last object
-   * in the list since STAILQ_LAST() requires __containerof and isn't
-   * ANSI compatible. */
+  // If the last format is "font_only" it is for the comment font and
+  // shouldn't be counted.
   if(xf_formats_.back()->font_only_)
   {
     count--;
@@ -977,10 +975,10 @@ std::string style_t::write_xf(const format_t* format)
 {
   const bool has_protection = !format->locked_ || format->hidden_;
 
-  attributes_t attributes{
-    "numFmtId", format->num_format_index_, "fontId", format->font_index_, "fillId", format->fill_index_,
-    "borderId", format->border_index_,     "xfId",   format->xf_id_,
-  };
+  attributes_t attributes{std::make_pair("numFmtId"s, format->num_format_index_),
+                          std::make_pair("fontId"s, format->font_index_),
+                          std::make_pair("fillId"s, format->fill_index_),
+                          std::make_pair("borderId"s, format->border_index_), std::make_pair("xfId"s, format->xf_id_)};
 
   if(format->quote_prefix_)
   {

@@ -31,15 +31,24 @@
 
 #include "format.h"
 
+// NOLINTNEXTLINE(google-global-names-in-headers)
+using namespace std::string_literals;
+
 namespace xwpp
 {
 
 class attributes_t
 {
 public:
-  explicit attributes_t(auto... args)
+  template<typename... Args>
+  explicit attributes_t(std::pair<std::string, Args>... args)
   {
     initAttribute(args...);
+  }
+
+  attributes_t(std::string_view key, auto value)
+  {
+    add_attribute(key, value);
   }
 
   void add_attribute(std::string_view key, std::string_view value);
@@ -63,9 +72,10 @@ private:
   {
   }
 
-  void initAttribute(auto key, auto value, auto... args)
+  template<typename T, typename... Args>
+  void initAttribute(std::pair<std::string, T> attribute, std::pair<std::string, Args>... args)
   {
-    add_attribute(key, value);
+    add_attribute(std::get<0>(attribute), std::get<1>(attribute));
     initAttribute(args...);
   }
 

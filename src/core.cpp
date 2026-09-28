@@ -35,9 +35,11 @@ namespace
 {
   return xml_start_tag(
     "cp:coreProperties",
-    attributes_t{"xmlns:cp", "http://schemas.openxmlformats.org/package/2006/metadata/core-properties", "xmlns:dc",
-                 "http://purl.org/dc/elements/1.1/", "xmlns:dcterms", "http://purl.org/dc/terms/", "xmlns:dcmitype",
-                 "http://purl.org/dc/dcmitype/", "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"});
+    attributes_t{std::make_pair("xmlns:cp"s, "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"),
+                 std::make_pair("xmlns:dc"s, "http://purl.org/dc/elements/1.1/"),
+                 std::make_pair("xmlns:dcterms"s, "http://purl.org/dc/terms/"),
+                 std::make_pair("xmlns:dcmitype"s, "http://purl.org/dc/dcmitype/"),
+                 std::make_pair("xmlns:xsi"s, "http://www.w3.org/2001/XMLSchema-instance")});
 }
 
 }

@@ -429,7 +429,7 @@ public:
    * wrapped text. To specify where the text wraps use the
    * `set_text_wrap()` method.
    *
-   * @todo Split in two functions or a two-paramters function.
+   * @todo Split in two functions or a two-parameters function.
    */
   void set_align(format_alignments_t alignment);
 

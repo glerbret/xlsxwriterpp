@@ -56,13 +56,16 @@ std::string relationships_t::assemble_xml_file() const
     rel_id++;
     if(target_mode.empty())
     {
-      xml_data += xml_empty_tag("Relationship", attributes_t{"Id", std::format("rId{}", std::to_string(rel_id)), "Type",
-                                                             type, "Target", target});
+      xml_data +=
+        xml_empty_tag("Relationship", attributes_t{std::make_pair("Id"s, std::format("rId{}", std::to_string(rel_id))),
+                                                   std::make_pair("Type"s, type), std::make_pair("Target"s, target)});
     }
     else
     {
-      xml_data += xml_empty_tag("Relationship", attributes_t{"Id", std::format("rId{}", std::to_string(rel_id)), "Type",
-                                                             type, "Target", target, "TargetMode", target_mode});
+      xml_data +=
+        xml_empty_tag("Relationship", attributes_t{std::make_pair("Id"s, std::format("rId{}", std::to_string(rel_id))),
+                                                   std::make_pair("Type"s, type), std::make_pair("Target"s, target),
+                                                   std::make_pair("TargetMode"s, target_mode)});
     }
   }
   xml_data += xml_end_tag("Relationships");
@@ -73,22 +76,18 @@ std::string relationships_t::assemble_xml_file() const
 void relationships_t::add(std::string_view schema, std::string_view type, std::string_view target,
                           std::string_view target_mode)
 {
-  if(schema.empty() || type.empty() || target.empty())
+  if(!schema.empty() && !type.empty() && !target.empty())
   {
-    return;
+    relationships_.emplace_back(std::string(schema) + std::string(type), target, target_mode);
   }
-
-  relationships_.emplace_back(std::string(schema) + std::string(type), target, target_mode);
 }
 
 void relationships_t::add(std::string_view schema, std::string_view type, std::string_view target)
 {
-  if(schema.empty() || type.empty() || target.empty())
+  if(!schema.empty() && !type.empty() && !target.empty())
   {
-    return;
+    relationships_.emplace_back(std::string(schema) + std::string(type), target, "");
   }
-
-  relationships_.emplace_back(std::string(schema) + std::string(type), target, "");
 }
 
 }

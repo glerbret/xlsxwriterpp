@@ -71,7 +71,7 @@ public:
    *  xwpp::color_t::rgb(0xFF, 0x99, 0x00);  // Orange.
    * @endcode
    */
-  static color_t rgb(uint8_t red, uint8_t green, uint8_t blue);
+  [[nodiscard]] static color_t rgb(uint8_t red, uint8_t green, uint8_t blue);
 
   /**
    * @brief Create color from CMYK percents.
@@ -92,12 +92,14 @@ public:
    * @pre yellow <= 100
    * @pre black <= 100
    */
-  static color_t cmyk(uint8_t cyan, uint8_t magenta, uint8_t yellow, uint8_t black);
+  [[nodiscard]] static color_t cmyk(uint8_t cyan, uint8_t magenta, uint8_t yellow, uint8_t black);
 
   explicit operator bool() const
   {
     return color_ != UNSET;
   }
+
+  [[nodiscard]] color_t value_or(color_t default_value) const;
 
   friend bool operator==(const color_t& lhs, const color_t& rhs) = default;
   friend bool operator!=(const color_t& lhs, const color_t& rhs) = default;
@@ -105,67 +107,82 @@ public:
   /**
    * @brief Predefined color black.
    */
-  static color_t black();
+  [[nodiscard]] static color_t black();
+
   /**
    * @brief Predefined color blue.
    */
-  static color_t blue();
+  [[nodiscard]] static color_t blue();
+
   /**
    * @brief Predefined color brown.
    */
-  static color_t brown();
+  [[nodiscard]] static color_t brown();
+
   /**
    * @brief Predefined color cyan.
    */
-  static color_t cyan();
+  [[nodiscard]] static color_t cyan();
+
   /**
    * @brief Predefined color gray.
    */
-  static color_t gray();
+  [[nodiscard]] static color_t gray();
+
   /**
    * @brief Predefined color green.
    */
-  static color_t green();
+  [[nodiscard]] static color_t green();
+
   /**
    * @brief Predefined color lime.
    */
-  static color_t lime();
+  [[nodiscard]] static color_t lime();
+
   /**
    * @brief Predefined color magenta.
    */
-  static color_t magenta();
+  [[nodiscard]] static color_t magenta();
+
   /**
    * @brief Predefined color navy.
    */
-  static color_t navy();
+  [[nodiscard]] static color_t navy();
+
   /**
    * @brief Predefined color orange.
    */
-  static color_t orange();
+  [[nodiscard]] static color_t orange();
+
   /**
    * @brief Predefined color pink.
    */
-  static color_t pink();
+  [[nodiscard]] static color_t pink();
+
   /**
    * @brief Predefined color purple.
    */
-  static color_t purple();
+  [[nodiscard]] static color_t purple();
+
   /**
    * @brief Predefined color red.
    */
-  static color_t red();
+  [[nodiscard]] static color_t red();
+
   /**
    * @brief Predefined color silver.
    */
-  static color_t silver();
+  [[nodiscard]] static color_t silver();
+
   /**
    * @brief Predefined color white.
    */
-  static color_t white();
+  [[nodiscard]] static color_t white();
+
   /**
    * @brief Predefined color yellow.
    */
-  static color_t yellow();
+  [[nodiscard]] static color_t yellow();
 
 private:
   friend struct std::formatter<xwpp::color_t>;

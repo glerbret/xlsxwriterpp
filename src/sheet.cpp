@@ -787,12 +787,12 @@ std::string sheet_t::write_sheet_views()
 
 std::string sheet_t::write_sheet_protection() const
 {
-  attributes_t attributes;
-
   if(!protection_.is_configured_)
   {
     return "";
   }
+
+  attributes_t attributes;
 
   if(!protection_.hash_.empty())
   {
@@ -889,9 +889,10 @@ std::string sheet_t::write_sheet_protection() const
 
 std::string sheet_t::write_page_margins() const
 {
-  return xml_empty_tag("pageMargins",
-                       attributes_t{"left", margin_left_, "right", margin_right_, "top", margin_top_, "bottom",
-                                    margin_bottom_, "header", margin_header_, "footer", margin_footer_});
+  return xml_empty_tag(
+    "pageMargins", attributes_t{std::make_pair("left"s, margin_left_), std::make_pair("right"s, margin_right_),
+                                std::make_pair("top"s, margin_top_), std::make_pair("bottom"s, margin_bottom_),
+                                std::make_pair("header"s, margin_header_), std::make_pair("footer"s, margin_footer_)});
 }
 
 std::string sheet_t::write_odd_header() const
@@ -946,7 +947,7 @@ void sheet_t::set_header_footer_image(const std::string& filename, image_positio
 
   // Check that the image file exists and can be opened.
   {
-    const std::ifstream image_stream(filename);
+    const std::ifstream image_stream{filename};
     if(!image_stream)
     {
       throw xwpp_exception_t(std::format(

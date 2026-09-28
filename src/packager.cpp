@@ -339,8 +339,9 @@ void packager_t::write_workbook_file(workbook_t& workbook)
 void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
-  style_t styles(workbook.font_count_, workbook.fill_count_, workbook.border_count_, workbook.num_format_count_,
-                 workbook.has_comments_, workbook.used_xf_formats_, workbook.used_dxf_formats_);
+  style_t styles{workbook.font_count_,       workbook.fill_count_,   workbook.border_count_,
+                 workbook.num_format_count_, workbook.has_comments_, workbook.used_xf_formats_,
+                 workbook.used_dxf_formats_};
 
   const std::string xml_data = styles.assemble_xml_file();
   add_buffer_to_zip(xml_data, "xl/styles.xml");
@@ -423,7 +424,7 @@ void packager_t::write_app_file(const workbook_t& workbook)
 
 void packager_t::write_core_file(const workbook_t& workbook)
 {
-  const core_t core(workbook.properties_);
+  const core_t core{workbook.properties_};
 
   const std::string xml_data = core.assemble_xml_file();
   add_buffer_to_zip(xml_data, "docProps/core.xml");
@@ -536,8 +537,8 @@ void packager_t::write_vml_files(const workbook_t& workbook)
 
     if(worksheet.has_vml_)
     {
-      vml_t vml(worksheet.vml_data_id_str_, worksheet.comment_objs_, worksheet.button_objs_, worksheet.vml_shape_id_,
-                worksheet.comment_display_default_);
+      vml_t vml{worksheet.vml_data_id_str_, worksheet.comment_objs_, worksheet.button_objs_, worksheet.vml_shape_id_,
+                worksheet.comment_display_default_};
       const std::string xml_data = vml.assemble_xml_file();
       add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
       index++;
@@ -546,7 +547,7 @@ void packager_t::write_vml_files(const workbook_t& workbook)
     if(worksheet.has_header_vml())
     {
       write_vml_drawing_rels_file(worksheet, index);
-      vml_t vml(worksheet.vml_header_id_str_, worksheet.header_image_objs_, worksheet.vml_header_id_ * 1024);
+      vml_t vml{worksheet.vml_header_id_str_, worksheet.header_image_objs_, worksheet.vml_header_id_ * 1024};
       const std::string xml_data = vml.assemble_xml_file();
       add_buffer_to_zip(xml_data, std::format("xl/drawings/vmlDrawing{}.vml", index));
       index++;
@@ -563,7 +564,7 @@ void packager_t::write_comment_files(const workbook_t& workbook)
       continue;
     }
 
-    comment_t comment(worksheet.comment_objs_, worksheet.comment_author_);
+    comment_t comment{worksheet.comment_objs_, worksheet.comment_author_};
     const std::string xml_data = comment.assemble_xml_file();
     add_buffer_to_zip(xml_data, std::format("xl/comments{}.xml", index));
     index++;
@@ -615,8 +616,8 @@ void packager_t::write_image_files(const workbook_t& workbook)
           if(object_props.image_buffer_.empty())
           {
             // Read image.
-            std::ifstream image_stream(object_props.filename_, std::ios::binary);
-            const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+            std::ifstream image_stream{object_props.filename_, std::ios::binary};
+            const std::vector<unsigned char> buffer{std::istreambuf_iterator<char>(image_stream), {}};
             add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
           }
           else
@@ -635,8 +636,8 @@ void packager_t::write_image_files(const workbook_t& workbook)
           if(object_props.image_buffer_.empty())
           {
             // Read image.
-            std::ifstream image_stream(object_props.filename_, std::ios::binary);
-            const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
+            std::ifstream image_stream{object_props.filename_, std::ios::binary};
+            const std::vector<unsigned char> buffer{std::istreambuf_iterator<char>(image_stream), {}};
             add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
           }
           else
@@ -783,8 +784,8 @@ void packager_t::add_vba_project(const workbook_t& workbook)
     return;
   }
 
-  std::ifstream vba_stream(workbook.vba_project_, std::ios::binary);
-  const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_stream), {});
+  std::ifstream vba_stream{workbook.vba_project_, std::ios::binary};
+  const std::vector<unsigned char> buffer{std::istreambuf_iterator<char>(vba_stream), {}};
   add_buffer_to_zip(buffer, "xl/vbaProject.bin");
 }
 
@@ -796,8 +797,8 @@ void packager_t::add_vba_project_signature(const workbook_t& workbook)
   }
 
   // Check that the image file exists and can be opened.
-  std::ifstream vba_signature_stream(workbook.vba_project_signature_, std::ios::binary);
-  const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(vba_signature_stream), {});
+  std::ifstream vba_signature_stream{workbook.vba_project_signature_, std::ios::binary};
+  const std::vector<unsigned char> buffer{std::istreambuf_iterator<char>(vba_signature_stream), {}};
   add_buffer_to_zip(buffer, "xl/vbaProjectSignature.bin");
 }
 

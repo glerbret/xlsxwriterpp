@@ -39,12 +39,8 @@ std::string table_t::assemble_xml_file() const
 
 std::string table_t::write_table() const
 {
-  attributes_t attributes{
-    "xmlns",
-    "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
-    "id",
-    table_obj_.id_,
-  };
+  attributes_t attributes{std::make_pair("xmlns"s, "http://schemas.openxmlformats.org/spreadsheetml/2006/main"),
+                          std::make_pair("id"s, table_obj_.id_)};
 
   if(!table_obj_.name_.empty())
   {
@@ -88,7 +84,7 @@ std::string table_t::write_auto_filter() const
 
 std::string table_t::write_table_column(uint16_t id, const table_column_t& column)
 {
-  attributes_t attributes{"id", id, "name", column.header_};
+  attributes_t attributes{std::make_pair("id"s, id), std::make_pair("name"s, column.header_)};
 
   if(!column.total_string_.empty())
   {

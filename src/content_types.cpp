@@ -30,22 +30,18 @@ content_types_t::content_types_t()
 
 void content_types_t::add_default(std::string_view key, std::string_view value)
 {
-  if(key.empty() || value.empty())
+  if(!key.empty() && !value.empty())
   {
-    return;
+    default_types_.emplace_back(key, value);
   }
-
-  default_types_.emplace_back(key, value);
 }
 
 void content_types_t::add_override(std::string_view key, std::string_view value)
 {
-  if(key.empty() || value.empty())
+  if(!key.empty() && !value.empty())
   {
-    return;
+    overrides_.emplace_back(key, value);
   }
-
-  overrides_.emplace_back(key, value);
 }
 
 void content_types_t::add_worksheet_name(std::string_view name)
@@ -118,14 +114,17 @@ std::string content_types_t::assemble_xml_file() const
 
   for(const auto& [key, value]: default_types_)
   {
-    xml_data += xml_empty_tag("Default", attributes_t{"Extension", key, "ContentType", value});
+    xml_data +=
+      xml_empty_tag("Default", attributes_t{std::make_pair("Extension"s, key), std::make_pair("ContentType"s, value)});
   }
 
   for(const auto& [key, value]: overrides_)
   {
-    xml_data += xml_empty_tag("Override", attributes_t{"PartName", key, "ContentType", value});
+    xml_data +=
+      xml_empty_tag("Override", attributes_t{std::make_pair("PartName"s, key), std::make_pair("ContentType"s, value)});
   }
   xml_data += xml_end_tag("Types");
+
   return xml_data;
 }
 

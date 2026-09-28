@@ -833,7 +833,7 @@ public:
    *
    * @note The Excel defaults are:
    *  - Left and right margins: 0.7.
-   *  - Top and bottem margins: 0.75.
+   *  - Top and bottom margins: 0.75.
    */
   void set_margins(double left, double right, double top, double bottom);
 

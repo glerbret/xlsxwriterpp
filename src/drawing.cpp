@@ -24,8 +24,8 @@ namespace
 
 [[nodiscard]] std::string write_drawing_workspace()
 {
-  return xml_start_tag(
-    "xdr:wsDr", attributes_t{"xmlns:xdr", SCHEMA_DRAWING + "/spreadsheetDrawing", "xmlns:a", SCHEMA_DRAWING + "/main"});
+  return xml_start_tag("xdr:wsDr", attributes_t{std::make_pair("xmlns:xdr"s, SCHEMA_DRAWING + "/spreadsheetDrawing"),
+                                                std::make_pair("xmlns:a"s, SCHEMA_DRAWING + "/main")});
 }
 
 [[nodiscard]] std::string write_col(const std::string& data)
@@ -55,22 +55,25 @@ namespace
 
 [[nodiscard]] std::string write_a16_creation_id()
 {
-  return xml_empty_tag("a16:creationId",
-                       attributes_t{"xmlns:a16", "http://schemas.microsoft.com/office/drawing/2014/main", "id",
-                                    "{00000000-0008-0000-0000-000002000000}"});
+  return xml_empty_tag(
+    "a16:creationId",
+    attributes_t{std::make_pair("xmlns:a16"s, "http://schemas.microsoft.com/office/drawing/2014/main"),
+                 std::make_pair("id"s, "{00000000-0008-0000-0000-000002000000}")});
 }
 
 [[nodiscard]] std::string write_adec_decorative()
 {
   return xml_empty_tag(
     "adec:decorative",
-    attributes_t{"xmlns:adec", "http://schemas.microsoft.com/office/drawing/2017/decorative", "val", "1"});
+    attributes_t{std::make_pair("xmlns:adec"s, "http://schemas.microsoft.com/office/drawing/2017/decorative"),
+                 std::make_pair("val"s, "1")});
 }
 
 [[nodiscard]] std::string write_a_hlink_click(uint32_t rel_index, const std::string& tip)
 {
-  attributes_t attributes{"xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships", "r:id",
-                          std::format("rId{}", rel_index)};
+  attributes_t attributes{
+    std::make_pair("xmlns:r"s, "http://schemas.openxmlformats.org/officeDocument/2006/relationships"),
+    std::make_pair("r:id"s, std::format("rId{}", rel_index))};
 
   if(!tip.empty())
   {
@@ -87,8 +90,8 @@ namespace
 
 [[nodiscard]] std::string write_a_blip(uint32_t index)
 {
-  return xml_empty_tag(
-    "a:blip", attributes_t{"xmlns:r", SCHEMA_OFFICEDOC + "/relationships", "r:embed", std::format("rId{}", index)});
+  return xml_empty_tag("a:blip", attributes_t{std::make_pair("xmlns:r"s, SCHEMA_OFFICEDOC + "/relationships"),
+                                              std::make_pair("r:embed"s, std::format("rId{}", index))});
 }
 
 [[nodiscard]] std::string write_a_fill_rect()
@@ -98,12 +101,14 @@ namespace
 
 [[nodiscard]] std::string write_a_ext(const drawing_object_t& drawing_object)
 {
-  return xml_empty_tag("a:ext", attributes_t{"cx", drawing_object.width_, "cy", drawing_object.height_});
+  return xml_empty_tag(
+    "a:ext", attributes_t{std::make_pair("cx"s, drawing_object.width_), std::make_pair("cy"s, drawing_object.height_)});
 }
 
 [[nodiscard]] std::string write_a_off(const drawing_object_t& drawing_object)
 {
-  return xml_empty_tag("a:off", attributes_t{"x", drawing_object.col_absolute_, "y", drawing_object.row_absolute_});
+  return xml_empty_tag("a:off", attributes_t{std::make_pair("x"s, drawing_object.col_absolute_),
+                                             std::make_pair("y"s, drawing_object.row_absolute_)});
 }
 
 [[nodiscard]] std::string write_a_av_lst()
@@ -123,12 +128,12 @@ namespace
 
 [[nodiscard]] std::string write_xfrm_offset()
 {
-  return xml_empty_tag("a:off", attributes_t{"x", "0", "y", "0"});
+  return xml_empty_tag("a:off", attributes_t{std::make_pair("x"s, "0"), std::make_pair("y"s, "0")});
 }
 
 [[nodiscard]] std::string write_xfrm_extension()
 {
-  return xml_empty_tag("a:ext", attributes_t{"cx", "0", "cy", "0"});
+  return xml_empty_tag("a:ext", attributes_t{std::make_pair("cx"s, "0"), std::make_pair("cy"s, "0")});
 }
 
 [[nodiscard]] std::string write_xfrm()
@@ -143,20 +148,20 @@ namespace
 
 [[nodiscard]] std::string write_chart(uint32_t index)
 {
-  return xml_empty_tag("c:chart",
-                       attributes_t{"xmlns:c", SCHEMA_DRAWING + "/chart", "xmlns:r",
-                                    SCHEMA_OFFICEDOC + "/relationships", "r:id", std::format("rId{}", index)});
+  return xml_empty_tag("c:chart", attributes_t{std::make_pair("xmlns:c"s, SCHEMA_DRAWING + "/chart"),
+                                               std::make_pair("xmlns:r"s, SCHEMA_OFFICEDOC + "/relationships"),
+                                               std::make_pair("r:id"s, std::format("rId{}", index))});
 }
 
 [[nodiscard]] std::string write_ext(uint32_t cx, uint32_t cy)
 {
-  return xml_empty_tag("xdr:ext", attributes_t{"cx", cx, "cy", cy});
+  return xml_empty_tag("xdr:ext", attributes_t{std::make_pair("cx"s, cx), std::make_pair("cy"s, cy)});
 }
 
 // NOLINTNEXTLINE(readability-identifier-length)
 [[nodiscard]] std::string write_pos(int32_t x, int32_t y)
 {
-  return xml_empty_tag("xdr:pos", attributes_t{"x", x, "y", y});
+  return xml_empty_tag("xdr:pos", attributes_t{std::make_pair("x"s, x), std::make_pair("y"s, y)});
 }
 
 [[nodiscard]] std::string write_coords(const drawing_coords_t& coords)
@@ -216,12 +221,8 @@ namespace
 [[nodiscard]] std::string write_c_nv_pr(const std::string& object_name, uint32_t index,
                                         const std::optional<drawing_object_t>& drawing_object)
 {
-  attributes_t attributes{
-    "id",
-    index + 1,
-    "name",
-    std::format("{} {}", object_name, index),
-  };
+  attributes_t attributes{std::make_pair("id"s, index + 1),
+                          std::make_pair("name"s, std::format("{} {}", object_name, index))};
 
   if(drawing_object.has_value() && !drawing_object->description_.empty() && !drawing_object->decorative_)
   {

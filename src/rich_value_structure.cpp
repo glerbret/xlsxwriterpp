@@ -19,7 +19,7 @@ namespace
 
 [[nodiscard]] std::string write_k(const std::string& name, const std::string& type)
 {
-  return xml_empty_tag("k", attributes_t{"n", name, "t", type});
+  return xml_empty_tag("k", attributes_t{std::make_pair("n"s, name), std::make_pair("t"s, type)});
 }
 
 }
@@ -42,7 +42,8 @@ std::string rich_value_structure_t::write_rv_structures() const
 {
   std::string xml_data = xml_start_tag(
     "rvStructures",
-    attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata", "count", "1"});
+    attributes_t{std::make_pair("xmlns"s, "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata"),
+                 std::make_pair("count"s, "1")});
   xml_data += write_s();
 
   return xml_data;

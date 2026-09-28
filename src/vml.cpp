@@ -24,9 +24,9 @@ namespace
 
 [[nodiscard]] std::string write_xml_namespace()
 {
-  return xml_start_tag("xml", attributes_t{"xmlns:v", "urn:schemas-microsoft-com:vml", "xmlns:o",
-                                           "urn:schemas-microsoft-com:office:office", "xmlns:x",
-                                           "urn:schemas-microsoft-com:office:excel"});
+  return xml_start_tag("xml", attributes_t{std::make_pair("xmlns:v"s, "urn:schemas-microsoft-com:vml"),
+                                           std::make_pair("xmlns:o"s, "urn:schemas-microsoft-com:office:office"),
+                                           std::make_pair("xmlns:x"s, "urn:schemas-microsoft-com:office:excel")});
 }
 
 [[nodiscard]] std::string write_stroke()
@@ -54,7 +54,8 @@ namespace
 
 [[nodiscard]] std::string write_shadow()
 {
-  return xml_empty_tag("v:shadow", attributes_t{"on", "t", "color", "black", "obscured", "t"});
+  return xml_empty_tag("v:shadow", attributes_t{std::make_pair("on"s, "t"), std::make_pair("color"s, "black"),
+                                                std::make_pair("obscured"s, "t")});
 }
 
 [[nodiscard]] std::string write_comment_div()
@@ -111,43 +112,50 @@ namespace
 
 [[nodiscard]] std::string write_image_path()
 {
-  return xml_empty_tag("v:path", attributes_t{"o:extrusionok", "f", "gradientshapeok", "t", "o:connecttype", "rect"});
+  return xml_empty_tag("v:path",
+                       attributes_t{std::make_pair("o:extrusionok"s, "f"), std::make_pair("gradientshapeok"s, "t"),
+                                    std::make_pair("o:connecttype"s, "rect")});
 }
 
 [[nodiscard]] std::string write_aspect_ratio_lock()
 {
-  return xml_empty_tag("o:lock", attributes_t{"v:ext", "edit", "aspectratio", "t"});
+  return xml_empty_tag("o:lock", attributes_t{std::make_pair("v:ext"s, "edit"), std::make_pair("aspectratio"s, "t")});
 }
 
 [[nodiscard]] std::string write_imagedata(uint32_t rel_index, const std::string& name)
 {
-  return xml_empty_tag("v:imagedata", attributes_t{"o:relid", std::format("rId{}", rel_index), "o:title", name});
+  return xml_empty_tag("v:imagedata", attributes_t{std::make_pair("o:relid"s, std::format("rId{}", rel_index)),
+                                                   std::make_pair("o:title"s, name)});
 }
 
 [[nodiscard]] std::string write_rotation_lock()
 {
-  return xml_empty_tag("o:lock", attributes_t{"v:ext", "edit", "rotation", "t"});
+  return xml_empty_tag("o:lock", attributes_t{std::make_pair("v:ext"s, "edit"), std::make_pair("rotation"s, "t")});
 }
 
 [[nodiscard]] std::string write_button_path()
 {
-  return xml_empty_tag("v:path", attributes_t{"shadowok", "f", "o:extrusionok", "f", "strokeok", "f", "fillok", "f",
-                                              "o:connecttype", "rect"});
+  return xml_empty_tag("v:path", attributes_t{std::make_pair("shadowok"s, "f"), std::make_pair("o:extrusionok"s, "f"),
+                                              std::make_pair("strokeok"s, "f"), std::make_pair("fillok"s, "f"),
+                                              std::make_pair("o:connecttype"s, "rect")});
 }
 
 [[nodiscard]] std::string write_shapetype_lock()
 {
-  return xml_empty_tag("o:lock", attributes_t{"v:ext", "edit", "shapetype", "t"});
+  return xml_empty_tag("o:lock", attributes_t{std::make_pair("v:ext"s, "edit"), std::make_pair("shapetype"s, "t")});
 }
 
 [[nodiscard]] std::string write_button_fill()
 {
-  return xml_empty_tag("v:fill", attributes_t{"color2", "buttonFace [67]", "o:detectmouseclick", "t"});
+  return xml_empty_tag(
+    "v:fill", attributes_t{std::make_pair("color2"s, "buttonFace [67]"), std::make_pair("o:detectmouseclick"s, "t")});
 }
 
 [[nodiscard]] std::string write_font(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("font", vml_obj.name_, attributes_t{"face", "Calibri", "size", "220", "color", "#000000"});
+  return xml_data_element("font", vml_obj.name_,
+                          attributes_t{std::make_pair("face"s, "Calibri"), std::make_pair("size"s, "220"),
+                                       std::make_pair("color"s, "#000000")});
 }
 
 [[nodiscard]] std::string write_print_object()
@@ -172,9 +180,9 @@ namespace
 
 [[nodiscard]] std::string write_comment_shapetype()
 {
-  std::string xml_data =
-    xml_start_tag("v:shapetype", attributes_t{"id", "_x0000_t202", "coordsize", "21600,21600", "o:spt", "202", "path",
-                                              "m,l,21600r21600,l21600,xe"});
+  std::string xml_data = xml_start_tag(
+    "v:shapetype", attributes_t{std::make_pair("id"s, "_x0000_t202"), std::make_pair("coordsize"s, "21600,21600"),
+                                std::make_pair("o:spt"s, "202"), std::make_pair("path"s, "m,l,21600r21600,l21600,xe")});
   xml_data += write_stroke();
   xml_data += write_comment_path(true, "rect");
   xml_data += xml_end_tag("v:shapetype");
@@ -213,9 +221,9 @@ namespace
 
 [[nodiscard]] std::string write_button_shapetype()
 {
-  std::string xml_data =
-    xml_start_tag("v:shapetype", attributes_t{"id", "_x0000_t201", "coordsize", "21600,21600", "o:spt", "201", "path",
-                                              "m,l,21600r21600,l21600,xe"});
+  std::string xml_data = xml_start_tag(
+    "v:shapetype", attributes_t{std::make_pair("id"s, "_x0000_t201"), std::make_pair("coordsize"s, "21600,21600"),
+                                std::make_pair("o:spt"s, "201"), std::make_pair("path"s, "m,l,21600r21600,l21600,xe")});
   xml_data += write_stroke();
   xml_data += write_button_path();
   xml_data += write_shapetype_lock();
@@ -250,8 +258,10 @@ namespace
 [[nodiscard]] std::string write_image_shapetype()
 {
   std::string xml_data = xml_start_tag(
-    "v:shapetype", attributes_t{"id", "_x0000_t75", "coordsize", "21600,21600", "o:spt", "75", "o:preferrelative", "t",
-                                "path", "m@4@5l@4@11@9@11@9@5xe", "filled", "f", "stroked", "f"});
+    "v:shapetype", attributes_t{std::make_pair("id"s, "_x0000_t75"), std::make_pair("coordsize"s, "21600,21600"),
+                                std::make_pair("o:spt"s, "75"), std::make_pair("o:preferrelative"s, "t"),
+                                std::make_pair("path"s, "m@4@5l@4@11@9@11@9@5xe"), std::make_pair("filled"s, "f"),
+                                std::make_pair("stroked"s, "f")});
   xml_data += write_stroke();
   xml_data += write_formulas();
   xml_data += write_image_path();
@@ -263,8 +273,8 @@ namespace
 
 [[nodiscard]] std::string write_button_textbox(const vml_obj_t& vml_obj)
 {
-  std::string xml_data =
-    xml_start_tag("v:textbox", attributes_t{"style", "mso-direction-alt:auto", "o:singleclick", "f"});
+  std::string xml_data = xml_start_tag("v:textbox", attributes_t{std::make_pair("style"s, "mso-direction-alt:auto"),
+                                                                 std::make_pair("o:singleclick"s, "f")});
   xml_data += write_button_div(vml_obj);
   xml_data += xml_end_tag("v:textbox");
 
@@ -361,18 +371,20 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
   const std::string fillcolor{vml_obj.color_ ? std::format("#{:x}", vml_obj.color_) : "#ffffe1"};
 
   std::string xml_data = xml_start_tag(
-    "v:shape", attributes_t{"id", std::format("_x0000_s{}", vml_shape_id), "type", "#_x0000_t202", "style",
-                            std::format("position:absolute;"
-                                        "margin-left:{}pt;"
-                                        "margin-top:{}pt;"
-                                        "width:{}pt;"
-                                        "height:{}pt;"
-                                        "z-index:{};"
-                                        "visibility:{}",
-                                        static_cast<double>(vml_obj.col_absolute_) * 0.75,
-                                        static_cast<double>(vml_obj.row_absolute_) * 0.75, vml_obj.width_ * 0.75,
-                                        vml_obj.height_ * 0.75, z_index, visible),
-                            "fillcolor", fillcolor, "o:insetmode", "auto"});
+    "v:shape",
+    attributes_t{std::make_pair("id"s, std::format("_x0000_s{}", vml_shape_id)),
+                 std::make_pair("type"s, "#_x0000_t202"),
+                 std::make_pair("style"s, std::format("position:absolute;"
+                                                      "margin-left:{}pt;"
+                                                      "margin-top:{}pt;"
+                                                      "width:{}pt;"
+                                                      "height:{}pt;"
+                                                      "z-index:{};"
+                                                      "visibility:{}",
+                                                      static_cast<double>(vml_obj.col_absolute_) * 0.75,
+                                                      static_cast<double>(vml_obj.row_absolute_) * 0.75,
+                                                      vml_obj.width_ * 0.75, vml_obj.height_ * 0.75, z_index, visible)),
+                 std::make_pair("fillcolor"s, fillcolor), std::make_pair("o:insetmode"s, "auto")});
   xml_data += write_comment_fill();
   xml_data += write_shadow();
   xml_data += write_comment_path(false, "none");
@@ -413,10 +425,12 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
 
   std::string xml_data = xml_start_tag(
     "v:shape",
-    attributes_t{"id", image_obj.image_position_, "o:spid", std::format("_x0000_s{}", vml_shape_id), "type",
-                 "#_x0000_t75", "style",
-                 std::format("position:absolute;margin-left:0;margin-top:0;width:{}pt;height:{}pt;z-index:{}", width,
-                             height, z_index)});
+    attributes_t{
+      std::make_pair("id"s, image_obj.image_position_),
+      std::make_pair("o:spid"s, std::format("_x0000_s{}", vml_shape_id)), std::make_pair("type"s, "#_x0000_t75"),
+      std::make_pair("style"s,
+                     std::format("position:absolute;margin-left:0;margin-top:0;width:{}pt;height:{}pt;z-index:{}",
+                                 width, height, z_index))});
   xml_data += write_imagedata(image_obj.rel_index_, image_obj.name_);
   xml_data += write_rotation_lock();
   xml_data += xml_end_tag("v:shape");
@@ -426,7 +440,8 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
 
 std::string vml_t::write_button_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& vml_obj)
 {
-  attributes_t attributes{"id", std::format("_x0000_s{}", vml_shape_id), "type", "#_x0000_t201"};
+  attributes_t attributes{std::make_pair("id"s, std::format("_x0000_s{}", vml_shape_id)),
+                          std::make_pair("type"s, "#_x0000_t201")};
 
   if(!vml_obj.text_.empty())
   {

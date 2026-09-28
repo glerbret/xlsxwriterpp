@@ -39,6 +39,11 @@ color_t color_t::cmyk(uint8_t cyan, uint8_t magenta, uint8_t yellow, uint8_t bla
                           static_cast<uint8_t>(255 * (100. - yellow) / 100. * (100. - black) / 100.))};
 }
 
+color_t color_t::value_or(color_t default_value) const
+{
+  return color_ != UNSET ? color_t{color_} : default_value;
+}
+
 color_t color_t::black()
 {
   return color_t{0x000000};

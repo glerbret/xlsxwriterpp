@@ -152,9 +152,10 @@ void chartsheet_t::protect()
 
 std::string chartsheet_t::write_chartsheet()
 {
-  return xml_start_tag("chartsheet",
-                       attributes_t{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "xmlns:r",
-                                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships"});
+  return xml_start_tag(
+    "chartsheet",
+    attributes_t{std::make_pair("xmlns"s, "http://schemas.openxmlformats.org/spreadsheetml/2006/main"),
+                 std::make_pair("xmlns:r"s, "http://schemas.openxmlformats.org/officeDocument/2006/relationships")});
 }
 
 std::string chartsheet_t::write_sheet_view()
