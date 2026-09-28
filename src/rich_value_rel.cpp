@@ -27,9 +27,10 @@ namespace
 
 [[nodiscard]] std::string write_rich_value_rels()
 {
-  return xml_start_tag("richValueRels",
-                       attributes_t{"xmlns", "http://schemas.microsoft.com/office/spreadsheetml/2022/richvaluerel",
-                                    "xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships"});
+  return xml_start_tag(
+    "richValueRels",
+    attributes_t{std::make_pair("xmlns"s, "http://schemas.microsoft.com/office/spreadsheetml/2022/richvaluerel"),
+                 std::make_pair("xmlns:r"s, "http://schemas.openxmlformats.org/officeDocument/2006/relationships")});
 }
 
 }

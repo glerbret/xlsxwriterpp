@@ -965,9 +965,9 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
 
 std::string chart_t::write_chart_space()
 {
-  return xml_start_tag("c:chartSpace",
-                       attributes_t{"xmlns:c", SCHEMA_DRAWING + "/chart", "xmlns:a", SCHEMA_DRAWING + "/main",
-                                    "xmlns:r", SCHEMA_OFFICEDOC + "/relationships"});
+  return xml_start_tag("c:chartSpace", attributes_t{std::make_pair("xmlns:c"s, SCHEMA_DRAWING + "/chart"),
+                                                    std::make_pair("xmlns:a"s, SCHEMA_DRAWING + "/main"),
+                                                    std::make_pair("xmlns:r"s, SCHEMA_OFFICEDOC + "/relationships")});
 }
 
 std::string chart_t::write_lang()
@@ -1009,8 +1009,10 @@ std::string chart_t::write_header_footer()
 
 std::string chart_t::write_page_margins()
 {
-  return xml_empty_tag(
-    "c:pageMargins", attributes_t{"b", "0.75", "l", "0.7", "r", "0.7", "t", "0.75", "header", "0.3", "footer", "0.3"});
+  return xml_empty_tag("c:pageMargins",
+                       attributes_t{std::make_pair("b"s, "0.75"), std::make_pair("l"s, "0.7"),
+                                    std::make_pair("r"s, "0.7"), std::make_pair("t"s, "0.75"),
+                                    std::make_pair("header"s, "0.3"), std::make_pair("footer"s, "0.3")});
 }
 
 std::string chart_t::write_page_setup()
@@ -2469,7 +2471,8 @@ std::string chart_t::write_cat_number_format(const chart_t& chart, const chart_a
     return "";
   }
 
-  return xml_empty_tag("c:numFmt", attributes_t{"formatCode", num_format, "sourceLinked", source_linked});
+  return xml_empty_tag("c:numFmt", attributes_t{std::make_pair("formatCode"s, num_format),
+                                                std::make_pair("sourceLinked"s, source_linked)});
 }
 
 std::string chart_t::write_tick_label_pos(const chart_axis_t& axis)
@@ -2592,7 +2595,8 @@ std::string chart_t::write_number_format(const chart_axis_t& axis)
     source_linked = 1;
   }
 
-  return xml_empty_tag("c:numFmt", attributes_t{"formatCode", num_format, "sourceLinked", source_linked});
+  return xml_empty_tag("c:numFmt", attributes_t{std::make_pair("formatCode"s, num_format),
+                                                std::make_pair("sourceLinked"s, source_linked)});
 }
 
 std::string chart_t::write_cross_between(const chart_t& chart, chart_axis_tick_position_t position)
@@ -2994,7 +2998,8 @@ std::string chart_t::write_custom_label_format_only(const chart_custom_label_t& 
 
 std::string chart_t::write_label_num_fmt(const std::string& format)
 {
-  return xml_empty_tag("c:numFmt", attributes_t{"formatCode", format, "sourceLinked", "0"});
+  return xml_empty_tag("c:numFmt",
+                       attributes_t{std::make_pair("formatCode"s, format), std::make_pair("sourceLinked"s, "0")});
 }
 
 std::string chart_t::write_show_legend_key()
@@ -3472,7 +3477,8 @@ std::string chart_t::write_trendline_lbl()
 {
   std::string xml_data = xml_start_tag("c:trendlineLbl");
   xml_data += xml_empty_tag("c:layout");
-  xml_data += xml_empty_tag("c:numFmt", attributes_t{"formatCode", "General", "sourceLinked", "0"});
+  xml_data += xml_empty_tag(
+    "c:numFmt", attributes_t{std::make_pair("formatCode"s, "General"), std::make_pair("sourceLinked"s, "0")});
   xml_data += xml_end_tag("c:trendlineLbl");
 
   return xml_data;

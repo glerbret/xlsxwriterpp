@@ -19,65 +19,30 @@ namespace
 
 [[nodiscard]] std::string write_cell_metadata_type()
 {
-  return xml_empty_tag("metadataType", attributes_t{"name",
-                                                    "XLDAPR",
-                                                    "minSupportedVersion",
-                                                    "120000",
-                                                    "copy",
-                                                    "1",
-                                                    "pasteAll",
-                                                    "1",
-                                                    "pasteValues",
-                                                    "1",
-                                                    "merge",
-                                                    "1",
-                                                    "splitFirst",
-                                                    "1",
-                                                    "rowColShift",
-                                                    "1",
-                                                    "clearFormats",
-                                                    "1",
-                                                    "clearComments",
-                                                    "1",
-                                                    "assign",
-                                                    "1",
-                                                    "coerce",
-                                                    "1",
-                                                    "cellMeta",
-                                                    "1"});
+  return xml_empty_tag(
+    "metadataType",
+    attributes_t{std::make_pair("name"s, "XLDAPR"), std::make_pair("minSupportedVersion"s, "120000"),
+                 std::make_pair("copy"s, "1"), std::make_pair("pasteAll"s, "1"), std::make_pair("pasteValues"s, "1"),
+                 std::make_pair("merge"s, "1"), std::make_pair("splitFirst"s, "1"), std::make_pair("rowColShift"s, "1"),
+                 std::make_pair("clearFormats"s, "1"), std::make_pair("clearComments"s, "1"),
+                 std::make_pair("assign"s, "1"), std::make_pair("coerce"s, "1"), std::make_pair("cellMeta"s, "1")});
 }
 
 [[nodiscard]] std::string write_value_metadata_type()
 {
-  return xml_empty_tag("metadataType", attributes_t{"name",
-                                                    "XLRICHVALUE",
-                                                    "minSupportedVersion",
-                                                    "120000",
-                                                    "copy",
-                                                    "1",
-                                                    "pasteAll",
-                                                    "1",
-                                                    "pasteValues",
-                                                    "1",
-                                                    "merge",
-                                                    "1",
-                                                    "splitFirst",
-                                                    "1",
-                                                    "rowColShift",
-                                                    "1",
-                                                    "clearFormats",
-                                                    "1",
-                                                    "clearComments",
-                                                    "1",
-                                                    "assign",
-                                                    "1",
-                                                    "coerce",
-                                                    "1"});
+  return xml_empty_tag(
+    "metadataType",
+    attributes_t{std::make_pair("name"s, "XLRICHVALUE"), std::make_pair("minSupportedVersion"s, "120000"),
+                 std::make_pair("copy"s, "1"), std::make_pair("pasteAll"s, "1"), std::make_pair("pasteValues"s, "1"),
+                 std::make_pair("merge"s, "1"), std::make_pair("splitFirst"s, "1"), std::make_pair("rowColShift"s, "1"),
+                 std::make_pair("clearFormats"s, "1"), std::make_pair("clearComments"s, "1"),
+                 std::make_pair("assign"s, "1"), std::make_pair("coerce"s, "1")});
 }
 
 [[nodiscard]] std::string write_xda_dynamic_array_properties()
 {
-  return xml_empty_tag("xda:dynamicArrayProperties", attributes_t{"fDynamic", "1", "fCollapsed", "0"});
+  return xml_empty_tag("xda:dynamicArrayProperties",
+                       attributes_t{std::make_pair("fDynamic"s, "1"), std::make_pair("fCollapsed"s, "0")});
 }
 
 [[nodiscard]] std::string write_xlrd_rvb(uint32_t index)
@@ -87,7 +52,7 @@ namespace
 
 [[nodiscard]] std::string write_rc(uint8_t type, uint32_t index)
 {
-  return xml_empty_tag("rc", attributes_t{"t", type, "v", index});
+  return xml_empty_tag("rc", attributes_t{std::make_pair("t"s, type), std::make_pair("v"s, index)});
 }
 
 [[nodiscard]] std::string write_cell_ext()
@@ -121,7 +86,8 @@ namespace
 
 [[nodiscard]] std::string write_cell_future_metadata()
 {
-  std::string xml_data = xml_start_tag("futureMetadata", attributes_t{"name", "XLDAPR", "count", "1"});
+  std::string xml_data =
+    xml_start_tag("futureMetadata", attributes_t{std::make_pair("name"s, "XLDAPR"), std::make_pair("count"s, "1")});
   xml_data += xml_start_tag("bk");
   xml_data += xml_start_tag("extLst");
   xml_data += write_cell_ext();
@@ -220,8 +186,8 @@ std::string metadata_t::write_metadata_types() const
 
 std::string metadata_t::write_value_future_metadata() const
 {
-  std::string xml_data =
-    xml_start_tag("futureMetadata", attributes_t{"name", "XLRICHVALUE", "count", num_embedded_images_});
+  std::string xml_data = xml_start_tag("futureMetadata", attributes_t{std::make_pair("name"s, "XLRICHVALUE"),
+                                                                      std::make_pair("count"s, num_embedded_images_)});
 
   for(uint32_t i{0}; i < num_embedded_images_; i++)
   {

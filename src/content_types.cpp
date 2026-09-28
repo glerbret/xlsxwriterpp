@@ -114,12 +114,14 @@ std::string content_types_t::assemble_xml_file() const
 
   for(const auto& [key, value]: default_types_)
   {
-    xml_data += xml_empty_tag("Default", attributes_t{"Extension", key, "ContentType", value});
+    xml_data +=
+      xml_empty_tag("Default", attributes_t{std::make_pair("Extension"s, key), std::make_pair("ContentType"s, value)});
   }
 
   for(const auto& [key, value]: overrides_)
   {
-    xml_data += xml_empty_tag("Override", attributes_t{"PartName", key, "ContentType", value});
+    xml_data +=
+      xml_empty_tag("Override", attributes_t{std::make_pair("PartName"s, key), std::make_pair("ContentType"s, value)});
   }
   xml_data += xml_end_tag("Types");
 

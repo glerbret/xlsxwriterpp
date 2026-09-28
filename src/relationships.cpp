@@ -56,13 +56,16 @@ std::string relationships_t::assemble_xml_file() const
     rel_id++;
     if(target_mode.empty())
     {
-      xml_data += xml_empty_tag("Relationship", attributes_t{"Id", std::format("rId{}", std::to_string(rel_id)), "Type",
-                                                             type, "Target", target});
+      xml_data +=
+        xml_empty_tag("Relationship", attributes_t{std::make_pair("Id"s, std::format("rId{}", std::to_string(rel_id))),
+                                                   std::make_pair("Type"s, type), std::make_pair("Target"s, target)});
     }
     else
     {
-      xml_data += xml_empty_tag("Relationship", attributes_t{"Id", std::format("rId{}", std::to_string(rel_id)), "Type",
-                                                             type, "Target", target, "TargetMode", target_mode});
+      xml_data +=
+        xml_empty_tag("Relationship", attributes_t{std::make_pair("Id"s, std::format("rId{}", std::to_string(rel_id))),
+                                                   std::make_pair("Type"s, type), std::make_pair("Target"s, target),
+                                                   std::make_pair("TargetMode"s, target_mode)});
     }
   }
   xml_data += xml_end_tag("Relationships");

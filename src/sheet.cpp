@@ -889,9 +889,10 @@ std::string sheet_t::write_sheet_protection() const
 
 std::string sheet_t::write_page_margins() const
 {
-  return xml_empty_tag("pageMargins",
-                       attributes_t{"left", margin_left_, "right", margin_right_, "top", margin_top_, "bottom",
-                                    margin_bottom_, "header", margin_header_, "footer", margin_footer_});
+  return xml_empty_tag(
+    "pageMargins", attributes_t{std::make_pair("left"s, margin_left_), std::make_pair("right"s, margin_right_),
+                                std::make_pair("top"s, margin_top_), std::make_pair("bottom"s, margin_bottom_),
+                                std::make_pair("header"s, margin_header_), std::make_pair("footer"s, margin_footer_)});
 }
 
 std::string sheet_t::write_odd_header() const

@@ -339,8 +339,9 @@ void packager_t::write_workbook_file(workbook_t& workbook)
 void packager_t::write_styles_file(const workbook_t& workbook)
 {
   // TODO Manage style in workbook
-  style_t styles{workbook.font_count_, workbook.fill_count_, workbook.border_count_, workbook.num_format_count_,
-                 workbook.has_comments_, workbook.used_xf_formats_, workbook.used_dxf_formats_};
+  style_t styles{workbook.font_count_,       workbook.fill_count_,   workbook.border_count_,
+                 workbook.num_format_count_, workbook.has_comments_, workbook.used_xf_formats_,
+                 workbook.used_dxf_formats_};
 
   const std::string xml_data = styles.assemble_xml_file();
   add_buffer_to_zip(xml_data, "xl/styles.xml");

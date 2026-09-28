@@ -93,8 +93,9 @@ shared_strings_element_t shared_strings_t::get_index(const std::string& str, boo
 
 std::string shared_strings_t::write_sst() const
 {
-  return xml_start_tag("sst", attributes_t{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
-                                           "count", string_count_, "uniqueCount", unique_count_});
+  return xml_start_tag(
+    "sst", attributes_t{std::make_pair("xmlns"s, "http://schemas.openxmlformats.org/spreadsheetml/2006/main"),
+                        std::make_pair("count"s, string_count_), std::make_pair("uniqueCount"s, unique_count_)});
 }
 
 std::string shared_strings_t::write_sst_strings() const

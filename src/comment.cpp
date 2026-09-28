@@ -102,7 +102,8 @@ namespace
 [[nodiscard]] std::string write_comment(const vml_obj_t& comment)
 {
   const std::string ref = rowcol_to_cell(comment.row_num_, comment.col_num_);
-  std::string xml_data  = xml_start_tag("comment", attributes_t{"ref", ref, "authorId", comment.author_id_});
+  std::string xml_data  = xml_start_tag(
+    "comment", attributes_t{std::make_pair("ref"s, ref), std::make_pair("authorId"s, comment.author_id_)});
   xml_data += write_text(comment);
   xml_data += xml_end_tag("comment");
 

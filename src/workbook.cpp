@@ -33,20 +33,15 @@ namespace
 
 [[nodiscard]] std::string write_workbook()
 {
-  return xml_start_tag("workbook",
-                       attributes_t{"xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "xmlns:r",
-                                    "http://schemas.openxmlformats.org/officeDocument/2006/"
-                                    "relationships"});
+  return xml_start_tag(
+    "workbook",
+    attributes_t{std::make_pair("xmlns"s, "http://schemas.openxmlformats.org/spreadsheetml/2006/main"),
+                 std::make_pair("xmlns:r"s, "http://schemas.openxmlformats.org/officeDocument/2006/relationships")});
 }
 
 [[nodiscard]] std::string write_sheet(std::string_view name, size_t sheet_id, bool hidden)
 {
-  attributes_t attributes{
-    "name",
-    name,
-    "sheetId",
-    sheet_id,
-  };
+  attributes_t attributes{std::make_pair("name"s, name), std::make_pair("sheetId"s, sheet_id)};
 
   if(hidden)
   {
@@ -59,7 +54,8 @@ namespace
 
 [[nodiscard]] std::string write_calc_pr()
 {
-  return xml_empty_tag("calcPr", attributes_t{"calcId", "124519", "fullCalcOnLoad", "1"});
+  return xml_empty_tag("calcPr",
+                       attributes_t{std::make_pair("calcId"s, "124519"), std::make_pair("fullCalcOnLoad"s, "1")});
 }
 
 }
@@ -1512,9 +1508,8 @@ void workbook_t::prepare_workbook()
 
 std::string workbook_t::write_file_version() const
 {
-  attributes_t attributes{
-    "appName", "xl", "lastEdited", "4", "lowestEdited", "4", "rupBuild", "4505",
-  };
+  attributes_t attributes{std::make_pair("appName"s, "xl"), std::make_pair("lastEdited"s, "4"),
+                          std::make_pair("lowestEdited"s, "4"), std::make_pair("rupBuild"s, "4505")};
 
   if(!vba_project_.empty())
   {
@@ -1555,9 +1550,9 @@ std::string workbook_t::write_workbook_pr() const
 
 std::string workbook_t::write_workbook_view() const
 {
-  attributes_t attributes{
-    "xWindow", "240", "yWindow", "15", "windowWidth", window_width_, "windowHeight", window_height_,
-  };
+  attributes_t attributes{std::make_pair("xWindow"s, "240"), std::make_pair("yWindow"s, "15"),
+                          std::make_pair("windowWidth"s, window_width_),
+                          std::make_pair("windowHeight"s, window_height_)};
 
   if(first_sheet_ != 0)
   {
