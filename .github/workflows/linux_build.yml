@@ -21,7 +21,7 @@ jobs:
                      "-DBUILD_SHARED_LIBS=ON"]
         build_type : [Debug, Release]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       CXX: ${{ matrix.cxx }}
       CC: |-

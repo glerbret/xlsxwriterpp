@@ -43,11 +43,13 @@ public:
   template<typename... Args>
   explicit attributes_t(std::pair<std::string, Args>... args)
   {
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     initAttribute(args...);
   }
 
-  attributes_t(std::string_view key, auto value)
+  attributes_t(std::string_view key, const auto& value)
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
     add_attribute(key, value);
   }
 
@@ -68,7 +70,7 @@ public:
   [[nodiscard]] bool empty() const;
 
 private:
-  void initAttribute()
+  static void initAttribute()
   {
   }
 
@@ -76,10 +78,9 @@ private:
   void initAttribute(std::pair<std::string, T> attribute, std::pair<std::string, Args>... args)
   {
     add_attribute(std::get<0>(attribute), std::get<1>(attribute));
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     initAttribute(args...);
   }
-
-  [[nodiscard]] std::string escape_attribute_value(std::string_view attribute_value) const;
 
   std::vector<std::tuple<std::string, std::string>> attributes_;
 };

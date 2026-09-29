@@ -28,7 +28,7 @@ namespace
 
 }
 
-std::string rich_value_t::assemble_xml_file(const workbook_t& workbook) const
+std::string rich_value_t::assemble_xml_file(const workbook_t& workbook)
 {
   std::string xml_data = xml_declaration();
   xml_data += write_rv_data(workbook);
@@ -46,7 +46,7 @@ std::string rich_value_t::write_rv_data(const workbook_t& workbook)
                            std::make_pair("count"s, workbook.num_embedded_images_)});
 }
 
-std::string rich_value_t::write_images(const workbook_t& workbook) const
+std::string rich_value_t::write_images(const workbook_t& workbook)
 {
   uint32_t index{0};
   uint8_t type{5};

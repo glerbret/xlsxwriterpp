@@ -471,18 +471,21 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
     if(worksheet.external_vml_comment_link_.has_value())
     {
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto [type, target, target_mode] = worksheet.external_vml_comment_link_.value();
       relationships.add_worksheet(type, target, target_mode);
     }
 
     if(worksheet.external_vml_header_link_.has_value())
     {
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto [type, target, target_mode] = worksheet.external_vml_header_link_.value();
       relationships.add_worksheet(type, target, target_mode);
     }
 
     if(worksheet.external_background_link_.has_value())
     {
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto [type, target, target_mode] = worksheet.external_background_link_.value();
       relationships.add_worksheet(type, target, target_mode);
     }
@@ -494,6 +497,7 @@ void packager_t::write_worksheet_rels_file(const workbook_t& workbook)
 
     if(worksheet.external_comment_link_.has_value())
     {
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto [type, target, target_mode] = worksheet.external_comment_link_.value();
       relationships.add_worksheet(type, target, target_mode);
     }
@@ -862,13 +866,13 @@ void packager_t::add_buffer_to_zip(const std::vector<unsigned char>& buffer, con
   }
 }
 
-size_t packager_t::get_drawing_count(const workbook_t& workbook) const
+size_t packager_t::get_drawing_count(const workbook_t& workbook)
 {
   return static_cast<size_t>(
     std::ranges::count_if(workbook.sheets_, [](const sheet_t* sheet) { return sheet->drawing_.has_value(); }));
 }
 
-size_t packager_t::get_table_count(const workbook_t& workbook) const
+size_t packager_t::get_table_count(const workbook_t& workbook)
 {
   return std::accumulate(std::begin(workbook.sheets_), std::end(workbook.sheets_), size_t{0},
                          [](size_t count, const sheet_t* sheet) { return count + sheet->get_table_count(); });

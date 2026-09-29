@@ -3399,7 +3399,7 @@ void worksheet_t::set_vba_name(std::string_view name)
   vba_codename_ = name;
 }
 
-std::string worksheet_t::get_vba_name() const
+const std::string& worksheet_t::get_vba_name() const
 {
   return vba_codename_;
 }
@@ -3816,7 +3816,7 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
   }
 
   // Strip trailing "}" from formula.
-  if(formula_copy.back() == '}')
+  if(!formula_copy.empty() && formula_copy.back() == '}')
   {
     formula_copy.pop_back();
   }

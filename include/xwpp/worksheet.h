@@ -575,7 +575,7 @@ enum class table_style_type_t
  */
 enum class table_total_functions_t
 {
-  NONE,
+  NONE = 0,
 
   /** Use the average function as the table total. */
   AVERAGE = 101,
@@ -2509,10 +2509,11 @@ public:
   }
 
   // Undocument overload present to fix overload resolution.
-  template<typename T>
+  template<typename T, typename U>
     requires(std::is_integral_v<T> && !std::is_same_v<T, row_num_t>)
-  void write(T row_num, std::integral auto col_num, auto data)
+  void write(T row_num, std::integral auto col_num, const U& data)
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
     write(static_cast<row_num_t>(row_num), static_cast<col_num_t>(col_num), data);
   }
 
@@ -4744,7 +4745,7 @@ public:
    */
   void set_vba_name(std::string_view name);
 
-  [[nodiscard]] std::string get_vba_name() const;
+  [[nodiscard]] const std::string& get_vba_name() const;
 
   /**
    * @brief Set the default author of the cell comments.

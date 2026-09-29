@@ -23,7 +23,7 @@ color_t::color_t(uint32_t color)
 
 color_t color_t::rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
-  return color_t{static_cast<uint32_t>(red * 0x10000 + green * 0x100 + blue)};
+  return color_t{static_cast<uint32_t>((red * 0x10000) + (green * 0x100) + blue)};
 }
 
 color_t color_t::cmyk(uint8_t cyan, uint8_t magenta, uint8_t yellow, uint8_t black)
@@ -34,8 +34,8 @@ color_t color_t::cmyk(uint8_t cyan, uint8_t magenta, uint8_t yellow, uint8_t bla
   assert(black <= 100);
 
   return color_t{
-    static_cast<uint32_t>(static_cast<uint8_t>(255 * (100. - cyan) / 100. * (100. - black) / 100.) * 0x10000 +
-                          static_cast<uint8_t>(255 * (100. - magenta) / 100. * (100. - black) / 100.) * 0x100 +
+    static_cast<uint32_t>((static_cast<uint8_t>(255 * (100. - cyan) / 100. * (100. - black) / 100.) * 0x10000) +
+                          (static_cast<uint8_t>(255 * (100. - magenta) / 100. * (100. - black) / 100.) * 0x100) +
                           static_cast<uint8_t>(255 * (100. - yellow) / 100. * (100. - black) / 100.))};
 }
 
