@@ -60,6 +60,43 @@ const std::string XML_NL{"&#xA;"};
   return encoded;
 }
 
+[[nodiscard]] std::string escape_attribute_value(std::string_view attribute_value)
+{
+  std::string encoded;
+  encoded.reserve(attribute_value.size() * 2);
+
+  for(auto c: attribute_value)
+  {
+    switch(c)
+    {
+      case '&':
+        encoded += XML_AMP;
+        break;
+
+      case '<':
+        encoded += XML_LT;
+        break;
+
+      case '>':
+        encoded += XML_GT;
+        break;
+
+      case '"':
+        encoded += XML_QUOT;
+        break;
+
+      case '\n':
+        encoded += XML_NL;
+        break;
+
+      default:
+        encoded.push_back(c);
+    }
+  }
+
+  return encoded;
+}
+
 }
 
 void attributes_t::add_attribute(std::string_view key, std::string_view value)
@@ -104,43 +141,6 @@ std::string attributes_t::to_string() const
 bool attributes_t::empty() const
 {
   return attributes_.empty();
-}
-
-[[nodiscard]] std::string attributes_t::escape_attribute_value(std::string_view attribute_value) const
-{
-  std::string encoded;
-  encoded.reserve(attribute_value.size() * 2);
-
-  for(auto c: attribute_value)
-  {
-    switch(c)
-    {
-      case '&':
-        encoded += XML_AMP;
-        break;
-
-      case '<':
-        encoded += XML_LT;
-        break;
-
-      case '>':
-        encoded += XML_GT;
-        break;
-
-      case '"':
-        encoded += XML_QUOT;
-        break;
-
-      case '\n':
-        encoded += XML_NL;
-        break;
-
-      default:
-        encoded.push_back(c);
-    }
-  }
-
-  return encoded;
 }
 
 std::string xml_declaration()

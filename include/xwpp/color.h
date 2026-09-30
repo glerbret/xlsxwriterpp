@@ -217,6 +217,7 @@ public:
       {
         uppercase_ = true;
       }
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       ++pos;
     }
     return pos;
