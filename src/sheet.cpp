@@ -137,7 +137,7 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
   // Ensure that we read some valid data from the file.
   if(width == 0)
   {
-    throw xwpp_exception_t("process_jpeg(): file not valid.");
+    throw xwpp_exception_t("process_png(): file not valid.");
   }
 
   // Set the image metadata.
@@ -260,7 +260,7 @@ void process_bmp(object_properties_t& image_props, const std::vector<unsigned ch
   // Ensure that we read some valid data from the file.
   if(width == 0 || height == 0)
   {
-    throw xwpp_exception_t("process_jpeg(): file not valid.");
+    throw xwpp_exception_t("process_bmp(): file not valid.");
   }
 
   // Set the image metadata.
@@ -292,7 +292,7 @@ void process_gif(object_properties_t& image_props, const std::vector<unsigned ch
   // Ensure that we read some valid data from the file.
   if(width == 0)
   {
-    throw xwpp_exception_t("process_jpeg(): file not valid.");
+    throw xwpp_exception_t("process_gif(): file not valid.");
   }
 
   // Set the image metadata.
@@ -332,7 +332,7 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
   image_props.md5_ = md5_t::digest_to_string(buffer);
 }
 
-const uint32_t HEADER_FOOTER_MAX{255};
+[[maybe_unused]] const uint32_t HEADER_FOOTER_MAX{255};
 
 }
 
@@ -344,22 +344,14 @@ void sheet_t::set_tab_color(color_t color)
 void sheet_t::set_zoom(uint16_t scale)
 {
   // Confine the scale to Excel"s range.
-  if(scale < 10 || scale > 400)
-  {
-    throw xwpp_exception_t(
-      std::format("sheet_t::set_footer(): zoom factor {} scale outside range: 10 <= zoom <= 400.", scale));
-  }
+  assert(scale >= 10 && scale <= 400);
 
   zoom_ = scale;
 }
 
 void sheet_t::set_paper(uint8_t paper_size)
 {
-  if(paper_size > 118)
-  {
-    throw xwpp_exception_t(
-      std::format("sheet_t::set_paper(): invalid paper size: {}. Valid range is 0-118.", paper_size));
-  }
+  assert(paper_size <= 118);
 
   paper_size_         = paper_size;
   page_setup_changed_ = true;
@@ -441,18 +433,11 @@ void sheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
 
 void sheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
-  if(str.empty())
-  {
-    throw xwpp_exception_t("sheet_t::set_header(): header must not be empty.");
-  }
-
-  if(str.size() > HEADER_FOOTER_MAX)
-  {
-    throw xwpp_exception_t(
-      std::format("sheet_t::set_header(): header '{}' is too long (max: '{}').", str, HEADER_FOOTER_MAX));
-  }
+  assert(!str.empty());
+  assert(str.size() <= HEADER_FOOTER_MAX);
 
   // Count &G placeholders and ensure there are sufficient images.
+#ifndef NDEBUG
   uint8_t placeholder_count{0};
   for(size_t i{0}; i < str.size() - 1; ++i)
   {
@@ -461,14 +446,12 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
       placeholder_count++;
     }
   }
-
-  if(placeholder_count > 0 && !options)
-  {
-    throw xwpp_exception_t("sheet_t::set_header(): '&G' placeholders present but no image supplied.");
-  }
+  assert(placeholder_count == 0 || options);
+#endif
 
   if(options)
   {
+#ifndef NDEBUG
     uint8_t image_count{0};
 
     // Ensure there are enough images to match the placeholders. There is
@@ -487,11 +470,8 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
       image_count++;
     }
 
-    if(placeholder_count != image_count)
-    {
-      throw xwpp_exception_t(
-        "sheet_t::set_header(): number of '&G' placeholders does not match number of supplied images.");
-    }
+    assert(placeholder_count == image_count);
+#endif
 
     if(options->margin_ > 0.0)
     {
@@ -510,17 +490,10 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
 // TODO Quite similar to set_header. Maybe merged in one generic function
 void sheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
-  if(str.empty())
-  {
-    throw xwpp_exception_t("sheet_t::set_footer(): footer must not be empty.");
-  }
+  assert(!str.empty());
+  assert(str.size() <= HEADER_FOOTER_MAX);
 
-  if(str.size() > HEADER_FOOTER_MAX)
-  {
-    throw xwpp_exception_t(
-      std::format("sheet_t::set_footer(): footer '{}' is too long (max: '{}').", str, HEADER_FOOTER_MAX));
-  }
-
+#ifndef NDEBUG
   // Count &G placeholders and ensure there are sufficient images.
   uint8_t placeholder_count{0};
   for(size_t i{0}; i < str.size() - 1; ++i)
@@ -530,14 +503,12 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
       placeholder_count++;
     }
   }
-
-  if(placeholder_count > 0 && !options)
-  {
-    throw xwpp_exception_t("sheet_t::set_footer(): '&G' placeholders present but no image provided.");
-  }
+  assert(placeholder_count == 0 || options);
+#endif
 
   if(options)
   {
+#ifndef NDEBUG
     uint8_t image_count{0};
 
     // Ensure there are enough images to match the placeholders. There is
@@ -555,12 +526,8 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
     {
       image_count++;
     }
-
-    if(placeholder_count != image_count)
-    {
-      throw xwpp_exception_t(
-        "sheet_t::set_footer(): number of '&G' placeholders does not match number of supplied images.");
-    }
+    assert(placeholder_count == image_count);
+#endif
 
     if(options->margin_ > 0.0)
     {

@@ -25,7 +25,7 @@ class XLSXBaseTest(unittest.TestCase):
         self.ignore_files = []
         self.ignore_elements = {}
 
-    def run_exe_test(self, exe_name, exp_filename=None, must_throw=False):
+    def run_exe_test(self, exe_name, exp_filename=None):
         """Run C++ exe and compare output xlsx file with the Excel file."""
 
         # Create the executable command
@@ -36,11 +36,6 @@ class XLSXBaseTest(unittest.TestCase):
 
         # Run the C++ executable to generate the "got" xlsx file.
         got = os.system(command)
-
-        # C++ executable is expected to throw
-        if must_throw is True:
-            self.assertNotEqual(got, self.no_system_error)
-            return
 
         self.assertEqual(got, self.no_system_error)
 

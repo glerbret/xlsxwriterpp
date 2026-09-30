@@ -1342,6 +1342,8 @@ public:
    *  chart.add_series("=(Sheet1!$A$1:$A$9,Sheet1!$A$14:$A$25)",
    *                   "=(Sheet1!$B$1:$B$9,Sheet1!$B$14:$B$25)");
    * @endcode
+   *
+   * @pre scatter charts must have 'categories' and 'values'.
    */
   chart_series_t& add_series(const std::string& categories, const std::string& values);
 
@@ -1776,6 +1778,8 @@ public:
    * For the Standard error type the value is ignored.
    *
    * @see @ref chart_error_bars.
+   *
+   * @pre `%error_bars` should not be already set.
    */
   void series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const;
 
@@ -1792,9 +1796,9 @@ public:
    *  chart.set_rotation(28);
    * @endcode
    *
-   * The angle of rotation must be in the range `0 <= rotation <= 360`.
-   *
    * This option is only available for Pie/Doughnut charts.
+   *
+   * @pre The angle of rotation must be in the range `0 <= rotation <= 360`.
    */
   void set_rotation(uint16_t rotation);
 
@@ -1810,9 +1814,9 @@ public:
    *  chart.set_hole_size(33);
    * @endcode
    *
-   * The hole size must be in the range `10 <= size <= 90`.
-   *
    * This option is only available for Doughnut charts.
+   *
+   * @pre The hole size must be in the range `10 <= size <= 90`.
    */
   void set_hole_size(uint8_t size);
 
@@ -1853,10 +1857,11 @@ public:
    *
    * @image html chart_gap.png
    *
-   * The gap value must be in the range `0 <= gap <= 500`. The default value
-   * is 150.
+   * @note The default value  is 150.
    *
    * This option is only available for Bar/Column charts.
+   *
+   * @pre The gap value must be in the range `0 <= gap <= 500`.
    */
   void set_series_gap(uint16_t gap);
 
@@ -1991,6 +1996,8 @@ public:
    * @code
    *  chart.title_set_name_range("Sheet1", 1, 0);
    * @endcode
+   *
+   * @pre `%sheetname` must be specified.
    */
   void title_set_name_range(const std::string& sheetname, row_num_t row_num, col_num_t col_num);
 
@@ -1998,8 +2005,6 @@ public:
    * @brief Remove one or more series from the the legend.
    *
    * @param delete_series An array of zero-indexed values to delete from series.
-   *
-   * @throw xwpp::xwpp_exception_t.
    *
    * The `%legend_delete_series()` function allows you to remove/hide one
    * or more series in a chart legend (the series will still display on the chart).
@@ -2017,6 +2022,9 @@ public:
    * @endcode
    *
    * @image html chart_legend_delete.png
+   *
+   * @pre `%delete_series` should not be empty.
+   * @pre `%delete_series` size must be less than or equal to 255.
    */
   void legend_delete_series(const std::vector<int16_t>& delete_series);
 
@@ -2034,10 +2042,10 @@ public:
    *
    * @image html chart_overlap.png
    *
-   * The overlap value must be in the range `0 <= overlap <= 500`.
-   * The default value is 0.
+   * @note The default value is 0.
+   * @note This option is only available for Bar/Column charts.
    *
-   * This option is only available for Bar/Column charts.
+   * @pre The `%overlap` value must be in the range `0 <= overlap <= 500`.
    */
   void set_series_overlap(int8_t overlap);
 
@@ -2468,6 +2476,8 @@ private:
  *  chart_series_set_categories(series, "Sheet1", 1, 0, 6, 0);  // "=Sheet1!$A$2:$A$7"
  *  chart_series_set_values(series, "Sheet1", 1, 2, 6, 2);      // "=Sheet1!$C$2:$C$7"
  * @endcode
+ *
+ * @pre `%sheetname` must be specified.
  */
 void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
                                  col_num_t first_col, row_num_t last_row, col_num_t last_col);
@@ -2490,6 +2500,8 @@ void chart_series_set_categories(chart_series_t& series, const std::string& shee
  * easier to generate programmatically.
  *
  * @see the documentation for `chart_series_set_categories()` above.
+ *
+ * @pre `%sheetname` must be specified.
  */
 void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
                              col_num_t first_col, row_num_t last_row, col_num_t last_col);
@@ -2516,6 +2528,8 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
  *
  *  chart_series_set_name_range(series, "Sheet1", 0, 2); // "=Sheet1!$C$1"
  * @endcode
+ *
+ * @pre `%sheetname` must be specified.
  */
 void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row_num,
                                  col_num_t col_num);
@@ -2626,6 +2640,8 @@ void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_
  * @endcode
  *
  * @image html chart_series_set_marker_size.png
+ *
+ * @pre The `%size` value must be in the range `2 <= overlap <= 72`.
  */
 void chart_series_set_marker_size(chart_series_t& series, uint8_t size);
 
@@ -2692,8 +2708,6 @@ void chart_series_set_marker_pattern(chart_series_t& series, const std::optional
  * @param series A series object created via `chart_t::add_series()`.
  * @param points A vector of `chart_point_t` pointers.
  *
- * @throw xwpp::xwpp_exception_t.
- *
  * In general formatting is applied to an entire series in a chart. However,
  * it is occasionally required to format individual points in a series. In
  * particular this is required for Pie/Doughnut charts where each segment is
@@ -2706,6 +2720,8 @@ void chart_series_set_marker_pattern(chart_series_t& series, const std::optional
  * @image html chart_points1.png
  *
  * @see @ref chart_points
+ *
+ * @pre `%points` should not be empty.
  */
 void series_set_points(chart_series_t& series, const std::vector<chart_point_t>& points);
 
@@ -2781,8 +2797,6 @@ void chart_series_set_labels_options(chart_series_t& series, bool show_name, boo
  * @param series      A series object created via `chart_t::add_series()`.
  * @param data_labels A vector of `chart_data_label_t` pointers.
  *
- * @throw xwpp::xwpp_exception_t.
- *
  * The `%chart_series_set_labels_custom()` function is used to set the properties
  * for data labels in a series. It can also be used to delete individual data
  * labels in a series.
@@ -2812,6 +2826,8 @@ void chart_series_set_labels_options(chart_series_t& series, bool show_name, boo
  * @image html chart_data_labels18.png
  *
  * @see @ref chart_custom_labels.
+ *
+ * @pre `%data_labels` should not be empty.
  */
 void chart_series_set_labels_custom(chart_series_t& series, const std::vector<chart_data_label_t>& data_labels);
 
@@ -3098,6 +3114,8 @@ void chart_series_set_labels_pattern(chart_series_t& series, const std::optional
  * @image html chart_trendline1.png
  *
  * @see @ref chart_trendlines.
+ *
+ * @pre `%value` must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
  */
 void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, uint8_t value);
 
@@ -3121,6 +3139,9 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  * @note This feature isn't available for Moving Average in Excel.
  *
  * @see @ref chart_trendlines.
+ *
+ * @pre `%series` must have trendline.
+ * @pre Trendline should not be 'Moving Average' one.
  */
 void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward);
 
@@ -3142,6 +3163,9 @@ void chart_series_set_trendline_forecast(chart_series_t& series, double forward,
  * @note This feature isn't available for Moving Average in Excel.
  *
  * @see @ref chart_trendlines.
+ *
+ * @pre `%series` must have trendline.
+ * @pre Trendline should not be 'Moving Average' one.
  */
 void chart_series_set_trendline_equation(chart_series_t& series);
 
@@ -3163,6 +3187,9 @@ void chart_series_set_trendline_equation(chart_series_t& series);
  * @note This feature isn't available for Moving Average in Excel.
  *
  * @see @ref chart_trendlines.
+ *
+ * @pre `%series` must have trendline.
+ * @pre Trendline should not be 'Moving Average' one.
  */
 void chart_series_set_trendline_r_squared(chart_series_t& series);
 
@@ -3190,6 +3217,9 @@ void chart_series_set_trendline_r_squared(chart_series_t& series);
  * Linear and Polynomial trendline types.
  *
  * @see @ref chart_trendlines.
+ *
+ * @pre `%series` must have trendline.
+ * @pre Trendline must be Linear, Polynomial or Exponential.
  */
 void chart_series_set_trendline_intercept(chart_series_t& series, double intercept);
 
@@ -3283,6 +3313,10 @@ void series_set_trendline_line(chart_series_t& series, const std::optional<chart
  * - `%chart_error_bar_direction_t::MINUS`: Error bar extends in negative direction.
  *
  * @see @ref chart_error_bars.
+ *
+ * @pre `%error_bars` must be set (see `%series_set_error_bars`).
+ * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
+ * @pre 'Y error bar' properties not available for Bar charts in Excel.
  */
 void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, chart_error_bar_direction_t direction);
 
@@ -3311,6 +3345,10 @@ void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, char
  * - `%chart_error_bar_cap_t::NO_CAP`: No end cap.
  *
  * @see @ref chart_error_bars.
+ *
+ * @pre `%error_bars` must be set (see `%series_set_error_bars`).
+ * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
+ * @pre 'Y error bar' properties not available for Bar charts in Excel.
  */
 void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_error_bar_cap_t endcap);
 
@@ -3338,6 +3376,10 @@ void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_e
  * @image html chart_error_bars4.png
  *
  * @see @ref chart_lines and @ref chart_error_bars.
+ *
+ * @pre `%error_bars` must be set (see `%series_set_error_bars`).
+ * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
+ * @pre 'Y error bar' properties not available for Bar charts in Excel.
  */
 void chart_series_set_error_bars_line(series_error_bars_t& error_bars, const std::optional<chart_line_t>& line);
 
@@ -3392,6 +3434,8 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name);
  *
  * **Axis types**: This function is applicable to to all axes types.
  *                 See @ref ww_charts_axes.
+ *
+ * @pre `%sheetname` must be specified.
  */
 void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row_num, col_num_t col_num);
 

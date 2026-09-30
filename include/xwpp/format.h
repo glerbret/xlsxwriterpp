@@ -1117,6 +1117,8 @@ public:
    * from top to bottom.
    *
    * @todo Add specific API for 270.
+   *
+   * @pre `%angle` must be in range -90 <= `%angle` <= 90 or equal to 270.
    */
   void set_rotation(int16_t angle);
 
@@ -1176,6 +1178,8 @@ public:
    *  worksheet.write(0, 0, "Bottom alignment", format);
    * @endcode
    *
+   * @pre The alignment must be a vertical one.
+   *
    * @todo Add image in documentation.
    * @todo Add example.
    */
@@ -1192,6 +1196,8 @@ public:
    *
    *  worksheet.write(0, 0, "Right alignment", format);
    * @endcode
+   *
+   * @pre The alignment must be a horizontal one.
    *
    * @todo Add image in documentation.
    * @todo Add example.

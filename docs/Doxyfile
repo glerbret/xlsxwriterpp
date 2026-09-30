@@ -1103,7 +1103,6 @@ INPUT                  = src/mainpage.dox \
                          ../include/xwpp/utility.h \
                          ../include/xwpp/common.h \
                          ../include/xwpp/color.h \
-                         ../include/xwpp/exception.h \
                          src/working_with_formats.dox \
                          src/working_with_colors.dox \
                          src/working_with_formulas.dox \
@@ -1121,6 +1120,7 @@ INPUT                  = src/mainpage.dox \
                          src/running_the_tests.dox \
                          src/faq.dox \
                          src/bugs.dox \
+                         src/error.dox \
                          src/author.dox \
                          ../changelog.txt \
                          ../license.txt \

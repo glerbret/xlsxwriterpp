@@ -29,26 +29,5 @@ int main()
   };
   worksheet.write_rich_string("A3", rich_strings1);
 
-  // The following use cases fail validation and should be ignored.
-  // TODO Throw exception (and don't ignore) on xlsxwriter++, test to add
-  /*
-    // Empty string.
-    std::vector<xwpp::rich_string_tuple_t> rich_strings3{
-        {.str_ = ""},
-        {.format_ = bold, .str_ = "bc"},
-        {.str_ = "defg"}
-    };
-    worksheet.write_rich_string("A3", rich_strings3);
-
-    // Empty array.
-    std::vector<xwpp::rich_string_tuple_t> rich_strings4;
-    worksheet.write_rich_string("A3", rich_strings4);
-
-    // Single string.
-    std::vector<xwpp::rich_string_tuple_t> rich_strings5{
-        {.format_ = bold, .str_ = "foo"}
-    };
-    worksheet.write_rich_string("A3", rich_strings5);
-  */
   workbook.save("test_rich_string09.xlsx");
 }

@@ -85,8 +85,6 @@ public:
    * @param chart   A `chart_t` object created via `workbook_t::add_chart()`.
    * @param options Optional chart parameters.
    *
-   * @throw xwpp::xwpp_exception_t.
-   *
    * The `%set_chart()` function can be used to insert a chart into a
    * chartsheet. The chart object must be created first using the
    * `workbook_t::add_chart()` function and configured using the @ref chart.h
@@ -111,6 +109,10 @@ public:
    * @note A chart may only be inserted once into a chartsheet or a worksheet.
    * If several similar charts are required then each one must be created
    * separately.
+   *
+   * @pre `%chart` should not be null.
+   * @pre `%chart` should not be already used.
+   * @pre `%chart` must have a non empty serie list.
    */
   void set_chart(chart_t* chart, const std::optional<chart_options_t>& options = std::nullopt);
 

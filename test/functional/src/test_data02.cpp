@@ -15,9 +15,5 @@ int main()
   worksheet.write(0, 0, 123);
   worksheet.write(1048575, 0, 456);
 
-  // TODO Throw an exception, add explicit tests
-  //  worksheet.write(-1, 0, 123);
-  //  worksheet.write(1048576, 0, 456);
-
   workbook.save("test_data02.xlsx");
 }

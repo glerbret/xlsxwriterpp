@@ -12,7 +12,7 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
     """
 
     def test_format01(self):
-        self.run_exe_test('test_format01', must_throw=True)
+        self.run_exe_test('test_format01')
 
     def test_format02(self):
         self.run_exe_test('test_format02')
