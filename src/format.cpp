@@ -10,6 +10,7 @@
 
 #include "xwpp/exception.h"
 
+#include <cassert>
 #include <format>
 
 namespace xwpp
@@ -276,6 +277,8 @@ void format_t::set_hidden()
 
 void format_t::set_rotation(int16_t angle)
 {
+  assert(angle == 270 || (angle >= -90 && angle <= 90));
+
   // Convert user angle to Excel angle.
   if(angle == 270)
   {
@@ -290,11 +293,6 @@ void format_t::set_rotation(int16_t angle)
     }
 
     rotation_ = angle;
-  }
-  else
-  {
-    throw xwpp_exception_t(
-      std::format("format_t::set_rotation(): format rotation '{}' outside Excel range: -90 <= rotation <= 90", angle));
   }
 }
 
@@ -315,34 +313,22 @@ void format_t::set_text_justlast()
 
 void format_t::set_valign(format_alignments_t alignment)
 {
-  if(alignment == format_alignments_t::VERTICAL_TOP || alignment == format_alignments_t::VERTICAL_BOTTOM ||
-     alignment == format_alignments_t::VERTICAL_CENTER || alignment == format_alignments_t::VERTICAL_JUSTIFY ||
-     alignment == format_alignments_t::VERTICAL_DISTRIBUTED)
-  {
-    text_v_align_ = alignment;
-  }
-  else
-  {
-    throw xwpp_exception_t(
-      std::format("format_t::set_valign(): alignment '{}' is not a vertical alignement", static_cast<int>(alignment)));
-  }
+  assert(alignment == format_alignments_t::VERTICAL_TOP || alignment == format_alignments_t::VERTICAL_BOTTOM ||
+         alignment == format_alignments_t::VERTICAL_CENTER || alignment == format_alignments_t::VERTICAL_JUSTIFY ||
+         alignment == format_alignments_t::VERTICAL_DISTRIBUTED);
+
+  text_v_align_ = alignment;
 }
 
 void format_t::set_halign(format_alignments_t alignment)
 {
-  if(alignment == format_alignments_t::HORIZONTAL_LEFT || alignment == format_alignments_t::HORIZONTAL_CENTER ||
-     alignment == format_alignments_t::HORIZONTAL_RIGHT || alignment == format_alignments_t::HORIZONTAL_FILL ||
-     alignment == format_alignments_t::HORIZONTAL_JUSTIFY ||
-     alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS ||
-     alignment == format_alignments_t::HORIZONTAL_DISTRIBUTED)
-  {
-    text_h_align_ = alignment;
-  }
-  else
-  {
-    throw xwpp_exception_t(std::format("format_t::set_halign(): alignment '{}' is not a horizontal alignement",
-                                       static_cast<int>(alignment)));
-  }
+  assert(alignment == format_alignments_t::HORIZONTAL_LEFT || alignment == format_alignments_t::HORIZONTAL_CENTER ||
+         alignment == format_alignments_t::HORIZONTAL_RIGHT || alignment == format_alignments_t::HORIZONTAL_FILL ||
+         alignment == format_alignments_t::HORIZONTAL_JUSTIFY ||
+         alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS ||
+         alignment == format_alignments_t::HORIZONTAL_DISTRIBUTED);
+
+  text_h_align_ = alignment;
 }
 
 void format_t::set_reading_order(uint8_t value)

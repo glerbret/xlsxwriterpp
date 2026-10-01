@@ -270,15 +270,4 @@ BOOST_AUTO_TEST_CASE(spans05)
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
 }
 
-BOOST_AUTO_TEST_CASE(spans06)
-{
-  xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  worksheet.select();
-
-  BOOST_CHECK_THROW(worksheet.write(0, 16384, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write(1048576, 0, 123), xwpp::xwpp_exception_t);
-  BOOST_CHECK_THROW(worksheet.write(1048576, 16384, 123), xwpp::xwpp_exception_t);
-}
-
 BOOST_AUTO_TEST_SUITE_END()

@@ -49,7 +49,6 @@ following sections for more information:
 - @ref chart.h      "The Chart object"
 - @ref chartsheet.h "The Chartsheet object"
 - @ref utility.h    "Utility functions and macros"
-- @ref exception.h  "Exceptions"
 
 - @ref working_with_formats
 - @ref working_with_colors
@@ -65,6 +64,7 @@ following sections for more information:
 - @ref working_with_outlines
 - @ref working_with_macros
 
+- @ref error
 - @ref examples
 - @ref running_the_tests
 - @ref faq

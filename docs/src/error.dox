@@ -1,0 +1,22 @@
+/**
+
+@page error Error management
+
+@tableofcontents
+
+Two mechanism are used in Xlsxwriter++ for error management:
+- Contracts for code issues and wrong usages of Xlsxwriter++.
+- Throwing exceptions for runtime errors.
+
+@section contract Contracts
+
+Errors related to usage of library like authorised values, function prerequisite, etc. are managed through programmation by contracts.
+
+Such contracts are documented and callers are responsible of their respect. In debug mode, asserts check these contracts.
+
+@section exception Throwing exceptions
+
+Runtime errors are reported by throwing exception, standard ones for errors reported by standard library and `%xwpp::xwpp_exception_t` for errors
+reported by Xlsxwriter++. Usage of `%xwpp::xwpp_exception_t` are documented in function description.
+
+*/

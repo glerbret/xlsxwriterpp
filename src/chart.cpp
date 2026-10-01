@@ -12,6 +12,7 @@
 #include "xwpp/utility.h"
 #include "xwpp/xmlwriter.h"
 
+#include <cassert>
 #include <optional>
 
 // TODO add gradient
@@ -136,31 +137,24 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
 // Verify that a X/Y error bar property is supported for the chart type.
 // All chart types, except Bar have Y error bars. Only Bar and Scatter
 // support X error bars.
-void check_error_bars(const series_error_bars_t& error_bars, std::string_view property)
+[[maybe_unused]] bool check_error_bars(const series_error_bars_t& error_bars)
 {
-  // Check that the error bar type has been set for all error bar
-  // functions except the one that is used to set the type.
-  if(!property.empty() && !error_bars.is_set_)
-  {
-    throw xwpp_exception_t(
-      "check_error_bars(): error bar type must be set first using chart_t::series_set_error_bars().");
-  }
-
   if(error_bars.is_x_)
   {
     if(error_bars.chart_group_ != chart_type_t::SCATTER && error_bars.chart_group_ != chart_type_t::BAR)
     {
-      throw xwpp_exception_t(
-        "check_error_bars(): 'X error bar' properties only available for Scatter and Bar charts in Excel.");
+      return false;
     }
   }
   else
   {
     if(error_bars.chart_group_ == chart_type_t::BAR)
     {
-      throw xwpp_exception_t("check_error_bars(): 'Y error bar' properties not available for Bar charts in Excel.");
+      return false;
     }
   }
+
+  return true;
 }
 
 }
@@ -175,10 +169,7 @@ chart_t::chart_t(chart_type_t type)
 chart_series_t& chart_t::add_series(const std::string& categories, const std::string& values)
 {
   // Scatter charts require categories and values.
-  if(chart_group_ == chart_type_t::SCATTER && !values.empty() && categories.empty())
-  {
-    throw xwpp_exception_t("chart_t::add_series(): scatter charts must have 'categories' and 'values'.");
-  }
+  assert(chart_group_ != chart_type_t::SCATTER || (!values.empty() && !categories.empty()));
 
   chart_series_t series;
 
@@ -339,7 +330,8 @@ void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t
 // cppcheck-suppress functionStatic
 void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const
 {
-  check_error_bars(error_bars, "");
+  assert(!error_bars.is_set_);
+  assert(check_error_bars(error_bars) == true);
 
   error_bars.type_      = type;
   error_bars.value_     = value;
@@ -354,28 +346,16 @@ void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error
 
 void chart_t::set_rotation(uint16_t rotation)
 {
-  if(rotation <= 360)
-  {
-    rotation_ = rotation;
-  }
-  else
-  {
-    throw xwpp_exception_t(
-      std::format("chart_t::set_rotation(): chart rotation '{}' outside Excel range: 0 <= rotation <= 360.", rotation));
-  }
+  assert(rotation <= 360);
+
+  rotation_ = rotation;
 }
 
 void chart_t::set_hole_size(uint8_t size)
 {
-  if(size >= 10 && size <= 90)
-  {
-    hole_size_ = size;
-  }
-  else
-  {
-    throw xwpp_exception_t(
-      std::format("chart_t::set_hole_size(): hole size '{}' outside Excel range: 10 <= size <= 90.", size));
-  }
+  assert(size >= 10 && size <= 90);
+
+  hole_size_ = size;
 }
 
 void chart_t::legend_set_font(const std::optional<chart_font_t>& font)
@@ -385,15 +365,9 @@ void chart_t::legend_set_font(const std::optional<chart_font_t>& font)
 
 void chart_t::set_series_gap(uint16_t gap)
 {
-  if(gap <= 500)
-  {
-    gap_y1_ = gap;
-  }
-  else
-  {
-    throw xwpp_exception_t(
-      std::format("chart_t::set_series_gap(): chart series gap '{}' outside Excel range: 0 <= gap <= 500.", gap));
-  }
+  assert(gap <= 500);
+
+  gap_y1_ = gap;
 }
 
 void chart_t::chartarea_set_line(const std::optional<chart_line_t>& line)
@@ -428,10 +402,7 @@ void chart_t::show_hidden_data()
 
 void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row_num, col_num_t col_num)
 {
-  if(sheetname.empty())
-  {
-    throw xwpp_exception_t("chart_t::title_set_name_range(): sheetname must be specified.");
-  }
+  assert(!sheetname.empty());
 
   // Start and end row, col are the same for single cell range.
   set_range(title_.range_, sheetname, row_num, col_num, row_num, col_num);
@@ -439,32 +410,18 @@ void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row_n
 
 void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
 {
-  if(delete_series.empty())
-  {
-    throw xwpp_exception_t("chart_t::legend_delete_series(): 'delete_series' is empty.");
-  }
-
+  assert(!delete_series.empty());
   // The maximum number of series in a chart is 255.
-  if(delete_series.size() > 255)
-  {
-    throw xwpp_exception_t("chart_t::legend_delete_series(): too many elements in 'delete_series'.");
-  }
+  assert(delete_series.size() <= 255);
 
   delete_series_ = delete_series;
 }
 
 void chart_t::set_series_overlap(int8_t overlap)
 {
-  if(overlap >= -100 && overlap <= 100)
-  {
-    overlap_y1_ = overlap;
-  }
-  else
-  {
-    throw xwpp_exception_t(std::format(
-      "chart_t::set_series_overlap(): Chart series overlap '{}' outside Excel range: -100 <= overlap <= 100.",
-      overlap));
-  }
+  assert(overlap >= -100 && overlap <= 100);
+
+  overlap_y1_ = overlap;
 }
 
 chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
@@ -780,8 +737,8 @@ void chart_t::initialize(chart_type_t type)
       break;
 
     default:
-      throw xwpp_exception_t(
-        std::format("chart_t::initialize(): unhandled chart type '{}'.", static_cast<uint16_t>(type)));
+      assert(false && "Unhandled chart type");
+      break;
   }
 }
 
@@ -3933,10 +3890,7 @@ void chart_t::adjust_max_crossing(chart_t& chart)
 void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
                                  col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
-  if(sheetname.empty())
-  {
-    throw xwpp_exception_t("chart_series_set_categories(): sheetname must be specified.");
-  }
+  assert(!sheetname.empty());
 
   set_range(series.categories_, sheetname, first_row, first_col, last_row, last_col);
 }
@@ -3944,10 +3898,7 @@ void chart_series_set_categories(chart_series_t& series, const std::string& shee
 void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
                              col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
-  if(sheetname.empty())
-  {
-    throw xwpp_exception_t("chart_series_set_values(): sheetname must be specified.");
-  }
+  assert(!sheetname.empty());
 
   set_range(series.values_, sheetname, first_row, first_col, last_row, last_col);
 }
@@ -3967,10 +3918,7 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
 void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row_num,
                                  col_num_t col_num)
 {
-  if(sheetname.empty())
-  {
-    throw xwpp_exception_t("chart_series_set_name_range(): sheetname must be specified.");
-  }
+  assert(!sheetname.empty());
 
   set_range(series.title_.range_, sheetname, row_num, col_num, row_num, col_num);
 }
@@ -3997,11 +3945,7 @@ void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_
 
 void chart_series_set_marker_size(chart_series_t& series, uint8_t size)
 {
-  if(size < 2 || size > 72)
-  {
-    throw xwpp_exception_t(
-      std::format("chart_series_set_marker_size(): marker size '{}' outside Excel range: 2 <= size <= 72.", size));
-  }
+  assert(size >= 2 && size <= 72);
 
   if(!series.marker_)
   {
@@ -4044,10 +3988,7 @@ void chart_series_set_marker_pattern(chart_series_t& series, const std::optional
 
 void series_set_points(chart_series_t& series, const std::vector<chart_point_t>& points)
 {
-  if(points.empty())
-  {
-    throw xwpp_exception_t("series_set_points(): list of points shall not be empty.");
-  }
+  assert(!points.empty());
 
   for(const auto& src_point: points)
   {
@@ -4081,10 +4022,7 @@ void chart_series_set_labels_options(chart_series_t& series, bool show_name, boo
 
 void chart_series_set_labels_custom(chart_series_t& series, const std::vector<chart_data_label_t>& data_labels)
 {
-  if(data_labels.empty())
-  {
-    throw xwpp_exception_t("chart_series_set_labels_custom(): list of labels shall not be empty.");
-  }
+  assert(!data_labels.empty());
 
   series.has_labels_ = true;
 
@@ -4189,11 +4127,8 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
 {
   if(type == chart_trendline_type_t::POLY || type == chart_trendline_type_t::AVERAGE)
   {
-    if(value < 2)
-    {
-      throw xwpp_exception_t(
-        "series_set_trendline(): order/period value must be >= 2 for Polynomial and Moving Average types.");
-    }
+    assert(value >= 2);
+
     series.trendline_value_type_ = type;
   }
 
@@ -4204,17 +4139,8 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
 
 void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward)
 {
-  if(!series.has_trendline_)
-  {
-    throw xwpp_exception_t(
-      "chart_series_set_trendline_forecast(): trendline type must be set first using series_set_trendline().");
-  }
-
-  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE)
-  {
-    throw xwpp_exception_t(
-      "chart_series_set_trendline_forecast(): forecast isn't available in Excel for a Moving Average trendline.");
-  }
+  assert(series.has_trendline_);
+  assert(series.trendline_type_ != chart_trendline_type_t::AVERAGE);
 
   series.has_trendline_forecast_ = true;
   series.trendline_forward_      = forward;
@@ -4223,52 +4149,27 @@ void chart_series_set_trendline_forecast(chart_series_t& series, double forward,
 
 void chart_series_set_trendline_equation(chart_series_t& series)
 {
-  if(!series.has_trendline_)
-  {
-    throw xwpp_exception_t(
-      "series_set_trendline_equation(): trendline type must be set first using series_set_trendline().");
-  }
-
-  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE)
-  {
-    throw xwpp_exception_t(
-      "series_set_trendline_equation(): equation isn't available in Excel for a Moving Average trendline.");
-  }
+  assert(series.has_trendline_);
+  assert(series.trendline_type_ != chart_trendline_type_t::AVERAGE);
 
   series.has_trendline_equation_ = true;
 }
 
 void chart_series_set_trendline_r_squared(chart_series_t& series)
 {
-  if(!series.has_trendline_)
-  {
-    throw xwpp_exception_t(
-      "chart_series_set_trendline_r_squared(): trendline type must be set first using series_set_trendline().");
-  }
-
-  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE)
-  {
-    throw xwpp_exception_t(
-      "chart_series_set_trendline_r_squared(): R squared isn't available in Excel for a Moving Average trendline.");
-  }
+  assert(series.has_trendline_);
+  assert(series.trendline_type_ != chart_trendline_type_t::AVERAGE);
 
   series.has_trendline_r_squared_ = true;
 }
 
 void chart_series_set_trendline_intercept(chart_series_t& series, double intercept)
 {
-  if(!series.has_trendline_)
-  {
-    throw xwpp_exception_t(
-      "chart_series_set_trendline_intercept(): trendline type must be set first using series_set_trendline().");
-  }
+  assert(series.has_trendline_);
 
-  if(series.trendline_type_ != chart_trendline_type_t::EXP &&
-     series.trendline_type_ != chart_trendline_type_t::LINEAR && series.trendline_type_ != chart_trendline_type_t::POLY)
-  {
-    throw xwpp_exception_t("chart_series_set_trendline_r_squared(): intercept is only available in Excel for "
-                           "Exponential, Linear and Polynomial trendline types.");
-  }
+  assert(series.trendline_type_ == chart_trendline_type_t::EXP ||
+         series.trendline_type_ == chart_trendline_type_t::LINEAR ||
+         series.trendline_type_ == chart_trendline_type_t::POLY);
 
   series.has_trendline_intercept_ = true;
   series.trendline_intercept_     = intercept;
@@ -4289,21 +4190,24 @@ void series_set_trendline_line(chart_series_t& series, const std::optional<chart
 
 void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, chart_error_bar_direction_t direction)
 {
-  check_error_bars(error_bars, "_direction");
+  assert(error_bars.is_set_);
+  assert(check_error_bars(error_bars) == true);
 
   error_bars.direction_ = direction;
 }
 
 void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_error_bar_cap_t endcap)
 {
-  check_error_bars(error_bars, "_endcap");
+  assert(error_bars.is_set_);
+  assert(check_error_bars(error_bars) == true);
 
   error_bars.endcap_ = endcap;
 }
 
 void chart_series_set_error_bars_line(series_error_bars_t& error_bars, const std::optional<chart_line_t>& line)
 {
-  check_error_bars(error_bars, "_line");
+  assert(error_bars.is_set_);
+  assert(check_error_bars(error_bars) == true);
 
   error_bars.line_ = convert_line_args(line);
 }
@@ -4327,10 +4231,7 @@ void chart_axis_set_name(chart_axis_t& axis, const std::string& name)
 
 void chart_axis_set_name_range(chart_axis_t& axis, const std::string& sheetname, row_num_t row_num, col_num_t col_num)
 {
-  if(sheetname.empty())
-  {
-    throw xwpp_exception_t("chart_axis_set_name_range(): sheetname must be specified.");
-  }
+  assert(!sheetname.empty());
 
   // Start and end row, col are the same for single cell range.
   set_range(axis.title_.range_, sheetname, row_num, col_num, row_num, col_num);

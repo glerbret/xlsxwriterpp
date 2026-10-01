@@ -277,8 +277,6 @@ public:
    * @param name  The name of the custom property.
    * @param value The value of the custom property.
    *
-   * @throw xwpp::xwpp_exception_t.
-   *
    * The `%set_custom_property()` functions can be used to set one
    * or more custom document text properties not covered by the standard
    * properties in the `set_properties()` function above.
@@ -299,8 +297,9 @@ public:
    * - datetime
    * - boolean
    *
-   * @note The name and value parameters are limited to 255 characters
-   * by Excel.
+   * @pre The `%name` parameter should not be empty.
+   * @pre The `%name` and `%value` parameters are limited to 255 characters by Excel.
+   * @pre Datetime must be valid.
    */
   void set_custom_property(std::string_view name, std::string_view value);
   /// @brief C string overload.
@@ -370,8 +369,6 @@ public:
    *
    * @param sheetname Worksheet name.
    *
-   * @throw xwpp::xwpp_exception_t.
-   *
    * @return A reference on @ref worksheet.h "Worksheet" object.
    *
    * The `%add_worksheet()` function adds a new worksheet to a workbook.
@@ -395,13 +392,14 @@ public:
    * - The name doesn't start or end with an apostrophe.
    * - The name isn't already in use. (Case insensitive).
    *
-   * If any of these errors are encountered the function will throw.
    * You can check for valid name using the `validate_sheetname()`
    * function.
    *
    * @note You should also avoid using the worksheet name "History" (case
    * insensitive) which is reserved in English language versions of
    * Excel. Non-English versions may have restrictions on the equivalent word.
+   *
+   * @pre The sheetname parameter must be a valid Excel worksheet name.
    */
   worksheet_t& add_worksheet(std::string_view sheetname);
 
@@ -452,7 +450,6 @@ public:
    * - The name doesn't start or end with an apostrophe.
    * - The name isn't already in use. (Case insensitive).
    *
-   * If any of these errors are encountered the function will throw.
    * You can check for valid name using the `validate_sheetname()`
    * function.
    *
@@ -464,6 +461,8 @@ public:
    * chartsheet in order to provide data for the chart. The @ref worksheet.h
    * "Worksheet" object is used to write data and configure a worksheet in the
    * workbook.
+   *
+   * @pre The sheetname parameter must be a valid Excel worksheet name.
    */
   chartsheet_t& add_chartsheet(std::string_view sheetname);
 
@@ -499,7 +498,7 @@ public:
    *
    * @return A pointer on @ref worksheet.h "Worksheet" object.
    *
-   * @throw xwpp::xwpp_exception_t.
+   * @exception xwpp::xwpp_exception_t if worksheet does not exist.
    *
    * This function returns a @ref worksheet.h "Worksheet" object reference based on its name:
    *
@@ -519,7 +518,7 @@ public:
    *
    * @return A pointer on @ref chartsheet.h "Chartsheet" object.
    *
-   * @throw xwpp::xwpp_exception_t.
+   * @exception xwpp::xwpp_exception_t if worksheet does not exist.
    *
    * This function returns a @ref chartsheet.h "Chartsheet" object reference based on its name:
    *
@@ -675,7 +674,9 @@ public:
    * | `%chart_type_t::RADAR_WITH_MARKERS`            | Radar chart - with markers            |
    * | `%chart_type_t::RADAR_FILLED`                  | Radar chart - filled                  |
    *
-   * See @ref chart.h for details.
+   * @see @ref chart.h for details.
+   *
+   * @pre The `%chart_type` parameter should not be NONE.
    */
   [[nodiscard]] chart_t& add_chart(chart_type_t chart_type);
 
@@ -684,7 +685,7 @@ public:
    *
    * @param filename The path/filename of the vbaProject.bin file.
    *
-   * @throw xwpp::xwpp_exception_t.
+   * @exception xwpp::xwpp_exception_t if the VBA file cannot be read.
    *
    * The `%add_vba_project()` function can be used to add macros or
    * functions to a workbook using a binary VBA project file that has been
@@ -702,7 +703,9 @@ public:
    * should ensure that the file extension is `.xlsm` to prevent Excel from
    * giving a warning when it opens the file.
    *
-   * See also @ref working_with_macros
+   * @see @ref working_with_macros
+   *
+   * @pre The `%filename` parameter should not be empty.
    */
   void add_vba_project(const std::filesystem::path& filename);
 
@@ -713,7 +716,7 @@ public:
    * @param vba_project The path/filename of the vbaProject.bin file.
    * @param signature   The path/filename of the vbaProjectSignature.bin file.
    *
-   * @throw xwpp::xwpp_exception_t.
+   * @exception xwpp::xwpp_exception_t if the VBA file or signature cannot be read.
    *
    * The `%add_signed_vba_project()` function can be used to add
    * digitally signed macros or functions to a workbook.
@@ -731,7 +734,10 @@ public:
    * Any suitable path/name for an existing VBA bin
    * file will do. The same applies for `vbaProjectSignature.bin`.
    *
-   * See also @ref working_with_macros
+   * @see @ref working_with_macros
+   *
+   * @pre The `%vba_project` parameter should not be empty.
+   * @pre The `%signature` parameter should not be empty.
    */
   void add_signed_vba_project(const std::filesystem::path& vba_project, const std::filesystem::path& signature);
 
@@ -739,8 +745,6 @@ public:
    * @brief Set the VBA name for the workbook.
    *
    * @param name Name of the workbook used by VBA.
-   *
-   * @throw xwpp::xwpp_exception_t.
    *
    * The `%set_vba_name()` function can be used to set the VBA name for
    * the workbook. This is sometimes required when a vbaProject macro included
@@ -754,7 +758,9 @@ public:
    * If an Excel VBA name for the workbook isn't specified then Xlsxwriter++
    * will use `ThisWorkbook`.
    *
-   * See also @ref working_with_macros.
+   * @see @ref working_with_macros.
+   *
+   * @pre The `%name` parameter should not be empty.
    */
   void set_vba_name(std::string_view name);
 
@@ -763,8 +769,6 @@ public:
    *
    * @param name    The defined name.
    * @param formula The cell or range that the defined name refers to.
-   *
-   * @throw xwpp::xwpp_exception_t.
    *
    * This function is used to defined a name that can be used to represent a
    * value, a single cell or a range of cells in a workbook: These defined names
@@ -802,6 +806,9 @@ public:
    *
    * @see [Microsoft Office
    * documentation](https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64).
+   *
+   * @pre The `%name` parameter should not be empty.
+   * @pre The `%formula` parameter should not be empty.
    */
   void define_name(const std::string& name, const std::string& formula);
 

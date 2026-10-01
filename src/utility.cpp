@@ -419,7 +419,7 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
   int leap{0};
   int days{0};
 
-  datetime_validate(datetime);
+  assert(datetime_validate(datetime));
 
   // For times without dates set the default date for the epoch.
   if(year == 0)
@@ -511,52 +511,50 @@ double datetime_to_excel_datetime(const datetime_t& datetime)
   return datetime_to_excel_date_with_epoch(datetime, false);
 }
 
-void datetime_validate(const datetime_t& datetime)
+bool datetime_validate(const datetime_t& datetime)
 {
   // Excel uses the year 1900 as the default epoch but it uses 1899-12-31 as
   // the 0 date and internally we use the 0-0-0 date for time only values.
   if(datetime.year_ < 1900 && (datetime.year_ != 0 || datetime.month_ != 0 || datetime.day_ != 0) &&
      (datetime.year_ != 1899 || datetime.month_ != 12 || datetime.day_ != 31))
   {
-    throw xwpp_exception_t(
-      std::format("datetime_validate(): invalid year: {}. Valid range is 1900-9999.", datetime.year_));
+    return false;
   }
 
   if(datetime.year_ > 9999)
   {
-    throw xwpp_exception_t(
-      std::format("datetime_validate(): invalid year: {}. Valid range is 1900-9999.", datetime.year_));
+    return false;
   }
 
   if(datetime.year_ != 0)
   {
     if(datetime.month_ < 1 || datetime.month_ > 12)
     {
-      throw xwpp_exception_t(
-        std::format("datetime_validate(): invalid month: {}. Valid range is 1-12.", datetime.month_));
+      return false;
     }
 
     if(datetime.day_ < 1 || datetime.day_ > 31)
     {
-      throw xwpp_exception_t(std::format("datetime_validate(): invalid day: {}. Valid range is 1-31.", datetime.day_));
+      return false;
     }
   }
 
   if(datetime.hour_ < 0 || datetime.hour_ > 23)
   {
-    throw xwpp_exception_t(std::format("datetime_validate(): invalid hour: {}. Valid range is 0-23.", datetime.hour_));
+    return false;
   }
 
   if(datetime.min_ < 0 || datetime.min_ > 59)
   {
-    throw xwpp_exception_t(std::format("datetime_validate(): invalid minute: {}. Valid range is 0-59.", datetime.min_));
+    return false;
   }
 
   if(datetime.sec_ < 0.0 || datetime.sec_ >= 60.0)
   {
-    throw xwpp_exception_t(
-      std::format("datetime_validate(): invalid seconds: {}. Valid range is 0.0-59.999.", datetime.sec_));
+    return false;
   }
+
+  return true;
 }
 
 double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)

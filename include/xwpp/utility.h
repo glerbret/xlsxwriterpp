@@ -94,12 +94,12 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * @return A double representing an Excel datetime.
  *
- * @throw xwpp::xwpp_exception_t.
- *
  * This function is similar to `datetime_to_excel_datetime()` but it allows
  * you to specify whether to use the 1900 or 1904 epoch.
  *
  * @see The `workbook_t::use_1904_epoch()` function.
+ *
+ * @pre `%datetime` must be a valid datetime or a valid time.
  */
 [[nodiscard]] double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
 /// @brief `std::chrono` overload.
@@ -113,8 +113,6 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * @return A double representing an Excel datetime.
  *
- * @throw xwpp::xwpp_exception_t.
- *
  * The `%datetime_to_excel_datetime()` function converts a datetime in
  * `%system_clock::time_point` to an Excel datetime number:
  *
@@ -125,6 +123,8 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  * @endcode
  *
  * @see @ref working_with_dates for more details on the Excel datetime format.
+ *
+ * @pre `%datetime` must be a valid datetime or a valid time.
  */
 [[nodiscard]] double datetime_to_excel_datetime(const datetime_t& datetime);
 /// @brief `std::chrono` overload.
@@ -132,6 +132,10 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
 
 /**
  * @brief Validate a `datetime_t` struct.
+ *
+ * @param datetime A date and time.
+ *
+ * @return Boolean indicating is the date and time is valid.
  *
  * Validates a `datetime_t` struct to ensure its fields are within acceptable
  * ranges for Excel dates and times.
@@ -147,13 +151,11 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  * min_     | 0 - 59
  * sec_     | 0 - 59.999
  *
- * @param datetime A `datetime_t`.
- *
- * @throw xwpp::xwpp_exception_t.
+ * Time only value is represented by `%year_`, `%month_` and `%day_` set to 0.
  *
  * @todo Better check for day number.
  */
-void datetime_validate(const datetime_t& datetime);
+bool datetime_validate(const datetime_t& datetime);
 
 /**
  * @brief Converts a unix datetime to an Excel datetime number with 1900/1904

@@ -14,6 +14,7 @@
 #include "xwpp/xmlwriter.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <chrono>
 #include <format>
@@ -147,22 +148,9 @@ void workbook_t::set_properties(const doc_properties_t& properties)
 
 void workbook_t::set_custom_property(std::string_view name, std::string_view value)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
-  }
-
-  if(value.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): value of custom property '{}' is too long.", value));
-  }
+  assert(!name.empty());
+  assert(name.size() <= 255);
+  assert(value.size() <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::STRING, std::string(name), std::string(value));
 }
@@ -174,87 +162,42 @@ void workbook_t::set_custom_property(std::string_view name, const char* value)
 
 void workbook_t::set_custom_property(std::string_view name, int32_t value)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
-  }
+  assert(!name.empty());
+  assert(name.size() <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::INTEGER, std::string(name), value);
 }
 
 void workbook_t::set_custom_property(std::string_view name, double value)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
-  }
+  assert(!name.empty());
+  assert(name.size() <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::DOUBLE, std::string(name), value);
 }
 
 void workbook_t::set_custom_property(std::string_view name, bool value)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty.");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
-  }
+  assert(!name.empty());
+  assert(name.size() <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::BOOLEAN, std::string(name), value);
 }
 
 void workbook_t::set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
-  }
-
-  if(value.time_since_epoch().count() == 0)
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): date is not set.");
-  }
+  assert(!name.empty());
+  assert(name.size() <= 255);
+  assert(value.time_since_epoch().count() != 0);
 
   custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), to_datetime(value));
 }
 
 void workbook_t::set_custom_property(std::string_view name, const datetime_t& value)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_custom_property(): name of custom property cannot be empty");
-  }
-
-  if(name.size() > 255)
-  {
-    throw xwpp_exception_t(
-      std::format("workbook_t::set_custom_property(): name of custom property '{}' is too long.", name));
-  }
-
-  datetime_validate(value);
+  assert(!name.empty());
+  assert(name.size() <= 255);
+  assert(datetime_validate(value));
 
   custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
 }
@@ -290,10 +233,7 @@ void workbook_t::set_size(uint16_t width, uint16_t height)
 
 worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
 {
-  if(!validate_sheetname(sheetname))
-  {
-    throw xwpp_exception_t(std::format("workbook_t::add_worksheet(): sheetname '{}' is not valid.", sheetname));
-  }
+  assert(validate_sheetname(sheetname));
 
   const sheet_init_data_t init_data{
     .index_              = sheets_.size(),
@@ -323,10 +263,7 @@ worksheet_t& workbook_t::add_worksheet()
 
 chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
 {
-  if(!validate_sheetname(sheetname))
-  {
-    throw xwpp_exception_t(std::format("workbook_t::add_worksheet(): sheetname '{}' is not valid.", sheetname));
-  }
+  assert(validate_sheetname(sheetname));
 
   const sheet_init_data_t init_data{
     .index_              = sheets_.size(),
@@ -495,10 +432,7 @@ void workbook_t::unset_default_url_format()
 // to worksheet with insert_chart API (without duplication check).
 chart_t& workbook_t::add_chart(chart_type_t chart_type)
 {
-  if(chart_type == chart_type_t::NONE)
-  {
-    throw xwpp_exception_t("workbook_t::add_chart: chart type set to 'none'.");
-  }
+  assert(chart_type != chart_type_t::NONE);
 
   charts_.emplace_back(chart_type);
   return charts_.back();
@@ -506,10 +440,7 @@ chart_t& workbook_t::add_chart(chart_type_t chart_type)
 
 void workbook_t::add_vba_project(const std::filesystem::path& filename)
 {
-  if(filename.empty())
-  {
-    throw xwpp_exception_t("workbook_t::add_vba_project(): project filename must be specified.");
-  }
+  assert(!filename.empty());
 
   // Check that the VBA file exists and can be opened.
   {
@@ -527,12 +458,10 @@ void workbook_t::add_vba_project(const std::filesystem::path& filename)
 void workbook_t::add_signed_vba_project(const std::filesystem::path& vba_project,
                                         const std::filesystem::path& signature)
 {
-  add_vba_project(vba_project);
+  assert(!vba_project.empty());
+  assert(!signature.empty());
 
-  if(signature.empty())
-  {
-    throw xwpp_exception_t("workbook_t::add_signed_vba_project(): signature filename must be specified.");
-  }
+  add_vba_project(vba_project);
 
   // Check that the vbaProjectSignature file exists and can be opened.
   {
@@ -550,10 +479,7 @@ void workbook_t::add_signed_vba_project(const std::filesystem::path& vba_project
 
 void workbook_t::set_vba_name(std::string_view name)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("workbook_t::set_vba_name(): 'name' cannot be an empty string.");
-  }
+  assert(!name.empty());
 
   vba_codename_ = name;
 }
@@ -872,11 +798,8 @@ void workbook_t::prepare_vml()
 void workbook_t::store_defined_name(std::string_view name, std::string_view app_name, std::string_view formula,
                                     size_t index, bool hidden)
 {
-  // Do some checks on the input data.
-  if(name.empty() || formula.empty())
-  {
-    throw xwpp_exception_t("workbook_t::store_defined_name(): 'name' and 'formula' cannot be empty");
-  }
+  assert(!name.empty());
+  assert(!formula.empty());
 
   defined_name_t defined_name;
 
@@ -898,10 +821,8 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
     auto worksheet_name = std::string{name.substr(0, found_string)};
     const auto tmp_str  = name.substr(found_string + 1);
 
-    if(tmp_str.empty() || worksheet_name.empty())
-    {
-      throw xwpp_exception_t("workbook_t::store_defined_name(): nor sheetname neither area can be empty.");
-    }
+    assert(!tmp_str.empty());
+    assert(!worksheet_name.empty());
 
     // Remove any worksheet quoting.
     if(worksheet_name.front() == '\'')
@@ -924,11 +845,7 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
     }
 
     // If we didn't find the worksheet name we exit.
-    if(defined_name.index_ == std::numeric_limits<size_t>::max())
-    {
-      throw xwpp_exception_t(
-        std::format("workbook_t::store_defined_name(): Sheename '{}' not present.", worksheet_name));
-    }
+    assert(defined_name.index_ != std::numeric_limits<size_t>::max());
 
     defined_name.name_ = tmp_str;
   }
@@ -1292,12 +1209,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
     }
 
     // Check that the sheetname exists.
-    if(!is_worksheet_present(sheetname))
-    {
-      throw xwpp_exception_t(
-        std::format("workbook_t::populate_range_dimensions(): sheetname '{}' in chart formula '{}' doesn't exist.",
-                    sheetname, range.formula_));
-    }
+    assert(is_worksheet_present(sheetname));
 
     range.sheetname_ = sheetname;
 
@@ -1333,48 +1245,41 @@ void workbook_t::populate_range_data_cache(series_range_t& range) const
   }
 
   // Iterate through the worksheet data and populate the range cache.
-  try
-  {
-    uint16_t num_data_points{0};
-    const worksheet_t& worksheet = get_worksheet_by_name(range.sheetname_);
+  assert(is_worksheet_present(range.sheetname_));
 
-    for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
+  uint16_t num_data_points{0};
+  const worksheet_t& worksheet = get_worksheet_by_name(range.sheetname_);
+
+  for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
+  {
+    const row_t* row_obj = worksheet.find_row(row_num);
+    for(col_num_t col_num = range.first_col_; col_num <= range.last_col_; col_num++)
     {
-      const row_t* row_obj = worksheet.find_row(row_num);
-      for(col_num_t col_num = range.first_col_; col_num <= range.last_col_; col_num++)
+      series_data_point_t data_point;
+      if(const cell_t* cell_obj = worksheet.find_cell_in_row(row_obj, col_num); cell_obj)
       {
-        series_data_point_t data_point;
-        if(const cell_t* cell_obj = worksheet.find_cell_in_row(row_obj, col_num); cell_obj)
+        if(cell_obj->type_ == cell_types_t::NUMBER_CELL)
         {
-          if(cell_obj->type_ == cell_types_t::NUMBER_CELL)
-          {
-            data_point.number_ = std::get<double>(cell_obj->data_);
-          }
-
-          if(cell_obj->type_ == cell_types_t::STRING_CELL)
-          {
-            data_point.str_         = cell_obj->sst_string_;
-            data_point.is_string_   = true;
-            range.has_string_cache_ = true;
-          }
-        }
-        else
-        {
-          data_point.no_data_ = true;
+          data_point.number_ = std::get<double>(cell_obj->data_);
         }
 
-        range.data_cache_.push_back(data_point);
-        num_data_points++;
+        if(cell_obj->type_ == cell_types_t::STRING_CELL)
+        {
+          data_point.str_         = cell_obj->sst_string_;
+          data_point.is_string_   = true;
+          range.has_string_cache_ = true;
+        }
       }
+      else
+      {
+        data_point.no_data_ = true;
+      }
+
+      range.data_cache_.push_back(data_point);
+      num_data_points++;
     }
-    range.num_data_points_ = num_data_points;
-  } catch(const xwpp_exception_t&)
-  {
-    range.ignore_cache_ = true;
-    throw xwpp_exception_t(
-      std::format("workbook_t::populate_range_data_cache(): sheetname '{}' in chart formula '{}' doesn't exist.",
-                  range.sheetname_, range.formula_));
   }
+  range.num_data_points_ = num_data_points;
 }
 
 void workbook_t::populate_range(series_range_t& range) const

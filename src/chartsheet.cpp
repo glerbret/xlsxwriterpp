@@ -13,6 +13,7 @@
 #include "xwpp/worksheet.h"
 #include "xwpp/xmlwriter.h"
 
+#include <cassert>
 #include <format>
 #include <string>
 
@@ -26,21 +27,9 @@ chartsheet_t::chartsheet_t(const sheet_init_data_t& init_data)
 
 void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& options)
 {
-  if(!chart)
-  {
-    throw xwpp_exception_t("chartsheet_t::set_chart(): 'chart' must be present");
-  }
-
-  if(chart->in_use_)
-  {
-    throw xwpp_exception_t(
-      "chartsheet_t::set_chart(): the same chart object cannot be inserted in a worksheet more than once");
-  }
-
-  if(chart->series_list_.empty())
-  {
-    throw xwpp_exception_t("chartsheet_t::set_chart(): chart must have a series");
-  }
+  assert(chart);
+  assert(!chart->in_use_);
+  assert(!chart->series_list_.empty());
 
   object_properties_t object_props;
   if(options.has_value())
@@ -237,13 +226,13 @@ std::string chartsheet_t::write_sheet_pr() const
 void chartsheet_t::set_error_cell([[maybe_unused]] const object_properties_t& object_props,
                                   [[maybe_unused]] uint32_t ref_id)
 {
-  throw xwpp_exception_t("chartsheet_t::set_error_cell(): no cell in chartsheet");
+  assert(false && "chartsheet_t::set_error_cell(): no cell in chartsheet");
 }
 
 void chartsheet_t::prepare_background([[maybe_unused]] uint32_t image_ref_id,
                                       [[maybe_unused]] object_properties_t& object_props)
 {
-  throw xwpp_exception_t("chartsheet_t::prepare_background(): background image not supported in chartsheet");
+  assert(false && "chartsheet_t::prepare_background(): background image not supported in chartsheet");
 }
 
 void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props)

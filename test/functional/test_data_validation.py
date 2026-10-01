@@ -21,13 +21,13 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
         self.run_exe_test('test_data_validation03')
 
     def test_data_validation04(self):
-        self.run_exe_test('test_data_validation04', must_throw=True)
+        self.run_exe_test('test_data_validation04', 'data_validation02.xlsx')
 
     def test_data_validation05(self):
-        self.run_exe_test('test_data_validation05', must_throw=True)
+        self.run_exe_test('test_data_validation05', 'data_validation02.xlsx')
 
     def test_data_validation06(self):
-        self.run_exe_test('test_data_validation06', must_throw=True)
+        self.run_exe_test('test_data_validation06', 'data_validation02.xlsx')
 
     def test_data_validation07(self):
         self.run_exe_test('test_data_validation07')

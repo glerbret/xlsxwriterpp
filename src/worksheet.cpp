@@ -355,8 +355,7 @@ void get_comment_params(vml_obj_t& comment, const std::optional<comment_options_
   comment.x_offset_  = x_offset;
   comment.y_offset_  = y_offset;
 }
-
-size_t validation_list_length(const std::vector<std::string>& list)
+[[maybe_unused]] size_t validation_list_length(const std::vector<std::string>& list)
 {
   if(list.empty())
   {
@@ -438,35 +437,12 @@ void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<tabl
   }
 
   // Each type (light, medium and dark) has a different number of styles.
-  if(user_options->style_type_ == table_style_type_t::LIGHT)
-  {
-    if(user_options->style_type_number_ > 21)
-    {
-      throw xwpp_exception_t(
-        std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'LIGHT' ([0, 21]).",
-                    user_options->style_type_number_));
-    }
-  }
-
-  if(user_options->style_type_ == table_style_type_t::MEDIUM)
-  {
-    if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 28)
-    {
-      throw xwpp_exception_t(
-        std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'MEDIUM' ([1, 28]).",
-                    user_options->style_type_number_));
-    }
-  }
-
-  if(user_options->style_type_ == table_style_type_t::DARK)
-  {
-    if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 11)
-    {
-      throw xwpp_exception_t(
-        std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'DARK' ([1, 11]).",
-                    user_options->style_type_number_));
-    }
-  }
+  assert((user_options->style_type_ == table_style_type_t::LIGHT && user_options->style_type_number_ <= 21) ||
+         (user_options->style_type_ == table_style_type_t::MEDIUM && user_options->style_type_number_ >= 1 &&
+          user_options->style_type_number_ <= 28) ||
+         (user_options->style_type_ == table_style_type_t::DARK && user_options->style_type_number_ >= 1 &&
+          user_options->style_type_number_ <= 11) ||
+         user_options->style_type_ == table_style_type_t::DEFAULT);
 
   table_obj.style_type_        = user_options->style_type_;
   table_obj.style_type_number_ = user_options->style_type_number_;
@@ -528,11 +504,7 @@ void set_custom_table_columns(table_obj_t& table_obj, const table_options_t& use
 
     if(!user_column.header_.empty())
     {
-      if(user_column.header_.size() > 255)
-      {
-        throw xwpp_exception_t("set_custom_table_columns(): 'header' exceeds Excel length limit of 255.");
-      }
-
+      assert(user_column.header_.size() <= 255);
       table_column.header_ = user_column.header_;
     }
 
@@ -550,7 +522,8 @@ void set_custom_table_columns(table_obj_t& table_obj, const table_options_t& use
   }
 }
 
-void check_table_rows(row_num_t first_row, row_num_t last_row, const std::optional<table_options_t>& user_options)
+[[maybe_unused]] bool check_table_rows(row_num_t first_row, row_num_t last_row,
+                                       const std::optional<table_options_t>& user_options)
 {
   row_num_t num_non_header_rows{last_row - first_row};
 
@@ -559,40 +532,31 @@ void check_table_rows(row_num_t first_row, row_num_t last_row, const std::option
     num_non_header_rows++;
   }
 
-  if(num_non_header_rows == 0)
-  {
-    throw xwpp_exception_t("check_table_rows(): table must have at least 1 non-header row.");
-  }
+  return num_non_header_rows != 0;
 }
 
-void check_table_name(const std::optional<table_options_t>& user_options)
+[[maybe_unused]] bool check_table_name(const std::optional<table_options_t>& user_options)
 {
   if(!user_options.has_value() || user_options->name_.empty())
   {
-    return;
+    return true;
   }
 
   std::string name{user_options->name_};
 
-  // Check table name length.
   if(name.size() > 255)
   {
-    throw xwpp_exception_t("check_table_name(): Table name exceeds Excel's limit of 255.");
+    return false;
   }
-
-  // Check some short invalid names.
   if(name.size() == 1 && (name[0] == 'C' || name[0] == 'c' || name[0] == 'R' || name[0] == 'r'))
   {
-    throw xwpp_exception_t(std::format("check_table_name(): invalid table name '{}'.", name));
+    return false;
   }
 
   // Check for invalid initial character in Table name, while trying to allow
   // for utf8 strings.
-  const std::string invalid_first_char{R"( !"#$%&'()*+,-./0123456789:;<=>?@[\]^`{|}~)"};
-  if(invalid_first_char.find(name[0]) != std::string::npos)
-  {
-    throw xwpp_exception_t(std::format("check_table_name(): invalid first character '{}' name '{}'.", name[0], name));
-  }
+  [[maybe_unused]] const std::string invalid_first_char{R"( !"#$%&'()*+,-./0123456789:;<=>?@[\]^`{|}~)"};
+  return invalid_first_char.find(name[0]) == std::string::npos;
 }
 
 // This function handles the additional optional parameters to
@@ -681,15 +645,6 @@ void get_button_params(vml_obj_t& button, uint16_t button_number, const std::opt
   button.start_row_ = button.row_num_;
   button.x_offset_  = x_offset;
   button.y_offset_  = y_offset;
-}
-
-void validate_conditional_icons(const conditional_format_t& user)
-{
-  if(user.icon_style_ > conditional_icon_types_t::FIVE_QUARTERS)
-  {
-    throw xwpp_exception_t(
-      std::format("validate_conditional_icons(): invalid icon_style '{}'.", static_cast<uint32_t>(user.icon_style_)));
-  }
 }
 
 void validate_conditional_scale(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
@@ -781,74 +736,44 @@ void validate_conditional_scale(cond_format_obj_t& cond_format, const conditiona
   }
 }
 
-void validate_conditional_top(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+[[maybe_unused]] bool validate_conditional_top(const conditional_format_t& user_options)
 {
   // Restrict the range of rank values to Excel's allowed range.
-  if(user_options.criteria_ == conditional_criteria_t::TOP_OR_BOTTOM_PERCENT)
-  {
-    if(user_options.value_ < 0.0 || user_options.value_ > 100.0)
-    {
-      throw xwpp_exception_t(std::format(
-        "validate_conditional_top(): top/bottom percent '{}%' must by in range '0'-'100'.", user_options.value_));
-    }
-  }
-  else
-  {
-    if(user_options.value_ < 1.0 || user_options.value_ > 1000.0)
-    {
-      throw xwpp_exception_t(std::format(
-        "validate_conditional_top(): top/bottom percent '{}' must by in range '1'-'1000'.", user_options.value_));
-    }
-  }
-
-  cond_format.min_value_ = static_cast<uint16_t>(user_options.value_);
+  return (user_options.criteria_ == conditional_criteria_t::TOP_OR_BOTTOM_PERCENT && user_options.value_ >= 0.0 &&
+          user_options.value_ <= 100.0) ||
+         (user_options.criteria_ != conditional_criteria_t::TOP_OR_BOTTOM_PERCENT && user_options.value_ >= 1.0 &&
+          user_options.value_ <= 1000.0);
 }
 
-void validate_conditional_average(const conditional_format_t& user)
+[[maybe_unused]] bool validate_conditional_average(const conditional_format_t& user)
 {
-  if(static_cast<uint32_t>(user.criteria_) < static_cast<uint32_t>(conditional_criteria_t::AVERAGE_ABOVE) ||
-     static_cast<uint32_t>(user.criteria_) > static_cast<uint32_t>(conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW))
-  {
-    throw xwpp_exception_t(std::format("validate_conditional_average(): invalid criteria value '{}'.",
-                                       static_cast<uint32_t>(user.criteria_)));
-  }
+  return static_cast<uint32_t>(user.criteria_) >= static_cast<uint32_t>(conditional_criteria_t::AVERAGE_ABOVE) &&
+         static_cast<uint32_t>(user.criteria_) <=
+           static_cast<uint32_t>(conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW);
 }
 
-void validate_conditional_time_period(const conditional_format_t& user)
+[[maybe_unused]] bool validate_conditional_time_period(const conditional_format_t& user)
 {
-  if(static_cast<uint32_t>(user.criteria_) < static_cast<uint32_t>(conditional_criteria_t::TIME_PERIOD_YESTERDAY) ||
-     static_cast<uint32_t>(user.criteria_) > static_cast<uint32_t>(conditional_criteria_t::TIME_PERIOD_NEXT_MONTH))
-  {
-    throw xwpp_exception_t(std::format("validate_conditional_time_period(): invalid criteria value '{}'.",
-                                       static_cast<uint32_t>(user.criteria_)));
-  }
+  return static_cast<uint32_t>(user.criteria_) >=
+           static_cast<uint32_t>(conditional_criteria_t::TIME_PERIOD_YESTERDAY) &&
+         static_cast<uint32_t>(user.criteria_) <= static_cast<uint32_t>(conditional_criteria_t::TIME_PERIOD_NEXT_MONTH);
 }
 
-void validate_conditional_text(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+[[maybe_unused]] bool validate_conditional_text(const conditional_format_t& user_options)
 {
   if(user_options.value_string_.empty())
   {
-    throw xwpp_exception_t("validate_conditional_text(): 'value_string' can not be empty.");
+    return false;
   }
 
-  if(static_cast<uint32_t>(user_options.criteria_) < static_cast<uint32_t>(conditional_criteria_t::TEXT_CONTAINING) ||
-     static_cast<uint32_t>(user_options.criteria_) > static_cast<uint32_t>(conditional_criteria_t::TEXT_ENDS_WITH))
-  {
-    throw xwpp_exception_t(std::format("validate_conditional_text(): invalid criteria value '{}'.",
-                                       static_cast<uint32_t>(user_options.criteria_)));
-  }
-
-  cond_format.min_value_string_ = dup_formula(user_options.value_string_);
+  return static_cast<uint32_t>(user_options.criteria_) >=
+           static_cast<uint32_t>(conditional_criteria_t::TEXT_CONTAINING) &&
+         static_cast<uint32_t>(user_options.criteria_) <= static_cast<uint32_t>(conditional_criteria_t::TEXT_ENDS_WITH);
 }
 
-void validate_conditional_formula(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
+[[maybe_unused]] bool validate_conditional_formula(const conditional_format_t& user_options)
 {
-  if(user_options.value_string_.empty())
-  {
-    throw xwpp_exception_t("validate_conditional_formula(): value_string can not be empty.");
-  }
-
-  cond_format.min_value_string_ = dup_formula(user_options.value_string_);
+  return !user_options.value_string_.empty();
 }
 
 void validate_conditional_cell(cond_format_obj_t& cond_format, const conditional_format_t& user_options)
@@ -867,10 +792,8 @@ void validate_conditional_cell(cond_format_obj_t& cond_format, const conditional
   }
 }
 
-void validate_conditional_criteria(cond_format_obj_t& cond_format)
+[[maybe_unused]] bool validate_conditional_criteria(const cond_format_obj_t& cond_format)
 {
-  bool criteria_mismatch{false};
-
   if(cond_format.type_ == conditional_format_types_t::CELL)
   {
     switch(cond_format.criteria_)
@@ -883,11 +806,10 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
       case conditional_criteria_t::LESS_THAN_OR_EQUAL_TO:
       case conditional_criteria_t::BETWEEN:
       case conditional_criteria_t::NOT_BETWEEN:
-        criteria_mismatch = false;
-        break;
+        return true;
 
       default:
-        criteria_mismatch = true;
+        return false;
     }
   }
   else if(cond_format.type_ == conditional_format_types_t::TIME_PERIOD)
@@ -904,11 +826,10 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
       case conditional_criteria_t::TIME_PERIOD_LAST_MONTH:
       case conditional_criteria_t::TIME_PERIOD_THIS_MONTH:
       case conditional_criteria_t::TIME_PERIOD_NEXT_MONTH:
-        criteria_mismatch = false;
-        break;
+        return true;
 
       default:
-        criteria_mismatch = true;
+        return false;
     }
   }
   else if(cond_format.type_ == conditional_format_types_t::TEXT)
@@ -919,11 +840,10 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
       case conditional_criteria_t::TEXT_NOT_CONTAINING:
       case conditional_criteria_t::TEXT_BEGINS_WITH:
       case conditional_criteria_t::TEXT_ENDS_WITH:
-        criteria_mismatch = false;
-        break;
+        return true;
 
       default:
-        criteria_mismatch = true;
+        return false;
     }
   }
   else if(cond_format.type_ == conditional_format_types_t::AVERAGE)
@@ -940,11 +860,10 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
       case conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW:
       case conditional_criteria_t::AVERAGE_3_STD_DEV_ABOVE:
       case conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW:
-        criteria_mismatch = false;
-        break;
+        return true;
 
       default:
-        criteria_mismatch = true;
+        return false;
     }
   }
   else if(cond_format.type_ == conditional_format_types_t::TOP ||
@@ -954,26 +873,14 @@ void validate_conditional_criteria(cond_format_obj_t& cond_format)
     {
       case conditional_criteria_t::NONE:
       case conditional_criteria_t::TOP_OR_BOTTOM_PERCENT:
-        criteria_mismatch = false;
-        break;
+        return true;
 
       default:
-        criteria_mismatch = true;
+        return false;
     }
   }
-  else
-  {
-    // Any other conditional type should have a zero criteria.
-    cond_format.criteria_ = conditional_criteria_t::NONE;
-  }
 
-  if(criteria_mismatch)
-  {
-    // TODO Error in conditional_format2
-    throw xwpp_exception_t(std::format("validate_conditional_criteria(): criteria {} is not valid for type {}.",
-                                       static_cast<uint32_t>(cond_format.criteria_),
-                                       static_cast<uint32_t>(cond_format.type_)));
-  }
+  return true;
 }
 
 [[nodiscard]] uint32_t calculate_x_split_width(double x_split)
@@ -1365,8 +1272,8 @@ std::string write_selection(const selection_t& selection)
 }
 
 const uint8_t PRINT_ACROSS{1};
-const size_t VALIDATION_MAX_TITLE_LENGTH{32};
-const size_t VALIDATION_MAX_STRING_LENGTH{255};
+[[maybe_unused]] const size_t VALIDATION_MAX_TITLE_LENGTH{32};
+[[maybe_unused]] const size_t VALIDATION_MAX_STRING_LENGTH{255};
 
 }
 
@@ -1584,11 +1491,7 @@ void worksheet_t::write(row_num_t row_num, col_num_t col_num, std::string_view d
 
   check_dimensions(row_num, col_num, false, false);
 
-  if(data.size() > STR_MAX)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::write(): string size '{}' too large (max '{}').", data.size(), STR_MAX));
-  }
+  assert(data.size() <= STR_MAX);
 
   const shared_strings_element_t sst_element = sst_->get_index(std::string{data}, false);
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
@@ -1641,6 +1544,7 @@ void worksheet_t::write_datetime(row_num_t row_num, col_num_t col_num, const dat
                                  const format_t* format)
 {
   check_dimensions(row_num, col_num, false, false);
+
   datetime_validate(datetime);
   const double excel_date = datetime_to_excel_date_with_epoch(datetime, use_1904_epoch_);
   const cell_t cell       = new_number_cell(row_num, col_num, excel_date, format);
@@ -1727,16 +1631,10 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   check_dimensions(row_num, col_num, false, false);
 
   // Iterate through rich string fragments to check for input errors.
-  if(std::ranges::any_of(rich_strings, [](const auto& rich_string_tuple) { return rich_string_tuple.str_.empty(); }))
-  {
-    throw xwpp_exception_t("worksheet_t::write_rich_string(): string cannot be empty.");
-  }
-
+  assert(
+    std::ranges::none_of(rich_strings, [](const auto& rich_string_tuple) { return rich_string_tuple.str_.empty(); }));
   // If there are less than 2 fragments it isn't a rich string.
-  if(rich_strings.size() < 2)
-  {
-    throw xwpp_exception_t("worksheet_t::write_rich_string(): rich string must have more than 2 fragments.");
-  }
+  assert(rich_strings.size() >= 2);
 
   style_t style;
   const format_t default_format(get_dxf_index_);
@@ -1765,11 +1663,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
     i++;
   }
 
-  if(rich_string.size() > STR_MAX)
-  {
-    throw xwpp_exception_t(std::format(
-      "worksheet_t::write_rich_string(): rich string size '{}' is too high (max: '{}').", rich_string.size(), STR_MAX));
-  }
+  assert(rich_string.size() <= STR_MAX);
 
   const shared_strings_element_t sst_element = sst_->get_index(rich_string, true);
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
@@ -1792,16 +1686,10 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_vi
   std::string url_string;
   cell_types_t link_type = cell_types_t::HYPERLINK_URL;
 
-  if(url.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::write_url(): URL must not be empty.");
-  }
+  assert(!url.empty());
 
   // Check the Excel limit of URLS per worksheet.
-  if(hlink_count_ > MAX_NUMBER_URLS)
-  {
-    throw xwpp_exception_t(std::format("worksheet_t::write_url(): max number of URL '{}' exceeded.", MAX_NUMBER_URLS));
-  }
+  assert(hlink_count_ <= MAX_NUMBER_URLS);
 
   check_dimensions(row_num, col_num, false, false);
 
@@ -1905,11 +1793,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_vi
   }
 
   // Check if URL exceeds Excel's length limit.
-  if(url_copy.size() > max_url_length_)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::write_url(): URL '{}' is too long (max: '{}').", url_copy, max_url_length_));
-  }
+  assert(url_copy.size() <= max_url_length_);
 
   // Use the default URL format if none is specified.
   if(!storing_embedded_image_)
@@ -1947,16 +1831,8 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, std::strin
 {
   check_dimensions(row_num, col_num, false, false);
 
-  if(text.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::write_comment(): comment must not be empty.");
-  }
-
-  if(text.size() > STR_MAX)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::write_comment(): comment '{}' is too long (max: {}).", text, STR_MAX));
-  }
+  assert(!text.empty());
+  assert(text.size() <= STR_MAX);
 
   vml_obj_t comment{
     .row_num_ = row_num,
@@ -1988,12 +1864,9 @@ void worksheet_t::write_comment(std::string_view cell_name, std::string_view tex
 void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
                                 double result)
 {
-  std::string formula_copy;
+  assert(!formula.empty());
 
-  if(formula.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::write_formula(): formula must not be empty.");
-  }
+  std::string formula_copy;
 
   check_dimensions(row_num, col_num, false, false);
 
@@ -2015,12 +1888,9 @@ void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::strin
 void worksheet_t::write_formula(row_num_t row_num, col_num_t col_num, std::string_view formula, const format_t* format,
                                 std::string_view result)
 {
-  std::string formula_copy;
+  assert(!formula.empty());
 
-  if(formula.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::write_formula(): formula must not be empty.");
-  }
+  std::string formula_copy;
 
   check_dimensions(row_num, col_num, false, false);
 
@@ -2097,10 +1967,7 @@ void worksheet_t::merge_range(row_num_t first_row, col_num_t first_col, row_num_
                               const std::string& str, const format_t* format)
 {
   // Excel doesn't allow a single cell to be merged.
-  if(first_row == last_row && first_col == last_col)
-  {
-    throw xwpp_exception_t("worksheet_t::merge_range(): cannot merge one single cell.");
-  }
+  assert(first_row != last_row || first_col != last_col);
 
   // Swap last row/col with first row/col as necessary.
   reorder_index(first_row, last_row, first_col, last_col);
@@ -2152,10 +2019,10 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   const col_num_t num_cols{static_cast<col_num_t>(last_col - first_col + 1)};
 
   // Check that there are sufficient data rows.
-  check_table_rows(first_row, last_row, user_options);
+  assert(check_table_rows(first_row, last_row, user_options));
 
   // Check that the the table name is valid.
-  check_table_name(user_options);
+  assert(check_table_name(user_options));
 
   table_obj_t table_obj;
   const std::vector<table_column_t> columns(num_cols);
@@ -2218,10 +2085,7 @@ void worksheet_t::add_table(std::string_view range_name, const std::optional<tab
 void worksheet_t::insert_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
                                const std::optional<image_options_t>& options)
 {
-  if(filename.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::insert_image(): image filename must not be empty.");
-  }
+  assert(!filename.empty());
 
   // Check that the image file exists and can be opened.
   {
@@ -2287,10 +2151,7 @@ void worksheet_t::insert_image_buffer(row_num_t row_num, col_num_t col_num,
                                       const std::vector<unsigned char>& image_buffer,
                                       const std::optional<image_options_t>& options)
 {
-  if(image_buffer.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::insert_image_buffer(): image must not be empty.");
-  }
+  assert(!image_buffer.empty());
 
   object_properties_t object_props;
 
@@ -2340,10 +2201,7 @@ void worksheet_t::insert_image_buffer(std::string_view cell_name, const std::vec
 void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::filesystem::path& filename,
                               const std::optional<image_options_t>& options)
 {
-  if(filename.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::embed_image(): image filename must not be empty.");
-  }
+  assert(!filename.empty());
 
   // Check that the image file exists and can be opened.
   {
@@ -2419,10 +2277,7 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
                                      const std::vector<unsigned char>& image_buffer,
                                      const std::optional<image_options_t>& options)
 {
-  if(image_buffer.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::embed_image_buffer(): image must not be empty.");
-  }
+  assert(!image_buffer.empty());
 
   check_dimensions(row_num, col_num, false, false);
 
@@ -2486,16 +2341,8 @@ void worksheet_t::embed_image_buffer(std::string_view cell_name, const std::vect
 void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
                                const std::optional<chart_options_t>& user_options)
 {
-  if(chart->in_use_)
-  {
-    throw xwpp_exception_t(
-      "worksheet_t::insert_chart(): the same chart object cannot be inserted in a worksheet more than once.");
-  }
-
-  if(chart->series_list_.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::insert_chart(): chart must have a series.");
-  }
+  assert(!chart->in_use_);
+  assert(!chart->series_list_.empty());
 
   object_properties_t object_props;
   if(user_options.has_value())
@@ -2620,21 +2467,10 @@ void worksheet_t::autofilter(std::string_view range_name)
 
 void worksheet_t::filter_column(col_num_t col_num, const filter_rule_t& rule)
 {
+  assert(autofilter_.in_use_);
+  assert(col_num >= autofilter_.first_col_ && col_num <= autofilter_.last_col_);
+
   filter_rule_obj_t rule_obj;
-
-  if(!autofilter_.in_use_)
-  {
-    throw xwpp_exception_t("worksheet_t::filter_column(): worksheet autofilter range hasn't been defined. Use "
-                           "worksheet::autofilter() first.");
-  }
-
-  if(col_num < autofilter_.first_col_ || col_num > autofilter_.last_col_)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::filter_column(): Column '{}' is outside autofilter range '{} <= col_num <= {}'.",
-                  col_num, autofilter_.first_col_, autofilter_.last_col_));
-  }
-
   const uint16_t rule_index{static_cast<uint16_t>(col_num - autofilter_.first_col_)};
 
   rule_obj.col_num_   = rule_index;
@@ -2672,21 +2508,10 @@ void worksheet_t::filter_column(std::string_view col_num, const filter_rule_t& r
 void worksheet_t::filter_column2(col_num_t col_num, const filter_rule_t& rule1, const filter_rule_t& rule2,
                                  filter_operator_t and_or)
 {
+  assert(autofilter_.in_use_);
+  assert(col_num >= autofilter_.first_col_ && col_num <= autofilter_.last_col_);
+
   filter_rule_obj_t rule_obj;
-
-  if(!autofilter_.in_use_)
-  {
-    throw xwpp_exception_t("worksheet_t::filter_column2(): worksheet autofilter range hasn't been defined. Use "
-                           "worksheet::autofilter() first.");
-  }
-
-  if(col_num < autofilter_.first_col_ || col_num > autofilter_.last_col_)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::filter_column2(): Column '{}' is outside autofilter range '{} <= col_num <= {}'.",
-                  col_num, autofilter_.first_col_, autofilter_.last_col_));
-  }
-
   const uint16_t rule_index{static_cast<uint16_t>(col_num - autofilter_.first_col_)};
 
   if(and_or == filter_operator_t::AND)
@@ -2751,26 +2576,12 @@ void worksheet_t::filter_column2(std::string_view col_num, const filter_rule_t& 
 
 void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>& list)
 {
+  assert(!list.empty());
+  assert(autofilter_.in_use_);
+  assert(col_num >= autofilter_.first_col_ && col_num <= autofilter_.last_col_);
+
   filter_rule_obj_t rule_obj;
   bool has_blanks{false};
-
-  if(list.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::filter_list(): list parameter cannot be empty.");
-  }
-
-  if(!autofilter_.in_use_)
-  {
-    throw xwpp_exception_t("worksheet_t::filter_list(): worksheet autofilter range hasn't been defined. Use "
-                           "worksheet::autofilter() first.");
-  }
-
-  if(col_num < autofilter_.first_col_ || col_num > autofilter_.last_col_)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::filter_list(): Column '{}' is outside autofilter range '{} <= col_num <= {}'.", col_num,
-                  autofilter_.first_col_, autofilter_.last_col_));
-  }
 
   // Count the number of non "Blanks" strings in the input list.
   for(const auto& str: list)
@@ -2786,10 +2597,7 @@ void worksheet_t::filter_list(col_num_t col_num, const std::vector<std::string>&
   }
 
   // There should be at least one filter string.
-  if(rule_obj.list_.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::filter_list(): list must have at least 1 non-blanks item.");
-  }
+  assert(!rule_obj.list_.empty());
 
   const uint16_t rule_index{static_cast<uint16_t>(col_num - autofilter_.first_col_)};
 
@@ -2858,10 +2666,7 @@ void worksheet_t::split_panes(double y_split, double x_split, row_num_t top_row,
 void worksheet_t::set_selection(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   // Only allow selection to be set once to avoid freeing/re-creating it.
-  if(!selections_.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::set_selection(): Selection can be set only once.");
-  }
+  assert(selections_.empty());
 
   // Excel doesn't set a selection for cell A1 since it is the default.
   if(first_row == 0 && first_col == 0 && last_row == 0 && last_col == 0)
@@ -2947,10 +2752,7 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   check_dimensions(last_row, last_col, true, true);
 
   // Check the validation type is in correct enum range.
-  if(conditional_format.type_ == conditional_format_types_t::NONE)
-  {
-    throw xwpp_exception_t("worksheet_t::conditional_format_range(): Invalid type value.");
-  }
+  assert(conditional_format.type_ != conditional_format_types_t::NONE);
 
   cond_format_obj_t cond_format;
   // Create the data validation range.
@@ -2989,7 +2791,7 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   cond_format.type_string_  = type_strings[static_cast<size_t>(cond_format.type_)];
 
   // Check that the criteria matches the conditional type.
-  validate_conditional_criteria(cond_format);
+  assert(validate_conditional_criteria(cond_format));
 
   // Validate the user input for various types of rules.
   if(cond_format.type_ == conditional_format_types_t::CELL ||
@@ -3000,24 +2802,27 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   }
   else if(cond_format.type_ == conditional_format_types_t::TEXT)
   {
-    validate_conditional_text(cond_format, conditional_format);
+    assert(validate_conditional_text(conditional_format));
+    cond_format.min_value_string_ = dup_formula(conditional_format.value_string_);
   }
   else if(cond_format.type_ == conditional_format_types_t::TIME_PERIOD)
   {
-    validate_conditional_time_period(conditional_format);
+    assert(validate_conditional_time_period(conditional_format));
   }
   else if(cond_format.type_ == conditional_format_types_t::AVERAGE)
   {
-    validate_conditional_average(conditional_format);
+    assert(validate_conditional_average(conditional_format));
   }
   else if(cond_format.type_ == conditional_format_types_t::TOP ||
           cond_format.type_ == conditional_format_types_t::BOTTOM)
   {
-    validate_conditional_top(cond_format, conditional_format);
+    assert(validate_conditional_top(conditional_format));
+    cond_format.min_value_ = static_cast<uint16_t>(conditional_format.value_);
   }
   else if(cond_format.type_ == conditional_format_types_t::FORMULA)
   {
-    validate_conditional_formula(cond_format, conditional_format);
+    assert(validate_conditional_formula(conditional_format));
+    cond_format.min_value_string_ = dup_formula(conditional_format.value_string_);
   }
   else if(cond_format.type_ == conditional_format_types_t::TWO_COLOR_SCALE ||
           cond_format.type_ == conditional_format_types_t::THREE_COLOR_SCALE)
@@ -3030,8 +2835,6 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   }
   else if(cond_format.type_ == conditional_format_types_t::ICON_SETS)
   {
-    validate_conditional_icons(conditional_format);
-
     cond_format.icon_style_    = conditional_format.icon_style_;
     cond_format.reverse_icons_ = conditional_format.reverse_icons_;
     cond_format.icons_only_    = conditional_format.icons_only_;
@@ -3105,10 +2908,7 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
 
   // Check that a validation parameter has been specified
   // except for 'list', 'any' and 'custom'.
-  if(has_criteria && validation.criteria_ == validation_criteria_t::NONE)
-  {
-    throw xwpp_exception_t("worksheet_t::data_validation_range(): criteria parameter must be specified.");
-  }
+  assert(!has_criteria || validation.criteria_ != validation_criteria_t::NONE);
 
   // Check for "between" criteria so we can do additional checks.
   if(has_criteria && (validation.criteria_ == validation_criteria_t::BETWEEN ||
@@ -3122,67 +2922,29 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   {
     if(is_between)
     {
-      if(validation.minimum_formula_.empty())
-      {
-        throw xwpp_exception_t("worksheet_t::data_validation_range(): minimum_formula parameter cannot be empty.");
-      }
-      if(validation.maximum_formula_.empty())
-      {
-        throw xwpp_exception_t("worksheet_t::data_validation_range(): maximum_formula parameter cannot be empty.");
-      }
+      assert(!validation.minimum_formula_.empty());
+      assert(!validation.maximum_formula_.empty());
     }
     else
     {
-      if(validation.value_formula_.empty())
-      {
-        throw xwpp_exception_t("worksheet_t::data_validation_range(): formula parameter cannot be empty.");
-      }
+      assert(!validation.value_formula_.empty());
     }
   }
 
   // Check Excel limitations on input strings.
-  if(validation.input_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
-  {
-    throw xwpp_exception_t(std::format(
-      "worksheet_t::data_validation_range(): 'input_title' length > Excel limit of {}.", VALIDATION_MAX_TITLE_LENGTH));
-  }
+  assert(validation.input_title_.size() <= VALIDATION_MAX_TITLE_LENGTH);
+  assert(validation.error_title_.size() <= VALIDATION_MAX_TITLE_LENGTH);
+  assert(validation.input_message_.size() <= VALIDATION_MAX_STRING_LENGTH);
+  assert(validation.error_message_.size() <= VALIDATION_MAX_STRING_LENGTH);
 
-  if(validation.error_title_.size() > VALIDATION_MAX_TITLE_LENGTH)
-  {
-    throw xwpp_exception_t(std::format(
-      "worksheet_t::data_validation_range(): 'error_title' length > Excel limit of {}.", VALIDATION_MAX_TITLE_LENGTH));
-  }
-
-  if(validation.input_message_.size() > VALIDATION_MAX_STRING_LENGTH)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::data_validation_range(): 'input_message' length > Excel limit of {}.",
-                  VALIDATION_MAX_STRING_LENGTH));
-  }
-
-  if(validation.error_message_.size() > VALIDATION_MAX_STRING_LENGTH)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::data_validation_range(): 'error_message' length > Excel limit of {}.",
-                  VALIDATION_MAX_STRING_LENGTH));
-  }
-
+#ifndef NDEBUG
   if(validation.validate_ == validation_types_t::LIST)
   {
     const size_t length = validation_list_length(validation.value_list_);
-
-    if(length == 0)
-    {
-      throw xwpp_exception_t("worksheet_t::data_validation_range(): list parameters cannot be zero.");
-    }
-
-    if(length > VALIDATION_MAX_STRING_LENGTH)
-    {
-      throw xwpp_exception_t(
-        std::format("worksheet_t::data_validation_range(): 'list length with commas > Excel limit of {}.",
-                    VALIDATION_MAX_STRING_LENGTH));
-    }
+    assert(length != 0);
+    assert(length <= VALIDATION_MAX_STRING_LENGTH);
   }
+#endif
 
   // Swap last row/col with first row/col as necessary.
   reorder_index(first_row, last_row, first_col, last_col);
@@ -3275,10 +3037,7 @@ void worksheet_t::data_validation_range(std::string_view range_name, const data_
 
 void worksheet_t::ignore_errors(ignore_errors_t type, std::string_view range)
 {
-  if(range.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::ignore_errors(): 'range' must be specified.");
-  }
+  assert(!range.empty());
 
   // Set the ranges to be ignored.
   if(type == ignore_errors_t::NUMBER_STORED_AS_TEXT)
@@ -3344,10 +3103,7 @@ void worksheet_t::set_default_row(double height, bool hide_unused_rows)
 
 void worksheet_t::set_background(const std::filesystem::path& filename)
 {
-  if(filename.empty())
-  {
-    throw xwpp_exception_t("worksheet.set_background(): filename must be specified.");
-  }
+  assert(!filename.empty());
 
   // Check that the image file exists and can be opened.
   {
@@ -3372,10 +3128,7 @@ void worksheet_t::set_background(const std::filesystem::path& filename)
 
 void worksheet_t::set_background_buffer(const std::vector<unsigned char>& image_buffer)
 {
-  if(image_buffer.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::set_background_buffer(): image must not be empty.");
-  }
+  assert(!image_buffer.empty());
 
   // Create a new object to hold the image properties.
   object_properties_t object_props{
@@ -3391,10 +3144,7 @@ void worksheet_t::set_background_buffer(const std::vector<unsigned char>& image_
 
 void worksheet_t::set_vba_name(std::string_view name)
 {
-  if(name.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::set_vba_name(): 'name' must be specified.");
-  }
+  assert(!name.empty());
 
   vba_codename_ = name;
 }
@@ -3720,17 +3470,8 @@ void worksheet_t::insert_cell(row_num_t row_num, col_num_t col_num, const cell_t
 // perform the dimension check without storing the value.
 void worksheet_t::check_dimensions(row_num_t row_num, col_num_t col_num, bool ignore_row, bool ignore_col)
 {
-  if(row_num >= ROW_MAX)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::check_dimensions(): row_num '{}' out of range: row_num < '{}'.", row_num, ROW_MAX));
-  }
-
-  if(col_num >= COL_MAX)
-  {
-    throw xwpp_exception_t(
-      std::format("worksheet_t::check_dimensions(): col_num '{}' out of range: col_num < '{}'.", col_num, COL_MAX));
-  }
+  assert(row_num < ROW_MAX);
+  assert(col_num < COL_MAX);
 
   if(!ignore_row)
   {
@@ -3776,10 +3517,7 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
   // Swap last row/col with first row/col as necessary.
   reorder_index(first_row, last_row, first_col, last_col);
 
-  if(formula.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::store_array_formula(): formula must not be empty.");
-  }
+  assert(!formula.empty());
 
   // Check that row and col are valid and store max and min values.
   check_dimensions(first_row, first_col, false, false);
@@ -3822,10 +3560,7 @@ void worksheet_t::store_array_formula(row_num_t first_row, col_num_t first_col, 
   }
 
   // Check for empty formula that started as {=}.
-  if(formula_copy.empty())
-  {
-    throw xwpp_exception_t("worksheet_t::store_array_formula(): formula must not be empty.");
-  }
+  assert(!formula_copy.empty());
 
   // Create a new array formula cell object.
   cell_t cell          = new_array_formula_cell(first_row, first_col, formula_copy, range, format, is_dynamic);
