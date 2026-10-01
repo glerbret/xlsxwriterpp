@@ -363,7 +363,7 @@ void get_comment_params(vml_obj_t& comment, const std::optional<comment_options_
   }
 
   size_t length = std::accumulate(std::begin(list), std::end(list), size_t{0},
-                                  [](size_t len, std::string_view str) { return len + str.size(); });
+                                  [](size_t len, std::string_view str) { return len + utf8_len(str); });
 
   // Include commas in the length.
   length += list.size() - 1;
@@ -504,7 +504,7 @@ void set_custom_table_columns(table_obj_t& table_obj, const table_options_t& use
 
     if(!user_column.header_.empty())
     {
-      assert(user_column.header_.size() <= 255);
+      assert(utf8_len(user_column.header_) <= 255);
       table_column.header_ = user_column.header_;
     }
 
@@ -544,7 +544,7 @@ void set_custom_table_columns(table_obj_t& table_obj, const table_options_t& use
 
   std::string name{user_options->name_};
 
-  if(name.size() > 255)
+  if(utf8_len(name) > 255)
   {
     return false;
   }
@@ -1491,7 +1491,7 @@ void worksheet_t::write(row_num_t row_num, col_num_t col_num, std::string_view d
 
   check_dimensions(row_num, col_num, false, false);
 
-  assert(data.size() <= STR_MAX);
+  assert(utf8_len(data) <= STR_MAX);
 
   const shared_strings_element_t sst_element = sst_->get_index(std::string{data}, false);
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
@@ -1663,7 +1663,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
     i++;
   }
 
-  assert(rich_string.size() <= STR_MAX);
+  assert(utf8_len(rich_string) <= STR_MAX);
 
   const shared_strings_element_t sst_element = sst_->get_index(rich_string, true);
   const cell_t cell = new_string_cell(row_num, col_num, sst_element.index_, sst_element.string_, format);
@@ -1793,7 +1793,7 @@ void worksheet_t::write_url(row_num_t row_num, col_num_t col_num, std::string_vi
   }
 
   // Check if URL exceeds Excel's length limit.
-  assert(url_copy.size() <= max_url_length_);
+  assert(utf8_len(url_copy) <= max_url_length_);
 
   // Use the default URL format if none is specified.
   if(!storing_embedded_image_)
@@ -1832,7 +1832,7 @@ void worksheet_t::write_comment(row_num_t row_num, col_num_t col_num, std::strin
   check_dimensions(row_num, col_num, false, false);
 
   assert(!text.empty());
-  assert(text.size() <= STR_MAX);
+  assert(utf8_len(text) <= STR_MAX);
 
   vml_obj_t comment{
     .row_num_ = row_num,
@@ -2931,10 +2931,10 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
   }
 
   // Check Excel limitations on input strings.
-  assert(validation.input_title_.size() <= VALIDATION_MAX_TITLE_LENGTH);
-  assert(validation.error_title_.size() <= VALIDATION_MAX_TITLE_LENGTH);
-  assert(validation.input_message_.size() <= VALIDATION_MAX_STRING_LENGTH);
-  assert(validation.error_message_.size() <= VALIDATION_MAX_STRING_LENGTH);
+  assert(utf8_len(validation.input_title_) <= VALIDATION_MAX_TITLE_LENGTH);
+  assert(utf8_len(validation.error_title_) <= VALIDATION_MAX_TITLE_LENGTH);
+  assert(utf8_len(validation.input_message_) <= VALIDATION_MAX_STRING_LENGTH);
+  assert(utf8_len(validation.error_message_) <= VALIDATION_MAX_STRING_LENGTH);
 
 #ifndef NDEBUG
   if(validation.validate_ == validation_types_t::LIST)

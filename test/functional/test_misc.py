@@ -43,5 +43,4 @@ class TestCompareXLSXFiles(base_test_class.XLSXBaseTest):
 
     def test_header04(self):
         self.ignore_elements = {'xl/worksheets/sheet1.xml': ['<pageSetup']}
-# TODO Check of string length must count UTF-8 character and not byte
-# self.run_exe_test('test_header04')
+        self.run_exe_test('test_header04')

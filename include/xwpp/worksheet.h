@@ -1252,7 +1252,7 @@ struct table_column_t
    * Set the header name/caption for the column. If empty the header defaults
    * to `Column 1`, `Column 2`, etc.
    *
-   * @pre Must be less than or equal to 255.
+   * @pre Must be less than or equal to 255 UTF-8 characters.
    */
   std::string header_;
 
@@ -1313,7 +1313,7 @@ struct table_options_t
    * for table names, see the Microsoft Office documentation on
    * [Naming an Excel Table](https://support.microsoft.com/en-us/office/rename-an-excel-table-fbf49a4f-82a3-43eb-8ba2-44d21233b114).
    *
-   * @pre Size must be less than or equal to 255.
+   * @pre Size must be less than or equal to 255 UTF-8 characters.
    * @pre Should not be set to "c", "C", "r" or "R".
    * @pre Must start by an alphabetic character.
    */
@@ -2495,7 +2495,7 @@ public:
    *
    * @pre The `%row_num` parameter must be less than 1048576.
    * @pre The `%col_num` parameter must be less than 16384.
-   * @pre The length of string `%data` must be less than or equal to 32767.
+   * @pre The length of string `%data` must be less than or equal to 32767 UTF-8 characters.
    */
   void write(row_num_t row_num, col_num_t col_num, std::string_view data, const format_t* format = nullptr);
   /// @brief C string overload.
@@ -2769,7 +2769,7 @@ public:
    * @pre The `%col_num` parameter must be less than 16384.
    * @pre The `%rich_strings` parameter must contain at least two strings.
    * @pre None of the strings should be empty.
-   * @pre Full string length must be less than or equal to 32767.
+   * @pre Full string length must be less than or equal to 32767 UTF-8 characters.
    */
   void write_rich_string(row_num_t row_num, col_num_t col_num, const std::vector<rich_string_tuple_t>& rich_strings,
                          const format_t* format = nullptr);
@@ -2942,7 +2942,7 @@ public:
    * @pre The `%col_num` parameter must be less than 16384.
    * @pre The `%url` parameter should not be empty.
    * @pre The worksheet must contain less than 65530 links.
-   * @pre The length of the URL must be less than or equal to 2079.
+   * @pre The length of the URL must be less than or equal to 2079 UTF-8 characters.
    */
   void write_url(row_num_t row_num, col_num_t col_num, std::string_view url, const format_t* format = nullptr,
                  std::string_view str = ""s, std::string_view tooltip = ""s);
@@ -3032,7 +3032,7 @@ public:
    * @pre The `%row_num` parameter must be less than 1048576.
    * @pre The `%col_num` parameter must be less than 16384.
    * @pre The `%text` parameter should not be empty.
-   * @pre The length of `%text` parameter must be less than or equal to 32767.
+   * @pre The length of `%text` parameter must be less than or equal to 32767 UTF-8 characters.
    */
   void write_comment(row_num_t row_num, col_num_t col_num, std::string_view text,
                      const std::optional<comment_options_t>& options = std::nullopt);
@@ -4481,10 +4481,10 @@ public:
    *
    * @pre The `%row_num` parameter must be less than 1048576.
    * @pre The `%col_num` parameter must be less than 16384.
-   * @pre Length of error title must be less than or equal to 32.
-   * @pre Length of input title must be less than or equal to 32.
-   * @pre Length of error message must be less than or equal to 255.
-   * @pre Length of input message must be less than or equal to 255.
+   * @pre Length of error title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of input title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of error message must be less than or equal to 255 UTF-8 characters.
+   * @pre Length of input message must be less than or equal to 255 UTF-8 characters.
    */
   void data_validation_cell(row_num_t row_num, col_num_t col_num, const data_validation_t& validation);
 
@@ -4512,10 +4512,10 @@ public:
    * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` is a valid cell name ("A1").
-   * @pre Length of error title must be less than or equal to 32.
-   * @pre Length of input title must be less than or equal to 32.
-   * @pre Length of error message must be less than or equal to 255.
-   * @pre Length of input message must be less than or equal to 255.
+   * @pre Length of error title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of input title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of error message must be less than or equal to 255 UTF-8 characters.
+   * @pre Length of input message must be less than or equal to 255 UTF-8 characters.
    */
   void data_validation_cell(std::string_view cell_name, const data_validation_t& validation);
 
@@ -4550,10 +4550,10 @@ public:
    * @pre The `%first_col` parameter must be less than 16384.
    * @pre The `%last_row` parameter must be less than 1048576.
    * @pre The `%last_col` parameter must be less than 16384.
-   * @pre Length of error title must be less than or equal to 32.
-   * @pre Length of input title must be less than or equal to 32.
-   * @pre Length of error message must be less than or equal to 255.
-   * @pre Length of input message must be less than or equal to 255.
+   * @pre Length of error title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of input title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of error message must be less than or equal to 255 UTF-8 characters.
+   * @pre Length of input message must be less than or equal to 255 UTF-8 characters.
    */
   void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                              const data_validation_t& validation);
@@ -4580,10 +4580,10 @@ public:
    * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` is a valid range name.
-   * @pre Length of error title must be less than or equal to 32.
-   * @pre Length of input title must be less than or equal to 32.
-   * @pre Length of error message must be less than or equal to 255.
-   * @pre Length of input message must be less than or equal to 255.
+   * @pre Length of error title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of input title must be less than or equal to 32 UTF-8 characters.
+   * @pre Length of error message must be less than or equal to 255 UTF-8 characters.
+   * @pre Length of input message must be less than or equal to 255 UTF-8 characters.
    */
   void data_validation_range(std::string_view range_name, const data_validation_t& validation);
 

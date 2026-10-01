@@ -806,7 +806,7 @@ public:
    * @image html headers_footers.png
    *
    * @pre `%str` must not be empty.
-   * @pre `%str` size must be less than or equal to 255.
+   * @pre `%str` size must be less than or equal to 255 UTF-8 characters.
    * @pre Placeholder `%%G` must be present only if `%options` is provided.
    * @pre Number of placeholder `%%G` must be equal to number of provided images.
    */
@@ -823,7 +823,7 @@ public:
    * The syntax of this function is the same as `set_header()`.
    *
    * @pre `%str` must not be empty.
-   * @pre `%str` size must be less than or equal to 255.
+   * @pre `%str` size must be less than or equal to 255 UTF-8 characters.
    * @pre Placeholder `%%G` must be present only if `%options` is provided.
    * @pre Number of placeholder `%%G` must be equal to number of provided images.
    */

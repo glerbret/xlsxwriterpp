@@ -605,4 +605,10 @@ std::string to_lower(const std::string& str)
   return lower_str;
 }
 
+size_t utf8_len(std::string_view str)
+{
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  return std::ranges::count_if(str, [](unsigned char c) { return (c & 0xC0) != 0x80; });
+}
+
 }

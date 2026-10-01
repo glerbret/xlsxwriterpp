@@ -196,6 +196,8 @@ bool datetime_validate(const datetime_t& datetime);
 
 [[nodiscard]] std::string to_lower(const std::string& str);
 
+[[nodiscard]] size_t utf8_len(std::string_view str);
+
 /// @cond
 }
 /// @endcond

@@ -149,8 +149,8 @@ void workbook_t::set_properties(const doc_properties_t& properties)
 void workbook_t::set_custom_property(std::string_view name, std::string_view value)
 {
   assert(!name.empty());
-  assert(name.size() <= 255);
-  assert(value.size() <= 255);
+  assert(utf8_len(name) <= 255);
+  assert(utf8_len(value) <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::STRING, std::string(name), std::string(value));
 }
@@ -163,7 +163,7 @@ void workbook_t::set_custom_property(std::string_view name, const char* value)
 void workbook_t::set_custom_property(std::string_view name, int32_t value)
 {
   assert(!name.empty());
-  assert(name.size() <= 255);
+  assert(utf8_len(name) <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::INTEGER, std::string(name), value);
 }
@@ -171,7 +171,7 @@ void workbook_t::set_custom_property(std::string_view name, int32_t value)
 void workbook_t::set_custom_property(std::string_view name, double value)
 {
   assert(!name.empty());
-  assert(name.size() <= 255);
+  assert(utf8_len(name) <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::DOUBLE, std::string(name), value);
 }
@@ -179,7 +179,7 @@ void workbook_t::set_custom_property(std::string_view name, double value)
 void workbook_t::set_custom_property(std::string_view name, bool value)
 {
   assert(!name.empty());
-  assert(name.size() <= 255);
+  assert(utf8_len(name) <= 255);
 
   custom_properties_.emplace_back(custom_property_types_t::BOOLEAN, std::string(name), value);
 }
@@ -187,7 +187,7 @@ void workbook_t::set_custom_property(std::string_view name, bool value)
 void workbook_t::set_custom_property(std::string_view name, const std::chrono::system_clock::time_point& value)
 {
   assert(!name.empty());
-  assert(name.size() <= 255);
+  assert(utf8_len(name) <= 255);
   assert(value.time_since_epoch().count() != 0);
 
   custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), to_datetime(value));
@@ -196,7 +196,7 @@ void workbook_t::set_custom_property(std::string_view name, const std::chrono::s
 void workbook_t::set_custom_property(std::string_view name, const datetime_t& value)
 {
   assert(!name.empty());
-  assert(name.size() <= 255);
+  assert(utf8_len(name) <= 255);
   assert(datetime_validate(value));
 
   custom_properties_.emplace_back(custom_property_types_t::DATETIME, std::string(name), value);
@@ -373,7 +373,7 @@ bool workbook_t::validate_sheetname(std::string_view sheetname) const
   }
 
   // Check the length of the worksheet name.
-  if(sheetname.size() > XWPP_SHEETNAME_MAX)
+  if(utf8_len(sheetname) > XWPP_SHEETNAME_MAX)
   {
     return false;
   }
@@ -800,6 +800,8 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
 {
   assert(!name.empty());
   assert(!formula.empty());
+  assert(utf8_len(name) <= 128);
+  assert(utf8_len(formula) <= 128);
 
   defined_name_t defined_name;
 
