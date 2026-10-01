@@ -298,7 +298,7 @@ public:
    * - boolean
    *
    * @pre The `%name` parameter should not be empty.
-   * @pre The `%name` and `%value` parameters are limited to 255 characters by Excel.
+   * @pre The `%name` and `%value` parameters are limited to 255 UTF-8 characters by Excel.
    * @pre Datetime must be valid.
    */
   void set_custom_property(std::string_view name, std::string_view value);

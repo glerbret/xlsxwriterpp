@@ -434,7 +434,7 @@ void sheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
 void sheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
   assert(!str.empty());
-  assert(str.size() <= HEADER_FOOTER_MAX);
+  assert(utf8_len(str) <= HEADER_FOOTER_MAX);
 
   // Count &G placeholders and ensure there are sufficient images.
 #ifndef NDEBUG
@@ -491,7 +491,7 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
 void sheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
   assert(!str.empty());
-  assert(str.size() <= HEADER_FOOTER_MAX);
+  assert(utf8_len(str) <= HEADER_FOOTER_MAX);
 
 #ifndef NDEBUG
   // Count &G placeholders and ensure there are sufficient images.
