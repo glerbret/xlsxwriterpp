@@ -25,6 +25,11 @@ BOOST_AUTO_TEST_CASE(test_datetime_validate)
   BOOST_CHECK_EQUAL(false, xwpp::datetime_validate({1900, 1, 1, 24, 07, 0.0}));
   BOOST_CHECK_EQUAL(false, xwpp::datetime_validate({1900, 1, 1, 21, 60, 0.0}));
   BOOST_CHECK_EQUAL(false, xwpp::datetime_validate({1900, 1, 1, 21, 07, 60.0}));
+  BOOST_CHECK_EQUAL(false, xwpp::datetime_validate({2025, 4, 31, 21, 07, 30.0}));
+
+  BOOST_CHECK_EQUAL(true, xwpp::datetime_validate({2004, 2, 29, 12, 00, 00.}));
+  BOOST_CHECK_EQUAL(true, xwpp::datetime_validate({2000, 2, 29, 12, 00, 00.}));
+  BOOST_CHECK_EQUAL(false, xwpp::datetime_validate({2100, 2, 29, 12, 00, 00.}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

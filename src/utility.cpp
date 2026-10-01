@@ -533,7 +533,13 @@ bool datetime_validate(const datetime_t& datetime)
       return false;
     }
 
-    if(datetime.day_ < 1 || datetime.day_ > 31)
+    std::vector<int> mdays{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if(datetime.year_ % 4 == 0 && (datetime.year_ % 100 > 0 || datetime.year_ % 400 == 0))
+    {
+      mdays[2] = 29;
+    }
+
+    if(datetime.day_ < 1 || datetime.day_ > mdays[datetime.month_])
     {
       return false;
     }
@@ -573,6 +579,17 @@ double unixtime_to_excel_date_with_epoch(int64_t unixtime, bool use_1904_epoch)
 double unixtime_to_excel_date(int64_t unixtime)
 {
   return unixtime_to_excel_date_with_epoch(unixtime, false);
+}
+
+std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point& time)
+{
+  if(time.time_since_epoch().count() == 0)
+  {
+    return std::format("{:%FT%TZ}",
+                       std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()));
+  }
+
+  return std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(time));
 }
 
 uint16_t hash_password(const std::string& password)
