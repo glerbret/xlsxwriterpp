@@ -2028,7 +2028,6 @@ void worksheet_t::add_table(row_num_t first_row, col_num_t first_col, row_num_t 
   const std::vector<table_column_t> columns(num_cols);
 
   table_obj.columns_   = columns;
-  table_obj.num_cols_  = num_cols;
   table_obj.first_row_ = first_row;
   table_obj.first_col_ = first_col;
   table_obj.last_row_  = last_row;

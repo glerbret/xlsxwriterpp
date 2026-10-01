@@ -878,20 +878,15 @@ struct chart_legend_t
 struct chart_title_t
 {
   std::string name_;
-  // TODO ?   lxw_row_t row;
-  // TODO ?   lxw_col_t col;
   std::optional<chart_font_t> font_;
   bool off_{false};
   bool is_horizontal_{false};
-  // TODO ?   uint8_t ignore_cache;
   bool has_overlay_{false};
 
   // TODO ?
   /* We use a range to hold the title formula properties even though it
    * will only have 1 point in order to re-use similar functions.*/
   series_range_t range_;
-
-  // TODO ?   struct lxw_series_data_point data_point;
   std::optional<chart_layout_t> layout_;
 };
 
@@ -991,8 +986,6 @@ struct chart_custom_label_t
   // We use a range to hold the label formula properties even though it
   // will only have 1 point in order to re-use similar functions.
   std::optional<series_range_t> range_;
-
-  // TODO ?   struct lxw_series_data_point data_point;
 };
 
 /**
@@ -1216,7 +1209,6 @@ struct chart_axis_t
 
   chart_axis_tick_mark_t major_tick_mark_{chart_axis_tick_mark_t::DEFAULT};
   chart_axis_tick_mark_t minor_tick_mark_{chart_axis_tick_mark_t::DEFAULT};
-  // TODO ?   uint8_t is_horizontal;
 
   chart_gridline_t major_gridlines_;
   chart_gridline_t minor_gridlines_;
@@ -1227,7 +1219,6 @@ struct chart_axis_t
   std::optional<chart_pattern_t> pattern_;
 
   bool is_category_{false};
-  // TODO ?   uint8_t is_date;
   bool is_value_{false};
 
   chart_position_t axis_position_{chart_position_t::RIGHT};

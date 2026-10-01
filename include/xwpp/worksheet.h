@@ -2008,12 +2008,10 @@ struct cond_format_obj_t
   color_t min_color_;
   double mid_value_{0.};
   std::string mid_value_string_;
-  // TODO ?    uint8_t mid_value_type;
   conditional_format_rule_types_t mid_rule_type_{conditional_format_rule_types_t::NONE};
   color_t mid_color_;
   double max_value_{0.};
   std::string max_value_string_;
-  // TODO ?     uint8_t max_value_type;
   conditional_format_rule_types_t max_rule_type_{conditional_format_rule_types_t::NONE};
   color_t max_color_;
   bool data_bar_2010_{false};
@@ -2063,7 +2061,6 @@ struct table_obj_t
   col_num_t first_col_{0};
   row_num_t last_row_{0};
   col_num_t last_col_{0};
-  col_num_t num_cols_{0}; // TODO is it useful?
   uint32_t id_{0};
   std::string sqref_;
   std::string filter_sqref_;
