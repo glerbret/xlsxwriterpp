@@ -2387,8 +2387,6 @@ private:
   uint32_t id_{0};
   uint32_t axis_id_1_{0};
   uint32_t axis_id_2_{0};
-  // TODO ?   uint32_t axis_id_3;
-  // TODO ?   uint32_t axis_id_4;
   bool in_use_{false};
   chart_type_t chart_group_{chart_type_t::NONE};
   bool cat_has_num_fmt_{false};
@@ -2398,10 +2396,8 @@ private:
   uint8_t style_id_{2}; // TODO Constant for default style
   uint16_t rotation_{0};
   uint16_t hole_size_{50};
-  // TODO ?   uint8_t no_title;
   bool has_overlap_{false};
   int8_t overlap_y1_{0};
-  // TODO ?   int8_t overlap_y2;
   uint16_t gap_y1_{DEFAULT_GAP};
   uint16_t gap_y2_{DEFAULT_GAP};
   chart_grouping_t grouping_{chart_grouping_t::CLUSTERED};
