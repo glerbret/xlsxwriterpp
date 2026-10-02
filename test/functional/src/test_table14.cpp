@@ -22,9 +22,9 @@ int main()
   format3->set_num_format("0.00_ ;[Red]\\-0.00\\ ");
 
   // We manually set the indices to get the same order as the target file.
-  format3->get_dxf_index_(format3);
-  format2->get_dxf_index_(format2);
-  format1->get_dxf_index_(format1);
+  (void)format3->get_dxf_index();
+  (void)format2->get_dxf_index();
+  (void)format1->get_dxf_index();
 
   worksheet.set_column("C:F", 10.288);
 

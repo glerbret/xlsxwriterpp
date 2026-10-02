@@ -311,7 +311,7 @@ enum class format_borders_t
 class format_t
 {
 public:
-  explicit format_t(std::function<int32_t(format_t*)> get_dxf_index);
+  format_t(std::function<int32_t(const format_t*)> get_xf_index, std::function<int32_t(const format_t*)> get_dxf_index);
 
   /**
    * @brief Set the number format for a cell.
@@ -1268,12 +1268,14 @@ public:
    */
   void set_hyperlink();
 
+  friend bool operator==(const format_t& lhs, const format_t& rhs);
+  friend bool operator!=(const format_t& lhs, const format_t& rhs) = default;
+
+  [[nodiscard]] int32_t get_xf_index() const;
+  [[nodiscard]] int32_t get_dxf_index() const;
+
   static const int32_t PROPERTY_UNSET{-1};
   static const std::string DEFAULT_FONT_NAME;
-
-  // TODO Refactor this point to not have it in several places
-  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  std::function<int32_t(format_t*)> get_dxf_index_;
 
 private:
   // TODO friend up to refactoring with struct / class
@@ -1282,6 +1284,9 @@ private:
   friend class style_t;
 
   static const uint8_t DEFAULT_FONT_FAMILY{2};
+
+  std::function<int32_t(const format_t*)> get_xf_index_;
+  std::function<int32_t(const format_t*)> get_dxf_index_;
 
   int32_t xf_index_{PROPERTY_UNSET};
   int32_t dxf_index_{PROPERTY_UNSET};

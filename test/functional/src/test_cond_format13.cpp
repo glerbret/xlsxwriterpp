@@ -18,8 +18,8 @@ int main()
   format2->set_num_format("0.000");
 
   // We manually set the indices to get the same order as the target file.
-  format2->get_dxf_index_(format2);
-  format1->get_dxf_index_(format1);
+  (void)format2->get_dxf_index();
+  (void)format1->get_dxf_index();
 
   worksheet.write("A1", 10);
   worksheet.write("A2", 20);
