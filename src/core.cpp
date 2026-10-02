@@ -19,18 +19,6 @@ namespace xwpp
 namespace
 {
 
-// TODO Should be moved to utility
-[[nodiscard]] std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point& time)
-{
-  if(time.time_since_epoch().count() == 0)
-  {
-    return std::format("{:%FT%TZ}",
-                       std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()));
-  }
-
-  return std::format("{:%FT%TZ}", std::chrono::time_point_cast<std::chrono::seconds>(time));
-}
-
 [[nodiscard]] std::string write_cp_core_properties()
 {
   return xml_start_tag(

@@ -152,8 +152,6 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  * sec_     | 0 - 59.999
  *
  * Time only value is represented by `%year_`, `%month_` and `%day_` set to 0.
- *
- * @todo Better check for day number.
  */
 bool datetime_validate(const datetime_t& datetime);
 
@@ -188,6 +186,8 @@ bool datetime_validate(const datetime_t& datetime);
  * @see @ref working_with_dates for more details.
  */
 [[nodiscard]] double unixtime_to_excel_date(int64_t unixtime);
+
+[[nodiscard]] std::string datetime_to_iso8601_date(const std::chrono::system_clock::time_point& time);
 
 // Hash a worksheet password. Based on the algorithm in ECMA-376-4:2016,
 // Office Open XML File Formats - Transitional Migration Features,
