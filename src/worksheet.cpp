@@ -437,13 +437,35 @@ void check_and_copy_table_style(table_obj_t& table_obj, const std::optional<tabl
   }
 
   // Each type (light, medium and dark) has a different number of styles.
-  assert((user_options->style_type_ == table_style_type_t::LIGHT && user_options->style_type_number_ <= 21) ||
-         (user_options->style_type_ == table_style_type_t::MEDIUM && user_options->style_type_number_ >= 1 &&
-          user_options->style_type_number_ <= 28) ||
-         (user_options->style_type_ == table_style_type_t::DARK && user_options->style_type_number_ >= 1 &&
-          user_options->style_type_number_ <= 11) ||
-         user_options->style_type_ == table_style_type_t::DEFAULT);
+  if(user_options->style_type_ == table_style_type_t::LIGHT)
+  {
+    if(user_options->style_type_number_ > 21)
+    {
+      throw xwpp_exception_t(
+        std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'LIGHT' ([0, 21]).",
+                    user_options->style_type_number_));
+    }
+  }
 
+  if(user_options->style_type_ == table_style_type_t::MEDIUM)
+  {
+    if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 28)
+    {
+      throw xwpp_exception_t(
+        std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'MEDIUM' ([1, 28]).",
+                    user_options->style_type_number_));
+    }
+  }
+
+  if(user_options->style_type_ == table_style_type_t::DARK)
+  {
+    if(user_options->style_type_number_ < 1 || user_options->style_type_number_ > 11)
+    {
+      throw xwpp_exception_t(
+        std::format("check_and_copy_table_style(): invalid style_type_number '{}' for style type 'DARK' ([1, 11]).",
+                    user_options->style_type_number_));
+    }
+  }
   table_obj.style_type_        = user_options->style_type_;
   table_obj.style_type_number_ = user_options->style_type_number_;
 }
@@ -2878,6 +2900,12 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
     return;
   }
 
+  // Check Excel limitations on input strings.
+  assert(utf8_len(validation.input_title_) <= VALIDATION_MAX_TITLE_LENGTH);
+  assert(utf8_len(validation.error_title_) <= VALIDATION_MAX_TITLE_LENGTH);
+  assert(utf8_len(validation.input_message_) <= VALIDATION_MAX_STRING_LENGTH);
+  assert(utf8_len(validation.error_message_) <= VALIDATION_MAX_STRING_LENGTH);
+
   // Check for formula types.
   switch(validation.validate_)
   {
@@ -2929,12 +2957,6 @@ void worksheet_t::data_validation_range(row_num_t first_row, col_num_t first_col
       assert(!validation.value_formula_.empty());
     }
   }
-
-  // Check Excel limitations on input strings.
-  assert(utf8_len(validation.input_title_) <= VALIDATION_MAX_TITLE_LENGTH);
-  assert(utf8_len(validation.error_title_) <= VALIDATION_MAX_TITLE_LENGTH);
-  assert(utf8_len(validation.input_message_) <= VALIDATION_MAX_STRING_LENGTH);
-  assert(utf8_len(validation.error_message_) <= VALIDATION_MAX_STRING_LENGTH);
 
 #ifndef NDEBUG
   if(validation.validate_ == validation_types_t::LIST)

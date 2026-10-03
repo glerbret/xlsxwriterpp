@@ -299,7 +299,7 @@ public:
    *
    * @pre The `%name` parameter should not be empty.
    * @pre The `%name` and `%value` parameters are limited to 255 UTF-8 characters by Excel.
-   * @pre Datetime must be valid.
+   * @pre The datetime `%value` must be valid.
    */
   void set_custom_property(std::string_view name, std::string_view value);
   /// @brief C string overload.
@@ -399,7 +399,7 @@ public:
    * insensitive) which is reserved in English language versions of
    * Excel. Non-English versions may have restrictions on the equivalent word.
    *
-   * @pre The sheetname parameter must be a valid Excel worksheet name.
+   * @pre The `%sheetname` parameter must be a valid Excel worksheet name.
    */
   worksheet_t& add_worksheet(std::string_view sheetname);
 
@@ -462,7 +462,7 @@ public:
    * "Worksheet" object is used to write data and configure a worksheet in the
    * workbook.
    *
-   * @pre The sheetname parameter must be a valid Excel worksheet name.
+   * @pre The `%sheetname` parameter must be a valid Excel worksheet name.
    */
   chartsheet_t& add_chartsheet(std::string_view sheetname);
 
@@ -498,7 +498,7 @@ public:
    *
    * @return A pointer on @ref worksheet.h "Worksheet" object.
    *
-   * @exception xwpp::xwpp_exception_t if worksheet does not exist.
+   * @exception xwpp_exception_t The search worksheet does not exist.
    *
    * This function returns a @ref worksheet.h "Worksheet" object reference based on its name:
    *
@@ -518,7 +518,7 @@ public:
    *
    * @return A pointer on @ref chartsheet.h "Chartsheet" object.
    *
-   * @exception xwpp::xwpp_exception_t if worksheet does not exist.
+   * @exception xwpp_exception_t The search chartsheet does not exist.
    *
    * This function returns a @ref chartsheet.h "Chartsheet" object reference based on its name:
    *
@@ -676,7 +676,7 @@ public:
    *
    * @see @ref chart.h for details.
    *
-   * @pre The `%chart_type` parameter should not be NONE.
+   * @pre The `%chart_type` parameter should not be set to `%chart_type_t::NONE`.
    */
   [[nodiscard]] chart_t& add_chart(chart_type_t chart_type);
 
@@ -685,7 +685,7 @@ public:
    *
    * @param filename The path/filename of the vbaProject.bin file.
    *
-   * @exception xwpp::xwpp_exception_t if the VBA file cannot be read.
+   * @exception xwpp_exception_t The VBA file cannot be read.
    *
    * The `%add_vba_project()` function can be used to add macros or
    * functions to a workbook using a binary VBA project file that has been
@@ -716,7 +716,7 @@ public:
    * @param vba_project The path/filename of the vbaProject.bin file.
    * @param signature   The path/filename of the vbaProjectSignature.bin file.
    *
-   * @exception xwpp::xwpp_exception_t if the VBA file or signature cannot be read.
+   * @exception xwpp_exception_t The VBA file cannot be read.
    *
    * The `%add_signed_vba_project()` function can be used to add
    * digitally signed macros or functions to a workbook.

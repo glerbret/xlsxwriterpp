@@ -16,7 +16,9 @@ Such contracts are documented and callers are responsible of their respect. In d
 
 @section exception Throwing exceptions
 
-Runtime errors are reported by throwing exception, standard ones for errors reported by standard library and `%xwpp::xwpp_exception_t` for errors
-reported by Xlsxwriter++. Usage of `%xwpp::xwpp_exception_t` are documented in function description.
+Runtime errors are reported by throwing exception, standard ones for errors reported by standard library and `xwpp_exception_t` for errors
+reported by Xlsxwriter++.
+
+Usage of `xwpp_exception_t` are documented in function description.
 
 */

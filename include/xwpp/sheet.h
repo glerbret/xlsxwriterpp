@@ -528,7 +528,7 @@ public:
    * @note `%set_zoom()` does not affect the scale of the printed
    * page. For that you should use `set_print_scale()`.
    *
-   * @pre Valid `%scale` range is '10 <= scale <= 400'.
+   * @pre The `%scale` parameter must be in range `[10, 400]`.
    */
   void set_zoom(uint16_t scale);
 
@@ -599,7 +599,7 @@ public:
    * the end user since it will depend on the paper formats that the user's
    * printer supports.
    *
-   * @pre `%paper_size` must be less than or equal to 118.
+   * @pre The `%paper_size` parameter must be less than or equal to 118.
    */
   void set_paper(uint8_t paper_size);
   /// @brief Overload with predefined values.
@@ -611,7 +611,8 @@ public:
    * @param str     The header string.
    * @param options Header options.
    *
-   * @exception xwpp::xwpp_exception_t The image file is not a valid one.
+   * @exception xwpp_exception_t The image file cannot be read.
+   * @exception xwpp_exception_t The number of `%%G` and number of provided image is not consistent.
    *
    * Headers and footers are generated using a string which is a combination of
    * plain text and control characters.
@@ -805,10 +806,8 @@ public:
    *
    * @image html headers_footers.png
    *
-   * @pre `%str` must not be empty.
-   * @pre `%str` size must be less than or equal to 255 UTF-8 characters.
-   * @pre Placeholder `%%G` must be present only if `%options` is provided.
-   * @pre Number of placeholder `%%G` must be equal to number of provided images.
+   * @pre The `%str` parameter must not be empty.
+   * @pre The size of `%str` parameter must be less than or equal to 255 UTF-8 characters.
    */
   void set_header(const std::string& str, const std::optional<header_footer_options_t>& options = std::nullopt);
 
@@ -818,14 +817,13 @@ public:
    * @param str     The footer string.
    * @param options Footer options.
    *
-   * @exception xwpp::xwpp_exception_t The image file is not a valid one.
+   * @exception xwpp_exception_t The image file cannot be read.
+   * @exception xwpp_exception_t The number of `%%G` and number of provided image is not consistent.
    *
    * The syntax of this function is the same as `set_header()`.
    *
-   * @pre `%str` must not be empty.
-   * @pre `%str` size must be less than or equal to 255 UTF-8 characters.
-   * @pre Placeholder `%%G` must be present only if `%options` is provided.
-   * @pre Number of placeholder `%%G` must be equal to number of provided images.
+   * @pre The `%str` parameter must not be empty.
+   * @pre The size of `%str` parameter must be less than or equal to 255 UTF-8 characters.
    */
   void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options = std::nullopt);
 

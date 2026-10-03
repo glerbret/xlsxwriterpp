@@ -110,9 +110,9 @@ public:
    * If several similar charts are required then each one must be created
    * separately.
    *
-   * @pre `%chart` should not be null.
-   * @pre `%chart` should not be already used.
-   * @pre `%chart` must have a non empty serie list.
+   * @pre The `%chart` parameter should not be null.
+   * @pre The chart should not be already used.
+   * @pre The `%chart` parameter must have a non empty `%series_list_` member.
    */
   void set_chart(chart_t* chart, const std::optional<chart_options_t>& options = std::nullopt);
 
