@@ -437,7 +437,6 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
   assert(utf8_len(str) <= HEADER_FOOTER_MAX);
 
   // Count &G placeholders and ensure there are sufficient images.
-#ifndef NDEBUG
   uint8_t placeholder_count{0};
   for(size_t i{0}; i < str.size() - 1; ++i)
   {
@@ -446,12 +445,13 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
       placeholder_count++;
     }
   }
-  assert(placeholder_count == 0 || options);
-#endif
+  if(placeholder_count > 0 && !options)
+  {
+    throw xwpp_exception_t("sheet_t::set_header(): '&G' placeholders present but no image supplied.");
+  }
 
   if(options)
   {
-#ifndef NDEBUG
     uint8_t image_count{0};
 
     // Ensure there are enough images to match the placeholders. There is
@@ -470,8 +470,11 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
       image_count++;
     }
 
-    assert(placeholder_count == image_count);
-#endif
+    if(placeholder_count != image_count)
+    {
+      throw xwpp_exception_t(
+        "sheet_t::set_header(): number of '&G' placeholders does not match number of supplied images.");
+    }
 
     if(options->margin_ > 0.0)
     {
@@ -493,7 +496,6 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
   assert(!str.empty());
   assert(utf8_len(str) <= HEADER_FOOTER_MAX);
 
-#ifndef NDEBUG
   // Count &G placeholders and ensure there are sufficient images.
   uint8_t placeholder_count{0};
   for(size_t i{0}; i < str.size() - 1; ++i)
@@ -503,12 +505,13 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
       placeholder_count++;
     }
   }
-  assert(placeholder_count == 0 || options);
-#endif
+  if(placeholder_count > 0 && !options)
+  {
+    throw xwpp_exception_t("sheet_t::set_footer(): '&G' placeholders present but no image supplied.");
+  }
 
   if(options)
   {
-#ifndef NDEBUG
     uint8_t image_count{0};
 
     // Ensure there are enough images to match the placeholders. There is
@@ -526,8 +529,11 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
     {
       image_count++;
     }
-    assert(placeholder_count == image_count);
-#endif
+    if(placeholder_count != image_count)
+    {
+      throw xwpp_exception_t(
+        "sheet_t::set_footer(): number of '&G' placeholders does not match number of supplied images.");
+    }
 
     if(options->margin_ > 0.0)
     {
@@ -1086,7 +1092,6 @@ bool sheet_t::has_background_image() const
 
 object_properties_t sheet_t::get_background_image() const
 {
-  assert(false);
   throw xwpp_exception_t("sheet_t::get_background_image(): cannot have background image.");
 }
 
@@ -1097,13 +1102,11 @@ bool sheet_t::has_embedded_image() const
 
 std::vector<object_properties_t>& sheet_t::get_embedded_image_properties()
 {
-  assert(false);
   throw xwpp_exception_t("sheet_t::get_background_image(): cannot have embedded image.");
 }
 
 const std::vector<object_properties_t>& sheet_t::get_embedded_image_properties() const
 {
-  assert(false);
   throw xwpp_exception_t("sheet_t::get_background_image(): cannot have embedded image.");
 }
 

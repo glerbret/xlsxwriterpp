@@ -405,6 +405,8 @@ double datetime_to_excel_datetime(const std::chrono::system_clock::time_point& d
 
 double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch)
 {
+  assert(datetime_validate(datetime));
+
   int year{datetime.year_};
   int month{datetime.month_};
   int day{datetime.day_};
@@ -418,8 +420,6 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
   std::vector<int> mdays{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   int leap{0};
   int days{0};
-
-  assert(datetime_validate(datetime));
 
   // For times without dates set the default date for the epoch.
   if(year == 0)

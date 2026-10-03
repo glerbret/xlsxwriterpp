@@ -1097,6 +1097,7 @@ INPUT                  = src/mainpage.dox \
                          ../include/xwpp/workbook.h \
                          ../include/xwpp/sheet.h \
                          ../include/xwpp/worksheet.h \
+                         ../include/xwpp/exception.h \
                          ../include/xwpp/format.h \
                          ../include/xwpp/chart.h \
                          ../include/xwpp/chartsheet.h \

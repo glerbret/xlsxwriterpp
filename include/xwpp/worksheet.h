@@ -1251,8 +1251,6 @@ struct table_column_t
   /**
    * Set the header name/caption for the column. If empty the header defaults
    * to `Column 1`, `Column 2`, etc.
-   *
-   * @pre Must be less than or equal to 255 UTF-8 characters.
    */
   std::string header_;
 
@@ -1312,10 +1310,6 @@ struct table_options_t
    * with an existing table name and that it follows Excel's requirements
    * for table names, see the Microsoft Office documentation on
    * [Naming an Excel Table](https://support.microsoft.com/en-us/office/rename-an-excel-table-fbf49a4f-82a3-43eb-8ba2-44d21233b114).
-   *
-   * @pre Size must be less than or equal to 255 UTF-8 characters.
-   * @pre Should not be set to "c", "C", "r" or "R".
-   * @pre Must start by an alphabetic character.
    */
   // clang-format on
   std::string name_;
@@ -1478,10 +1472,6 @@ struct table_options_t
   /**
    * The `%style_type_number_` parameter is used with `%style_type_` to set the
    * style of a worksheet table.
-   *
-   * @pre Must be in range [0, 21] if style_type_ is set to table_style_type_t::LIGHT.
-   * @pre Must be in range [1, 28] if style_type_ is set to table_style_type_t::MEDIUM.
-   * @pre Must be in range [1, 11] if style_type_ is set to table_style_type_t::LIGHT.
    */
   uint8_t style_type_number_{0};
 
@@ -3438,6 +3428,8 @@ public:
    * @param last_col  The last col of the range.
    * @param options   Optional table options.
    *
+   * @exception xwpp_exception_t The value of `%style_type_number_` is not consistent.
+   *
    * The `%add_table()` function is used to add a table to a worksheet.
    * Tables in Excel are a way of grouping a range of cells into a
    * single entity that has common formatting or that can be referenced from
@@ -3456,6 +3448,10 @@ public:
    * @pre The `%first_col` parameter must be less than 16384.
    * @pre The `%last_row` parameter must be less than 1048576.
    * @pre The `%last_col` parameter must be less than 16384.
+   * @pre If `%options::columns_` is set, the size of `%header_` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the size of `%name_` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the `%name_` parameter should not be equal to "c", "C", "r" or "R".
+   * @pre If `%options` parameter is set, the `%name_` parameters must start by an alphabetic character.
    */
   void add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                  const std::optional<table_options_t>& options = std::nullopt);
@@ -3465,6 +3461,8 @@ public:
    *
    * @param range_name The name of the range ("A1:B2").
    * @param options   Optional table options.
+   *
+   * @exception xwpp_exception_t The value of `%style_type_number_` is not consistent.
    *
    * This function is similar to index-based one except it uses name of the range.
    *
@@ -3477,6 +3475,10 @@ public:
    * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` is a valid range name.
+   * @pre If `%options` parameter is set, the size of `%header_` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the size of `%name_` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the `%name_` parameter should not be equal to "c", "C", "r" or "R".
+   * @pre If `%options` parameter is set, the `%name_` parameters must start by an alphabetic character.
    */
   void add_table(std::string_view range_name, const std::optional<table_options_t>& options = std::nullopt);
 
@@ -3488,7 +3490,7 @@ public:
    * @param filename The image filename, with path if required.
    * @param options  Optional image parameters.
    *
-   * @exception xwpp::xwpp_exception_t The image fime cannot be read.
+   * @exception xwpp_exception_t The image fime cannot be read.
    *
    * This function can be used to insert a image into a worksheet. The image can
    * be in `PNG`, `JPEG`, `GIF` or `BMP` format:
@@ -3585,7 +3587,7 @@ public:
    * @param filename  The image filename, with path if required.
    * @param options   Optional image parameters.
    *
-   * @exception xwpp::xwpp_exception_t The image fime cannot be read.
+   * @exception xwpp_exception_t The image file cannot be read.
    *
    * This function is similar to index-based one except it uses name of the cell.
    *
@@ -3690,7 +3692,7 @@ public:
    * @param filename The image filename, with path if required.
    * @param options  Optional image parameters.
    *
-   * @exception xwpp::xwpp_exception_t The image fime cannot be read.
+   * @exception xwpp_exception_t The image file cannot be read.
    *
    * This function can be used to embed a image into a worksheet cell and have the
    * image automatically scale to the width and height of the cell. The X/Y
@@ -3730,7 +3732,7 @@ public:
    * @param filename  The image filename, with path if required.
    * @param options   Optional image parameters.
    *
-   * @exception xwpp::xwpp_exception_t The image fime cannot be read.
+   * @exception xwpp_exception_t The image file cannot be read.
    *
    * This function is similar to index-based one except they use name of the cell.
    *
@@ -4449,6 +4451,7 @@ public:
    * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` is a valid range name.
+   * @pre The `%conditional_format` content is consistent.
    */
   void conditional_format_range(std::string_view range_name, const conditional_format_t& conditional_format);
 
@@ -4554,6 +4557,9 @@ public:
    * @pre Length of input title must be less than or equal to 32 UTF-8 characters.
    * @pre Length of error message must be less than or equal to 255 UTF-8 characters.
    * @pre Length of input message must be less than or equal to 255 UTF-8 characters.
+   * @pre If validation type is list, the `%value_list_` should not be empty.
+   * @pre If validation type is list, the size of concatenated `%value_list_` must be less than or equal to 255 UTF-8
+   * characters.
    */
   void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                              const data_validation_t& validation);
@@ -4717,7 +4723,7 @@ public:
    *
    * @param filename The image filename, with path if required.
    *
-   * @exception xwpp::xwpp_exception_t The file cannot be read.
+   * @exception xwpp_exception_t The image file cannot be read.
    *
    * The `%set_background()` function can be used to set the
    * background image for a worksheet:

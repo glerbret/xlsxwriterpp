@@ -99,7 +99,7 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * @see The `workbook_t::use_1904_epoch()` function.
  *
- * @pre `%datetime` must be a valid datetime or a valid time.
+ * @pre The `%datetime` parameter must be a valid date and time or a valid time.
  */
 [[nodiscard]] double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
 /// @brief `std::chrono` overload.
@@ -124,7 +124,7 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * @see @ref working_with_dates for more details on the Excel datetime format.
  *
- * @pre `%datetime` must be a valid datetime or a valid time.
+ * @pre The `%datetime` parameter must be a valid date and time or a valid time.
  */
 [[nodiscard]] double datetime_to_excel_datetime(const datetime_t& datetime);
 /// @brief `std::chrono` overload.
