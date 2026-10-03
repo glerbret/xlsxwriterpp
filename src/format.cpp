@@ -46,8 +46,10 @@ namespace
 
 }
 
-format_t::format_t(std::function<int32_t(format_t*)> get_dxf_index)
-  : get_dxf_index_{std::move(get_dxf_index)}
+format_t::format_t(std::function<int32_t(const format_t*)> get_xf_index,
+                   std::function<int32_t(const format_t*)> get_dxf_index)
+  : get_xf_index_{std::move(get_xf_index)}
+  , get_dxf_index_{std::move(get_dxf_index)}
 {
 }
 
@@ -357,6 +359,56 @@ void format_t::set_hyperlink()
   xf_id_     = 1;
   underline_ = format_underlines_t::SINGLE;
   theme_     = 10;
+}
+
+bool operator==(const format_t& lhs, const format_t& rhs)
+{
+  return lhs.xf_id_ == rhs.xf_id_ && lhs.num_format_ == rhs.num_format_ && lhs.font_name_ == rhs.font_name_ &&
+         lhs.font_scheme_ == rhs.font_scheme_ && lhs.num_format_index_ == rhs.num_format_index_ &&
+         lhs.font_index_ == rhs.font_index_ && lhs.has_font_ == rhs.has_font_ &&
+         lhs.has_dxf_font_ == rhs.has_dxf_font_ && lhs.font_size_ == rhs.font_size_ && lhs.bold_ == rhs.bold_ &&
+         lhs.italic_ == rhs.italic_ && lhs.font_color_ == rhs.font_color_ && lhs.underline_ == rhs.underline_ &&
+         lhs.font_strikeout_ == rhs.font_strikeout_ && lhs.font_outline_ == rhs.font_outline_ &&
+         lhs.font_shadow_ == rhs.font_shadow_ && lhs.font_script_ == rhs.font_script_ &&
+         lhs.font_family_ == rhs.font_family_ && lhs.font_charset_ == rhs.font_charset_ &&
+         lhs.font_condense_ == rhs.font_condense_ && lhs.font_extend_ == rhs.font_extend_ && lhs.theme_ == rhs.theme_ &&
+         lhs.hyperlink_ == rhs.hyperlink_ && lhs.hidden_ == rhs.hidden_ && lhs.locked_ == rhs.locked_ &&
+         lhs.text_h_align_ == rhs.text_h_align_ && lhs.text_wrap_ == rhs.text_wrap_ &&
+         lhs.text_v_align_ == rhs.text_v_align_ && lhs.text_justlast_ == rhs.text_justlast_ &&
+         lhs.rotation_ == rhs.rotation_ && lhs.fg_color_ == rhs.fg_color_ && lhs.bg_color_ == rhs.bg_color_ &&
+         lhs.dxf_fg_color_ == rhs.dxf_fg_color_ && lhs.dxf_bg_color_ == rhs.dxf_bg_color_ &&
+         lhs.pattern_ == rhs.pattern_ && lhs.has_fill_ == rhs.has_fill_ && lhs.has_dxf_fill_ == rhs.has_dxf_fill_ &&
+         lhs.fill_index_ == rhs.fill_index_ && lhs.fill_count_ == rhs.fill_count_ &&
+         lhs.border_index_ == rhs.border_index_ && lhs.has_border_ == rhs.has_border_ &&
+         lhs.has_dxf_border_ == rhs.has_dxf_border_ && lhs.border_count_ == rhs.border_count_ &&
+         lhs.bottom_ == rhs.bottom_ && lhs.diag_border_ == rhs.diag_border_ && lhs.diag_type_ == rhs.diag_type_ &&
+         lhs.left_ == rhs.left_ && lhs.right_ == rhs.right_ && lhs.top_ == rhs.top_ &&
+         lhs.bottom_color_ == rhs.bottom_color_ && lhs.diag_color_ == rhs.diag_color_ &&
+         lhs.left_color_ == rhs.left_color_ && lhs.right_color_ == rhs.right_color_ &&
+         lhs.top_color_ == rhs.top_color_ && lhs.indent_ == rhs.indent_ && lhs.shrink_ == rhs.shrink_ &&
+         lhs.merge_range_ == rhs.merge_range_ && lhs.reading_order_ == rhs.reading_order_ &&
+         lhs.just_distrib_ == rhs.just_distrib_ && lhs.color_indexed_ == rhs.color_indexed_ &&
+         lhs.font_only_ == rhs.font_only_ && lhs.quote_prefix_ == rhs.quote_prefix_;
+}
+
+int32_t format_t::get_xf_index() const
+{
+  if(xf_index_ != PROPERTY_UNSET)
+  {
+    return xf_index_;
+  }
+
+  return get_xf_index_(this);
+}
+
+int32_t format_t::get_dxf_index() const
+{
+  if(dxf_index_ != PROPERTY_UNSET)
+  {
+    return dxf_index_;
+  }
+
+  return get_dxf_index_(this);
 }
 
 const std::string format_t::DEFAULT_FONT_NAME{"Calibri"};

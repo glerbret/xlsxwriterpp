@@ -603,14 +603,14 @@ public:
    * format isn't specified:
    *
    * @code
-   *  xwpp::format_t* url_format = workbook.get_default_url_format();
+   *  const xwpp::format_t* url_format = workbook.get_default_url_format();
    * @endcode
    *
    * The format is the hyperlink style defined by Excel for the default theme.
    * This format is only ever required when overwriting a string URL with
    * data of a different type. See the example below.
    */
-  [[nodiscard]] format_t* get_default_url_format() const;
+  [[nodiscard]] const format_t* get_default_url_format() const;
 
   /**
    * @brief Unset the default URL format.
@@ -833,8 +833,8 @@ private:
   friend class rich_value_t;
 
   // Functions to retrieve index of format. Provided to worksheets as callback.
-  int32_t get_xf_index(format_t* format);
-  int32_t get_dxf_index(format_t* format);
+  int32_t get_xf_index(const format_t* format);
+  int32_t get_dxf_index(const format_t* format);
 
   // Function to prepare data before packaging.
   void prepare_fonts();
@@ -915,6 +915,7 @@ private:
   std::string vba_project_signature_;
   std::string vba_codename_;
   bool use_1904_epoch_{false};
+  format_t* default_format_;
   format_t* default_url_format_;
   bool use_zip64_{false};
 };

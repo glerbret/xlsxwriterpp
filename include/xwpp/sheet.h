@@ -394,7 +394,8 @@ struct sheet_init_data_t
   shared_strings_t* sst_{nullptr};
   std::string name_;
   std::string quoted_name_;
-  format_t* default_url_format_{nullptr};
+  const format_t* default_format_{nullptr};
+  const format_t* default_url_format_{nullptr};
   bool use_1904_epoch_{false};
 };
 
@@ -451,7 +452,7 @@ struct object_properties_t
   std::string md5_;
   std::string image_position_;
   bool decorative_{false};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 };
 
 // Internal structure for VML object options.

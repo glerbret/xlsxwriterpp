@@ -45,8 +45,8 @@ int main()
   }
 
   // We manually set the indices to get the same order as the target file.
-  format2->get_dxf_index_(format2);
-  format1->get_dxf_index_(format1);
+  (void)format2->get_dxf_index();
+  (void)format1->get_dxf_index();
 
   const xwpp::conditional_format_t conditional_format1{
     .type_     = xwpp::conditional_format_types_t::CELL,

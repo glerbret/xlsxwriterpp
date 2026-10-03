@@ -997,7 +997,7 @@ struct conditional_format_t
    * subscript, diagonal borders, all alignment properties and all
    * protection properties.
    */
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 
   /**
    * The minimum value used for Cell, Color Scale and Data Bar conditional
@@ -1272,12 +1272,12 @@ struct table_column_t
   /**
    * Set the format for the column header.
    */
-  format_t* header_format_{nullptr};
+  const format_t* header_format_{nullptr};
 
   /**
    * Set the format for the data rows in the column.
    */
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 
   /**
    * Set the formula value for the column total (not generally required).
@@ -1592,7 +1592,7 @@ struct image_options_t
   /**
    * Add an optional format to the cell. Only used with `worksheet_t::embed_image()`.
    */
-  format_t* cell_format_;
+  const format_t* cell_format_;
 };
 
 /**
@@ -1850,7 +1850,7 @@ struct rich_string_tuple_t
    * The format for a string fragment in a rich string. `nullptr` if the string
    * isn't formatted.
    */
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 
   /**
    * The string fragment.
@@ -1863,7 +1863,7 @@ struct cell_t
   row_num_t row_num_{0};
   col_num_t col_num_{0};
   cell_types_t type_{cell_types_t::BLANK_CELL};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
   std::optional<vml_obj_t> comment_;
   std::variant<uint32_t, double, std::string> data_;
   double formula_result_{0.};
@@ -1876,7 +1876,7 @@ struct row_t
 {
   row_num_t row_num_{0};
   double height_{DEF_ROW_HEIGHT};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
   bool hidden_{false};
   uint8_t level_{0};
   bool collapsed_{false};
@@ -1899,7 +1899,7 @@ struct col_options_t
   col_num_t firstcol_{std::numeric_limits<col_num_t>::max()};
   col_num_t lastcol_{std::numeric_limits<col_num_t>::max()};
   double width_{DEF_COL_WIDTH};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
   bool hidden_{false};
   uint8_t level_{0};
   bool collapsed_{false};
@@ -2089,8 +2089,7 @@ struct filter_rule_obj_t
 class worksheet_t : public sheet_t
 {
 public:
-  worksheet_t(const sheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
-              std::function<int32_t(format_t*)> get_dxf_index);
+  explicit worksheet_t(const sheet_init_data_t& init_data);
 
   /**
    * @brief Set the properties for one or more columns of cells with options.
@@ -2854,7 +2853,7 @@ public:
    *  worksheet.write_url(2, 0, "http://libxlsxwriter.github.io");
    *
    *  // Get the default url format.
-   *  xwpp::format_t* url_format = workbook.get_default_url_format();
+   *  const xwpp::format_t* url_format = workbook.get_default_url_format();
    *
    *  // Overwrite the hyperlink with a user defined string and default format.
    *  worksheet.write(2, 0, "Read the documentation.", url_format);
@@ -5405,7 +5404,7 @@ private:
   [[nodiscard]] std::string write_page_setup() const override;
   [[nodiscard]] std::string write_sheet_format_pr() const;
   [[nodiscard]] std::string write_cols() const;
-  [[nodiscard]] std::string write_col_info(const col_options_t& options) const;
+  [[nodiscard]] static std::string write_col_info(const col_options_t& options);
   [[nodiscard]] std::string write_sheet_data() const;
   [[nodiscard]] std::string write_auto_filter() const;
   [[nodiscard]] std::string write_merge_cells() const;
@@ -5426,7 +5425,7 @@ private:
   [[nodiscard]] std::string write_rows() const;
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
-  [[nodiscard]] std::string write_cell(const cell_t& cell, format_t* row_format) const;
+  [[nodiscard]] std::string write_cell(const cell_t& cell, const format_t* row_format) const;
   [[nodiscard]] static std::string write_merge_cell(const merged_range_t& merged_range);
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
@@ -5463,10 +5462,6 @@ private:
   // Getter for properties
   [[nodiscard]] bool is_outline_changed() const override;
   [[nodiscard]] size_t get_table_count() const override;
-
-  // Getter for format index
-  std::function<int32_t(format_t*)> get_xf_index_;
-  std::function<int32_t(format_t*)> get_dxf_index_;
 
   // Worksheet properties
   bool use_1904_epoch_{false};
@@ -5506,8 +5501,9 @@ private:
   std::vector<col_options_t> col_options_;
 
   // Format
-  format_t* default_url_format_{nullptr};
-  std::vector<format_t*> col_formats_;
+  const format_t* default_format_{nullptr};
+  const format_t* default_url_format_{nullptr};
+  std::vector<const format_t*> col_formats_;
 
   // Outlines
   bool outline_changed_{false};
