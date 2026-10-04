@@ -17,23 +17,14 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Set up some formats to use.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
+  const xwpp::format_t* red    = workbook.format_builder().font_color(xwpp::color_t::red()).build();
+  const xwpp::format_t* blue   = workbook.format_builder().font_color(xwpp::color_t::blue()).build();
+  const xwpp::format_t* center = workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
 
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
-
-  xwpp::format_t* red = workbook.add_format();
-  red->set_font_color(xwpp::color_t::red());
-
-  xwpp::format_t* blue = workbook.add_format();
-  blue->set_font_color(xwpp::color_t::blue());
-
-  xwpp::format_t* center = workbook.add_format();
-  center->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
-
-  xwpp::format_t* superscript = workbook.add_format();
-  superscript->set_font_script(xwpp::format_scripts_t::SUPERSCRIPT);
+  const xwpp::format_t* superscript =
+    workbook.format_builder().font_script(xwpp::format_scripts_t::SUPERSCRIPT).build();
 
   // Make the first column wider for clarity.
   worksheet.set_column(0, 0, 30);

@@ -9,19 +9,16 @@ information about working with formats.
 
 @section ww_formats_creating Creating and using a Format object
 
-Formats are created by calling the `workbook_t::add_format()` method and properties
-as set using the various functions shown below:
+Formats are created by calling the `workbook_t::format_builder()` method to get a format builder,
+setting the properties with various functions and then calling the `format_builder_t::build()` method
+to get the format object.
 
 @code
-  xwp::format_t* format = workbook.add_format();
-
-  format->set_bold();
-  format->set_font_color(xwpp::color_t::RED);
+  const xwp::format_t* format = workbook.format_builder().bold().font_color(xwpp::color_t::RED).build();
 @endcode
 
-Once a Format object has been created  and its properties have been
-set it can be passed as an argument to the `worksheet_t::write()` methods as
-follows:
+Once a Format object has been created it can be passed as an argument to
+the `worksheet_t::write()` methods as follows:
 
 @code
   worksheet.write(0, 0, "Hello", format);
@@ -42,47 +39,47 @@ for a row or column:
 The following table shows the Excel format categories and the equivalent
 `Xlsxwriter++` Format function:
 
-| Category        | Description          | Method Name                      |
-| :-------------- | :------------------- | :------------------------------- |
-| **Font**        | Font type            | `format_t::set_font_name()`      |
-| ^               | Font size            | `format_t::set_font_size()`      |
-| ^               | Font color           | `format_t::set_font_color()`     |
-| ^               | Bold                 | `format_t::set_bold()`           |
-| ^               | Italic               | `format_t::set_italic()`         |
-| ^               | Underline            | `format_t::set_underline()`      |
-| ^               | Strikeout            | `format_t::set_font_strikeout()` |
-| ^               | Super/Subscript      | `format_t::set_font_script()`    |
-| **Number**      | Numeric format       | `format_t::set_num_format()`     |
-| **Protection**  | Unlock cells         | `format_t::set_unlocked()`       |
-| ^               | Hide formulas        | `format_t::set_hidden()`         |
-| **Alignment**   | Horizontal align     | `format_t::set_align()`          |
-| ^               | Vertical align       | `format_t::set_align()`          |
-| ^               | Rotation             | `format_t::set_rotation()`       |
-| ^               | Text wrap            | `format_t::set_text_wrap()`      |
-| ^               | Indentation          | `format_t::set_indent()`         |
-| ^               | Shrink to fit        | `format_t::set_shrink()`         |
-| **Pattern**     | Cell pattern         | `format_t::set_pattern()`        |
-| ^               | Background color     | `format_t::set_bg_color()`       |
-| ^               | Foreground color     | `format_t::set_fg_color()`       |
-| **Border**      | Cell border          | `format_t::set_border()`         |
-| ^               | Bottom border        | `format_t::set_bottom()`         |
-| ^               | Top border           | `format_t::set_top()`            |
-| ^               | Left border          | `format_t::set_left()`           |
-| ^               | Right border         | `format_t::set_right()`          |
-| ^               | Border color         | `format_t::set_border_color()`   |
-| ^               | Bottom color         | `format_t::set_bottom_color()`   |
-| ^               | Top color            | `format_t::set_top_color()`      |
-| ^               | Left color           | `format_t::set_left_color()`     |
-| ^               | Right color          | `format_t::set_right_color()`    |
+| Category        | Description       | Method Name                          |
+| :-------------- | :---------------- | :----------------------------------- |
+| **Font**        | Font type         | `format_builder_t::font_name()`      |
+| ^               | Font size         | `format_builder_t::font_size()`      |
+| ^               | Font color        | `format_builder_t::font_color()`     |
+| ^               | Bold              | `format_builder_t::bold()`           |
+| ^               | Italic            | `format_builder_t::italic()`         |
+| ^               | Underline         | `format_builder_t::underline()`      |
+| ^               | Strikeout         | `format_builder_t::font_strikeout()` |
+| ^               | Super/Subscript   | `format_builder_t::font_script()`    |
+| **Number**      | Numeric format    | `format_builder_t::num_format()`     |
+| **Protection**  | Unlock cells      | `format_builder_t::unlocked()`       |
+| ^               | Hide formulas     | `format_builder_t::hidden()`         |
+| **Alignment**   | Horizontal align  | `format_builder_t::align()`          |
+| ^               | Vertical align    | `format_builder_t::align()`          |
+| ^               | Rotation          | `format_builder_t::rotation()`       |
+| ^               | Text wrap         | `format_builder_t::text_wrap()`      |
+| ^               | Indentation       | `format_builder_t::indent()`         |
+| ^               | Shrink to fit     | `format_builder_t::shrink()`         |
+| **Pattern**     | Cell pattern      | `format_builder_t::pattern()`        |
+| ^               | Background color  | `format_builder_t::bg_color()`       |
+| ^               | Foreground color  | `format_builder_t::fg_color()`       |
+| **Border**      | Cell border       | `format_builder_t::border()`         |
+| ^               | Bottom border     | `format_builder_t::bottom()`         |
+| ^               | Top border        | `format_builder_t::top()`            |
+| ^               | Left border       | `format_builder_t::left()`           |
+| ^               | Right border      | `format_builder_t::right()`          |
+| ^               | Border color      | `format_builder_t::border_color()`   |
+| ^               | Bottom color      | `format_builder_t::bottom_color()`   |
+| ^               | Top color         | `format_builder_t::top_color()`      |
+| ^               | Left color        | `format_builder_t::left_color()`     |
+| ^               | Right color       | `format_builder_t::right_color()`    |
 
 @section ww_formats_colors Format Colors
 
-Format property colors are specified using a Html style RGB integer value or a
+Format property colors are specified using a HTML style RGB integer value or a
 limited number of defined colors:
 
 @code
-  format1.set_font_color(xwpp::color_t(0x3030E0));
-  format2.set_font_color(xwpp::color_t::RED);
+  workbook.format_builder().font_color(xwpp::color_t{0x3030E0}).build();
+  workbook.format_builder().font_color(xwpp::color_t::red()).build();
 @endcode
 
 @see @ref working_with_colors for more details.
@@ -96,49 +93,12 @@ In general a format function call without an argument will turn a property on,
 for example:
 
 @code
-  xwpp::format_t* format = workbook.add_format();
-
-  format->set_bold();
+  const xwpp::format_t* format = workbook.format_builder().bold().build();
 @endcode
-
-@section ww_formats_reusing Modifying and Reusing Formats
-
-Once a format has been created it can be used and reused in
-`worksheet_t::write()` functions across any number of worksheets:
-
-@code
-  xwpp::format_t* format = workbook.add_format();
-  format->set_bold();
-
-  worksheet1.write(1, 4, "Some text", format);
-  worksheet2.write(1, 4, "Some text", format);
-@endcode
-
-However, each unique cell format in an `Xlsxwriter++` spreadsheet must have a
-corresponding Format object. It isn't possible to use a Format with a
-`worksheet_t::write()` method and then redefine it for use at a later
-stage. This is because a Format is applied to a cell not in its current state
-but in its final state. Consider the following example:
-
-@code
-  xwpp::format_t* format = workbook.add_format();
-  format->set_bold();
-
-  worksheet.write(0, 0, "Hello", format);
-
-  format->set_italic();
-
-  worksheet.write(1, 0, "World", format);
-@endcode
-
-Cell `(0, 0)` is assigned a format which with the font set to bold. However, the
-italic property is subsequently and used in cell `(1, 0)`. This has the effect
-of adding italic to any previous uses of `format`. The result in this case is
-that "Hello" and "World" will both appear as bold and italic.
 
 @section ww_formats_categories Number Format Categories
 
-The `format_t::set_num_format()` function shown below, is used to set the number
+The `format_builder_t::num_format()` function shown below, is used to set the number
 format for numbers used with `worksheet_t::write_number()`:
 
 @code
@@ -149,8 +109,7 @@ format for numbers used with `worksheet_t::write_number()`:
     xwpp::workbook_t workbook;
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    xwpp::format_t* currency_format = workbook.add_format();
-    currency_format->set_num_format("$#,##0.00");
+    const xwpp::format_t* currency_format = workbook.format_builder().num_format("$#,##0.00").build();
 
     worksheet_write_number(worksheet, 0, 0, 1234.56, currency_format);
 
@@ -189,8 +148,7 @@ example and rerun it we will get a number format in the Currency category:
     xwpp::workbook_t workbook;
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    xwpp::format_t* currency_format = workbook.add_format();
-    currency_format->set_num_format("[$$-409]#,##0.00");
+    const xwpp::format_t* currency_format = workbook.format_builder().num_format("[$$-409]#,##0.00").build();
 
     worksheet.write_number(0, 0, 1234.56, currency_format);
 
@@ -207,7 +165,7 @@ The same process can be used to find format strings for "Date" or
 
 @section ww_formats_locale Number Formats in different locales
 
-As shown in the previous section the `format_t::set_num_format()` method is used
+As shown in the previous section the `format_builder_t::num_format()` method is used
 to set the number format for `Xlsxwriter++` formats. A common use case is to
 set a number format with a "grouping/thousands" separator and a "decimal"
 point:
@@ -220,8 +178,7 @@ point:
     xwpp::workbook_t workbook;
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    xwpp::format_t* number_format = workbook.add_format();
-    number_format->set_num_format("#,##0.00");
+    const xwpp::format_t* number_format = workbook.format_builder().num_format("#,##0.00").build();
 
     worksheet.write_number(0, 0, 1234.56, number_format);
 

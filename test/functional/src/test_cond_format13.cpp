@@ -11,11 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_num_format_index(2);
-
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_num_format("0.000");
+  const xwpp::format_t* format1 = workbook.format_builder().num_format_index(2).build();
+  const xwpp::format_t* format2 = workbook.format_builder().num_format("0.000").build();
 
   // We manually set the indices to get the same order as the target file.
   (void)format2->get_dxf_index();

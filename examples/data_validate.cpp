@@ -51,13 +51,14 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a format to use to highlight the header cells.
-  xwpp::format_t* format = workbook.add_format();
-  format->set_border(xwpp::format_borders_t::THIN);
-  format->set_fg_color(xwpp::color_t{0xC6EFCE});
-  format->set_bold();
-  format->set_text_wrap();
-  format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
-  format->set_indent(1);
+  const xwpp::format_t* format = workbook.format_builder()
+                                   .border(xwpp::format_borders_t::THIN)
+                                   .fg_color(xwpp::color_t{0xC6EFCE})
+                                   .bold()
+                                   .text_wrap()
+                                   .align(xwpp::format_alignments_t::VERTICAL_CENTER)
+                                   .indent(1)
+                                   .build();
 
   // Write some data for the validations.
   write_worksheet_data(worksheet, format);

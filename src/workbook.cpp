@@ -62,16 +62,16 @@ namespace
 }
 
 workbook_t::workbook_t(bool use_1904_epoch, bool use_zip64)
+  // clang-format off
   : use_1904_epoch_{use_1904_epoch}
-  , default_format_{add_format()}
-  , default_url_format_{add_format()}
+  , default_format_{format_builder().build()}
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+  , default_url_format_{const_cast<format_t*>(format_builder().hyperlink().build())}
   , use_zip64_{use_zip64}
+// clang-format on
 {
   // Initialize index of default cell format.
   get_xf_index(default_format_);
-
-  // Configure the default hyperlink format.
-  default_url_format_->set_hyperlink();
 }
 
 void workbook_t::save(const std::filesystem::path& filename)
@@ -403,15 +403,22 @@ bool workbook_t::validate_sheetname(std::string_view sheetname) const
   return true;
 }
 
-// TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
-// TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship).
-format_t* workbook_t::add_format()
+const format_t* workbook_t::insert_format(const format_t& format)
 {
-  // NOLINTNEXTLINE(modernize-avoid-bind)
-  formats_.emplace_back(std::bind_front(&workbook_t::get_xf_index, this),
-                        std::bind_front(&workbook_t::get_dxf_index, this));
+  format_t format_cp       = format;
+  format_cp.get_xf_index_  = std::bind_front(&workbook_t::get_xf_index, this);
+  format_cp.get_dxf_index_ = std::bind_front(&workbook_t::get_dxf_index, this);
+
+  // TODO Add search if not already present and then return the existing one
+  // TODO And so remove search in get_xf_index
+  formats_.push_back(format_cp);
 
   return &formats_.back();
+}
+
+format_builder_t workbook_t::format_builder()
+{
+  return format_builder_t{std::bind_front(&workbook_t::insert_format, this)};
 }
 
 const format_t* workbook_t::get_default_url_format() const

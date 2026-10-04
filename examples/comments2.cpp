@@ -14,9 +14,8 @@ int main()
 {
   xwpp::workbook_t workbook;
 
-  xwpp::format_t* text_wrap = workbook.add_format();
-  text_wrap->set_text_wrap();
-  text_wrap->set_align(xwpp::format_alignments_t::VERTICAL_TOP);
+  const xwpp::format_t* text_wrap =
+    workbook.format_builder().text_wrap().align(xwpp::format_alignments_t::VERTICAL_TOP).build();
 
   // Example 1. Demonstrates a simple cell comments without formatting.
   // Set up some worksheet formatting.

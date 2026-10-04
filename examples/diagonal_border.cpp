@@ -16,19 +16,16 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add some diagonal border formats.
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP);
-
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN);
-
-  xwpp::format_t* format3 = workbook.add_format();
-  format3->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
-
-  xwpp::format_t* format4 = workbook.add_format();
-  format4->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
-  format4->set_diag_border(xwpp::format_borders_t::HAIR);
-  format4->set_diag_color(xwpp::color_t::red());
+  const xwpp::format_t* format1 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP).build();
+  const xwpp::format_t* format2 =
+    workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN).build();
+  const xwpp::format_t* format3 =
+    workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN).build();
+  const xwpp::format_t* format4 = workbook.format_builder()
+                                    .diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN)
+                                    .diag_border(xwpp::format_borders_t::HAIR)
+                                    .diag_color(xwpp::color_t::red())
+                                    .build();
 
   worksheet.write("B3", "Text", format1);
   worksheet.write("B6", "Text", format2);

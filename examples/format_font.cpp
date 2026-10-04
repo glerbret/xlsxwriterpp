@@ -21,25 +21,21 @@ int main()
   // Write some formatted strings.
   {
     // Set the bold property for format 1.
-    xwpp::format_t* format = workbook.add_format();
-    format->set_bold();
+    const xwpp::format_t* format = workbook.format_builder().bold().build();
 
     worksheet.write(0, 0, "This is bold", format);
   }
 
   {
     // Set the italic property for format 2.
-    xwpp::format_t* format = workbook.add_format();
-    format->set_italic();
+    const xwpp::format_t* format = workbook.format_builder().italic().build();
 
     worksheet.write(1, 0, "This is italic", format);
   }
 
   {
     // Set the bold and italic properties for format 3.
-    xwpp::format_t* format = workbook.add_format();
-    format->set_bold();
-    format->set_italic();
+    const xwpp::format_t* format = workbook.format_builder().bold().italic().build();
 
     worksheet.write(2, 0, "Bold and italic", format);
   }

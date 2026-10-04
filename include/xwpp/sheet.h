@@ -1037,10 +1037,10 @@ public:
   // Copy/move constructor and assignment operator are `deleted` so
   // reference return by `add_worksheet()`/`add_chartsheet()` cannot by
   // dereferenced by error.
-  sheet_t(sheet_t&)             = delete;
-  sheet_t& operator=(sheet_t)   = delete;
-  sheet_t(sheet_t&&)            = delete;
-  sheet_t& operator=(sheet_t&&) = delete;
+  sheet_t(const sheet_t&)            = delete;
+  sheet_t& operator=(const sheet_t&) = delete;
+  sheet_t(sheet_t&&)                 = delete;
+  sheet_t& operator=(sheet_t&&)      = delete;
 
   static const row_num_t ROW_MAX;
   static const col_num_t COL_MAX;

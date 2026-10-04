@@ -46,12 +46,12 @@ text. To replicate this in `Xlsxwriter++` we will start by creating the
 format.
 
 We do this in the same way we create any worksheet format to use in
-`Xlsxwriter++` by creating a `format_t` object using workbook_add_format():
+`Xlsxwriter++` by creating a `format_t` object using `workbook_t::format_builder()`
+and `format_builder_t::build()`:
 
 @code
   // Add a format with red text.
-  xwpp::format_t* custom_format = workbook.add_format();
-  custom_format->set_font_color(xwpp::color_t::RED);
+  xwpp::format_t* custom_format = workbook.format_builder().font_color(xwpp::color_t::red()).build();
 @endcode
 
 The formats used for conditional formats are the same as any other worksheet
@@ -807,13 +807,11 @@ is double quoted:
 
 The `%format_` parameter is used to specify the format that will be applied to
 the cell when the conditional formatting criterion is met. The format is
-created using the `workbook_t::add_format()` function in the same way as cell
+created using the `workbook_t::format_builder()` function in the same way as cell
 formats:
 
 @code
-  xwpp::format_t* format = workbook_t::add_format();
-  format_set_bold(format);
-  format_set_italic(format);
+  xwpp::format_t* format = workbook_t::format_builder().bold().italic().build();
 
   conditional_format.type_     = xwpp::conditional_format_types_t::CELL;
   conditional_format.criteria_ = xwpp::conditional_criteria_t::GREATER_THAN;
@@ -838,19 +836,22 @@ following `Xlsxwriter++` formats:
 
 @code
   // Light red fill with dark red text.
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp:color_t(0xFFC7CE));
-  format1->set_font_color(xwpp:color_t(0x9C0006));
+  const xwpp::format_t* format1 = workbook.format_builder()
+                                          .bg_color(xwpp:color_t{0xFFC7CE})
+                                          .font_color(xwpp:color_t{0x9C0006})
+                                          .build();
 
   // Light yellow fill with dark yellow text.
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_bg_color(xwpp::color_t(0xFFEB9C));
-  format2->set_font_color(xwpp::color_t(0x9C6500));
+  const xwpp::format_t* format2 = workbook.format_builder()
+                                          .bg_color(xwpp::color_t{0xFFEB9C})
+                                          .font_color(xwpp::color_t{0x9C6500})
+                                          .build();
 
   // Green fill with dark green text.
-  xwpp::format_t* format3 = workbook.add_format();
-  format3->set_bg_color(xwpp::color_t(0xC6EFCE));
-  format3->set_font_color(xwpp::color_t(0x006100));
+  const xwpp::format_t* format3 = workbook.format_builder()
+                                          .bg_color(xwpp::color_t{0xC6EFCE})
+                                          .font_color(xwpp::color_t{0x006100})
+                                          .build();
 @endcode
 
 See also `format_t` and @ref working_with_formats.

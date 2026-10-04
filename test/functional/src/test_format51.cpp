@@ -15,20 +15,16 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_num_format("0.0");
+  const xwpp::format_t* format1 = workbook.format_builder().num_format("0.0").build();
   worksheet.write(0, 0, value, format1);
 
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_num_format("0.000");
+  const xwpp::format_t* format2 = workbook.format_builder().num_format("0.000").build();
   worksheet.write(1, 0, value, format2);
 
-  xwpp::format_t* format3 = workbook.add_format();
-  format3->set_num_format("0.0000");
+  const xwpp::format_t* format3 = workbook.format_builder().num_format("0.0000").build();
   worksheet.write(2, 0, value, format3);
 
-  xwpp::format_t* format4 = workbook.add_format();
-  format4->set_num_format("0.00000");
+  const xwpp::format_t* format4 = workbook.format_builder().num_format("0.00000").build();
   worksheet.write(3, 0, value, format4);
 
   workbook.save("test_format51.xlsx");

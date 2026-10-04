@@ -16,8 +16,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a bold format to use to highlight the header cells.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Write some data for the chart.
   worksheet.write(0, 0, "Shingle", bold);

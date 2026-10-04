@@ -12,9 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet("Data Sheet");
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
-
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold    = workbook.format_builder().bold().build();
 
   worksheet1.write("A1", "Foo");
   worksheet1.write("A2", 123);

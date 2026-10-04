@@ -14,11 +14,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  // Add a format.
-  xwpp::format_t* format = workbook.add_format();
-
   // Set the bold property for the format
-  format->set_bold();
+  const xwpp::format_t* format = workbook.format_builder().bold().build();
 
   // Change the column width for clarity.
   worksheet.set_column(0, 0, 20);

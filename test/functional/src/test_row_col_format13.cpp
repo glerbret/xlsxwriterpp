@@ -12,9 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
-
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   worksheet.set_column("B:D", 5);
   worksheet.set_column("F:F", 8, nullptr, options);

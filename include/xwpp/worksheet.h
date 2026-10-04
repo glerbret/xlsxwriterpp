@@ -987,7 +987,7 @@ struct conditional_format_t
   /**
    * The format field is used to specify the format_t format that will
    * be applied to the cell when the conditional formatting criterion is
-   * met. The format_t is created using the `workbook_t::add_format()`
+   * met. The format_t is created using the `workbook_t::format_builder()`
    * method in the same way as cell formats.
    *
    * @note In Excel, a conditional format is superimposed over the existing
@@ -2134,8 +2134,7 @@ public:
    * `DEF_COL_WIDTH`:
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
    *
    *  // Set the first column to bold.
    *  worksheet.set_column(0, 0, bold);
@@ -2265,8 +2264,7 @@ public:
    * format.h "Format" for all cells in the row:
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
    *
    *  // Set the header row to bold.
    *  worksheet.set_row(0, 15, bold);
@@ -2474,8 +2472,7 @@ public:
    * @ref format.h "Format" object:
    *
    * @code
-   *  xwpp::format* format = workbook.add_format();
-   *  format->set_bold();
+   *  const xwpp::format_t* format = workbook.format_builder().bold().build();
    *
    *  worksheet.write(0, 0, "This phrase is Bold!", format);
    * @endcode
@@ -2703,11 +2700,8 @@ public:
    * and this is *italic*' you would use the following:
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
-   *
-   *  xwpp::format_t* italic = workbook.add_format();
-   *  italic->set_italic();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
+   *  const xwpp::format_t* italic = workbook.format_builder().italic().build();
    *
    *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
    *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
@@ -2773,11 +2767,8 @@ public:
    * This function is similar to index-based one except it uses name of the cell.
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
-   *
-   *  xwpp::format_t* italic = workbook.add_format();
-   *  italic->set_italic();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
+   *  const xwpp::format_t* italic = workbook.format_builder().italic().build();
    *
    *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
    *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
@@ -2824,10 +2815,10 @@ public:
    * "Format" object can be used:
    *
    * @code
-   *  xwpp::format_t* url_format = workbook.add_format();
-   *
-   *  url_format->set_underline(xwpp::format_underlines_t::SINGLE);
-   *  url_format->set_font_color(xwpp::color_t::red());
+   *  const xwpp::format_t* url_format = workbook.format_builder().
+   *                                              underline(xwpp::format_underlines_t::SINGLE).
+   *                                              font_color(xwpp::color_t::red()).
+   *                                              build();
    * @endcode
    *
    * The usual web style URI's are supported: `%http://`, `%https://`, `%ftp://`
@@ -3353,8 +3344,8 @@ public:
    * object with the appropriate alignment:
    *
    * @code
-   *  xwpp::format_t* merge_format = workbook.add_format();
-   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+   *  const xwpp::format_t* merge_format =
+   * workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
    *
    *  worksheet.merge_range(1, 1, 1, 3, "Merged Range", merge_format);
    * @endcode
@@ -3362,11 +3353,13 @@ public:
    * It is possible to apply other formatting to the merged cells as well:
    *
    * @code
-   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
-   *  merge_format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
-   *  merge_format->set_border(xwpp::format_borders_t::DOUBLE);
-   *  merge_format->set_bold();
-   *  merge_format->set_bg_color(xwpp::color_t{0xD7E4BC});
+   *
+   * merge_format = workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).
+   *                                          align(xwpp::format_alignments_t::VERTICAL_CENTER).
+   *                                          border(xwpp::format_borders_t::DOUBLE).
+   *                                          bold().
+   *                                          bg_color(xwpp::color_t{0xD7E4BC}).
+   *                                          build();
    *
    *  worksheet.merge_range(2, 1, 3, 3, "Merged Range", merge_format);
    * @endcode
@@ -3406,8 +3399,8 @@ public:
    * This function is similar to index-based one except it uses name of the range.
    *
    * @code
-   *  xwpp::format_t* merge_format = workbook.add_format();
-   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+   *  const xwpp::format_t* merge_format =
+   * workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
    *
    *  worksheet.merge_range("B2:D2", "Merged Range", merge_format);
    * @endcode
@@ -4941,8 +4934,8 @@ public:
    *
    * A *locked* cell cannot be edited and this property is on by default for all
    * cells. A *hidden* cell will display the results of a formula but not the
-   * formula itself. These properties can be set using the `format_t::set_unlocked()`
-   * and `format_t::set_hidden()` format functions.
+   * formula itself. These properties can be set using the `format_t::unlocked()`
+   * and `format_t::hidden()` format functions.
    *
    * You can specify which worksheet elements you wish to protect by passing a
    * `protection_t` pointer in the `options` argument with any or all of the
@@ -4980,7 +4973,7 @@ public:
    *  worksheet.protect(worksheet, options);
    * @endcode
    *
-   * @see the `format_t::set_unlocked()` and `format_t::set_hidden()` format functions.
+   * @see the `format_t::unlocked()` and `format_t::hidden()` format functions.
    *
    * @note Sheet level passwords in Excel offer **very** weak
    * protection. They don't encrypt your data and are very easy to

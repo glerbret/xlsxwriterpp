@@ -96,8 +96,7 @@ int main()
   const xwpp::row_col_options_t hidden{.hidden_ = true};
 
   xwpp::workbook_t workbook;
-  xwpp::format_t* header = workbook.add_format();
-  header->set_bold();
+  const xwpp::format_t* header = workbook.format_builder().bold().build();
 
   // Example 1. Autofilter without conditions.
   // Set up the worksheet data.

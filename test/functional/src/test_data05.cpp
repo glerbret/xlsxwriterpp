@@ -10,11 +10,9 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::format_t* format       = workbook.add_format();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  format->set_bold();
-
-  worksheet.write(0, 0, "Foo", format);
+  worksheet.write(0, 0, "Foo", bold);
 
   workbook.save("test_data05.xlsx");
 }

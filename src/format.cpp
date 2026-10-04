@@ -413,4 +413,313 @@ int32_t format_t::get_dxf_index() const
 
 const std::string format_t::DEFAULT_FONT_NAME{"Calibri"};
 
+format_builder_t::format_builder_t(std::function<const format_t*(const format_t&)> insert_format)
+  : insert_format_{std::move(insert_format)}
+{
+}
+
+format_builder_t& format_builder_t::num_format(std::string_view num_format)
+{
+  current_.set_num_format(num_format);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bold()
+{
+  current_.set_bold();
+  return *this;
+}
+
+format_builder_t& format_builder_t::italic()
+{
+  current_.set_italic();
+  return *this;
+}
+
+format_builder_t& format_builder_t::align(format_alignments_t alignment)
+{
+  current_.set_align(alignment);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_color(color_t color)
+{
+  current_.set_font_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::fg_color(color_t color)
+{
+  current_.set_fg_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bg_color(color_t color)
+{
+  current_.set_bg_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::underline(format_underlines_t style)
+{
+  current_.set_underline(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::text_wrap()
+{
+  current_.set_text_wrap();
+  return *this;
+}
+
+format_builder_t& format_builder_t::border(format_borders_t style)
+{
+  current_.set_border(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bottom(format_borders_t style)
+{
+  current_.set_bottom(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::top(format_borders_t style)
+{
+  current_.set_top(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::left(format_borders_t style)
+{
+  current_.set_left(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::right(format_borders_t style)
+{
+  current_.set_right(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::pattern(format_patterns_t pattern)
+{
+  current_.set_pattern(pattern);
+  return *this;
+}
+
+format_builder_t& format_builder_t::border_color(color_t color)
+{
+  current_.set_border_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bottom_color(color_t color)
+{
+  current_.set_bottom_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::top_color(color_t color)
+{
+  current_.set_top_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::left_color(color_t color)
+{
+  current_.set_left_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::right_color(color_t color)
+{
+  current_.set_right_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::diag_type(format_diagonal_types_t type)
+{
+  current_.set_diag_type(type);
+  return *this;
+}
+
+format_builder_t& format_builder_t::diag_border(format_borders_t style)
+{
+  current_.set_diag_border(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::diag_color(color_t color)
+{
+  current_.set_diag_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::num_format_index(uint8_t index)
+{
+  current_.set_num_format_index(index);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_name(std::string_view font_name)
+{
+  current_.set_font_name(font_name);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_size(double size)
+{
+  current_.set_font_size(size);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_strikeout()
+{
+  current_.set_font_strikeout();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_script(format_scripts_t style)
+{
+  current_.set_font_script(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_family(uint8_t value)
+{
+  current_.set_font_family(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_charset(uint8_t value)
+{
+  current_.set_font_charset(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_outline()
+{
+  current_.set_font_outline();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_shadow()
+{
+  current_.set_font_shadow();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_scheme(std::string_view font_scheme)
+{
+  current_.set_font_scheme(font_scheme);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_condense()
+{
+  current_.set_font_condense();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_extend()
+{
+  current_.set_font_extend();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_only()
+{
+  current_.set_font_only();
+  return *this;
+}
+
+format_builder_t& format_builder_t::unlocked()
+{
+  current_.set_unlocked();
+  return *this;
+}
+
+format_builder_t& format_builder_t::hidden()
+{
+  current_.set_hidden();
+  return *this;
+}
+
+format_builder_t& format_builder_t::rotation(int16_t angle)
+{
+  current_.set_rotation(angle);
+  return *this;
+}
+
+format_builder_t& format_builder_t::indent(uint8_t level)
+{
+  current_.set_indent(level);
+  return *this;
+}
+
+format_builder_t& format_builder_t::shrink()
+{
+  current_.set_shrink();
+  return *this;
+}
+
+format_builder_t& format_builder_t::text_justlast()
+{
+  current_.set_text_justlast();
+  return *this;
+}
+
+format_builder_t& format_builder_t::valign(format_alignments_t alignment)
+{
+  current_.set_valign(alignment);
+  return *this;
+}
+
+format_builder_t& format_builder_t::halign(format_alignments_t alignment)
+{
+  current_.set_halign(alignment);
+  return *this;
+}
+
+format_builder_t& format_builder_t::reading_order(uint8_t value)
+{
+  current_.set_reading_order(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::theme(uint8_t value)
+{
+  current_.set_theme(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::color_indexed(uint8_t value)
+{
+  current_.set_color_indexed(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::quote_prefix()
+{
+  current_.set_quote_prefix();
+  return *this;
+}
+
+format_builder_t& format_builder_t::hyperlink()
+{
+  current_.set_hyperlink();
+  return *this;
+}
+
+const format_t* format_builder_t::build()
+{
+  const format_t* format = insert_format_(current_);
+
+  // Reset format
+  current_ = format_t{};
+
+  return format;
+}
+
 }

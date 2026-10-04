@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(merged_range01)
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   worksheet.select();
-  const xwpp::format_t* format = workbook.add_format();
+  const xwpp::format_t* format = workbook.format_builder().build();
 
   worksheet.merge_range(2, 1, 2, 2, "Foo", format);
 

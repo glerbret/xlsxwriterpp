@@ -42,8 +42,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a bold format.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Write the column headers.
   worksheet.write(0, 0, "Formatted date", bold);
@@ -56,9 +55,8 @@ int main()
   for(xwpp::row_num_t row_num{1}; const auto& date_format: date_formats)
   {
     // Create a format for the date or time.
-    xwpp::format_t* format = workbook.add_format();
-    format->set_num_format(date_format);
-    format->set_align(xwpp::format_alignments_t::HORIZONTAL_LEFT);
+    const xwpp::format_t* format =
+      workbook.format_builder().num_format(date_format).align(xwpp::format_alignments_t::HORIZONTAL_LEFT).build();
 
     // Write the datetime with each format.
     worksheet.write_datetime(row_num, 0, datetime, format);

@@ -11,8 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
 
   worksheet.set_column(0, 0, 8.43, italic);
 

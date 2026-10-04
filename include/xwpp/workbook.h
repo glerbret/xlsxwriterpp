@@ -566,32 +566,28 @@ public:
   [[nodiscard]] bool validate_sheetname(std::string_view sheetname) const;
 
   /**
-   * @brief Create a new @ref format.h "Format" object to formats cells in
-   * worksheets.
+   * @brief Create a new @ref format.h "Format" builder.
    *
-   * @return A pointer to an instance of format_t.
+   * @return A format builder.
    *
-   * The `%add_format()` function can be used to create new @ref
-   * format.h "Format" objects which are used to apply formatting to a cell.
+   * The `%format_builder()` function can be used to create new @ref
+   * format.h "Format" builder which are used to create a "Format object".
    *
    * @code
    *  // Create the Format.
-   *  xwpp::format_t* format = workbook.add_format();
-   *
-   *  // Set some of the format properties.
-   *  format.set_bold();
-   *  format.set_font_color(xwpp::color_t::red());
+   *  const xwpp::format_t* format = workbook.format().
+   *                                 bold().
+   *                                 font_color(xwpp::color_t::red()).
+   *                                 build();
    *
    *  // Use the format to change the text format in a cell.
    *  worksheet.write(0, 0, "Hello", format);
    * @endcode
    *
-   * See @ref format.h "the Format object" and @ref working_with_formats
+   * @see @ref format.h "the Format object" and @ref working_with_formats
    * sections for more details about Format properties and how to set them.
-   *
-   * @todo Add builder API to create format.
    */
-  [[nodiscard]] format_t* add_format();
+  format_builder_t format_builder();
 
   /**
    * @brief Get the default URL format used with `worksheet_t::write_url()`.
@@ -836,6 +832,9 @@ private:
   int32_t get_xf_index(const format_t* format);
   int32_t get_dxf_index(const format_t* format);
 
+  // Add format build by builder
+  [[nodiscard]] const format_t* insert_format(const format_t& format);
+
   // Function to prepare data before packaging.
   void prepare_fonts();
   void prepare_num_formats();
@@ -915,7 +914,7 @@ private:
   std::string vba_project_signature_;
   std::string vba_codename_;
   bool use_1904_epoch_{false};
-  format_t* default_format_;
+  const format_t* default_format_;
   format_t* default_url_format_;
   bool use_zip64_{false};
 };

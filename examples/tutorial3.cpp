@@ -36,16 +36,13 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a bold format to use to highlight cells.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Add a number format for cells with money.
-  xwpp::format_t* money = workbook.add_format();
-  money->set_num_format("$#,##0");
+  const xwpp::format_t* money = workbook.format_builder().num_format("$#,##0").build();
 
   // Add an Excel date format.
-  xwpp::format_t* date_format = workbook.add_format();
-  date_format->set_num_format("mmmm d yyyy");
+  const xwpp::format_t* date_format = workbook.format_builder().num_format("mmmm d yyyy").build();
 
   // Adjust the column width.
   worksheet.set_column(0, 0, 15);

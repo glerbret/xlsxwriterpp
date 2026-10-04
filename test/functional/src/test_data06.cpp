@@ -11,16 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format1 = workbook.add_format();
-  xwpp::format_t* format2 = workbook.add_format();
-  xwpp::format_t* format3 = workbook.add_format();
-
-  format1->set_bold();
-
-  format2->set_italic();
-
-  format3->set_bold();
-  format3->set_italic();
+  const xwpp::format_t* format1 = workbook.format_builder().bold().build();
+  const xwpp::format_t* format2 = workbook.format_builder().italic().build();
+  const xwpp::format_t* format3 = workbook.format_builder().bold().italic().build();
 
   worksheet.write("A1", "Foo", format1);
   worksheet.write("A2", "Bar", format2);

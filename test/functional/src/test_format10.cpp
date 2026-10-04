@@ -11,18 +11,14 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* border1 = workbook.add_format();
-  xwpp::format_t* border2 = workbook.add_format();
-  xwpp::format_t* border3 = workbook.add_format();
-
-  border1->set_bg_color(xwpp::color_t::red());
-
-  border2->set_bg_color(xwpp::color_t::yellow());
-  border2->set_pattern(xwpp::format_patterns_t::DARK_VERTICAL);
-
-  border3->set_bg_color(xwpp::color_t::yellow());
-  border3->set_fg_color(xwpp::color_t::red());
-  border3->set_pattern(xwpp::format_patterns_t::GRAY_0625);
+  const xwpp::format_t* border1 = workbook.format_builder().bg_color(xwpp::color_t::red()).build();
+  const xwpp::format_t* border2 =
+    workbook.format_builder().bg_color(xwpp::color_t::yellow()).pattern(xwpp::format_patterns_t::DARK_VERTICAL).build();
+  const xwpp::format_t* border3 = workbook.format_builder()
+                                    .bg_color(xwpp::color_t::yellow())
+                                    .fg_color(xwpp::color_t::red())
+                                    .pattern(xwpp::format_patterns_t::GRAY_0625)
+                                    .build();
 
   worksheet.write_blank(1, 1, border1);
   worksheet.write_blank(3, 1, border2);

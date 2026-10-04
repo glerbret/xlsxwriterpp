@@ -18,9 +18,8 @@ int main()
   const xwpp::format_t* url_format = workbook.get_default_url_format();
 
   // Create a user defined link format.
-  xwpp::format_t* red_format = workbook.add_format();
-  red_format->set_underline(xwpp::format_underlines_t::SINGLE);
-  red_format->set_font_color(xwpp::color_t::red());
+  const xwpp::format_t* red_format =
+    workbook.format_builder().underline(xwpp::format_underlines_t::SINGLE).font_color(xwpp::color_t::red()).build();
 
   // Widen the first column to make the text clearer.
   worksheet.set_column(0, 0, 30);

@@ -14,11 +14,8 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::LINE);
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
-
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(60910208, 69231360);

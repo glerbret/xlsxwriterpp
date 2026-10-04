@@ -13,8 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-  format->set_num_format_index(2);
+  const xwpp::format_t* format = workbook.format_builder().num_format_index(2).build();
 
   worksheet.set_column("B:K", 10.288);
 

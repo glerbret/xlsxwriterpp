@@ -49,9 +49,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* fo
 int main()
 {
   xwpp::workbook_t workbook;
-
-  xwpp::format_t* currency_format = workbook.add_format();
-  currency_format->set_num_format("$#,##0");
+  const xwpp::format_t* currency_format = workbook.format_builder().num_format("$#,##0").build();
 
   // Example 1. Default table with no data
   // Set the columns widths for clarity.

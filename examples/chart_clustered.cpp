@@ -56,8 +56,7 @@ int main()
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
   // Add a bold format to use to highlight the header cells.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Write some data for the chart.
   write_worksheet_data(worksheet, bold);

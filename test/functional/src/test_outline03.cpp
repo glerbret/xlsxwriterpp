@@ -10,9 +10,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outline Columns");
-
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
   const xwpp::row_col_options_t options6{.hidden_ = false, .level_ = 1, .collapsed_ = false};
 

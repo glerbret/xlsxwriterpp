@@ -111,8 +111,7 @@ int main()
 {
   xwpp::workbook_t workbook;
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Example 1: Create a worksheet with outlined rows. It also includes
   // SUBTOTAL() functions so that it looks like the type of automatic

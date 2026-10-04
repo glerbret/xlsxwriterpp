@@ -11,11 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp::color_t::red());
-
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_bg_color(xwpp::color_t{0x92D050});
+  const xwpp::format_t* format1 = workbook.format_builder().bg_color(xwpp::color_t::red()).build();
+  const xwpp::format_t* format2 = workbook.format_builder().bg_color(xwpp::color_t{0x92D050}).build();
 
   worksheet.write("A1", 10);
   worksheet.write("A2", 20);

@@ -13,12 +13,10 @@ int main()
   /* xwpp::worksheet_t& worksheet2 = */ workbook.add_worksheet("Data Sheet");
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
 
-  /* xwpp::format_t* unused1 = */ (void)workbook.add_format();
-  xwpp::format_t* format = workbook.add_format();
-  /* xwpp::format_t* unused2 = */ (void)workbook.add_format();
-  /* xwpp::format_t* unused3 = */ (void)workbook.add_format();
-
-  format->set_bold();
+  /* xwpp::format_t* unused1 = */ (void)workbook.format_builder().build();
+  const xwpp::format_t* format = workbook.format_builder().bold().build();
+  /* xwpp::format_t* unused2 = */ (void)workbook.format_builder().build();
+  /* xwpp::format_t* unused3 = */ (void)workbook.format_builder().build();
 
   worksheet1.write(0, 0, "Foo");
   worksheet1.write(1, 0, 123);

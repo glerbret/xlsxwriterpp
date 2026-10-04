@@ -11,10 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp::color_t{0xFFFF00});
+  const xwpp::format_t* format = workbook.format_builder().bg_color(xwpp::color_t{0xFFFF00}).build();
 
-  const xwpp::image_options_t image_options{.cell_format_ = format1};
+  const xwpp::image_options_t image_options{.cell_format_ = format};
 
   worksheet.embed_image(0, 0, "images/red.png", image_options);
 

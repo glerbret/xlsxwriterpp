@@ -13,14 +13,10 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
-
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
-
-  xwpp::format_t* centered = workbook.add_format();
-  centered->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
+  const xwpp::format_t* centered =
+    workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
 
   worksheet.write("A1", "Foo", bold);
   worksheet.write("A2", "Bar", italic);

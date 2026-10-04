@@ -10,9 +10,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Rows");
-
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
   const xwpp::row_col_options_t options3{.hidden_ = true, .level_ = 2, .collapsed_ = false};
   const xwpp::row_col_options_t options4{.hidden_ = true, .level_ = 1, .collapsed_ = true};

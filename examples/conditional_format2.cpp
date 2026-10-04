@@ -52,14 +52,12 @@ int main()
   xwpp::workbook_t workbook;
 
   // Add a format. Light red fill with dark red text.
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bg_color(xwpp::color_t{0xFFC7CE});
-  format1->set_font_color(xwpp::color_t{0x9C0006});
+  const xwpp::format_t* format1 =
+    workbook.format_builder().bg_color(xwpp::color_t{0xFFC7CE}).font_color(xwpp::color_t{0x9C0006}).build();
 
   // Add a format. Green fill with dark green text.
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_bg_color(xwpp::color_t{0xC6EFCE});
-  format2->set_font_color(xwpp::color_t{0x006100});
+  const xwpp::format_t* format2 =
+    workbook.format_builder().bg_color(xwpp::color_t{0xC6EFCE}).font_color(xwpp::color_t{0x006100}).build();
 
   // Example 1. Conditional formatting based on simple cell based criteria.
   {

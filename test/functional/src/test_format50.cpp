@@ -11,11 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format1 = workbook.add_format();
-  xwpp::format_t* format2 = workbook.add_format();
-
-  format1->set_num_format("#,##0.00000");
-  format2->set_num_format("#,##0.0");
+  const xwpp::format_t* format1 = workbook.format_builder().num_format("#,##0.00000").build();
+  const xwpp::format_t* format2 = workbook.format_builder().num_format("#,##0.0").build();
 
   worksheet.set_column(0, 0, 12);
 

@@ -15,15 +15,14 @@ int main()
   xwpp::workbook_t workbook;
 
   // Set up some formatting and text to highlight the panes.
-  xwpp::format_t* header = workbook.add_format();
-  header->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
-  header->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
-  header->set_fg_color(xwpp::color_t{0xD7E4BC});
-  header->set_bold();
-  header->set_border(xwpp::format_borders_t::THIN);
-
-  xwpp::format_t* center = workbook.add_format();
-  center->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+  const xwpp::format_t* header = workbook.format_builder()
+                                   .align(xwpp::format_alignments_t::HORIZONTAL_CENTER)
+                                   .align(xwpp::format_alignments_t::VERTICAL_CENTER)
+                                   .fg_color(xwpp::color_t{0xD7E4BC})
+                                   .bold()
+                                   .border(xwpp::format_borders_t::THIN)
+                                   .build();
+  const xwpp::format_t* center = workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
 
   // Example 1. Freeze pane on the top row.
   {

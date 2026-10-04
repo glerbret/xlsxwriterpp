@@ -15,40 +15,28 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_num_format("0.0");
+  const xwpp::format_t* format1 = workbook.format_builder().num_format("0.0").build();
   worksheet.write(0, 0, value, format1);
 
-  xwpp::format_t* format2 = workbook.add_format();
-  format2->set_num_format("0.000");
+  const xwpp::format_t* format2 = workbook.format_builder().num_format("0.000").build();
   worksheet.write(1, 0, value, format2);
 
-  xwpp::format_t* format3 = workbook.add_format();
-  format3->set_num_format("0.0000");
+  const xwpp::format_t* format3 = workbook.format_builder().num_format("0.0000").build();
   worksheet.write(2, 0, value, format3);
 
-  xwpp::format_t* format4 = workbook.add_format();
-  format4->set_num_format("0.00000");
+  const xwpp::format_t* format4 = workbook.format_builder().num_format("0.00000").build();
   worksheet.write(3, 0, value, format4);
 
-  xwpp::format_t* format5 = workbook.add_format();
-  format5->set_num_format("0.0");
-  format5->set_bold();
+  const xwpp::format_t* format5 = workbook.format_builder().num_format("0.0").bold().build();
   worksheet.write(4, 0, value, format5);
 
-  xwpp::format_t* format6 = workbook.add_format();
-  format6->set_num_format("0.000");
-  format6->set_bold();
+  const xwpp::format_t* format6 = workbook.format_builder().num_format("0.000").bold().build();
   worksheet.write(5, 0, value, format6);
 
-  xwpp::format_t* format7 = workbook.add_format();
-  format7->set_num_format("0.0000");
-  format7->set_bold();
+  const xwpp::format_t* format7 = workbook.format_builder().num_format("0.0000").bold().build();
   worksheet.write(6, 0, value, format7);
 
-  xwpp::format_t* format8 = workbook.add_format();
-  format8->set_num_format("0.00000");
-  format8->set_bold();
+  const xwpp::format_t* format8 = workbook.format_builder().num_format("0.00000").bold().build();
   worksheet.write(7, 0, value, format8);
 
   workbook.save("test_format52.xlsx");

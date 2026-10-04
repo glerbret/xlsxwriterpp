@@ -11,11 +11,12 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-  format->set_font_color(xwpp::color_t{0x9C0006});
-  format->set_bg_color(xwpp::color_t{0xFFC7CE});
-  format->set_font_condense();
-  format->set_font_extend();
+  const xwpp::format_t* format = workbook.format_builder()
+                                   .font_color(xwpp::color_t{0x9C0006})
+                                   .bg_color(xwpp::color_t{0xFFC7CE})
+                                   .font_condense()
+                                   .font_extend()
+                                   .build();
 
   worksheet.write("A1", 10);
   worksheet.write("A2", 20);

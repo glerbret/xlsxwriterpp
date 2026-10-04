@@ -19,39 +19,39 @@ int main()
   worksheet.set_column(1, 1, 30);
 
   {
-    xwpp::format_t* format = workbook.add_format();
-    format->set_bg_color(xwpp::color_t::yellow());
+    const xwpp::format_t* format = workbook.format_builder().bg_color(xwpp::color_t::yellow()).build();
 
     worksheet.write(1, 1, "Yellow cell", format);
   }
 
   {
-    xwpp::format_t* format = workbook.add_format();
-    format->set_border(xwpp::format_borders_t::MEDIUM);
-    format->set_border_color(xwpp::color_t::red());
+    const xwpp::format_t* format =
+      workbook.format_builder().border(xwpp::format_borders_t::MEDIUM).border_color(xwpp::color_t::red()).build();
 
     worksheet.write(3, 1, "Cell with red borders", format);
   }
 
   {
-    xwpp::format_t* format = workbook.add_format();
-    format->set_bottom(xwpp::format_borders_t::DASHED);
-    format->set_bottom_color(xwpp::color_t::yellow());
-    format->set_top(xwpp::format_borders_t::DOTTED);
-    format->set_top_color(xwpp::color_t::red());
-    format->set_left(xwpp::format_borders_t::THICK);
-    format->set_left_color(xwpp::color_t::blue());
-    format->set_right(xwpp::format_borders_t::DOUBLE);
-    format->set_right_color(xwpp::color_t::green());
+    const xwpp::format_t* format = workbook.format_builder()
+                                     .bottom(xwpp::format_borders_t::DASHED)
+                                     .bottom_color(xwpp::color_t::yellow())
+                                     .top(xwpp::format_borders_t::DOTTED)
+                                     .top_color(xwpp::color_t::red())
+                                     .left(xwpp::format_borders_t::THICK)
+                                     .left_color(xwpp::color_t::blue())
+                                     .right(xwpp::format_borders_t::DOUBLE)
+                                     .right_color(xwpp::color_t::green())
+                                     .build();
 
     worksheet.write(5, 1, "Cell with different borders", format);
   }
 
   {
-    xwpp::format_t* format = workbook.add_format();
-    format->set_diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN);
-    format->set_diag_border(xwpp::format_borders_t::THICK);
-    format->set_diag_color(xwpp::color_t::blue());
+    const xwpp::format_t* format = workbook.format_builder()
+                                     .diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN)
+                                     .diag_border(xwpp::format_borders_t::THICK)
+                                     .diag_color(xwpp::color_t::blue())
+                                     .build();
 
     worksheet.write(7, 1, "Cell with diag", format);
   }

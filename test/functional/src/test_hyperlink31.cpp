@@ -10,11 +10,9 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::format_t* format1      = workbook.add_format();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  format1->set_bold();
-
-  worksheet.write("A1", "Test", format1);
+  worksheet.write("A1", "Test", bold);
   worksheet.write_url("A3", "http://www.python.org/");
 
   workbook.save("test_hyperlink31.xlsx");
