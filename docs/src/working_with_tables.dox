@@ -22,10 +22,10 @@ Tables are added to a worksheet using the `worksheet_t::add_table()` function:
   worksheet.add_table( 2, 1, 6, 5);
 @endcode
 
-Or more explicitly using the `RANGE()` macro:
+Or more explicitly using the range name:
 
 @code
-  worksheet.add_table(RANGE("B3:F7")); //Same as above.
+  worksheet.add_table("B3:F7"); //Same as above.
 @endcode
 
 @image html tables1.png
@@ -50,7 +50,7 @@ table. It is on by default:
 @code
   xwpp::table_options_t options{.no_header_row_ = true};
 
-  worksheet.add_table(RANGE("B4:F7"), options);
+  worksheet.add_table("B4:F7", options);
 @endcode
 
 @image html tables4.png
@@ -67,7 +67,7 @@ header row. It is on by default:
 @code
   xwpp::table_options_t options{.no_autofilter_ = true};
 
-  worksheet.add_table(RANGE("B3:F7"), options);
+  worksheet.add_table("B3:F7", options);
 @endcode
 
 @image html tables3.png
@@ -83,7 +83,7 @@ color in the table. It is on by default:
 @code
   xwpp::table_options_t options{.no_banded_rows_ = true};
 
-  worksheet.add_table(RANGE("B3:F7"), options);
+  worksheet.add_table("B3:F7", options);
 @endcode
 
 @image html tables6.png
@@ -96,7 +96,7 @@ alternating color in the table. It is off by default:
 @code
   xwpp::table_options_t options{.banded_columns_ = true};
 
-  worksheet.add_table(RANGE("B3:F7"), options);
+  worksheet.add_table("B3:F7", options);
 @endcode
 
 The banded columns formatting is shown in the image in the previous section
@@ -114,7 +114,7 @@ It may be bold text or a different color. It is off by default:
     .last_column_ = true,
   };
 
-  worksheet.add_table(RANGE("B3:F7"), options);
+  worksheet.add_table("B3:F7", options);
 @endcode
 
 @image html tables5.png
@@ -131,7 +131,7 @@ may be bold text or a different color. It is off by default:
     .last_column_ = true,
   };
 
-  worksheet.add_table(RANGE("B3:F7"), options);
+  worksheet.add_table("B3:F7", options);
 @endcode
 
 The `%last_column_` formatting is shown in the image in the previous section
@@ -148,7 +148,7 @@ conjunction with the `style_type_number` parameter:
     .style_type_number_ = 11,
   };
 
-  worksheet.add_table(RANGE("B3:G8"), options);
+  worksheet.add_table("B3:G8", options);
 @endcode
 
 @image html tables11.png
@@ -200,7 +200,7 @@ worksheet order that they are added.
 @code
   xwpp::table_options_t options{.name_ = "Sales"};
 
-  worksheet.add_table(RANGE("B3:G8"), options);
+  worksheet.add_table("B3:G8", options);
 @endcode
 
 If you override the table name you must ensure that it doesn't clash with an
@@ -217,7 +217,7 @@ formatting and also with dropdown `SUBTOTAL` functions:
 @code
   xwpp::table_options_t options{.total_row_ = true};
 
-  worksheet.add_table(RANGE("B3:G8"), options);
+  worksheet.add_table("B3:G8", options);
 @endcode
 
 @image html tables9.png
@@ -256,7 +256,7 @@ style table headers:
   };
   xwpp::table_options_t options{.columns_ = columns};
 
-  worksheet.add_table(RANGE("B3:F7"), options);
+  worksheet.add_table("B3:F7", options);
 @endcode
 
 If you don't wish to specify properties for a specific column you can pass an
@@ -286,7 +286,7 @@ Column formulas can by applied using the column `formula` property:
   };
   xwpp::table_options_t options{.columns_ = columns};
 
-  worksheet.add_table(RANGE("B3:G7"), options);
+  worksheet.add_table("B3:G7", options);
 @endcode
 
 @image html tables8.png
@@ -336,7 +336,7 @@ and `total_function` sub properties:
     .columns    = columns,
   };
 
-  worksheet.add_table(RANGE("B3:G8"), options);
+  worksheet.add_table("B3:G8", options);
 @endcode
 
 The supported totals row `SUBTOTAL` functions are defined in
@@ -402,7 +402,7 @@ the column, see the next section):
     .columns_   = columns,
   };
 
-  worksheet.add_table(RANGE("B3:G8"), options);
+  worksheet.add_table("B3:G8", options);
 @endcode
 
 @image html tables12.png

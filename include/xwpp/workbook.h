@@ -176,8 +176,6 @@ struct doc_properties_t
  *
  * `%workbook_t` represents the entire spreadsheet as you see it in Excel
  * and internally it represents the Excel file as it is written on disk.
- *
- * @todo Add API to configure default format, in particular font.
  */
 class workbook_t
 {
@@ -575,10 +573,7 @@ public:
    *
    * @code
    *  // Create the Format.
-   *  const xwpp::format_t* format = workbook.format().
-   *                                 bold().
-   *                                 font_color(xwpp::color_t::red()).
-   *                                 build();
+   *  const xwpp::format_t* format = workbook.format().bold().font_color(xwpp::color_t::red()).build();
    *
    *  // Use the format to change the text format in a cell.
    *  worksheet.write(0, 0, "Hello", format);
@@ -906,8 +901,6 @@ private:
   bool has_embedded_images_{false};
   bool has_dynamic_functions_{false};
   bool has_embedded_image_descriptions_{false};
-  // TODO Combine with unordered_set to optimize search and assure uniqueness.
-  // TODO And encapsule this combination and related functions in a dedicated types.
   std::vector<format_t*> used_xf_formats_;
   std::vector<format_t*> used_dxf_formats_;
   std::string vba_project_;

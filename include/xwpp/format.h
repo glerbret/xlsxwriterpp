@@ -518,7 +518,7 @@ public:
    * Set the italic property of the font:
    *
    * @code
-   *  format = workbook.format_builder().italic().build();
+   *  const xwpp::format_t* format = workbook.format_builder().italic().build();
    *
    *  worksheet.write(0, 0, "Italic Text", format);
    * @endcode
@@ -554,10 +554,10 @@ public:
    * As in Excel, vertical and horizontal alignments can be combined:
    *
    * @code
-   *  format = workbook.format_builder().
-   *                    align(format, xwpp::format_alignments_t::HORIZONTAL_CENTER).
-   *                    align(format, xwpp::format_alignments_t::VERTICAL_CENTER).
-   *                    build();
+   *  const xwpp::format_t* format = workbook.format_builder()
+   *                                         .align(format, xwpp::format_alignments_t::HORIZONTAL_CENTER)
+   *                                         .align(format, xwpp::format_alignments_t::VERTICAL_CENTER)
+   *                                         .build();
    *
    *  worksheet.set_row(0, 30);
    *  worksheet.write(0, 0, "Some Text", format);
@@ -586,7 +586,7 @@ public:
    * Set the font color:
    *
    * @code
-   *  format = workbook.format_builder().font_color(xwpp::color_t::red()).build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_color(xwpp::color_t::red()).build();
    *
    *  worksheet.write(0, 0, "Wheelbarrow", format);
    * @endcode
@@ -626,10 +626,10 @@ public:
    * Here is an example of how to set up a solid fill in a cell:
    *
    * @code
-   *  format = workbook.format_builder().
-   *                    pattern(xwpp::format_patterns_t::SOLID).
-   *                    bg_color(xwpp::color_t::green()).
-   *                    build();
+   *  const xwpp::format_t* format = workbook.format_builder()
+   *                                         .pattern(xwpp::format_patterns_t::SOLID)
+   *                                         .bg_color(xwpp::color_t::green())
+   *                                         .build();
    *
    *  worksheet.write(0, 0, "Ray", format);
    * @endcode
@@ -648,7 +648,7 @@ public:
    * Set the underline property of the format:
    *
    * @code
-   *  format = workbook.format_builder().underline(xwpp::format_underlines_t::SINGLE).build();
+   *  const xwpp::format_t* format = workbook.format_builder().underline(xwpp::format_underlines_t::SINGLE).build();
    * @endcode
    *
    * @image html format_font_underlined.png
@@ -659,8 +659,6 @@ public:
    * - `%format_underlines_t::DOUBLE`
    * - `%format_underlines_t::SINGLE_ACCOUNTING`
    * - `%format_underlines_t::DOUBLE_ACCOUNTING`
-   *
-   * @todo Check if overline is available on, if needed, add it.
    */
   format_builder_t& underline(format_underlines_t style);
 
@@ -670,7 +668,7 @@ public:
    * Turn text wrapping on for text in a cell.
    *
    * @code
-   *  format = workbook.format_builder().text_wrap().build();
+   *  const xwpp::format_t* format = workbook.format_builder().text_wrap().build();
    *
    *  worksheet.write(0, 0, "Some long text to wrap in a cell", format);
    * @endcode
@@ -679,7 +677,7 @@ public:
    * characters to the string:
    *
    * @code
-   *  format = workbook.format_builder().text_wrap().build();
+   *  const xwpp::format_t* format = workbook.format_builder().text_wrap().build();
    *
    *  worksheet.write(0, 0, "It's\na bum\nwrap", format);
    * @endcode
@@ -789,9 +787,10 @@ public:
    * The most common pattern is a solid fill of the background color:
    *
    * @code
-   *  format = workbook.format_builder().pattern(xwpp::format_patterns_t::SOLID).
-   *                                     bg_color(xwpp::color_t::yellow()).
-   *                                     build();
+   *  const xwpp::format_t* format = workbook.format_builder()
+   *                                         .pattern(xwpp::format_patterns_t::SOLID)
+   *                                         .bg_color(xwpp::color_t::yellow())
+   *                                         .build();
    * @endcode
    *
    * The available fill patterns are:
@@ -877,6 +876,7 @@ public:
    */
   format_builder_t& right_color(color_t color);
 
+  // clang-format off
   /**
    * @brief Set the diagonal cell border type.
    *
@@ -885,14 +885,13 @@ public:
    * Set the diagonal cell border type:
    *
    * @code
-   *  const xwpp::format_t* format1 =
-   * workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP).build(); const xwpp::format_t*
-   * format2 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN).build(); const
-   * xwpp::format_t* format3 =
-   * workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN).build(); const xwpp::format_t*
-   * format4 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN)
+   *  const xwpp::format_t* format1 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP).build();
+   *  const xwpp::format_t* format2 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN).build();
+   *  const xwpp::format_t* format3 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN).build();
+   *  const xwpp::format_t* format4 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN)
    *                                                           .diag_border(xwpp::format_borders_t::HAIR)
-   *                                                           .diag_color(xwpp::color_t::red()).build();
+   *                                                           .diag_color(xwpp::color_t::red())
+   *                                                           .build();
    *
    *  worksheet.write("B3", "Text", format1);
    *  worksheet.write("B6", "Text", format2);
@@ -916,6 +915,7 @@ public:
    * If the border style isn't specified with `diag_border()` then it
    * will default to `format_borders_t::THIN`.
    */
+  // clang-format on
   format_builder_t& diag_type(format_diagonal_types_t type);
 
   /**
@@ -949,7 +949,7 @@ public:
    *
    * @code
    *  // d-mmm-yy
-   *  format = workbook.format_builder().num_format_index(0x0F).build();
+   *  const xwpp::format_t* format = workbook.format_builder().num_format_index(0x0F).build();
    * @endcode
    *
    * @note Unless you need to specifically access one of Excel's built-in number
@@ -1021,7 +1021,7 @@ public:
    * Specify the font used used in the cell format:
    *
    * @code
-   *  format = workbook.format_builder().font_name("Avenir Black Oblique").build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_name("Avenir Black Oblique").build();
    * @endcode
    *
    * @image html format_set_font_name.png
@@ -1042,7 +1042,7 @@ public:
    * Set the font size of the cell format:
    *
    * @code
-   *  format = workbook.format_builder().set_font_size(30).build();
+   *  const xwpp::format_t* format = workbook.format_builder().set_font_size(30).build();
    * @endcode
    *
    * @image html format_font_size.png
@@ -1084,7 +1084,7 @@ public:
    * Set the font family. This is usually an integer in the range 1-4.
    *
    * @code
-   *  format = workbook.format_builder().font_family(178).build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_family(178).build();
    * @endcode
    */
   format_builder_t& font_family(uint8_t value);
@@ -1097,7 +1097,7 @@ public:
    * Set the font character set property.
    *
    * @code
-   *  format = workbook.format_builder().set_font_charset(178).build();
+   *  const xwpp::format_t* format = workbook.format_builder().set_font_charset(178).build();
    * @endcode
    */
   format_builder_t& font_charset(uint8_t value);
@@ -1108,7 +1108,7 @@ public:
    * Set the font outline property.
    *
    * @code
-   *  format = workbook.format_builder().font_outline().build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_outline().build();
    * @endcode
    *
    * @todo Add image in description.
@@ -1121,7 +1121,7 @@ public:
    * Set the font shadow property.
    *
    * @code
-   *  format = workbook.format_builder().font_shadow().build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_shadow().build();
    * @endcode
    *
    * @todo Add image in description.
@@ -1136,7 +1136,7 @@ public:
    * Set the font scheme property.
    *
    * @code
-   *  format = workbook.format_builder().font_scheme("fs").build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_scheme("fs").build();
    * @endcode
    *
    * @todo Add image in description.
@@ -1150,7 +1150,7 @@ public:
    * Set the font condense property.
    *
    * @code
-   *  format = workbook.format_builder().font_condense().build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_condense().build();
    * @endcode
    *
    * @todo Add image in description.
@@ -1163,7 +1163,7 @@ public:
    * Set the font extend property.
    *
    * @code
-   *  format = workbook.format_builder().font_extend().build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_extend().build();
    * @endcode
    *
    * @todo Add image in description.
@@ -1176,7 +1176,7 @@ public:
    * Set the font only property.
    *
    * @code
-   *  format = workbook.format_builder().font_only().build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_only().build();
    * @endcode
    *
    * @todo Add image in description.
@@ -1193,7 +1193,7 @@ public:
    * using the worksheet `worksheet_t::protect()` function:
    *
    * @code
-   *  format = workbook.format_builder().unlocked().build();
+   *  const xwpp::format_t* format = workbook.format_builder().unlocked().build();
    *
    *  // Enable worksheet protection, without password or options.
    *  worksheet.protect();
@@ -1217,7 +1217,7 @@ public:
    * function:
    *
    * @code
-   *  format = workbook.format_builder().unlocked().build();
+   *  const xwpp::format_t* format = workbook.format_builder().unlocked().build();
    *
    *  // Enable worksheet protection, without password or options.
    *  worksheet.protect();
@@ -1237,7 +1237,7 @@ public:
    * range -90 to 90 degrees:
    *
    * @code
-   *  format = workbook.format_builder().rotation(30).build();
+   *  const xwpp::format_t* format = workbook.format_builder().rotation(30).build();
    *
    *  worksheet.write(0, 0, "This text is rotated", format);
    * @endcode
@@ -1283,7 +1283,7 @@ public:
    * This method can be used to shrink text so that it fits in a cell:
    *
    * @code
-   *  format = workbook.format_builder().shrink().build();
+   *  const xwpp::format_t* format = workbook.format_builder().shrink().build();
    *
    *  worksheet.write(0, 0, "Honey, I shrunk the text!", format);
    * @endcode
@@ -1293,13 +1293,14 @@ public:
   // TODO Useless, to check (missing parameter? Remove?)
   format_builder_t& text_justlast();
 
+  // clang-format off
   /**
    * @brief Set the vertical alignment.
    *
    * @param alignment A `format_alignments_t` indicating the vertical alignment.
    *
    * @code
-   *  format = workbook.format_builder().valign(xwpp::format_alignments_t::VERTICAL_BOTTOM).build();
+   *  const xwpp::format_t* format = workbook.format_builder().valign(xwpp::format_alignments_t::VERTICAL_BOTTOM).build();
    *
    *  worksheet.write(0, 0, "Bottom alignment", format);
    * @endcode
@@ -1309,15 +1310,17 @@ public:
    * @todo Add image in documentation.
    * @todo Add example.
    */
+  // clang-format on
   format_builder_t& valign(format_alignments_t alignment);
 
+  // clang-format off
   /**
    * @brief Set the horizontal alignment.
    *
    * @param alignment A `format_alignments_t` indicating the horizontal alignment.
    *
    * @code
-   *  format = workbook.format_builder().halign(xwpp::format_alignments_t::HORIZONTAL_RIGHT).build();
+   *  const xwpp::format_t* format = workbook.format_builder().halign(xwpp::format_alignments_t::HORIZONTAL_RIGHT).build();
    *
    *  worksheet.write(0, 0, "Right alignment", format);
    * @endcode
@@ -1327,6 +1330,7 @@ public:
    * @todo Add image in documentation.
    * @todo Add example.
    */
+  // clang-format on
   format_builder_t& halign(format_alignments_t alignment);
 
   /**
@@ -1376,7 +1380,7 @@ public:
    * string but you do need to add the format.
    *
    * @code
-   *  format = workbook.format_builder().quote_prefix().build();
+   *  const xwpp::format_t* format = workbook.format_builder().quote_prefix().build();
    *
    *  worksheet.write(0, 0, "=Foo", format);
    * @endcode
@@ -1411,7 +1415,5 @@ private:
 /// @cond
 }
 /// @endcond
-
-// TODO Update dox page
 
 #endif

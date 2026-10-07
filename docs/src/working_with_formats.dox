@@ -14,7 +14,7 @@ setting the properties with various functions and then calling the `format_build
 to get the format object.
 
 @code
-  const xwp::format_t* format = workbook.format_builder().bold().font_color(xwpp::color_t::RED).build();
+  const xwp::format_t* format = workbook.format_builder().bold().font_color(xwpp::color_t::red()).build();
 @endcode
 
 Once a Format object has been created it can be passed as an argument to
@@ -27,11 +27,11 @@ the `worksheet_t::write()` methods as follows:
 
 Formats can also be passed to the worksheet `worksheet_t::set_row()` and
 `worksheet_t::set_column()` methods to define the default formatting properties
-for a row or column:
+for rows or columns:
 
 @code
   worksheet.set_row(2, 10, format);
-  worksheet.set_column(0, 20, format);
+  worksheet.set_column("A:U", format);
 @endcode
 
 @section ww_formats_properties Format methods and Format properties
@@ -99,7 +99,7 @@ for example:
 @section ww_formats_categories Number Format Categories
 
 The `format_builder_t::num_format()` function shown below, is used to set the number
-format for numbers used with `worksheet_t::write_number()`:
+format for numbers used with `worksheet_t::write()`:
 
 @code
   #include "xlsxwriterpp.h"
@@ -111,7 +111,7 @@ format for numbers used with `worksheet_t::write_number()`:
 
     const xwpp::format_t* currency_format = workbook.format_builder().num_format("$#,##0.00").build();
 
-    worksheet_write_number(worksheet, 0, 0, 1234.56, currency_format);
+    worksheet.write(0, 0, 1234.56, currency_format);
 
     workbook.save("currency_format.xlsx");
   }
@@ -150,7 +150,7 @@ example and rerun it we will get a number format in the Currency category:
 
     const xwpp::format_t* currency_format = workbook.format_builder().num_format("[$$-409]#,##0.00").build();
 
-    worksheet.write_number(0, 0, 1234.56, currency_format);
+    worksheet.write(0, 0, 1234.56, currency_format);
 
     workbook.save("currency_format.xlsx");
   }
@@ -180,7 +180,7 @@ point:
 
     const xwpp::format_t* number_format = workbook.format_builder().num_format("#,##0.00").build();
 
-    worksheet.write_number(0, 0, 1234.56, number_format);
+    worksheet.write(0, 0, 1234.56, number_format);
 
     workbook.save("number_format.xlsx");
   }

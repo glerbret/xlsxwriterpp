@@ -32,7 +32,7 @@ format of the comment. For example:
     .y_scale_ = 0.5,
   };
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 The following options are available in `comment_options_t`:
@@ -63,7 +63,7 @@ where several people might review and provide comments to a workbook:
 @code
   xwpp::comment_options_t options{.author_ = "Ian McEwan"};
 
-  worksheet.write_comment(CELL("C6"), "Atonement", options);
+  worksheet.write_comment("C6", "Atonement", options);
 @endcode
 
 The default author for all cell comments in a worksheet can be set using
@@ -84,7 +84,7 @@ follows:
 @code
   xwpp::comment_options_t options{.visible_ = xwpp::comment_display_t::VISIBLE};
 
-  worksheet.write_comment(CELL("C6"), "Hello.", options);
+  worksheet.write_comment("C6", "Hello.", options);
 @endcode
 
 The `%visible_` property should be set with one of the enum values from
@@ -97,7 +97,7 @@ cell comments have been made visible you can hide individual comments:
 @code
   xwpp::comment_options_t options{.visible_ = xwpp::comment_display_t::HIDDEN};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 @subsection ww_comments_width Cell comments: `%width_`
@@ -108,7 +108,7 @@ in pixels:
 @code
   xwpp::comment_options_t options{.width_ = 200};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 The width and height can be adjusted together:
@@ -125,7 +125,7 @@ explicitly in pixels:
 @code
   xwpp::comment_options_t options{.height_ = 50};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 The width and height can be adjusted together:
@@ -142,7 +142,7 @@ as a factor of the default width:
 @code
   xwpp::comment_options_t options{.x_scale_ = 2.0};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 @subsection ww_comments_y_scale Cell comments: `%y_scale_`
@@ -153,7 +153,7 @@ as a factor of the default height:
 @code
   xwpp::comment_options_t options{.y_scale_ = 2.0};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 @subsection ww_comments_color Cell comments: `%color_`
@@ -163,11 +163,11 @@ box. The color should be an RGB integer value, see @ref
 working_with_colors.
 
 @code
-  xwpp::comment_options_t options1{.color_ = xwpp::color_t::GREEN};
-  xwpp::comment_options_t options2{.color_ = xwpp::color_t(0xFF6600)};
+  xwpp::comment_options_t options1{.color_ = xwpp::color_t::green()};
+  xwpp::comment_options_t options2{.color_ = xwpp::color_t{0xFF6600}};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options1);
-  worksheet.write_comment(CELL("C7"), "Hello", options2);
+  worksheet.write_comment("C6", "Hello", options1);
+  worksheet.write_comment("C7", "Hello", options2);
 @endcode
 
 @subsection ww_comments_font_name Cell comments: `%font_name_`
@@ -199,7 +199,7 @@ above the cell to which the comment relates.  The row is zero indexed:
 @code
   xwpp::comment_options_t options{.start_row_ = 3, .start_col_ = 4};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 See @ref ww_comments_notes
@@ -213,7 +213,7 @@ above the cell to which the comment relates. The column is zero indexed:
 @code
   xwpp::comment_options_t options{.start_row_ = 3, .start_col_ = 4};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 See @ref ww_comments_notes
@@ -226,7 +226,7 @@ comment within a cell:
 @code
   xwpp::comment_options_t options{.x_offset_ = 30, .y_offset_ = 12};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 See @ref ww_comments_notes
@@ -239,7 +239,7 @@ comment within a cell:
 @code
   xwpp::comment_options_t options{.x_offset_ = 30, .y_offset_ = 12};
 
-  worksheet.write_comment(CELL("C6"), "Hello", options);
+  worksheet.write_comment("C6", "Hello", options);
 @endcode
 
 See @ref ww_comments_notes
