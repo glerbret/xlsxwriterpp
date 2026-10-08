@@ -10,7 +10,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
+  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
 
   worksheet.merge_range("C4:E5", "http://www.perl.org/", format);
   worksheet.write_url("C4", "http://www.perl.org/", format);

@@ -814,13 +814,11 @@ public:
    */
   void set_default_xf_indices();
 
-  // TODO Only used by packager, should be private.
   [[nodiscard]] std::string assemble_xml_file();
 
 private:
   // packager_t needs to access to workbook fields to generate the XLSX file.
   friend class packager_t;
-  // TODO Remove this friend
   friend class rich_value_t;
 
   // Functions to retrieve index of format. Provided to worksheets as callback.
@@ -908,7 +906,7 @@ private:
   std::string vba_codename_;
   bool use_1904_epoch_{false};
   const format_t* default_format_;
-  format_t* default_url_format_;
+  const format_t* default_url_format_;
   bool use_zip64_{false};
 };
 

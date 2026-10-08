@@ -9,11 +9,10 @@
 int main()
 {
   xwpp::workbook_t workbook;
+  workbook.unset_default_url_format();
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   /* xwpp::worksheet_t& worksheet2 = */ workbook.add_worksheet();
   /* xwpp::worksheet_t& worksheet3 = */ workbook.add_worksheet("Data Sheet");
-
-  workbook.unset_default_url_format();
 
   worksheet1.write_url("A1", "internal:Sheet2!A1");
   worksheet1.write_url("A3", "internal:Sheet2!A1:A5");

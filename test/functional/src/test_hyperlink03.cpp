@@ -9,10 +9,9 @@
 int main()
 {
   xwpp::workbook_t workbook;
+  workbook.unset_default_url_format();
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
-
-  workbook.unset_default_url_format();
 
   worksheet1.write_url("A1", "http://www.perl.org/");
   worksheet1.write_url("D4", "http://www.perl.org/");

@@ -17,8 +17,8 @@ int main()
 
   // Configure a format for the merged range.
   const xwpp::format_t* merge_format = workbook.format_builder()
-                                         .align(xwpp::format_alignments_t::HORIZONTAL_CENTER)
-                                         .align(xwpp::format_alignments_t::VERTICAL_CENTER)
+                                         .align(xwpp::format_horizontal_alignments_t::CENTER)
+                                         .align(xwpp::format_vertical_alignments_t::CENTER)
                                          .border(xwpp::format_borders_t::THIN)
                                          .build();
 

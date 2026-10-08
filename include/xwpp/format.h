@@ -62,8 +62,6 @@ const double MAX_FONT_SIZE{409.0};
  * @brief Option for underline format.
  *
  * Format underline values for `format_builder_t::underline()`.
- *
- * @todo Complete the list
  */
 enum class format_underlines_t
 {
@@ -100,52 +98,61 @@ enum class format_scripts_t
 };
 
 /**
- * @brief Alignment options.
+ * @brief Horizontal alignment options.
  *
  * Alignment values for `format_builder_t::align()`.
- *
- * @todo Separate vertical / horizontal alignment option?
  */
-enum class format_alignments_t
+enum class format_horizontal_alignments_t
 {
   /** No alignment. Cell will use Excel's default for the data type. */
   NONE,
 
-  /** Left horizontal alignment. */
-  HORIZONTAL_LEFT,
+  /** Left alignment. */
+  LEFT,
 
-  /** Center horizontal alignment. */
-  HORIZONTAL_CENTER,
+  /** Center alignment. */
+  CENTER,
 
-  /** Right horizontal alignment. */
-  HORIZONTAL_RIGHT,
+  /** Right alignment. */
+  RIGHT,
 
-  /** Cell fill horizontal alignment. */
-  HORIZONTAL_FILL,
+  /** Cell fill alignment. */
+  FILL,
 
-  /** Justify horizontal alignment. */
-  HORIZONTAL_JUSTIFY,
+  /** Justify alignment. */
+  JUSTIFY,
 
-  /** Center Across horizontal alignment. */
-  HORIZONTAL_CENTER_ACROSS,
+  /** Center Across alignment. */
+  CENTER_ACROSS,
 
-  /** Left horizontal alignment. */
-  HORIZONTAL_DISTRIBUTED,
+  /** Left alignment. */
+  DISTRIBUTED,
+};
 
-  /** Top vertical alignment. */
-  VERTICAL_TOP,
+/**
+ * @brief Vertical alignment options.
+ *
+ * Alignment values for `format_builder_t::align()`.
+ */
+enum class format_vertical_alignments_t
+{
+  /** No alignment. Cell will use Excel's default for the data type. */
+  NONE,
 
-  /** Bottom vertical alignment. */
-  VERTICAL_BOTTOM,
+  /** Top alignment. */
+  TOP,
 
-  /** Center vertical alignment. */
-  VERTICAL_CENTER,
+  /** Bottom alignment. */
+  BOTTOM,
 
-  /** Justify vertical alignment. */
-  VERTICAL_JUSTIFY,
+  /** Center alignment. */
+  CENTER,
 
-  /** Distributed vertical alignment. */
-  VERTICAL_DISTRIBUTED
+  /** Justify alignment. */
+  JUSTIFY,
+
+  /** Distributed alignment. */
+  DISTRIBUTED
 };
 
 /**
@@ -283,6 +290,23 @@ enum class format_borders_t
 };
 
 /**
+ * @brief Cell reading order.
+ *
+ * Cell reading order for use with `format_builder_t::reading_order()`.
+ */
+enum class format_reading_order_t
+{
+  /** Reading order is determined by the first non-whitespace character. */
+  CONTEXT_DEPENDENT,
+
+  /** Reading order is left-to-right in the cell, as in English. */
+  LEFT_TO_RIGHT,
+
+  /** Reading order is right-to-left in the cell, as in Hebrew. */
+  RIGHT_TO_LEFT,
+};
+
+/**
  * @brief Representation the formatting properties of an Excel format.
  *
  * Representation the formatting properties of an Excel format.
@@ -321,7 +345,9 @@ private:
   void set_num_format(std::string_view num_format);
   void set_bold();
   void set_italic();
-  void set_align(format_alignments_t alignment);
+  void set_align(format_horizontal_alignments_t horizontal, format_vertical_alignments_t vertical);
+  void set_align(format_horizontal_alignments_t horizontal);
+  void set_align(format_vertical_alignments_t vertical);
   void set_font_color(color_t color);
   void set_fg_color(color_t color);
   void set_bg_color(color_t color);
@@ -359,10 +385,7 @@ private:
   void set_rotation(int16_t angle);
   void set_indent(uint8_t level);
   void set_shrink();
-  void set_text_justlast();
-  void set_valign(format_alignments_t alignment);
-  void set_halign(format_alignments_t alignment);
-  void set_reading_order(uint8_t value);
+  void set_reading_order(format_reading_order_t value);
   void set_theme(uint8_t value);
   void set_color_indexed(uint8_t value);
   void set_quote_prefix();
@@ -400,10 +423,9 @@ private:
   bool hyperlink_{false};
   bool hidden_{false};
   bool locked_{true};
-  format_alignments_t text_h_align_{format_alignments_t::NONE};
+  format_horizontal_alignments_t text_h_align_{format_horizontal_alignments_t::NONE};
   bool text_wrap_{false};
-  format_alignments_t text_v_align_{format_alignments_t::NONE};
-  bool text_justlast_{false};
+  format_vertical_alignments_t text_v_align_{format_vertical_alignments_t::NONE};
   int16_t rotation_{0};
   color_t fg_color_;
   color_t bg_color_;
@@ -432,7 +454,7 @@ private:
   uint8_t indent_{0};
   bool shrink_{false};
   bool merge_range_{false};
-  uint8_t reading_order_{0};
+  format_reading_order_t reading_order_{format_reading_order_t::CONTEXT_DEPENDENT};
   bool just_distrib_{false};
   uint8_t color_indexed_{0};
   bool font_only_{false};
@@ -530,34 +552,34 @@ public:
   /**
    * @brief Set the alignment for data in the cell.
    *
-   * @param alignment The horizontal and / or vertical alignment direction.
+   * @param horizontal The horizontal alignment direction.
+   * @param vertical   The vertical alignment direction.
    *
    * This method is used to set the horizontal and vertical text alignment within
    * a cell. The following are the available horizontal alignments:
    *
-   * - `%format_alignments_t::HORIZONTAL_LEFT`
-   * - `%format_alignments_t::HORIZONTAL_CENTER`
-   * - `%format_alignments_t::HORIZONTAL_RIGHT`
-   * - `%format_alignments_t::HORIZONTAL_FILL`
-   * - `%format_alignments_t::HORIZONTAL_JUSTIFY`
-   * - `%format_alignments_t::HORIZONTAL_CENTER_ACROSS`
-   * - `%format_alignments_t::HORIZONTAL_DISTRIBUTED`
+   * - `%format_horizontal_alignments_t::LEFT`
+   * - `%format_horizontal_alignments_t::CENTER`
+   * - `%format_horizontal_alignments_t::RIGHT`
+   * - `%format_horizontal_alignments_t::FILL`
+   * - `%format_horizontal_alignments_t::JUSTIFY`
+   * - `%format_horizontal_alignments_t::CENTER_ACROSS`
+   * - `%format_horizontal_alignments_t::DISTRIBUTED`
    *
    * The following are the available vertical alignments:
    *
-   * - `%format_alignments_t::VERTICAL_TOP`
-   * - `%format_alignments_t::VERTICAL_BOTTOM`
-   * - `%format_alignments_t::VERTICAL_CENTER`
-   * - `%format_alignments_t::VERTICAL_JUSTIFY`
-   * - `%format_alignments_t::VERTICAL_DISTRIBUTED`
+   * - `%format_vertical_alignments_t::TOP`
+   * - `%format_vertical_alignments_t::BOTTOM`
+   * - `%format_vertical_alignments_t::CENTER`
+   * - `%format_vertical_alignments_t::JUSTIFY`
+   * - `%format_vertical_alignments_t::DISTRIBUTED`
    *
    * As in Excel, vertical and horizontal alignments can be combined:
    *
    * @code
    *  const xwpp::format_t* format = workbook.format_builder()
-   *                                         .align(format, xwpp::format_alignments_t::HORIZONTAL_CENTER)
-   *                                         .align(format, xwpp::format_alignments_t::VERTICAL_CENTER)
-   *                                         .build();
+   *                                         .align(xwpp::format_horizontal_alignments_t::CENTER,
+   * xwpp::format_vertical_alignments_t::CENTER) .build();
    *
    *  worksheet.set_row(0, 30);
    *  worksheet.write(0, 0, "Some Text", format);
@@ -573,10 +595,38 @@ public:
    * in a cell. The height of the cell will be adjusted to accommodate the
    * wrapped text. To specify where the text wraps use the
    * `text_wrap()` method.
-   *
-   * @todo Split in two functions or a two-parameters function.
    */
-  format_builder_t& align(format_alignments_t alignment);
+  format_builder_t& align(format_horizontal_alignments_t horizontal, format_vertical_alignments_t vertical);
+
+  // clang-format off
+  /**
+   * @brief Set the horizontal alignment.
+   *
+   * @param horizontal The horizontal alignment.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::RIGHT).build();
+   *
+   *  worksheet.write(0, 0, "Right alignment", format);
+   * @endcode
+   */
+  // clang-format on
+  format_builder_t& align(format_horizontal_alignments_t horizontal);
+
+  // clang-format off
+  /**
+   * @brief Set the vertical alignment.
+   *
+   * @param vertical The vertical alignment.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_vertical_alignments_t::BOTTOM).build();
+   *
+   *  worksheet.write(0, 0, "Bottom alignment", format);
+   * @endcode
+   */
+  // clang-format on
+  format_builder_t& align(format_vertical_alignments_t vertical);
 
   /**
    * @brief Set the color of the font used in the cell.
@@ -686,7 +736,7 @@ public:
    *
    * Excel will adjust the height of the row to accommodate the wrapped text. A
    * similar effect can be obtained without newlines using the
-   * `set_align()` function with `%format_alignments_t::VERTICAL_JUSTIFY`.
+   * `set_align()` function with `%format_vertical_alignments_t::JUSTIFY`.
    */
   format_builder_t& text_wrap();
 
@@ -1008,8 +1058,6 @@ public:
    *  - These formats can also be set via `num_format()`.
    *
    * @see also @ref ww_formats_categories.
-   *
-   * @todo Use dedicated enum.
    */
   format_builder_t& num_format_index(uint8_t index);
 
@@ -1231,7 +1279,7 @@ public:
   /**
    * @brief Set the rotation of the text in a cell.
    *
-   * @param angle Rotation angle in the range -90 to 90 and 270.
+   * @param angle Rotation angle in the range -90 to 90.
    *
    * Set the rotation of the text in a cell. The rotation can be any angle in the
    * range -90 to 90 degrees:
@@ -1247,11 +1295,24 @@ public:
    * The angle 270 is also supported. This indicates text where the letters run
    * from top to bottom.
    *
-   * @todo Add specific API for 270.
-   *
-   * @pre The `%angle` parameter must be in range `[-90, 90]` or equal to `270`.
+   * @pre The `%angle` parameter must be in range `[-90, 90]`.
    */
   format_builder_t& rotation(int16_t angle);
+
+  /**
+   * @brief Set vertical text.
+   *
+   * Text is wrote verticaly. Letters run from top to bottom.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().vertical_text().build();
+   *
+   *  worksheet.write(0, 0, "This text is vertical", format);
+   * @endcode
+   *
+   * @todo Add image.
+   */
+  format_builder_t& vertical_text();
 
   /**
    * @brief Set the cell text indentation level.
@@ -1290,49 +1351,6 @@ public:
    */
   format_builder_t& shrink();
 
-  // TODO Useless, to check (missing parameter? Remove?)
-  format_builder_t& text_justlast();
-
-  // clang-format off
-  /**
-   * @brief Set the vertical alignment.
-   *
-   * @param alignment A `format_alignments_t` indicating the vertical alignment.
-   *
-   * @code
-   *  const xwpp::format_t* format = workbook.format_builder().valign(xwpp::format_alignments_t::VERTICAL_BOTTOM).build();
-   *
-   *  worksheet.write(0, 0, "Bottom alignment", format);
-   * @endcode
-   *
-   * @pre The `%alignment` parameter must be a vertical one.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
-   */
-  // clang-format on
-  format_builder_t& valign(format_alignments_t alignment);
-
-  // clang-format off
-  /**
-   * @brief Set the horizontal alignment.
-   *
-   * @param alignment A `format_alignments_t` indicating the horizontal alignment.
-   *
-   * @code
-   *  const xwpp::format_t* format = workbook.format_builder().halign(xwpp::format_alignments_t::HORIZONTAL_RIGHT).build();
-   *
-   *  worksheet.write(0, 0, "Right alignment", format);
-   * @endcode
-   *
-   * @pre The `%alignment` parameter must be a horizontal one.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
-   */
-  // clang-format on
-  format_builder_t& halign(format_alignments_t alignment);
-
   /**
    * @brief Set reading order.
    *
@@ -1341,9 +1359,8 @@ public:
    * Set the reading order.
    *
    * @todo Add image in documentation.
-   * @todo Add enum for reading order.
    */
-  format_builder_t& reading_order(uint8_t value);
+  format_builder_t& reading_order(format_reading_order_t value);
 
   /**
    * @brief Set the theme.
@@ -1353,7 +1370,6 @@ public:
    * Set the theme.
    *
    * @todo Add image in documentation.
-   * @todo Add enum for theme.
    * @todo Add example.
    */
   format_builder_t& theme(uint8_t value);
@@ -1366,7 +1382,6 @@ public:
    * Set the indexed color.
    *
    * @todo Add image in documentation.
-   * @todo Add enum for theme.
    * @todo Add example.
    */
   format_builder_t& color_indexed(uint8_t value);

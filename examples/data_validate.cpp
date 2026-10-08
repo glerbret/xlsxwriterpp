@@ -56,7 +56,7 @@ int main()
                                    .fg_color(xwpp::color_t{0xC6EFCE})
                                    .bold()
                                    .text_wrap()
-                                   .align(xwpp::format_alignments_t::VERTICAL_CENTER)
+                                   .align(xwpp::format_vertical_alignments_t::CENTER)
                                    .indent(1)
                                    .build();
 

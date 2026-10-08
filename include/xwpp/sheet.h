@@ -1090,7 +1090,6 @@ protected:
   [[nodiscard]] std::string write_drawings();
 
 private:
-  // TODO Rework
   friend class packager_t;
   friend class workbook_t;
 

@@ -11,15 +11,15 @@
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet       = workbook.add_worksheet();
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   // Configure a format for the merged range.
-  const xwpp::format_t* merge_format = workbook.format_builder()
-                                         .align(xwpp::format_alignments_t::HORIZONTAL_CENTER)
-                                         .align(xwpp::format_alignments_t::VERTICAL_CENTER)
-                                         .bold()
-                                         .bg_color(xwpp::color_t::yellow())
-                                         .border(xwpp::format_borders_t::THIN)
-                                         .build();
+  const xwpp::format_t* merge_format =
+    workbook.format_builder()
+      .align(xwpp::format_horizontal_alignments_t::CENTER, xwpp::format_vertical_alignments_t::CENTER)
+      .bold()
+      .bg_color(xwpp::color_t::yellow())
+      .border(xwpp::format_borders_t::THIN)
+      .build();
 
   // Increase the cell size of the merged cells to highlight the formatting.
   worksheet.set_column(1, 3, 12);

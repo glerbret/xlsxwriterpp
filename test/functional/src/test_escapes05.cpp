@@ -9,10 +9,9 @@
 int main()
 {
   xwpp::workbook_t workbook;
+  workbook.unset_default_url_format();
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet("Start");
   /* xwpp::worksheet_t& worksheet2 = */ workbook.add_worksheet("A & B");
-
-  workbook.unset_default_url_format();
 
   worksheet1.write_url("A1", "internal:'A & B'!A1", "Jump to A & B");
 

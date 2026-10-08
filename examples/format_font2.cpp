@@ -115,12 +115,14 @@ int main()
   }
 
   {
-    const xwpp::format_t* format = workbook.format_builder().reading_order(1).build();
+    const xwpp::format_t* format =
+      workbook.format_builder().reading_order(xwpp::format_reading_order_t::LEFT_TO_RIGHT).build();
     worksheet.write(19, 0, "Reading order 1", format);
   }
 
   {
-    const xwpp::format_t* format = workbook.format_builder().reading_order(2).build();
+    const xwpp::format_t* format =
+      workbook.format_builder().reading_order(xwpp::format_reading_order_t::RIGHT_TO_LEFT).build();
     worksheet.write(20, 0, "Reading order 2", format);
   }
 

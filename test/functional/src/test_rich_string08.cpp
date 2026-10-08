@@ -16,7 +16,7 @@ int main()
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
   const xwpp::format_t* italic = workbook.format_builder().italic().build();
   const xwpp::format_t* centered =
-    workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
+    workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
 
   worksheet.write("A1", "Foo", bold);
   worksheet.write("A2", "Bar", italic);

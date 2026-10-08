@@ -9,9 +9,8 @@
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-
   workbook.unset_default_url_format();
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Test with forward slashes instead of back slashes in test_hyperlink07.c.
   worksheet.write_url("A1", "external://VBOXSVR/share/foo.xlsx", "J:/foo.xlsx");

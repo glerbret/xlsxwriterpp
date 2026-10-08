@@ -56,7 +56,7 @@ int main()
   {
     // Create a format for the date or time.
     const xwpp::format_t* format =
-      workbook.format_builder().num_format(date_format).align(xwpp::format_alignments_t::HORIZONTAL_LEFT).build();
+      workbook.format_builder().num_format(date_format).align(xwpp::format_horizontal_alignments_t::LEFT).build();
 
     // Write the datetime with each format.
     worksheet.write_datetime(row_num, 0, datetime, format);

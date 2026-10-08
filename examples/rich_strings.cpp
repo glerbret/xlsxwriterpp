@@ -21,7 +21,7 @@ int main()
   const xwpp::format_t* italic = workbook.format_builder().italic().build();
   const xwpp::format_t* red    = workbook.format_builder().font_color(xwpp::color_t::red()).build();
   const xwpp::format_t* blue   = workbook.format_builder().font_color(xwpp::color_t::blue()).build();
-  const xwpp::format_t* center = workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
+  const xwpp::format_t* center = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
 
   const xwpp::format_t* superscript =
     workbook.format_builder().font_script(xwpp::format_scripts_t::SUPERSCRIPT).build();

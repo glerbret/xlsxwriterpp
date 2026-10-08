@@ -3345,7 +3345,7 @@ public:
    *
    * @code
    *  const xwpp::format_t* merge_format =
-   * workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
+   * workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
    *
    *  worksheet.merge_range(1, 1, 1, 3, "Merged Range", merge_format);
    * @endcode
@@ -3354,8 +3354,8 @@ public:
    *
    * @code
    *
-   * merge_format = workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).
-   *                                          align(xwpp::format_alignments_t::VERTICAL_CENTER).
+   * merge_format = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).
+   *                                          align(xwpp::format_vertical_alignments_t::CENTER).
    *                                          border(xwpp::format_borders_t::DOUBLE).
    *                                          bold().
    *                                          bg_color(xwpp::color_t{0xD7E4BC}).
@@ -3400,7 +3400,7 @@ public:
    *
    * @code
    *  const xwpp::format_t* merge_format =
-   * workbook.format_builder().align(xwpp::format_alignments_t::HORIZONTAL_CENTER).build();
+   * workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
    *
    *  worksheet.merge_range("B2:D2", "Merged Range", merge_format);
    * @endcode
@@ -5345,7 +5345,6 @@ public:
   static const col_num_t COL_META_MAX;
 
 private:
-  // TODO To be reworked
   friend class packager_t;
   friend class workbook_t;
   friend class rich_value_t;

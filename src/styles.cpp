@@ -777,39 +777,39 @@ std::string style_t::write_cell_styles() const
 
 bool style_t::apply_alignment(const format_t* format)
 {
-  return format->text_h_align_ != format_alignments_t::NONE || format->text_v_align_ != format_alignments_t::NONE ||
-         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
-         format->reading_order_ != 0;
+  return format->text_h_align_ != format_horizontal_alignments_t::NONE ||
+         format->text_v_align_ != format_vertical_alignments_t::NONE || format->indent_ != 0 ||
+         format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
+         format->reading_order_ != format_reading_order_t::CONTEXT_DEPENDENT;
 }
 
 bool style_t::has_alignment(const format_t* format)
 {
-  return format->text_h_align_ != format_alignments_t::NONE ||
-         (format->text_v_align_ != format_alignments_t::NONE &&
-          format->text_v_align_ != format_alignments_t::VERTICAL_BOTTOM) ||
+  return format->text_h_align_ != format_horizontal_alignments_t::NONE ||
+         (format->text_v_align_ != format_vertical_alignments_t::NONE &&
+          format->text_v_align_ != format_vertical_alignments_t::BOTTOM) ||
          format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
-         format->reading_order_ != 0;
+         format->reading_order_ != format_reading_order_t::CONTEXT_DEPENDENT;
 }
 
 std::string style_t::write_alignment(const format_t* format)
 {
   attributes_t attributes;
-  int16_t rotation{format->rotation_};
-  format_alignments_t text_h_align{format->text_h_align_};
+  format_horizontal_alignments_t text_h_align{format->text_h_align_};
   bool shrink{format->shrink_};
   bool just_distrib{format->just_distrib_};
 
   // Indent is only allowed for some alignment properties.
   // If it is defined for any other alignment or no alignment has been
   // set then default to left alignment.
-  if(format->indent_ != 0 && text_h_align != format_alignments_t::HORIZONTAL_LEFT &&
-     text_h_align != format_alignments_t::HORIZONTAL_RIGHT &&
-     text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED &&
-     format->text_v_align_ != format_alignments_t::VERTICAL_TOP &&
-     format->text_v_align_ != format_alignments_t::VERTICAL_BOTTOM &&
-     format->text_v_align_ != format_alignments_t::VERTICAL_DISTRIBUTED)
+  if(format->indent_ != 0 && text_h_align != format_horizontal_alignments_t::LEFT &&
+     text_h_align != format_horizontal_alignments_t::RIGHT &&
+     text_h_align != format_horizontal_alignments_t::DISTRIBUTED &&
+     format->text_v_align_ != format_vertical_alignments_t::TOP &&
+     format->text_v_align_ != format_vertical_alignments_t::BOTTOM &&
+     format->text_v_align_ != format_vertical_alignments_t::DISTRIBUTED)
   {
-    text_h_align = format_alignments_t::HORIZONTAL_LEFT;
+    text_h_align = format_horizontal_alignments_t::LEFT;
   }
 
   // Check for properties that are mutually exclusive.
@@ -818,22 +818,22 @@ std::string style_t::write_alignment(const format_t* format)
     shrink = false;
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_FILL)
+  if(text_h_align == format_horizontal_alignments_t::FILL)
   {
     shrink = false;
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_JUSTIFY)
+  if(text_h_align == format_horizontal_alignments_t::JUSTIFY)
   {
     shrink = false;
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  if(text_h_align == format_horizontal_alignments_t::DISTRIBUTED)
   {
     shrink = false;
   }
 
-  if(text_h_align != format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  if(text_h_align != format_horizontal_alignments_t::DISTRIBUTED)
   {
     just_distrib = false;
   }
@@ -843,37 +843,37 @@ std::string style_t::write_alignment(const format_t* format)
     just_distrib = false;
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_LEFT)
+  if(text_h_align == format_horizontal_alignments_t::LEFT)
   {
     attributes.add_attribute("horizontal", "left");
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_CENTER)
+  if(text_h_align == format_horizontal_alignments_t::CENTER)
   {
     attributes.add_attribute("horizontal", "center");
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_RIGHT)
+  if(text_h_align == format_horizontal_alignments_t::RIGHT)
   {
     attributes.add_attribute("horizontal", "right");
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_FILL)
+  if(text_h_align == format_horizontal_alignments_t::FILL)
   {
     attributes.add_attribute("horizontal", "fill");
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_JUSTIFY)
+  if(text_h_align == format_horizontal_alignments_t::JUSTIFY)
   {
     attributes.add_attribute("horizontal", "justify");
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_CENTER_ACROSS)
+  if(text_h_align == format_horizontal_alignments_t::CENTER_ACROSS)
   {
     attributes.add_attribute("horizontal", "centerContinuous");
   }
 
-  if(text_h_align == format_alignments_t::HORIZONTAL_DISTRIBUTED)
+  if(text_h_align == format_horizontal_alignments_t::DISTRIBUTED)
   {
     attributes.add_attribute("horizontal", "distributed");
   }
@@ -883,41 +883,30 @@ std::string style_t::write_alignment(const format_t* format)
     attributes.add_attribute("justifyLastLine", "1");
   }
 
-  if(format->text_v_align_ == format_alignments_t::VERTICAL_TOP)
+  if(format->text_v_align_ == format_vertical_alignments_t::TOP)
   {
     attributes.add_attribute("vertical", "top");
   }
 
-  if(format->text_v_align_ == format_alignments_t::VERTICAL_CENTER)
+  if(format->text_v_align_ == format_vertical_alignments_t::CENTER)
   {
     attributes.add_attribute("vertical", "center");
   }
 
-  if(format->text_v_align_ == format_alignments_t::VERTICAL_JUSTIFY)
+  if(format->text_v_align_ == format_vertical_alignments_t::JUSTIFY)
   {
     attributes.add_attribute("vertical", "justify");
   }
 
-  if(format->text_v_align_ == format_alignments_t::VERTICAL_DISTRIBUTED)
+  if(format->text_v_align_ == format_vertical_alignments_t::DISTRIBUTED)
   {
     attributes.add_attribute("vertical", "distributed");
   }
 
   // Map rotation to Excel values.
-  if(rotation != 0)
+  if(format->rotation_ != 0)
   {
-    if(rotation == 270)
-    {
-      rotation = 255;
-    }
-    else if(rotation < 0)
-    {
-      // TODO Use more consistent type (int?)
-      // NOLINTNEXTLINE(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
-      rotation = -rotation + 90;
-    }
-
-    attributes.add_attribute("textRotation", rotation);
+    attributes.add_attribute("textRotation", format->rotation_);
   }
 
   if(format->indent_ != 0)
@@ -935,12 +924,12 @@ std::string style_t::write_alignment(const format_t* format)
     attributes.add_attribute("shrinkToFit", "1");
   }
 
-  if(format->reading_order_ == 1)
+  if(format->reading_order_ == format_reading_order_t::LEFT_TO_RIGHT)
   {
     attributes.add_attribute("readingOrder", "1");
   }
 
-  if(format->reading_order_ == 2)
+  if(format->reading_order_ == format_reading_order_t::RIGHT_TO_LEFT)
   {
     attributes.add_attribute("readingOrder", "2");
   }

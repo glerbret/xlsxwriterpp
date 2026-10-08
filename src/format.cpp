@@ -68,32 +68,20 @@ void format_t::set_italic()
   italic_ = true;
 }
 
-void format_t::set_align(format_alignments_t alignment)
+void format_t::set_align(format_horizontal_alignments_t horizontal, format_vertical_alignments_t vertical)
 {
-  switch(alignment)
-  {
-    case format_alignments_t::HORIZONTAL_LEFT:
-    case format_alignments_t::HORIZONTAL_CENTER:
-    case format_alignments_t::HORIZONTAL_RIGHT:
-    case format_alignments_t::HORIZONTAL_FILL:
-    case format_alignments_t::HORIZONTAL_JUSTIFY:
-    case format_alignments_t::HORIZONTAL_CENTER_ACROSS:
-    case format_alignments_t::HORIZONTAL_DISTRIBUTED:
-      text_h_align_ = alignment;
-      break;
+  text_h_align_ = horizontal;
+  text_v_align_ = vertical;
+}
 
-    case format_alignments_t::VERTICAL_TOP:
-    case format_alignments_t::VERTICAL_BOTTOM:
-    case format_alignments_t::VERTICAL_CENTER:
-    case format_alignments_t::VERTICAL_JUSTIFY:
-    case format_alignments_t::VERTICAL_DISTRIBUTED:
-      text_v_align_ = alignment;
-      break;
+void format_t::set_align(format_horizontal_alignments_t horizontal)
+{
+  text_h_align_ = horizontal;
+}
 
-    case format_alignments_t::NONE:
-      // NOP
-      break;
-  }
+void format_t::set_align(format_vertical_alignments_t vertical)
+{
+  text_v_align_ = vertical;
 }
 
 void format_t::set_font_color(color_t color)
@@ -308,32 +296,7 @@ void format_t::set_shrink()
   shrink_ = true;
 }
 
-void format_t::set_text_justlast()
-{
-  text_justlast_ = true;
-}
-
-void format_t::set_valign(format_alignments_t alignment)
-{
-  assert(alignment == format_alignments_t::VERTICAL_TOP || alignment == format_alignments_t::VERTICAL_BOTTOM ||
-         alignment == format_alignments_t::VERTICAL_CENTER || alignment == format_alignments_t::VERTICAL_JUSTIFY ||
-         alignment == format_alignments_t::VERTICAL_DISTRIBUTED);
-
-  text_v_align_ = alignment;
-}
-
-void format_t::set_halign(format_alignments_t alignment)
-{
-  assert(alignment == format_alignments_t::HORIZONTAL_LEFT || alignment == format_alignments_t::HORIZONTAL_CENTER ||
-         alignment == format_alignments_t::HORIZONTAL_RIGHT || alignment == format_alignments_t::HORIZONTAL_FILL ||
-         alignment == format_alignments_t::HORIZONTAL_JUSTIFY ||
-         alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS ||
-         alignment == format_alignments_t::HORIZONTAL_DISTRIBUTED);
-
-  text_h_align_ = alignment;
-}
-
-void format_t::set_reading_order(uint8_t value)
+void format_t::set_reading_order(format_reading_order_t value)
 {
   reading_order_ = value;
 }
@@ -374,16 +337,15 @@ bool operator==(const format_t& lhs, const format_t& rhs)
          lhs.font_condense_ == rhs.font_condense_ && lhs.font_extend_ == rhs.font_extend_ && lhs.theme_ == rhs.theme_ &&
          lhs.hyperlink_ == rhs.hyperlink_ && lhs.hidden_ == rhs.hidden_ && lhs.locked_ == rhs.locked_ &&
          lhs.text_h_align_ == rhs.text_h_align_ && lhs.text_wrap_ == rhs.text_wrap_ &&
-         lhs.text_v_align_ == rhs.text_v_align_ && lhs.text_justlast_ == rhs.text_justlast_ &&
-         lhs.rotation_ == rhs.rotation_ && lhs.fg_color_ == rhs.fg_color_ && lhs.bg_color_ == rhs.bg_color_ &&
-         lhs.dxf_fg_color_ == rhs.dxf_fg_color_ && lhs.dxf_bg_color_ == rhs.dxf_bg_color_ &&
-         lhs.pattern_ == rhs.pattern_ && lhs.has_fill_ == rhs.has_fill_ && lhs.has_dxf_fill_ == rhs.has_dxf_fill_ &&
-         lhs.fill_index_ == rhs.fill_index_ && lhs.fill_count_ == rhs.fill_count_ &&
-         lhs.border_index_ == rhs.border_index_ && lhs.has_border_ == rhs.has_border_ &&
-         lhs.has_dxf_border_ == rhs.has_dxf_border_ && lhs.border_count_ == rhs.border_count_ &&
-         lhs.bottom_ == rhs.bottom_ && lhs.diag_border_ == rhs.diag_border_ && lhs.diag_type_ == rhs.diag_type_ &&
-         lhs.left_ == rhs.left_ && lhs.right_ == rhs.right_ && lhs.top_ == rhs.top_ &&
-         lhs.bottom_color_ == rhs.bottom_color_ && lhs.diag_color_ == rhs.diag_color_ &&
+         lhs.text_v_align_ == rhs.text_v_align_ && lhs.rotation_ == rhs.rotation_ && lhs.fg_color_ == rhs.fg_color_ &&
+         lhs.bg_color_ == rhs.bg_color_ && lhs.dxf_fg_color_ == rhs.dxf_fg_color_ &&
+         lhs.dxf_bg_color_ == rhs.dxf_bg_color_ && lhs.pattern_ == rhs.pattern_ && lhs.has_fill_ == rhs.has_fill_ &&
+         lhs.has_dxf_fill_ == rhs.has_dxf_fill_ && lhs.fill_index_ == rhs.fill_index_ &&
+         lhs.fill_count_ == rhs.fill_count_ && lhs.border_index_ == rhs.border_index_ &&
+         lhs.has_border_ == rhs.has_border_ && lhs.has_dxf_border_ == rhs.has_dxf_border_ &&
+         lhs.border_count_ == rhs.border_count_ && lhs.bottom_ == rhs.bottom_ && lhs.diag_border_ == rhs.diag_border_ &&
+         lhs.diag_type_ == rhs.diag_type_ && lhs.left_ == rhs.left_ && lhs.right_ == rhs.right_ &&
+         lhs.top_ == rhs.top_ && lhs.bottom_color_ == rhs.bottom_color_ && lhs.diag_color_ == rhs.diag_color_ &&
          lhs.left_color_ == rhs.left_color_ && lhs.right_color_ == rhs.right_color_ &&
          lhs.top_color_ == rhs.top_color_ && lhs.indent_ == rhs.indent_ && lhs.shrink_ == rhs.shrink_ &&
          lhs.merge_range_ == rhs.merge_range_ && lhs.reading_order_ == rhs.reading_order_ &&
@@ -436,9 +398,22 @@ format_builder_t& format_builder_t::italic()
   return *this;
 }
 
-format_builder_t& format_builder_t::align(format_alignments_t alignment)
+format_builder_t& format_builder_t::align(format_horizontal_alignments_t horizontal,
+                                          format_vertical_alignments_t vertical)
 {
-  current_.set_align(alignment);
+  current_.set_align(horizontal, vertical);
+  return *this;
+}
+
+format_builder_t& format_builder_t::align(format_horizontal_alignments_t horizontal)
+{
+  current_.set_align(horizontal);
+  return *this;
+}
+
+format_builder_t& format_builder_t::align(format_vertical_alignments_t vertical)
+{
+  current_.set_align(vertical);
   return *this;
 }
 
@@ -648,7 +623,15 @@ format_builder_t& format_builder_t::hidden()
 
 format_builder_t& format_builder_t::rotation(int16_t angle)
 {
+  assert(angle >= -90 && angle <= 90);
+
   current_.set_rotation(angle);
+  return *this;
+}
+
+format_builder_t& format_builder_t::vertical_text()
+{
+  current_.set_rotation(270);
   return *this;
 }
 
@@ -664,25 +647,7 @@ format_builder_t& format_builder_t::shrink()
   return *this;
 }
 
-format_builder_t& format_builder_t::text_justlast()
-{
-  current_.set_text_justlast();
-  return *this;
-}
-
-format_builder_t& format_builder_t::valign(format_alignments_t alignment)
-{
-  current_.set_valign(alignment);
-  return *this;
-}
-
-format_builder_t& format_builder_t::halign(format_alignments_t alignment)
-{
-  current_.set_halign(alignment);
-  return *this;
-}
-
-format_builder_t& format_builder_t::reading_order(uint8_t value)
+format_builder_t& format_builder_t::reading_order(format_reading_order_t value)
 {
   current_.set_reading_order(value);
   return *this;

@@ -66,7 +66,7 @@ workbook_t::workbook_t(bool use_1904_epoch, bool use_zip64)
   : use_1904_epoch_{use_1904_epoch}
   , default_format_{format_builder().build()}
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  , default_url_format_{const_cast<format_t*>(format_builder().hyperlink().build())}
+  , default_url_format_{format_builder().hyperlink().build()}
   , use_zip64_{use_zip64}
 // clang-format on
 {
@@ -409,10 +409,13 @@ const format_t* workbook_t::insert_format(const format_t& format)
   format_cp.get_xf_index_  = std::bind_front(&workbook_t::get_xf_index, this);
   format_cp.get_dxf_index_ = std::bind_front(&workbook_t::get_dxf_index, this);
 
-  // TODO Add search if not already present and then return the existing one
-  // TODO And so remove search in get_xf_index
-  formats_.push_back(format_cp);
+  if(auto it = std::ranges::find_if(formats_, [&format_cp](const auto& fmt) { return fmt == format_cp; });
+     it != std::end(formats_))
+  {
+    return &(*it);
+  }
 
+  formats_.push_back(format_cp);
   return &formats_.back();
 }
 
@@ -428,10 +431,7 @@ const format_t* workbook_t::get_default_url_format() const
 
 void workbook_t::unset_default_url_format()
 {
-  default_url_format_->hyperlink_ = false;
-  default_url_format_->xf_id_     = 0;
-  default_url_format_->underline_ = format_underlines_t::NONE;
-  default_url_format_->theme_     = 0;
+  default_url_format_ = default_format_;
 }
 
 // TODO No need to create chart through workbook. Can be autonomous object and be added
@@ -534,12 +534,6 @@ int32_t workbook_t::get_xf_index(const format_t* format)
   if(format->xf_index_ != format_t::PROPERTY_UNSET)
   {
     return format->xf_index_;
-  }
-
-  if(auto it = std::ranges::find_if(used_xf_formats_, [=](const auto* fmt) { return *fmt == *format; });
-     it != std::end(used_xf_formats_))
-  {
-    return (*it)->xf_index_;
   }
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
