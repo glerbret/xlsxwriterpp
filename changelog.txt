@@ -1,17 +1,17 @@
 /**
 @page changes Changes
 
-## 0.1.0 August 12 2026
-
-- First release.
-
-@warning This version is a 'work in progress' without backward compatibility guarantee.
-
 ## 0.2.0
 
 - Improve build process and CI.
 - Improve code quality and robustness.
 - Refactoring and API improvements.
+
+@warning This version is a 'work in progress' without backward compatibility guarantee.
+
+## 0.1.0 August 12 2026
+
+- First release.
 
 @warning This version is a 'work in progress' without backward compatibility guarantee.
 
