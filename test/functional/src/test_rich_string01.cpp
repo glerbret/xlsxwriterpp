@@ -20,9 +20,9 @@ int main()
   worksheet.write("A2", "Bar", italic);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
-    {.str_ = "a"},
-    {.format_ = bold, .str_ = "bc"},
-    {.str_ = "defg"}
+    {.str = "a"},
+    {.format = bold, .str = "bc"},
+    {.str = "defg"}
   };
   worksheet.write_rich_string("A3", rich_strings);
 

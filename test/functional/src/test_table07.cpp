@@ -15,7 +15,7 @@ int main()
 
   worksheet.write("A1", "Foo");
 
-  const xwpp::table_options_t options{.no_header_row_ = true};
+  const xwpp::table_options_t options{.no_header_row = true};
   worksheet.add_table("C3:F13", options);
 
   workbook.save("test_table07.xlsx");

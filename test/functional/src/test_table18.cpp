@@ -21,9 +21,9 @@ int main()
     {},
     {},
     {},
-    {.header_ = "Column\n4", .header_format_ = wrap}
+    {.header = "Column\n4", .header_format = wrap}
   };
-  const xwpp::table_options_t options{.columns_ = columns};
+  const xwpp::table_options_t options{.columns = columns};
 
   worksheet.add_table("C3:F13", options);
 

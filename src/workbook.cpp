@@ -234,20 +234,20 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
   assert(validate_sheetname(sheetname));
 
   const sheet_init_data_t init_data{
-    .index_              = sheets_.size(),
-    .hidden_             = false,
-    .active_sheet_       = &active_sheet_,
-    .first_sheet_        = &first_sheet_,
-    .sst_                = &sst_,
-    .name_               = std::string{sheetname},
-    .quoted_name_        = quote_sheetname(sheetname),
-    .default_format_     = default_format_,
-    .default_url_format_ = default_url_format_,
-    .use_1904_epoch_     = use_1904_epoch_,
+    .index              = sheets_.size(),
+    .hidden             = false,
+    .active_sheet       = &active_sheet_,
+    .first_sheet        = &first_sheet_,
+    .sst                = &sst_,
+    .name               = std::string{sheetname},
+    .quoted_name        = quote_sheetname(sheetname),
+    .default_format     = default_format_,
+    .default_url_format = default_url_format_,
+    .use_1904_epoch     = use_1904_epoch_,
   };
 
   worksheets_.emplace_back(init_data);
-  worksheet_names_[to_lower(init_data.name_)] = &worksheets_.back();
+  worksheet_names_[to_lower(init_data.name)] = &worksheets_.back();
   sheets_.push_back(&worksheets_.back());
 
   return worksheets_.back();
@@ -264,19 +264,19 @@ chartsheet_t& workbook_t::add_chartsheet(std::string_view sheetname)
   assert(validate_sheetname(sheetname));
 
   const sheet_init_data_t init_data{
-    .index_              = sheets_.size(),
-    .hidden_             = false,
-    .active_sheet_       = &active_sheet_,
-    .first_sheet_        = &first_sheet_,
-    .sst_                = &sst_,
-    .name_               = std::string{sheetname},
-    .quoted_name_        = quote_sheetname(sheetname),
-    .default_url_format_ = default_url_format_,
-    .use_1904_epoch_     = use_1904_epoch_,
+    .index              = sheets_.size(),
+    .hidden             = false,
+    .active_sheet       = &active_sheet_,
+    .first_sheet        = &first_sheet_,
+    .sst                = &sst_,
+    .name               = std::string{sheetname},
+    .quoted_name        = quote_sheetname(sheetname),
+    .default_url_format = default_url_format_,
+    .use_1904_epoch     = use_1904_epoch_,
   };
 
   chartsheets_.emplace_back(init_data);
-  chartsheet_names_[to_lower(init_data.name_)] = &chartsheets_.back();
+  chartsheet_names_[to_lower(init_data.name)] = &chartsheets_.back();
   sheets_.push_back(&chartsheets_.back());
 
   return chartsheets_.back();
@@ -783,15 +783,15 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
   defined_name_t defined_name;
 
   // Set the worksheet index or -1 for a global defined name.
-  defined_name.index_  = index;
-  defined_name.hidden_ = hidden;
+  defined_name.index  = index;
+  defined_name.hidden = hidden;
 
   // Check for local defined names like like "Sheet1!name".
   size_t found_string = name.find('!');
   if(found_string == std::string::npos)
   {
     // The name is global. We just store the defined name string.
-    defined_name.name_ = name;
+    defined_name.name = name;
   }
   else
   {
@@ -818,67 +818,67 @@ void workbook_t::store_defined_name(std::string_view name, std::string_view app_
     {
       if(worksheet_name == worksheet.name_)
       {
-        defined_name.index_                = static_cast<int16_t>(worksheet.index_);
-        defined_name.normalised_sheetname_ = worksheet_name;
+        defined_name.index                = static_cast<int16_t>(worksheet.index_);
+        defined_name.normalised_sheetname = worksheet_name;
       }
     }
 
     // If we didn't find the worksheet name we exit.
-    assert(defined_name.index_ != std::numeric_limits<size_t>::max());
+    assert(defined_name.index != std::numeric_limits<size_t>::max());
 
-    defined_name.name_ = tmp_str;
+    defined_name.name = tmp_str;
   }
 
   // Print titles and repeat title pass in the name used for App.xml.
   if(!app_name.empty())
   {
-    defined_name.app_name_             = app_name;
-    defined_name.normalised_sheetname_ = app_name;
+    defined_name.app_name             = app_name;
+    defined_name.normalised_sheetname = app_name;
   }
   else
   {
-    defined_name.app_name_ = name;
+    defined_name.app_name = name;
   }
 
   // We need to normalize the defined names for sorting. This involves
   // removing any _xlnm namespace  and converting it to lowercase.
-  found_string = defined_name.name_.find("_xlnm.");
+  found_string = defined_name.name.find("_xlnm.");
   if(found_string == std::string::npos)
   {
-    defined_name.normalised_name_ = defined_name.name_;
+    defined_name.normalised_name = defined_name.name;
   }
   else
   {
-    defined_name.normalised_name_ = defined_name.name_.substr(found_string + 6);
+    defined_name.normalised_name = defined_name.name.substr(found_string + 6);
   }
 
-  std::ranges::transform(defined_name.normalised_name_, std::begin(defined_name.normalised_name_),
+  std::ranges::transform(defined_name.normalised_name, std::begin(defined_name.normalised_name),
                          [](char c) { return std::tolower(c); });
-  std::ranges::transform(defined_name.normalised_sheetname_, std::begin(defined_name.normalised_sheetname_),
+  std::ranges::transform(defined_name.normalised_sheetname, std::begin(defined_name.normalised_sheetname),
                          [](char c) { return std::tolower(c); });
 
   // Strip leading "=" from the formula.
   if(formula[0] == '=')
   {
-    defined_name.formula_ = formula.substr(1);
+    defined_name.formula = formula.substr(1);
   }
   else
   {
-    defined_name.formula_ = formula;
+    defined_name.formula = formula;
   }
 
   // We add the defined name to the list in sorted order.
   for(auto it = std::cbegin(defined_names_); it != std::cend(defined_names_); ++it)
   {
-    if(defined_name.normalised_name_ == it->normalised_name_ &&
-       defined_name.normalised_sheetname_ == it->normalised_sheetname_)
+    if(defined_name.normalised_name == it->normalised_name &&
+       defined_name.normalised_sheetname == it->normalised_sheetname)
     {
       // The entry already exists. We exit and don't overwrite.
       return;
     }
-    else if(defined_name.normalised_name_ < it->normalised_name_ ||
-            (defined_name.normalised_name_ == it->normalised_name_ &&
-             defined_name.normalised_sheetname_ < it->normalised_sheetname_))
+    else if(defined_name.normalised_name < it->normalised_name ||
+            (defined_name.normalised_name == it->normalised_name &&
+             defined_name.normalised_sheetname < it->normalised_sheetname))
     {
       // New defined name is inserted in sorted order before other entries.
       defined_names_.insert(it, defined_name);
@@ -895,10 +895,10 @@ void workbook_t::prepare_defined_names()
   for(auto& worksheet: worksheets_)
   {
     // Check for autofilter settings and store them.
-    if(worksheet.autofilter_.in_use_)
+    if(worksheet.autofilter_.in_use)
     {
-      std::string area = rowcol_to_range_abs(worksheet.autofilter_.first_row_, worksheet.autofilter_.first_col_,
-                                             worksheet.autofilter_.last_row_, worksheet.autofilter_.last_col_);
+      std::string area = rowcol_to_range_abs(worksheet.autofilter_.first_row, worksheet.autofilter_.first_col,
+                                             worksheet.autofilter_.last_row, worksheet.autofilter_.last_col);
 
       // Autofilters are the only defined name to set the hidden flag.
       store_defined_name("_xlnm._FilterDatabase", std::format("{}!_FilterDatabase", worksheet.quoted_name_),
@@ -906,27 +906,27 @@ void workbook_t::prepare_defined_names()
     }
 
     // Check for Print Area settings and store them.
-    if(worksheet.print_area_.in_use_)
+    if(worksheet.print_area_.in_use)
     {
       std::string area;
 
       // Check for print area that is the max row range.
-      if(worksheet.print_area_.first_row_ == 0 && worksheet.print_area_.last_row_ == worksheet_t::ROW_MAX - 1)
+      if(worksheet.print_area_.first_row == 0 && worksheet.print_area_.last_row == worksheet_t::ROW_MAX - 1)
       {
-        const std::string first_col = col_to_name(worksheet.print_area_.first_col_, false);
-        const std::string last_col  = col_to_name(worksheet.print_area_.last_col_, false);
+        const std::string first_col = col_to_name(worksheet.print_area_.first_col, false);
+        const std::string last_col  = col_to_name(worksheet.print_area_.last_col, false);
         area                        = std::format("${}:${}", first_col, last_col);
       }
       // Check for print area that is the max column range.
-      else if(worksheet.print_area_.first_col_ == 0 &&
-              std::cmp_equal(worksheet.print_area_.last_col_, worksheet_t::COL_MAX - 1))
+      else if(worksheet.print_area_.first_col == 0 &&
+              std::cmp_equal(worksheet.print_area_.last_col, worksheet_t::COL_MAX - 1))
       {
-        area = std::format("${}:${}", worksheet.print_area_.first_row_ + 1, worksheet.print_area_.last_row_ + 1);
+        area = std::format("${}:${}", worksheet.print_area_.first_row + 1, worksheet.print_area_.last_row + 1);
       }
       else
       {
-        area = rowcol_to_range_abs(worksheet.print_area_.first_row_, worksheet.print_area_.first_col_,
-                                   worksheet.print_area_.last_row_, worksheet.print_area_.last_col_);
+        area = rowcol_to_range_abs(worksheet.print_area_.first_row, worksheet.print_area_.first_col,
+                                   worksheet.print_area_.last_row, worksheet.print_area_.last_col);
       }
 
       const std::string app_name = std::format("{}!Print_Area", worksheet.quoted_name_);
@@ -935,31 +935,31 @@ void workbook_t::prepare_defined_names()
     }
 
     // Check for repeat rows/cols. aka, Print Titles and store them.
-    if(worksheet.repeat_rows_.in_use_ || worksheet.repeat_cols_.in_use_)
+    if(worksheet.repeat_rows_.in_use || worksheet.repeat_cols_.in_use)
     {
-      if(worksheet.repeat_rows_.in_use_ && worksheet.repeat_cols_.in_use_)
+      if(worksheet.repeat_rows_.in_use && worksheet.repeat_cols_.in_use)
       {
         const std::string app_name  = std::format("{}!Print_Titles", worksheet.quoted_name_);
-        const std::string first_col = col_to_name(worksheet.repeat_cols_.first_col_, false);
-        const std::string last_col  = col_to_name(worksheet.repeat_cols_.last_col_, false);
+        const std::string first_col = col_to_name(worksheet.repeat_cols_.first_col, false);
+        const std::string last_col  = col_to_name(worksheet.repeat_cols_.last_col, false);
         const std::string range =
           std::format("{}!${}:${},{}!${}:${}", worksheet.quoted_name_, first_col, last_col, worksheet.quoted_name_,
-                      worksheet.repeat_rows_.first_row_ + 1, worksheet.repeat_rows_.last_row_ + 1);
+                      worksheet.repeat_rows_.first_row + 1, worksheet.repeat_rows_.last_row + 1);
         store_defined_name("_xlnm.Print_Titles", app_name, range, worksheet.index_, false);
       }
-      else if(worksheet.repeat_rows_.in_use_)
+      else if(worksheet.repeat_rows_.in_use)
       {
         const std::string app_name = std::format("{}!Print_Titles", worksheet.quoted_name_);
         const std::string range =
-          std::format("{}!${}:${}", worksheet.quoted_name_, worksheet.repeat_rows_.first_row_ + 1,
-                      worksheet.repeat_rows_.last_row_ + 1);
+          std::format("{}!${}:${}", worksheet.quoted_name_, worksheet.repeat_rows_.first_row + 1,
+                      worksheet.repeat_rows_.last_row + 1);
         store_defined_name("_xlnm.Print_Titles", app_name, range, worksheet.index_, false);
       }
-      else if(worksheet.repeat_cols_.in_use_)
+      else if(worksheet.repeat_cols_.in_use)
       {
         const std::string app_name  = std::format("{}!Print_Titles", worksheet.quoted_name_);
-        const std::string first_col = col_to_name(worksheet.repeat_cols_.first_col_, false);
-        const std::string last_col  = col_to_name(worksheet.repeat_cols_.last_col_, false);
+        const std::string first_col = col_to_name(worksheet.repeat_cols_.first_col, false);
+        const std::string last_col  = col_to_name(worksheet.repeat_cols_.last_col, false);
         const std::string range     = std::format("{}!${}:${}", worksheet.quoted_name_, first_col, last_col);
         store_defined_name("_xlnm.Print_Titles", app_name, range, worksheet.index_, false);
       }
@@ -1011,27 +1011,27 @@ void workbook_t::prepare_drawings()
     {
       for(auto& object_props: sheet->get_embedded_image_properties())
       {
-        store_image_type(object_props.image_type_);
+        store_image_type(object_props.image_type);
 
         // Check for images with alt-text.
-        if(!object_props.description_.empty())
+        if(!object_props.description.empty())
         {
           has_embedded_image_descriptions_ = true;
         }
 
         // Check for duplicate images and only store the first instance.
         uint32_t ref_id{0};
-        if(const auto it = embedded_image_md5_.find(object_props.md5_); it != std::end(embedded_image_md5_))
+        if(const auto it = embedded_image_md5_.find(object_props.md5); it != std::end(embedded_image_md5_))
         {
-          ref_id                     = it->second;
-          object_props.is_duplicate_ = true;
+          ref_id                    = it->second;
+          object_props.is_duplicate = true;
         }
         else
         {
           image_ref_id++;
           ref_id = image_ref_id;
           num_embedded_images_++;
-          embedded_image_md5_[object_props.md5_] = ref_id;
+          embedded_image_md5_[object_props.md5] = ref_id;
         }
 
         sheet->set_error_cell(object_props, ref_id);
@@ -1042,19 +1042,19 @@ void workbook_t::prepare_drawings()
     if(sheet->has_background_image())
     {
       auto object_props = sheet->get_background_image();
-      store_image_type(object_props.image_type_);
+      store_image_type(object_props.image_type);
 
       uint32_t ref_id{0};
-      if(const auto it = background_md5_.find(object_props.md5_); it != std::end(background_md5_))
+      if(const auto it = background_md5_.find(object_props.md5); it != std::end(background_md5_))
       {
-        ref_id                     = it->second;
-        object_props.is_duplicate_ = true;
+        ref_id                    = it->second;
+        object_props.is_duplicate = true;
       }
       else
       {
         image_ref_id++;
-        ref_id                             = image_ref_id;
-        background_md5_[object_props.md5_] = ref_id;
+        ref_id                            = image_ref_id;
+        background_md5_[object_props.md5] = ref_id;
       }
 
       sheet->prepare_background(ref_id, object_props);
@@ -1064,25 +1064,25 @@ void workbook_t::prepare_drawings()
     for(auto& object_props: sheet->image_props_)
     {
       // Ignore background image added above.
-      if(object_props.is_background_)
+      if(object_props.is_background)
       {
         continue;
       }
 
-      store_image_type(object_props.image_type_);
+      store_image_type(object_props.image_type);
 
       // Check for duplicate images and only store the first instance.
       uint32_t ref_id{0};
-      if(const auto it = image_md5_.find(object_props.md5_); it != std::end(image_md5_))
+      if(const auto it = image_md5_.find(object_props.md5); it != std::end(image_md5_))
       {
-        ref_id                     = it->second;
-        object_props.is_duplicate_ = true;
+        ref_id                    = it->second;
+        object_props.is_duplicate = true;
       }
       else
       {
         image_ref_id++;
-        ref_id                        = image_ref_id;
-        image_md5_[object_props.md5_] = ref_id;
+        ref_id                       = image_ref_id;
+        image_md5_[object_props.md5] = ref_id;
       }
 
       sheet->prepare_image(ref_id, drawing_id, object_props);
@@ -1093,9 +1093,9 @@ void workbook_t::prepare_drawings()
     {
       chart_ref_id++;
       sheet->prepare_chart(chart_ref_id, drawing_id, object_props);
-      if(object_props.chart_)
+      if(object_props.chart)
       {
-        ordered_charts_.push_back(object_props.chart_);
+        ordered_charts_.push_back(object_props.chart);
       }
     }
 
@@ -1104,20 +1104,20 @@ void workbook_t::prepare_drawings()
     {
       if(object_props)
       {
-        store_image_type(object_props->image_type_);
+        store_image_type(object_props->image_type);
 
         // Check for duplicate images and only store the first instance.
         uint32_t ref_id{0};
-        if(const auto it = header_image_md5_.find(object_props->md5_); it != std::end(header_image_md5_))
+        if(const auto it = header_image_md5_.find(object_props->md5); it != std::end(header_image_md5_))
         {
-          ref_id                      = it->second;
-          object_props->is_duplicate_ = true;
+          ref_id                     = it->second;
+          object_props->is_duplicate = true;
         }
         else
         {
           image_ref_id++;
-          ref_id                                = image_ref_id;
-          header_image_md5_[object_props->md5_] = ref_id;
+          ref_id                               = image_ref_id;
+          header_image_md5_[object_props->md5] = ref_id;
         }
 
         sheet->prepare_header_image(ref_id, *object_props);
@@ -1135,34 +1135,34 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
 {
   // If neither the range formula or sheetname is defined then this probably
   // isn't a valid range.
-  if(range.formula_.empty() && range.sheetname_.empty())
+  if(range.formula.empty() && range.sheetname.empty())
   {
-    range.ignore_cache_ = true;
+    range.ignore_cache = true;
     return;
   }
 
   // If the sheetname is already defined it was already set via
   // chart_series_set_categories() or  chart_series_set_values().
-  if(!range.sheetname_.empty())
+  if(!range.sheetname.empty())
   {
     return;
   }
 
   // Ignore non-contiguous range like (Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5).
-  if(range.formula_[0] == '(')
+  if(range.formula[0] == '(')
   {
-    range.ignore_cache_ = true;
+    range.ignore_cache = true;
     return;
   }
 
   // Create a copy of the formula to modify and parse into parts.
-  const std::string formula = range.formula_;
+  const std::string formula = range.formula;
 
   // Check for valid formula. Note, This needs stronger validation.
   const size_t found_string = formula.find('!');
   if(found_string == std::string::npos)
   {
-    range.ignore_cache_ = true;
+    range.ignore_cache = true;
     return;
   }
   else
@@ -1173,7 +1173,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
 
     if(tmp_str.empty() || sheetname.empty())
     {
-      range.ignore_cache_ = true;
+      range.ignore_cache = true;
       return;
     }
 
@@ -1190,13 +1190,13 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
     // Check that the sheetname exists.
     assert(is_worksheet_present(sheetname));
 
-    range.sheetname_ = sheetname;
+    range.sheetname = sheetname;
 
     const auto [first_row, first_col, last_row, last_col] = range_from_name(tmp_str);
-    range.first_row_                                      = first_row;
-    range.first_col_                                      = first_col;
-    range.last_row_                                       = last_row;
-    range.last_col_                                       = last_col;
+    range.first_row                                       = first_row;
+    range.first_col                                       = first_col;
+    range.last_row                                        = last_row;
+    range.last_col                                        = last_col;
   }
 }
 
@@ -1211,54 +1211,54 @@ void workbook_t::populate_range_data_cache(series_range_t& range) const
 {
   // If ignore_cache is set then don't try to populate the cache. This flag
   // may be set manually, for testing, or due to a case where the cache can't be calculated.
-  if(range.ignore_cache_)
+  if(range.ignore_cache)
   {
     return;
   }
 
   // Currently we only handle 2D ranges so ensure either the rows or cols are the same.
-  if(range.first_row_ != range.last_row_ && range.first_col_ != range.last_col_)
+  if(range.first_row != range.last_row && range.first_col != range.last_col)
   {
-    range.ignore_cache_ = true;
+    range.ignore_cache = true;
     return;
   }
 
   // Iterate through the worksheet data and populate the range cache.
-  assert(is_worksheet_present(range.sheetname_));
+  assert(is_worksheet_present(range.sheetname));
 
   uint16_t num_data_points{0};
-  const worksheet_t& worksheet = get_worksheet_by_name(range.sheetname_);
+  const worksheet_t& worksheet = get_worksheet_by_name(range.sheetname);
 
-  for(row_num_t row_num = range.first_row_; row_num <= range.last_row_; row_num++)
+  for(row_num_t row_num = range.first_row; row_num <= range.last_row; row_num++)
   {
     const row_t* row_obj = worksheet.find_row(row_num);
-    for(col_num_t col_num = range.first_col_; col_num <= range.last_col_; col_num++)
+    for(col_num_t col_num = range.first_col; col_num <= range.last_col; col_num++)
     {
       series_data_point_t data_point;
       if(const cell_t* cell_obj = worksheet.find_cell_in_row(row_obj, col_num); cell_obj)
       {
-        if(cell_obj->type_ == cell_types_t::NUMBER_CELL)
+        if(cell_obj->type == cell_types_t::NUMBER_CELL)
         {
-          data_point.number_ = std::get<double>(cell_obj->data_);
+          data_point.number = std::get<double>(cell_obj->data);
         }
 
-        if(cell_obj->type_ == cell_types_t::STRING_CELL)
+        if(cell_obj->type == cell_types_t::STRING_CELL)
         {
-          data_point.str_         = cell_obj->sst_string_;
-          data_point.is_string_   = true;
-          range.has_string_cache_ = true;
+          data_point.str         = cell_obj->sst_string;
+          data_point.is_string   = true;
+          range.has_string_cache = true;
         }
       }
       else
       {
-        data_point.no_data_ = true;
+        data_point.no_data = true;
       }
 
-      range.data_cache_.push_back(data_point);
+      range.data_cache.push_back(data_point);
       num_data_points++;
     }
   }
-  range.num_data_points_ = num_data_points;
+  range.num_data_points = num_data_points;
 }
 
 void workbook_t::populate_range(series_range_t& range) const
@@ -1271,20 +1271,20 @@ void workbook_t::add_chart_cache_data() const
 {
   for(auto* chart: ordered_charts_)
   {
-    populate_range(chart->title_.range_);
-    populate_range(chart->x_axis_.title_.range_);
-    populate_range(chart->y_axis_.title_.range_);
+    populate_range(chart->title_.range);
+    populate_range(chart->x_axis_.title.range);
+    populate_range(chart->y_axis_.title.range);
 
     for(auto& series: chart->series_list_)
     {
-      populate_range(series.categories_);
-      populate_range(series.values_);
-      populate_range(series.title_.range_);
-      for(auto& data_label: series.data_labels_)
+      populate_range(series.categories);
+      populate_range(series.values);
+      populate_range(series.title.range);
+      for(auto& data_label: series.data_labels)
       {
-        if(data_label.range_)
+        if(data_label.range)
         {
-          populate_range(*data_label.range_);
+          populate_range(*data_label.range);
         }
       }
     }
@@ -1476,19 +1476,19 @@ std::string workbook_t::write_sheets() const
 
 std::string workbook_t::write_defined_name(const defined_name_t& defined_name)
 {
-  attributes_t attributes{"name", defined_name.name_};
+  attributes_t attributes{"name", defined_name.name};
 
-  if(defined_name.index_ != std::numeric_limits<size_t>::max())
+  if(defined_name.index != std::numeric_limits<size_t>::max())
   {
-    attributes.add_attribute("localSheetId", defined_name.index_);
+    attributes.add_attribute("localSheetId", defined_name.index);
   }
 
-  if(defined_name.hidden_)
+  if(defined_name.hidden)
   {
     attributes.add_attribute("hidden", "1");
   }
 
-  return xml_data_element("definedName", defined_name.formula_, attributes);
+  return xml_data_element("definedName", defined_name.formula, attributes);
 }
 
 std::string workbook_t::write_defined_names() const

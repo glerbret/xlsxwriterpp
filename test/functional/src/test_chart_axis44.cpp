@@ -38,7 +38,7 @@ int main()
   chart_axis_set_name(chart.x_axis_, "XXX");
   chart_axis_set_name(chart.y_axis_, "YYY");
 
-  const xwpp::chart_font_t font1{.rotation_ = -45, .baseline_ = -1};
+  const xwpp::chart_font_t font1{.rotation = -45, .baseline = -1};
 
   xwpp::chart_axis_set_num_font(chart.x_axis_, font1);
   xwpp::chart_axis_set_num_font(chart.y_axis_, font1);

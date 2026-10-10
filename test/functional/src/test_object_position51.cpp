@@ -27,8 +27,8 @@ int main()
     0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82};
 
   const xwpp::image_options_t options{
-    .object_position_ = xwpp::object_position_t::MOVE_AND_SIZE,
-    .description_     = "red.png",
+    .object_position = xwpp::object_position_t::MOVE_AND_SIZE,
+    .description     = "red.png",
   };
 
   worksheet.insert_image_buffer("E9", image_buffer, options);

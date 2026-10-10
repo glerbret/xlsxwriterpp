@@ -77,9 +77,9 @@ shared_strings_element_t shared_strings_t::get_index(const std::string& str, boo
   }
 
   const shared_strings_element_t elt{
-    .index_          = unique_count_,
-    .string_         = str,
-    .is_rich_string_ = is_rich_string,
+    .index          = unique_count_,
+    .str            = str,
+    .is_rich_string = is_rich_string,
   };
 
   const size_t id{order_list_.size()};
@@ -104,13 +104,13 @@ std::string shared_strings_t::write_sst_strings() const
 
   for(const auto& elm: order_list_)
   {
-    if(elm.is_rich_string_)
+    if(elm.is_rich_string)
     {
-      xml_data += write_rich_si(elm.string_);
+      xml_data += write_rich_si(elm.str);
     }
     else
     {
-      xml_data += write_si(elm.string_);
+      xml_data += write_si(elm.str);
     }
   }
 

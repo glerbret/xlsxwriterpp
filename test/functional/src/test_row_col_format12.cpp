@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
+  const xwpp::row_col_options_t options{.hidden = true, .level = 0, .collapsed = false};
 
   worksheet.set_column(2, 2, options);
 

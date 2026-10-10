@@ -99,17 +99,17 @@ BOOST_AUTO_TEST_CASE(condtional_format09)
   worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
-    .type_ = xwpp::conditional_format_types_t::BLANKS,
+    .type = xwpp::conditional_format_types_t::BLANKS,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_ = xwpp::conditional_format_types_t::NO_BLANKS;
+  conditional_format.type = xwpp::conditional_format_types_t::NO_BLANKS;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_ = xwpp::conditional_format_types_t::ERRORS;
+  conditional_format.type = xwpp::conditional_format_types_t::ERRORS;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_ = xwpp::conditional_format_types_t::NO_ERRORS;
+  conditional_format.type = xwpp::conditional_format_types_t::NO_ERRORS;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

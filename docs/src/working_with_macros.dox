@@ -75,8 +75,8 @@ worksheet using the `worksheet_t::insert_button()` function:
 
 @code
   xwpp::button_options_t options{
-    .caption_ = "Press Me",
-    .macro_   = "say_hello",
+    .caption = "Press Me",
+    .macro   = "say_hello",
   };
 
   worksheet.insert_button(2, 1, options);
@@ -89,8 +89,8 @@ workbook VBA name as follows:
 
 @code
   xwpp::button_options_t options{
-    .caption_ = "Press Me",
-    .macro_   = "ThisWorkbook.say_hello",
+    .caption = "Press Me",
+    .macro   = "ThisWorkbook.say_hello",
   };
 
   worksheet.insert_button(2, 1, options);

@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-  const xwpp::image_options_t options{.url_ = "https://github.com/jmcnamara"};
+  const xwpp::image_options_t options{.url = "https://github.com/jmcnamara"};
 
   worksheet.write("A1", 1);
   worksheet.write("A2", 2);

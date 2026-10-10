@@ -11,8 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::comment_options_t options1{.visible_ = xwpp::comment_display_t::HIDDEN};
-  const xwpp::comment_options_t options2{.visible_ = xwpp::comment_display_t::VISIBLE};
+  const xwpp::comment_options_t options1{.visible = xwpp::comment_display_t::HIDDEN};
+  const xwpp::comment_options_t options2{.visible = xwpp::comment_display_t::VISIBLE};
 
   worksheet.write_comment("A1", "Some text");
   worksheet.write_comment("A2", "Some text");

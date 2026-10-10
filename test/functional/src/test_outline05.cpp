@@ -12,9 +12,9 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Rows");
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  const xwpp::row_col_options_t options3{.hidden_ = true, .level_ = 2, .collapsed_ = false};
-  const xwpp::row_col_options_t options4{.hidden_ = true, .level_ = 1, .collapsed_ = true};
-  const xwpp::row_col_options_t options5{.hidden_ = false, .level_ = 0, .collapsed_ = true};
+  const xwpp::row_col_options_t options3{.hidden = true, .level = 2, .collapsed = false};
+  const xwpp::row_col_options_t options4{.hidden = true, .level = 1, .collapsed = true};
+  const xwpp::row_col_options_t options5{.hidden = false, .level = 0, .collapsed = true};
 
   worksheet.set_column("A:A", 20);
   worksheet.set_selection("A14:A14");

@@ -13,7 +13,7 @@ int main()
 
   const xwpp::format_t* format = workbook.format_builder().bg_color(xwpp::color_t{0xFFFF00}).build();
 
-  const xwpp::image_options_t image_options{.cell_format_ = format};
+  const xwpp::image_options_t image_options{.cell_format = format};
 
   worksheet.embed_image(0, 0, "images/red.png", image_options);
 

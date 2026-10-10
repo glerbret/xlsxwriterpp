@@ -120,15 +120,15 @@ BOOST_AUTO_TEST_CASE(condtional_format19)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-    .min_value_     = 5,
-    .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
+    .type          = xwpp::conditional_format_types_t::DATA_BAR,
+    .min_value     = 5,
+    .min_rule_type = xwpp::conditional_format_rule_types_t::NUMBER,
     // Mid values should be ignored.
-    .mid_value_     = 52,
-    .mid_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENTILE,
-    .max_value_     = 90,
-    .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
-    .bar_color_     = xwpp::color_t{0x8DB4E3},
+    .mid_value     = 52,
+    .mid_rule_type = xwpp::conditional_format_rule_types_t::PERCENTILE,
+    .max_value     = 90,
+    .max_rule_type = xwpp::conditional_format_rule_types_t::PERCENT,
+    .bar_color     = xwpp::color_t{0x8DB4E3},
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 

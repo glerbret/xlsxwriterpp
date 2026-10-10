@@ -35,10 +35,10 @@ int main()
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_fill_t red_fill{.color_ = xwpp::color_t::red()};
-  const xwpp::chart_fill_t yellow_fill{.color_ = xwpp::color_t::yellow()};
-  const std::vector<xwpp::chart_point_t> points1{{.fill_ = red_fill}, {.fill_ = yellow_fill}};
-  const std::vector<xwpp::chart_point_t> points2{{}, {}, {.fill_ = yellow_fill}};
+  const xwpp::chart_fill_t red_fill{.color = xwpp::color_t::red()};
+  const xwpp::chart_fill_t yellow_fill{.color = xwpp::color_t::yellow()};
+  const std::vector<xwpp::chart_point_t> points1{{.fill = red_fill}, {.fill = yellow_fill}};
+  const std::vector<xwpp::chart_point_t> points2{{}, {}, {.fill = yellow_fill}};
 
   series_set_points(series1, points1);
   series_set_points(series2, points2);

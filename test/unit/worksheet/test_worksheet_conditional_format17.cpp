@@ -123,13 +123,13 @@ BOOST_AUTO_TEST_CASE(condtional_format17a)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_             = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-    .min_value_string_ = "$A$10",
-    .min_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
-    .mid_value_        = 52,
-    .mid_rule_type_    = xwpp::conditional_format_rule_types_t::PERCENT,
-    .max_value_        = 99,
-    .max_rule_type_    = xwpp::conditional_format_rule_types_t::PERCENTILE,
+    .type             = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+    .min_value_string = "$A$10",
+    .min_rule_type    = xwpp::conditional_format_rule_types_t::NUMBER,
+    .mid_value        = 52,
+    .mid_rule_type    = xwpp::conditional_format_rule_types_t::PERCENT,
+    .max_value        = 99,
+    .max_rule_type    = xwpp::conditional_format_rule_types_t::PERCENTILE,
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 
@@ -243,13 +243,13 @@ BOOST_AUTO_TEST_CASE(condtional_format17b)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_             = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-    .min_value_string_ = "$A$1",
-    .min_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
-    .mid_value_string_ = "$A$2",
-    .mid_rule_type_    = xwpp::conditional_format_rule_types_t::PERCENT,
-    .max_value_string_ = "$A$3",
-    .max_rule_type_    = xwpp::conditional_format_rule_types_t::PERCENTILE,
+    .type             = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+    .min_value_string = "$A$1",
+    .min_rule_type    = xwpp::conditional_format_rule_types_t::NUMBER,
+    .mid_value_string = "$A$2",
+    .mid_rule_type    = xwpp::conditional_format_rule_types_t::PERCENT,
+    .max_value_string = "$A$3",
+    .max_rule_type    = xwpp::conditional_format_rule_types_t::PERCENTILE,
   };
 
   worksheet.conditional_format_range("A1:A12", conditional_format);

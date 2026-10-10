@@ -45,18 +45,18 @@ int main()
   worksheet.write(4, 9, 0);
   worksheet.write(4, 10, 0);
 
-  const std::vector<xwpp::table_column_t> columns{{.total_string_ = "Total"},
+  const std::vector<xwpp::table_column_t> columns{{.total_string = "Total"},
                                                   {},
-                                                  {.total_function_ = xwpp::table_total_functions_t::AVERAGE},
-                                                  {.total_function_ = xwpp::table_total_functions_t::COUNT},
-                                                  {.total_function_ = xwpp::table_total_functions_t::COUNT_NUMS},
-                                                  {.total_function_ = xwpp::table_total_functions_t::MAX},
-                                                  {.total_function_ = xwpp::table_total_functions_t::MIN},
-                                                  {.total_function_ = xwpp::table_total_functions_t::SUM},
-                                                  {.total_function_ = xwpp::table_total_functions_t::STD_DEV},
-                                                  {.total_function_ = xwpp::table_total_functions_t::VAR}};
+                                                  {.total_function = xwpp::table_total_functions_t::AVERAGE},
+                                                  {.total_function = xwpp::table_total_functions_t::COUNT},
+                                                  {.total_function = xwpp::table_total_functions_t::COUNT_NUMS},
+                                                  {.total_function = xwpp::table_total_functions_t::MAX},
+                                                  {.total_function = xwpp::table_total_functions_t::MIN},
+                                                  {.total_function = xwpp::table_total_functions_t::SUM},
+                                                  {.total_function = xwpp::table_total_functions_t::STD_DEV},
+                                                  {.total_function = xwpp::table_total_functions_t::VAR}};
 
-  const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
+  const xwpp::table_options_t options{.total_row = true, .columns = columns};
 
   worksheet.add_table("B3:K6", options);
 

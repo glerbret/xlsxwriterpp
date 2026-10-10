@@ -123,22 +123,22 @@ BOOST_AUTO_TEST_CASE(data_bar07)
   worksheet.select();
 
   xwpp::conditional_format_t conditional_format{
-    .type_              = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_axis_position_ = xwpp::conditional_bar_axis_position_t::MIDPOINT,
+    .type              = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_axis_position = xwpp::conditional_bar_axis_position_t::MIDPOINT,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
-    .type_              = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_color_         = xwpp::color_t{0x63C384},
-    .bar_axis_position_ = xwpp::conditional_bar_axis_position_t::NONE,
+    .type              = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_color         = xwpp::color_t{0x63C384},
+    .bar_axis_position = xwpp::conditional_bar_axis_position_t::NONE,
   };
   worksheet.conditional_format_range("A2:B2", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
-    .type_           = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_color_      = xwpp::color_t{0xFF555A},
-    .bar_axis_color_ = xwpp::color_t{0x0070C0},
+    .type           = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_color      = xwpp::color_t{0xFF555A},
+    .bar_axis_color = xwpp::color_t{0x0070C0},
   };
   worksheet.conditional_format_range("A3:C3", conditional_format);
 

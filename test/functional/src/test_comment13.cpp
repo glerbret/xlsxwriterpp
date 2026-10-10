@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::comment_options_t options{.font_name_ = "Courier", .font_size_ = 10, .font_family_ = 3};
+  const xwpp::comment_options_t options{.font_name = "Courier", .font_size = 10, .font_family = 3};
 
   worksheet.write("A1", "Foo");
 

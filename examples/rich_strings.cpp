@@ -34,10 +34,10 @@ int main()
   // Example 1. Some bold and italic in the same string.
   {
     const std::vector<xwpp::rich_string_tuple_t> rich_string{
-      {.str_ = "This is "},
-      {.format_ = bold, .str_ = "bold"},
-      {.str_ = " and this is "},
-      {.format_ = italic, .str_ = "italic"},
+      {.str = "This is "},
+      {.format = bold, .str = "bold"},
+      {.str = " and this is "},
+      {.format = italic, .str = "italic"},
     };
 
     worksheet.write_rich_string("A1", rich_string);
@@ -46,10 +46,10 @@ int main()
   // Example 2. Some red and blue coloring in the same string.
   {
     const std::vector<xwpp::rich_string_tuple_t> rich_string{
-      {.str_ = "This is "},
-      {.format_ = red, .str_ = "red"},
-      {.str_ = " and this is "},
-      {.format_ = blue, .str_ = "blue"},
+      {.str = "This is "},
+      {.format = red, .str = "red"},
+      {.str = " and this is "},
+      {.format = blue, .str = "blue"},
     };
 
     worksheet.write_rich_string("A3", rich_string);
@@ -58,9 +58,9 @@ int main()
   // Example 3. A rich string plus cell formatting.
   {
     const std::vector<xwpp::rich_string_tuple_t> rich_string{
-      {.str_ = "Some "},
-      {.format_ = bold, .str_ = "bold text"},
-      {.str_ = " centered"},
+      {.str = "Some "},
+      {.format = bold, .str = "bold text"},
+      {.str = " centered"},
     };
 
     // Note that this example also has a "center" cell format.
@@ -70,8 +70,8 @@ int main()
   // Example 4. A math example with a superscript.
   {
     const std::vector<xwpp::rich_string_tuple_t> rich_string{
-      {.format_ = italic,      .str_ = "j =k" },
-      {.format_ = superscript, .str_ = "(n-1)"},
+      {.format = italic,      .str = "j =k" },
+      {.format = superscript, .str = "(n-1)"},
     };
 
     worksheet.write_rich_string("A7", rich_string, center);

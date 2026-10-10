@@ -80,21 +80,21 @@ BOOST_AUTO_TEST_CASE(condtional_format15)
   worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
-    .type_         = xwpp::conditional_format_types_t::FORMULA,
-    .value_string_ = "=$A$1>5",
+    .type         = xwpp::conditional_format_types_t::FORMULA,
+    .value_string = "=$A$1>5",
   };
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
-  conditional_format.value_string_ = "=$A$2<80";
+  conditional_format.type         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string = "=$A$2<80";
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
-  conditional_format.value_string_ = "\"1+2\"";
+  conditional_format.type         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string = "\"1+2\"";
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_         = xwpp::conditional_format_types_t::FORMULA;
-  conditional_format.value_string_ = "=$A$3>$A$4";
+  conditional_format.type         = xwpp::conditional_format_types_t::FORMULA;
+  conditional_format.value_string = "=$A$3>$A$4";
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

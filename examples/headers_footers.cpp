@@ -58,7 +58,7 @@ int main()
   // A simple example to start
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Image");
-    const xwpp::header_footer_options_t header_options{.image_left_ = "logo_small.png"};
+    const xwpp::header_footer_options_t header_options{.image_left = "logo_small.png"};
 
     worksheet.set_header("&L&G", header_options);
 

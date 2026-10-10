@@ -17,7 +17,7 @@ int main()
   // Add some valid tables.
   worksheet.add_table("C2:D3");
 
-  const xwpp::table_options_t options1{.name_ = "Table2", .no_header_row_ = true};
+  const xwpp::table_options_t options1{.name = "Table2", .no_header_row = true};
   worksheet.add_table("F3:G3", options1);
 
   workbook.save("test_table26.xlsx");

@@ -37,10 +37,10 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line{
-    .color_ = xwpp::color_t::red(), .width_ = 1, .dash_type_ = xwpp::chart_line_dash_type_t::DASH};
-  const xwpp::chart_fill_t fill{.color_ = xwpp::color_t{0x00B050}};
-  const xwpp::chart_pattern_t pattern{.fg_color_ = xwpp::color_t{0x00B050},
-                                      .type_     = xwpp::chart_pattern_type_t::LIGHT_VERTICAL};
+    .color = xwpp::color_t::red(), .width = 1, .dash_type = xwpp::chart_line_dash_type_t::DASH};
+  const xwpp::chart_fill_t fill{.color = xwpp::color_t{0x00B050}};
+  const xwpp::chart_pattern_t pattern{.fg_color = xwpp::color_t{0x00B050},
+                                      .type     = xwpp::chart_pattern_type_t::LIGHT_VERTICAL};
   xwpp::chart_series_set_labels(series);
   xwpp::chart_series_set_labels_line(series, line);
   xwpp::chart_series_set_labels_fill(series, fill);

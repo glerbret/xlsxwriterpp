@@ -14,7 +14,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::LINE);
 
-  const xwpp::row_col_options_t options{.hidden_ = true};
+  const xwpp::row_col_options_t options{.hidden = true};
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
   const xwpp::format_t* italic = workbook.format_builder().italic().build();
 

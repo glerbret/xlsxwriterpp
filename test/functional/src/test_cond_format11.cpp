@@ -25,10 +25,10 @@ int main()
   worksheet.write("B6", 40);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
-    .value_    = 20,
-    .format_   = format,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value    = 20,
+    .format   = format,
   };
   worksheet.conditional_format_range("B3:B6", conditional_format);
 

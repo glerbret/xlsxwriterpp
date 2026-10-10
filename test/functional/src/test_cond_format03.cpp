@@ -24,19 +24,19 @@ int main()
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
-    .type_      = xwpp::conditional_format_types_t::CELL,
-    .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
-    .format_    = format1,
-    .min_value_ = 2,
-    .max_value_ = 6,
+    .type      = xwpp::conditional_format_types_t::CELL,
+    .criteria  = xwpp::conditional_criteria_t::BETWEEN,
+    .format    = format1,
+    .min_value = 2,
+    .max_value = 6,
   };
   worksheet.conditional_format_cell("A1", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN,
-    .value_    = 1,
-    .format_   = format2,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value    = 1,
+    .format   = format2,
   };
   worksheet.conditional_format_cell("A1", conditional_format2);
 

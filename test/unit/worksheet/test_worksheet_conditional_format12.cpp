@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(condtional_format12a)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_ = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .type = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 
@@ -233,11 +233,11 @@ BOOST_AUTO_TEST_CASE(condtional_format12b)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-    .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
-    .min_color_     = xwpp::color_t{0xFF7128},
-    .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
-    .max_color_     = xwpp::color_t{0xFFEF9C},
+    .type          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .min_rule_type = xwpp::conditional_format_rule_types_t::MINIMUM,
+    .min_color     = xwpp::color_t{0xFF7128},
+    .max_rule_type = xwpp::conditional_format_rule_types_t::MAXIMUM,
+    .max_color     = xwpp::color_t{0xFFEF9C},
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 
@@ -349,11 +349,11 @@ BOOST_AUTO_TEST_CASE(condtional_format12c)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-    .min_value_     = 20,
-    .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
-    .max_value_     = 80,
-    .max_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
+    .type          = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .min_value     = 20,
+    .min_rule_type = xwpp::conditional_format_rule_types_t::NUMBER,
+    .max_value     = 80,
+    .max_rule_type = xwpp::conditional_format_rule_types_t::NUMBER,
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 
@@ -465,11 +465,11 @@ BOOST_AUTO_TEST_CASE(condtional_format12d)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_             = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-    .min_value_string_ = "$D$1",
-    .min_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
-    .max_value_string_ = "$D$2",
-    .max_rule_type_    = xwpp::conditional_format_rule_types_t::NUMBER,
+    .type             = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+    .min_value_string = "$D$1",
+    .min_rule_type    = xwpp::conditional_format_rule_types_t::NUMBER,
+    .max_value_string = "$D$2",
+    .max_rule_type    = xwpp::conditional_format_rule_types_t::NUMBER,
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 

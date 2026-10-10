@@ -45,8 +45,8 @@ namespace
 [[nodiscard]] std::string write(const datetime_t& value)
 {
   return xml_data_element("vt:filetime",
-                          std::format("{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z", value.year_, value.month_,
-                                      value.day_, value.hour_, value.min_, static_cast<int>(value.sec_)));
+                          std::format("{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z", value.year, value.month, value.day,
+                                      value.hour, value.min, static_cast<int>(value.sec)));
 }
 
 [[nodiscard]] std::string write_custom_property(size_t pid, const custom_property_t& property)
@@ -55,27 +55,27 @@ namespace
 
   std::string xml_data =
     xml_start_tag("property", attributes_t{std::make_pair("fmtid"s, fmtid), std::make_pair("pid"s, pid + 1),
-                                           std::make_pair("name"s, property.name_)});
+                                           std::make_pair("name"s, property.name)});
 
-  if(property.type_ == custom_property_types_t::STRING)
+  if(property.type == custom_property_types_t::STRING)
   {
-    xml_data += write(std::get<std::string>(property.value_));
+    xml_data += write(std::get<std::string>(property.value));
   }
-  else if(property.type_ == custom_property_types_t::DOUBLE)
+  else if(property.type == custom_property_types_t::DOUBLE)
   {
-    xml_data += write(std::get<double>(property.value_));
+    xml_data += write(std::get<double>(property.value));
   }
-  else if(property.type_ == custom_property_types_t::INTEGER)
+  else if(property.type == custom_property_types_t::INTEGER)
   {
-    xml_data += write(std::get<int32_t>(property.value_));
+    xml_data += write(std::get<int32_t>(property.value));
   }
-  else if(property.type_ == custom_property_types_t::BOOLEAN)
+  else if(property.type == custom_property_types_t::BOOLEAN)
   {
-    xml_data += write(std::get<bool>(property.value_));
+    xml_data += write(std::get<bool>(property.value));
   }
-  else if(property.type_ == custom_property_types_t::DATETIME)
+  else if(property.type == custom_property_types_t::DATETIME)
   {
-    xml_data += write(std::get<datetime_t>(property.value_));
+    xml_data += write(std::get<datetime_t>(property.value));
   }
 
   xml_data += xml_end_tag("property");

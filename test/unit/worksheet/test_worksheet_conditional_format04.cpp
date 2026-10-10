@@ -67,12 +67,12 @@ BOOST_AUTO_TEST_CASE(condtional_format04)
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
-    .type_ = xwpp::conditional_format_types_t::DUPLICATE,
+    .type = xwpp::conditional_format_types_t::DUPLICATE,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
-    .type_ = xwpp::conditional_format_types_t::UNIQUE,
+    .type = xwpp::conditional_format_types_t::UNIQUE,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format2);
 

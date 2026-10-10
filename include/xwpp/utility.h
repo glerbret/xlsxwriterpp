@@ -142,16 +142,16 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * The members of the `datetime_t` struct and the range of their values are:
  *
- * Member   | Value
- * -------- | -----------
- * year_    | 1900 - 9999
- * month_   | 1 - 12
- * day_     | 1 - 31
- * hour_    | 0 - 23
- * min_     | 0 - 59
- * sec_     | 0 - 59.999
+ * Member  | Value
+ * ------- | -----------
+ * year    | 1900 - 9999
+ * month   | 1 - 12
+ * day     | 1 - 31
+ * hour    | 0 - 23
+ * min     | 0 - 59
+ * sec     | 0 - 59.999
  *
- * Time only value is represented by `%year_`, `%month_` and `%day_` set to 0.
+ * Time only value is represented by `%year`, `%month` and `%day` set to 0.
  */
 bool datetime_validate(const datetime_t& datetime);
 

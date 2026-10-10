@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::header_footer_options_t header_options{.image_center_ = "images/watermark.png"};
+  const xwpp::header_footer_options_t header_options{.image_center = "images/watermark.png"};
   worksheet.set_header("&C&G", header_options);
 
   workbook.save("test_header_image20.xlsx");

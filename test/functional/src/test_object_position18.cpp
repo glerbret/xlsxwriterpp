@@ -13,7 +13,7 @@ int main()
 
   worksheet.set_column("B:B", 5);
 
-  const xwpp::image_options_t image_options{.x_offset_ = 168};
+  const xwpp::image_options_t image_options{.x_offset = 168};
   worksheet.insert_image("B9", "images/red.png", image_options);
 
   workbook.save("test_object_position18.xlsx");

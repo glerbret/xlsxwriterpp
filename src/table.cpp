@@ -42,10 +42,10 @@ std::string table_t::write_table() const
   attributes_t attributes{std::make_pair("xmlns"s, "http://schemas.openxmlformats.org/spreadsheetml/2006/main"),
                           std::make_pair("id"s, table_obj_.id_)};
 
-  if(!table_obj_.name_.empty())
+  if(!table_obj_.name.empty())
   {
-    attributes.add_attribute("name", table_obj_.name_);
-    attributes.add_attribute("displayName", table_obj_.name_);
+    attributes.add_attribute("name", table_obj_.name);
+    attributes.add_attribute("displayName", table_obj_.name);
   }
   else
   {
@@ -53,14 +53,14 @@ std::string table_t::write_table() const
     attributes.add_attribute("displayName", "Table1");
   }
 
-  attributes.add_attribute("ref", table_obj_.sqref_);
+  attributes.add_attribute("ref", table_obj_.sqref);
 
-  if(table_obj_.no_header_row_)
+  if(table_obj_.no_header_row)
   {
     attributes.add_attribute("headerRowCount", "0");
   }
 
-  if(table_obj_.total_row_)
+  if(table_obj_.total_row)
   {
     attributes.add_attribute("totalsRowCount", "1");
   }
@@ -74,68 +74,68 @@ std::string table_t::write_table() const
 
 std::string table_t::write_auto_filter() const
 {
-  if(table_obj_.no_autofilter_)
+  if(table_obj_.no_autofilter)
   {
     return "";
   }
 
-  return xml_empty_tag("autoFilter", attributes_t{"ref", table_obj_.filter_sqref_});
+  return xml_empty_tag("autoFilter", attributes_t{"ref", table_obj_.filter_sqref});
 }
 
 std::string table_t::write_table_column(uint16_t id, const table_column_t& column)
 {
-  attributes_t attributes{std::make_pair("id"s, id), std::make_pair("name"s, column.header_)};
+  attributes_t attributes{std::make_pair("id"s, id), std::make_pair("name"s, column.header)};
 
-  if(!column.total_string_.empty())
+  if(!column.total_string.empty())
   {
-    attributes.add_attribute("totalsRowLabel", column.total_string_);
+    attributes.add_attribute("totalsRowLabel", column.total_string);
   }
-  else if(column.total_function_ != table_total_functions_t::NONE)
+  else if(column.total_function != table_total_functions_t::NONE)
   {
-    if(column.total_function_ == table_total_functions_t::AVERAGE)
+    if(column.total_function == table_total_functions_t::AVERAGE)
     {
       attributes.add_attribute("totalsRowFunction", "average");
     }
-    if(column.total_function_ == table_total_functions_t::COUNT_NUMS)
+    if(column.total_function == table_total_functions_t::COUNT_NUMS)
     {
       attributes.add_attribute("totalsRowFunction", "countNums");
     }
-    if(column.total_function_ == table_total_functions_t::COUNT)
+    if(column.total_function == table_total_functions_t::COUNT)
     {
       attributes.add_attribute("totalsRowFunction", "count");
     }
-    if(column.total_function_ == table_total_functions_t::MAX)
+    if(column.total_function == table_total_functions_t::MAX)
     {
       attributes.add_attribute("totalsRowFunction", "max");
     }
-    if(column.total_function_ == table_total_functions_t::MIN)
+    if(column.total_function == table_total_functions_t::MIN)
     {
       attributes.add_attribute("totalsRowFunction", "min");
     }
-    if(column.total_function_ == table_total_functions_t::STD_DEV)
+    if(column.total_function == table_total_functions_t::STD_DEV)
     {
       attributes.add_attribute("totalsRowFunction", "stdDev");
     }
-    if(column.total_function_ == table_total_functions_t::SUM)
+    if(column.total_function == table_total_functions_t::SUM)
     {
       attributes.add_attribute("totalsRowFunction", "sum");
     }
-    if(column.total_function_ == table_total_functions_t::VAR)
+    if(column.total_function == table_total_functions_t::VAR)
     {
       attributes.add_attribute("totalsRowFunction", "var");
     }
   }
 
-  if(column.format_)
+  if(column.format)
   {
-    const int32_t dfx_id = column.format_->get_dxf_index();
+    const int32_t dfx_id = column.format->get_dxf_index();
     attributes.add_attribute("dataDxfId", dfx_id);
   }
 
-  if(!column.formula_.empty())
+  if(!column.formula.empty())
   {
     std::string xml_data = xml_start_tag("tableColumn", attributes);
-    xml_data += xml_data_element("calculatedColumnFormula", column.formula_);
+    xml_data += xml_data_element("calculatedColumnFormula", column.formula);
     xml_data += xml_end_tag("tableColumn");
 
     return xml_data;
@@ -148,8 +148,8 @@ std::string table_t::write_table_column(uint16_t id, const table_column_t& colum
 
 std::string table_t::write_table_columns() const
 {
-  std::string xml_data = xml_start_tag("tableColumns", attributes_t{"count", table_obj_.columns_.size()});
-  for(uint16_t i{0}; const auto& column: table_obj_.columns_)
+  std::string xml_data = xml_start_tag("tableColumns", attributes_t{"count", table_obj_.columns.size()});
+  for(uint16_t i{0}; const auto& column: table_obj_.columns)
   {
     xml_data += write_table_column(i + 1, column);
     i++;
@@ -163,27 +163,27 @@ std::string table_t::write_table_style_info() const
 {
   attributes_t attributes;
 
-  if(table_obj_.style_type_ == table_style_type_t::LIGHT)
+  if(table_obj_.style_type == table_style_type_t::LIGHT)
   {
-    if(table_obj_.style_type_number_ != 0)
+    if(table_obj_.style_type_number != 0)
     {
-      attributes.add_attribute("name", std::format("TableStyleLight{}", table_obj_.style_type_number_));
+      attributes.add_attribute("name", std::format("TableStyleLight{}", table_obj_.style_type_number));
     }
   }
-  else if(table_obj_.style_type_ == table_style_type_t::MEDIUM)
+  else if(table_obj_.style_type == table_style_type_t::MEDIUM)
   {
-    attributes.add_attribute("name", std::format("TableStyleMedium{}", table_obj_.style_type_number_));
+    attributes.add_attribute("name", std::format("TableStyleMedium{}", table_obj_.style_type_number));
   }
-  else if(table_obj_.style_type_ == table_style_type_t::DARK)
+  else if(table_obj_.style_type == table_style_type_t::DARK)
   {
-    attributes.add_attribute("name", std::format("TableStyleDark{}", table_obj_.style_type_number_));
+    attributes.add_attribute("name", std::format("TableStyleDark{}", table_obj_.style_type_number));
   }
   else
   {
     attributes.add_attribute("name", "TableStyleMedium9");
   }
 
-  if(table_obj_.first_column_)
+  if(table_obj_.first_column)
   {
     attributes.add_attribute("showFirstColumn", "1");
   }
@@ -192,7 +192,7 @@ std::string table_t::write_table_style_info() const
     attributes.add_attribute("showFirstColumn", "0");
   }
 
-  if(table_obj_.last_column_)
+  if(table_obj_.last_column)
   {
     attributes.add_attribute("showLastColumn", "1");
   }
@@ -201,7 +201,7 @@ std::string table_t::write_table_style_info() const
     attributes.add_attribute("showLastColumn", "0");
   }
 
-  if(table_obj_.no_banded_rows_)
+  if(table_obj_.no_banded_rows)
   {
     attributes.add_attribute("showRowStripes", "0");
   }
@@ -210,7 +210,7 @@ std::string table_t::write_table_style_info() const
     attributes.add_attribute("showRowStripes", "1");
   }
 
-  if(table_obj_.banded_columns_)
+  if(table_obj_.banded_columns)
   {
     attributes.add_attribute("showColumnStripes", "1");
   }

@@ -41,7 +41,7 @@ int main()
     worksheet.write("C3", "This cell comment is visible.", text_wrap);
 
     // Use an option to make the comment visible.
-    const xwpp::comment_options_t options{.visible_ = xwpp::comment_display_t::VISIBLE};
+    const xwpp::comment_options_t options{.visible = xwpp::comment_display_t::VISIBLE};
     worksheet.write_comment("C3", "Hello.", options);
 
     worksheet.write("C6",
@@ -66,7 +66,7 @@ int main()
 
     worksheet.write("C3", "This cell comment is visible, explicitly.", text_wrap);
 
-    const xwpp::comment_options_t options1{.visible_ = xwpp::comment_display_t::VISIBLE};
+    const xwpp::comment_options_t options1{.visible = xwpp::comment_display_t::VISIBLE};
     worksheet.write_comment(2, 2, "Hello", options1);
 
     worksheet.write("C6",
@@ -78,7 +78,7 @@ int main()
 
     worksheet.write("C9", "However, we can still override it locally.", text_wrap);
 
-    const xwpp::comment_options_t options2{.visible_ = xwpp::comment_display_t::HIDDEN};
+    const xwpp::comment_options_t options2{.visible = xwpp::comment_display_t::HIDDEN};
     worksheet.write_comment("C9", "Hello", options2);
   }
 
@@ -101,22 +101,22 @@ int main()
 
     worksheet.write("C6", "This cell comment is twice as wide.", text_wrap);
 
-    const xwpp::comment_options_t options1{.x_scale_ = 2.0};
+    const xwpp::comment_options_t options1{.x_scale = 2.0};
     worksheet.write_comment("C6", "Hello", options1);
 
     worksheet.write("C9", "This cell comment is twice as high.", text_wrap);
 
-    const xwpp::comment_options_t options2{.y_scale_ = 2.0};
+    const xwpp::comment_options_t options2{.y_scale = 2.0};
     worksheet.write_comment("C9", "Hello", options2);
 
     worksheet.write("C16", "This cell comment is scaled in both directions.", text_wrap);
 
-    const xwpp::comment_options_t options3{.x_scale_ = 1.2, .y_scale_ = 0.5};
+    const xwpp::comment_options_t options3{.x_scale = 1.2, .y_scale = 0.5};
     worksheet.write_comment("C16", "Hello", options3);
 
     worksheet.write("C19", "This cell comment has width and height specified in pixels.", text_wrap);
 
-    const xwpp::comment_options_t options4{.width_ = 200, .height_ = 50};
+    const xwpp::comment_options_t options4{.width = 200, .height = 50};
     worksheet.write_comment("C19", "Hello", options4);
   }
 
@@ -137,12 +137,12 @@ int main()
 
     worksheet.write("C6", "This cell comment has been moved to another cell.", text_wrap);
 
-    const xwpp::comment_options_t options1{.start_row_ = 3, .start_col_ = 4};
+    const xwpp::comment_options_t options1{.start_row = 3, .start_col = 4};
     worksheet.write_comment("C6", "Hello", options1);
 
     worksheet.write("C9", "This cell comment has been shifted within its default cell.", text_wrap);
 
-    const xwpp::comment_options_t options2{.x_offset_ = 30, .y_offset_ = 12};
+    const xwpp::comment_options_t options2{.x_offset = 30, .y_offset = 12};
     worksheet.write_comment("C9", "Hello", options2);
   }
 
@@ -159,7 +159,7 @@ int main()
 
     worksheet.write("C3", "This cell comment has a different color.", text_wrap);
 
-    const xwpp::comment_options_t options1{.color_ = xwpp::color_t::green()};
+    const xwpp::comment_options_t options1{.color = xwpp::color_t::green()};
     worksheet.write_comment(2, 2, "Hello", options1);
 
     worksheet.write("C6", "This cell comment has the default color.", text_wrap);
@@ -168,7 +168,7 @@ int main()
 
     worksheet.write("C9", "This cell comment has a different color.", text_wrap);
 
-    const xwpp::comment_options_t options2{.color_ = xwpp::color_t{0xFF6600}};
+    const xwpp::comment_options_t options2{.color = xwpp::color_t{0xFF6600}};
     worksheet.write_comment("C9", "Hello", options2);
   }
 
@@ -192,7 +192,7 @@ int main()
                     "commented by Xlsxwriter++' in the status bar at the bottom.",
                     text_wrap);
 
-    const xwpp::comment_options_t options{.author_ = "Xlsxwriter++"};
+    const xwpp::comment_options_t options{.author = "Xlsxwriter++"};
     worksheet.write_comment("C6", "Hello", options);
   }
 

@@ -14,7 +14,7 @@ int main()
   worksheet.insert_image("E9", "images/logo.jpg");
   worksheet.set_background("images/logo.jpg");
 
-  const xwpp::header_footer_options_t header_options{.image_center_ = "images/blue.jpg"};
+  const xwpp::header_footer_options_t header_options{.image_center = "images/blue.jpg"};
   worksheet.set_header("&C&G", header_options);
 
   worksheet.write("A1", "Foo");

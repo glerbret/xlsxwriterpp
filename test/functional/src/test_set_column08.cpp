@@ -13,7 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::row_col_options_t options{.hidden_ = true};
+  xwpp::row_col_options_t options{.hidden = true};
 
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
   const xwpp::format_t* italic = workbook.format_builder().italic().build();

@@ -46,18 +46,18 @@ int main()
   (void)format1->get_dxf_index();
 
   const xwpp::conditional_format_t conditional_format1{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO,
-    .value_    = 50,
-    .format_   = format1,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO,
+    .value    = 50,
+    .format   = format1,
   };
   worksheet.conditional_format_range("A1:J10", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
-    .value_    = 50,
-    .format_   = format2,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::LESS_THAN,
+    .value    = 50,
+    .format   = format2,
   };
   worksheet.conditional_format_range("A1:J10", conditional_format2);
 

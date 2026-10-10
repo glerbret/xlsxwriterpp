@@ -28,10 +28,10 @@ int main()
 
   // Create the fragments for the rich string.
   const std::vector<xwpp::rich_string_tuple_t> rich_string{
-    {.str_ = "This is "},
-    {.format_ = red, .str_ = "red"},
-    {.str_ = " and this is "},
-    {.format_ = blue, .str_ = "blue"},
+    {.str = "This is "},
+    {.format = red, .str = "red"},
+    {.str = " and this is "},
+    {.format = blue, .str = "blue"},
   };
 
   // Write an empty string to the merged range.

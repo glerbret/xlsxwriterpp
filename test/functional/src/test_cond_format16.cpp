@@ -20,20 +20,20 @@ int main()
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
-    .type_         = xwpp::conditional_format_types_t::CELL,
-    .criteria_     = xwpp::conditional_criteria_t::LESS_THAN,
-    .value_        = 5,
-    .format_       = format1,
-    .stop_if_true_ = false,
+    .type         = xwpp::conditional_format_types_t::CELL,
+    .criteria     = xwpp::conditional_criteria_t::LESS_THAN,
+    .value        = 5,
+    .format       = format1,
+    .stop_if_true = false,
   };
   worksheet.conditional_format_cell("A1", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
-    .type_         = xwpp::conditional_format_types_t::CELL,
-    .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
-    .value_        = 20,
-    .format_       = format2,
-    .stop_if_true_ = true,
+    .type         = xwpp::conditional_format_types_t::CELL,
+    .criteria     = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value        = 20,
+    .format       = format2,
+    .stop_if_true = true,
   };
   worksheet.conditional_format_cell("A1", conditional_format2);
 

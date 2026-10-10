@@ -36,8 +36,8 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_layout_t layout{
-    .x_ = 0.426319335083114,
-    .y_ = 0.143518518518518,
+    .x = 0.426319335083114,
+    .y = 0.143518518518518,
   };
 
   chart.title_set_layout(layout);

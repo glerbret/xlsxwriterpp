@@ -36,10 +36,10 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_layout_t layout{
-    .x_      = 0.13171062992125,
-    .y_      = 0.26436351706036,
-    .width_  = 0.73970734908136,
-    .height_ = 0.5713732137649,
+    .x      = 0.13171062992125,
+    .y      = 0.26436351706036,
+    .width  = 0.73970734908136,
+    .height = 0.5713732137649,
   };
 
   chart.plotarea_set_layout(layout);

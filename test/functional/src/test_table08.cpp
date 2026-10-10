@@ -22,9 +22,9 @@ int main()
   worksheet.write("E1", "Total");
 
   const std::vector<xwpp::table_column_t> columns{
-    {.total_string_ = "Total"}, {}, {}, {.total_function_ = xwpp::table_total_functions_t::COUNT}};
+    {.total_string = "Total"}, {}, {}, {.total_function = xwpp::table_total_functions_t::COUNT}};
 
-  const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
+  const xwpp::table_options_t options{.total_row = true, .columns = columns};
 
   worksheet.add_table("C3:F14", options);
 

@@ -56,9 +56,9 @@ std::string rich_value_t::write_images(const workbook_t& workbook)
   {
     for(const auto& object_props: worksheet.get_embedded_image_properties())
     {
-      if(!object_props.is_duplicate_)
+      if(!object_props.is_duplicate)
       {
-        if(object_props.decorative_)
+        if(object_props.decorative)
         {
           type = 6;
         }
@@ -66,9 +66,9 @@ std::string rich_value_t::write_images(const workbook_t& workbook)
         xml_data += write_rv();
         xml_data += write_v(std::to_string(index));
         xml_data += write_v(std::to_string(type));
-        if(!object_props.description_.empty())
+        if(!object_props.description.empty())
         {
-          xml_data += write_v(object_props.description_);
+          xml_data += write_v(object_props.description);
         }
         xml_data += xml_end_tag("rv");
 

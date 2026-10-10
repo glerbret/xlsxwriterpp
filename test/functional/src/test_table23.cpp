@@ -23,13 +23,13 @@ int main()
   worksheet.write("E1", "Column]");
 
   const std::vector<xwpp::table_column_t> columns{
-    {.header_ = "Column1", .total_string_ = "Total"                             },
-    {.header_ = "Column'", .total_function_ = xwpp::table_total_functions_t::SUM},
-    {.header_ = "Column#", .total_function_ = xwpp::table_total_functions_t::SUM},
-    {.header_ = "Column[", .total_function_ = xwpp::table_total_functions_t::SUM},
-    {.header_ = "Column]", .total_function_ = xwpp::table_total_functions_t::SUM}
+    {.header = "Column1", .total_string = "Total"                             },
+    {.header = "Column'", .total_function = xwpp::table_total_functions_t::SUM},
+    {.header = "Column#", .total_function = xwpp::table_total_functions_t::SUM},
+    {.header = "Column[", .total_function = xwpp::table_total_functions_t::SUM},
+    {.header = "Column]", .total_function = xwpp::table_total_functions_t::SUM}
   };
-  const xwpp::table_options_t options{.total_row_ = true, .columns_ = columns};
+  const xwpp::table_options_t options{.total_row = true, .columns = columns};
 
   worksheet.add_table("B3:F9", options);
 

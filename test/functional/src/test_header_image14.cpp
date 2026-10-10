@@ -12,9 +12,9 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::header_footer_options_t header_options{
-    .image_left_   = "images/black_72e.png",
-    .image_center_ = "images/black_150e.png",
-    .image_right_  = "images/black_300e.png",
+    .image_left   = "images/black_72e.png",
+    .image_center = "images/black_150e.png",
+    .image_right  = "images/black_300e.png",
   };
 
   worksheet.set_header("&L&G&C&G&R&G", header_options);

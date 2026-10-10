@@ -16,63 +16,63 @@ int main()
 
   struct row
   {
-    std::string region_;
-    std::string item_;
-    int volume_{0};
-    std::string month_;
+    std::string region;
+    std::string item;
+    int volume{0};
+    std::string month;
   };
 
   const std::vector<row> data{
-    {.region_ = "East",  .item_ = "Apple",  .volume_ = 9000,  .month_ = "July"     },
-    {.region_ = "East",  .item_ = "Apple",  .volume_ = 5000,  .month_ = "July"     },
-    {.region_ = "South", .item_ = "Orange", .volume_ = 9000,  .month_ = "September"},
-    {.region_ = "North", .item_ = "Apple",  .volume_ = 2000,  .month_ = "November" },
-    {.region_ = "West",  .item_ = "Apple",  .volume_ = 9000,  .month_ = "November" },
-    {.region_ = "South", .item_ = "Pear",   .volume_ = 7000,  .month_ = "October"  },
-    {.region_ = "North", .item_ = "Pear",   .volume_ = 9000,  .month_ = "August"   },
-    {.region_ = "West",  .item_ = "Orange", .volume_ = 1000,  .month_ = "December" },
-    {.region_ = "West",  .item_ = "Grape",  .volume_ = 1000,  .month_ = "November" },
-    {.region_ = "South", .item_ = "Pear",   .volume_ = 10000, .month_ = "April"    },
-    {.region_ = "West",  .item_ = "Grape",  .volume_ = 6000,  .month_ = "January"  },
-    {.region_ = "South", .item_ = "Orange", .volume_ = 3000,  .month_ = "May"      },
-    {.region_ = "North", .item_ = "Apple",  .volume_ = 3000,  .month_ = "December" },
-    {.region_ = "South", .item_ = "Apple",  .volume_ = 7000,  .month_ = "February" },
-    {.region_ = "West",  .item_ = "Grape",  .volume_ = 1000,  .month_ = "December" },
-    {.region_ = "East",  .item_ = "Grape",  .volume_ = 8000,  .month_ = "February" },
-    {.region_ = "South", .item_ = "Grape",  .volume_ = 10000, .month_ = "June"     },
-    {.region_ = "West",  .item_ = "Pear",   .volume_ = 7000,  .month_ = "December" },
-    {.region_ = "South", .item_ = "Apple",  .volume_ = 2000,  .month_ = "October"  },
-    {.region_ = "East",  .item_ = "Grape",  .volume_ = 7000,  .month_ = "December" },
-    {.region_ = "North", .item_ = "Grape",  .volume_ = 6000,  .month_ = "April"    },
-    {.region_ = "East",  .item_ = "Pear",   .volume_ = 8000,  .month_ = "February" },
-    {.region_ = "North", .item_ = "Apple",  .volume_ = 7000,  .month_ = "August"   },
-    {.region_ = "North", .item_ = "Orange", .volume_ = 7000,  .month_ = "July"     },
-    {.region_ = "North", .item_ = "Apple",  .volume_ = 6000,  .month_ = "June"     },
-    {.region_ = "South", .item_ = "Grape",  .volume_ = 8000,  .month_ = "September"},
-    {.region_ = "West",  .item_ = "Apple",  .volume_ = 3000,  .month_ = "October"  },
-    {.region_ = "South", .item_ = "Orange", .volume_ = 10000, .month_ = "November" },
-    {.region_ = "West",  .item_ = "Grape",  .volume_ = 4000,  .month_ = "July"     },
-    {.region_ = "North", .item_ = "Orange", .volume_ = 5000,  .month_ = "August"   },
-    {.region_ = "East",  .item_ = "Orange", .volume_ = 1000,  .month_ = "November" },
-    {.region_ = "East",  .item_ = "Orange", .volume_ = 4000,  .month_ = "October"  },
-    {.region_ = "North", .item_ = "Grape",  .volume_ = 5000,  .month_ = "August"   },
-    {.region_ = "East",  .item_ = "Apple",  .volume_ = 1000,  .month_ = "December" },
-    {.region_ = "South", .item_ = "Apple",  .volume_ = 10000, .month_ = "March"    },
-    {.region_ = "East",  .item_ = "Grape",  .volume_ = 7000,  .month_ = "October"  },
-    {.region_ = "West",  .item_ = "Grape",  .volume_ = 1000,  .month_ = "September"},
-    {.region_ = "East",  .item_ = "Grape",  .volume_ = 10000, .month_ = "October"  },
-    {.region_ = "South", .item_ = "Orange", .volume_ = 8000,  .month_ = "March"    },
-    {.region_ = "North", .item_ = "Apple",  .volume_ = 4000,  .month_ = "July"     },
-    {.region_ = "South", .item_ = "Orange", .volume_ = 5000,  .month_ = "July"     },
-    {.region_ = "West",  .item_ = "Apple",  .volume_ = 4000,  .month_ = "June"     },
-    {.region_ = "East",  .item_ = "Apple",  .volume_ = 5000,  .month_ = "April"    },
-    {.region_ = "North", .item_ = "Pear",   .volume_ = 3000,  .month_ = "August"   },
-    {.region_ = "East",  .item_ = "Grape",  .volume_ = 9000,  .month_ = "November" },
-    {.region_ = "North", .item_ = "Orange", .volume_ = 8000,  .month_ = "October"  },
-    {.region_ = "East",  .item_ = "Apple",  .volume_ = 10000, .month_ = "June"     },
-    {.region_ = "South", .item_ = "Pear",   .volume_ = 1000,  .month_ = "December" },
-    {.region_ = "North", .item_ = "Grape",  .volume_ = 10000, .month_ = "July"     },
-    {.region_ = "East",  .item_ = "Grape",  .volume_ = 6000,  .month_ = "February" }
+    {.region = "East",  .item = "Apple",  .volume = 9000,  .month = "July"     },
+    {.region = "East",  .item = "Apple",  .volume = 5000,  .month = "July"     },
+    {.region = "South", .item = "Orange", .volume = 9000,  .month = "September"},
+    {.region = "North", .item = "Apple",  .volume = 2000,  .month = "November" },
+    {.region = "West",  .item = "Apple",  .volume = 9000,  .month = "November" },
+    {.region = "South", .item = "Pear",   .volume = 7000,  .month = "October"  },
+    {.region = "North", .item = "Pear",   .volume = 9000,  .month = "August"   },
+    {.region = "West",  .item = "Orange", .volume = 1000,  .month = "December" },
+    {.region = "West",  .item = "Grape",  .volume = 1000,  .month = "November" },
+    {.region = "South", .item = "Pear",   .volume = 10000, .month = "April"    },
+    {.region = "West",  .item = "Grape",  .volume = 6000,  .month = "January"  },
+    {.region = "South", .item = "Orange", .volume = 3000,  .month = "May"      },
+    {.region = "North", .item = "Apple",  .volume = 3000,  .month = "December" },
+    {.region = "South", .item = "Apple",  .volume = 7000,  .month = "February" },
+    {.region = "West",  .item = "Grape",  .volume = 1000,  .month = "December" },
+    {.region = "East",  .item = "Grape",  .volume = 8000,  .month = "February" },
+    {.region = "South", .item = "Grape",  .volume = 10000, .month = "June"     },
+    {.region = "West",  .item = "Pear",   .volume = 7000,  .month = "December" },
+    {.region = "South", .item = "Apple",  .volume = 2000,  .month = "October"  },
+    {.region = "East",  .item = "Grape",  .volume = 7000,  .month = "December" },
+    {.region = "North", .item = "Grape",  .volume = 6000,  .month = "April"    },
+    {.region = "East",  .item = "Pear",   .volume = 8000,  .month = "February" },
+    {.region = "North", .item = "Apple",  .volume = 7000,  .month = "August"   },
+    {.region = "North", .item = "Orange", .volume = 7000,  .month = "July"     },
+    {.region = "North", .item = "Apple",  .volume = 6000,  .month = "June"     },
+    {.region = "South", .item = "Grape",  .volume = 8000,  .month = "September"},
+    {.region = "West",  .item = "Apple",  .volume = 3000,  .month = "October"  },
+    {.region = "South", .item = "Orange", .volume = 10000, .month = "November" },
+    {.region = "West",  .item = "Grape",  .volume = 4000,  .month = "July"     },
+    {.region = "North", .item = "Orange", .volume = 5000,  .month = "August"   },
+    {.region = "East",  .item = "Orange", .volume = 1000,  .month = "November" },
+    {.region = "East",  .item = "Orange", .volume = 4000,  .month = "October"  },
+    {.region = "North", .item = "Grape",  .volume = 5000,  .month = "August"   },
+    {.region = "East",  .item = "Apple",  .volume = 1000,  .month = "December" },
+    {.region = "South", .item = "Apple",  .volume = 10000, .month = "March"    },
+    {.region = "East",  .item = "Grape",  .volume = 7000,  .month = "October"  },
+    {.region = "West",  .item = "Grape",  .volume = 1000,  .month = "September"},
+    {.region = "East",  .item = "Grape",  .volume = 10000, .month = "October"  },
+    {.region = "South", .item = "Orange", .volume = 8000,  .month = "March"    },
+    {.region = "North", .item = "Apple",  .volume = 4000,  .month = "July"     },
+    {.region = "South", .item = "Orange", .volume = 5000,  .month = "July"     },
+    {.region = "West",  .item = "Apple",  .volume = 4000,  .month = "June"     },
+    {.region = "East",  .item = "Apple",  .volume = 5000,  .month = "April"    },
+    {.region = "North", .item = "Pear",   .volume = 3000,  .month = "August"   },
+    {.region = "East",  .item = "Grape",  .volume = 9000,  .month = "November" },
+    {.region = "North", .item = "Orange", .volume = 8000,  .month = "October"  },
+    {.region = "East",  .item = "Apple",  .volume = 10000, .month = "June"     },
+    {.region = "South", .item = "Pear",   .volume = 1000,  .month = "December" },
+    {.region = "North", .item = "Grape",  .volume = 10000, .month = "July"     },
+    {.region = "East",  .item = "Grape",  .volume = 6000,  .month = "February" }
   };
 
   // Write the column headers.
@@ -81,7 +81,7 @@ int main()
   worksheet.write(0, 2, "Volume");
   worksheet.write(0, 3, "Month");
 
-  const xwpp::row_col_options_t hidden{.hidden_ = true};
+  const xwpp::row_col_options_t hidden{.hidden = true};
 
   // Write the row data.
   for(xwpp::row_num_t row_num{1}; const auto& [region, item, volume, month]: data)
@@ -106,7 +106,7 @@ int main()
 
   worksheet.autofilter(0, 0, 50, 3);
 
-  const xwpp::filter_rule_t filter_rule1{.criteria_ = xwpp::filter_criteria_t::EQUAL_TO, .value_string_ = "East"};
+  const xwpp::filter_rule_t filter_rule1{.criteria = xwpp::filter_criteria_t::EQUAL_TO, .value_string = "East"};
   worksheet.filter_column(0, filter_rule1);
 
   workbook.save("test_autofilter02.xlsx");

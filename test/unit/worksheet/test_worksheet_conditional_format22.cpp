@@ -181,41 +181,41 @@ BOOST_AUTO_TEST_CASE(condtional_format22)
   worksheet.write("A9", 9);
 
   xwpp::conditional_format_t conditional_format{
-    .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-    .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
+    .type       = xwpp::conditional_format_types_t::ICON_SETS,
+    .icon_style = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::THREE_FLAGS;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::THREE_FLAGS;
   worksheet.conditional_format_cell("A2", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_RIMMED;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_RIMMED;
   worksheet.conditional_format_cell("A3", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::THREE_SYMBOLS_CIRCLED;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::THREE_SYMBOLS_CIRCLED;
   worksheet.conditional_format_cell("A4", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::FOUR_ARROWS_COLORED;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::FOUR_ARROWS_COLORED;
   worksheet.conditional_format_cell("A5", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::FOUR_RED_TO_BLACK;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::FOUR_RED_TO_BLACK;
   worksheet.conditional_format_cell("A6", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::FOUR_TRAFFIC_LIGHTS;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::FOUR_TRAFFIC_LIGHTS;
   worksheet.conditional_format_cell("A7", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::FIVE_ARROWS_GRAY;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::FIVE_ARROWS_GRAY;
   worksheet.conditional_format_cell("A8", conditional_format);
 
-  conditional_format.type_       = xwpp::conditional_format_types_t::ICON_SETS;
-  conditional_format.icon_style_ = xwpp::conditional_icon_types_t::FIVE_QUARTERS;
+  conditional_format.type       = xwpp::conditional_format_types_t::ICON_SETS;
+  conditional_format.icon_style = xwpp::conditional_icon_types_t::FIVE_QUARTERS;
   worksheet.conditional_format_cell("A9", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

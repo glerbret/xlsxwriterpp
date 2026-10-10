@@ -422,7 +422,7 @@ enum class conditional_format_rule_types_t
   /** Conditional format rule type: matches the minimum values in the
    *  range.
    *
-   * Can only be applied to `min_rule_type_`.*/
+   * Can only be applied to `min_rule_type`.*/
   MINIMUM,
 
   /** Conditional format rule type: use a number to set the bound.*/
@@ -490,7 +490,7 @@ enum class conditional_bar_axis_position_t
 };
 
 /**
- * @brief Icon types used in the `conditional_format_t` `icon_style_` field.
+ * @brief Icon types used in the `conditional_format_t` `icon_style` field.
  *
  * Definitions of icon styles used with Icon Set conditional formats.
  */
@@ -745,21 +745,21 @@ struct row_col_options_t
    *
    * Hide the row/column.
    */
-  bool hidden_{false};
+  bool hidden{false};
 
   /**
    * @brief Outline level.
    *
    * Outline level.
    */
-  uint8_t level_{0};
+  uint8_t level{0};
 
   /**
    * @brief Set the outline row as collapsed.
    *
    * Set the outline row as collapsed.
    */
-  bool collapsed_{false};
+  bool collapsed{false};
 };
 
 /**
@@ -776,14 +776,14 @@ struct data_validation_t
    *
    * Should be a `validation_types_t` value.
    */
-  validation_types_t validate_{validation_types_t::NONE};
+  validation_types_t validate{validation_types_t::NONE};
 
   /**
    * Set the validation criteria type to select the data.
    *
    * Should be a `validation_criteria_t` value.
    */
-  validation_criteria_t criteria_{validation_criteria_t::NONE};
+  validation_criteria_t criteria{validation_criteria_t::NONE};
 
   /**
    * Controls whether a data validation is not applied to blank data in the
@@ -793,7 +793,7 @@ struct data_validation_t
    *
    * It is on by default.
    */
-  validation_boolean_t ignore_blank_{validation_boolean_t::DEFAULT};
+  validation_boolean_t ignore_blank{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to toggle on and off the 'Show input message
@@ -803,7 +803,7 @@ struct data_validation_t
    *
    * Should be a `validation_boolean_t` value. It is on by default.
    */
-  validation_boolean_t show_input_{validation_boolean_t::DEFAULT};
+  validation_boolean_t show_input{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to toggle on and off the 'Show error alert
@@ -813,7 +813,7 @@ struct data_validation_t
    *
    * Should be a `validation_boolean_t` value. It is on by default.
    */
-  validation_boolean_t show_error_{validation_boolean_t::DEFAULT};
+  validation_boolean_t show_error{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to specify the type of error dialog that is
@@ -821,7 +821,7 @@ struct data_validation_t
    *
    * Should be a `validation_error_types_t` value.
    */
-  validation_error_types_t error_type_{validation_error_types_t::STOP};
+  validation_error_types_t error_type{validation_error_types_t::STOP};
 
   /**
    * This parameter is used to toggle on and off the 'In-cell dropdown'
@@ -830,13 +830,13 @@ struct data_validation_t
    *
    * Should be a `validation_boolean_t` value. It is on by default.
    */
-  validation_boolean_t dropdown_{validation_boolean_t::DEFAULT};
+  validation_boolean_t dropdown{validation_boolean_t::DEFAULT};
 
   /**
    * This parameter is used to set the limiting value to which the criteria
    * is applied using a whole or decimal number.
    */
-  double value_number_{0.};
+  double value_number{0.};
 
   /**
    * This parameter is used to set the limiting value to which the criteria
@@ -844,92 +844,92 @@ struct data_validation_t
    *
    * It is valid for any of the `_FORMULA` validation types.
    */
-  std::string value_formula_;
+  std::string value_formula;
 
   /**
    * This parameter is used to set a list of strings for a dropdown list.
    *
-   * The `%value_formula_` parameter can also be used to specify a list from
+   * The `%value_formula` parameter can also be used to specify a list from
    * an Excel cell range.
    *
    * @note The string list is restricted by Excel to 255 characters,
    * including comma separators.
    */
-  std::vector<std::string> value_list_;
+  std::vector<std::string> value_list;
 
   /**
    * This parameter is used to set the limiting value to which the date or
    * time criteria is applied.
    */
-  datetime_t value_datetime_;
+  datetime_t value_datetime;
 
   /**
-   * This parameter is the same as `%value_number_` but for the minimum value
+   * This parameter is the same as `%value_number` but for the minimum value
    * when a `BETWEEN` criteria is used.
    */
-  double minimum_number_{0.};
+  double minimum_number{0.};
 
   /**
-   * This parameter is the same as `%value_formula_` but for the minimum value
+   * This parameter is the same as `%value_formula` but for the minimum value
    * when a `BETWEEN` criteria is used.
    */
-  std::string minimum_formula_;
+  std::string minimum_formula;
 
   /**
-   * This parameter is the same as `%value_datetime_` but for the minimum value
+   * This parameter is the same as `%value_datetime` but for the minimum value
    * when a `BETWEEN` criteria is used.
    */
-  datetime_t minimum_datetime_;
+  datetime_t minimum_datetime;
 
   /**
-   * This parameter is the same as `%value_number_` but for the maximum value
+   * This parameter is the same as `%value_number` but for the maximum value
    * when a `BETWEEN` criteria is used.
    */
-  double maximum_number_{0.};
+  double maximum_number{0.};
 
   /**
-   * This parameter is the same as `%value_formula_` but for the maximum value
+   * This parameter is the same as `%value_formula` but for the maximum value
    * when a `BETWEEN` criteria is used.
    */
-  std::string maximum_formula_;
+  std::string maximum_formula;
 
   /**
-   * This parameter is the same as `%value_datetime_` but for the maximum value
+   * This parameter is the same as `%value_datetime` but for the maximum value
    * when a `BETWEEN` criteria is used.
    */
-  datetime_t maximum_datetime_;
+  datetime_t maximum_datetime;
 
   /**
-   * The `%input_title_` parameter is used to set the title of the input message
+   * The `%input_title` parameter is used to set the title of the input message
    * that is displayed when a cell is entered.
    *
    * It has no default value and is only displayed if the input message
    * is displayed. The maximum title length is 32 characters.
    *
-   * @see The `%input_message_` parameter below.
+   * @see The `%input_message` parameter below.
    */
-  std::string input_title_;
+  std::string input_title;
 
   /**
-   * The `%input_message parameter_` is used to set the input message that is
+   * The `%input_message` parameter is used to set the input message that is
    * displayed when a cell is entered. It has no default value.
    *
    * The message can be split over several lines using newlines.
    * The maximum message length is 255 characters.
    */
-  std::string input_message_;
+  std::string input_message;
 
   /**
-   * The `%error_title_` parameter is used to set the title of the error message
+   * The `%error_title` parameter is used to set the title of the error message
    * that is displayed when the data validation criteria is not met.
    *
    * The default error title is 'Microsoft Excel'. The maximum title length is
    * 32 characters.
    */
-  std::string error_title_;
+  std::string error_title;
 
   /**
-   * The `%error_message_` parameter is used to set the error message that is
+   * The `%error_message` parameter is used to set the error message that is
    * displayed when a cell is entered.
    *
    * The default error message is "The value you entered is not valid.
@@ -937,7 +937,7 @@ struct data_validation_t
    * The message can be split over several lines using newlines. The maximum
    * message length is 255 characters.
    */
-  std::string error_message_;
+  std::string error_message;
 };
 
 /**
@@ -955,7 +955,7 @@ struct conditional_format_t
    *
    * Should be a `conditional_format_types_t` value.
    */
-  conditional_format_types_t type_{conditional_format_types_t::NONE};
+  conditional_format_types_t type{conditional_format_types_t::NONE};
 
   /**
    * The criteria parameter is used to set the criteria by which the cell
@@ -966,13 +966,13 @@ struct conditional_format_t
    *
    * The criteria options are defined in `conditional_criteria_t`.
    */
-  conditional_criteria_t criteria_{conditional_criteria_t::NONE};
+  conditional_criteria_t criteria{conditional_criteria_t::NONE};
 
   /**
    * The number value to which the condition refers. For example in the
    * expression `a > 5`, the value is 5.
    */
-  double value_{0.};
+  double value{0.};
 
   /**
    * The string value to which the condition refers, such as `"=A1"`. If a
@@ -982,7 +982,7 @@ struct conditional_format_t
    * @note, if the condition refers to a text string then it must
    * be double quoted like this `"foo"`.
    */
-  std::string value_string_;
+  std::string value_string;
 
   /**
    * The format field is used to specify the format_t format that will
@@ -997,174 +997,174 @@ struct conditional_format_t
    * subscript, diagonal borders, all alignment properties and all
    * protection properties.
    */
-  const format_t* format_{nullptr};
+  const format_t* format{nullptr};
 
   /**
    * The minimum value used for Cell, Color Scale and Data Bar conditional
    * formats. For Cell types this is usually used with a "Between" style
    * criteria.
    */
-  double min_value_{0.};
+  double min_value{0.};
 
   /**
    * The minimum string value used for Cell, Color Scale and Data Bar conditional
    * formats. Usually used to set ranges like `=A1`.
    */
-  std::string min_value_string_;
+  std::string min_value_string;
 
   /**
    * The rule used for the minimum condition in Color Scale and Data Bar
    * conditional formats. The rule types are defined in
    * `conditional_format_rule_types_t`.
    */
-  conditional_format_rule_types_t min_rule_type_{conditional_format_rule_types_t::NONE};
+  conditional_format_rule_types_t min_rule_type{conditional_format_rule_types_t::NONE};
 
   /**
    * The color used for the minimum Color Scale conditional format.
    * See @ref working_with_colors.
    */
-  color_t min_color_;
+  color_t min_color;
 
   /**
    * The middle value used for Color Scale and Data Bar conditional formats.
    */
-  double mid_value_{0.};
+  double mid_value{0.};
 
   /**
    * The middle string value used for Color Scale and Data Bar conditional
    * formats. Usually used to set ranges like `=A1`.
    */
-  std::string mid_value_string_;
+  std::string mid_value_string;
 
   /**
    * The rule used for the middle condition in Color Scale and Data Bar
    * conditional formats. The rule types are defined in
    * `conditional_format_rule_types_t`.
    */
-  conditional_format_rule_types_t mid_rule_type_{conditional_format_rule_types_t::NONE};
+  conditional_format_rule_types_t mid_rule_type{conditional_format_rule_types_t::NONE};
 
   /**
    * The color used for the middle Color Scale conditional format.
    *
    * @see @ref working_with_colors.
    */
-  color_t mid_color_;
+  color_t mid_color;
 
   /**
    * The maximum value used for Cell, Color Scale and Data Bar conditional
    * formats. For Cell types this is usually used with a "Between" style
    * criteria.
    */
-  double max_value_{0.};
+  double max_value{0.};
 
   /**
    * The maximum string value used for Cell, Color Scale and Data Bar conditional
    * formats. Usually used to set ranges like `=A1`.
    */
-  std::string max_value_string_;
+  std::string max_value_string;
 
   /**
    * The rule used for the maximum condition in Color Scale and Data Bar
    * conditional formats. The rule types are defined in
    * `conditional_format_rule_types_t`.
    */
-  conditional_format_rule_types_t max_rule_type_{conditional_format_rule_types_t::NONE};
+  conditional_format_rule_types_t max_rule_type{conditional_format_rule_types_t::NONE};
 
   /**
    * The color used for the maximum Color Scale conditional format.
    *
    * @see @ref working_with_colors.
    */
-  color_t max_color_;
+  color_t max_color;
 
   /**
-   * The `%bar_color_` field sets the fill color for data bars.
+   * The `%bar_color` field sets the fill color for data bars.
    *
    * @see @ref working_with_colors.
    */
-  color_t bar_color_;
+  color_t bar_color;
 
   /**
-   * The `%bar_only_` field sets The bar_only field displays a bar data but
+   * The `%bar_only` field sets The bar_only field displays a bar data but
    * not the data in the cells.
    */
-  bool bar_only_{false};
+  bool bar_only{false};
 
   /**
    * In Excel 2010 additional data bar properties were added such as solid
    * (non-gradient) bars and control over how negative values are
    * displayed. These properties can shown below.
    *
-   * The `%data_bar_2010_` field sets Excel 2010 style data bars even when
+   * The `%data_bar_2010` field sets Excel 2010 style data bars even when
    * Excel 2010 specific properties aren't used.
    */
-  bool data_bar_2010_{false};
+  bool data_bar_2010{false};
 
   /**
-   * The `%bar_solid_` field turns on a solid (non-gradient) fill for data
+   * The `%bar_solid` field turns on a solid (non-gradient) fill for data
    * bars.
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_solid_{false};
+  bool bar_solid{false};
 
   /**
-   * The `%bar_negative_color_` field sets the color fill for the negative
+   * The `%bar_negative_color` field sets the color fill for the negative
    * portion of a data bar.
    *
    * @see @ref working_with_colors.
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_negative_color_;
+  color_t bar_negative_color;
 
   /**
-   * The `%bar_border_color_` field sets the color for the border line of a
+   * The `%bar_border_color` field sets the color for the border line of a
    * data bar.
    *
    * @see @ref working_with_colors.
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_border_color_;
+  color_t bar_border_color;
 
   /**
-   * The `%bar_negative_border_color_` field sets the color for the border of
+   * The `%bar_negative_border_color` field sets the color for the border of
    * the negative portion of a data bar.
    *
    * @see @ref working_with_colors.
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_negative_border_color_;
+  color_t bar_negative_border_color;
 
   /**
-   * The `%bar_negative_color_same_` field sets the fill color for the negative
+   * The `%bar_negative_color_same` field sets the fill color for the negative
    * portion of a data bar to be the same as the fill color for the
    * positive portion of the data bar.
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_negative_color_same_{false};
+  bool bar_negative_color_same{false};
 
   /**
-   * The `%bar_negative_border_color_same_` field sets the border color for the
+   * The `%bar_negative_border_color_same` field sets the border color for the
    * negative portion of a data bar to be the same as the border color for
    * the positive portion of the data bar.
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_negative_border_color_same_{false};
+  bool bar_negative_border_color_same{false};
 
   /**
-   * The `%bar_no_border_` field turns off the border for data bars.
+   * The `%bar_no_border` field turns off the border for data bars.
    *
    * @note Excel 2010 and higher only.
    */
-  bool bar_no_border_{false};
+  bool bar_no_border{false};
 
   /**
-   * The `%bar_direction_` field sets the direction for data bars. This
+   * The `%bar_direction` field sets the direction for data bars. This
    * property can be either left for left-to-right or right for
    * right-to-left. If the property isn't set then Excel will adjust the
    * position automatically based on the context. Should be a
@@ -1172,10 +1172,10 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  conditional_format_bar_direction_t bar_direction_{conditional_format_bar_direction_t::CONTEXT};
+  conditional_format_bar_direction_t bar_direction{conditional_format_bar_direction_t::CONTEXT};
 
   /**
-   * The `%bar_axis_position_` field sets the position within the cells for the
+   * The `%bar_axis_position` field sets the position within the cells for the
    * axis that is shown in data bars when there are negative values to
    * display. The property can be either middle or none. If the property
    * isn't set then Excel will position the axis based on the range of
@@ -1184,34 +1184,34 @@ struct conditional_format_t
    *
    * @note Excel 2010 and higher only.
    */
-  conditional_bar_axis_position_t bar_axis_position_{conditional_bar_axis_position_t::AUTOMATIC};
+  conditional_bar_axis_position_t bar_axis_position{conditional_bar_axis_position_t::AUTOMATIC};
 
   /**
-   * The `%bar_axis_color_` field sets the color for the axis that is shown
+   * The `%bar_axis_color` field sets the color for the axis that is shown
    * in data bars when there are negative values to display.
    *
    * @see @ref working_with_colors.
    *
    * @note Excel 2010 and higher only.
    */
-  color_t bar_axis_color_;
+  color_t bar_axis_color;
 
   /**
-   * The Icons Sets style is specified by the `%icon_style_` parameter. Should
+   * The Icons Sets style is specified by the `%icon_style` parameter. Should
    * be a `conditional_icon_types_t`.
    */
-  conditional_icon_types_t icon_style_{conditional_icon_types_t::THREE_ARROWS_COLORED};
+  conditional_icon_types_t icon_style{conditional_icon_types_t::THREE_ARROWS_COLORED};
 
   /**
-   * The order of Icon Sets icons can be reversed by setting `%reverse_icons_`.
+   * The order of Icon Sets icons can be reversed by setting `%reverse_icons`.
    */
-  bool reverse_icons_{false};
+  bool reverse_icons{false};
 
   /**
    * The icons can be displayed without the cell value by settings the
-   *  `%icons_only_` parameter.
+   *  `%icons_only` parameter.
    */
-  bool icons_only_{false};
+  bool icons_only{false};
 
   /**
    * The multi_range field is used to extend a conditional format over
@@ -1227,15 +1227,15 @@ struct conditional_format_t
    *  conditional format and any others separated by spaces. For example
    *  `"A1 C1:C5 E2 G1:G100"`.
    */
-  std::string multi_range_;
+  std::string multi_range;
 
   /**
-   * The `%stop_if_true_` parameter can be used to set the "stop if true"
+   * The `%stop_if_true` parameter can be used to set the "stop if true"
    * feature of a conditional formatting rule when more than one rule is
    * applied to a cell or a range of cells. When this parameter is set then
    * subsequent rules are not evaluated if the current rule is true.
    */
-  bool stop_if_true_{false};
+  bool stop_if_true{false};
 };
 
 /**
@@ -1252,37 +1252,37 @@ struct table_column_t
    * Set the header name/caption for the column. If empty the header defaults
    * to `Column 1`, `Column 2`, etc.
    */
-  std::string header_;
+  std::string header;
 
   /**
    * Set the formula for the column.
    */
-  std::string formula_;
+  std::string formula;
 
   /**
    * Set the string description for the column total.
    */
-  std::string total_string_;
+  std::string total_string;
 
   /**
    * Set the function for the column total.
    */
-  table_total_functions_t total_function_{table_total_functions_t::NONE};
+  table_total_functions_t total_function{table_total_functions_t::NONE};
 
   /**
    * Set the format for the column header.
    */
-  const format_t* header_format_{nullptr};
+  const format_t* header_format{nullptr};
 
   /**
    * Set the format for the data rows in the column.
    */
-  const format_t* format_{nullptr};
+  const format_t* format{nullptr};
 
   /**
    * Set the formula value for the column total (not generally required).
    */
-  double total_value_{0.};
+  double total_value{0.};
 };
 
 /**
@@ -1301,7 +1301,7 @@ struct table_options_t
    * `Table2`, etc. in the worksheet order that they are added.
    *
    * @code
-   *  xwpp::table_options_t options{.name_ = "Sales"};
+   *  xwpp::table_options_t options{.name = "Sales"};
    *
    *  worksheet.add_table("B3:G8", options);
    * @endcode
@@ -1312,14 +1312,14 @@ struct table_options_t
    * [Naming an Excel Table](https://support.microsoft.com/en-us/office/rename-an-excel-table-fbf49a4f-82a3-43eb-8ba2-44d21233b114).
    */
   // clang-format on
-  std::string name_;
+  std::string name;
 
   /**
-   * The `%no_header_row_` parameter can be used to turn off the header row in
+   * The `%no_header_row` parameter can be used to turn off the header row in
    * the table. It is on by default:
    *
    * @code
-   *  xwpp::table_options_t options{.no_header_row_ = true};
+   *  xwpp::table_options_t options{.no_header_row = true};
    *
    *  worksheet.add_table("B4:F7", options);
    * @endcode
@@ -1328,47 +1328,47 @@ struct table_options_t
    *
    * Without this option the header row will contain default captions such
    * as `Column 1`, `Column 2`, etc. These captions can be overridden
-   * using the `%columns_` parameter shown below.
+   * using the `%columns` parameter shown below.
    */
-  bool no_header_row_{false};
+  bool no_header_row{false};
 
   /**
-   * The `%no_autofilter_` parameter can be used to turn off the autofilter in
+   * The `%no_autofilter` parameter can be used to turn off the autofilter in
    * the header row. It is on by default:
    *
    * @code
-   *  xwpp::table_options_t options{.no_autofilter_ = true};
+   *  xwpp::table_options_t options{.no_autofilter = true};
    *
    *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * @image html tables3.png
    *
-   * The autofilter is only shown if the `%no_header_row_` parameter is off
+   * The autofilter is only shown if the `%no_header_row` parameter is off
    * (the default). Filter conditions within the table are not supported.
    */
-  bool no_autofilter_{false};
+  bool no_autofilter{false};
 
   /**
-   * The `%no_banded_rows_` parameter can be used to turn off the rows of
+   * The `%no_banded_rows` parameter can be used to turn off the rows of
    * alternating color in the table. It is on by default:
    *
    * @code
-   *  xwpp::table_options_t options{.no_banded_rows_ = true};
+   *  xwpp::table_options_t options{.no_banded_rows = true};
    *
    *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
    * @image html tables6.png
    */
-  bool no_banded_rows_{false};
+  bool no_banded_rows{false};
 
   /**
-   * The `%banded_columns_` parameter can be used to used to create columns of
+   * The `%banded_columns` parameter can be used to used to create columns of
    * alternating color in the table. It is off by default:
    *
    * @code
-   *  xwpp::table_options_t options{.banded_columns_ = true};
+   *  xwpp::table_options_t options{.banded_columns = true};
    *
    *  worksheet.add_table("B3:F7", options);
    * @endcode
@@ -1376,7 +1376,7 @@ struct table_options_t
    * The banded columns formatting is shown in the image in the previous
    * section above.
    */
-  bool banded_columns_{false};
+  bool banded_columns{false};
 
   /**
    * The `first_column` parameter can be used to highlight the first column
@@ -1386,8 +1386,8 @@ struct table_options_t
    *
    * @code
    *  xwpp::table_options_t options{
-   *    .first_column_ = true,
-   *    .last_column_  = true,
+   *    .first_column = true,
+   *    .last_column  = true,
    *  };
    *
    *  worksheet.add_table("B3:F7", options);
@@ -1395,35 +1395,35 @@ struct table_options_t
    *
    * @image html tables5.png
    */
-  bool first_column_{false};
+  bool first_column{false};
 
   /**
-   * The `%last_column_` parameter can be used to highlight the last column of
+   * The `%last_column` parameter can be used to highlight the last column of
    * the table. The type of highlighting will depend on the `style` of the
    * table. It may be bold text or a different color. It is off by default:
    *
    * @code
    *  xwpp::table_options_t options{
-   *    .first_column_ = true,
-   *    .last_column_  = true,
+   *    .first_column = true,
+   *    .last_column  = true,
    *  };
    *
    *  worksheet.add_table("B3:F7", options);
    * @endcode
    *
-   * The `%last_column_` formatting is shown in the image in the previous
+   * The `%last_column` formatting is shown in the image in the previous
    * section above.
    */
-  bool last_column_{false};
+  bool last_column{false};
 
   /**
-   * The `%style_type_` parameter can be used to set the style of the table,
-   * in conjunction with the `%style_type_number_` parameter:
+   * The `%style_type` parameter can be used to set the style of the table,
+   * in conjunction with the `%style_type_number` parameter:
    *
    * @code
    *  xwpp::table_options_t options{
-   *    .style_type_        = xwpp::table_style_type_t::LIGHT,
-   *    .style_type_number_ = 11,
+   *    .style_type        = xwpp::table_style_type_t::LIGHT,
+   *    .style_type_number = 11,
    *  };
    *
    *  worksheet.add_table("B3:G8", options);
@@ -1439,7 +1439,7 @@ struct table_options_t
    * - `%table_style_type_t::DARK`
    *
    * Within those ranges there are between 11 and 28 other style types which
-   * can be set with `%style_type_number_` (depending on the style type).
+   * can be set with `%style_type_number` (depending on the style type).
    * Check Excel to find the style that you want. The dialog with the
    * options laid out in numeric order are shown below:
    *
@@ -1451,8 +1451,8 @@ struct table_options_t
    *
    * @code
    *  xwpp::table_options_t options{
-   *    .style_type_        = xwpp::table_style_type_t::MEDIUM,
-   *    .style_type_number_ = 9,
+   *    .style_type        = xwpp::table_style_type_t::MEDIUM,
+   *    .style_type_number = 9,
    *  };
    * @endcode
    *
@@ -1460,28 +1460,28 @@ struct table_options_t
    *
    * @code
    *  xwpp::table_options_t options{
-   *    .style_type_        = xwpp::table_style_type_t::LIGHT,
-   *    .style_type_number_ = 0,
+   *    .style_type        = xwpp::table_style_type_t::LIGHT,
+   *    .style_type_number = 0,
    *  };
    * @endcode
    *
    * @image html tables13.png
    */
-  table_style_type_t style_type_{table_style_type_t::DEFAULT};
+  table_style_type_t style_type{table_style_type_t::DEFAULT};
 
   /**
-   * The `%style_type_number_` parameter is used with `%style_type_` to set the
+   * The `%style_type_number` parameter is used with `%style_type` to set the
    * style of a worksheet table.
    */
-  uint8_t style_type_number_{0};
+  uint8_t style_type_number{0};
 
   /**
-   * The `%total_row_` parameter can be used to turn on the total row in the
+   * The `%total_row` parameter can be used to turn on the total row in the
    * last row of a table. It is distinguished from the other rows by a
    * different formatting and also with dropdown `SUBTOTAL` functions:
    *
    * @code
-   *  xwpp::table_options_t options{.total_row_ = true};
+   *  xwpp::table_options_t options{.total_row = true};
    *
    *  worksheet.add_table("B3:G8", options);
    * @endcode
@@ -1489,17 +1489,17 @@ struct table_options_t
    * @image html tables9.png
    *
    * The default total row doesn't have any captions or functions. These
-   * must by specified via the `%columns_` parameter below.
+   * must by specified via the `%columns` parameter below.
    */
-  bool total_row_{false};
+  bool total_row{false};
 
   /**
-   * The `%columns_` parameter can be used to set properties for columns
+   * The `%columns` parameter can be used to set properties for columns
    * within the table.
    *
    * @see @ref ww_tables_columns for a detailed explanation.
    */
-  std::vector<table_column_t> columns_;
+  std::vector<table_column_t> columns;
 };
 
 /**
@@ -1512,17 +1512,17 @@ struct filter_rule_t
   /**
    * The filter_criteria_t to define the rule.
    */
-  filter_criteria_t criteria_{filter_criteria_t::NONE};
+  filter_criteria_t criteria{filter_criteria_t::NONE};
 
   /**
    * String value to which the criteria applies.
    */
-  std::string value_string_;
+  std::string value_string;
 
   /**
-   * Numeric value to which the criteria applies (if `%value_string_` isn't used).
+   * Numeric value to which the criteria applies (if `%value_string` isn't used).
    */
-  double value_{0};
+  double value{0};
 };
 
 /**
@@ -1536,29 +1536,29 @@ struct image_options_t
   /**
    * Offset from the left of the cell in pixels.
    */
-  int32_t x_offset_{0};
+  int32_t x_offset{0};
 
   /**
    * Offset from the top of the cell in pixels.
    */
-  int32_t y_offset_{0};
+  int32_t y_offset{0};
 
   /**
    *  X scale of the image as a decimal.
    */
-  double x_scale_{1.};
+  double x_scale{1.};
 
   /**
    *  Y scale of the image as a decimal.
    */
-  double y_scale_{1.};
+  double y_scale{1.};
 
   /**
    * Object position - use one of the values of `object_position_t`.
    *
    * @see @ref working_with_object_positioning.
    */
-  object_position_t object_position_{object_position_t::DEFAULT};
+  object_position_t object_position{object_position_t::DEFAULT};
 
   /**
    * Optional description or "Alt text" for the image. This field can be
@@ -1568,31 +1568,31 @@ struct image_options_t
    * Defaults to the image filename as in Excel.
    * Set to empty string to ignore the description field.
    */
-  std::optional<std::string> description_;
+  std::optional<std::string> description;
 
   /**
    * Optional parameter to help accessibility. It is used to mark the image
    * as decorative, and thus uninformative, for automated screen
-   * readers. As in Excel, if this parameter is in use the `%description_`
+   * readers. As in Excel, if this parameter is in use the `%description`
    * field isn't written.
    */
-  bool decorative_{false};
+  bool decorative{false};
 
   /**
    * Add an optional hyperlink to the image. Follows the same URL rules
    * and types as `worksheet_t::write_url()`.
    */
-  std::string url_;
+  std::string url;
 
   /**
    * Add an optional mouseover tip for a hyperlink to the image.
    */
-  std::string tip_;
+  std::string tip;
 
   /**
    * Add an optional format to the cell. Only used with `worksheet_t::embed_image()`.
    */
-  const format_t* cell_format_;
+  const format_t* cell_format;
 };
 
 /**
@@ -1606,29 +1606,29 @@ struct chart_options_t
   /**
    * Offset from the left of the cell in pixels.
    */
-  int32_t x_offset_{0};
+  int32_t x_offset{0};
 
   /**
    * Offset from the top of the cell in pixels.
    */
-  int32_t y_offset_{0};
+  int32_t y_offset{0};
 
   /**
    * X scale of the chart as a decimal.
    */
-  double x_scale_{0.};
+  double x_scale{0.};
 
   /**
    * Y scale of the chart as a decimal.
    */
-  double y_scale_{0.};
+  double y_scale{0.};
 
   /**
    * Object position - use one of the values of `object_position_t`.
    *
    * @see @ref working_with_object_positioning.
    */
-  object_position_t object_position_{object_position_t::DEFAULT};
+  object_position_t object_position{object_position_t::DEFAULT};
 
   /**
    * Optional description or "Alt text" for the chart. This field can be
@@ -1638,15 +1638,15 @@ struct chart_options_t
    * Defaults to the image filename as in Excel. Set to empty string
    * to ignore the description field.
    */
-  std::string description_;
+  std::string description;
 
   /**
    * Optional parameter to help accessibility. It is used to mark the chart
    * as decorative, and thus uninformative, for automated screen
-   * readers. As in Excel, if this parameter is in use the `%description_`
+   * readers. As in Excel, if this parameter is in use the `%description`
    * field isn't written.
    */
-  bool decorative_{false};
+  bool decorative{false};
 };
 
 /**
@@ -1667,7 +1667,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_visible.
    */
-  comment_display_t visible_{comment_display_t::DEFAULT};
+  comment_display_t visible{comment_display_t::DEFAULT};
 
   /**
    * This option is used to indicate the author of the cell comment. Excel
@@ -1678,7 +1678,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_author.
    */
-  std::string author_;
+  std::string author;
 
   /**
    * This option is used to set the width of the cell comment box
@@ -1686,7 +1686,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_width.
    */
-  uint16_t width_{128};
+  uint16_t width{128};
 
   /**
    * This option is used to set the height of the cell comment box
@@ -1694,21 +1694,21 @@ struct comment_options_t
    *
    * @see @ref ww_comments_height.
    */
-  uint16_t height_{74};
+  uint16_t height{74};
 
   /**
    * X scale of the comment as a decimal.
    *
    * @see @ref ww_comments_x_scale.
    */
-  double x_scale_{1.};
+  double x_scale{1.};
 
   /**
    * Y scale of the comment as a decimal.
    *
    * @see @ref ww_comments_y_scale.
    */
-  double y_scale_{1.};
+  double y_scale{1.};
 
   /**
    * This option is used to set the background color of cell comment
@@ -1717,7 +1717,7 @@ struct comment_options_t
    * @see @ref working_with_colors.
    * @see @ref ww_comments_color.
    */
-  color_t color_;
+  color_t color;
 
   /**
    * This option is used to set the font for the comment. The default font
@@ -1725,7 +1725,7 @@ struct comment_options_t
    *
    * @see @ref ww_comments_font_name.
    */
-  std::string font_name_{"Tahoma"};
+  std::string font_name{"Tahoma"};
 
   /**
    * This option is used to set the font size for the comment. The default
@@ -1733,45 +1733,45 @@ struct comment_options_t
    *
    * @see @ref ww_comments_font_size.
    */
-  double font_size_{8.};
+  double font_size{8.};
 
   /**
    * This option is used to set the font family number for the comment.
    * Not required very often. Set to 0.
    */
-  uint8_t font_family_{0};
+  uint8_t font_family{0};
 
   /**
    * This option is used to set the row in which the comment will
    * appear. By default Excel displays comments one cell to the right and
-   * one cell above the cell to which the comment relates. The `%start_row_`
-   * and `%start_col_` options should both be set to 0 if not used.
+   * one cell above the cell to which the comment relates. The `%start_row`
+   * and `%start_col` options should both be set to 0 if not used.
    *
    * @see @ref ww_comments_start_row.
    */
-  row_num_t start_row_{0};
+  row_num_t start_row{0};
 
   /**
    * This option is used to set the column in which the comment will
-   * appear. See the `%start_row_` option for more information.
+   * appear. See the `%start_row` option for more information.
    *
    * @see @ref ww_comments_start_col.
    */
-  col_num_t start_col_{0};
+  col_num_t start_col{0};
 
   /**
    * Offset from the left of the cell in pixels.
    *
    * @see @ref ww_comments_x_offset.
    */
-  int32_t x_offset_{0};
+  int32_t x_offset{0};
 
   /**
    * Offset from the top of the cell in pixels.
    *
    * @see @ref ww_comments_y_offset.
    */
-  int32_t y_offset_{0};
+  int32_t y_offset{0};
 };
 
 /**
@@ -1787,52 +1787,52 @@ struct button_options_t
    * the current number of buttons in the worksheet, including this
    * button.
    */
-  std::string caption_;
+  std::string caption;
 
   /**
    * Name of the macro to run when the button is pressed. The macro must be
    * included with `workbook_t::add_vba_project()`.
    */
-  std::string macro_;
+  std::string macro;
 
   /**
    * Optional description or "Alt text" for the button. This field can be
    * used to provide a text description of the button to help
    * accessibility. Set to empty string to ignore the description field.
    */
-  std::string description_;
+  std::string description;
 
   /**
    * This option is used to set the width of the cell button box
    * explicitly in pixels. The default width is 64 pixels.
    */
-  uint16_t width_{0};
+  uint16_t width{0};
 
   /**
    * This option is used to set the height of the cell button box
    * explicitly in pixels. The default height is 20 pixels.
    */
-  uint16_t height_{0};
+  uint16_t height{0};
 
   /**
    * X scale of the button as a decimal.
    */
-  double x_scale_{0.};
+  double x_scale{0.};
 
   /**
    * Y scale of the button as a decimal.
    */
-  double y_scale_{0.};
+  double y_scale{0.};
 
   /**
    * Offset from the left of the cell in pixels.
    */
-  int32_t x_offset_{0};
+  int32_t x_offset{0};
 
   /**
    * Offset from the top of the cell in pixels.
    */
-  int32_t y_offset_{0};
+  int32_t y_offset{0};
 };
 
 /**
@@ -1850,226 +1850,228 @@ struct rich_string_tuple_t
    * The format for a string fragment in a rich string. `nullptr` if the string
    * isn't formatted.
    */
-  const format_t* format_{nullptr};
+  const format_t* format{nullptr};
 
   /**
    * The string fragment.
    */
-  std::string str_;
+  std::string str;
 };
 
 struct cell_t
 {
-  row_num_t row_num_{0};
-  col_num_t col_num_{0};
-  cell_types_t type_{cell_types_t::BLANK_CELL};
-  const format_t* format_{nullptr};
-  std::optional<vml_obj_t> comment_;
-  std::variant<uint32_t, double, std::string> data_;
-  double formula_result_{0.};
-  std::string user_data1_;
-  std::string user_data2_;
-  std::string sst_string_;
+  row_num_t row_num{0};
+  col_num_t col_num{0};
+  cell_types_t type{cell_types_t::BLANK_CELL};
+  const format_t* format{nullptr};
+  std::optional<vml_obj_t> comment;
+  std::variant<uint32_t, double, std::string> data;
+  double formula_result{0.};
+  std::string user_data1;
+  std::string user_data2;
+  std::string sst_string;
 };
 
 struct row_t
 {
-  row_num_t row_num_{0};
-  double height_{DEF_ROW_HEIGHT};
-  const format_t* format_{nullptr};
-  bool hidden_{false};
-  uint8_t level_{0};
-  bool collapsed_{false};
-  bool row_changed_{false};
-  bool data_changed_{false};
-  bool height_changed_{false};
+  row_num_t row_num{0};
+  double height{DEF_ROW_HEIGHT};
+  const format_t* format{nullptr};
+  bool hidden{false};
+  uint8_t level{0};
+  bool collapsed{false};
+  bool row_changed{false};
+  bool data_changed{false};
+  bool height_changed{false};
 
-  std::map<col_num_t, cell_t> cells_;
+  std::map<col_num_t, cell_t> cells;
 };
 
 struct table_rows_t
 {
   row_t& get_row_list(row_num_t row_num);
 
-  std::map<row_num_t, row_t> rbh_root_; // NOLINT(misc-non-private-member-variables-in-classes)
+  std::map<row_num_t, row_t> rbh_root; // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 struct col_options_t
 {
-  col_num_t firstcol_{std::numeric_limits<col_num_t>::max()};
-  col_num_t lastcol_{std::numeric_limits<col_num_t>::max()};
-  double width_{DEF_COL_WIDTH};
-  const format_t* format_{nullptr};
-  bool hidden_{false};
-  uint8_t level_{0};
-  bool collapsed_{false};
+  col_num_t firstcol{std::numeric_limits<col_num_t>::max()};
+  col_num_t lastcol{std::numeric_limits<col_num_t>::max()};
+  double width{DEF_COL_WIDTH};
+  const format_t* format{nullptr};
+  bool hidden{false};
+  uint8_t level{0};
+  bool collapsed{false};
 };
 
 struct merged_range_t
 {
-  row_num_t first_row_;
-  row_num_t last_row_;
-  col_num_t first_col_;
-  col_num_t last_col_;
+  row_num_t first_row;
+  row_num_t last_row;
+  col_num_t first_col;
+  col_num_t last_col;
 };
 
 struct repeat_rows_t
 {
-  bool in_use_{false};
-  row_num_t first_row_{0};
-  row_num_t last_row_{0};
+  bool in_use{false};
+  row_num_t first_row{0};
+  row_num_t last_row{0};
 };
 
 struct repeat_cols_t
 {
-  bool in_use_{false};
-  col_num_t first_col_{0};
-  col_num_t last_col_{0};
+  bool in_use{false};
+  col_num_t first_col{0};
+  col_num_t last_col{0};
 };
 
 struct print_area_t
 {
-  bool in_use_{false};
-  row_num_t first_row_{0};
-  row_num_t last_row_{0};
-  col_num_t first_col_{0};
-  col_num_t last_col_{0};
+  bool in_use{false};
+  row_num_t first_row{0};
+  row_num_t last_row{0};
+  col_num_t first_col{0};
+  col_num_t last_col{0};
 };
 
 struct autofilter_t
 {
-  bool in_use_{false};
-  bool has_rules_{false};
-  row_num_t first_row_{0};
-  row_num_t last_row_{0};
-  col_num_t first_col_{0};
-  col_num_t last_col_{0};
+  bool in_use{false};
+  bool has_rules{false};
+  row_num_t first_row{0};
+  row_num_t last_row{0};
+  col_num_t first_col{0};
+  col_num_t last_col{0};
 };
 
 struct panes_t
 {
-  pane_types_t type_{pane_types_t::NO_PANES};
-  row_num_t first_row_{0};
-  col_num_t first_col_{0};
-  row_num_t top_row_{0};
-  col_num_t left_col_{0};
-  double x_split_{0.};
-  double y_split_{0.};
+  pane_types_t type{pane_types_t::NO_PANES};
+  row_num_t first_row{0};
+  col_num_t first_col{0};
+  row_num_t top_row{0};
+  col_num_t left_col{0};
+  double x_split{0.};
+  double y_split{0.};
 };
 
 struct selection_t
 {
-  std::string pane_;
-  std::string active_cell_;
-  std::string sqref_;
+  std::string pane;
+  std::string active_cell;
+  std::string sqref;
 };
 
 // A copy of `data_validation_t` which is used internally and which contains
 // some additional fields.
 struct data_val_obj_t
 {
-  validation_types_t validate_{validation_types_t::NONE};
-  validation_criteria_t criteria_{validation_criteria_t::NONE};
-  bool ignore_blank_{false};
-  bool show_input_{false};
-  bool show_error_{false};
-  validation_error_types_t error_type_{validation_error_types_t::STOP};
-  bool dropdown_{false};
-  double value_number_{0.};
-  std::string value_formula_;
-  double minimum_number_{0.};
-  std::string minimum_formula_;
-  double maximum_number_{0.};
-  std::string maximum_formula_;
-  std::string input_title_;
-  std::string input_message_;
-  std::string error_title_;
-  std::string error_message_;
-  std::string sqref_;
+  validation_types_t validate{validation_types_t::NONE};
+  validation_criteria_t criteria{validation_criteria_t::NONE};
+  bool ignore_blank{false};
+  bool show_input{false};
+  bool show_error{false};
+  validation_error_types_t error_type{validation_error_types_t::STOP};
+  bool dropdown{false};
+  double value_number{0.};
+  std::string value_formula;
+  double minimum_number{0.};
+  std::string minimum_formula;
+  double maximum_number{0.};
+  std::string maximum_formula;
+  std::string input_title;
+  std::string input_message;
+  std::string error_title;
+  std::string error_message;
+  std::string sqref;
 };
 
 struct cond_format_obj_t
 {
-  conditional_format_types_t type_{conditional_format_types_t::NONE};
-  conditional_criteria_t criteria_{conditional_criteria_t::NONE};
-  double min_value_{0.};
-  std::string min_value_string_;
-  conditional_format_rule_types_t min_rule_type_{conditional_format_rule_types_t::NONE};
-  color_t min_color_;
-  double mid_value_{0.};
-  std::string mid_value_string_;
-  conditional_format_rule_types_t mid_rule_type_{conditional_format_rule_types_t::NONE};
-  color_t mid_color_;
-  double max_value_{0.};
-  std::string max_value_string_;
-  conditional_format_rule_types_t max_rule_type_{conditional_format_rule_types_t::NONE};
-  color_t max_color_;
-  bool data_bar_2010_{false};
-  bool auto_min_{false};
-  bool auto_max_{false};
-  bool bar_only_{false};
-  bool bar_solid_{false};
-  bool bar_negative_color_same_{false};
-  bool bar_negative_border_color_same_{false};
-  bool bar_no_border_{false};
-  conditional_format_bar_direction_t bar_direction_{conditional_format_bar_direction_t::CONTEXT};
-  conditional_bar_axis_position_t bar_axis_position_{conditional_bar_axis_position_t::AUTOMATIC};
-  color_t bar_color_;
-  color_t bar_negative_color_;
-  color_t bar_border_color_;
-  color_t bar_negative_border_color_;
-  color_t bar_axis_color_;
-  conditional_icon_types_t icon_style_{conditional_icon_types_t::THREE_ARROWS_COLORED};
-  bool reverse_icons_{false};
-  bool icons_only_{false};
-  bool stop_if_true_{false};
-  bool has_max_{false};
-  std::string type_string_;
-  std::string guid_;
+  conditional_format_types_t type{conditional_format_types_t::NONE};
+  conditional_criteria_t criteria{conditional_criteria_t::NONE};
+  double min_value{0.};
+  std::string min_value_string;
+  conditional_format_rule_types_t min_rule_type{conditional_format_rule_types_t::NONE};
+  color_t min_color;
+  double mid_value{0.};
+  std::string mid_value_string;
+  conditional_format_rule_types_t mid_rule_type{conditional_format_rule_types_t::NONE};
+  color_t mid_color;
+  double max_value{0.};
+  std::string max_value_string;
+  conditional_format_rule_types_t max_rule_type{conditional_format_rule_types_t::NONE};
+  color_t max_color;
+  bool data_bar_2010{false};
+  bool auto_min{false};
+  bool auto_max{false};
+  bool bar_only{false};
+  bool bar_solid{false};
+  bool bar_negative_color_same{false};
+  bool bar_negative_border_color_same{false};
+  bool bar_no_border{false};
+  conditional_format_bar_direction_t bar_direction{conditional_format_bar_direction_t::CONTEXT};
+  conditional_bar_axis_position_t bar_axis_position{conditional_bar_axis_position_t::AUTOMATIC};
+  color_t bar_color;
+  color_t bar_negative_color;
+  color_t bar_border_color;
+  color_t bar_negative_border_color;
+  color_t bar_axis_color;
+  conditional_icon_types_t icon_style{conditional_icon_types_t::THREE_ARROWS_COLORED};
+  bool reverse_icons{false};
+  bool icons_only{false};
+  bool stop_if_true{false};
+  bool has_max{false};
+  std::string type_string;
+  std::string guid;
   // PROPERTY_UNSET should not be part of format_t
-  int32_t dxf_index_{format_t::PROPERTY_UNSET};
-  uint32_t dxf_priority_{0};
-  std::string first_cell_;
-  std::string sqref_;
+  int32_t dxf_index{format_t::PROPERTY_UNSET};
+  uint32_t dxf_priority{0};
+  std::string first_cell;
+  std::string sqref;
 };
 
 struct table_obj_t
 {
-  std::string name_;
-  std::string total_string_;
-  std::vector<table_column_t> columns_;
-  bool banded_columns_{false};
-  bool first_column_{false};
-  bool last_column_{false};
-  bool no_autofilter_{false};
-  bool no_banded_rows_{false};
-  bool no_header_row_{false};
-  table_style_type_t style_type_{table_style_type_t::DEFAULT};
-  uint8_t style_type_number_{0};
-  bool total_row_{false};
-  row_num_t first_row_{0};
-  col_num_t first_col_{0};
-  row_num_t last_row_{0};
-  col_num_t last_col_{0};
+  std::string name;
+  std::string total_string;
+  std::vector<table_column_t> columns;
+  bool banded_columns{false};
+  bool first_column{false};
+  bool last_column{false};
+  bool no_autofilter{false};
+  bool no_banded_rows{false};
+  bool no_header_row{false};
+  table_style_type_t style_type{table_style_type_t::DEFAULT};
+  uint8_t style_type_number{0};
+  bool total_row{false};
+  row_num_t first_row{0};
+  col_num_t first_col{0};
+  row_num_t last_row{0};
+  col_num_t last_col{0};
   uint32_t id_{0};
-  std::string sqref_;
-  std::string filter_sqref_;
+  std::string sqref;
+  std::string filter_sqref;
 };
 
 struct filter_rule_obj_t
 {
-  filter_type_t type_{filter_type_t::NONE};
-  bool is_custom_{false};
-  bool has_blanks_{false};
-  col_num_t col_num_{0};
-  filter_criteria_t criteria1_{filter_criteria_t::NONE};
-  filter_criteria_t criteria2_{filter_criteria_t::NONE};
-  double value1_{0.};
-  double value2_{0.};
-  std::string value1_string_;
-  std::string value2_string_;
-  std::vector<std::string> list_;
+  filter_type_t type{filter_type_t::NONE};
+  bool is_custom{false};
+  bool has_blanks{false};
+  col_num_t col_num{0};
+  filter_criteria_t criteria1{filter_criteria_t::NONE};
+  filter_criteria_t criteria2{filter_criteria_t::NONE};
+  double value1{0.};
+  double value2{0.};
+  std::string value1_string;
+  std::string value2_string;
+  std::vector<std::string> list;
 };
+
+// TODO Here
 
 /**
  * @brief Representation of an Excel worksheet.
@@ -2173,26 +2175,26 @@ public:
    * The optional `options` parameter is a `row_col_options_t` struct. It has the
    * following members:
    *
-   * - `%hidden_`
-   * - `%level_`
-   * - `%collapsed_`
+   * - `%hidden`
+   * - `%level`
+   * - `%collapsed`
    *
-   * The `%hidden_` option is used to hide a column. This can be used, for
+   * The `%hidden` option is used to hide a column. This can be used, for
    * example, to hide intermediary steps in a complicated calculation:
    *
    * @code
-   *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
+   *  xwpp::row_col_options_t options{.hidden = true, .level = 0, .collapsed = false};
    *
    *  worksheet.set_column(3, 4, options);
    * @endcode
    *
    * @image html hide_row_col3.png
    *
-   * The `%hidden_`, `%level_`,  and `%collapsed_` options can also be used to
+   * The `%hidden`, `%level`,  and `%collapsed` options can also be used to
    * create Outlines and Grouping. See @ref working_with_outlines.
    *
    * @code
-   *  xwpp::row_col_options_t options{.hidden_ = false, .level = 1, .collapsed = false};
+   *  xwpp::row_col_options_t options{.hidden = false, .level = 1, .collapsed = false};
    *
    *  worksheet.set_column(1, 6, 5, &options1);
    * @endcode
@@ -2292,15 +2294,15 @@ public:
    * The `options` parameter is a `row_col_options_t` struct. It has the
    * following members:
    *
-   * - `%hidden_`
-   * - `%level_`
-   * - `%collapsed_`
+   * - `%hidden`
+   * - `%level`
+   * - `%collapsed`
    *
-   * The `%hidden_` option is used to hide a row. This can be used, for
+   * The `%hidden` option is used to hide a row. This can be used, for
    * example, to hide intermediary steps in a complicated calculation:
    *
    * @code
-   *  xwpp::row_col_options_t options{.hidden_ = true, .level_ = 0, .collapsed_ = false};
+   *  xwpp::row_col_options_t options{.hidden = true, .level = 0, .collapsed = false};
    *
    *  // Hide the fourth and fifth (zero indexed) rows.
    *  worksheet.set_row(3, 15, options);
@@ -2309,13 +2311,13 @@ public:
    *
    * @image html hide_row_col2.png
    *
-   * The `%hidden_`, `%level_`,  and `%collapsed_` options can also be used to
+   * The `%hidden`, `%level`,  and `%collapsed` options can also be used to
    * create Outlines and Grouping. See @ref working_with_outlines.
    *
    * @code
    *  // The option structs with the outline level set.
-   *  xwpp::row_col_options_t options1{.hidden_ = false, .level_ = 2, .collapsed_ = false};
-   *  xwpp::row_col_options_t options2{.hidden_ = false, .level_ = 1, .collapsed_ = false};
+   *  xwpp::row_col_options_t options1{.hidden = false, .level = 2, .collapsed = false};
+   *  xwpp::row_col_options_t options2{.hidden = false, .level = 1, .collapsed = false};
    *
    *  // Set the row options with the outline level.
    *  worksheet.set_row(1, options1);
@@ -2563,7 +2565,7 @@ public:
    *
    * @code
    *  // A datetime to display.
-   *  const xwpp::datetime_t datetime{.year_ = 2013, .month_ = 2, .day_ = 28, .hour_ = 12};
+   *  const xwpp::datetime_t datetime{.year = 2013, .month = 2, .day = 28, .hour = 12};
    *
    *  // Write the datetime without formatting.
    *  worksheet.write_datetime(0, 0, datetime); // 41333.5
@@ -2619,7 +2621,7 @@ public:
    *
    * @code
    *  // A datetime to display.
-   *  const xwpp::datetime_t datetime{.year_ = 2013, .month_ = 2, .day_ = 28, .hour_ = 12};
+   *  const xwpp::datetime_t datetime{.year = 2013, .month = 2, .day = 28, .hour = 12};
    *
    *  // Write the datetime without formatting.
    *  worksheet.write_datetime("A1", datetime); // 41333.5
@@ -2703,10 +2705,10 @@ public:
    *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
    *  const xwpp::format_t* italic = workbook.format_builder().italic().build();
    *
-   *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
-   *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
-   *  xwpp::rich_string_tuple_t fragment3{.str_  = " and this is "};
-   *  xwpp::rich_string_tuple_t fragment4{.format_ = italic, .str_ = "italic"};
+   *  xwpp::rich_string_tuple_t fragment1{.str = "This is "};
+   *  xwpp::rich_string_tuple_t fragment2{.format = bold, .str = "bold"};
+   *  xwpp::rich_string_tuple_t fragment3{.str  = " and this is "};
+   *  xwpp::rich_string_tuple_t fragment4{.format = italic, .str = "italic"};
    *
    *  std::vector<xwpp::rich_string_tuple_t> rich_string{
    *    fragment1, fragment2,
@@ -2770,10 +2772,10 @@ public:
    *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
    *  const xwpp::format_t* italic = workbook.format_builder().italic().build();
    *
-   *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
-   *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
-   *  xwpp::rich_string_tuple_t fragment3{.str_  = " and this is "};
-   *  xwpp::rich_string_tuple_t fragment4{.format_ = italic, .str_ = "italic"};
+   *  xwpp::rich_string_tuple_t fragment1{.str = "This is "};
+   *  xwpp::rich_string_tuple_t fragment2{.format = bold, .str = "bold"};
+   *  xwpp::rich_string_tuple_t fragment3{.str  = " and this is "};
+   *  xwpp::rich_string_tuple_t fragment4{.format = italic, .str = "italic"};
    *
    *  std::vector<xwpp::rich_string_tuple_t> rich_string{
    *    fragment1, fragment2,
@@ -2983,26 +2985,26 @@ public:
    * The following example shows how to add a comment to a cell with options:
    *
    * @code
-   *  xwpp::comment_options_t options{.visible_ = LXW_COMMENT_DISPLAY_VISIBLE};
+   *  xwpp::comment_options_t options{.visible =  xwpp::comment_display_t::VISIBLE};
    *
    *  worksheet.write_comment(2, 5, "Hello.", options);
    * @endcode
    *
    * The following options are available in `comment_options_t`:
    *
-   * - `%author_`
-   * - `%visible_`
-   * - `%width_`
-   * - `%height_`
-   * - `%x_scale_`
-   * - `%y_scale_`
-   * - `%color_`
-   * - `%font_name_`
-   * - `%font_size_`
-   * - `%start_row_`
-   * - `%start_col_`
-   * - `%x_offset_`
-   * - `%y_offset_`
+   * - `%author`
+   * - `%visible`
+   * - `%width`
+   * - `%height`
+   * - `%x_scale`
+   * - `%y_scale`
+   * - `%color`
+   * - `%font_name`
+   * - `%font_size`
+   * - `%start_row`
+   * - `%start_col`
+   * - `%x_offset`
+   * - `%y_offset`
    *
    * @image html comments2.png
    *
@@ -3420,7 +3422,7 @@ public:
    * @param last_col  The last col of the range.
    * @param options   Optional table options.
    *
-   * @exception xwpp_exception_t The value of `%style_type_number_` is not consistent.
+   * @exception xwpp_exception_t The value of `%style_type_number` is not consistent.
    *
    * The `%add_table()` function is used to add a table to a worksheet.
    * Tables in Excel are a way of grouping a range of cells into a
@@ -3440,10 +3442,10 @@ public:
    * @pre The `%first_col` parameter must be less than 16384.
    * @pre The `%last_row` parameter must be less than 1048576.
    * @pre The `%last_col` parameter must be less than 16384.
-   * @pre If `%options::columns_` is set, the size of `%header_` must be less than or equal to 255 UTF-8 characters.
-   * @pre If `%options` parameter is set, the size of `%name_` must be less than or equal to 255 UTF-8 characters.
-   * @pre If `%options` parameter is set, the `%name_` parameter should not be equal to "c", "C", "r" or "R".
-   * @pre If `%options` parameter is set, the `%name_` parameters must start by an alphabetic character.
+   * @pre If `%options::columns` is set, the size of `%header` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the size of `%name` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the `%name` parameter should not be equal to "c", "C", "r" or "R".
+   * @pre If `%options` parameter is set, the `%name` parameters must start by an alphabetic character.
    */
   void add_table(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
                  const std::optional<table_options_t>& options = std::nullopt);
@@ -3454,7 +3456,7 @@ public:
    * @param range_name The name of the range ("A1:B2").
    * @param options   Optional table options.
    *
-   * @exception xwpp_exception_t The value of `%style_type_number_` is not consistent.
+   * @exception xwpp_exception_t The value of `%style_type_number` is not consistent.
    *
    * This function is similar to index-based one except it uses name of the range.
    *
@@ -3467,10 +3469,10 @@ public:
    * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` is a valid range name.
-   * @pre If `%options` parameter is set, the size of `%header_` must be less than or equal to 255 UTF-8 characters.
-   * @pre If `%options` parameter is set, the size of `%name_` must be less than or equal to 255 UTF-8 characters.
-   * @pre If `%options` parameter is set, the `%name_` parameter should not be equal to "c", "C", "r" or "R".
-   * @pre If `%options` parameter is set, the `%name_` parameters must start by an alphabetic character.
+   * @pre If `%options` parameter is set, the size of `%header` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the size of `%name` must be less than or equal to 255 UTF-8 characters.
+   * @pre If `%options` parameter is set, the `%name` parameter should not be equal to "c", "C", "r" or "R".
+   * @pre If `%options` parameter is set, the `%name` parameters must start by an alphabetic character.
    */
   void add_table(std::string_view range_name, const std::optional<table_options_t>& options = std::nullopt);
 
@@ -3516,24 +3518,24 @@ public:
    * `%insert_image()` function takes an optional
    * #image_options_t struct with the following members/options:
    *
-   * - `%x_offset_`: Offset from the left of the cell in pixels.
-   * - `%y_offset_`: Offset from the top of the cell in pixels.
-   * - `%x_scale_`: X scale of the image as a decimal.
-   * - `%y_scale_`: Y scale of the image as a decimal.
-   * - `%object_position_`: See @ref working_with_object_positioning.
-   * - `%description_`: Optional description or "Alt text" for the image.
-   * - `%decorative_`: Optional parameter to mark image as decorative.
-   * - `%url_`: Add an optional hyperlink to the image.
-   * - `%tip_`: Add an optional mouseover tip for a hyperlink to the image.
+   * - `%x_offset`: Offset from the left of the cell in pixels.
+   * - `%y_offset`: Offset from the top of the cell in pixels.
+   * - `%x_scale`: X scale of the image as a decimal.
+   * - `%y_scale`: Y scale of the image as a decimal.
+   * - `%object_position`: See @ref working_with_object_positioning.
+   * - `%description`: Optional description or "Alt text" for the image.
+   * - `%decorative`: Optional parameter to mark image as decorative.
+   * - `%url`: Add an optional hyperlink to the image.
+   * - `%tip`: Add an optional mouseover tip for a hyperlink to the image.
    *
    * For example, to scale and position the image:
    *
    * @code
    *  xwpp::image_options_t options{
-   *    .x_offset_ = 30,
-   *    .y_offset_ = 10,
-   *    .x_scale_  = 0.5,
-   *    .y_scale_  = 0.5,
+   *    .x_offset = 30,
+   *    .y_offset = 10,
+   *    .x_scale  = 0.5,
+   *    .y_scale  = 0.5,
    *  };
    *
    *  worksheet.insert_image(2, 1, "logo.png", options);
@@ -3541,11 +3543,11 @@ public:
    *
    * @image html insert_image_opt.png
    *
-   * The `%url_` field of `image_options_t` can be use to used to add a hyperlink
+   * The `%url` field of `image_options_t` can be use to used to add a hyperlink
    * to an image:
    *
    * @code
-   *  xwpp::image_options_t options{.url_ = "https://github.com/glerbret/xlsxwriterpp"};
+   *  xwpp::image_options_t options{.url = "https://github.com/glerbret/xlsxwriterpp"};
    *
    *  worksheet.insert_image(3, 1, "logo.png", options);
    * @endcode
@@ -3553,12 +3555,12 @@ public:
    * The supported URL formats are the same as those supported by the
    * `write_url()` method and the same rules/limits apply.
    *
-   * The `%tip_` field of `image_options_t` can be use to used to add a mouseover
+   * The `%tip` field of `image_options_t` can be use to used to add a mouseover
    * tip to the hyperlink:
    *
    * @code
-   *  xwpp::image_options_t options{.url_ = "https://github.com/glerbret/xlsxwriterpp",
-   *                                .tip_ = "GitHub"};
+   *  xwpp::image_options_t options{.url = "https://github.com/glerbret/xlsxwriterpp",
+   *                                .tip = "GitHub"};
    *  worksheet.insert_image(4, 1, "logo.png", options);
    * @endcode
    *
@@ -3620,21 +3622,21 @@ public:
    * `%insert_image_buffer()` function takes an optional
    * #image_options_t struct with the following members/options:
    *
-   * - `%x_offset_`: Offset from the left of the cell in pixels.
-   * - `%y_offset_`: Offset from the top of the cell in pixels.
-   * - `%x_scale_`: X scale of the image as a decimal.
-   * - `%y_scale_`: Y scale of the image as a decimal.
-   * - `%object_position_`: See @ref working_with_object_positioning.
-   * - `%description-`: Optional description or "Alt text" for the image.
-   * - `%decorative-`: Optional parameter to mark image as decorative.
-   * - `%url_`: Add an optional hyperlink to the image.
-   * - `%tip_`: Add an optional mouseover tip for a hyperlink to the image.
+   * - `%x_offset`: Offset from the left of the cell in pixels.
+   * - `%y_offset`: Offset from the top of the cell in pixels.
+   * - `%x_scale`: X scale of the image as a decimal.
+   * - `%y_scale`: Y scale of the image as a decimal.
+   * - `%object_position`: See @ref working_with_object_positioning.
+   * - `%descriptio-`: Optional description or "Alt text" for the image.
+   * - `%decorativ-`: Optional parameter to mark image as decorative.
+   * - `%url`: Add an optional hyperlink to the image.
+   * - `%tip`: Add an optional mouseover tip for a hyperlink to the image.
    *
    * For example, to scale and position the image:
    *
    * @code
-   *  xwpp::image_options_t options{.x_offset_ = 32, .y_offset_ = 4,
-   *                                .x_scale_  = 2,  .y_scale_  = 1};
+   *  xwpp::image_options_t options{.x_offset = 32, .y_offset = 4,
+   *                                .x_scale  = 2,  .y_scale  = 1};
    *
    *  worksheet.insert_image_buffer(1, 2, image_buffer, options);
    * @endcode
@@ -3705,10 +3707,10 @@ public:
    * image_options_t parameters, to add urls or format the cell background,
    * with the following members/options:
    *
-   * - `%description_`: Optional description or "Alt text" for the image.
-   * - `%decorative_`: Optional parameter to mark image as decorative.
-   * - `%url_`: Add an optional hyperlink to the image.
-   * - `%cell_format_`: Add a format for the cell behind the embedded image.
+   * - `%description`: Optional description or "Alt text" for the image.
+   * - `%decorative`: Optional parameter to mark image as decorative.
+   * - `%url`: Add an optional hyperlink to the image.
+   * - `%cell_format`: Add a format for the cell behind the embedded image.
    *
    * @pre The `%row_num` parameter must be less than 1048576.
    * @pre The `%col_num` parameter must be less than 16384.
@@ -3756,10 +3758,10 @@ public:
    * The `%embed_image_buffer()` function takes an optional
    * #image_options_t struct with the following members/options:
    *
-   * - `%description_`: Optional description or "Alt text" for the image.
-   * - `%decorative_`: Optional parameter to mark image as decorative.
-   * - `%url_`: Add an optional hyperlink to the image.
-   * - `%cell_format_`: Add a format for the cell behind the embedded image.
+   * - `%description`: Optional description or "Alt text" for the image.
+   * - `%decorative`: Optional parameter to mark image as decorative.
+   * - `%url`: Add an optional hyperlink to the image.
+   * - `%cell_format`: Add a format for the cell behind the embedded image.
    *
    * See `embed_image()` for details about the supported image
    * formats, options, and other image features.
@@ -3823,10 +3825,10 @@ public:
    *
    * @code
    *  xwpp::chart_options_t options{
-   *    .x_offset_ = 30,
-   *    .y_offset_ = 10,
-   *    .x_scale_  = 0.5,
-   *    .y_scale_  = 0.75,
+   *    .x_offset = 30,
+   *    .y_offset = 10,
+   *    .x_scale  = 0.5,
+   *    .y_scale  = 0.75,
    *  };
    *
    *  worksheet.insert_chart(0, 2, &chart, options);
@@ -3885,8 +3887,8 @@ public:
    *
    * @code
    *  xwpp::button_options_t options{
-   *    .caption_ = "Press Me",
-   *    .macro_   = "say_hello",
+   *    .caption = "Press Me",
+   *    .macro   = "say_hello",
    *  };
    *
    *  worksheet.insert_button(2, 1, options);
@@ -3914,8 +3916,8 @@ public:
    *
    * @code
    *  xwpp::button_options_t options{
-   *    .caption_ = "Press Me",
-   *    .macro_   = "say_hello",
+   *    .caption = "Press Me",
+   *    .macro   = "say_hello",
    *  };
    *
    *  worksheet.insert_button("B3", options);
@@ -4081,8 +4083,8 @@ public:
    *
    * @code
    *  xwpp::filter_rule_t filter_rule{
-   *    .criteria_ = xwpp::filter_criteria_t::EQUAL_TO,
-   *    .value_string_ = "East",
+   *    .criteria = xwpp::filter_criteria_t::EQUAL_TO,
+   *    .value_string = "East",
    *  };
    *
    *  worksheet.filter_column(0, filter_rule);
@@ -4121,14 +4123,14 @@ public:
    *
    * @code
    *  xwpp::filter_rule_t filter_rule1{
-   *    .criteria_ = xwpp::filter_criteria_t::EQUAL_TO,
-   *    .value_string_ = "East",
+   *    .criteria = xwpp::filter_criteria_t::EQUAL_TO,
+   *    .value_string = "East",
    *  };
    *
    *  xwpp::filter_rule_t filter_rule2
    *  {
-   *    .criteria_ = xwpp::filter_criteria_t::EQUAL_TO,
-   *    .value_string_ = "South",
+   *    .criteria = xwpp::filter_criteria_t::EQUAL_TO,
+   *    .value_string = "South",
    *  };
    *
    *   worksheet.filter_column2(0, filter_rule1, filter_rule2, xwpp::filter_operator_t::OR);
@@ -4339,10 +4341,10 @@ public:
    * conditional format for a cell in a worksheet:
    *
    * @code
-   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
-   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
-   *  conditional_format->value_    = 50;
-   *  conditional_format->format_   = format;
+   *  conditional_format->type     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+   *  conditional_format->value    = 50;
+   *  conditional_format->format   = format;
    *
    *  worksheet.conditional_format_cell(0, 0, conditional_format);
    * @endcode
@@ -4365,10 +4367,10 @@ public:
    * This function is similar to index-based one except they use name of the cell.
    *
    * @code
-   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
-   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
-   *  conditional_format->value_    = 50;
-   *  conditional_format->format_   = format;
+   *  conditional_format->type     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+   *  conditional_format->value    = 50;
+   *  conditional_format->format   = format;
    *
    *  worksheet.conditional_format_cell("A1", conditional_format);
    * @endcode
@@ -4392,17 +4394,17 @@ public:
    * conditional format for a range of cells in a worksheet:
    *
    * @code
-   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
-   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
-   *  conditional_format->value_    = 50;
-   *  conditional_format->format_   = format1;
+   *  conditional_format->type     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+   *  conditional_format->value    = 50;
+   *  conditional_format->format   = format1;
    *
    *  worksheet.conditional_format_range(2, 1, 11, 10, conditional_format);
    *
-   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
-   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::LESS_THAN;
-   *  conditional_format->value_    = 50;
-   *  conditional_format->format_   = format2;
+   *  conditional_format->type     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria = xwpp::conditional_criteria_t::LESS_THAN;
+   *  conditional_format->value    = 50;
+   *  conditional_format->format   = format2;
    *
    *  worksheet.conditional_format_range(2, 1, 11, 10, conditional_format);
    * @endcode
@@ -4430,10 +4432,10 @@ public:
    * This function is similar to index-based one except it uses name of the range.
    *
    * @code
-   *  conditional_format->type_     = xwpp::conditional_format_types_t::CELL;
-   *  conditional_format->criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
-   *  conditional_format->value_    = 50;
-   *  conditional_format->format_   = format1;
+   *  conditional_format->type     = xwpp::conditional_format_types_t::CELL;
+   *  conditional_format->criteria = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO;
+   *  conditional_format->value    = 50;
+   *  conditional_format->format   = format1;
    *
    *  worksheet.conditional_format_range("B3:K12", conditional_format);
    * @endcode
@@ -4460,10 +4462,10 @@ public:
    *
    * @code
    *  xwpp::data_validation_t{
-   *    .validate_       = xwpp::validation_types_t::INTEGER;
-   *    .criteria_       = xwpp::validation_criteria_t::BETWEEN;
-   *    .minimum_number_ = 1;
-   *    .maximum_number_ = 10
+   *    .validate       = xwpp::validation_types_t::INTEGER;
+   *    .criteria       = xwpp::validation_criteria_t::BETWEEN;
+   *    .minimum_number = 1;
+   *    .maximum_number = 10
    *  };
    *
    *  worksheet.data_validation_cell(2, 1, data_validation);
@@ -4493,10 +4495,10 @@ public:
    *
    * @code
    *  xwpp::data_validation_t{
-   *    .validate_       = xwpp::validation_types_t::INTEGER;
-   *    .criteria_       = xwpp::validation_criteria_t::BETWEEN;
-   *    .minimum_number_ = 1;
-   *    .maximum_number_ = 10
+   *    .validate       = xwpp::validation_types_t::INTEGER;
+   *    .criteria       = xwpp::validation_criteria_t::BETWEEN;
+   *    .minimum_number = 1;
+   *    .maximum_number = 10
    *  };
    *
    *  worksheet.data_validation_cell("B3", data_validation);
@@ -4529,10 +4531,10 @@ public:
    *
    * @code
    *  xwpp::data_validation_t{
-   *    .validate_       = xwpp::validation_types_t::INTEGER;
-   *    .criteria_       = xwpp::validation_criteria_t::BETWEEN;
-   *    .minimum_number_ = 1;
-   *    .maximum_number_ = 10
+   *    .validate       = xwpp::validation_types_t::INTEGER;
+   *    .criteria       = xwpp::validation_criteria_t::BETWEEN;
+   *    .minimum_number = 1;
+   *    .maximum_number = 10
    *  };
    *
    *  worksheet.data_validation_range(2, 1, 4, 1, data_validation);
@@ -4549,8 +4551,8 @@ public:
    * @pre Length of input title must be less than or equal to 32 UTF-8 characters.
    * @pre Length of error message must be less than or equal to 255 UTF-8 characters.
    * @pre Length of input message must be less than or equal to 255 UTF-8 characters.
-   * @pre If validation type is list, the `%value_list_` should not be empty.
-   * @pre If validation type is list, the size of concatenated `%value_list_` must be less than or equal to 255 UTF-8
+   * @pre If validation type is list, the `%value_list` should not be empty.
+   * @pre If validation type is list, the size of concatenated `%value_list` must be less than or equal to 255 UTF-8
    * characters.
    */
   void data_validation_range(row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col,
@@ -4566,10 +4568,10 @@ public:
    *
    * @code
    *  xwpp::data_validation_t{
-   *    .validate_       = xwpp::validation_types_t::INTEGER;
-   *    .criteria_       = xwpp::validation_criteria_t::BETWEEN;
-   *    .minimum_number_ = 1;
-   *    .maximum_number_ = 10
+   *    .validate       = xwpp::validation_types_t::INTEGER;
+   *    .criteria       = xwpp::validation_criteria_t::BETWEEN;
+   *    .minimum_number = 1;
+   *    .maximum_number = 10
    *  };
    *
    *  worksheet.data_validation_range("B3:B5", data_validation);
@@ -4737,7 +4739,7 @@ public:
    * effect using `set_header()`:
    *
    * @code
-   *  xwpp::header_footer_options_t header_options{.image_center_ = "watermark.png"};
+   *  xwpp::header_footer_options_t header_options{.image_center = "watermark.png"};
    *  worksheet.set_header(worksheet, "&C&G", header_options);
    * @endcode
    *
@@ -4807,7 +4809,7 @@ public:
    *  worksheet.set_comments_author("John Doe")
    * @endcode
    *
-   * Individual authors can be set using the `%author_` option of the
+   * Individual authors can be set using the `%author` option of the
    * `comment_options_t` struct and the `write_comment()`
    * function (see above and @ref ww_comments_author).
    */
@@ -4870,7 +4872,7 @@ public:
    *  worksheet.show_comments();
    * @endcode
    *
-   * Individual comments can be made visible or hidden using the `%visible_`
+   * Individual comments can be made visible or hidden using the `%visible`
    * option of the `comment_options_t` struct and the `write_comment()` function
    * (see above and @ref  ww_comments_visible).
    */
@@ -4941,33 +4943,33 @@ public:
    * `protection_t` pointer in the `options` argument with any or all of the
    * following members set:
    *
-   * - `%no_select_locked_cells_`
-   * - `%no_select_unlocked_cells_`
-   * - `%format_cells_`
-   * - `%format_columns_`
-   * - `%format_rows_`
-   * - `%insert_columns_`
-   * - `%insert_rows_`
-   * - `%insert_hyperlinks_`
-   * - `%delete_columns_`
-   * - `%delete_rows_`
-   * - `%sort_`
-   * - `%autofilter_`
-   * - `%pivot_tables_`
-   * - `%scenarios_`
-   * - `%objects_`
+   * - `%no_select_locked_cells`
+   * - `%no_select_unlocked_cells`
+   * - `%format_cells`
+   * - `%format_columns`
+   * - `%format_rows`
+   * - `%insert_columns`
+   * - `%insert_rows`
+   * - `%insert_hyperlinks`
+   * - `%delete_columns`
+   * - `%delete_rows`
+   * - `%sort`
+   * - `%autofilter`
+   * - `%pivot_tables`
+   * - `%scenarios`
+   * - `%objects`
    *
    * All parameters are off by default. Individual elements can be protected as
    * follows:
    *
    * @code
    *  xwpp::protection_t options{
-   *    .format_cells_      = true,
-   *    .insert_hyperlinks_ = true,
-   *    .insert_rows_       = true,
-   *    .delete_rows_       = true,
-   *    .insert_columns_    = true,
-   *    .delete_columns_    = true,
+   *    .format_cells      = true,
+   *    .insert_hyperlinks = true,
+   *    .insert_rows       = true,
+   *    .delete_rows       = true,
+   *    .insert_columns    = true,
+   *    .delete_columns    = true,
    *  };
    *
    *  worksheet.protect(worksheet, options);

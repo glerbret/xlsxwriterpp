@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_CASE(condtional_format21)
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_         = xwpp::conditional_format_types_t::CELL,
-    .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
-    .value_        = 5,
-    .stop_if_true_ = true,
+    .type         = xwpp::conditional_format_types_t::CELL,
+    .criteria     = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value        = 5,
+    .stop_if_true = true,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 

@@ -365,32 +365,32 @@ datetime_t to_datetime(const std::chrono::system_clock::time_point& datetime)
   // time_point set to epoch date (1970-01-01) are time only
   if(year == 1970 && month == 1 && day == 1)
   {
-    return datetime_t{.year_  = 0,
-                      .month_ = 0,
-                      .day_   = 0,
-                      .hour_  = static_cast<int>(time.hours().count()),
-                      .min_   = static_cast<int>(time.minutes().count()),
-                      .sec_   = static_cast<double>(time.seconds().count()) +
-                              (static_cast<double>(time.subseconds().count()) / 1000.0)};
+    return datetime_t{.year  = 0,
+                      .month = 0,
+                      .day   = 0,
+                      .hour  = static_cast<int>(time.hours().count()),
+                      .min   = static_cast<int>(time.minutes().count()),
+                      .sec   = static_cast<double>(time.seconds().count()) +
+                             (static_cast<double>(time.subseconds().count()) / 1000.0)};
   }
 
-  return datetime_t{.year_  = year,
-                    .month_ = month,
-                    .day_   = day,
-                    .hour_  = static_cast<int>(time.hours().count()),
-                    .min_   = static_cast<int>(time.minutes().count()),
-                    .sec_   = static_cast<double>(time.seconds().count()) +
-                            (static_cast<double>(time.subseconds().count()) / 1000.0)};
+  return datetime_t{.year  = year,
+                    .month = month,
+                    .day   = day,
+                    .hour  = static_cast<int>(time.hours().count()),
+                    .min   = static_cast<int>(time.minutes().count()),
+                    .sec   = static_cast<double>(time.seconds().count()) +
+                           (static_cast<double>(time.subseconds().count()) / 1000.0)};
 }
 
 datetime_t to_datetime(const tm& datetime)
 {
-  return {.year_  = datetime.tm_year + 1900,
-          .month_ = datetime.tm_mon + 1,
-          .day_   = datetime.tm_mday,
-          .hour_  = datetime.tm_hour,
-          .min_   = datetime.tm_min,
-          .sec_   = static_cast<double>(datetime.tm_sec)};
+  return {.year  = datetime.tm_year + 1900,
+          .month = datetime.tm_mon + 1,
+          .day   = datetime.tm_mday,
+          .hour  = datetime.tm_hour,
+          .min   = datetime.tm_min,
+          .sec   = static_cast<double>(datetime.tm_sec)};
 }
 
 double datetime_to_excel_date_with_epoch(const std::chrono::system_clock::time_point& datetime, bool use_1904_epoch)
@@ -407,12 +407,12 @@ double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_19
 {
   assert(datetime_validate(datetime));
 
-  int year{datetime.year_};
-  int month{datetime.month_};
-  int day{datetime.day_};
-  const int hour{datetime.hour_};
-  const int min{datetime.min_};
-  const double sec{datetime.sec_};
+  int year{datetime.year};
+  int month{datetime.month};
+  int day{datetime.day};
+  const int hour{datetime.hour};
+  const int min{datetime.min};
+  const double sec{datetime.sec};
   const int epoch{use_1904_epoch ? 1904 : 1900};
   const int offset{use_1904_epoch ? 4 : 0};
   const int norm{300};
@@ -515,47 +515,47 @@ bool datetime_validate(const datetime_t& datetime)
 {
   // Excel uses the year 1900 as the default epoch but it uses 1899-12-31 as
   // the 0 date and internally we use the 0-0-0 date for time only values.
-  if(datetime.year_ < 1900 && (datetime.year_ != 0 || datetime.month_ != 0 || datetime.day_ != 0) &&
-     (datetime.year_ != 1899 || datetime.month_ != 12 || datetime.day_ != 31))
+  if(datetime.year < 1900 && (datetime.year != 0 || datetime.month != 0 || datetime.day != 0) &&
+     (datetime.year != 1899 || datetime.month != 12 || datetime.day != 31))
   {
     return false;
   }
 
-  if(datetime.year_ > 9999)
+  if(datetime.year > 9999)
   {
     return false;
   }
 
-  if(datetime.year_ != 0)
+  if(datetime.year != 0)
   {
-    if(datetime.month_ < 1 || datetime.month_ > 12)
+    if(datetime.month < 1 || datetime.month > 12)
     {
       return false;
     }
 
     std::vector<int> mdays{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    if(datetime.year_ % 4 == 0 && (datetime.year_ % 100 > 0 || datetime.year_ % 400 == 0))
+    if(datetime.year % 4 == 0 && (datetime.year % 100 > 0 || datetime.year % 400 == 0))
     {
       mdays[2] = 29;
     }
 
-    if(datetime.day_ < 1 || datetime.day_ > mdays[datetime.month_])
+    if(datetime.day < 1 || datetime.day > mdays[datetime.month])
     {
       return false;
     }
   }
 
-  if(datetime.hour_ < 0 || datetime.hour_ > 23)
+  if(datetime.hour < 0 || datetime.hour > 23)
   {
     return false;
   }
 
-  if(datetime.min_ < 0 || datetime.min_ > 59)
+  if(datetime.min < 0 || datetime.min > 59)
   {
     return false;
   }
 
-  if(datetime.sec_ < 0.0 || datetime.sec_ >= 60.0)
+  if(datetime.sec < 0.0 || datetime.sec >= 60.0)
   {
     return false;
   }

@@ -19,10 +19,10 @@ int main()
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::EQUAL_TO,
-    .value_    = 7,
-    .format_   = format,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::EQUAL_TO,
+    .value    = 7,
+    .format   = format,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 

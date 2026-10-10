@@ -34,21 +34,21 @@ namespace
 
 [[nodiscard]] std::string write_text_t(const vml_obj_t& comment)
 {
-  return xml_data_element("t", comment.text_);
+  return xml_data_element("t", comment.text);
 }
 
 [[nodiscard]] std::string write_family(const vml_obj_t& comment)
 {
-  return xml_empty_tag("family", attributes_t{"val", comment.font_family_});
+  return xml_empty_tag("family", attributes_t{"val", comment.font_family});
 }
 
 [[nodiscard]] std::string write_r_font(const vml_obj_t& comment)
 {
   attributes_t attributes;
 
-  if(!comment.font_name_.empty())
+  if(!comment.font_name.empty())
   {
-    attributes.add_attribute("val", comment.font_name_);
+    attributes.add_attribute("val", comment.font_name);
   }
   else
   {
@@ -65,7 +65,7 @@ namespace
 
 [[nodiscard]] std::string write_sz(const vml_obj_t& comment)
 {
-  return xml_empty_tag("sz", attributes_t{"val", comment.font_size_});
+  return xml_empty_tag("sz", attributes_t{"val", comment.font_size});
 }
 
 [[nodiscard]] std::string write_r_pr(const vml_obj_t& comment)
@@ -101,9 +101,9 @@ namespace
 
 [[nodiscard]] std::string write_comment(const vml_obj_t& comment)
 {
-  const std::string ref = rowcol_to_cell(comment.row_num_, comment.col_num_);
-  std::string xml_data  = xml_start_tag(
-    "comment", attributes_t{std::make_pair("ref"s, ref), std::make_pair("authorId"s, comment.author_id_)});
+  const std::string ref = rowcol_to_cell(comment.row_num, comment.col_num);
+  std::string xml_data =
+    xml_start_tag("comment", attributes_t{std::make_pair("ref"s, ref), std::make_pair("authorId"s, comment.author_id)});
   xml_data += write_text(comment);
   xml_data += xml_end_tag("comment");
 
@@ -170,14 +170,14 @@ std::string comment_t::write_authors()
 
   for(auto& comment: comment_objs_)
   {
-    if(!comment.author_.empty())
+    if(!comment.author.empty())
     {
-      if(!check_author(comment.author_))
+      if(!check_author(comment.author))
       {
-        xml_data += write_author(comment.author_);
+        xml_data += write_author(comment.author);
       }
 
-      comment.author_id_ = get_author_index(comment.author_);
+      comment.author_id = get_author_index(comment.author);
     }
   }
 

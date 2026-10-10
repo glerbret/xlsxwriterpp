@@ -64,16 +64,16 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
 
   xwpp::drawing_t drawing;
   const xwpp::drawing_object_t drawing_object{
-    .type_         = xwpp::drawing_types_t::IMAGE,
-    .anchor_       = static_cast<uint8_t>(xwpp::object_position_t::MOVE_DONT_SIZE),
-    .from_         = {.col_num_ = 2, .row_num_ = 1, .col_offset_ = 0,      .row_offset_ = 0     },
-    .to_           = {.col_num_ = 3, .row_num_ = 6, .col_offset_ = 533257, .row_offset_ = 190357},
-    .col_absolute_ = 1219200,
-    .row_absolute_ = 190500,
-    .width_        = 1142857,
-    .height_       = 1142857,
-    .rel_index_    = 1,
-    .description_  = "republic.png",
+    .type         = xwpp::drawing_types_t::IMAGE,
+    .anchor       = static_cast<uint8_t>(xwpp::object_position_t::MOVE_DONT_SIZE),
+    .from         = {.col_num = 2, .row_num = 1, .col_offset = 0,      .row_offset = 0     },
+    .to           = {.col_num = 3, .row_num = 6, .col_offset = 533257, .row_offset = 190357},
+    .col_absolute = 1219200,
+    .row_absolute = 190500,
+    .width        = 1142857,
+    .height       = 1142857,
+    .rel_index    = 1,
+    .description  = "republic.png",
   };
   drawing.add_drawing_object(drawing_object);
 

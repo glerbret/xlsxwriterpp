@@ -27,7 +27,7 @@ int main()
   worksheet.write("A12", "Insert an offset image:");
 
   {
-    const xwpp::image_options_t options{.x_offset_ = 15, .y_offset_ = 10};
+    const xwpp::image_options_t options{.x_offset = 15, .y_offset = 10};
     worksheet.insert_image("B12", "logo.png", options);
   }
 
@@ -35,7 +35,7 @@ int main()
   worksheet.write("A22", "Insert a scaled image:");
 
   {
-    const xwpp::image_options_t options{.x_scale_ = 0.5, .y_scale_ = 0.5};
+    const xwpp::image_options_t options{.x_scale = 0.5, .y_scale = 0.5};
     worksheet.insert_image("B22", "logo.png", options);
   }
 
@@ -43,7 +43,7 @@ int main()
   worksheet.write("A32", "Insert an image with a hyperlink:");
 
   {
-    const xwpp::image_options_t options{.url_ = "https://github.com/glerbret"};
+    const xwpp::image_options_t options{.url = "https://github.com/glerbret"};
     worksheet.insert_image("B32", "logo.png", options);
   }
 

@@ -16,15 +16,15 @@ int main()
 
   // Create a properties structure and set some of the fields.
   const xwpp::doc_properties_t properties{
-    .title_    = "This is an example spreadsheet",
-    .subject_  = "With document properties",
-    .author_   = "Grégory Lerbret",
-    .manager_  = "John Doe",
-    .company_  = "Mine",
-    .category_ = "Example spreadsheets",
-    .keywords_ = "Sample, Example, Properties",
-    .comments_ = "Created with Xlsxwriter++",
-    .status_   = "Quo",
+    .title    = "This is an example spreadsheet",
+    .subject  = "With document properties",
+    .author   = "Grégory Lerbret",
+    .manager  = "John Doe",
+    .company  = "Mine",
+    .category = "Example spreadsheets",
+    .keywords = "Sample, Example, Properties",
+    .comments = "Created with Xlsxwriter++",
+    .status   = "Quo",
   };
 
   // Set the properties in the workbook.

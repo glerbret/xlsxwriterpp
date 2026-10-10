@@ -21,13 +21,13 @@ namespace xwpp
 
 struct heading_pair_t
 {
-  std::string key_;
-  std::string value_;
+  std::string key;
+  std::string value;
 };
 
 struct part_name_t
 {
-  std::string name_;
+  std::string name;
 };
 
 class app_t

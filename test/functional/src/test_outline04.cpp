@@ -11,13 +11,13 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outline levels");
 
-  const xwpp::row_col_options_t level1{.hidden_ = false, .level_ = 1, .collapsed_ = false};
-  const xwpp::row_col_options_t level2{.hidden_ = false, .level_ = 2, .collapsed_ = false};
-  const xwpp::row_col_options_t level3{.hidden_ = false, .level_ = 3, .collapsed_ = false};
-  const xwpp::row_col_options_t level4{.hidden_ = false, .level_ = 4, .collapsed_ = false};
-  const xwpp::row_col_options_t level5{.hidden_ = false, .level_ = 5, .collapsed_ = false};
-  const xwpp::row_col_options_t level6{.hidden_ = false, .level_ = 6, .collapsed_ = false};
-  const xwpp::row_col_options_t level7{.hidden_ = false, .level_ = 7, .collapsed_ = false};
+  const xwpp::row_col_options_t level1{.hidden = false, .level = 1, .collapsed = false};
+  const xwpp::row_col_options_t level2{.hidden = false, .level = 2, .collapsed = false};
+  const xwpp::row_col_options_t level3{.hidden = false, .level = 3, .collapsed = false};
+  const xwpp::row_col_options_t level4{.hidden = false, .level = 4, .collapsed = false};
+  const xwpp::row_col_options_t level5{.hidden = false, .level = 5, .collapsed = false};
+  const xwpp::row_col_options_t level6{.hidden = false, .level = 6, .collapsed = false};
+  const xwpp::row_col_options_t level7{.hidden = false, .level = 7, .collapsed = false};
 
   worksheet.write(0, 0, "Level 1");
   worksheet.write(1, 0, "Level 2");

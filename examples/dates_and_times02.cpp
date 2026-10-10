@@ -12,7 +12,7 @@
 int main()
 {
   // A datetime to display.
-  const xwpp::datetime_t datetime{.year_ = 2013, .month_ = 2, .day_ = 28, .hour_ = 12};
+  const xwpp::datetime_t datetime{.year = 2013, .month = 2, .day = 28, .hour = 12};
 
   // Create a new workbook and add a worksheet.
   xwpp::workbook_t workbook;

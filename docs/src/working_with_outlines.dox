@@ -40,23 +40,23 @@ single outline.
 The `options` parameter is a `row_col_options_t` struct. It has the following
 members:
 
-- `%hidden_`
-- `%level_`
-- `%collapsed_`
+- `%hidden`
+- `%level`
+- `%collapsed`
 
 Options can be set as follows, for example to set up an outline for rows:
 
 @code
   // The option structs with the outline level set.
   xwpp::row_col_options_t options1{
-    .hidden_    = false,
-    .level_     = 2,
-    .collapsed_ = false,
+    .hidden    = false,
+    .level     = 2,
+    .collapsed = false,
   };
   xwpp::row_col_options_t options2{
-    .hidden_    = false,
-    .level_     = 1,
-    .collapsed_ = false
+    .hidden    = false,
+    .level     = 1,
+    .collapsed = false
   };
 
   // Set the row options with the outline level.
@@ -79,9 +79,9 @@ Or an outline for columns:
 
 @code
   xwpp::row_col_options_t options{
-    .hidden_    = false,
-    .level_     = 1,
-    .collapsed_ = false,
+    .hidden    = false,
+    .level     = 1,
+    .collapsed = false,
   };
 
   worksheet.set_column("B:G", 5, nullptr, options1);
@@ -95,9 +95,9 @@ The following example sets an outline level of 1 for rows 1 to 4
 
 @code
   xwpp::row_col_options_ options{
-    .hidden_    = false,
-    .level_     = 1,
-    .collapsed_ = false,
+    .hidden    = false,
+    .level     = 1,
+    .collapsed = false,
   };
 
   worksheet.set_row(1, options1);
@@ -110,20 +110,20 @@ The following example sets an outline level of 1 for rows 1 to 4
 
 @image html outline3.png
 
-Rows and columns can be collapsed by setting the `%hidden_` member for the
-hidden rows/columns and setting the `%collapsed_` member for the row/column that
+Rows and columns can be collapsed by setting the `%hidden` member for the
+hidden rows/columns and setting the `%collapsed` member for the row/column that
 has the collapsed `'+'` symbol:
 
 @code
   xwpp::row_col_options_t options1{
-    .hidden_    = true,
-    .level_     = 1,
-    .collapsed_ = false,
+    .hidden    = true,
+    .level     = 1,
+    .collapsed = false,
   };
   xwpp::row_col_options_t options2{
-    .hidden_    = false,
-    .level_     = 0,
-    .collapsed_ = true,
+    .hidden    = false,
+    .level     = 0,
+    .collapsed = true,
   };
 
   worksheet.set_row(1, options1);

@@ -20,10 +20,10 @@ int main()
 
   worksheet.set_column(0, 0, 12);
 
-  worksheet.write_datetime(
-    0, 0, xwpp::datetime_t{.year_ = 0, .month_ = 0, .day_ = 0, .hour_ = 12, .min_ = 0, .sec_ = 0.}, format1);
-  worksheet.write_datetime(
-    1, 0, xwpp::datetime_t{.year_ = 2013, .month_ = 1, .day_ = 27, .hour_ = 0, .min_ = 0, .sec_ = 0.}, format2);
+  worksheet.write_datetime(0, 0, xwpp::datetime_t{.year = 0, .month = 0, .day = 0, .hour = 12, .min = 0, .sec = 0.},
+                           format1);
+  worksheet.write_datetime(1, 0, xwpp::datetime_t{.year = 2013, .month = 1, .day = 27, .hour = 0, .min = 0, .sec = 0.},
+                           format2);
 
   workbook.save("test_simple04.xlsx");
 }

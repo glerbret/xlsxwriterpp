@@ -394,13 +394,13 @@ void packager_t::write_app_file(const workbook_t& workbook)
   uint32_t named_range_count{0};
   for(const auto& defined_name: workbook.defined_names_)
   {
-    const bool has_range  = defined_name.formula_.find('!') != std::string::npos;
-    const bool autofilter = defined_name.app_name_.find("_FilterDatabase") != std::string::npos;
+    const bool has_range  = defined_name.formula.find('!') != std::string::npos;
+    const bool autofilter = defined_name.app_name.find("_FilterDatabase") != std::string::npos;
 
     // Only store defined names with ranges (except for autofilters).
     if(has_range && !autofilter)
     {
-      app.add_part_name(defined_name.app_name_);
+      app.add_part_name(defined_name.app_name);
       named_range_count++;
     }
   }
@@ -613,19 +613,19 @@ void packager_t::write_image_files(const workbook_t& workbook)
     {
       for(const auto& object_props: worksheet.get_embedded_image_properties())
       {
-        if(!object_props.is_duplicate_)
+        if(!object_props.is_duplicate)
         {
-          if(object_props.image_buffer_.empty())
+          if(object_props.image_buffer.empty())
           {
             // Read image.
-            std::ifstream image_stream{object_props.filename_, std::ios::binary};
+            std::ifstream image_stream{object_props.filename, std::ios::binary};
             const std::vector<unsigned char> buffer{std::istreambuf_iterator<char>(image_stream), {}};
-            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
+            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension));
           }
           else
           {
-            add_buffer_to_zip(object_props.image_buffer_,
-                              std::format("xl/media/image{}.{}", index, object_props.extension_));
+            add_buffer_to_zip(object_props.image_buffer,
+                              std::format("xl/media/image{}.{}", index, object_props.extension));
           }
           index++;
         }
@@ -633,19 +633,19 @@ void packager_t::write_image_files(const workbook_t& workbook)
 
       for(const auto& object_props: worksheet.image_props_)
       {
-        if(!object_props.is_duplicate_)
+        if(!object_props.is_duplicate)
         {
-          if(object_props.image_buffer_.empty())
+          if(object_props.image_buffer.empty())
           {
             // Read image.
-            std::ifstream image_stream{object_props.filename_, std::ios::binary};
+            std::ifstream image_stream{object_props.filename, std::ios::binary};
             const std::vector<unsigned char> buffer{std::istreambuf_iterator<char>(image_stream), {}};
-            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension_));
+            add_buffer_to_zip(buffer, std::format("xl/media/image{}.{}", index, object_props.extension));
           }
           else
           {
-            add_buffer_to_zip(object_props.image_buffer_,
-                              std::format("xl/media/image{}.{}", index, object_props.extension_));
+            add_buffer_to_zip(object_props.image_buffer,
+                              std::format("xl/media/image{}.{}", index, object_props.extension));
           }
           index++;
         }
@@ -682,9 +682,9 @@ void packager_t::write_rich_value_rels_file(const workbook_t& workbook)
     {
       for(const auto& object_props: worksheet.get_embedded_image_properties())
       {
-        if(!object_props.is_duplicate_)
+        if(!object_props.is_duplicate)
         {
-          relationships.add_document("/image", std::format("../media/image{}.{}", index, object_props.extension_));
+          relationships.add_document("/image", std::format("../media/image{}.{}", index, object_props.extension));
           index++;
         }
       }

@@ -17,8 +17,8 @@ int main()
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-    .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
+    .type       = xwpp::conditional_format_types_t::ICON_SETS,
+    .icon_style = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
   };
 
   worksheet.conditional_format_range("A1:A4", conditional_format);
