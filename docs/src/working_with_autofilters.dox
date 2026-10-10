@@ -17,10 +17,10 @@ the `worksheet_t::autofilter()` function:
   worksheet.autofilter(0, 0, 10, 3);
 @endcode
 
-Or more explicitly using the RANGE() macro:
+Or more explicitly using the range name:
 
 @code
-  worksheet.autofilter(RANGE("A1:D11")); //Same as above.
+  worksheet.autofilter("A1:D11"); //Same as above.
 @endcode
 
 @section ww_autofilters_data Filtering data in an autofilter
@@ -82,7 +82,7 @@ autofilter criteria:
     else
     {
       // Hide rows that don't match the filter.
-      worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+      worksheet.set_row(i + 1, hidden);
     }
   }
 @endcode
@@ -94,7 +94,7 @@ simpler, but reversed, logic:
 @code
   if(data[i].region != "East")
   {
-    worksheet.set_row(i + 1, xwpp::DEF_ROW_HEIGHT, nullptr, hidden);
+    worksheet.set_row(i + 1, hidden);
   }
 @endcode
 

@@ -13,16 +13,14 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* red_format = workbook.add_format();
+  const xwpp::format_t* red = workbook.format_builder().font_color(xwpp::color_t::red()).build();
 
-  red_format->set_font_color(xwpp::color_t::red());
-
-  worksheet.write("A1", "Foo", red_format);
+  worksheet.write("A1", "Foo", red);
   worksheet.write("A2", "Bar", nullptr);
 
   const std::vector<xwpp::rich_string_tuple_t> rich_strings{
     {.str_ = "ab"},
-    {.format_ = red_format, .str_ = "cde"},
+    {.format_ = red, .str_ = "cde"},
     {.str_ = "fg"}
   };
   worksheet.write_rich_string("A3", rich_strings);

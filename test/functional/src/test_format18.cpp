@@ -11,8 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-  format->set_quote_prefix();
+  const xwpp::format_t* format = workbook.format_builder().quote_prefix().build();
 
   worksheet.write(0, 0, "= Hello", format);
 

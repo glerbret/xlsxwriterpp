@@ -11,8 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* pattern = workbook.add_format();
-  pattern->set_pattern(xwpp::format_patterns_t::MEDIUM_GRAY);
+  const xwpp::format_t* pattern = workbook.format_builder().pattern(xwpp::format_patterns_t::MEDIUM_GRAY).build();
 
   worksheet.write("A1", "", pattern);
 

@@ -13,13 +13,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* bold   = workbook.add_format();
-  xwpp::format_t* italic = workbook.add_format();
-  xwpp::format_t* wrap   = workbook.add_format();
-
-  bold->set_bold();
-  italic->set_italic();
-  wrap->set_text_wrap();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
+  const xwpp::format_t* wrap   = workbook.format_builder().text_wrap().build();
 
   worksheet.set_column(0, 0, 30);
   worksheet.set_row(2, 60);

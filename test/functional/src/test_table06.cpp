@@ -9,6 +9,7 @@
 int main()
 {
   xwpp::workbook_t workbook;
+  workbook.unset_default_url_format();
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   worksheet.set_column("C:H", 10.288);
@@ -18,7 +19,6 @@ int main()
   worksheet.add_table("C23:D30");
 
   // Add other objects to check rId handling.
-  workbook.unset_default_url_format();
   worksheet.write_url("A1", "http://perl.com/");
   worksheet.write_url("C1", "http://perl.com/");
 

@@ -16,11 +16,8 @@ int main()
 
   const xwpp::row_col_options_t options{.hidden_ = true};
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
-
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(69197824, 69199360);

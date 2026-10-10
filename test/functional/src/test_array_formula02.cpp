@@ -11,8 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   worksheet.write(0, 1, 0);
   worksheet.write(1, 1, 0);

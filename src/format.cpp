@@ -46,8 +46,10 @@ namespace
 
 }
 
-format_t::format_t(std::function<int32_t(format_t*)> get_dxf_index)
-  : get_dxf_index_{std::move(get_dxf_index)}
+format_t::format_t(std::function<int32_t(const format_t*)> get_xf_index,
+                   std::function<int32_t(const format_t*)> get_dxf_index)
+  : get_xf_index_{std::move(get_xf_index)}
+  , get_dxf_index_{std::move(get_dxf_index)}
 {
 }
 
@@ -66,32 +68,20 @@ void format_t::set_italic()
   italic_ = true;
 }
 
-void format_t::set_align(format_alignments_t alignment)
+void format_t::set_align(format_horizontal_alignments_t horizontal, format_vertical_alignments_t vertical)
 {
-  switch(alignment)
-  {
-    case format_alignments_t::HORIZONTAL_LEFT:
-    case format_alignments_t::HORIZONTAL_CENTER:
-    case format_alignments_t::HORIZONTAL_RIGHT:
-    case format_alignments_t::HORIZONTAL_FILL:
-    case format_alignments_t::HORIZONTAL_JUSTIFY:
-    case format_alignments_t::HORIZONTAL_CENTER_ACROSS:
-    case format_alignments_t::HORIZONTAL_DISTRIBUTED:
-      text_h_align_ = alignment;
-      break;
+  text_h_align_ = horizontal;
+  text_v_align_ = vertical;
+}
 
-    case format_alignments_t::VERTICAL_TOP:
-    case format_alignments_t::VERTICAL_BOTTOM:
-    case format_alignments_t::VERTICAL_CENTER:
-    case format_alignments_t::VERTICAL_JUSTIFY:
-    case format_alignments_t::VERTICAL_DISTRIBUTED:
-      text_v_align_ = alignment;
-      break;
+void format_t::set_align(format_horizontal_alignments_t horizontal)
+{
+  text_h_align_ = horizontal;
+}
 
-    case format_alignments_t::NONE:
-      // NOP
-      break;
-  }
+void format_t::set_align(format_vertical_alignments_t vertical)
+{
+  text_v_align_ = vertical;
 }
 
 void format_t::set_font_color(color_t color)
@@ -306,32 +296,7 @@ void format_t::set_shrink()
   shrink_ = true;
 }
 
-void format_t::set_text_justlast()
-{
-  text_justlast_ = true;
-}
-
-void format_t::set_valign(format_alignments_t alignment)
-{
-  assert(alignment == format_alignments_t::VERTICAL_TOP || alignment == format_alignments_t::VERTICAL_BOTTOM ||
-         alignment == format_alignments_t::VERTICAL_CENTER || alignment == format_alignments_t::VERTICAL_JUSTIFY ||
-         alignment == format_alignments_t::VERTICAL_DISTRIBUTED);
-
-  text_v_align_ = alignment;
-}
-
-void format_t::set_halign(format_alignments_t alignment)
-{
-  assert(alignment == format_alignments_t::HORIZONTAL_LEFT || alignment == format_alignments_t::HORIZONTAL_CENTER ||
-         alignment == format_alignments_t::HORIZONTAL_RIGHT || alignment == format_alignments_t::HORIZONTAL_FILL ||
-         alignment == format_alignments_t::HORIZONTAL_JUSTIFY ||
-         alignment == format_alignments_t::HORIZONTAL_CENTER_ACROSS ||
-         alignment == format_alignments_t::HORIZONTAL_DISTRIBUTED);
-
-  text_h_align_ = alignment;
-}
-
-void format_t::set_reading_order(uint8_t value)
+void format_t::set_reading_order(format_reading_order_t value)
 {
   reading_order_ = value;
 }
@@ -359,6 +324,367 @@ void format_t::set_hyperlink()
   theme_     = 10;
 }
 
+bool operator==(const format_t& lhs, const format_t& rhs)
+{
+  return lhs.xf_id_ == rhs.xf_id_ && lhs.num_format_ == rhs.num_format_ && lhs.font_name_ == rhs.font_name_ &&
+         lhs.font_scheme_ == rhs.font_scheme_ && lhs.num_format_index_ == rhs.num_format_index_ &&
+         lhs.font_index_ == rhs.font_index_ && lhs.has_font_ == rhs.has_font_ &&
+         lhs.has_dxf_font_ == rhs.has_dxf_font_ && lhs.font_size_ == rhs.font_size_ && lhs.bold_ == rhs.bold_ &&
+         lhs.italic_ == rhs.italic_ && lhs.font_color_ == rhs.font_color_ && lhs.underline_ == rhs.underline_ &&
+         lhs.font_strikeout_ == rhs.font_strikeout_ && lhs.font_outline_ == rhs.font_outline_ &&
+         lhs.font_shadow_ == rhs.font_shadow_ && lhs.font_script_ == rhs.font_script_ &&
+         lhs.font_family_ == rhs.font_family_ && lhs.font_charset_ == rhs.font_charset_ &&
+         lhs.font_condense_ == rhs.font_condense_ && lhs.font_extend_ == rhs.font_extend_ && lhs.theme_ == rhs.theme_ &&
+         lhs.hyperlink_ == rhs.hyperlink_ && lhs.hidden_ == rhs.hidden_ && lhs.locked_ == rhs.locked_ &&
+         lhs.text_h_align_ == rhs.text_h_align_ && lhs.text_wrap_ == rhs.text_wrap_ &&
+         lhs.text_v_align_ == rhs.text_v_align_ && lhs.rotation_ == rhs.rotation_ && lhs.fg_color_ == rhs.fg_color_ &&
+         lhs.bg_color_ == rhs.bg_color_ && lhs.dxf_fg_color_ == rhs.dxf_fg_color_ &&
+         lhs.dxf_bg_color_ == rhs.dxf_bg_color_ && lhs.pattern_ == rhs.pattern_ && lhs.has_fill_ == rhs.has_fill_ &&
+         lhs.has_dxf_fill_ == rhs.has_dxf_fill_ && lhs.fill_index_ == rhs.fill_index_ &&
+         lhs.fill_count_ == rhs.fill_count_ && lhs.border_index_ == rhs.border_index_ &&
+         lhs.has_border_ == rhs.has_border_ && lhs.has_dxf_border_ == rhs.has_dxf_border_ &&
+         lhs.border_count_ == rhs.border_count_ && lhs.bottom_ == rhs.bottom_ && lhs.diag_border_ == rhs.diag_border_ &&
+         lhs.diag_type_ == rhs.diag_type_ && lhs.left_ == rhs.left_ && lhs.right_ == rhs.right_ &&
+         lhs.top_ == rhs.top_ && lhs.bottom_color_ == rhs.bottom_color_ && lhs.diag_color_ == rhs.diag_color_ &&
+         lhs.left_color_ == rhs.left_color_ && lhs.right_color_ == rhs.right_color_ &&
+         lhs.top_color_ == rhs.top_color_ && lhs.indent_ == rhs.indent_ && lhs.shrink_ == rhs.shrink_ &&
+         lhs.merge_range_ == rhs.merge_range_ && lhs.reading_order_ == rhs.reading_order_ &&
+         lhs.just_distrib_ == rhs.just_distrib_ && lhs.color_indexed_ == rhs.color_indexed_ &&
+         lhs.font_only_ == rhs.font_only_ && lhs.quote_prefix_ == rhs.quote_prefix_;
+}
+
+int32_t format_t::get_xf_index() const
+{
+  if(xf_index_ != PROPERTY_UNSET)
+  {
+    return xf_index_;
+  }
+
+  return get_xf_index_(this);
+}
+
+int32_t format_t::get_dxf_index() const
+{
+  if(dxf_index_ != PROPERTY_UNSET)
+  {
+    return dxf_index_;
+  }
+
+  return get_dxf_index_(this);
+}
+
 const std::string format_t::DEFAULT_FONT_NAME{"Calibri"};
+
+format_builder_t::format_builder_t(std::function<const format_t*(const format_t&)> insert_format)
+  : insert_format_{std::move(insert_format)}
+{
+}
+
+format_builder_t& format_builder_t::num_format(std::string_view num_format)
+{
+  current_.set_num_format(num_format);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bold()
+{
+  current_.set_bold();
+  return *this;
+}
+
+format_builder_t& format_builder_t::italic()
+{
+  current_.set_italic();
+  return *this;
+}
+
+format_builder_t& format_builder_t::align(format_horizontal_alignments_t horizontal,
+                                          format_vertical_alignments_t vertical)
+{
+  current_.set_align(horizontal, vertical);
+  return *this;
+}
+
+format_builder_t& format_builder_t::align(format_horizontal_alignments_t horizontal)
+{
+  current_.set_align(horizontal);
+  return *this;
+}
+
+format_builder_t& format_builder_t::align(format_vertical_alignments_t vertical)
+{
+  current_.set_align(vertical);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_color(color_t color)
+{
+  current_.set_font_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::fg_color(color_t color)
+{
+  current_.set_fg_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bg_color(color_t color)
+{
+  current_.set_bg_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::underline(format_underlines_t style)
+{
+  current_.set_underline(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::text_wrap()
+{
+  current_.set_text_wrap();
+  return *this;
+}
+
+format_builder_t& format_builder_t::border(format_borders_t style)
+{
+  current_.set_border(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bottom(format_borders_t style)
+{
+  current_.set_bottom(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::top(format_borders_t style)
+{
+  current_.set_top(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::left(format_borders_t style)
+{
+  current_.set_left(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::right(format_borders_t style)
+{
+  current_.set_right(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::pattern(format_patterns_t pattern)
+{
+  current_.set_pattern(pattern);
+  return *this;
+}
+
+format_builder_t& format_builder_t::border_color(color_t color)
+{
+  current_.set_border_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::bottom_color(color_t color)
+{
+  current_.set_bottom_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::top_color(color_t color)
+{
+  current_.set_top_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::left_color(color_t color)
+{
+  current_.set_left_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::right_color(color_t color)
+{
+  current_.set_right_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::diag_type(format_diagonal_types_t type)
+{
+  current_.set_diag_type(type);
+  return *this;
+}
+
+format_builder_t& format_builder_t::diag_border(format_borders_t style)
+{
+  current_.set_diag_border(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::diag_color(color_t color)
+{
+  current_.set_diag_color(color);
+  return *this;
+}
+
+format_builder_t& format_builder_t::num_format_index(uint8_t index)
+{
+  current_.set_num_format_index(index);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_name(std::string_view font_name)
+{
+  current_.set_font_name(font_name);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_size(double size)
+{
+  current_.set_font_size(size);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_strikeout()
+{
+  current_.set_font_strikeout();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_script(format_scripts_t style)
+{
+  current_.set_font_script(style);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_family(uint8_t value)
+{
+  current_.set_font_family(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_charset(uint8_t value)
+{
+  current_.set_font_charset(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_outline()
+{
+  current_.set_font_outline();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_shadow()
+{
+  current_.set_font_shadow();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_scheme(std::string_view font_scheme)
+{
+  current_.set_font_scheme(font_scheme);
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_condense()
+{
+  current_.set_font_condense();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_extend()
+{
+  current_.set_font_extend();
+  return *this;
+}
+
+format_builder_t& format_builder_t::font_only()
+{
+  current_.set_font_only();
+  return *this;
+}
+
+format_builder_t& format_builder_t::unlocked()
+{
+  current_.set_unlocked();
+  return *this;
+}
+
+format_builder_t& format_builder_t::hidden()
+{
+  current_.set_hidden();
+  return *this;
+}
+
+format_builder_t& format_builder_t::rotation(int16_t angle)
+{
+  assert(angle >= -90 && angle <= 90);
+
+  current_.set_rotation(angle);
+  return *this;
+}
+
+format_builder_t& format_builder_t::vertical_text()
+{
+  current_.set_rotation(270);
+  return *this;
+}
+
+format_builder_t& format_builder_t::indent(uint8_t level)
+{
+  current_.set_indent(level);
+  return *this;
+}
+
+format_builder_t& format_builder_t::shrink()
+{
+  current_.set_shrink();
+  return *this;
+}
+
+format_builder_t& format_builder_t::reading_order(format_reading_order_t value)
+{
+  current_.set_reading_order(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::theme(uint8_t value)
+{
+  current_.set_theme(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::color_indexed(uint8_t value)
+{
+  current_.set_color_indexed(value);
+  return *this;
+}
+
+format_builder_t& format_builder_t::quote_prefix()
+{
+  current_.set_quote_prefix();
+  return *this;
+}
+
+format_builder_t& format_builder_t::hyperlink()
+{
+  current_.set_hyperlink();
+  return *this;
+}
+
+const format_t* format_builder_t::build()
+{
+  const format_t* format = insert_format_(current_);
+
+  // Reset format
+  current_ = format_t{};
+
+  return format;
+}
 
 }

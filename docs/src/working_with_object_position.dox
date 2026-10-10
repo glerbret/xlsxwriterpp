@@ -19,17 +19,17 @@ For example:
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
     // Original image.
-    worksheet.insert_image(CELL("B2"), "logo.png");
+    worksheet.insert_image("B2", "logo.png");
 
     // Same as original, despite row/col changes.
-    worksheet.insert_image(CELL("E8"), "logo.png");
+    worksheet.insert_image("E8", "logo.png");
 
     // Make column F narrower.
-    worksheet.set_column(COLS("F:F"), 2);
+    worksheet.set_column("F:F", 2);
 
     // Hide row 12 (zero indexed).
     xwpp::row_col_options_t row_options = {.hidden_ = true};
-    worksheet.set_row(11, xwpp::DEF_ROW_HEIGHT, nullptr, row_options);
+    worksheet.set_row(11, row_options);
 
     workbook_save("images.xlsx");
   }
@@ -60,13 +60,12 @@ may appear as if it is sized incorrectly. For example::
     xwpp::workbook_t workbook;
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    xwpp::format_t* wrap = workbook.add_format();
-    wrap->set_text_wrap();
+    const xwpp::format_t* wrap = workbook.format_builder().text_wrap().build();
 
-    worksheet.write(CELL("A10"), "Some text that wraps", wrap);
+    worksheet.write("A10", "Some text that wraps", wrap);
 
-    worksheet.insert_image(CELL("B1"),  "logo.png");
-    worksheet.insert_image(CELL("B10"), "logo.png");
+    worksheet.insert_image("B1",  "logo.png");
+    worksheet.insert_image("B10", "logo.png");
 
     workbook_save("images.xlsx");
   }
@@ -90,7 +89,7 @@ Image and chart objects in `Xlsxwriter++` emulate these options using the
 
 @code
   xwpp::image_options_t options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE};
-  worksheet.insert_image(CELL("E9"), "red.png", options);
+  worksheet.insert_image("E9", "red.png", options);
 @endcode
 
 Where `%object_position_` has one of the following allowable values from
@@ -122,13 +121,13 @@ image in a cell, possibly as part of an autofilter. For example:
 
     xwpp::image_options_t image_options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
 
-    worksheet.insert_image(CELL("B4"), "logo.png");
-    worksheet.insert_image(CELL("B13"), "logo.png", image_options);
+    worksheet.insert_image("B4", "logo.png");
+    worksheet.insert_image("B13", "logo.png", image_options);
 
     // Hide the rows that contain the images.
     xwpp::row_col_options_t row_options{.hidden_ = true};
     for(xwpp::row_num_t row_num = 1; row_num < 22; row_num++)
-      worksheet.set_row(row_num, xwpp::DEF_ROW_HEIGHT, nullptr, row_options);
+      worksheet.set_row(row_num, row_options);
 
     workbook.save("images.xlsx");
   }

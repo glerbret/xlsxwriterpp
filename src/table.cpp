@@ -128,7 +128,7 @@ std::string table_t::write_table_column(uint16_t id, const table_column_t& colum
 
   if(column.format_)
   {
-    const int32_t dfx_id = column.format_->get_dxf_index_(column.format_);
+    const int32_t dfx_id = column.format_->get_dxf_index();
     attributes.add_attribute("dataDxfId", dfx_id);
   }
 

@@ -11,6 +11,7 @@
 int main()
 {
   xwpp::workbook_t workbook;
+  workbook.unset_default_url_format();
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   xwpp::chart_t& chart1        = workbook.add_chart(xwpp::chart_type_t::BAR);
   xwpp::chart_t& chart2        = workbook.add_chart(xwpp::chart_type_t::BAR);
@@ -20,8 +21,6 @@ int main()
   chart1.set_axis_ids(40274944, 40294272);
   chart2.set_axis_ids(62355328, 62356864);
   chart3.set_axis_ids(79538816, 65422464);
-
-  workbook.unset_default_url_format();
 
   const std::array<std::array<uint8_t, 3>, 5> data{
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}

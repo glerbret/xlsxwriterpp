@@ -11,9 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-  format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
-  format->set_bold();
+  const xwpp::format_t* format =
+    workbook.format_builder().bold().align(xwpp::format_horizontal_alignments_t::CENTER).build();
 
   worksheet.merge_range(1, 1, 1, 3, "Foo", format);
 

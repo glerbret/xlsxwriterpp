@@ -25,20 +25,16 @@
  *
  * @image html formats_intro.png
  *
- * Formats in `Xlsxwriter++` are accessed via the `format_t`
- * class. Throughout this document these will be referred to simply as
- * *Formats*.
+ * Formats in `Xlsxwriter++` are accessed via the `format_t` class
+ * that represent the format itself and `format_builder_t` that build format.
+ * Throughout this document these will be referred to simply as *Formats*.
  *
- * Formats are created by calling the `workbook_t::add_format()` method as
- * follows:
+ * Formats are created by calling first `workbook_t::format_builder()` and then
+ * `format_builder_t::build()` as follows:
  *
  * @code
  *  // Create the Format.
- *  xwpp::format_t* format = workbook.add_format();
- *
- *  // Set some of the format properties.
- *  format->set_bold();
- *  format->set_font_color(xwpp::color_t::red());
+ *  const xwpp::format_t* format = workbook.format().bold().font_color(xwpp::color_t::red()).build();
  *
  *  // Use the format to change the text format in a cell.
  *  worksheet.write(0, 0, "Hello", format);
@@ -65,9 +61,7 @@ const double MAX_FONT_SIZE{409.0};
 /**
  * @brief Option for underline format.
  *
- * Format underline values for `format_t::set_underline()`.
- *
- * @todo Complete the list
+ * Format underline values for `format_builder_t::underline()`.
  */
 enum class format_underlines_t
 {
@@ -89,7 +83,7 @@ enum class format_underlines_t
 /**
  * @brief Option for superscript and subscript.
  *
- * Superscript and subscript values for `format_t::set_font_script()`.
+ * Superscript and subscript values for `format_builder_t::font_script()`.
  */
 enum class format_scripts_t
 {
@@ -104,52 +98,61 @@ enum class format_scripts_t
 };
 
 /**
- * @brief Alignment options.
+ * @brief Horizontal alignment options.
  *
- * Alignment values for `format_t::set_align()`.
- *
- * @todo Separate vertical / horizontal alignment option?
+ * Alignment values for `format_builder_t::align()`.
  */
-enum class format_alignments_t
+enum class format_horizontal_alignments_t
 {
   /** No alignment. Cell will use Excel's default for the data type. */
   NONE,
 
-  /** Left horizontal alignment. */
-  HORIZONTAL_LEFT,
+  /** Left alignment. */
+  LEFT,
 
-  /** Center horizontal alignment. */
-  HORIZONTAL_CENTER,
+  /** Center alignment. */
+  CENTER,
 
-  /** Right horizontal alignment. */
-  HORIZONTAL_RIGHT,
+  /** Right alignment. */
+  RIGHT,
 
-  /** Cell fill horizontal alignment. */
-  HORIZONTAL_FILL,
+  /** Cell fill alignment. */
+  FILL,
 
-  /** Justify horizontal alignment. */
-  HORIZONTAL_JUSTIFY,
+  /** Justify alignment. */
+  JUSTIFY,
 
-  /** Center Across horizontal alignment. */
-  HORIZONTAL_CENTER_ACROSS,
+  /** Center Across alignment. */
+  CENTER_ACROSS,
 
-  /** Left horizontal alignment. */
-  HORIZONTAL_DISTRIBUTED,
+  /** Left alignment. */
+  DISTRIBUTED,
+};
 
-  /** Top vertical alignment. */
-  VERTICAL_TOP,
+/**
+ * @brief Vertical alignment options.
+ *
+ * Alignment values for `format_builder_t::align()`.
+ */
+enum class format_vertical_alignments_t
+{
+  /** No alignment. Cell will use Excel's default for the data type. */
+  NONE,
 
-  /** Bottom vertical alignment. */
-  VERTICAL_BOTTOM,
+  /** Top alignment. */
+  TOP,
 
-  /** Center vertical alignment. */
-  VERTICAL_CENTER,
+  /** Bottom alignment. */
+  BOTTOM,
 
-  /** Justify vertical alignment. */
-  VERTICAL_JUSTIFY,
+  /** Center alignment. */
+  CENTER,
 
-  /** Distributed vertical alignment. */
-  VERTICAL_DISTRIBUTED
+  /** Justify alignment. */
+  JUSTIFY,
+
+  /** Distributed alignment. */
+  DISTRIBUTED
 };
 
 /**
@@ -174,7 +177,7 @@ enum class format_diagonal_types_t
 /**
  * @brief Pattern options.
  *
- * Pattern value for use with `format_t::set_pattern()`.
+ * Pattern value for use with `format_builder_t::pattern()`.
  */
 enum class format_patterns_t
 {
@@ -239,7 +242,7 @@ enum class format_patterns_t
 /**
  * @brief Cell border styles.
  *
- * Cell border styles for use with `format_t::set_border()`.
+ * Cell border styles for use with `format_builder_t::border()`.
  */
 enum class format_borders_t
 {
@@ -287,31 +290,198 @@ enum class format_borders_t
 };
 
 /**
+ * @brief Cell reading order.
+ *
+ * Cell reading order for use with `format_builder_t::reading_order()`.
+ */
+enum class format_reading_order_t
+{
+  /** Reading order is determined by the first non-whitespace character. */
+  CONTEXT_DEPENDENT,
+
+  /** Reading order is left-to-right in the cell, as in English. */
+  LEFT_TO_RIGHT,
+
+  /** Reading order is right-to-left in the cell, as in Hebrew. */
+  RIGHT_TO_LEFT,
+};
+
+/**
  * @brief Representation the formatting properties of an Excel format.
  *
- * Representation the formatting properties of an Excel format with API to
- * change it.
+ * Representation the formatting properties of an Excel format.
  *
  * @code
  *  // Create the Format.
- *  xwpp::format_t* format = workbook.add_format();
- *
- *  // Set some of the format properties.
- *  format->set_bold();
- *  format->set_font_color(xwpp::color_t::red());
+ *  const xwpp::format_t* format = workbook.format().
+ *                                 bold().
+ *                                 font_color(xwpp::color_t::red()).
+ *                                 build();
  *
  *  // Use the format to change the text format in a cell.
  *  worksheet.write(0, 0, "Hello", format);
  * @endcode
- *
- * @todo Rework this to improve format (builder, encapsulation in higher-level class,
- * independent class, manage it through std::shared_ptr, ...).
- * @todo Add builder API.
  */
 class format_t
 {
 public:
-  explicit format_t(std::function<int32_t(format_t*)> get_dxf_index);
+  friend bool operator==(const format_t& lhs, const format_t& rhs);
+  friend bool operator!=(const format_t& lhs, const format_t& rhs) = default;
+
+  [[nodiscard]] int32_t get_xf_index() const;
+  [[nodiscard]] int32_t get_dxf_index() const;
+
+  static const int32_t PROPERTY_UNSET{-1};
+  static const std::string DEFAULT_FONT_NAME;
+
+private:
+  friend class workbook_t;
+  friend class style_t;
+  friend class format_builder_t;
+
+  format_t() = default;
+  format_t(std::function<int32_t(const format_t*)> get_xf_index, std::function<int32_t(const format_t*)> get_dxf_index);
+
+  void set_num_format(std::string_view num_format);
+  void set_bold();
+  void set_italic();
+  void set_align(format_horizontal_alignments_t horizontal, format_vertical_alignments_t vertical);
+  void set_align(format_horizontal_alignments_t horizontal);
+  void set_align(format_vertical_alignments_t vertical);
+  void set_font_color(color_t color);
+  void set_fg_color(color_t color);
+  void set_bg_color(color_t color);
+  void set_underline(format_underlines_t style);
+  void set_text_wrap();
+  void set_border(format_borders_t style);
+  void set_bottom(format_borders_t style);
+  void set_top(format_borders_t style);
+  void set_left(format_borders_t style);
+  void set_right(format_borders_t style);
+  void set_pattern(format_patterns_t pattern);
+  void set_border_color(color_t color);
+  void set_bottom_color(color_t color);
+  void set_top_color(color_t color);
+  void set_left_color(color_t color);
+  void set_right_color(color_t color);
+  void set_diag_type(format_diagonal_types_t type);
+  void set_diag_border(format_borders_t style);
+  void set_diag_color(color_t color);
+  void set_num_format_index(uint8_t index);
+  void set_font_name(std::string_view font_name);
+  void set_font_size(double size);
+  void set_font_strikeout();
+  void set_font_script(format_scripts_t style);
+  void set_font_family(uint8_t value);
+  void set_font_charset(uint8_t value);
+  void set_font_outline();
+  void set_font_shadow();
+  void set_font_scheme(std::string_view font_scheme);
+  void set_font_condense();
+  void set_font_extend();
+  void set_font_only();
+  void set_unlocked();
+  void set_hidden();
+  void set_rotation(int16_t angle);
+  void set_indent(uint8_t level);
+  void set_shrink();
+  void set_reading_order(format_reading_order_t value);
+  void set_theme(uint8_t value);
+  void set_color_indexed(uint8_t value);
+  void set_quote_prefix();
+  void set_hyperlink();
+
+  static const uint8_t DEFAULT_FONT_FAMILY{2};
+
+  std::function<int32_t(const format_t*)> get_xf_index_;
+  std::function<int32_t(const format_t*)> get_dxf_index_;
+
+  int32_t xf_index_{PROPERTY_UNSET};
+  int32_t dxf_index_{PROPERTY_UNSET};
+  int32_t xf_id_{0};
+  std::string num_format_;
+  std::string font_name_;
+  std::string font_scheme_;
+  uint16_t num_format_index_{0};
+  int32_t font_index_{PROPERTY_UNSET};
+  bool has_font_{false};
+  bool has_dxf_font_{false};
+  double font_size_{11.0};
+  bool bold_{false};
+  bool italic_{false};
+  color_t font_color_;
+  format_underlines_t underline_{format_underlines_t::NONE};
+  bool font_strikeout_{false};
+  bool font_outline_{false};
+  bool font_shadow_{false};
+  format_scripts_t font_script_{format_scripts_t::NONE};
+  uint8_t font_family_{DEFAULT_FONT_FAMILY};
+  uint8_t font_charset_{0};
+  bool font_condense_{false};
+  bool font_extend_{false};
+  uint8_t theme_{0};
+  bool hyperlink_{false};
+  bool hidden_{false};
+  bool locked_{true};
+  format_horizontal_alignments_t text_h_align_{format_horizontal_alignments_t::NONE};
+  bool text_wrap_{false};
+  format_vertical_alignments_t text_v_align_{format_vertical_alignments_t::NONE};
+  int16_t rotation_{0};
+  color_t fg_color_;
+  color_t bg_color_;
+  color_t dxf_fg_color_;
+  color_t dxf_bg_color_;
+  format_patterns_t pattern_{format_patterns_t::NONE};
+  bool has_fill_{false};
+  bool has_dxf_fill_{false};
+  int32_t fill_index_{PROPERTY_UNSET};
+  int32_t fill_count_{0};
+  int32_t border_index_{PROPERTY_UNSET};
+  bool has_border_{false};
+  bool has_dxf_border_{false};
+  int32_t border_count_{0};
+  format_borders_t bottom_{format_borders_t::NONE};
+  format_borders_t diag_border_{format_borders_t::NONE};
+  format_diagonal_types_t diag_type_{format_diagonal_types_t::NONE};
+  format_borders_t left_{format_borders_t::NONE};
+  format_borders_t right_{format_borders_t::NONE};
+  format_borders_t top_{format_borders_t::NONE};
+  color_t bottom_color_;
+  color_t diag_color_;
+  color_t left_color_;
+  color_t right_color_;
+  color_t top_color_;
+  uint8_t indent_{0};
+  bool shrink_{false};
+  bool merge_range_{false};
+  format_reading_order_t reading_order_{format_reading_order_t::CONTEXT_DEPENDENT};
+  bool just_distrib_{false};
+  uint8_t color_indexed_{0};
+  bool font_only_{false};
+  bool quote_prefix_{false};
+};
+
+/**
+ * @brief Builder of format object.
+ *
+ * Builds and set the formatting properties of an Excel format.
+ *
+ * @code
+ *  // Create the Format.
+ *  const xwpp::format_t* format = workbook.format().bold().font_color(xwpp::color_t::red()).build();
+ *
+ *  // Use the format to change the text format in a cell.
+ *  worksheet.write(0, 0, "Hello", format);
+ * @endcode
+ */
+class format_builder_t
+{
+public:
+  ~format_builder_t()                                  = default;
+  format_builder_t(const format_builder_t&)            = delete;
+  format_builder_t& operator=(const format_builder_t&) = delete;
+  format_builder_t(format_builder_t&&)                 = delete;
+  format_builder_t& operator=(format_builder_t&&)      = delete;
 
   /**
    * @brief Set the number format for a cell.
@@ -327,14 +497,13 @@ public:
    * string:
    *
    * @code
-   *  xwpp::format_t* format = workbook.add_format();
-   *  format->set_num_format("d mmm yyyy");
+   *  const xwpp::format_t* format = workbook.format_builder().num_format("d mmm yyyy").build();
    * @endcode
    *
    * Format strings can control any aspect of number formatting allowed by Excel:
    *
    * @dontinclude format_num_format.cpp
-   * @skipline set_num_format
+   * @skipline example number formats
    * @until 1209
    *
    * @image html format_set_num_format.png
@@ -344,11 +513,11 @@ public:
    *
    * The number system used for dates is described in @ref working_with_dates.
    *
-   * For more information on number formats in Excel refer to the
+   * @see For more information on number formats in Excel refer to the
    * [Microsoft documentation on cell
    * formats](http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx).
    */
-  void set_num_format(std::string_view num_format);
+  format_builder_t& num_format(std::string_view num_format);
 
   /**
    * @brief Turn on bold for the format font.
@@ -356,63 +525,61 @@ public:
    * Set the bold property of the font:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_bold();
+   *  const xwpp::format_t* format = workbook.format_builder().bold().build();
    *
    *  worksheet.write(0, 0, "Bold Text", format);
    * @endcode
    *
    * @image html format_font_bold.png
    */
-  void set_bold();
 
+  format_builder_t& bold();
   /**
    * @brief Turn on italic for the format font.
    *
    * Set the italic property of the font:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_italic();
+   *  const xwpp::format_t* format = workbook.format_builder().italic().build();
    *
    *  worksheet.write(0, 0, "Italic Text", format);
    * @endcode
    *
    * @image html format_font_italic.png
    */
-  void set_italic();
+  format_builder_t& italic();
 
   /**
    * @brief Set the alignment for data in the cell.
    *
-   * @param alignment The horizontal and / or vertical alignment direction.
+   * @param horizontal The horizontal alignment direction.
+   * @param vertical   The vertical alignment direction.
    *
    * This method is used to set the horizontal and vertical text alignment within
    * a cell. The following are the available horizontal alignments:
    *
-   * - `%format_alignments_t::HORIZONTAL_LEFT`
-   * - `%format_alignments_t::HORIZONTAL_CENTER`
-   * - `%format_alignments_t::HORIZONTAL_RIGHT`
-   * - `%format_alignments_t::HORIZONTAL_FILL`
-   * - `%format_alignments_t::HORIZONTAL_JUSTIFY`
-   * - `%format_alignments_t::HORIZONTAL_CENTER_ACROSS`
-   * - `%format_alignments_t::HORIZONTAL_DISTRIBUTED`
+   * - `%format_horizontal_alignments_t::LEFT`
+   * - `%format_horizontal_alignments_t::CENTER`
+   * - `%format_horizontal_alignments_t::RIGHT`
+   * - `%format_horizontal_alignments_t::FILL`
+   * - `%format_horizontal_alignments_t::JUSTIFY`
+   * - `%format_horizontal_alignments_t::CENTER_ACROSS`
+   * - `%format_horizontal_alignments_t::DISTRIBUTED`
    *
    * The following are the available vertical alignments:
    *
-   * - `%format_alignments_t::VERTICAL_TOP`
-   * - `%format_alignments_t::VERTICAL_BOTTOM`
-   * - `%format_alignments_t::VERTICAL_CENTER`
-   * - `%format_alignments_t::VERTICAL_JUSTIFY`
-   * - `%format_alignments_t::VERTICAL_DISTRIBUTED`
+   * - `%format_vertical_alignments_t::TOP`
+   * - `%format_vertical_alignments_t::BOTTOM`
+   * - `%format_vertical_alignments_t::CENTER`
+   * - `%format_vertical_alignments_t::JUSTIFY`
+   * - `%format_vertical_alignments_t::DISTRIBUTED`
    *
    * As in Excel, vertical and horizontal alignments can be combined:
    *
    * @code
-   *  format = workbook.add_format();
-   *
-   *  format_set_align(format, xwpp::format_alignments_t::HORIZONTAL_CENTER);
-   *  format_set_align(format, xwpp::format_alignments_t::VERTICAL_CENTER);
+   *  const xwpp::format_t* format = workbook.format_builder()
+   *                                         .align(xwpp::format_horizontal_alignments_t::CENTER,
+   * xwpp::format_vertical_alignments_t::CENTER) .build();
    *
    *  worksheet.set_row(0, 30);
    *  worksheet.write(0, 0, "Some Text", format);
@@ -427,11 +594,39 @@ public:
    * The vertical justify option can be used to provide automatic text wrapping
    * in a cell. The height of the cell will be adjusted to accommodate the
    * wrapped text. To specify where the text wraps use the
-   * `set_text_wrap()` method.
-   *
-   * @todo Split in two functions or a two-parameters function.
+   * `text_wrap()` method.
    */
-  void set_align(format_alignments_t alignment);
+  format_builder_t& align(format_horizontal_alignments_t horizontal, format_vertical_alignments_t vertical);
+
+  // clang-format off
+  /**
+   * @brief Set the horizontal alignment.
+   *
+   * @param horizontal The horizontal alignment.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::RIGHT).build();
+   *
+   *  worksheet.write(0, 0, "Right alignment", format);
+   * @endcode
+   */
+  // clang-format on
+  format_builder_t& align(format_horizontal_alignments_t horizontal);
+
+  // clang-format off
+  /**
+   * @brief Set the vertical alignment.
+   *
+   * @param vertical The vertical alignment.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_vertical_alignments_t::BOTTOM).build();
+   *
+   *  worksheet.write(0, 0, "Bottom alignment", format);
+   * @endcode
+   */
+  // clang-format on
+  format_builder_t& align(format_vertical_alignments_t vertical);
 
   /**
    * @brief Set the color of the font used in the cell.
@@ -441,50 +636,50 @@ public:
    * Set the font color:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_font_color(xwpp::color_t::red());
+   *  const xwpp::format_t* format = workbook.format_builder().font_color(xwpp::color_t::red()).build();
    *
    *  worksheet.write(0, 0, "Wheelbarrow", format);
    * @endcode
    *
    * @image html format_font_color.png
    *
-   * @note The `%set_font_color()` method is used to set the font color in a
-   * cell. To set the color of a cell background use the `set_bg_color()`
-   * and `set_pattern()` methods.
+   * @note The `%font_color()` method is used to set the font color in a
+   * cell. To set the color of a cell background use the `bg_color()`
+   * and `pattern()` methods.
    *
    * @see @ref working_with_colors.
    */
-  void set_font_color(color_t color);
+  format_builder_t& font_color(color_t color);
 
   /**
    * @brief Set the pattern foreground color for a cell.
    *
    * @param color The cell pattern foreground  color.
    *
-   * The `%set_fg_color()` method can be used to set the foreground color of
+   * The `%fg_color()` method can be used to set the foreground color of
    * a pattern.
    *
    * @see @ref working_with_colors.
    */
-  void set_fg_color(color_t color);
+  format_builder_t& fg_color(color_t color);
 
   /**
    * @brief Set the pattern background color for a cell.
    *
    * @param color The cell pattern background color.
    *
-   * The `%set_bg_color()` method can be used to set the background color of
-   * a pattern. Patterns are defined via the `set_pattern()` method. If a
+   * The `%bg_color()` method can be used to set the background color of
+   * a pattern. Patterns are defined via the `pattern()` method. If a
    * pattern hasn't been defined then a solid fill pattern is used as the
    * default.
    *
    * Here is an example of how to set up a solid fill in a cell:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_pattern(xwpp::format_patterns_t::SOLID);
-   *  format->set_bg_color(xwpp::color_t::green());
+   *  const xwpp::format_t* format = workbook.format_builder()
+   *                                         .pattern(xwpp::format_patterns_t::SOLID)
+   *                                         .bg_color(xwpp::color_t::green())
+   *                                         .build();
    *
    *  worksheet.write(0, 0, "Ray", format);
    * @endcode
@@ -493,7 +688,7 @@ public:
    *
    * @see @ref working_with_colors.
    */
-  void set_bg_color(color_t color);
+  format_builder_t& bg_color(color_t color);
 
   /**
    * @brief Turn on underline for the format.
@@ -503,7 +698,7 @@ public:
    * Set the underline property of the format:
    *
    * @code
-   *  format->set_underline(xwpp::format_underlines_t::SINGLE);
+   *  const xwpp::format_t* format = workbook.format_builder().underline(xwpp::format_underlines_t::SINGLE).build();
    * @endcode
    *
    * @image html format_font_underlined.png
@@ -514,10 +709,8 @@ public:
    * - `%format_underlines_t::DOUBLE`
    * - `%format_underlines_t::SINGLE_ACCOUNTING`
    * - `%format_underlines_t::DOUBLE_ACCOUNTING`
-   *
-   * @todo Check if overline is available on, if needed, add it.
    */
-  void set_underline(format_underlines_t style);
+  format_builder_t& underline(format_underlines_t style);
 
   /**
    * @brief Wrap text in a cell.
@@ -525,8 +718,7 @@ public:
    * Turn text wrapping on for text in a cell.
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_text_wrap();
+   *  const xwpp::format_t* format = workbook.format_builder().text_wrap().build();
    *
    *  worksheet.write(0, 0, "Some long text to wrap in a cell", format);
    * @endcode
@@ -535,8 +727,7 @@ public:
    * characters to the string:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_text_wrap(format);
+   *  const xwpp::format_t* format = workbook.format_builder().text_wrap().build();
    *
    *  worksheet.write(0, 0, "It's\na bum\nwrap", format);
    * @endcode
@@ -545,9 +736,9 @@ public:
    *
    * Excel will adjust the height of the row to accommodate the wrapped text. A
    * similar effect can be obtained without newlines using the
-   * `set_align()` function with `%format_alignments_t::VERTICAL_JUSTIFY`.
+   * `set_align()` function with `%format_vertical_alignments_t::JUSTIFY`.
    */
-  void set_text_wrap();
+  format_builder_t& text_wrap();
 
   /**
    * @brief Set the cell border style.
@@ -557,19 +748,19 @@ public:
    * Set the cell border style:
    *
    * @code
-   *  format->set_border(format_borders_t::THIN);
+   *  workbook.format_builder().border(format_borders_t::THIN).build();
    * @endcode
    *
    * Individual border elements can be configured using the following functions
    * with the same parameters:
    *
-   * - `set_bottom()`
-   * - `set_top()`
-   * - `set_left()`
-   * - `set_right()`
+   * - `bottom()`
+   * - `top()`
+   * - `left()`
+   * - `right()`
    *
    * A cell border is comprised of a border on the bottom, top, left and right.
-   * These can be set to the same value using `%set_border()` or
+   * These can be set to the same value using `%border()` or
    * individually using the relevant method calls shown above.
    *
    * The following border styles are available:
@@ -590,7 +781,7 @@ public:
    *
    * The most commonly used style is the `thin` style.
    */
-  void set_border(format_borders_t style);
+  format_builder_t& border(format_borders_t style);
 
   /**
    * @brief Set the cell bottom border style.
@@ -599,9 +790,9 @@ public:
    *
    * Set the cell bottom border style.
    *
-   * @see `set_border()` for details on the border styles.
+   * @see `border()` for details on the border styles.
    */
-  void set_bottom(format_borders_t style);
+  format_builder_t& bottom(format_borders_t style);
 
   /**
    * @brief Set the cell top border style.
@@ -610,9 +801,9 @@ public:
    *
    * Set the cell top border style.
    *
-   * @see `set_border()` for details on the border styles.
+   * @see `border()` for details on the border styles.
    */
-  void set_top(format_borders_t style);
+  format_builder_t& top(format_borders_t style);
 
   /**
    * @brief Set the cell left border style.
@@ -621,9 +812,9 @@ public:
    *
    * Set the cell left border style.
    *
-   * @see `set_border()` for details on the border styles.
+   * @see `border()` for details on the border styles.
    */
-  void set_left(format_borders_t style);
+  format_builder_t& left(format_borders_t style);
 
   /**
    * @brief Set the cell right border style.
@@ -632,9 +823,9 @@ public:
    *
    * Set the cell right border style.
    *
-   * @see `set_border()` for details on the border styles.
+   * @see `border()` for details on the border styles.
    */
-  void set_right(format_borders_t style);
+  format_builder_t& right(format_borders_t style);
 
   /**
    * @brief Set the background fill pattern for a cell.
@@ -646,10 +837,10 @@ public:
    * The most common pattern is a solid fill of the background color:
    *
    * @code
-   *  format = workbook.add_format();
-   *
-   *  format->set_pattern(xwpp::format_patterns_t::SOLID);
-   *  format->set_bg_color(xwpp::color_t::yellow());
+   *  const xwpp::format_t* format = workbook.format_builder()
+   *                                         .pattern(xwpp::format_patterns_t::SOLID)
+   *                                         .bg_color(xwpp::color_t::yellow())
+   *                                         .build();
    * @endcode
    *
    * The available fill patterns are:
@@ -675,7 +866,7 @@ public:
    *    12.5% gray                    |  `%format_patterns_t::GRAY_125`
    *    6.25% gray                    |  `%format_patterns_t::GRAY_0625`
    */
-  void set_pattern(format_patterns_t pattern);
+  format_builder_t& pattern(format_patterns_t pattern);
 
   /**
    * @brief Set the color of the cell border.
@@ -685,56 +876,57 @@ public:
    * Individual border elements can be configured using the following methods with
    * the same parameters:
    *
-   * - `set_bottom_color()`
-   * - `set_top_color()`
-   * - `set_left_color()`
-   * - `set_right_color()`
+   * - `bottom_color()`
+   * - `top_color()`
+   * - `left_color()`
+   * - `right_color()`
    *
    * Set the color of the cell borders. A cell border is comprised of a border
    * on the bottom, top, left and right. These can be set to the same color
-   * using `set_border_color()` or individually using the relevant method
+   * using `border_color()` or individually using the relevant method
    * calls shown above.
    *
    * @see @ref working_with_colors.
    */
-  void set_border_color(color_t color);
+  format_builder_t& border_color(color_t color);
 
   /**
    * @brief Set the color of the bottom cell border.
    *
    * @param color The cell border color.
    *
-   * @see `set_border_color()` for details on the border colors.
+   * @see `border_color()` for details on the border colors.
    */
-  void set_bottom_color(color_t color);
+  format_builder_t& bottom_color(color_t color);
 
   /**
    * @brief Set the color of the top cell border.
    *
    * @param color The cell border color.
    *
-   * @see `set_border_color()` for details on the border colors.
+   * @see `border_color()` for details on the border colors.
    */
-  void set_top_color(color_t color);
+  format_builder_t& top_color(color_t color);
 
   /**
    * @brief Set the color of the left cell border.
    *
    * @param color The cell border color.
    *
-   * @see `set_border_color()` for details on the border colors.
+   * @see `border_color()` for details on the border colors.
    */
-  void set_left_color(color_t color);
+  format_builder_t& left_color(color_t color);
 
   /**
    * @brief Set the color of the right cell border.
    *
    * @param color The cell border color.
    *
-   * @see `set_border_color()` for details on the border colors.
+   * @see `border_color()` for details on the border colors.
    */
-  void set_right_color(color_t color);
+  format_builder_t& right_color(color_t color);
 
+  // clang-format off
   /**
    * @brief Set the diagonal cell border type.
    *
@@ -743,19 +935,13 @@ public:
    * Set the diagonal cell border type:
    *
    * @code
-   *  xwpp::format_t* format1 = workbook.add_format();
-   *  format1->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP);
-   *
-   *  xwpp::format_t* format2 = workbook.add_format();
-   *  format2->set_diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN);
-   *
-   *  xwpp::format_t* format3 = workbook.add_format();
-   *  format3->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
-   *
-   *  xwpp::format_t* format4 = workbook.add_format();
-   *  format4->set_diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN);
-   *  format4->set_diag_border(xwpp::format_borders_t::HAIR);
-   *  format4->set_diag_color(xwpp::color_t::red());
+   *  const xwpp::format_t* format1 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP).build();
+   *  const xwpp::format_t* format2 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_DOWN).build();
+   *  const xwpp::format_t* format3 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN).build();
+   *  const xwpp::format_t* format4 = workbook.format_builder().diag_type(xwpp::format_diagonal_types_t::BORDER_UP_DOWN)
+   *                                                           .diag_border(xwpp::format_borders_t::HAIR)
+   *                                                           .diag_color(xwpp::color_t::red())
+   *                                                           .build();
    *
    *  worksheet.write("B3", "Text", format1);
    *  worksheet.write("B6", "Text", format2);
@@ -776,10 +962,11 @@ public:
    * - `%format_diagonal_types_t::BORDER_UP_DOWN`: Cell diagonal border from top left to
    *   bottom right. A combination of the 2 previous types.
    *
-   * If the border style isn't specified with `set_diag_border()` then it
+   * If the border style isn't specified with `diag_border()` then it
    * will default to `format_borders_t::THIN`.
    */
-  void set_diag_type(format_diagonal_types_t type);
+  // clang-format on
+  format_builder_t& diag_type(format_diagonal_types_t type);
 
   /**
    * @brief Set the diagonal cell border style.
@@ -788,7 +975,7 @@ public:
    *
    * Set the diagonal border style. This should be a `format_borders_t` value.
    */
-  void set_diag_border(format_borders_t style);
+  format_builder_t& diag_border(format_borders_t style);
 
   /**
    * @brief Set the diagonal cell border color.
@@ -799,7 +986,7 @@ public:
    *
    * @see @ref working_with_colors and the above example.
    */
-  void set_diag_color(color_t color);
+  format_builder_t& diag_color(color_t color);
 
   /**
    * @brief Set the Excel built-in number format for a cell.
@@ -811,13 +998,13 @@ public:
    * user defined format string:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_num_format_index(0x0F); // d-mmm-yy
+   *  // d-mmm-yy
+   *  const xwpp::format_t* format = workbook.format_builder().num_format_index(0x0F).build();
    * @endcode
    *
    * @note Unless you need to specifically access one of Excel's built-in number
-   * formats the `set_num_format()` function above is a better solution.
-   * The `%set_num_format_index()` function is mainly included for
+   * formats the `num_format()` function above is a better solution.
+   * The `%num_format_index()` function is mainly included for
    * backward compatibility and completeness.
    *
    * The Excel built-in number formats as shown in the table below:
@@ -868,13 +1055,11 @@ public:
    *    vary depending on system settings.
    *  - The dollar sign in the above format appears as the defined local currency
    *    symbol.
-   *  - These formats can also be set via `set_num_format()`.
+   *  - These formats can also be set via `num_format()`.
    *
    * @see also @ref ww_formats_categories.
-   *
-   * @todo Use dedicated enum.
    */
-  void set_num_format_index(uint8_t index);
+  format_builder_t& num_format_index(uint8_t index);
 
   /**
    * @brief Set the font used in the cell.
@@ -884,7 +1069,7 @@ public:
    * Specify the font used used in the cell format:
    *
    * @code
-   *  format->set_font_name("Avenir Black Oblique");
+   *  const xwpp::format_t* format = workbook.format_builder().font_name("Avenir Black Oblique").build();
    * @endcode
    *
    * @image html format_set_font_name.png
@@ -895,7 +1080,7 @@ public:
    *
    * The default font in Excel 2007, and later, is `Calibri`.
    */
-  void set_font_name(std::string_view font_name);
+  format_builder_t& font_name(std::string_view font_name);
 
   /**
    * @brief Set the size of the font used in the cell.
@@ -905,7 +1090,7 @@ public:
    * Set the font size of the cell format:
    *
    * @code
-   *  format->set_font_size(30);
+   *  const xwpp::format_t* format = workbook.format_builder().set_font_size(30).build();
    * @endcode
    *
    * @image html format_font_size.png
@@ -914,17 +1099,14 @@ public:
    * size in the row. You can also explicitly specify the height of a
    * row using the `worksheet_t::set_row()` function.
    */
-  void set_font_size(double size);
+  format_builder_t& font_size(double size);
 
   /**
    * @brief Set the strikeout property of the font.
    *
    * @image html format_font_strikeout.png
-   *
-   * @todo Check if there is strike type in Excel. And
-   * add parameter if available.
    */
-  void set_font_strikeout();
+  format_builder_t& font_strikeout();
 
   /**
    * @brief Set the superscript/subscript property of the font.
@@ -940,7 +1122,7 @@ public:
    * - `format_scripts_t::SUPERSCRIPT`
    * - `format_scripts_t::SUBSCRIPT`
    */
-  void set_font_script(format_scripts_t style);
+  format_builder_t& font_script(format_scripts_t style);
 
   /**
    * @brief Set the Format font family property.
@@ -950,10 +1132,10 @@ public:
    * Set the font family. This is usually an integer in the range 1-4.
    *
    * @code
-   *  format->set_font_family(178);
+   *  const xwpp::format_t* format = workbook.format_builder().font_family(178).build();
    * @endcode
    */
-  void set_font_family(uint8_t value);
+  format_builder_t& font_family(uint8_t value);
 
   /**
    * @brief Set the Format font character set property.
@@ -963,10 +1145,10 @@ public:
    * Set the font character set property.
    *
    * @code
-   *  format->set_font_charset(178);
+   *  const xwpp::format_t* format = workbook.format_builder().set_font_charset(178).build();
    * @endcode
    */
-  void set_font_charset(uint8_t value);
+  format_builder_t& font_charset(uint8_t value);
 
   /**
    * @brief Set the Format font outline property.
@@ -974,12 +1156,12 @@ public:
    * Set the font outline property.
    *
    * @code
-   *  format->set_font_outline();
+   *  const xwpp::format_t* format = workbook.format_builder().font_outline().build();
    * @endcode
    *
    * @todo Add image in description.
    */
-  void set_font_outline();
+  format_builder_t& font_outline();
 
   /**
    * @brief Set the Format font shadow property.
@@ -987,12 +1169,12 @@ public:
    * Set the font shadow property.
    *
    * @code
-   *  format->set_font_shadow();
+   *  const xwpp::format_t* format = workbook.format_builder().font_shadow().build();
    * @endcode
    *
    * @todo Add image in description.
    */
-  void set_font_shadow();
+  format_builder_t& font_shadow();
 
   /**
    * @brief Set the Format font scheme property.
@@ -1002,13 +1184,13 @@ public:
    * Set the font scheme property.
    *
    * @code
-   *  format->set_font_scheme("fs");
+   *  const xwpp::format_t* format = workbook.format_builder().font_scheme("fs").build();
    * @endcode
    *
    * @todo Add image in description.
    * @todo Add an example (and fix example here).
    */
-  void set_font_scheme(std::string_view font_scheme);
+  format_builder_t& font_scheme(std::string_view font_scheme);
 
   /**
    * @brief Set the Format font condense property.
@@ -1016,12 +1198,12 @@ public:
    * Set the font condense property.
    *
    * @code
-   *  format->set_font_condense();
+   *  const xwpp::format_t* format = workbook.format_builder().font_condense().build();
    * @endcode
    *
    * @todo Add image in description.
    */
-  void set_font_condense();
+  format_builder_t& font_condense();
 
   /**
    * @brief Set the Format font extend property.
@@ -1029,12 +1211,12 @@ public:
    * Set the font extend property.
    *
    * @code
-   *  format->set_font_extend();
+   *  const xwpp::format_t* format = workbook.format_builder().font_extend().build();
    * @endcode
    *
    * @todo Add image in description.
    */
-  void set_font_extend();
+  format_builder_t& font_extend();
 
   /**
    * @brief Set the Format font only property.
@@ -1042,13 +1224,13 @@ public:
    * Set the font only property.
    *
    * @code
-   *  format->set_font_only();
+   *  const xwpp::format_t* format = workbook.format_builder().font_only().build();
    * @endcode
    *
    * @todo Add image in description.
    * @todo Add an example (and fix example here).
    */
-  void set_font_only();
+  format_builder_t& font_only();
 
   /**
    * @brief Set the cell unlocked state.
@@ -1059,8 +1241,7 @@ public:
    * using the worksheet `worksheet_t::protect()` function:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_unlocked();
+   *  const xwpp::format_t* format = workbook.format_builder().unlocked().build();
    *
    *  // Enable worksheet protection, without password or options.
    *  worksheet.protect();
@@ -1072,7 +1253,7 @@ public:
    *  worksheet.write_formula(1, 0, "=1+2", format);
    * @endcode
    */
-  void set_unlocked();
+  format_builder_t& unlocked();
 
   /**
    * @brief Hide formulas in a cell.
@@ -1084,8 +1265,7 @@ public:
    * function:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_hidden();
+   *  const xwpp::format_t* format = workbook.format_builder().unlocked().build();
    *
    *  // Enable worksheet protection, without password or options.
    *  worksheet.protect();
@@ -1094,19 +1274,18 @@ public:
    *  worksheet.write_formula(0, 0, "=1+2", format);
    * @endcode
    */
-  void set_hidden();
+  format_builder_t& hidden();
 
   /**
    * @brief Set the rotation of the text in a cell.
    *
-   * @param angle Rotation angle in the range -90 to 90 and 270.
+   * @param angle Rotation angle in the range -90 to 90.
    *
    * Set the rotation of the text in a cell. The rotation can be any angle in the
    * range -90 to 90 degrees:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_rotation(30);
+   *  const xwpp::format_t* format = workbook.format_builder().rotation(30).build();
    *
    *  worksheet.write(0, 0, "This text is rotated", format);
    * @endcode
@@ -1116,11 +1295,24 @@ public:
    * The angle 270 is also supported. This indicates text where the letters run
    * from top to bottom.
    *
-   * @todo Add specific API for 270.
-   *
-   * @pre The `%angle` parameter must be in range `[-90, 90]` or equal to `270`.
+   * @pre The `%angle` parameter must be in range `[-90, 90]`.
    */
-  void set_rotation(int16_t angle);
+  format_builder_t& rotation(int16_t angle);
+
+  /**
+   * @brief Set vertical text.
+   *
+   * Text is wrote verticaly. Letters run from top to bottom.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().vertical_text().build();
+   *
+   *  worksheet.write(0, 0, "This text is vertical", format);
+   * @endcode
+   *
+   * @todo Add image.
+   */
+  format_builder_t& vertical_text();
 
   /**
    * @brief Set the cell text indentation level.
@@ -1131,11 +1323,8 @@ public:
    * be an integer, is taken as the level of indentation:
    *
    * @code
-   *  format1 = workbook.add_format();
-   *  format2 = workbook.add_format();
-   *
-   *  format1->set_indent(1);
-   *  format2->set_indent(2);
+   *  format1 = workbook.format_builder().indent(1).build();
+   *  format2 = workbook.format_builder().indent(2).build();
    *
    *  worksheet.write(0, 0, "This text is indented 1 level", format1);
    *  worksheet_write(1, 0, "This text is indented 2 levels", format2);
@@ -1147,7 +1336,7 @@ public:
    * horizontal properties but it can be used in conjunction with vertical
    * properties.
    */
-  void set_indent(uint8_t level);
+  format_builder_t& indent(uint8_t level);
 
   /**
    * @brief Turn on the text "shrink to fit" for a cell.
@@ -1155,54 +1344,12 @@ public:
    * This method can be used to shrink text so that it fits in a cell:
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_shrink();
+   *  const xwpp::format_t* format = workbook.format_builder().shrink().build();
    *
    *  worksheet.write(0, 0, "Honey, I shrunk the text!", format);
    * @endcode
    */
-  void set_shrink();
-
-  // TODO Useless, to check (missing parameter? Remove?)
-  void set_text_justlast();
-
-  /**
-   * @brief Set the vertical alignment.
-   *
-   * @param alignment A `format_alignments_t` indicating the vertical alignment.
-   *
-   * @code
-   *  format = workbook.add_format();
-   *  format->set_valign(xwpp::format_alignments_t::VERTICAL_BOTTOM);
-   *
-   *  worksheet.write(0, 0, "Bottom alignment", format);
-   * @endcode
-   *
-   * @pre The `%alignment` parameter must be a vertical one.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
-   */
-  void set_valign(format_alignments_t alignment);
-
-  /**
-   * @brief Set the horizontal alignment.
-   *
-   * @param alignment A `format_alignments_t` indicating the horizontal alignment.
-   *
-   * @code
-   *  format = workbook.add_format();
-   *  format->set_halign(xwpp::format_alignments_t::HORIZONTAL_RIGHT);
-   *
-   *  worksheet.write(0, 0, "Right alignment", format);
-   * @endcode
-   *
-   * @pre The `%alignment` parameter must be a horizontal one.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
-   */
-  void set_halign(format_alignments_t alignment);
+  format_builder_t& shrink();
 
   /**
    * @brief Set reading order.
@@ -1212,9 +1359,8 @@ public:
    * Set the reading order.
    *
    * @todo Add image in documentation.
-   * @todo Add enum for reading order.
    */
-  void set_reading_order(uint8_t value);
+  format_builder_t& reading_order(format_reading_order_t value);
 
   /**
    * @brief Set the theme.
@@ -1224,10 +1370,9 @@ public:
    * Set the theme.
    *
    * @todo Add image in documentation.
-   * @todo Add enum for theme.
    * @todo Add example.
    */
-  void set_theme(uint8_t value);
+  format_builder_t& theme(uint8_t value);
 
   /**
    * @brief Set the indexed color.
@@ -1237,10 +1382,9 @@ public:
    * Set the indexed color.
    *
    * @todo Add image in documentation.
-   * @todo Add enum for theme.
    * @todo Add example.
    */
-  void set_color_indexed(uint8_t value);
+  format_builder_t& color_indexed(uint8_t value);
 
   /**
    * @brief Turn on quote prefix for the format.
@@ -1251,13 +1395,12 @@ public:
    * string but you do need to add the format.
    *
    * @code
-   *  format = workbook.add_format();
-   *  format->set_quote_prefix();
+   *  const xwpp::format_t* format = workbook.format_builder().quote_prefix().build();
    *
    *  worksheet.write(0, 0, "=Foo", format);
    * @endcode
    */
-  void set_quote_prefix();
+  format_builder_t& quote_prefix();
 
   /**
    * @brief Set the format as hyperlink format.
@@ -1266,87 +1409,22 @@ public:
    *
    * @todo Add image.
    */
-  void set_hyperlink();
+  format_builder_t& hyperlink();
 
-  static const int32_t PROPERTY_UNSET{-1};
-  static const std::string DEFAULT_FONT_NAME;
-
-  // TODO Refactor this point to not have it in several places
-  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  std::function<int32_t(format_t*)> get_dxf_index_;
+  /**
+   * @brief Build the format.
+   *
+   * Build the format.
+   */
+  [[nodiscard]] const format_t* build();
 
 private:
-  // TODO friend up to refactoring with struct / class
   friend class workbook_t;
-  friend class worksheet_t; // TODO for debug
-  friend class style_t;
 
-  static const uint8_t DEFAULT_FONT_FAMILY{2};
+  explicit format_builder_t(std::function<const format_t*(const format_t&)> insert_format);
 
-  int32_t xf_index_{PROPERTY_UNSET};
-  int32_t dxf_index_{PROPERTY_UNSET};
-  int32_t xf_id_{0};
-  std::string num_format_;
-  std::string font_name_;
-  std::string font_scheme_;
-  uint16_t num_format_index_{0};
-  int32_t font_index_{PROPERTY_UNSET};
-  bool has_font_{false};
-  bool has_dxf_font_{false};
-  double font_size_{11.0};
-  bool bold_{false};
-  bool italic_{false};
-  color_t font_color_;
-  format_underlines_t underline_{format_underlines_t::NONE};
-  bool font_strikeout_{false};
-  bool font_outline_{false};
-  bool font_shadow_{false};
-  format_scripts_t font_script_{format_scripts_t::NONE};
-  uint8_t font_family_{DEFAULT_FONT_FAMILY};
-  uint8_t font_charset_{0};
-  bool font_condense_{false};
-  bool font_extend_{false};
-  uint8_t theme_{0};
-  bool hyperlink_{false};
-  bool hidden_{false};
-  bool locked_{true};
-  format_alignments_t text_h_align_{format_alignments_t::NONE};
-  bool text_wrap_{false};
-  format_alignments_t text_v_align_{format_alignments_t::NONE};
-  bool text_justlast_{false};
-  int16_t rotation_{0};
-  color_t fg_color_;
-  color_t bg_color_;
-  color_t dxf_fg_color_;
-  color_t dxf_bg_color_;
-  format_patterns_t pattern_{format_patterns_t::NONE};
-  bool has_fill_{false};
-  bool has_dxf_fill_{false};
-  int32_t fill_index_{PROPERTY_UNSET};
-  int32_t fill_count_{0};
-  int32_t border_index_{PROPERTY_UNSET};
-  bool has_border_{false};
-  bool has_dxf_border_{false};
-  int32_t border_count_{0};
-  format_borders_t bottom_{format_borders_t::NONE};
-  format_borders_t diag_border_{format_borders_t::NONE};
-  format_diagonal_types_t diag_type_{format_diagonal_types_t::NONE};
-  format_borders_t left_{format_borders_t::NONE};
-  format_borders_t right_{format_borders_t::NONE};
-  format_borders_t top_{format_borders_t::NONE};
-  color_t bottom_color_;
-  color_t diag_color_;
-  color_t left_color_;
-  color_t right_color_;
-  color_t top_color_;
-  uint8_t indent_{0};
-  bool shrink_{false};
-  bool merge_range_{false};
-  uint8_t reading_order_{0};
-  bool just_distrib_{false};
-  uint8_t color_indexed_{0};
-  bool font_only_{false};
-  bool quote_prefix_{false};
+  std::function<const format_t*(const format_t&)> insert_format_;
+  format_t current_;
 };
 
 /// @cond

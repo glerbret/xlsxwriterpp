@@ -176,8 +176,6 @@ struct doc_properties_t
  *
  * `%workbook_t` represents the entire spreadsheet as you see it in Excel
  * and internally it represents the Excel file as it is written on disk.
- *
- * @todo Add API to configure default format, in particular font.
  */
 class workbook_t
 {
@@ -566,32 +564,25 @@ public:
   [[nodiscard]] bool validate_sheetname(std::string_view sheetname) const;
 
   /**
-   * @brief Create a new @ref format.h "Format" object to formats cells in
-   * worksheets.
+   * @brief Create a new @ref format.h "Format" builder.
    *
-   * @return A pointer to an instance of format_t.
+   * @return A format builder.
    *
-   * The `%add_format()` function can be used to create new @ref
-   * format.h "Format" objects which are used to apply formatting to a cell.
+   * The `%format_builder()` function can be used to create new @ref
+   * format.h "Format" builder which are used to create a "Format object".
    *
    * @code
    *  // Create the Format.
-   *  xwpp::format_t* format = workbook.add_format();
-   *
-   *  // Set some of the format properties.
-   *  format.set_bold();
-   *  format.set_font_color(xwpp::color_t::red());
+   *  const xwpp::format_t* format = workbook.format().bold().font_color(xwpp::color_t::red()).build();
    *
    *  // Use the format to change the text format in a cell.
    *  worksheet.write(0, 0, "Hello", format);
    * @endcode
    *
-   * See @ref format.h "the Format object" and @ref working_with_formats
+   * @see @ref format.h "the Format object" and @ref working_with_formats
    * sections for more details about Format properties and how to set them.
-   *
-   * @todo Add builder API to create format.
    */
-  [[nodiscard]] format_t* add_format();
+  format_builder_t format_builder();
 
   /**
    * @brief Get the default URL format used with `worksheet_t::write_url()`.
@@ -603,14 +594,14 @@ public:
    * format isn't specified:
    *
    * @code
-   *  xwpp::format_t* url_format = workbook.get_default_url_format();
+   *  const xwpp::format_t* url_format = workbook.get_default_url_format();
    * @endcode
    *
    * The format is the hyperlink style defined by Excel for the default theme.
    * This format is only ever required when overwriting a string URL with
    * data of a different type. See the example below.
    */
-  [[nodiscard]] format_t* get_default_url_format() const;
+  [[nodiscard]] const format_t* get_default_url_format() const;
 
   /**
    * @brief Unset the default URL format.
@@ -823,18 +814,19 @@ public:
    */
   void set_default_xf_indices();
 
-  // TODO Only used by packager, should be private.
   [[nodiscard]] std::string assemble_xml_file();
 
 private:
   // packager_t needs to access to workbook fields to generate the XLSX file.
   friend class packager_t;
-  // TODO Remove this friend
   friend class rich_value_t;
 
   // Functions to retrieve index of format. Provided to worksheets as callback.
-  int32_t get_xf_index(format_t* format);
-  int32_t get_dxf_index(format_t* format);
+  int32_t get_xf_index(const format_t* format);
+  int32_t get_dxf_index(const format_t* format);
+
+  // Add format build by builder
+  [[nodiscard]] const format_t* insert_format(const format_t& format);
 
   // Function to prepare data before packaging.
   void prepare_fonts();
@@ -907,15 +899,14 @@ private:
   bool has_embedded_images_{false};
   bool has_dynamic_functions_{false};
   bool has_embedded_image_descriptions_{false};
-  // TODO Combine with unordered_set to optimize search and assure uniqueness.
-  // TODO And encapsule this combination and related functions in a dedicated types.
   std::vector<format_t*> used_xf_formats_;
   std::vector<format_t*> used_dxf_formats_;
   std::string vba_project_;
   std::string vba_project_signature_;
   std::string vba_codename_;
   bool use_1904_epoch_{false};
-  format_t* default_url_format_;
+  const format_t* default_format_;
+  const format_t* default_url_format_;
   bool use_zip64_{false};
 };
 

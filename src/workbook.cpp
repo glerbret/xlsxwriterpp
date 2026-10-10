@@ -62,18 +62,16 @@ namespace
 }
 
 workbook_t::workbook_t(bool use_1904_epoch, bool use_zip64)
+  // clang-format off
   : use_1904_epoch_{use_1904_epoch}
+  , default_format_{format_builder().build()}
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+  , default_url_format_{format_builder().hyperlink().build()}
   , use_zip64_{use_zip64}
+// clang-format on
 {
-  // Add the default cell format.
-  auto* format = add_format();
-  // and initialize its index.
-  get_xf_index(format);
-
-  // Add the default hyperlink format.
-  // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
-  default_url_format_ = add_format();
-  default_url_format_->set_hyperlink();
+  // Initialize index of default cell format.
+  get_xf_index(default_format_);
 }
 
 void workbook_t::save(const std::filesystem::path& filename)
@@ -243,12 +241,12 @@ worksheet_t& workbook_t::add_worksheet(std::string_view sheetname)
     .sst_                = &sst_,
     .name_               = std::string{sheetname},
     .quoted_name_        = quote_sheetname(sheetname),
+    .default_format_     = default_format_,
     .default_url_format_ = default_url_format_,
     .use_1904_epoch_     = use_1904_epoch_,
   };
 
-  worksheets_.emplace_back(init_data, std::bind_front(&workbook_t::get_xf_index, this),
-                           std::bind_front(&workbook_t::get_dxf_index, this));
+  worksheets_.emplace_back(init_data);
   worksheet_names_[to_lower(init_data.name_)] = &worksheets_.back();
   sheets_.push_back(&worksheets_.back());
 
@@ -405,27 +403,35 @@ bool workbook_t::validate_sheetname(std::string_view sheetname) const
   return true;
 }
 
-// TODO Add class that encapsulate this pointer for interaction with caller. Pointers will only be used inside library.
-// TODO Constructor and pointer of this class should be only usable by workbook and worksheet (friendship).
-format_t* workbook_t::add_format()
+const format_t* workbook_t::insert_format(const format_t& format)
 {
-  // NOLINTNEXTLINE(modernize-avoid-bind)
-  formats_.emplace_back(std::bind_front(&workbook_t::get_dxf_index, this));
+  format_t format_cp       = format;
+  format_cp.get_xf_index_  = std::bind_front(&workbook_t::get_xf_index, this);
+  format_cp.get_dxf_index_ = std::bind_front(&workbook_t::get_dxf_index, this);
 
+  if(auto it = std::ranges::find_if(formats_, [&format_cp](const auto& fmt) { return fmt == format_cp; });
+     it != std::end(formats_))
+  {
+    return &(*it);
+  }
+
+  formats_.push_back(format_cp);
   return &formats_.back();
 }
 
-format_t* workbook_t::get_default_url_format() const
+format_builder_t workbook_t::format_builder()
+{
+  return format_builder_t{std::bind_front(&workbook_t::insert_format, this)};
+}
+
+const format_t* workbook_t::get_default_url_format() const
 {
   return default_url_format_;
 }
 
 void workbook_t::unset_default_url_format()
 {
-  default_url_format_->hyperlink_ = false;
-  default_url_format_->xf_id_     = 0;
-  default_url_format_->underline_ = format_underlines_t::NONE;
-  default_url_format_->theme_     = 0;
+  default_url_format_ = default_format_;
 }
 
 // TODO No need to create chart through workbook. Can be autonomous object and be added
@@ -522,7 +528,7 @@ std::string workbook_t::assemble_xml_file()
   return xml_data;
 }
 
-int32_t workbook_t::get_xf_index(format_t* format)
+int32_t workbook_t::get_xf_index(const format_t* format)
 {
   // Format already has an index number so return it.
   if(format->xf_index_ != format_t::PROPERTY_UNSET)
@@ -530,53 +536,15 @@ int32_t workbook_t::get_xf_index(format_t* format)
     return format->xf_index_;
   }
 
-  if(auto it = std::ranges::find_if(
-       used_xf_formats_,
-       [=](const auto* fmt) {
-         return fmt->xf_id_ == format->xf_id_ && fmt->num_format_ == format->num_format_ &&
-                fmt->font_name_ == format->font_name_ && fmt->font_scheme_ == format->font_scheme_ &&
-                fmt->num_format_index_ == format->num_format_index_ && fmt->font_index_ == format->font_index_ &&
-                fmt->has_font_ == format->has_font_ && fmt->has_dxf_font_ == format->has_dxf_font_ &&
-                fmt->font_size_ == format->font_size_ && fmt->bold_ == format->bold_ &&
-                fmt->italic_ == format->italic_ && fmt->font_color_ == format->font_color_ &&
-                fmt->underline_ == format->underline_ && fmt->font_strikeout_ == format->font_strikeout_ &&
-                fmt->font_outline_ == format->font_outline_ && fmt->font_shadow_ == format->font_shadow_ &&
-                fmt->font_script_ == format->font_script_ && fmt->font_family_ == format->font_family_ &&
-                fmt->font_charset_ == format->font_charset_ && fmt->font_condense_ == format->font_condense_ &&
-                fmt->font_extend_ == format->font_extend_ && fmt->theme_ == format->theme_ &&
-                fmt->hyperlink_ == format->hyperlink_ && fmt->hidden_ == format->hidden_ &&
-                fmt->locked_ == format->locked_ && fmt->text_h_align_ == format->text_h_align_ &&
-                fmt->text_wrap_ == format->text_wrap_ && fmt->text_v_align_ == format->text_v_align_ &&
-                fmt->text_justlast_ == format->text_justlast_ && fmt->rotation_ == format->rotation_ &&
-                fmt->fg_color_ == format->fg_color_ && fmt->bg_color_ == format->bg_color_ &&
-                fmt->dxf_fg_color_ == format->dxf_fg_color_ && fmt->dxf_bg_color_ == format->dxf_bg_color_ &&
-                fmt->pattern_ == format->pattern_ && fmt->has_fill_ == format->has_fill_ &&
-                fmt->has_dxf_fill_ == format->has_dxf_fill_ && fmt->fill_index_ == format->fill_index_ &&
-                fmt->fill_count_ == format->fill_count_ && fmt->border_index_ == format->border_index_ &&
-                fmt->has_border_ == format->has_border_ && fmt->has_dxf_border_ == format->has_dxf_border_ &&
-                fmt->border_count_ == format->border_count_ && fmt->bottom_ == format->bottom_ &&
-                fmt->diag_border_ == format->diag_border_ && fmt->diag_type_ == format->diag_type_ &&
-                fmt->left_ == format->left_ && fmt->right_ == format->right_ && fmt->top_ == format->top_ &&
-                fmt->bottom_color_ == format->bottom_color_ && fmt->diag_color_ == format->diag_color_ &&
-                fmt->left_color_ == format->left_color_ && fmt->right_color_ == format->right_color_ &&
-                fmt->top_color_ == format->top_color_ && fmt->indent_ == format->indent_ &&
-                fmt->shrink_ == format->shrink_ && fmt->merge_range_ == format->merge_range_ &&
-                fmt->reading_order_ == format->reading_order_ && fmt->just_distrib_ == format->just_distrib_ &&
-                fmt->color_indexed_ == format->color_indexed_ && fmt->font_only_ == format->font_only_ &&
-                fmt->quote_prefix_ == format->quote_prefix_;
-       });
-     it != std::end(used_xf_formats_))
-  {
-    return (*it)->xf_index_;
-  }
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+  auto* format_mut      = const_cast<format_t*>(format);
+  format_mut->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
+  used_xf_formats_.push_back(format_mut);
 
-  format->xf_index_ = static_cast<int32_t>(used_xf_formats_.size());
-  used_xf_formats_.push_back(format);
-
-  return format->xf_index_;
+  return format_mut->xf_index_;
 }
 
-int32_t workbook_t::get_dxf_index(format_t* format)
+int32_t workbook_t::get_dxf_index(const format_t* format)
 {
   // Format already has an index number so return it.
   if(format->dxf_index_ != format_t::PROPERTY_UNSET)
@@ -584,36 +552,45 @@ int32_t workbook_t::get_dxf_index(format_t* format)
     return format->dxf_index_;
   }
 
-  // TODO Add search to be sure there is no duplication.
-  format->dxf_index_ = static_cast<int32_t>(used_dxf_formats_.size());
-  used_dxf_formats_.push_back(format);
+  if(auto it = std::ranges::find_if(used_dxf_formats_, [=](const auto* fmt) { return *fmt == *format; });
+     it != std::end(used_dxf_formats_))
+  {
+    return (*it)->dxf_index_;
+  }
 
-  return format->dxf_index_;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+  auto* format_mut       = const_cast<format_t*>(format);
+  format_mut->dxf_index_ = static_cast<int32_t>(used_dxf_formats_.size());
+  used_dxf_formats_.push_back(format_mut);
+
+  return format_mut->dxf_index_;
 }
 
 void workbook_t::prepare_fonts()
 {
-  std::vector<format_t*> fonts;
+  std::vector<const format_t*> fonts;
 
-  // TODO Use unordered_set to optimise this search.
   for(auto* format: used_xf_formats_)
   {
-    for(const auto* font: fonts)
+    if(auto it = std::ranges::find_if(
+         fonts,
+         [=](const auto* font) {
+           return format->font_name_ == font->font_name_ && format->font_size_ == font->font_size_ &&
+                  format->bold_ == font->bold_ && format->italic_ == font->italic_ &&
+                  format->underline_ == font->underline_ && format->theme_ == font->theme_ &&
+                  format->font_color_ == font->font_color_ && format->font_strikeout_ == font->font_strikeout_ &&
+                  format->font_outline_ == font->font_outline_ && format->font_shadow_ == font->font_shadow_ &&
+                  format->font_script_ == font->font_script_ && format->font_family_ == font->font_family_ &&
+                  format->font_charset_ == font->font_charset_ && format->font_condense_ == font->font_condense_ &&
+                  format->font_extend_ == font->font_extend_;
+         });
+       it != std::end(fonts))
     {
-      if(format->font_name_ == font->font_name_ && format->font_size_ == font->font_size_ &&
-         format->bold_ == font->bold_ && format->italic_ == font->italic_ && format->underline_ == font->underline_ &&
-         format->theme_ == font->theme_ && format->font_color_ == font->font_color_ &&
-         format->font_strikeout_ == font->font_strikeout_ && format->font_outline_ == font->font_outline_ &&
-         format->font_shadow_ == font->font_shadow_ && format->font_script_ == font->font_script_ &&
-         format->font_family_ == font->font_family_ && format->font_charset_ == font->font_charset_ &&
-         format->font_condense_ == font->font_condense_ && format->font_extend_ == font->font_extend_)
-      {
-        // Font has already been used.
-        format->font_index_ = font->font_index_;
-        format->has_font_   = false;
-      }
+      // Font has already been used.
+      format->font_index_ = (*it)->font_index_;
+      format->has_font_   = false;
     }
-    if(format->font_index_ == format_t::PROPERTY_UNSET)
+    else
     {
       format->font_index_ = static_cast<int32_t>(fonts.size());
       format->has_font_   = true;
@@ -638,9 +615,8 @@ void workbook_t::prepare_fonts()
 
 void workbook_t::prepare_num_formats()
 {
-  std::vector<format_t*> num_formats;
+  std::vector<const format_t*> num_formats;
 
-  // TODO Use unordered_set to optimise this search.
   for(auto* format: used_xf_formats_)
   {
     // Format already has a number format index.
@@ -652,16 +628,14 @@ void workbook_t::prepare_num_formats()
     // Check if there is a user defined number format string.
     if(!format->num_format_.empty())
     {
-      for(const auto* num_format: num_formats)
+      if(auto it = std::ranges::find_if(
+           num_formats, [=](const auto* num_format) { return format->num_format_ == num_format->num_format_; });
+         it != std::end(num_formats))
       {
-        if(format->num_format_ == num_format->num_format_)
-        {
-          // Format number has already been used.
-          format->num_format_index_ = num_format->num_format_index_;
-        }
+        // Format number has already been used.
+        format->num_format_index_ = (*it)->num_format_index_;
       }
-
-      if(format->num_format_index_ == 0)
+      else
       {
         // Custom number formats start at 0xA4
         format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + 0xA4;
@@ -705,26 +679,29 @@ void workbook_t::prepare_num_formats()
 
 void workbook_t::prepare_borders()
 {
-  std::vector<format_t*> borders;
+  std::vector<const format_t*> borders;
 
-  // TODO Use unordered_set to optimise this search.
   for(auto* format: used_xf_formats_)
   {
-    for(const auto* border: borders)
+    if(auto it = std::ranges::find_if(borders,
+                                      [=](const auto* border) {
+                                        return format->bottom_ == border->bottom_ && format->left_ == border->left_ &&
+                                               format->right_ == border->right_ && format->top_ == border->top_ &&
+                                               format->diag_border_ == border->diag_border_ &&
+                                               format->diag_type_ == border->diag_type_ &&
+                                               format->bottom_color_ == border->bottom_color_ &&
+                                               format->left_color_ == border->left_color_ &&
+                                               format->right_color_ == border->right_color_ &&
+                                               format->top_color_ == border->top_color_ &&
+                                               format->diag_color_ == border->diag_color_;
+                                      });
+       it != std::end(borders))
     {
-      if(format->bottom_ == border->bottom_ && format->left_ == border->left_ && format->right_ == border->right_ &&
-         format->top_ == border->top_ && format->diag_border_ == border->diag_border_ &&
-         format->diag_type_ == border->diag_type_ && format->bottom_color_ == border->bottom_color_ &&
-         format->left_color_ == border->left_color_ && format->right_color_ == border->right_color_ &&
-         format->top_color_ == border->top_color_ && format->diag_color_ == border->diag_color_)
-      {
-        // Font has already been used.
-        format->border_index_ = border->border_index_;
-        format->has_border_   = false;
-      }
+      // Font has already been used.
+      format->border_index_ = (*it)->border_index_;
+      format->has_border_   = false;
     }
-
-    if(format->border_index_ == format_t::PROPERTY_UNSET)
+    else
     {
       format->border_index_ = static_cast<int32_t>(borders.size());
       format->has_border_   = true;
@@ -1328,18 +1305,20 @@ void workbook_t::prepare_tables()
 
 void workbook_t::prepare_fills()
 {
-  std::vector<format_t*> fills;
+  std::vector<const format_t*> fills;
 
   // Add the default fills.
   // NOLINTNEXTLINE(modernize-avoid-bind)
-  format_t default_fill_1(std::bind_front(&workbook_t::get_dxf_index, this));
+  format_t default_fill_1(std::bind_front(&workbook_t::get_xf_index, this),
+                          std::bind_front(&workbook_t::get_dxf_index, this));
   default_fill_1.fg_color_   = color_t{};
   default_fill_1.bg_color_   = color_t{};
   default_fill_1.pattern_    = format_patterns_t::NONE;
   default_fill_1.fill_index_ = 0;
   fills.push_back(&default_fill_1);
   // NOLINTNEXTLINE(modernize-avoid-bind)
-  format_t default_fill_2(std::bind_front(&workbook_t::get_dxf_index, this));
+  format_t default_fill_2(std::bind_front(&workbook_t::get_xf_index, this),
+                          std::bind_front(&workbook_t::get_dxf_index, this));
   default_fill_2.fg_color_   = color_t{};
   default_fill_2.bg_color_   = color_t{};
   default_fill_2.pattern_    = format_patterns_t::GRAY_125;
@@ -1357,7 +1336,6 @@ void workbook_t::prepare_fills()
     }
   }
 
-  // TODO Use unordered_set to optimise this search.
   for(auto* format: used_xf_formats_)
   {
     // The following logical statements jointly take care of special
@@ -1383,18 +1361,19 @@ void workbook_t::prepare_fills()
       format->pattern_ = format_patterns_t::SOLID;
     }
 
-    for(const auto* fill: fills)
+    if(auto it = std::ranges::find_if(fills,
+                                      [=](const auto* fill) {
+                                        return format->bg_color_ == fill->bg_color_ &&
+                                               format->fg_color_ == fill->fg_color_ &&
+                                               format->pattern_ == fill->pattern_;
+                                      });
+       it != std::end(fills))
     {
-      if(format->bg_color_ == fill->bg_color_ && format->fg_color_ == fill->fg_color_ &&
-         format->pattern_ == fill->pattern_)
-      {
-        // Font has already been used.
-        format->fill_index_ = fill->fill_index_;
-        format->has_fill_   = false;
-      }
+      // Fill has already been used.
+      format->fill_index_ = (*it)->fill_index_;
+      format->has_fill_   = false;
     }
-
-    if(format->fill_index_ == format_t::PROPERTY_UNSET)
+    else
     {
       format->fill_index_ = static_cast<int32_t>(fills.size());
       format->has_fill_   = true;

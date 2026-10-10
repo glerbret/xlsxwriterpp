@@ -20,8 +20,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a format with date formatting.
-  xwpp::format_t* format = workbook.add_format();
-  format->set_num_format("mmm d yyyy hh:mm AM/PM");
+  const xwpp::format_t* format = workbook.format_builder().num_format("mmm d yyyy hh:mm AM/PM").build();
 
   // Widen the first column to make the text clearer.
   worksheet.set_column(0, 0, 22);

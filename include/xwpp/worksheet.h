@@ -987,7 +987,7 @@ struct conditional_format_t
   /**
    * The format field is used to specify the format_t format that will
    * be applied to the cell when the conditional formatting criterion is
-   * met. The format_t is created using the `workbook_t::add_format()`
+   * met. The format_t is created using the `workbook_t::format_builder()`
    * method in the same way as cell formats.
    *
    * @note In Excel, a conditional format is superimposed over the existing
@@ -997,7 +997,7 @@ struct conditional_format_t
    * subscript, diagonal borders, all alignment properties and all
    * protection properties.
    */
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 
   /**
    * The minimum value used for Cell, Color Scale and Data Bar conditional
@@ -1272,12 +1272,12 @@ struct table_column_t
   /**
    * Set the format for the column header.
    */
-  format_t* header_format_{nullptr};
+  const format_t* header_format_{nullptr};
 
   /**
    * Set the format for the data rows in the column.
    */
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 
   /**
    * Set the formula value for the column total (not generally required).
@@ -1592,7 +1592,7 @@ struct image_options_t
   /**
    * Add an optional format to the cell. Only used with `worksheet_t::embed_image()`.
    */
-  format_t* cell_format_;
+  const format_t* cell_format_;
 };
 
 /**
@@ -1850,7 +1850,7 @@ struct rich_string_tuple_t
    * The format for a string fragment in a rich string. `nullptr` if the string
    * isn't formatted.
    */
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
 
   /**
    * The string fragment.
@@ -1863,7 +1863,7 @@ struct cell_t
   row_num_t row_num_{0};
   col_num_t col_num_{0};
   cell_types_t type_{cell_types_t::BLANK_CELL};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
   std::optional<vml_obj_t> comment_;
   std::variant<uint32_t, double, std::string> data_;
   double formula_result_{0.};
@@ -1876,7 +1876,7 @@ struct row_t
 {
   row_num_t row_num_{0};
   double height_{DEF_ROW_HEIGHT};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
   bool hidden_{false};
   uint8_t level_{0};
   bool collapsed_{false};
@@ -1899,7 +1899,7 @@ struct col_options_t
   col_num_t firstcol_{std::numeric_limits<col_num_t>::max()};
   col_num_t lastcol_{std::numeric_limits<col_num_t>::max()};
   double width_{DEF_COL_WIDTH};
-  format_t* format_{nullptr};
+  const format_t* format_{nullptr};
   bool hidden_{false};
   uint8_t level_{0};
   bool collapsed_{false};
@@ -2089,8 +2089,7 @@ struct filter_rule_obj_t
 class worksheet_t : public sheet_t
 {
 public:
-  worksheet_t(const sheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
-              std::function<int32_t(format_t*)> get_dxf_index);
+  explicit worksheet_t(const sheet_init_data_t& init_data);
 
   /**
    * @brief Set the properties for one or more columns of cells with options.
@@ -2135,8 +2134,7 @@ public:
    * `DEF_COL_WIDTH`:
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
    *
    *  // Set the first column to bold.
    *  worksheet.set_column(0, 0, bold);
@@ -2266,8 +2264,7 @@ public:
    * format.h "Format" for all cells in the row:
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
    *
    *  // Set the header row to bold.
    *  worksheet.set_row(0, 15, bold);
@@ -2475,8 +2472,7 @@ public:
    * @ref format.h "Format" object:
    *
    * @code
-   *  xwpp::format* format = workbook.add_format();
-   *  format->set_bold();
+   *  const xwpp::format_t* format = workbook.format_builder().bold().build();
    *
    *  worksheet.write(0, 0, "This phrase is Bold!", format);
    * @endcode
@@ -2704,11 +2700,8 @@ public:
    * and this is *italic*' you would use the following:
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
-   *
-   *  xwpp::format_t* italic = workbook.add_format();
-   *  italic->set_italic();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
+   *  const xwpp::format_t* italic = workbook.format_builder().italic().build();
    *
    *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
    *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
@@ -2774,11 +2767,8 @@ public:
    * This function is similar to index-based one except it uses name of the cell.
    *
    * @code
-   *  xwpp::format_t* bold = workbook.add_format();
-   *  bold->set_bold();
-   *
-   *  xwpp::format_t* italic = workbook.add_format();
-   *  italic->set_italic();
+   *  const xwpp::format_t* bold = workbook.format_builder().bold().build();
+   *  const xwpp::format_t* italic = workbook.format_builder().italic().build();
    *
    *  xwpp::rich_string_tuple_t fragment1{.str_ = "This is "};
    *  xwpp::rich_string_tuple_t fragment2{.format_ = bold, .str_ =  "bold"};
@@ -2825,10 +2815,10 @@ public:
    * "Format" object can be used:
    *
    * @code
-   *  xwpp::format_t* url_format = workbook.add_format();
-   *
-   *  url_format->set_underline(xwpp::format_underlines_t::SINGLE);
-   *  url_format->set_font_color(xwpp::color_t::red());
+   *  const xwpp::format_t* url_format = workbook.format_builder().
+   *                                              underline(xwpp::format_underlines_t::SINGLE).
+   *                                              font_color(xwpp::color_t::red()).
+   *                                              build();
    * @endcode
    *
    * The usual web style URI's are supported: `%http://`, `%https://`, `%ftp://`
@@ -2854,7 +2844,7 @@ public:
    *  worksheet.write_url(2, 0, "http://libxlsxwriter.github.io");
    *
    *  // Get the default url format.
-   *  xwpp::format_t* url_format = workbook.get_default_url_format();
+   *  const xwpp::format_t* url_format = workbook.get_default_url_format();
    *
    *  // Overwrite the hyperlink with a user defined string and default format.
    *  worksheet.write(2, 0, "Read the documentation.", url_format);
@@ -3354,8 +3344,8 @@ public:
    * object with the appropriate alignment:
    *
    * @code
-   *  xwpp::format_t* merge_format = workbook.add_format();
-   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+   *  const xwpp::format_t* merge_format =
+   * workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
    *
    *  worksheet.merge_range(1, 1, 1, 3, "Merged Range", merge_format);
    * @endcode
@@ -3363,11 +3353,13 @@ public:
    * It is possible to apply other formatting to the merged cells as well:
    *
    * @code
-   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
-   *  merge_format->set_align(xwpp::format_alignments_t::VERTICAL_CENTER);
-   *  merge_format->set_border(xwpp::format_borders_t::DOUBLE);
-   *  merge_format->set_bold();
-   *  merge_format->set_bg_color(xwpp::color_t{0xD7E4BC});
+   *
+   * merge_format = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).
+   *                                          align(xwpp::format_vertical_alignments_t::CENTER).
+   *                                          border(xwpp::format_borders_t::DOUBLE).
+   *                                          bold().
+   *                                          bg_color(xwpp::color_t{0xD7E4BC}).
+   *                                          build();
    *
    *  worksheet.merge_range(2, 1, 3, 3, "Merged Range", merge_format);
    * @endcode
@@ -3407,8 +3399,8 @@ public:
    * This function is similar to index-based one except it uses name of the range.
    *
    * @code
-   *  xwpp::format_t* merge_format = workbook.add_format();
-   *  merge_format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
+   *  const xwpp::format_t* merge_format =
+   * workbook.format_builder().align(xwpp::format_horizontal_alignments_t::CENTER).build();
    *
    *  worksheet.merge_range("B2:D2", "Merged Range", merge_format);
    * @endcode
@@ -4942,8 +4934,8 @@ public:
    *
    * A *locked* cell cannot be edited and this property is on by default for all
    * cells. A *hidden* cell will display the results of a formula but not the
-   * formula itself. These properties can be set using the `format_t::set_unlocked()`
-   * and `format_t::set_hidden()` format functions.
+   * formula itself. These properties can be set using the `format_t::unlocked()`
+   * and `format_t::hidden()` format functions.
    *
    * You can specify which worksheet elements you wish to protect by passing a
    * `protection_t` pointer in the `options` argument with any or all of the
@@ -4981,7 +4973,7 @@ public:
    *  worksheet.protect(worksheet, options);
    * @endcode
    *
-   * @see the `format_t::set_unlocked()` and `format_t::set_hidden()` format functions.
+   * @see the `format_t::unlocked()` and `format_t::hidden()` format functions.
    *
    * @note Sheet level passwords in Excel offer **very** weak
    * protection. They don't encrypt your data and are very easy to
@@ -5353,7 +5345,6 @@ public:
   static const col_num_t COL_META_MAX;
 
 private:
-  // TODO To be reworked
   friend class packager_t;
   friend class workbook_t;
   friend class rich_value_t;
@@ -5405,7 +5396,7 @@ private:
   [[nodiscard]] std::string write_page_setup() const override;
   [[nodiscard]] std::string write_sheet_format_pr() const;
   [[nodiscard]] std::string write_cols() const;
-  [[nodiscard]] std::string write_col_info(const col_options_t& options) const;
+  [[nodiscard]] static std::string write_col_info(const col_options_t& options);
   [[nodiscard]] std::string write_sheet_data() const;
   [[nodiscard]] std::string write_auto_filter() const;
   [[nodiscard]] std::string write_merge_cells() const;
@@ -5426,7 +5417,7 @@ private:
   [[nodiscard]] std::string write_rows() const;
   [[nodiscard]] std::string write_string_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
   [[nodiscard]] std::string write_number_cell(std::string_view range, int32_t style_index, const cell_t& cell) const;
-  [[nodiscard]] std::string write_cell(const cell_t& cell, format_t* row_format) const;
+  [[nodiscard]] std::string write_cell(const cell_t& cell, const format_t* row_format) const;
   [[nodiscard]] static std::string write_merge_cell(const merged_range_t& merged_range);
   [[nodiscard]] std::string write_formula_num_cell(const cell_t& cell) const;
   [[nodiscard]] std::string write_formula_str_cell(const cell_t& cell) const;
@@ -5463,10 +5454,6 @@ private:
   // Getter for properties
   [[nodiscard]] bool is_outline_changed() const override;
   [[nodiscard]] size_t get_table_count() const override;
-
-  // Getter for format index
-  std::function<int32_t(format_t*)> get_xf_index_;
-  std::function<int32_t(format_t*)> get_dxf_index_;
 
   // Worksheet properties
   bool use_1904_epoch_{false};
@@ -5506,8 +5493,9 @@ private:
   std::vector<col_options_t> col_options_;
 
   // Format
-  format_t* default_url_format_{nullptr};
-  std::vector<format_t*> col_formats_;
+  const format_t* default_format_{nullptr};
+  const format_t* default_url_format_{nullptr};
+  std::vector<const format_t*> col_formats_;
 
   // Outlines
   bool outline_changed_{false};

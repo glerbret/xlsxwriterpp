@@ -41,8 +41,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a bold format to use to highlight the header cells.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Add for fills for use in the chart.
   xwpp::chart_fill_t fill1{.color_ = xwpp::color_t{0xFA58D0}};

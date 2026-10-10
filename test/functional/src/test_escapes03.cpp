@@ -13,11 +13,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* bold   = workbook.add_format();
-  xwpp::format_t* italic = workbook.add_format();
-
-  bold->set_bold();
-  italic->set_italic();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
 
   worksheet.write("A1", "Foo", bold);
   worksheet.write("A2", "Bar", italic);

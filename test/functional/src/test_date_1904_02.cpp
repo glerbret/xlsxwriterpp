@@ -11,9 +11,7 @@ int main()
   xwpp::workbook_t workbook(true);
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-  format->set_num_format_index(14);
-
+  const xwpp::format_t* format = workbook.format_builder().num_format_index(14).build();
   const xwpp::datetime_t datetime1{.year_ = 1904, .month_ = 1, .day_ = 1, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
   const xwpp::datetime_t datetime2{.year_ = 1906, .month_ = 9, .day_ = 27, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
   const xwpp::datetime_t datetime3{.year_ = 1917, .month_ = 9, .day_ = 9, .hour_ = 0, .min_ = 0, .sec_ = 0.0};

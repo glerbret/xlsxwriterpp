@@ -19,15 +19,10 @@ int main()
   // Add a worksheet with Excel's default sheet name: Sheet2.
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
 
-  // Add some cell formats.
-  xwpp::format_t* myformat1 = workbook.add_format();
-  xwpp::format_t* myformat2 = workbook.add_format();
-
   // Set the bold property for the first format.
-  myformat1->set_bold();
-
+  const xwpp::format_t* myformat1 = workbook.format_builder().bold().build();
   // Set a number format for the second format.
-  myformat2->set_num_format("$#,##0.00");
+  const xwpp::format_t* myformat2 = workbook.format_builder().num_format("$#,##0.00").build();
 
   // Widen the first column to make the text clearer.
   worksheet1.set_column(0, 0, 20);

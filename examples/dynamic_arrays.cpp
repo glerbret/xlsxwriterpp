@@ -67,13 +67,10 @@ int main()
 {
   xwpp::workbook_t workbook;
 
-  xwpp::format_t* header1 = workbook.add_format();
-  header1->set_bg_color(xwpp::color_t{0x74AC4C});
-  header1->set_font_color(xwpp::color_t{0xFFFFFF});
-
-  xwpp::format_t* header2 = workbook.add_format();
-  header2->set_bg_color(xwpp::color_t{0x528FD3});
-  header2->set_font_color(xwpp::color_t{0xFFFFFF});
+  const xwpp::format_t* header1 =
+    workbook.format_builder().bg_color(xwpp::color_t{0x74AC4C}).font_color(xwpp::color_t{0xFFFFFF}).build();
+  const xwpp::format_t* header2 =
+    workbook.format_builder().bg_color(xwpp::color_t{0x528FD3}).font_color(xwpp::color_t{0xFFFFFF}).build();
 
   // Example of using the FILTER() function.
   {

@@ -18,29 +18,16 @@ int main()
   // Widen the first column to make the text clearer.
   worksheet.set_column(0, 0, 30);
 
-  // Add some formats.
-  xwpp::format_t* format01 = workbook.add_format();
-  xwpp::format_t* format02 = workbook.add_format();
-  xwpp::format_t* format03 = workbook.add_format();
-  xwpp::format_t* format04 = workbook.add_format();
-  xwpp::format_t* format05 = workbook.add_format();
-  xwpp::format_t* format06 = workbook.add_format();
-  xwpp::format_t* format07 = workbook.add_format();
-  xwpp::format_t* format08 = workbook.add_format();
-  xwpp::format_t* format09 = workbook.add_format();
-
   // Set some example number formats.
-  format01->set_num_format("0.000");
-  format02->set_num_format("#,##0");
-  format03->set_num_format("#,##0.00");
-  format04->set_num_format("0.00");
-  format05->set_num_format("mm/dd/yy");
-  format06->set_num_format("mmm d yyyy");
-  format07->set_num_format("d mmmm yyyy");
-  format08->set_num_format("dd/mm/yyyy hh:mm AM/PM");
-  format09->set_num_format(R"(0 "dollar and" .00 "cents")");
-
-  worksheet.write(2, 0, 123);
+  const xwpp::format_t* format01 = workbook.format_builder().num_format("0.000").build();
+  const xwpp::format_t* format02 = workbook.format_builder().num_format("#,##0").build();
+  const xwpp::format_t* format03 = workbook.format_builder().num_format("#,##0.00").build();
+  const xwpp::format_t* format04 = workbook.format_builder().num_format("0.00").build();
+  const xwpp::format_t* format05 = workbook.format_builder().num_format("mm/dd/yy").build();
+  const xwpp::format_t* format06 = workbook.format_builder().num_format("mmm d yyyy").build();
+  const xwpp::format_t* format07 = workbook.format_builder().num_format("d mmmm yyyy").build();
+  const xwpp::format_t* format08 = workbook.format_builder().num_format("dd/mm/yyyy hh:mm AM/PM").build();
+  const xwpp::format_t* format09 = workbook.format_builder().num_format(R"(0 "dollar and" .00 "cents")").build();
 
   // Write data using the formats.
   worksheet.write(0, 0, 3.1415926);           // 3.1415926
@@ -55,22 +42,16 @@ int main()
   worksheet.write(9, 0, 1.87, format09);      // 1 dollar and .87 cents
 
   // Show limited conditional number formats.
-  {
-    xwpp::format_t* format = workbook.add_format();
-    format->set_num_format("[Green]General;[Red]-General;General");
+  const xwpp::format_t* format10 = workbook.format_builder().num_format("[Green]General;[Red]-General;General").build();
 
-    worksheet.write(10, 0, 123, format); // > 0 Green
-    worksheet.write(11, 0, -45, format); // < 0 Red
-    worksheet.write(12, 0, 0, format);   // = 0 Default color
-  }
+  worksheet.write(10, 0, 123, format10); // > 0 Green
+  worksheet.write(11, 0, -45, format10); // < 0 Red
+  worksheet.write(12, 0, 0, format10);   // = 0 Default color
 
   // Format a Zip code.
-  {
-    xwpp::format_t* format = workbook.add_format();
-    format->set_num_format("00000");
+  const xwpp::format_t* format11 = workbook.format_builder().num_format("00000").build();
 
-    worksheet.write(13, 0, 1209, format); // 01209
-  }
+  worksheet.write(13, 0, 1209, format11); // 01209
 
   workbook.save("format_num_format.xlsx");
 }

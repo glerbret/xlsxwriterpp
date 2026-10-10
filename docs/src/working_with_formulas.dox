@@ -110,7 +110,7 @@ based on the results. For example, a function such as `FILTER()` returns an
 array of values that can vary in size depending on the the filter results:
 
 @code
-  worksheet.write_dynamic_array_formula(RANGE("F2:F2"), "=_xlfn._xlws.FILTER(A1:D17,C1:C17=K2)");
+  worksheet.write_dynamic_array_formula("F2:F2", "=_xlfn._xlws.FILTER(A1:D17,C1:C17=K2)");
 @endcode
 
 This formula gives the results shown in the image below. The dynamic range
@@ -132,7 +132,7 @@ get a dynamic range of return values. In `Xlsxwriter++` you can use the
 `worksheet_t::write_dynamic_array_formula()` to get a dynamic range. For example:
 
 @code
-  worksheet.write_dynamic_array_formula(RANGE("B1:B3"), "=LEN(A1:A3)");
+  worksheet.write_dynamic_array_formula("B1:B3", "=LEN(A1:A3)");
 @endcode
 
 Which gives the following result:
@@ -236,7 +236,7 @@ following:
 
 @code
   // Same as '=COUNTA(F2#)' in Excel.
-  worksheet.write_dynamic_formula(CELL("J2"), "=COUNTA(_xlfn.ANCHORARRAY(F2))");
+  worksheet.write_dynamic_formula("J2", "=COUNTA(_xlfn.ANCHORARRAY(F2))");
 @endcode
 
 @subsection ww_formulas_lambda The Excel 365 `LAMBDA()` function
@@ -269,12 +269,12 @@ shown below:
 
 @code
   // Write the lambda as a function.
-  worksheet.write_dynamic_formula(CELL("A2"), "=_xlfn.LAMBDA(_xlpm.temp, (5/9) * (_xlpm.temp-32))(32)");
+  worksheet.write_dynamic_formula("A2", "=_xlfn.LAMBDA(_xlpm.temp, (5/9) * (_xlpm.temp-32))(32)");
 
   // Create the lambda function as a defined name and write it as a dynamic formula.
   workbook.define_name("ToCelsius", "=_xlfn.LAMBDA(_xlpm.temp, (5/9) * (_xlpm.temp-32))");
 
-  worksheet.write_dynamic_formula(CELL("A3"), "=ToCelsius(212)");
+  worksheet.write_dynamic_formula("A3", "=ToCelsius(212)");
 @endcode
 
 Note, that the formula name must have a `"_xlfn."` prefix and the parameters in

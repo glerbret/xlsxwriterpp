@@ -11,8 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-  format->set_border(xwpp::format_borders_t::THIN);
+  const xwpp::format_t* format = workbook.format_builder().border(xwpp::format_borders_t::THIN).build();
 
   worksheet.write("A1", 10);
   worksheet.write("A2", 20);

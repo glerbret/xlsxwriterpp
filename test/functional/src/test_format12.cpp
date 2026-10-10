@@ -11,21 +11,20 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* top_left_bottom = workbook.add_format();
-  top_left_bottom->set_bottom(xwpp::format_borders_t::THIN);
-  top_left_bottom->set_left(xwpp::format_borders_t::THIN);
-  top_left_bottom->set_top(xwpp::format_borders_t::THIN);
+  const xwpp::format_t* top_left_bottom = workbook.format_builder()
+                                            .bottom(xwpp::format_borders_t::THIN)
+                                            .left(xwpp::format_borders_t::THIN)
+                                            .top(xwpp::format_borders_t::THIN)
+                                            .build();
 
-  xwpp::format_t* top_bottom = workbook.add_format();
-  top_bottom->set_bottom(xwpp::format_borders_t::THIN);
-  top_bottom->set_top(xwpp::format_borders_t::THIN);
+  const xwpp::format_t* top_bottom =
+    workbook.format_builder().bottom(xwpp::format_borders_t::THIN).top(xwpp::format_borders_t::THIN).build();
 
-  xwpp::format_t* top_left = workbook.add_format();
-  top_left->set_left(xwpp::format_borders_t::THIN);
-  top_left->set_top(xwpp::format_borders_t::THIN);
+  const xwpp::format_t* top_left =
+    workbook.format_builder().left(xwpp::format_borders_t::THIN).top(xwpp::format_borders_t::THIN).build();
 
-  xwpp::format_t* unused = workbook.add_format();
-  unused->set_left(xwpp::format_borders_t::THIN);
+  // cppcheck-suppress unreadVariable
+  [[maybe_unused]] const xwpp::format_t* unused = workbook.format_builder().left(xwpp::format_borders_t::THIN).build();
 
   worksheet.write("B2", "test", top_left_bottom);
   worksheet.write("D2", "test", top_left);

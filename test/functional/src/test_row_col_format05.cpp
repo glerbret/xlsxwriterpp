@@ -11,11 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
-
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
 
   worksheet.set_column(0, 0, 8.43, bold);
   worksheet.set_column(2, 2, 8.43, italic);

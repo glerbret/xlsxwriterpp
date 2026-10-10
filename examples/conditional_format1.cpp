@@ -28,8 +28,7 @@ int main()
   worksheet.write("B9", 32);
 
   // Add a format with red text.
-  xwpp::format_t* custom_format = workbook.add_format();
-  custom_format->set_font_color(xwpp::color_t::red());
+  const xwpp::format_t* custom_format = workbook.format_builder().font_color(xwpp::color_t::red()).build();
 
   // Create a conditional format object. A static object would also work.
   const xwpp::conditional_format_t conditional_format{

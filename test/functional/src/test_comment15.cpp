@@ -11,10 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format1 = workbook.add_format();
-  format1->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
-  worksheet.write("A1", "Foo", format1);
+  worksheet.write("A1", "Foo", bold);
   worksheet.write_comment("B2", "Some text");
 
   worksheet.set_comments_author("John");

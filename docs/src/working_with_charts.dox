@@ -126,8 +126,8 @@ functions can be used to set the line/border and fill properties of a chart
 marker:
 
 @code
-  xwpp::chart_line_t line{.color_ = xwpp::color_t::BLACK};
-  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::RED};
+  xwpp::chart_line_t line{.color_ = xwpp::color_t::black()};
+  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::red()};
 
   chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
   xwpp::chart_series_set_marker_size(series, 8);
@@ -273,7 +273,7 @@ properties of a trendline:
 
 @code
   xwpp::chart_line_t line{
-    .color_     = xwpp::color_t::RED,
+    .color_     = xwpp::color_t::red(),
     .dash_type_ = xwpp::chart_line_dash_type_t::DASH_LONG_DASH,
   };
 
@@ -389,7 +389,7 @@ properties for the error bars:
 
 @code
   xwpp::chart_line_t line{
-    .color_     = xwpp::color_t::RED,
+    .color_     = xwpp::color_t::red(),
     .dash_type_ = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
   };
 
@@ -446,11 +446,11 @@ zero-initialized `chart_point_t`:
 
 @code
   xwpp::chart_line_t line{
-    .color_ = xwpp::color_t::BLACK};
+    .color_ = xwpp::color_t::black()};
   xwpp::chart_fill_t red_fill{
-    .color_ = xwpp::color_t::RED};
+    .color_ = xwpp::color_t::red()};
   xwpp::chart_fill_t green_fill{
-    .color_ = xwpp::color_t::GREEN};
+    .color_ = xwpp::color_t::green()};
 
   std::vector<chart_point_t> points{
     {.fill_ = red_fill,   .line_ = line},
@@ -475,7 +475,7 @@ to extend to the entire range of the series.
 For Bar/Column/Area charts "points" refer to bars/areas within the chart:
 
 @code
-  xwpp::chart_fill_t red_fill = {.color_ = xwpp::color_t::RED};
+  xwpp::chart_fill_t red_fill = {.color_ = xwpp::color_t::red()};
 
   std::vector<xwpp::chart_point_t>points{
     {},
@@ -622,7 +622,7 @@ for data labels:
 @code
   xwpp::chart_font_t font{
     .name_ = "Consolas",
-    .color_ = xwpp::color_t::RED,
+    .color_ = xwpp::color_t::red(),
   };
 
   chart_series_set_labels(series);
@@ -638,8 +638,8 @@ The `chart_series_set_labels_line()`, `chart_series_set_labels_fill()` and
 formatting for a data series using standard chart formatting structs:
 
 @code
-  xwpp::chart_line_t line{.color_ = xwpp::color_t::RED};
-  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::YELLOW};
+  xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
+  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
 
   chart_series_set_labels_line(series, line);
   chart_series_set_labels_fill(series, fill);
@@ -722,7 +722,7 @@ The `%font_` element in the `chart_data_label_t` struct can be used to set the
 font for the label in the data series (see @ref chart_fonts):
 
 @code
-  xwpp::chart_font_t font{.color_ = xwpp::color_t::RED};
+  xwpp::chart_font_t font{.color_ = xwpp::color_t::red()};
 
   // Add the series data labels.
   chart_series_set_labels(series);
@@ -773,10 +773,10 @@ Standard chart formatting such as `chart_line_t`, `chart_fill_t` and
 
 @code
   // Set the border/line and fill for the data labels.
-  xwpp::chart_line_t line2{.color_ = xwpp::color_t::RED};
-  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::YELLOW};
-  xwpp::chart_line_t line3{.color_ = xwpp::color_t::BLUE};
-  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::GREEN};
+  xwpp::chart_line_t line2{.color_ = xwpp::color_t::red()};
+  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::yellow()};
+  xwpp::chart_line_t line3{.color_ = xwpp::color_t::blue()};
+  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::green()};
 
   // Set the default formatting for the data labels in the series.
   chart_series_set_labels_line(series, line2);
@@ -812,9 +812,9 @@ column fill areas and other chart elements:
 For example:
 
 @code
-  xwpp::chart_line_t chart_line  = {.color_ = xwpp::color_t::BLUE};
-  xwpp::chart_line_t marker_line = {.color_ = xwpp::color_t::RED};
-  xwpp::chart_fill_t marker_fill = {.color_ = xwpp::color_t::YELLOW};
+  xwpp::chart_line_t chart_line  = {.color_ = xwpp::color_t::blue()};
+  xwpp::chart_line_t marker_line = {.color_ = xwpp::color_t::red()};
+  xwpp::chart_fill_t marker_fill = {.color_ = xwpp::color_t::yellow()};
 
   chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
   chart_series_set_marker_size(series, 5);
@@ -843,7 +843,7 @@ A chart font `chart_font_t` struct with default properties is:
     .italic_     = false,
     .underline_  = false,
     .rotation_   = 0,
-    .color_      = xwpp::color_t::BLACK,
+    .color_      = xwpp::color_t::black(),
   };
 @endcode
 
@@ -894,7 +894,7 @@ format.
   information):
 
 @code
-  xwpp::chart_font_t font = {.color_ = xwpp::color_t::BLUE};
+  xwpp::chart_font_t font = {.color_ = xwpp::color_t::blue()};
 @endcode
 
 Here is a longer example with several chart formats:
@@ -915,7 +915,7 @@ A chart line `chart_line_t` struct with default properties is:
 @code
   xwpp::chart_line_t line{
     .none_      = false,
-    .color_     = xwpp::color_t::BLACK,
+    .color_     = xwpp::color_t::black(),
     .width_     = 2.25,
     .dash_type_ = xwpp::chart_line_dash_type_t::SOLID,
   };
@@ -939,7 +939,7 @@ color or a limited number of named colors (see @ref working_with_colors for
 more information):
 
 @code
-  xwpp::chart_line_ line{.color_ = xwpp::color_t(0xFF9900)};
+  xwpp::chart_line_ line{.color_ = xwpp::color_t{0xFF9900}};
 
   chart_series_set_line(series, line);
 @endcode
@@ -987,7 +987,7 @@ More than one line property can be specified at a time:
 
 @code
   xwpp::chart_line_t line{
-    .color_     = xwpp::color_t::RED,
+    .color_     = xwpp::color_t::red(),
     .width_     = 1.25,
     .dash_type_ = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT,
   };
@@ -1013,7 +1013,7 @@ A chart fill `chart_fill_t` struct with default properties is:
 @code
   xwpp::chart_fill fill{
     .none_         = false,
-    .color_        = xwpp::color_t::BLACK,
+    .color_        = xwpp::color_t::black(),
     .transparency_ = 0,
   };
 @endcode
@@ -1022,7 +1022,7 @@ The `%none_` property is used to turn the fill property off (it is generally on 
 default):
 
 @code
-  xwpp::chart_line_t line = {.color_ = xwpp::color_t::BLACK};
+  xwpp::chart_line_t line = {.color_ = xwpp::color_t::black()};
   xwpp::chart_fill_t fill = {.none_  = true};
 
   chart_series_set_line(series, line);
@@ -1036,7 +1036,7 @@ color or a limited number of named colors (see @ref working_with_colors for
 more information):
 
 @code
-  xwpp::chart_fill_t fill{.color_ = xwpp::color_t(0xFF9900)};
+  xwpp::chart_fill_t fill{.color_ = xwpp::color_t{0xFF9900}};
 
   chart_series_set_fill(series, fill);
 @endcode
@@ -1048,7 +1048,7 @@ integer range 1 - 100:
 
 @code
   xwpp::chart_fill_ fill{
-    .color_        = xwpp::color_t::YELLOW,
+    .color_        = xwpp::color_t::yellow(),
     .transparency_ = 50,
   };
 
@@ -1061,8 +1061,8 @@ The `%fill_` format is generally used in conjunction with a border which can be
 set via the `%line_` format:
 
 @code
-  xwpp::chart_line_ line{.color_ = xwpp::color_t::BLACK};
-  xwpp::chart_fill_ fill{.color_ = xwpp::color_t::RED};
+  xwpp::chart_line_ line{.color_ = xwpp::color_t::black()};
+  xwpp::chart_fill_ fill{.color_ = xwpp::color_t::red()};
 
   chart_series_set_line(series, line);
   chart_series_set_fill(series, fill);
@@ -1080,7 +1080,7 @@ A chart pattern `chart_pattern_t` struct with default properties is:
 @code
   xwpp::chart_pattern_t pattern{
     .type_     = xwpp::chart_pattern_type_t::NONE,
-    .bg_color_ = xwpp::color_t::WHITE,
+    .bg_color_ = xwpp::color_t::white(),
   };
 @endcode
 
@@ -1094,21 +1094,21 @@ The foreground color, `%fg_color_`, is a required parameter and can be HTML
 style RGB color or a limited number of named colors (see
 @ref working_with_colors for more information):
 
-The background color, `%bg_color_`, is optional and defaults to xwpp::color_t::WHITE.
+The background color, `%bg_color_`, is optional and defaults to xwpp::color_t::white().
 
 For example:
 
 @code
   xwpp::chart_pattern_t pattern1{
     .type_     = xwpp::chart_pattern_type_t::SHINGLE,
-    .fg_color_ = xwpp::color_t(0x804000),
-    .bg_color_ = xwpp::color_t(0XC68C53),
+    .fg_color_ = xwpp::color_t{0x804000},
+    .bg_color_ = xwpp::color_t{0XC68C53},
   };
 
   xwpp::chart_pattern_t pattern2{
     .type_     = xwpp::chart_pattern_type_t::BRICK,
-    .fg_color_ = xwpp::color_t(0XB30000),
-    .bg_color_ = xwpp::color_t(0XFF6666),
+    .fg_color_ = xwpp::color_t{0XB30000},
+    .bg_color_ = xwpp::color_t{0XFF6666},
   };
 
   chart_series_set_pattern(series1, pattern1);

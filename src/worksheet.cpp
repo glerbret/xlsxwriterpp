@@ -81,8 +81,7 @@ namespace
     .row_num_    = row_num,
     .col_num_    = col_num,
     .type_       = cell_types_t::STRING_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_     = const_cast<format_t*>(format),
+    .format_     = format,
     .data_       = string_id,
     .sst_string_ = std::string{sst_string},
   };
@@ -94,8 +93,7 @@ namespace
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::NUMBER_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_  = const_cast<format_t*>(format),
+    .format_  = format,
     .data_    = value,
   };
 }
@@ -106,8 +104,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::BOOLEAN_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_  = const_cast<format_t*>(format),
+    .format_  = format,
     .data_    = static_cast<uint32_t>(value),
   };
 }
@@ -141,8 +138,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::BLANK_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_  = const_cast<format_t*>(format),
+    .format_  = format,
   };
 }
 
@@ -153,8 +149,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
     .row_num_        = row_num,
     .col_num_        = col_num,
     .type_           = cell_types_t::FORMULA_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_         = const_cast<format_t*>(format),
+    .format_         = format,
     .data_           = std::string{formula},
     .formula_result_ = result,
   };
@@ -167,8 +162,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
     .row_num_    = row_num,
     .col_num_    = col_num,
     .type_       = cell_types_t::FORMULA_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_     = const_cast<format_t*>(format),
+    .format_     = format,
     .data_       = std::string{formula},
     .user_data2_ = std::string{result},
   };
@@ -181,8 +175,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
     .row_num_    = row_num,
     .col_num_    = col_num,
     .type_       = is_dynamic ? cell_types_t::DYNAMIC_ARRAY_FORMULA_CELL : cell_types_t::ARRAY_FORMULA_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_     = const_cast<format_t*>(format),
+    .format_     = format,
     .data_       = std::string{formula},
     .user_data1_ = std::string{range},
   };
@@ -194,8 +187,7 @@ cell_t new_boolean_cell(row_num_t row_num, col_num_t col_num, bool value, const 
     .row_num_ = row_num,
     .col_num_ = col_num,
     .type_    = cell_types_t::ERROR_CELL,
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    .format_  = const_cast<format_t*>(format),
+    .format_  = format,
     .data_    = value,
   };
 }
@@ -1312,12 +1304,10 @@ row_t& table_rows_t::get_row_list(row_num_t row_num)
   return row;
 }
 
-worksheet_t::worksheet_t(const sheet_init_data_t& init_data, std::function<int32_t(format_t*)> get_xf_index,
-                         std::function<int32_t(format_t*)> get_dxf_index)
+worksheet_t::worksheet_t(const sheet_init_data_t& init_data)
   : sheet_t{false, init_data}
-  , get_xf_index_{std::move(get_xf_index)}
-  , get_dxf_index_{std::move(get_dxf_index)}
   , use_1904_epoch_{init_data.use_1904_epoch_}
+  , default_format_{init_data.default_format_}
   , default_url_format_{init_data.default_url_format_}
   , sst_{init_data.sst_}
 {
@@ -1373,8 +1363,7 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   col_options_[first_col].firstcol_  = first_col;
   col_options_[first_col].lastcol_   = last_col;
   col_options_[first_col].width_     = width;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  col_options_[first_col].format_    = const_cast<format_t*>(format);
+  col_options_[first_col].format_    = format;
   col_options_[first_col].hidden_    = hidden;
   col_options_[first_col].level_     = level;
   col_options_[first_col].collapsed_ = collapsed;
@@ -1382,8 +1371,7 @@ void worksheet_t::set_column(col_num_t first_col, col_num_t last_col, double wid
   // Store the column formats for use when writing cell data.
   for(col_num_t col_num{first_col}; col_num <= last_col; col_num++)
   {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    col_formats_[col_num] = const_cast<format_t*>(format);
+    col_formats_[col_num] = format;
   }
 
   // Store the column change to allow optimizations.
@@ -1451,8 +1439,7 @@ void worksheet_t::set_row(row_num_t row_num, double height, const format_t* form
   // Store the row properties.
   row_t& row       = get_row(row_num);
   row.height_      = height;
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-  row.format_      = const_cast<format_t*>(format);
+  row.format_      = format;
   row.hidden_      = hidden;
   row.level_       = level;
   row.collapsed_   = collapsed;
@@ -1659,7 +1646,6 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
   assert(rich_strings.size() >= 2);
 
   style_t style;
-  const format_t default_format(get_dxf_index_);
   std::string rich_string;
 
   // Iterate through the rich string fragments and write each one out.
@@ -1676,7 +1662,7 @@ void worksheet_t::write_rich_string(row_num_t row_num, col_num_t col_num,
       // Write a default font format. Except for the first fragment.
       if(i > 0)
       {
-        rich_string += style.write_rich_font(&default_format);
+        rich_string += style.write_rich_font(default_format_);
       }
     }
 
@@ -2798,7 +2784,7 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   // Get the conditional format dxf format index.
   if(conditional_format.format_)
   {
-    cond_format.dxf_index_ = get_dxf_index_(conditional_format.format_);
+    cond_format.dxf_index_ = conditional_format.format_->get_dxf_index();
   }
   else
   {
@@ -4880,7 +4866,7 @@ std::string worksheet_t::write_cols() const
   return xml_data;
 }
 
-std::string worksheet_t::write_col_info(const col_options_t& options) const
+std::string worksheet_t::write_col_info(const col_options_t& options)
 {
   std::string xml_data;
   attributes_t attributes;
@@ -4892,7 +4878,7 @@ std::string worksheet_t::write_col_info(const col_options_t& options) const
   // Get the format index.
   if(options.format_)
   {
-    xf_index = get_xf_index_(options.format_);
+    xf_index = options.format_->get_xf_index();
   }
 
   // Check if width is the Excel default.
@@ -5286,7 +5272,7 @@ std::string worksheet_t::write_row(const row_t& row, const std::string& spans) c
 
   if(row.format_)
   {
-    xf_index = get_xf_index_(row.format_);
+    xf_index = row.format_->get_xf_index();
   }
 
   attributes.add_attribute("r", row.row_num_ + 1);
@@ -5422,22 +5408,22 @@ std::string worksheet_t::write_number_cell(std::string_view range, int32_t style
   }
 }
 
-std::string worksheet_t::write_cell(const cell_t& cell, format_t* row_format) const
+std::string worksheet_t::write_cell(const cell_t& cell, const format_t* row_format) const
 {
   int32_t style_index{0};
   const std::string range = rowcol_to_cell(cell.row_num_, cell.col_num_);
 
   if(cell.format_)
   {
-    style_index = get_xf_index_(cell.format_);
+    style_index = cell.format_->get_xf_index();
   }
   else if(row_format)
   {
-    style_index = get_xf_index_(row_format);
+    style_index = row_format->get_xf_index();
   }
   else if(cell.col_num_ < col_formats_.size() && col_formats_[cell.col_num_])
   {
-    style_index = get_xf_index_(col_formats_[cell.col_num_]);
+    style_index = col_formats_[cell.col_num_]->get_xf_index();
   }
 
   if(cell.type_ == cell_types_t::NUMBER_CELL)

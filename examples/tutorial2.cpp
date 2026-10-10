@@ -35,12 +35,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a bold format to use to highlight cells.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Add a number format for cells with money.
-  xwpp::format_t* money = workbook.add_format();
-  money->set_num_format("$#,##0");
+  const xwpp::format_t* money = workbook.format_builder().num_format("$#,##0").build();
 
   xwpp::row_num_t row_num{0};
 

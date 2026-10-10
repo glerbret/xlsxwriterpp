@@ -17,8 +17,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   // Add a bold format to use to highlight the header cells.
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
+  const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Some chart positioning options.
   xwpp::chart_options_t options{.x_offset_ = 25, .y_offset_ = 10};

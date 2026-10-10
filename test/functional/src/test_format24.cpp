@@ -11,12 +11,12 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* format = workbook.add_format();
-
-  format->set_rotation(270);
-  format->set_indent(1);
-  format->set_align(xwpp::format_alignments_t::HORIZONTAL_CENTER);
-  format->set_align(xwpp::format_alignments_t::VERTICAL_TOP);
+  const xwpp::format_t* format = workbook.format_builder()
+                                   .vertical_text()
+                                   .indent(1)
+                                   .align(xwpp::format_horizontal_alignments_t::CENTER)
+                                   .align(xwpp::format_vertical_alignments_t::TOP)
+                                   .build();
 
   worksheet.set_row(0, 75);
 

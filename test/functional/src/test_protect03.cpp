@@ -11,12 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* unlocked = workbook.add_format();
-  unlocked->set_unlocked();
-
-  xwpp::format_t* hidden = workbook.add_format();
-  hidden->set_unlocked();
-  hidden->set_hidden();
+  const xwpp::format_t* unlocked = workbook.format_builder().unlocked().build();
+  const xwpp::format_t* hidden   = workbook.format_builder().unlocked().hidden().build();
 
   worksheet.protect("password");
 

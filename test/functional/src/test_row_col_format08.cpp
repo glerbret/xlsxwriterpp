@@ -11,15 +11,9 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  xwpp::format_t* bold = workbook.add_format();
-  bold->set_bold();
-
-  xwpp::format_t* mixed = workbook.add_format();
-  mixed->set_bold();
-  mixed->set_italic();
-
-  xwpp::format_t* italic = workbook.add_format();
-  italic->set_italic();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
+  const xwpp::format_t* mixed  = workbook.format_builder().bold().italic().build();
+  const xwpp::format_t* italic = workbook.format_builder().italic().build();
 
   // Manually force the format index order for testing.
   workbook.set_default_xf_indices();

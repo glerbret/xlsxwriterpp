@@ -10,10 +10,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-
-  xwpp::format_t* format = workbook.add_format();
-  format->set_bold();
-  format->set_italic();
+  const xwpp::format_t* format = workbook.format_builder().bold().italic().build();
 
   worksheet.write("A1", "Hello", format);
 

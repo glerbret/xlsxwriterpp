@@ -9,10 +9,8 @@
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::format_t* num_format   = workbook.add_format();
-
-  num_format->set_num_format(R"([Red]0.0%\ "a")");
+  xwpp::worksheet_t& worksheet     = workbook.add_worksheet();
+  const xwpp::format_t* num_format = workbook.format_builder().num_format(R"([Red]0.0%\ "a")").build();
 
   worksheet.set_column(0, 0, 14);
 
