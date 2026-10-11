@@ -59,13 +59,13 @@ namespace xwpp
 
 struct defined_name_t
 {
-  size_t index_{0};
-  bool hidden_{false};
-  std::string name_;
-  std::string app_name_;
-  std::string formula_;
-  std::string normalised_name_;
-  std::string normalised_sheetname_;
+  size_t index{0};
+  bool hidden{false};
+  std::string name;
+  std::string app_name;
+  std::string formula;
+  std::string normalised_name;
+  std::string normalised_sheetname;
 };
 
 /**
@@ -80,77 +80,77 @@ struct doc_properties_t
    *
    * The title of the Excel Document.
    */
-  std::string title_;
+  std::string title;
 
   /**
    * @brief The subject of the Excel Document.
    *
    * The subject of the Excel Document.
    */
-  std::string subject_;
+  std::string subject;
 
   /**
    * @brief The author of the Excel Document.
    *
    * The author of the Excel Document.
    */
-  std::string author_;
+  std::string author;
 
   /**
    * @brief The author of modification of the Excel Document.
    *
    * The author of modification of the Excel Document.
    */
-  std::string modif_author_;
+  std::string modif_author;
 
   /**
    * @brief The manager field of the Excel Document.
    *
    * The manager field of the Excel Document.
    */
-  std::string manager_;
+  std::string manager;
 
   /**
    * @brief The company field of the Excel Document.
    *
    * The company field of the Excel Document.
    */
-  std::string company_;
+  std::string company;
 
   /**
    * @brief The category of the Excel Document.
    *
    * The category of the Excel Document.
    */
-  std::string category_;
+  std::string category;
 
   /**
    * @brief The keywords of the Excel Document.
    *
    * The keywords of the Excel Document.
    */
-  std::string keywords_;
+  std::string keywords;
 
   /**
    * @brief The comment field of the Excel Document.
    *
    * The comment field of the Excel Document.
    */
-  std::string comments_;
+  std::string comments;
 
   /**
    * @brief The status of the Excel Document.
    *
    * The status of the Excel Document.
    */
-  std::string status_;
+  std::string status;
 
   /**
    * @brief The hyperlink base URL of the Excel Document.
    *
    * The hyperlink base URL of the Excel Document.
    */
-  std::string hyperlink_base_;
+  std::string hyperlink_base;
 
   /**
    * @brief The file creation date/time shown in Excel.
@@ -161,14 +161,14 @@ struct doc_properties_t
    * binary equivalent (for the same input data) then you should set this
    * creation date/time to a known value.
    */
-  std::chrono::system_clock::time_point created_;
+  std::chrono::system_clock::time_point created;
 
   /**
    * @brief The file modification date/time shown in Excel.
    *
    * The file modification date/time shown in Excel.
    */
-  std::chrono::system_clock::time_point modified_;
+  std::chrono::system_clock::time_point modified;
 };
 
 /**
@@ -244,15 +244,15 @@ public:
    * @code
    *  // Create a properties structure and set some of the fields.
    *  doc_properties_t properties{
-   *    .title_    = "This is an example spreadsheet",
-   *    .subject_  = "With document properties",
-   *    .author_   = "John McNamara",
-   *    .manager_  = "Dr. Heinz Doofenshmirtz",
-   *    .company_  = "of Wolves",
-   *    .category_ = "Example spreadsheets",
-   *    .keywords_ = "Sample, Example, Properties",
-   *    .comments_ = "Created with Xlsxwriter++",
-   *    .status_   = "Quo",
+   *    .title    = "This is an example spreadsheet",
+   *    .subject  = "With document properties",
+   *    .author   = "John McNamara",
+   *    .manager  = "Dr. Heinz Doofenshmirtz",
+   *    .company  = "of Wolves",
+   *    .category = "Example spreadsheets",
+   *    .keywords = "Sample, Example, Properties",
+   *    .comments = "Created with Xlsxwriter++",
+   *    .status   = "Quo",
    *  };
    *
    *  // Set the properties in the workbook.

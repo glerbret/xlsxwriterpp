@@ -141,12 +141,12 @@ void process_png(object_properties_t& image_props, const std::vector<unsigned ch
   }
 
   // Set the image metadata.
-  image_props.image_type_ = image_types_t::PNG;
-  image_props.width_      = width;
-  image_props.height_     = height;
-  image_props.x_dpi_      = (x_dpi != 0.) ? x_dpi : 96;
-  image_props.y_dpi_      = (y_dpi != 0.) ? y_dpi : 96;
-  image_props.extension_  = "png";
+  image_props.image_type = image_types_t::PNG;
+  image_props.width      = width;
+  image_props.height     = height;
+  image_props.x_dpi      = (x_dpi != 0.) ? x_dpi : 96;
+  image_props.y_dpi      = (y_dpi != 0.) ? y_dpi : 96;
+  image_props.extension  = "png";
 }
 
 void process_jpeg(object_properties_t& image_props, const std::vector<unsigned char>& data)
@@ -232,12 +232,12 @@ void process_jpeg(object_properties_t& image_props, const std::vector<unsigned c
   }
 
   // Set the image metadata.
-  image_props.image_type_ = image_types_t::JPEG;
-  image_props.width_      = width;
-  image_props.height_     = height;
-  image_props.x_dpi_      = (x_dpi != 0.) ? x_dpi : 96;
-  image_props.y_dpi_      = (y_dpi != 0.) ? y_dpi : 96;
-  image_props.extension_  = "jpeg";
+  image_props.image_type = image_types_t::JPEG;
+  image_props.width      = width;
+  image_props.height     = height;
+  image_props.x_dpi      = (x_dpi != 0.) ? x_dpi : 96;
+  image_props.y_dpi      = (y_dpi != 0.) ? y_dpi : 96;
+  image_props.extension  = "jpeg";
 }
 
 void process_bmp(object_properties_t& image_props, const std::vector<unsigned char>& data)
@@ -264,14 +264,14 @@ void process_bmp(object_properties_t& image_props, const std::vector<unsigned ch
   }
 
   // Set the image metadata.
-  image_props.image_type_ = image_types_t::BMP;
-  image_props.width_      = width;
+  image_props.image_type = image_types_t::BMP;
+  image_props.width      = width;
   // The height can be stored as negative for a top-down DIB so we need to
   // take the absolute value.
-  image_props.height_     = height > 0 ? static_cast<uint32_t>(height) : static_cast<uint32_t>(-height);
-  image_props.x_dpi_      = x_dpi;
-  image_props.y_dpi_      = y_dpi;
-  image_props.extension_  = "bmp";
+  image_props.height     = height > 0 ? static_cast<uint32_t>(height) : static_cast<uint32_t>(-height);
+  image_props.x_dpi      = x_dpi;
+  image_props.y_dpi      = y_dpi;
+  image_props.extension  = "bmp";
 }
 
 void process_gif(object_properties_t& image_props, const std::vector<unsigned char>& data)
@@ -296,12 +296,12 @@ void process_gif(object_properties_t& image_props, const std::vector<unsigned ch
   }
 
   // Set the image metadata.
-  image_props.image_type_ = image_types_t::GIF;
-  image_props.width_      = width;
-  image_props.height_     = height;
-  image_props.x_dpi_      = x_dpi;
-  image_props.y_dpi_      = y_dpi;
-  image_props.extension_  = "gif";
+  image_props.image_type = image_types_t::GIF;
+  image_props.width      = width;
+  image_props.height     = height;
+  image_props.x_dpi      = x_dpi;
+  image_props.y_dpi      = y_dpi;
+  image_props.extension  = "gif";
 }
 
 void process_image(object_properties_t& image_props, const std::vector<unsigned char>& buffer)
@@ -324,12 +324,12 @@ void process_image(object_properties_t& image_props, const std::vector<unsigned 
   }
   else
   {
-    throw xwpp_exception_t(std::format("process_image(): unsupported image format for: {}.", image_props.filename_));
+    throw xwpp_exception_t(std::format("process_image(): unsupported image format for: {}.", image_props.filename));
   }
 
   // Calculate an MD5 checksum for the image so that we can remove duplicate
   // images to reduce the xlsx file size.
-  image_props.md5_ = md5_t::digest_to_string(buffer);
+  image_props.md5 = md5_t::digest_to_string(buffer);
 }
 
 [[maybe_unused]] const uint32_t HEADER_FOOTER_MAX{255};
@@ -457,15 +457,15 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
     // Ensure there are enough images to match the placeholders. There is
     // a potential bug where there are sufficient images but in the wrong
     // positions but we don't currently try to deal with that.
-    if(!options->image_left_.empty())
+    if(!options->image_left.empty())
     {
       image_count++;
     }
-    if(!options->image_center_.empty())
+    if(!options->image_center.empty())
     {
       image_count++;
     }
-    if(!options->image_right_.empty())
+    if(!options->image_right.empty())
     {
       image_count++;
     }
@@ -476,14 +476,14 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
         "sheet_t::set_header(): number of '&G' placeholders does not match number of supplied images.");
     }
 
-    if(options->margin_ > 0.0)
+    if(options->margin > 0.0)
     {
-      margin_header_ = options->margin_;
+      margin_header_ = options->margin;
     }
 
-    set_header_footer_image(options->image_left_, image_position_t::HEADER_LEFT);
-    set_header_footer_image(options->image_center_, image_position_t::HEADER_CENTER);
-    set_header_footer_image(options->image_right_, image_position_t::HEADER_RIGHT);
+    set_header_footer_image(options->image_left, image_position_t::HEADER_LEFT);
+    set_header_footer_image(options->image_center, image_position_t::HEADER_CENTER);
+    set_header_footer_image(options->image_right, image_position_t::HEADER_RIGHT);
   }
 
   header_                = str;
@@ -517,15 +517,15 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
     // Ensure there are enough images to match the placeholders. There is
     // a potential bug where there are sufficient images but in the wrong
     // positions but we don't currently try to deal with that.
-    if(!options->image_left_.empty())
+    if(!options->image_left.empty())
     {
       image_count++;
     }
-    if(!options->image_center_.empty())
+    if(!options->image_center.empty())
     {
       image_count++;
     }
-    if(!options->image_right_.empty())
+    if(!options->image_right.empty())
     {
       image_count++;
     }
@@ -535,14 +535,14 @@ void sheet_t::set_footer(const std::string& str, const std::optional<header_foot
         "sheet_t::set_footer(): number of '&G' placeholders does not match number of supplied images.");
     }
 
-    if(options->margin_ > 0.0)
+    if(options->margin > 0.0)
     {
-      margin_footer_ = options->margin_;
+      margin_footer_ = options->margin;
     }
 
-    set_header_footer_image(options->image_left_, image_position_t::FOOTER_LEFT);
-    set_header_footer_image(options->image_center_, image_position_t::FOOTER_CENTER);
-    set_header_footer_image(options->image_right_, image_position_t::FOOTER_RIGHT);
+    set_header_footer_image(options->image_left, image_position_t::FOOTER_LEFT);
+    set_header_footer_image(options->image_center, image_position_t::FOOTER_CENTER);
+    set_header_footer_image(options->image_right, image_position_t::FOOTER_RIGHT);
   }
 
   footer_                = str;
@@ -601,14 +601,14 @@ void sheet_t::set_bottom_margin(double margin)
 }
 
 sheet_t::sheet_t(bool is_chartsheet, const sheet_init_data_t& init_data)
-  : name_{init_data.name_}
-  , quoted_name_{init_data.quoted_name_}
-  , index_{init_data.index_}
+  : name_{init_data.name}
+  , quoted_name_{init_data.quoted_name}
+  , index_{init_data.index}
   , is_chartsheet_{is_chartsheet}
-  , hidden_{init_data.hidden_}
+  , hidden_{init_data.hidden}
   , orientation_{is_chartsheet ? drawing_orientation_t::LANDSCAPE : drawing_orientation_t::PORTRAIT}
-  , active_sheet_{init_data.active_sheet_}
-  , first_sheet_{init_data.first_sheet_}
+  , active_sheet_{init_data.active_sheet}
+  , first_sheet_{init_data.first_sheet}
 {
 }
 
@@ -619,16 +619,16 @@ void sheet_t::push_chart(const object_properties_t& object_props)
 
 void sheet_t::get_image_properties(object_properties_t& image_props)
 {
-  if(image_props.image_buffer_.empty())
+  if(image_props.image_buffer.empty())
   {
     // Read image.
-    std::ifstream image_stream(image_props.filename_, std::ios::binary);
+    std::ifstream image_stream(image_props.filename, std::ios::binary);
     const std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(image_stream), {});
     process_image(image_props, buffer);
   }
   else
   {
-    process_image(image_props, image_props.image_buffer_);
+    process_image(image_props, image_props.image_buffer);
   }
 }
 
@@ -714,28 +714,28 @@ void sheet_t::prepare_header_image(uint32_t image_ref_id, object_properties_t& o
 {
   add_image_properties(object_props);
 
-  if(find_vml_drawing_rel_index(object_props.md5_) == 0)
+  if(find_vml_drawing_rel_index(object_props.md5) == 0)
   {
-    vml_drawing_links_.emplace_back("/image", std::format("../media/image{}.{}", image_ref_id, object_props.extension_),
+    vml_drawing_links_.emplace_back("/image", std::format("../media/image{}.{}", image_ref_id, object_props.extension),
                                     "");
   }
 
   vml_obj_t header_image_vml{
-    .width_          = static_cast<uint32_t>(object_props.width_),
-    .height_         = static_cast<uint32_t>(object_props.height_),
-    .x_dpi_          = object_props.x_dpi_,
-    .y_dpi_          = object_props.y_dpi_,
-    .image_position_ = object_props.image_position_,
-    .name_           = object_props.description_,
+    .width          = static_cast<uint32_t>(object_props.width),
+    .height         = static_cast<uint32_t>(object_props.height),
+    .x_dpi          = object_props.x_dpi,
+    .y_dpi          = object_props.y_dpi,
+    .image_position = object_props.image_position,
+    .name           = object_props.description,
   };
 
   // Strip the extension from the filename.
-  if(const size_t pos = header_image_vml.name_.find_last_of('.'); pos != std::string::npos)
+  if(const size_t pos = header_image_vml.name.find_last_of('.'); pos != std::string::npos)
   {
-    header_image_vml.name_ = header_image_vml.name_.substr(0, pos);
+    header_image_vml.name = header_image_vml.name.substr(0, pos);
   }
 
-  header_image_vml.rel_index_ = get_vml_drawing_rel_index(object_props.md5_);
+  header_image_vml.rel_index = get_vml_drawing_rel_index(object_props.md5);
   header_image_objs_.push_back(header_image_vml);
 }
 
@@ -760,99 +760,99 @@ std::string sheet_t::write_sheet_views()
 
 std::string sheet_t::write_sheet_protection() const
 {
-  if(!protection_.is_configured_)
+  if(!protection_.is_configured)
   {
     return "";
   }
 
   attributes_t attributes;
 
-  if(!protection_.hash_.empty())
+  if(!protection_.hash.empty())
   {
-    attributes.add_attribute("password", protection_.hash_);
+    attributes.add_attribute("password", protection_.hash);
   }
 
-  if(!protection_.no_sheet_)
+  if(!protection_.no_sheet)
   {
     attributes.add_attribute("sheet", "1");
   }
 
-  if(!protection_.no_content_)
+  if(!protection_.no_content)
   {
     attributes.add_attribute("content", "1");
   }
 
-  if(!protection_.objects_)
+  if(!protection_.objects)
   {
     attributes.add_attribute("objects", "1");
   }
 
-  if(!protection_.scenarios_)
+  if(!protection_.scenarios)
   {
     attributes.add_attribute("scenarios", "1");
   }
 
-  if(protection_.format_cells_)
+  if(protection_.format_cells)
   {
     attributes.add_attribute("formatCells", "0");
   }
 
-  if(protection_.format_columns_)
+  if(protection_.format_columns)
   {
     attributes.add_attribute("formatColumns", "0");
   }
 
-  if(protection_.format_rows_)
+  if(protection_.format_rows)
   {
     attributes.add_attribute("formatRows", "0");
   }
 
-  if(protection_.insert_columns_)
+  if(protection_.insert_columns)
   {
     attributes.add_attribute("insertColumns", "0");
   }
 
-  if(protection_.insert_rows_)
+  if(protection_.insert_rows)
   {
     attributes.add_attribute("insertRows", "0");
   }
 
-  if(protection_.insert_hyperlinks_)
+  if(protection_.insert_hyperlinks)
   {
     attributes.add_attribute("insertHyperlinks", "0");
   }
 
-  if(protection_.delete_columns_)
+  if(protection_.delete_columns)
   {
     attributes.add_attribute("deleteColumns", "0");
   }
 
-  if(protection_.delete_rows_)
+  if(protection_.delete_rows)
   {
     attributes.add_attribute("deleteRows", "0");
   }
 
-  if(protection_.no_select_locked_cells_)
+  if(protection_.no_select_locked_cells)
   {
     attributes.add_attribute("selectLockedCells", "1");
   }
 
-  if(protection_.sort_)
+  if(protection_.sort)
   {
     attributes.add_attribute("sort", "0");
   }
 
-  if(protection_.autofilter_)
+  if(protection_.autofilter)
   {
     attributes.add_attribute("autoFilter", "0");
   }
 
-  if(protection_.pivot_tables_)
+  if(protection_.pivot_tables)
   {
     attributes.add_attribute("pivotTables", "0");
   }
 
-  if(protection_.no_select_unlocked_cells_)
+  if(protection_.no_select_unlocked_cells)
   {
     attributes.add_attribute("selectUnlockedCells", "1");
   }
@@ -932,12 +932,12 @@ void sheet_t::set_header_footer_image(const std::string& filename, image_positio
   object_properties_t object_props;
 
   // Copy other options or set defaults.
-  object_props.filename_    = filename;
+  object_props.filename    = filename;
   // Use the filename as the default description, like Excel.
-  object_props.description_ = std::filesystem::path(filename).filename().string();
+  object_props.description = std::filesystem::path(filename).filename().string();
 
   // Set VML image position string based on the header/footer/position.
-  object_props.image_position_ = get_vml_image_position(image_position);
+  object_props.image_position = get_vml_image_position(image_position);
 
   get_image_properties(object_props);
 
@@ -980,13 +980,12 @@ uint32_t sheet_t::add_link_get_index(const std::string& url,
 
 uint32_t sheet_t::add_image_link_get_index(uint32_t image_ref_id, const object_properties_t& object_props)
 {
-  if(find_drawing_rel_index(object_props.md5_) == 0)
+  if(find_drawing_rel_index(object_props.md5) == 0)
   {
-    drawing_links_.emplace_back("/image", std::format("../media/image{}.{}", image_ref_id, object_props.extension_),
-                                "");
+    drawing_links_.emplace_back("/image", std::format("../media/image{}.{}", image_ref_id, object_props.extension), "");
   }
 
-  return get_drawing_rel_index(object_props.md5_);
+  return get_drawing_rel_index(object_props.md5);
 }
 
 bool sheet_t::is_outline_changed() const

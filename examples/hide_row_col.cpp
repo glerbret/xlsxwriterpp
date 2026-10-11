@@ -35,7 +35,7 @@ int main()
   }
 
   // Columns can be hidden explicitly. This doesn't increase the file size.
-  xwpp::row_col_options_t options{.hidden_ = true};
+  xwpp::row_col_options_t options{.hidden = true};
   worksheet.set_column("G:XFD", 8.43, nullptr, options);
 
   workbook.save("hide_row_col.xlsx");

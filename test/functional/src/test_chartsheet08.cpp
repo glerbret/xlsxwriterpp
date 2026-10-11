@@ -44,7 +44,7 @@ int main()
   chartsheet.set_paper(xwpp::paper_size_t::A4);
   chartsheet.set_portrait();
 
-  const xwpp::header_footer_options_t header_options{.margin_ = 0.118110236220472};
+  const xwpp::header_footer_options_t header_options{.margin = 0.118110236220472};
   chartsheet.set_header("&CPage &P", header_options);
   chartsheet.set_footer("&C&A", header_options);
 

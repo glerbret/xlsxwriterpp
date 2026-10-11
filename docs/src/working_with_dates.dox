@@ -32,14 +32,14 @@ the `datetime_t` struct.
 
 The members of the `datetime_t` struct and the range of their values are:
 
-  Member   | Value
-  -------- | -----------
-  year_    | 1900 - 9999
-  month_   | 1 - 12
-  day_     | 1 - 31
-  hour_    | 0 - 23
-  min_     | 0 - 59
-  sec_     | 0 - 59.999
+  Member  | Value
+  ------- | -----------
+  year    | 1900 - 9999
+  month   | 1 - 12
+  day     | 1 - 31
+  hour    | 0 - 23
+  min     | 0 - 59
+  sec     | 0 - 59.999
 
 Dates in Excel do not support timezones and the maximum resolution of times is
 milliseconds.
@@ -54,12 +54,12 @@ unrequired values to `0`:
     // Date only.
     xwpp::datetime_t datetime2 = {2014, 11, 25, 0, 0, 0};
     // or
-    xwpp::datetime_t datetime2 = {.year_ = 2014, .month_ = 11, .day_ = 25};
+    xwpp::datetime_t datetime2 = {.year = 2014, .month = 11, .day = 25};
 
     // Time only.
     xwpp::datetime_t datetime3 = {0, 0, 0, 17, 45, 5.1};
     // or
-    xwpp::datetime_t datetime3 = {.hour_ = 17, .min_ = 45, .sec_ = 5.1};
+    xwpp::datetime_t datetime3 = {.hour = 17, .min = 45, .sec = 5.1};
 @endcode
 
 Using `datetime_t` and `worksheet_t::write_datetime()` the previous example

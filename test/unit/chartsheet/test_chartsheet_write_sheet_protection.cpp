@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object)
 
   xwpp::workbook_t workbook;
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
-  const xwpp::protection_t options{.no_objects_ = true};
+  const xwpp::protection_t options{.no_objects = true};
   chartsheet.protect(options);
 
   BOOST_CHECK_EQUAL(expected, chartsheet.assemble_xml_file());
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_content)
 
   xwpp::workbook_t workbook;
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
-  const xwpp::protection_t options{.no_content_ = true};
+  const xwpp::protection_t options{.no_content = true};
   chartsheet.protect(options);
 
   BOOST_CHECK_EQUAL(expected, chartsheet.assemble_xml_file());
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object_no_content)
 
   xwpp::workbook_t workbook;
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
-  const xwpp::protection_t options{.no_content_ = true, .no_objects_ = true};
+  const xwpp::protection_t options{.no_content = true, .no_objects = true};
   chartsheet.protect(options);
 
   BOOST_CHECK_EQUAL(expected, chartsheet.assemble_xml_file());
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_no_object_no_content_password)
 
   xwpp::workbook_t workbook;
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
-  const xwpp::protection_t options{.no_content_ = true, .no_objects_ = true};
+  const xwpp::protection_t options{.no_content = true, .no_objects = true};
   chartsheet.protect("password", options);
 
   BOOST_CHECK_EQUAL(expected, chartsheet.assemble_xml_file());
@@ -168,21 +168,21 @@ BOOST_AUTO_TEST_CASE(write_sheet_protection_other_options)
   xwpp::workbook_t workbook;
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
   const xwpp::protection_t options{
-    .no_select_locked_cells_   = true,
-    .no_select_unlocked_cells_ = true,
-    .format_cells_             = true,
-    .format_columns_           = true,
-    .format_rows_              = true,
-    .insert_columns_           = true,
-    .insert_rows_              = true,
-    .insert_hyperlinks_        = true,
-    .delete_columns_           = true,
-    .delete_rows_              = true,
-    .sort_                     = true,
-    .autofilter_               = true,
-    .pivot_tables_             = true,
-    .scenarios_                = true,
-    .objects_                  = true,
+    .no_select_locked_cells   = true,
+    .no_select_unlocked_cells = true,
+    .format_cells             = true,
+    .format_columns           = true,
+    .format_rows              = true,
+    .insert_columns           = true,
+    .insert_rows              = true,
+    .insert_hyperlinks        = true,
+    .delete_columns           = true,
+    .delete_rows              = true,
+    .sort                     = true,
+    .autofilter               = true,
+    .pivot_tables             = true,
+    .scenarios                = true,
+    .objects                  = true,
   };
   chartsheet.protect("password", options);
 

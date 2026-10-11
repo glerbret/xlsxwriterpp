@@ -77,25 +77,25 @@ BOOST_AUTO_TEST_CASE(condtional_format20)
   worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
-    .type_         = xwpp::conditional_format_types_t::TEXT,
-    .criteria_     = xwpp::conditional_criteria_t::TEXT_BEGINS_WITH,
-    .value_string_ = "b",
+    .type         = xwpp::conditional_format_types_t::TEXT,
+    .criteria     = xwpp::conditional_criteria_t::TEXT_BEGINS_WITH,
+    .value_string = "b",
   };
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
-  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_BEGINS_WITH;
-  conditional_format.value_string_ = "bc";
+  conditional_format.type         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria     = xwpp::conditional_criteria_t::TEXT_BEGINS_WITH;
+  conditional_format.value_string = "bc";
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
-  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_ENDS_WITH;
-  conditional_format.value_string_ = "z";
+  conditional_format.type         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria     = xwpp::conditional_criteria_t::TEXT_ENDS_WITH;
+  conditional_format.value_string = "z";
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_         = xwpp::conditional_format_types_t::TEXT;
-  conditional_format.criteria_     = xwpp::conditional_criteria_t::TEXT_ENDS_WITH;
-  conditional_format.value_string_ = "yz";
+  conditional_format.type         = xwpp::conditional_format_types_t::TEXT;
+  conditional_format.criteria     = xwpp::conditional_criteria_t::TEXT_ENDS_WITH;
+  conditional_format.value_string = "yz";
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

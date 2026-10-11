@@ -38,7 +38,7 @@ int main()
   chart_axis_set_num_format(chart.x_axis_, "dd/mm/yyyy");
   chart_axis_set_num_format(chart.y_axis_, "0.00%");
 
-  chart.x_axis_.source_linked_ = 1;
+  chart.x_axis_.source_linked = 1;
 
   worksheet.insert_chart("E9", &chart);
 

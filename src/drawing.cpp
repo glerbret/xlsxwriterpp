@@ -102,13 +102,13 @@ namespace
 [[nodiscard]] std::string write_a_ext(const drawing_object_t& drawing_object)
 {
   return xml_empty_tag(
-    "a:ext", attributes_t{std::make_pair("cx"s, drawing_object.width_), std::make_pair("cy"s, drawing_object.height_)});
+    "a:ext", attributes_t{std::make_pair("cx"s, drawing_object.width), std::make_pair("cy"s, drawing_object.height)});
 }
 
 [[nodiscard]] std::string write_a_off(const drawing_object_t& drawing_object)
 {
-  return xml_empty_tag("a:off", attributes_t{std::make_pair("x"s, drawing_object.col_absolute_),
-                                             std::make_pair("y"s, drawing_object.row_absolute_)});
+  return xml_empty_tag("a:off", attributes_t{std::make_pair("x"s, drawing_object.col_absolute),
+                                             std::make_pair("y"s, drawing_object.row_absolute)});
 }
 
 [[nodiscard]] std::string write_a_av_lst()
@@ -166,10 +166,10 @@ namespace
 
 [[nodiscard]] std::string write_coords(const drawing_coords_t& coords)
 {
-  std::string xml_data = write_col(std::to_string(coords.col_num_));
-  xml_data += write_col_off(std::to_string(static_cast<uint32_t>(coords.col_offset_)));
-  xml_data += write_row(std::to_string(coords.row_num_));
-  xml_data += write_row_off(std::to_string(static_cast<uint32_t>(coords.row_offset_)));
+  std::string xml_data = write_col(std::to_string(coords.col_num));
+  xml_data += write_col_off(std::to_string(static_cast<uint32_t>(coords.col_offset)));
+  xml_data += write_row(std::to_string(coords.row_num));
+  xml_data += write_row_off(std::to_string(static_cast<uint32_t>(coords.row_offset)));
 
   return xml_data;
 }
@@ -224,21 +224,21 @@ namespace
   attributes_t attributes{std::make_pair("id"s, index + 1),
                           std::make_pair("name"s, std::format("{} {}", object_name, index))};
 
-  if(drawing_object.has_value() && !drawing_object->description_.empty() && !drawing_object->decorative_)
+  if(drawing_object.has_value() && !drawing_object->description.empty() && !drawing_object->decorative)
   {
-    attributes.add_attribute("descr", drawing_object->description_);
+    attributes.add_attribute("descr", drawing_object->description);
   }
 
-  if(drawing_object.has_value() && (drawing_object->url_rel_index_ != 0 || drawing_object->decorative_))
+  if(drawing_object.has_value() && (drawing_object->url_rel_index != 0 || drawing_object->decorative))
   {
     std::string xml_data = xml_start_tag("xdr:cNvPr", attributes);
 
-    if(drawing_object->url_rel_index_ != 0)
+    if(drawing_object->url_rel_index != 0)
     {
-      xml_data += write_a_hlink_click(drawing_object->url_rel_index_, drawing_object->tip_);
+      xml_data += write_a_hlink_click(drawing_object->url_rel_index, drawing_object->tip);
     }
 
-    if(drawing_object->decorative_)
+    if(drawing_object->decorative)
     {
       xml_data += write_decorative();
     }
@@ -314,7 +314,7 @@ namespace
 {
   std::string xml_data = xml_start_tag("xdr:pic");
   xml_data += write_nv_pic_pr(index, drawing_object);
-  xml_data += write_blip_fill(drawing_object.rel_index_);
+  xml_data += write_blip_fill(drawing_object.rel_index);
   xml_data += write_sp_pr(drawing_object);
   xml_data += xml_end_tag("xdr:pic");
 
@@ -392,25 +392,25 @@ std::string drawing_t::write_absolute_anchor(uint32_t frame_index) const
 std::string drawing_t::write_two_cell_anchor(uint32_t index, const drawing_object_t& drawing_object) const
 {
   attributes_t attributes;
-  if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE))
+  if(drawing_object.anchor == static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE))
   {
     attributes.add_attribute("editAs", "oneCell");
   }
-  else if(drawing_object.anchor_ == static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE))
+  else if(drawing_object.anchor == static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE))
   {
     attributes.add_attribute("editAs", "absolute");
   }
 
   std::string xml_data = xml_start_tag("xdr:twoCellAnchor", attributes);
 
-  xml_data += write_from(drawing_object.from_);
-  xml_data += write_to(drawing_object.to_);
+  xml_data += write_from(drawing_object.from);
+  xml_data += write_to(drawing_object.to);
 
-  if(drawing_object.type_ == drawing_types_t::CHART)
+  if(drawing_object.type == drawing_types_t::CHART)
   {
-    xml_data += write_graphic_frame(index, drawing_object.rel_index_, drawing_object);
+    xml_data += write_graphic_frame(index, drawing_object.rel_index, drawing_object);
   }
-  else if(drawing_object.type_ == drawing_types_t::IMAGE)
+  else if(drawing_object.type == drawing_types_t::IMAGE)
   {
     xml_data += write_pic(index, drawing_object);
   }

@@ -77,12 +77,11 @@ namespace
 
 [[nodiscard]] std::string write_anchor(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:Anchor",
-                          std::format("{}, {}, {}, {}, {}, {}, {}, {}", vml_obj.from_.col_num_,
-                                      static_cast<uint32_t>(vml_obj.from_.col_offset_), vml_obj.from_.row_num_,
-                                      static_cast<uint32_t>(vml_obj.from_.row_offset_), vml_obj.to_.col_num_,
-                                      static_cast<uint32_t>(vml_obj.to_.col_offset_), vml_obj.to_.row_num_,
-                                      static_cast<uint32_t>(vml_obj.to_.row_offset_)));
+  return xml_data_element("x:Anchor", std::format("{}, {}, {}, {}, {}, {}, {}, {}", vml_obj.from.col_num,
+                                                  static_cast<uint32_t>(vml_obj.from.col_offset), vml_obj.from.row_num,
+                                                  static_cast<uint32_t>(vml_obj.from.row_offset), vml_obj.to.col_num,
+                                                  static_cast<uint32_t>(vml_obj.to.col_offset), vml_obj.to.row_num,
+                                                  static_cast<uint32_t>(vml_obj.to.row_offset)));
 }
 
 [[nodiscard]] std::string write_auto_fill()
@@ -92,12 +91,12 @@ namespace
 
 [[nodiscard]] std::string write_row(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:Row", std::to_string(vml_obj.row_num_));
+  return xml_data_element("x:Row", std::to_string(vml_obj.row_num));
 }
 
 [[nodiscard]] std::string write_column(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:Column", std::to_string(vml_obj.col_num_));
+  return xml_data_element("x:Column", std::to_string(vml_obj.col_num));
 }
 
 [[nodiscard]] std::string write_visible()
@@ -153,7 +152,7 @@ namespace
 
 [[nodiscard]] std::string write_font(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("font", vml_obj.name_,
+  return xml_data_element("font", vml_obj.name,
                           attributes_t{std::make_pair("face"s, "Calibri"), std::make_pair("size"s, "220"),
                                        std::make_pair("color"s, "#000000")});
 }
@@ -175,7 +174,7 @@ namespace
 
 [[nodiscard]] std::string write_fmla_macro(const vml_obj_t& vml_obj)
 {
-  return xml_data_element("x:FmlaMacro", vml_obj.macro_);
+  return xml_data_element("x:FmlaMacro", vml_obj.macro);
 }
 
 [[nodiscard]] std::string write_comment_shapetype()
@@ -362,13 +361,13 @@ std::string vml_t::write_idmap() const
 
 std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, vml_obj_t& vml_obj) const
 {
-  if(vml_obj.visible_ == comment_display_t::DEFAULT)
+  if(vml_obj.visible == comment_display_t::DEFAULT)
   {
-    vml_obj.visible_ = comment_display_default_;
+    vml_obj.visible = comment_display_default_;
   }
 
-  const std::string visible{vml_obj.visible_ == comment_display_t::VISIBLE ? "visible" : "hidden"};
-  const std::string fillcolor{vml_obj.color_ ? std::format("#{:x}", vml_obj.color_) : "#ffffe1"};
+  const std::string visible{vml_obj.visible == comment_display_t::VISIBLE ? "visible" : "hidden"};
+  const std::string fillcolor{vml_obj.color ? std::format("#{:x}", vml_obj.color) : "#ffffe1"};
 
   std::string xml_data = xml_start_tag(
     "v:shape",
@@ -381,9 +380,9 @@ std::string vml_t::write_comment_shape(uint32_t vml_shape_id, uint32_t z_index, 
                                                       "height:{}pt;"
                                                       "z-index:{};"
                                                       "visibility:{}",
-                                                      static_cast<double>(vml_obj.col_absolute_) * 0.75,
-                                                      static_cast<double>(vml_obj.row_absolute_) * 0.75,
-                                                      vml_obj.width_ * 0.75, vml_obj.height_ * 0.75, z_index, visible)),
+                                                      static_cast<double>(vml_obj.col_absolute) * 0.75,
+                                                      static_cast<double>(vml_obj.row_absolute) * 0.75,
+                                                      vml_obj.width * 0.75, vml_obj.height * 0.75, z_index, visible)),
                  std::make_pair("fillcolor"s, fillcolor), std::make_pair("o:insetmode"s, "auto")});
   xml_data += write_comment_fill();
   xml_data += write_shadow();
@@ -404,7 +403,7 @@ std::string vml_t::write_comment_client_data(const vml_obj_t& vml_obj)
   xml_data += write_auto_fill();
   xml_data += write_row(vml_obj);
   xml_data += write_column(vml_obj);
-  if(vml_obj.visible_ == comment_display_t::VISIBLE)
+  if(vml_obj.visible == comment_display_t::VISIBLE)
   {
     xml_data += write_visible();
   }
@@ -416,8 +415,8 @@ std::string vml_t::write_comment_client_data(const vml_obj_t& vml_obj)
 std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, const vml_obj_t& image_obj)
 {
   // Scale the height/width by the resolution, relative to 72dpi.
-  double width{image_obj.width_ * (72.0 / image_obj.x_dpi_)};
-  double height{image_obj.height_ * (72.0 / image_obj.y_dpi_)};
+  double width{image_obj.width * (72.0 / image_obj.x_dpi)};
+  double height{image_obj.height * (72.0 / image_obj.y_dpi)};
 
   // Excel uses a rounding based around 72 and 96 dpi.
   width  = 72.0 / 96.0 * static_cast<uint32_t>((width * 96.0 / 72) + 0.25);
@@ -426,12 +425,12 @@ std::string vml_t::write_image_shape(uint32_t vml_shape_id, uint32_t z_index, co
   std::string xml_data = xml_start_tag(
     "v:shape",
     attributes_t{
-      std::make_pair("id"s, image_obj.image_position_),
+      std::make_pair("id"s, image_obj.image_position),
       std::make_pair("o:spid"s, std::format("_x0000_s{}", vml_shape_id)), std::make_pair("type"s, "#_x0000_t75"),
       std::make_pair("style"s,
                      std::format("position:absolute;margin-left:0;margin-top:0;width:{}pt;height:{}pt;z-index:{}",
                                  width, height, z_index))});
-  xml_data += write_imagedata(image_obj.rel_index_, image_obj.name_);
+  xml_data += write_imagedata(image_obj.rel_index, image_obj.name);
   xml_data += write_rotation_lock();
   xml_data += xml_end_tag("v:shape");
 
@@ -443,16 +442,16 @@ std::string vml_t::write_button_shape(uint32_t vml_shape_id, uint32_t z_index, c
   attributes_t attributes{std::make_pair("id"s, std::format("_x0000_s{}", vml_shape_id)),
                           std::make_pair("type"s, "#_x0000_t201")};
 
-  if(!vml_obj.text_.empty())
+  if(!vml_obj.text.empty())
   {
-    attributes.add_attribute("alt", vml_obj.text_);
+    attributes.add_attribute("alt", vml_obj.text);
   }
   attributes.add_attribute(
     "style",
     std::format(
       "position:absolute;margin-left:{}pt;margin-top:{}pt;width:{}pt;height:{}pt;z-index:{};mso-wrap-style:tight",
-      static_cast<double>(vml_obj.col_absolute_) * 0.75, static_cast<double>(vml_obj.row_absolute_) * 0.75,
-      static_cast<double>(vml_obj.width_) * 0.75, static_cast<double>(vml_obj.height_) * 0.75, z_index));
+      static_cast<double>(vml_obj.col_absolute) * 0.75, static_cast<double>(vml_obj.row_absolute) * 0.75,
+      static_cast<double>(vml_obj.width) * 0.75, static_cast<double>(vml_obj.height) * 0.75, z_index));
   attributes.add_attribute("o:button", "t");
   attributes.add_attribute("fillcolor", "buttonFace [67]");
   attributes.add_attribute("strokecolor", "windowText [64]");

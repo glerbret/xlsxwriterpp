@@ -25,10 +25,10 @@ int main()
   };
 
   const std::vector<expense> expenses{
-    {.item_ = "Rent", .cost_ = 1000, .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 13}},
-    {.item_ = "Gas",  .cost_ = 100,  .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 14}},
-    {.item_ = "Food", .cost_ = 300,  .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 16}},
-    {.item_ = "Gym",  .cost_ = 50,   .datetime_ = {.year_ = 2013, .month_ = 1, .day_ = 17}},
+    {.item_ = "Rent", .cost_ = 1000, .datetime_ = {.year = 2013, .month = 1, .day = 13}},
+    {.item_ = "Gas",  .cost_ = 100,  .datetime_ = {.year = 2013, .month = 1, .day = 14}},
+    {.item_ = "Food", .cost_ = 300,  .datetime_ = {.year = 2013, .month = 1, .day = 16}},
+    {.item_ = "Gym",  .cost_ = 50,   .datetime_ = {.year = 2013, .month = 1, .day = 17}},
   };
 
   // Create a workbook and add a worksheet.

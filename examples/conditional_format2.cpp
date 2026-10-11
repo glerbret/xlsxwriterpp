@@ -68,18 +68,18 @@ int main()
     worksheet.write("A1", "Cells with values >= 50 are in light red. Values < 50 are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_     = xwpp::conditional_format_types_t::CELL,
-      .criteria_ = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO,
-      .value_    = 50,
-      .format_   = format1,
+      .type     = xwpp::conditional_format_types_t::CELL,
+      .criteria = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO,
+      .value    = 50,
+      .format   = format1,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_     = xwpp::conditional_format_types_t::CELL,
-      .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
-      .value_    = 50,
-      .format_   = format2,
+      .type     = xwpp::conditional_format_types_t::CELL,
+      .criteria = xwpp::conditional_criteria_t::LESS_THAN,
+      .value    = 50,
+      .format   = format2,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
@@ -93,20 +93,20 @@ int main()
     worksheet.write("A1", "Values between 30 and 70 are in light red. Values outside that range are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_      = xwpp::conditional_format_types_t::CELL,
-      .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
-      .format_    = format1,
-      .min_value_ = 30,
-      .max_value_ = 70,
+      .type      = xwpp::conditional_format_types_t::CELL,
+      .criteria  = xwpp::conditional_criteria_t::BETWEEN,
+      .format    = format1,
+      .min_value = 30,
+      .max_value = 70,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_      = xwpp::conditional_format_types_t::CELL,
-      .criteria_  = xwpp::conditional_criteria_t::NOT_BETWEEN,
-      .format_    = format2,
-      .min_value_ = 30,
-      .max_value_ = 70,
+      .type      = xwpp::conditional_format_types_t::CELL,
+      .criteria  = xwpp::conditional_criteria_t::NOT_BETWEEN,
+      .format    = format2,
+      .min_value = 30,
+      .max_value = 70,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
@@ -120,14 +120,14 @@ int main()
     worksheet.write("A1", "Duplicate values are in light red. Unique values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_   = xwpp::conditional_format_types_t::DUPLICATE,
-      .format_ = format1,
+      .type   = xwpp::conditional_format_types_t::DUPLICATE,
+      .format = format1,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_   = xwpp::conditional_format_types_t::UNIQUE,
-      .format_ = format2,
+      .type   = xwpp::conditional_format_types_t::UNIQUE,
+      .format = format2,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
@@ -141,16 +141,16 @@ int main()
     worksheet.write("A1", "Above average values are in light red. Below average values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_     = xwpp::conditional_format_types_t::AVERAGE,
-      .criteria_ = xwpp::conditional_criteria_t::AVERAGE_ABOVE,
-      .format_   = format1,
+      .type     = xwpp::conditional_format_types_t::AVERAGE,
+      .criteria = xwpp::conditional_criteria_t::AVERAGE_ABOVE,
+      .format   = format1,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_     = xwpp::conditional_format_types_t::AVERAGE,
-      .criteria_ = xwpp::conditional_criteria_t::AVERAGE_BELOW,
-      .format_   = format2,
+      .type     = xwpp::conditional_format_types_t::AVERAGE,
+      .criteria = xwpp::conditional_criteria_t::AVERAGE_BELOW,
+      .format   = format2,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
@@ -164,16 +164,16 @@ int main()
     worksheet.write("A1", "Top 10 values are in light red. Bottom 10 values are in light green.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_   = xwpp::conditional_format_types_t::TOP,
-      .value_  = 10,
-      .format_ = format1,
+      .type   = xwpp::conditional_format_types_t::TOP,
+      .value  = 10,
+      .format = format1,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_   = xwpp::conditional_format_types_t::BOTTOM,
-      .value_  = 10,
-      .format_ = format2,
+      .type   = xwpp::conditional_format_types_t::BOTTOM,
+      .value  = 10,
+      .format = format2,
     };
     worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
@@ -188,20 +188,20 @@ int main()
                     "Cells with values >= 50 are in light red.Values < 50 are in light green. Non-contiguous ranges.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_        = xwpp::conditional_format_types_t::CELL,
-      .criteria_    = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO,
-      .value_       = 50,
-      .format_      = format1,
-      .multi_range_ = "B3:K6 B9:K12",
+      .type        = xwpp::conditional_format_types_t::CELL,
+      .criteria    = xwpp::conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO,
+      .value       = 50,
+      .format      = format1,
+      .multi_range = "B3:K6 B9:K12",
     };
     worksheet.conditional_format_range("B3:K12", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_        = xwpp::conditional_format_types_t::CELL,
-      .criteria_    = xwpp::conditional_criteria_t::LESS_THAN,
-      .value_       = 50,
-      .format_      = format2,
-      .multi_range_ = "B3:K6 B9:K12",
+      .type        = xwpp::conditional_format_types_t::CELL,
+      .criteria    = xwpp::conditional_criteria_t::LESS_THAN,
+      .value       = 50,
+      .format      = format2,
+      .multi_range = "B3:K6 B9:K12",
     };
     worksheet.conditional_format_range("B3:K12", conditional_format2);
   }
@@ -227,30 +227,30 @@ int main()
 
     // 2 color scale with standard colors.
     const xwpp::conditional_format_t conditional_format1{
-      .type_ = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+      .type = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
     };
     worksheet.conditional_format_range("B3:B14", conditional_format1);
 
     // 2 color scale with user defined colors.
     const xwpp::conditional_format_t conditional_format2{
-      .type_      = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
-      .min_color_ = xwpp::color_t{0xFF0000},
-      .max_color_ = xwpp::color_t{0x00FF00},
+      .type      = xwpp::conditional_format_types_t::TWO_COLOR_SCALE,
+      .min_color = xwpp::color_t{0xFF0000},
+      .max_color = xwpp::color_t{0x00FF00},
     };
     worksheet.conditional_format_range("D3:D14", conditional_format2);
 
     // 3 color scale with standard colors.
     const xwpp::conditional_format_t conditional_format3{
-      .type_ = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+      .type = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
     };
     worksheet.conditional_format_range("G3:G14", conditional_format3);
 
     // 3 color scale with user defined colors.
     const xwpp::conditional_format_t conditional_format4{
-      .type_      = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-      .min_color_ = xwpp::color_t{0xC5D9F1},
-      .mid_color_ = xwpp::color_t{0x8DB4E3},
-      .max_color_ = xwpp::color_t{0x538ED5},
+      .type      = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+      .min_color = xwpp::color_t{0xC5D9F1},
+      .mid_color = xwpp::color_t{0x8DB4E3},
+      .max_color = xwpp::color_t{0x538ED5},
     };
     worksheet.conditional_format_range("I3:I14", conditional_format4);
   }
@@ -288,44 +288,44 @@ int main()
     worksheet.write("N2", "Negative same as positive");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_ = xwpp::conditional_format_types_t::DATA_BAR,
+      .type = xwpp::conditional_format_types_t::DATA_BAR,
     };
     worksheet.conditional_format_range("B3:B14", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_     = xwpp::conditional_format_types_t::DATA_BAR,
-      .bar_only_ = true,
+      .type     = xwpp::conditional_format_types_t::DATA_BAR,
+      .bar_only = true,
     };
     worksheet.conditional_format_range("D3:D14", conditional_format2);
 
     const xwpp::conditional_format_t conditional_format3{
-      .type_      = xwpp::conditional_format_types_t::DATA_BAR,
-      .bar_color_ = xwpp::color_t{0x63C384},
+      .type      = xwpp::conditional_format_types_t::DATA_BAR,
+      .bar_color = xwpp::color_t{0x63C384},
     };
     worksheet.conditional_format_range("F3:F14", conditional_format3);
 
     const xwpp::conditional_format_t conditional_format4{
-      .type_      = xwpp::conditional_format_types_t::DATA_BAR,
-      .bar_solid_ = true,
+      .type      = xwpp::conditional_format_types_t::DATA_BAR,
+      .bar_solid = true,
     };
     worksheet.conditional_format_range("H3:H14", conditional_format4);
 
     const xwpp::conditional_format_t conditional_format5{
-      .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-      .bar_direction_ = xwpp::conditional_format_bar_direction_t::RIGHT_TO_LEFT,
+      .type          = xwpp::conditional_format_types_t::DATA_BAR,
+      .bar_direction = xwpp::conditional_format_bar_direction_t::RIGHT_TO_LEFT,
     };
     worksheet.conditional_format_range("J3:J14", conditional_format5);
 
     const xwpp::conditional_format_t conditional_format6{
-      .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-      .data_bar_2010_ = true,
+      .type          = xwpp::conditional_format_types_t::DATA_BAR,
+      .data_bar_2010 = true,
     };
     worksheet.conditional_format_range("L3:L14", conditional_format6);
 
     const xwpp::conditional_format_t conditional_format7{
-      .type_                           = xwpp::conditional_format_types_t::DATA_BAR,
-      .bar_negative_color_same_        = true,
-      .bar_negative_border_color_same_ = true,
+      .type                           = xwpp::conditional_format_types_t::DATA_BAR,
+      .bar_negative_color_same        = true,
+      .bar_negative_border_color_same = true,
     };
     worksheet.conditional_format_range("N3:N14", conditional_format7);
   }
@@ -357,46 +357,46 @@ int main()
     worksheet.write("A1", "Examples of conditional formats with icon sets.");
 
     const xwpp::conditional_format_t conditional_format1{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
+      .type       = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
     };
     worksheet.conditional_format_range("B3:D3", conditional_format1);
 
     const xwpp::conditional_format_t conditional_format2{
-      .type_          = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_    = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
-      .reverse_icons_ = true,
+      .type          = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style    = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
+      .reverse_icons = true,
     };
     worksheet.conditional_format_range("B4:D4", conditional_format2);
 
     const xwpp::conditional_format_t conditional_format3{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
-      .icons_only_ = true,
+      .type       = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style = xwpp::conditional_icon_types_t::THREE_TRAFFIC_LIGHTS_UNRIMMED,
+      .icons_only = true,
     };
     worksheet.conditional_format_range("B5:D5", conditional_format3);
 
     const xwpp::conditional_format_t conditional_format4{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
+      .type       = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style = xwpp::conditional_icon_types_t::THREE_ARROWS_COLORED,
     };
     worksheet.conditional_format_range("B6:D6", conditional_format4);
 
     const xwpp::conditional_format_t conditional_format5{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::FOUR_ARROWS_COLORED,
+      .type       = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style = xwpp::conditional_icon_types_t::FOUR_ARROWS_COLORED,
     };
     worksheet.conditional_format_range("B7:E7", conditional_format5);
 
     const xwpp::conditional_format_t conditional_format6{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::FIVE_ARROWS_COLORED,
+      .type       = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style = xwpp::conditional_icon_types_t::FIVE_ARROWS_COLORED,
     };
     worksheet.conditional_format_range("B8:F8", conditional_format6);
 
     const xwpp::conditional_format_t conditional_format7{
-      .type_       = xwpp::conditional_format_types_t::ICON_SETS,
-      .icon_style_ = xwpp::conditional_icon_types_t::FIVE_RATINGS,
+      .type       = xwpp::conditional_format_types_t::ICON_SETS,
+      .icon_style = xwpp::conditional_icon_types_t::FIVE_RATINGS,
     };
     worksheet.conditional_format_range("B9:F9", conditional_format7);
   }

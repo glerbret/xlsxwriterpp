@@ -32,10 +32,10 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::image_options_t options{
-    .x_offset_ = 34,
-    .y_offset_ = 4,
-    .x_scale_  = 2,
-    .y_scale_  = 1,
+    .x_offset = 34,
+    .y_offset = 4,
+    .x_scale  = 2,
+    .y_scale  = 1,
   };
 
   // Insert the image from the buffer.

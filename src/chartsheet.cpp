@@ -34,27 +34,27 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   object_properties_t object_props;
   if(options.has_value())
   {
-    object_props.x_offset_ = options->x_offset_;
-    object_props.y_offset_ = options->y_offset_;
-    object_props.x_scale_  = options->x_scale_;
-    object_props.y_scale_  = options->y_scale_;
+    object_props.x_offset = options->x_offset;
+    object_props.y_offset = options->y_offset;
+    object_props.x_scale  = options->x_scale;
+    object_props.y_scale  = options->y_scale;
   }
 
-  object_props.width_  = 480;
-  object_props.height_ = 288;
+  object_props.width  = 480;
+  object_props.height = 288;
 
-  if(object_props.x_scale_ == 0.0)
+  if(object_props.x_scale == 0.0)
   {
-    object_props.x_scale_ = 1;
+    object_props.x_scale = 1;
   }
 
-  if(object_props.y_scale_ == 0.0)
+  if(object_props.y_scale == 0.0)
   {
-    object_props.y_scale_ = 1;
+    object_props.y_scale = 1;
   }
 
   // Store chart references so they can be ordered in the workbook.
-  object_props.chart_ = chart;
+  object_props.chart = chart;
 
   push_chart(object_props);
 
@@ -71,30 +71,30 @@ void chartsheet_t::protect(const std::string& password, std::optional<protection
 
   if(options.has_value())
   {
-    protection.objects_    = options->no_objects_;
-    protection.no_content_ = options->no_content_;
+    protection.objects    = options->no_objects;
+    protection.no_content = options->no_content;
   }
   else
   {
-    protection.objects_    = false;
-    protection.no_content_ = false;
+    protection.objects    = false;
+    protection.no_content = false;
   }
 
   if(!password.empty())
   {
-    protection.hash_ = std::format("{:04X}", hash_password(password));
+    protection.hash = std::format("{:04X}", hash_password(password));
   }
   else
   {
-    if(protection.objects_ && protection.no_content_)
+    if(protection.objects && protection.no_content)
     {
       return;
     }
   }
 
-  protection.no_sheet_      = true;
-  protection.scenarios_     = true;
-  protection.is_configured_ = true;
+  protection.no_sheet      = true;
+  protection.scenarios     = true;
+  protection.is_configured = true;
 
   if(chart_)
   {
@@ -238,57 +238,57 @@ void chartsheet_t::prepare_background([[maybe_unused]] uint32_t image_ref_id,
 void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props)
 {
   drawing_object_t drawing_object{
-    .type_          = drawing_types_t::IMAGE,
-    .anchor_        = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE),
-    .rel_index_     = 0,
-    .url_rel_index_ = 0,
-    .description_   = object_props.description_,
-    .tip_           = object_props.tip_,
-    .decorative_    = object_props.decorative_,
+    .type          = drawing_types_t::IMAGE,
+    .anchor        = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE),
+    .rel_index     = 0,
+    .url_rel_index = 0,
+    .description   = object_props.description,
+    .tip           = object_props.tip,
+    .decorative    = object_props.decorative,
   };
 
   // Scale to user scale.
-  double width{object_props.width_ * object_props.x_scale_};
-  double height{object_props.height_ * object_props.y_scale_};
+  double width{object_props.width * object_props.x_scale};
+  double height{object_props.height * object_props.y_scale};
 
   // Scale by non 96dpi resolutions.
-  width *= 96.0 / object_props.x_dpi_;
-  height *= 96.0 / object_props.y_dpi_;
+  width *= 96.0 / object_props.x_dpi;
+  height *= 96.0 / object_props.y_dpi;
 
-  object_props.width_  = width;
-  object_props.height_ = height;
+  object_props.width  = width;
+  object_props.height = height;
 
   // Convert from pixels to emus.
-  drawing_object.width_  = static_cast<uint32_t>(0.5 + (width * 9525));
-  drawing_object.height_ = static_cast<uint32_t>(0.5 + (height * 9525));
+  drawing_object.width  = static_cast<uint32_t>(0.5 + (width * 9525));
+  drawing_object.height = static_cast<uint32_t>(0.5 + (height * 9525));
 
-  drawing_object.rel_index_ = add_image_link_get_index(image_ref_id, object_props);
+  drawing_object.rel_index = add_image_link_get_index(image_ref_id, object_props);
   add_drawing_object(drawing_object, drawing_id, true);
 }
 
 void chartsheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props)
 {
   drawing_object_t drawing_object{
-    .type_          = drawing_types_t::CHART,
-    .anchor_        = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE),
-    .rel_index_     = get_drawing_rel_index(""),
-    .url_rel_index_ = 0,
-    .description_   = object_props.description_,
-    .tip_           = "",
-    .decorative_    = object_props.decorative_,
+    .type          = drawing_types_t::CHART,
+    .anchor        = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE),
+    .rel_index     = get_drawing_rel_index(""),
+    .url_rel_index = 0,
+    .description   = object_props.description,
+    .tip           = "",
+    .decorative    = object_props.decorative,
   };
 
   // Scale to user scale.
-  const double width{object_props.width_ * object_props.x_scale_};
-  const double height{object_props.height_ * object_props.y_scale_};
+  const double width{object_props.width * object_props.x_scale};
+  const double height{object_props.height * object_props.y_scale};
 
   // Convert to the nearest pixel.
-  object_props.width_  = width;
-  object_props.height_ = height;
+  object_props.width  = width;
+  object_props.height = height;
 
   // Convert from pixels to emus.
-  drawing_object.width_  = static_cast<uint32_t>(0.5 + (width * 9525));
-  drawing_object.height_ = static_cast<uint32_t>(0.5 + (height * 9525));
+  drawing_object.width  = static_cast<uint32_t>(0.5 + (width * 9525));
+  drawing_object.height = static_cast<uint32_t>(0.5 + (height * 9525));
 
   add_drawing_object(drawing_object, drawing_id, true);
   add_chart_link(chart_ref_id);

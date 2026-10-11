@@ -15,8 +15,8 @@ int main()
 
   worksheet.set_column("C:F", 10.288);
 
-  const std::vector<xwpp::table_column_t> columns{{}, {}, {}, {.header_ = " Column4 "}};
-  const xwpp::table_options_t options{.columns_ = columns};
+  const std::vector<xwpp::table_column_t> columns{{}, {}, {}, {.header = " Column4 "}};
+  const xwpp::table_options_t options{.columns = columns};
 
   worksheet.add_table("C3:F13", options);
 

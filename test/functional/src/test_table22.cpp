@@ -18,7 +18,7 @@ int main()
   worksheet.write("B3", "pine", nullptr);
   worksheet.write("C3", "tree", nullptr);
 
-  const xwpp::table_options_t options{.no_header_row_ = true};
+  const xwpp::table_options_t options{.no_header_row = true};
 
   worksheet.add_table("B2:C3", options);
 

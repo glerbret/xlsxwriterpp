@@ -73,18 +73,18 @@ BOOST_AUTO_TEST_CASE(condtional_format03a)
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
-    .type_      = xwpp::conditional_format_types_t::CELL,
-    .criteria_  = xwpp::conditional_criteria_t::BETWEEN,
-    .min_value_ = 20,
-    .max_value_ = 30,
+    .type      = xwpp::conditional_format_types_t::CELL,
+    .criteria  = xwpp::conditional_criteria_t::BETWEEN,
+    .min_value = 20,
+    .max_value = 30,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
-    .type_      = xwpp::conditional_format_types_t::CELL,
-    .criteria_  = xwpp::conditional_criteria_t::NOT_BETWEEN,
-    .min_value_ = 20,
-    .max_value_ = 30,
+    .type      = xwpp::conditional_format_types_t::CELL,
+    .criteria  = xwpp::conditional_criteria_t::NOT_BETWEEN,
+    .min_value = 20,
+    .max_value = 30,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format2);
 
@@ -148,18 +148,18 @@ BOOST_AUTO_TEST_CASE(condtional_format03b)
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format1{
-    .type_             = xwpp::conditional_format_types_t::CELL,
-    .criteria_         = xwpp::conditional_criteria_t::BETWEEN,
-    .min_value_string_ = "$B$1",
-    .max_value_string_ = "$B$2",
+    .type             = xwpp::conditional_format_types_t::CELL,
+    .criteria         = xwpp::conditional_criteria_t::BETWEEN,
+    .min_value_string = "$B$1",
+    .max_value_string = "$B$2",
   };
   worksheet.conditional_format_range("A1:A4", conditional_format1);
 
   const xwpp::conditional_format_t conditional_format2{
-    .type_             = xwpp::conditional_format_types_t::CELL,
-    .criteria_         = xwpp::conditional_criteria_t::NOT_BETWEEN,
-    .min_value_string_ = "$B$1",
-    .max_value_string_ = "$B$2",
+    .type             = xwpp::conditional_format_types_t::CELL,
+    .criteria         = xwpp::conditional_criteria_t::NOT_BETWEEN,
+    .min_value_string = "$B$1",
+    .max_value_string = "$B$2",
   };
   worksheet.conditional_format_range("A1:A4", conditional_format2);
 

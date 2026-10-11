@@ -123,8 +123,8 @@ BOOST_AUTO_TEST_CASE(condtional_format18)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_        = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
-    .multi_range_ = "A3:A4 A1 A6:A8 A10 A12",
+    .type        = xwpp::conditional_format_types_t::THREE_COLOR_SCALE,
+    .multi_range = "A3:A4 A1 A6:A8 A10 A12",
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 

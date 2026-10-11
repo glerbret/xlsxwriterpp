@@ -163,19 +163,19 @@ std::string app_t::write_titles_of_parts() const
 
 std::string app_t::write_manager() const
 {
-  if(properties_.manager_.empty())
+  if(properties_.manager.empty())
   {
     return "";
   }
 
-  return xml_data_element("Manager", properties_.manager_);
+  return xml_data_element("Manager", properties_.manager);
 }
 
 std::string app_t::write_company() const
 {
-  if(!properties_.company_.empty())
+  if(!properties_.company.empty())
   {
-    return xml_data_element("Company", properties_.company_);
+    return xml_data_element("Company", properties_.company);
   }
   else
   {
@@ -185,12 +185,12 @@ std::string app_t::write_company() const
 
 std::string app_t::write_hyperlink_base() const
 {
-  if(properties_.hyperlink_base_.empty())
+  if(properties_.hyperlink_base.empty())
   {
     return "";
   }
 
-  return xml_data_element("HyperlinkBase", properties_.hyperlink_base_);
+  return xml_data_element("HyperlinkBase", properties_.hyperlink_base);
 }
 
 std::string app_t::write_vt_vector_heading_pairs() const
@@ -213,7 +213,7 @@ std::string app_t::write_vt_vector_lpstr_named_parts() const
     "vt:vector", attributes_t{std::make_pair("size"s, part_names_.size()), std::make_pair("baseType"s, "lpstr")});
   for(const auto& part_name: part_names_)
   {
-    xml_data += write_vt_lpstr(part_name.name_);
+    xml_data += write_vt_lpstr(part_name.name);
   }
   xml_data += xml_end_tag("vt:vector");
 

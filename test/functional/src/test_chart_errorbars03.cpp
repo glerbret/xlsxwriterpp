@@ -35,11 +35,11 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_line_t line{.color_ = xwpp::color_t::red(), .dash_type_ = xwpp::chart_line_dash_type_t::ROUND_DOT};
+  const xwpp::chart_line_t line{.color = xwpp::color_t::red(), .dash_type = xwpp::chart_line_dash_type_t::ROUND_DOT};
 
-  chart.series_set_error_bars(series1.y_error_bars_, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
+  chart.series_set_error_bars(series1.y_error_bars, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
-  chart_series_set_error_bars_line(series1.y_error_bars_, line);
+  chart_series_set_error_bars_line(series1.y_error_bars, line);
 
   worksheet.insert_chart("E9", &chart);
 

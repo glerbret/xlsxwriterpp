@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::button_options_t options{.macro_ = "my_macro", .x_scale_ = 2, .y_scale_ = 1.5};
+  const xwpp::button_options_t options{.macro = "my_macro", .x_scale = 2, .y_scale = 1.5};
   worksheet.insert_button("C2", options);
 
   workbook.save("test_button05.xlsx");

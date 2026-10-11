@@ -11,8 +11,8 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::image_options_t options1{.url_ = "https://github.com/jmcnamara"};
-  const xwpp::image_options_t options2{.url_ = "https://github.com"};
+  const xwpp::image_options_t options1{.url = "https://github.com/jmcnamara"};
+  const xwpp::image_options_t options2{.url = "https://github.com"};
 
   worksheet.insert_image("A1", "images/blue.png");
   worksheet.insert_image("B3", "images/red.jpg", options1);

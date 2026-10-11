@@ -36,10 +36,10 @@ int main()
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_layout_t layout{
-    .x_      = 0.80197353455818,
-    .y_      = 0.37442403032954,
-    .width_  = 0.12858202099737,
-    .height_ = 0.25115157480314,
+    .x      = 0.80197353455818,
+    .y      = 0.37442403032954,
+    .width  = 0.12858202099737,
+    .height = 0.25115157480314,
   };
 
   chart.legend_set_layout(layout);

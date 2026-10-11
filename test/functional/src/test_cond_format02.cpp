@@ -17,9 +17,9 @@ int main()
   worksheet.write("A4", 40);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
-    .value_    = 5,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::LESS_THAN,
+    .value    = 5,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 

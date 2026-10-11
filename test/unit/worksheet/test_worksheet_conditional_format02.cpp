@@ -72,9 +72,9 @@ BOOST_AUTO_TEST_CASE(condtional_format02a)
   worksheet.write("B1", 5);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_         = xwpp::conditional_format_types_t::CELL,
-    .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
-    .value_string_ = "$B$1",
+    .type         = xwpp::conditional_format_types_t::CELL,
+    .criteria     = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value_string = "$B$1",
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 
@@ -137,9 +137,9 @@ BOOST_AUTO_TEST_CASE(condtional_format02b)
   worksheet.write("B1", 5);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_         = xwpp::conditional_format_types_t::CELL,
-    .criteria_     = xwpp::conditional_criteria_t::GREATER_THAN,
-    .value_string_ = "$B$1",
+    .type         = xwpp::conditional_format_types_t::CELL,
+    .criteria     = xwpp::conditional_criteria_t::GREATER_THAN,
+    .value_string = "$B$1",
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 

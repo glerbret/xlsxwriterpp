@@ -20,9 +20,9 @@ namespace xwpp
 
 struct shared_strings_element_t
 {
-  uint32_t index_{0};
-  std::string string_;
-  bool is_rich_string_{false};
+  uint32_t index{0};
+  std::string str;
+  bool is_rich_string{false};
 };
 
 class shared_strings_t

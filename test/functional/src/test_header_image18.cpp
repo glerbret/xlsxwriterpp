@@ -14,10 +14,10 @@ int main()
   worksheet.insert_image("E9", "images/red.png");
 
   const xwpp::header_footer_options_t header_options1{
-    .image_left_ = "images/red.jpg", .image_center_ = "images/blue.jpg", .image_right_ = "images/red.jpg"};
+    .image_left = "images/red.jpg", .image_center = "images/blue.jpg", .image_right = "images/red.jpg"};
 
   const xwpp::header_footer_options_t header_options2{
-    .image_left_ = "images/blue.jpg", .image_center_ = "images/red.jpg", .image_right_ = "images/blue.jpg"};
+    .image_left = "images/blue.jpg", .image_center = "images/red.jpg", .image_right = "images/blue.jpg"};
 
   worksheet.set_header("&L&G&C&G&R&G", header_options1);
   worksheet.set_footer("&L&G&C&G&R&G", header_options2);

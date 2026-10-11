@@ -122,22 +122,22 @@ BOOST_AUTO_TEST_CASE(data_bar04)
   worksheet.select();
 
   xwpp::conditional_format_t conditional_format{
-    .type_      = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_solid_ = true,
+    .type      = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_solid = true,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
-    .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_color_     = xwpp::color_t{0x63C384},
-    .bar_no_border_ = true,
+    .type          = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_color     = xwpp::color_t{0x63C384},
+    .bar_no_border = true,
   };
   worksheet.conditional_format_range("A2:B2", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
-    .type_             = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_color_        = xwpp::color_t{0xFF555A},
-    .bar_border_color_ = xwpp::color_t{0xFF0000},
+    .type             = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_color        = xwpp::color_t{0xFF555A},
+    .bar_border_color = xwpp::color_t{0xFF0000},
   };
   worksheet.conditional_format_range("A3:C3", conditional_format);
 

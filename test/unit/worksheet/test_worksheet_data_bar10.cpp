@@ -132,32 +132,32 @@ BOOST_AUTO_TEST_CASE(data_bar10)
   worksheet.select();
 
   xwpp::conditional_format_t conditional_format{
-    .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-    .min_rule_type_ = xwpp::conditional_format_rule_types_t::MINIMUM,
-    .max_rule_type_ = xwpp::conditional_format_rule_types_t::MAXIMUM,
-    .data_bar_2010_ = true,
+    .type          = xwpp::conditional_format_types_t::DATA_BAR,
+    .min_rule_type = xwpp::conditional_format_rule_types_t::MINIMUM,
+    .max_rule_type = xwpp::conditional_format_rule_types_t::MAXIMUM,
+    .data_bar_2010 = true,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
-    .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-    .min_value_     = 0,
-    .min_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
-    .max_value_     = 0,
-    .max_rule_type_ = xwpp::conditional_format_rule_types_t::NUMBER,
-    .bar_color_     = xwpp::color_t{0x63C384},
-    .data_bar_2010_ = true,
+    .type          = xwpp::conditional_format_types_t::DATA_BAR,
+    .min_value     = 0,
+    .min_rule_type = xwpp::conditional_format_rule_types_t::NUMBER,
+    .max_value     = 0,
+    .max_rule_type = xwpp::conditional_format_rule_types_t::NUMBER,
+    .bar_color     = xwpp::color_t{0x63C384},
+    .data_bar_2010 = true,
   };
   worksheet.conditional_format_range("A2:B2", conditional_format);
 
   conditional_format = xwpp::conditional_format_t{
-    .type_          = xwpp::conditional_format_types_t::DATA_BAR,
-    .min_value_     = 0,
-    .min_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
-    .max_value_     = 100,
-    .max_rule_type_ = xwpp::conditional_format_rule_types_t::PERCENT,
-    .bar_color_     = xwpp::color_t{0xFF555A},
-    .data_bar_2010_ = true,
+    .type          = xwpp::conditional_format_types_t::DATA_BAR,
+    .min_value     = 0,
+    .min_rule_type = xwpp::conditional_format_rule_types_t::PERCENT,
+    .max_value     = 100,
+    .max_rule_type = xwpp::conditional_format_rule_types_t::PERCENT,
+    .bar_color     = xwpp::color_t{0xFF555A},
+    .data_bar_2010 = true,
   };
   worksheet.conditional_format_range("A3:C3", conditional_format);
 

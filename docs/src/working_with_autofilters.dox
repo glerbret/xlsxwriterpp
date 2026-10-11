@@ -45,8 +45,8 @@ For example you could create a filter like `"Column A == East"` using a
 
 @code
   xwpp::filter_rule_t filter_rule{
-    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
-    .value_string_ = "East",
+    .criteria     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string = "East",
   };
 
   worksheet.filter_column(0, &filter_rule);
@@ -56,17 +56,17 @@ Unfortunately, it isn't sufficient to just specify the filter condition. You
 must also hide the rows that don't match the criteria since Excel doesn't do
 that automatically when reading a file. With `Xlsxwriter++` you can hide rows
 using the `worksheet_t::set_row()` function with the `row_col_options_t`
-`%hidden_` parameter.
+`%hidden` parameter.
 
 The following is an example of how you might filter a data range to match an
 autofilter criteria:
 
 @code
-  xwpp::row_col_options_t hidden{.hidden_ = true};
+  xwpp::row_col_options_t hidden{.hidden = true};
 
   xwpp::filter_rule_t filter_rule{
-    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
-    .value_string_ = "East",
+    .criteria     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string = "East",
   };
 
   worksheet.filter_column(0, filter_rule);
@@ -105,18 +105,18 @@ be used to filter columns in a autofilter range based on simple conditions:
 
 @code
   xwpp::filter_rule_t filter_rule1{
-    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
-    .value_string_ = "East",
+    .criteria     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string = "East",
   };
 
   xwpp::filter_rule_t filter_rule2{
-    .criteria_ = xwpp::filter_criteria_t::GREATER_THAN,
-    .value_    = 3000,
+    .criteria = xwpp::filter_criteria_t::GREATER_THAN,
+    .value    = 3000,
   };
 
   xwpp::filter_rule_t filter_rule3{
-    .criteria_ = xwpp::filter_criteria_t::LESS_THAN,
-    .value_    = 8000,
+    .criteria = xwpp::filter_criteria_t::LESS_THAN,
+    .value    = 8000,
   };
 
   worksheet.filter_column(0, filter_rule1);
@@ -127,7 +127,7 @@ The `%col` parameter, used in both these functions, is a zero indexed column
 number and must refer to a column in an existing autofilter created with
 `worksheet_t::autofilter()`.
 
-The `%criteria_` parameter in `filter_rule_t` can have one of the following values:
+The `%criteria` parameter in `filter_rule_t` can have one of the following values:
 
 - `filter_criteria_t::EQUAL_TO`: Filter cells equal to a value.
 
@@ -144,50 +144,50 @@ The `%criteria_` parameter in `filter_rule_t` can have one of the following valu
   to a value.
 
 - `filter_criteria_t::BLANKS`: Filter cells that are blank. This does not
-  require a `%value_string_` or `%value_` value.
+  require a `%value_string` or `%value` value.
 
 - `filter_criteria_t::NON_BLANKS`: Filter cells that are not blank. This does
-  not require a `%value_string_` or `%value_` value.
+  not require a `%value_string` or `%value` value.
 
-The `%value_` parameter is used to set a numeric matching condition while
-`%value_string_` is used to set a string matching condition. Excel also allows
+The `%value` parameter is used to set a numeric matching condition while
+`%value_string` is used to set a string matching condition. Excel also allows
 some simple string matching operations:
 
 @code
   // Begins with c.
   xwpp::filter_rule_t filter_rule1{
-    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
-    .value_string_ = "c*",
+    .criteria     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string = "c*",
   };
 
   // Doesn't begin with c.
   xwpp::filter_rule_t filter_rule2{
-    .criteria_     = xwpp::filter_criteria_t::NOT_EQUAL_TO,
-    .value_string_ = "c*",
+    .criteria     = xwpp::filter_criteria_t::NOT_EQUAL_TO,
+    .value_string = "c*",
   };
 
   // Ends with c.
   xwpp::filter_rule_t filter_rule3{
-    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
-    .value_string_ = "*c",
+    .criteria     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string = "*c",
   };
 
   // Doesn't end with c.
   xwpp::filter_rule_t filter_rule4{
-    .criteria_     = xwpp::filter_criteria_t::NOT_EQUAL_TO,
-    .value_string_ = "*c",
+    .criteria     = xwpp::filter_criteria_t::NOT_EQUAL_TO,
+    .value_string = "*c",
   };
 
   // Contains c.
   xwpp::filter_rule_t filter_rule5{
-    .criteria_     = xwpp::filter_criteria_t::EQUAL_TO,
-    .value_string_ = "*c*",
+    .criteria     = xwpp::filter_criteria_t::EQUAL_TO,
+    .value_string = "*c*",
   };
 
   // Doesn't contain c.
   xwpp::filter_rule_t filter_rule6{
-    .criteria_     = xwpp::filter_criteria_t::NOT_EQUAL_TO,
-    .value_string_ = "*c*",
+    .criteria     = xwpp::filter_criteria_t::NOT_EQUAL_TO,
+    .value_string = "*c*",
   };
 @endcode
 

@@ -75,36 +75,36 @@ BOOST_AUTO_TEST_CASE(condtional_format05)
   worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::AVERAGE,
-    .criteria_ = xwpp::conditional_criteria_t::AVERAGE_ABOVE,
+    .type     = xwpp::conditional_format_types_t::AVERAGE,
+    .criteria = xwpp::conditional_criteria_t::AVERAGE_ABOVE,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_BELOW;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_BELOW;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_ABOVE_OR_EQUAL;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_ABOVE_OR_EQUAL;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_BELOW_OR_EQUAL;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_1_STD_DEV_ABOVE;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_1_STD_DEV_ABOVE;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_1_STD_DEV_BELOW;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_2_STD_DEV_ABOVE;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_2_STD_DEV_ABOVE;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_2_STD_DEV_BELOW;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_3_STD_DEV_ABOVE;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_3_STD_DEV_ABOVE;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW;
+  conditional_format.criteria = xwpp::conditional_criteria_t::AVERAGE_3_STD_DEV_BELOW;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());

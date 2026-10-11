@@ -16,7 +16,7 @@ int main()
 
   worksheet.set_comments_author("John");
 
-  const xwpp::header_footer_options_t header_options{.image_left_ = "images/red.jpg"};
+  const xwpp::header_footer_options_t header_options{.image_left = "images/red.jpg"};
 
   worksheet.set_header("&L&G", header_options);
 

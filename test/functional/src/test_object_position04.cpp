@@ -35,7 +35,7 @@ int main()
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_options_t options{.object_position_ = xwpp::object_position_t::MOVE_DONT_SIZE};
+  const xwpp::chart_options_t options{.object_position = xwpp::object_position_t::MOVE_DONT_SIZE};
   worksheet.insert_chart("E9", &chart, options);
 
   workbook.save("test_object_position04.xlsx");

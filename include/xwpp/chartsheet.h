@@ -145,16 +145,16 @@ public:
    * `protection_t` pointer in the `options` argument. In Excel chartsheets only
    * have two protection options:
    *
-   * - `%no_content_`
-   * - `%no_objects_`
+   * - `%no_content`
+   * - `%no_objects`
    *
    * All parameters are off by default. Individual elements can be protected as
    * follows:
    *
    * @code
    *  xwpp::protection_t options{
-   *    .no_content_ = true,
-   *    .no_objects_ = true,
+   *    .no_content = true,
+   *    .no_objects = true,
    *  };
    *
    *  chartsheet.protect(options);

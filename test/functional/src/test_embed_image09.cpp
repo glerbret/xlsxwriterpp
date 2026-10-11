@@ -11,7 +11,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-  const xwpp::image_options_t image_options{.description_ = "Some alt text", .decorative_ = true};
+  const xwpp::image_options_t image_options{.description = "Some alt text", .decorative = true};
   worksheet.embed_image(0, 0, "images/red.png", image_options);
 
   workbook.save("test_embed_image09.xlsx");

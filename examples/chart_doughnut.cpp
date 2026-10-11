@@ -44,14 +44,14 @@ int main()
   const xwpp::format_t* bold = workbook.format_builder().bold().build();
 
   // Add for fills for use in the chart.
-  xwpp::chart_fill_t fill1{.color_ = xwpp::color_t{0xFA58D0}};
-  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t{0x61210B}};
-  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t{0xF5F6CE}};
+  xwpp::chart_fill_t fill1{.color = xwpp::color_t{0xFA58D0}};
+  xwpp::chart_fill_t fill2{.color = xwpp::color_t{0x61210B}};
+  xwpp::chart_fill_t fill3{.color = xwpp::color_t{0xF5F6CE}};
 
   // Add some points with the above fills.
-  const xwpp::chart_point_t point1{.fill_ = fill1};
-  const xwpp::chart_point_t point2{.fill_ = fill2};
-  const xwpp::chart_point_t point3{.fill_ = fill3};
+  const xwpp::chart_point_t point1{.fill = fill1};
+  const xwpp::chart_point_t point2{.fill = fill2};
+  const xwpp::chart_point_t point3{.fill = fill3};
 
   // Create an array of the point objects.
   const std::vector<xwpp::chart_point_t> points{

@@ -74,10 +74,10 @@ int main()
     worksheet.write("A3", "Enter an integer between 1 and 10");
 
     const xwpp::data_validation_t data_validation{
-      .validate_       = xwpp::validation_types_t::INTEGER,
-      .criteria_       = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_number_ = 1,
-      .maximum_number_ = 10,
+      .validate       = xwpp::validation_types_t::INTEGER,
+      .criteria       = xwpp::validation_criteria_t::BETWEEN,
+      .minimum_number = 1,
+      .maximum_number = 10,
     };
     worksheet.data_validation_cell("B3", data_validation);
   }
@@ -87,10 +87,10 @@ int main()
     worksheet.write("A5", "Enter an integer that is not between 1 and 10 (using cell references)");
 
     const xwpp::data_validation_t data_validation{
-      .validate_        = xwpp::validation_types_t::INTEGER_FORMULA,
-      .criteria_        = xwpp::validation_criteria_t::NOT_BETWEEN,
-      .minimum_formula_ = "=E3",
-      .maximum_formula_ = "=F3",
+      .validate        = xwpp::validation_types_t::INTEGER_FORMULA,
+      .criteria        = xwpp::validation_criteria_t::NOT_BETWEEN,
+      .minimum_formula = "=E3",
+      .maximum_formula = "=F3",
     };
     worksheet.data_validation_cell("B5", data_validation);
   }
@@ -100,9 +100,9 @@ int main()
     worksheet.write("A7", "Enter an integer greater than 0");
 
     const xwpp::data_validation_t data_validation{
-      .validate_     = xwpp::validation_types_t::INTEGER,
-      .criteria_     = xwpp::validation_criteria_t::GREATER_THAN,
-      .value_number_ = 0,
+      .validate     = xwpp::validation_types_t::INTEGER,
+      .criteria     = xwpp::validation_criteria_t::GREATER_THAN,
+      .value_number = 0,
     };
     worksheet.data_validation_cell("B7", data_validation);
   }
@@ -112,9 +112,9 @@ int main()
     worksheet.write("A9", "Enter an integer less than 10");
 
     const xwpp::data_validation_t data_validation{
-      .validate_     = xwpp::validation_types_t::INTEGER,
-      .criteria_     = xwpp::validation_criteria_t::LESS_THAN,
-      .value_number_ = 10,
+      .validate     = xwpp::validation_types_t::INTEGER,
+      .criteria     = xwpp::validation_criteria_t::LESS_THAN,
+      .value_number = 10,
     };
     worksheet.data_validation_cell("B9", data_validation);
   }
@@ -124,10 +124,10 @@ int main()
     worksheet.write("A11", "Enter a decimal between 0.1 and 0.5");
 
     const xwpp::data_validation_t data_validation{
-      .validate_       = xwpp::validation_types_t::DECIMAL,
-      .criteria_       = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_number_ = 0.1,
-      .maximum_number_ = 0.5,
+      .validate       = xwpp::validation_types_t::DECIMAL,
+      .criteria       = xwpp::validation_criteria_t::BETWEEN,
+      .minimum_number = 0.1,
+      .maximum_number = 0.5,
     };
     worksheet.data_validation_cell("B11", data_validation);
   }
@@ -139,8 +139,8 @@ int main()
     const std::vector<std::string> list{"open", "high", "close"};
 
     const xwpp::data_validation_t data_validation{
-      .validate_   = xwpp::validation_types_t::LIST,
-      .value_list_ = list,
+      .validate   = xwpp::validation_types_t::LIST,
+      .value_list = list,
     };
     worksheet.data_validation_cell("B13", data_validation);
   }
@@ -150,8 +150,8 @@ int main()
     worksheet.write("A15", "Select a value from a dropdown list (using a cell range)");
 
     const xwpp::data_validation_t data_validation{
-      .validate_      = xwpp::validation_types_t::LIST_FORMULA,
-      .value_formula_ = "=$E$4:$G$4",
+      .validate      = xwpp::validation_types_t::LIST_FORMULA,
+      .value_formula = "=$E$4:$G$4",
     };
     worksheet.data_validation_cell("B15", data_validation);
   }
@@ -161,10 +161,10 @@ int main()
     worksheet.write("A17", "Enter a date between 1/1/2024 and 12/12/2024");
 
     const xwpp::data_validation_t data_validation{
-      .validate_         = xwpp::validation_types_t::DATE,
-      .criteria_         = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_datetime_ = {.year_ = 2024, .month_ = 1,  .day_ = 1,  .hour_ = 0, .min_ = 0, .sec_ = 0.},
-      .maximum_datetime_ = {.year_ = 2024, .month_ = 12, .day_ = 12, .hour_ = 0, .min_ = 0, .sec_ = 0.},
+      .validate         = xwpp::validation_types_t::DATE,
+      .criteria         = xwpp::validation_criteria_t::BETWEEN,
+      .minimum_datetime = {.year = 2024, .month = 1,  .day = 1,  .hour = 0, .min = 0, .sec = 0.},
+      .maximum_datetime = {.year = 2024, .month = 12, .day = 12, .hour = 0, .min = 0, .sec = 0.},
     };
     worksheet.data_validation_cell("B17", data_validation);
   }
@@ -174,10 +174,10 @@ int main()
     worksheet.write("A19", "Enter a time between 6:00 and 12:00");
 
     const xwpp::data_validation_t data_validation{
-      .validate_         = xwpp::validation_types_t::TIME,
-      .criteria_         = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_datetime_ = {.year_ = 0, .month_ = 0, .day_ = 0, .hour_ = 6,  .min_ = 0, .sec_ = 0.},
-      .maximum_datetime_ = {.year_ = 0, .month_ = 0, .day_ = 0, .hour_ = 12, .min_ = 0, .sec_ = 0.},
+      .validate         = xwpp::validation_types_t::TIME,
+      .criteria         = xwpp::validation_criteria_t::BETWEEN,
+      .minimum_datetime = {.year = 0, .month = 0, .day = 0, .hour = 6,  .min = 0, .sec = 0.},
+      .maximum_datetime = {.year = 0, .month = 0, .day = 0, .hour = 12, .min = 0, .sec = 0.},
     };
     worksheet.data_validation_cell("B19", data_validation);
   }
@@ -187,9 +187,9 @@ int main()
     worksheet.write("A21", "Enter a string longer than 3 characters");
 
     const xwpp::data_validation_t data_validation{
-      .validate_     = xwpp::validation_types_t::LENGTH,
-      .criteria_     = xwpp::validation_criteria_t::GREATER_THAN,
-      .value_number_ = 3,
+      .validate     = xwpp::validation_types_t::LENGTH,
+      .criteria     = xwpp::validation_criteria_t::GREATER_THAN,
+      .value_number = 3,
     };
     worksheet.data_validation_cell("B21", data_validation);
   }
@@ -199,8 +199,8 @@ int main()
     worksheet.write("A23", "Enter a value if the following is true \"=AND(F5=50,G5=60)\"");
 
     const xwpp::data_validation_t data_validation{
-      .validate_      = xwpp::validation_types_t::CUSTOM_FORMULA,
-      .value_formula_ = "=AND(F5=50,G5=60)",
+      .validate      = xwpp::validation_types_t::CUSTOM_FORMULA,
+      .value_formula = "=AND(F5=50,G5=60)",
     };
     worksheet.data_validation_cell("B23", data_validation);
   }
@@ -210,12 +210,12 @@ int main()
     worksheet.write("A25", "Displays a message when you select the cell");
 
     const xwpp::data_validation_t data_validation{
-      .validate_       = xwpp::validation_types_t::INTEGER,
-      .criteria_       = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_number_ = 1,
-      .maximum_number_ = 100,
-      .input_title_    = "Enter an integer:",
-      .input_message_  = "between 1 and 100",
+      .validate       = xwpp::validation_types_t::INTEGER,
+      .criteria       = xwpp::validation_criteria_t::BETWEEN,
+      .minimum_number = 1,
+      .maximum_number = 100,
+      .input_title    = "Enter an integer:",
+      .input_message  = "between 1 and 100",
     };
     worksheet.data_validation_cell("B25", data_validation);
   }
@@ -225,14 +225,14 @@ int main()
     worksheet.write("A27", "Display a custom error message when integer isn't between 1 and 100");
 
     const xwpp::data_validation_t data_validation{
-      .validate_       = xwpp::validation_types_t::INTEGER,
-      .criteria_       = xwpp::validation_criteria_t::BETWEEN,
-      .minimum_number_ = 1,
-      .maximum_number_ = 100,
-      .input_title_    = "Enter an integer:",
-      .input_message_  = "between 1 and 100",
-      .error_title_    = "Input value is not valid!",
-      .error_message_  = "It should be an integer between 1 and 100",
+      .validate       = xwpp::validation_types_t::INTEGER,
+      .criteria       = xwpp::validation_criteria_t::BETWEEN,
+      .minimum_number = 1,
+      .maximum_number = 100,
+      .input_title    = "Enter an integer:",
+      .input_message  = "between 1 and 100",
+      .error_title    = "Input value is not valid!",
+      .error_message  = "It should be an integer between 1 and 100",
     };
     worksheet.data_validation_cell("B27", data_validation);
   }
@@ -242,15 +242,15 @@ int main()
     worksheet.write("A29", "Display a custom info message when integer isn't between 1 and 100");
 
     const xwpp::data_validation_t data_validation{
-      .validate_       = xwpp::validation_types_t::INTEGER,
-      .criteria_       = xwpp::validation_criteria_t::BETWEEN,
-      .error_type_     = xwpp::validation_error_types_t::INFORMATION,
-      .minimum_number_ = 1,
-      .maximum_number_ = 100,
-      .input_title_    = "Enter an integer:",
-      .input_message_  = "between 1 and 100",
-      .error_title_    = "Input value is not valid!",
-      .error_message_  = "It should be an integer between 1 and 100",
+      .validate       = xwpp::validation_types_t::INTEGER,
+      .criteria       = xwpp::validation_criteria_t::BETWEEN,
+      .error_type     = xwpp::validation_error_types_t::INFORMATION,
+      .minimum_number = 1,
+      .maximum_number = 100,
+      .input_title    = "Enter an integer:",
+      .input_message  = "between 1 and 100",
+      .error_title    = "Input value is not valid!",
+      .error_message  = "It should be an integer between 1 and 100",
     };
     worksheet.data_validation_cell("B29", data_validation);
   }

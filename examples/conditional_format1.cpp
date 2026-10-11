@@ -32,10 +32,10 @@ int main()
 
   // Create a conditional format object. A static object would also work.
   const xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::CELL,
-    .criteria_ = xwpp::conditional_criteria_t::LESS_THAN,
-    .value_    = 33,
-    .format_   = custom_format,
+    .type     = xwpp::conditional_format_types_t::CELL,
+    .criteria = xwpp::conditional_criteria_t::LESS_THAN,
+    .value    = 33,
+    .format   = custom_format,
   };
 
   // Now apply the format to data range.

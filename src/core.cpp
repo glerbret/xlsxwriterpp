@@ -59,29 +59,29 @@ std::string core_t::assemble_xml_file() const
 
 std::string core_t::write_dc_title() const
 {
-  if(properties_.title_.empty())
+  if(properties_.title.empty())
   {
     return "";
   }
 
-  return xml_data_element("dc:title", properties_.title_);
+  return xml_data_element("dc:title", properties_.title);
 }
 
 std::string core_t::write_dc_subject() const
 {
-  if(properties_.subject_.empty())
+  if(properties_.subject.empty())
   {
     return "";
   }
 
-  return xml_data_element("dc:subject", properties_.subject_);
+  return xml_data_element("dc:subject", properties_.subject);
 }
 
 std::string core_t::write_dc_creator() const
 {
-  if(!properties_.author_.empty())
+  if(!properties_.author.empty())
   {
-    return xml_data_element("dc:creator", properties_.author_);
+    return xml_data_element("dc:creator", properties_.author);
   }
   else
   {
@@ -91,29 +91,29 @@ std::string core_t::write_dc_creator() const
 
 std::string core_t::write_cp_keywords() const
 {
-  if(properties_.keywords_.empty())
+  if(properties_.keywords.empty())
   {
     return "";
   }
 
-  return xml_data_element("cp:keywords", properties_.keywords_);
+  return xml_data_element("cp:keywords", properties_.keywords);
 }
 
 std::string core_t::write_dc_description() const
 {
-  if(properties_.comments_.empty())
+  if(properties_.comments.empty())
   {
     return "";
   }
 
-  return xml_data_element("dc:description", properties_.comments_);
+  return xml_data_element("dc:description", properties_.comments);
 }
 
 std::string core_t::write_cp_last_modified_by() const
 {
-  if(!properties_.modif_author_.empty())
+  if(!properties_.modif_author.empty())
   {
-    return xml_data_element("cp:lastModifiedBy", properties_.modif_author_);
+    return xml_data_element("cp:lastModifiedBy", properties_.modif_author);
   }
   else
   {
@@ -123,39 +123,39 @@ std::string core_t::write_cp_last_modified_by() const
 
 std::string core_t::write_dcterms_created() const
 {
-  return xml_data_element("dcterms:created", datetime_to_iso8601_date(properties_.created_),
+  return xml_data_element("dcterms:created", datetime_to_iso8601_date(properties_.created),
                           attributes_t{"xsi:type", "dcterms:W3CDTF"});
 }
 
 std::string core_t::write_dcterms_modified() const
 {
-  if(properties_.modified_.time_since_epoch().count() == 0)
+  if(properties_.modified.time_since_epoch().count() == 0)
   {
     return "";
   }
 
-  return xml_data_element("dcterms:modified", datetime_to_iso8601_date(properties_.modified_),
+  return xml_data_element("dcterms:modified", datetime_to_iso8601_date(properties_.modified),
                           attributes_t{"xsi:type", "dcterms:W3CDTF"});
 }
 
 std::string core_t::write_cp_category() const
 {
-  if(properties_.category_.empty())
+  if(properties_.category.empty())
   {
     return "";
   }
 
-  return xml_data_element("cp:category", properties_.category_);
+  return xml_data_element("cp:category", properties_.category);
 }
 
 std::string core_t::write_cp_content_status() const
 {
-  if(properties_.status_.empty())
+  if(properties_.status.empty())
   {
     return "";
   }
 
-  return xml_data_element("cp:contentStatus", properties_.status_);
+  return xml_data_element("cp:contentStatus", properties_.status);
 }
 
 }

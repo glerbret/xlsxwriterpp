@@ -35,7 +35,7 @@ int main()
   chart.add_series("", "=Sheet1!$B$1:$B$5");
   chart.add_series("", "=Sheet1!$C$1:$C$5");
 
-  const xwpp::chart_options_t options{.x_scale_ = 1.06666667, .y_scale_ = 1.11111112};
+  const xwpp::chart_options_t options{.x_scale = 1.06666667, .y_scale = 1.11111112};
   worksheet.insert_chart("E9", &chart, options);
 
   workbook.save("test_chart_size01.xlsx");

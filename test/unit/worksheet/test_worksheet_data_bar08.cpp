@@ -46,8 +46,8 @@ BOOST_AUTO_TEST_CASE(data_bar08)
   worksheet.select();
 
   const xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::DATA_BAR,
-    .bar_only_ = true,
+    .type     = xwpp::conditional_format_types_t::DATA_BAR,
+    .bar_only = true,
   };
   worksheet.conditional_format_cell("A1", conditional_format);
 

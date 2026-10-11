@@ -23,8 +23,8 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$6");
 
-  const xwpp::chart_fill_t fill{.color_ = xwpp::color_t::red()};
-  const std::vector<xwpp::chart_point_t> points{{.fill_ = fill}};
+  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+  const std::vector<xwpp::chart_point_t> points{{.fill = fill}};
 
   series_set_points(series, points);
 

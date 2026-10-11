@@ -38,7 +38,7 @@ int main()
   xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
 
   const std::vector<xwpp::chart_data_label_t> data_labels{
-    {.value_ = "123"}, {.value_ = "abc"}, {}, {.value_ = "=Sheet1!$D$1"}, {.value_ = "=Sheet1!$D$2"}};
+    {.value = "123"}, {.value = "abc"}, {}, {.value = "=Sheet1!$D$1"}, {.value = "=Sheet1!$D$2"}};
   xwpp::chart_series_set_labels_custom(series, data_labels);
 
   chart.add_series("", "=Sheet1!$B$1:$B$5");

@@ -125,14 +125,14 @@ int main()
 
     // The option structs with the outline level set.
     const xwpp::row_col_options_t options1{
-      .hidden_    = false,
-      .level_     = 2,
-      .collapsed_ = false,
+      .hidden    = false,
+      .level     = 2,
+      .collapsed = false,
     };
     const xwpp::row_col_options_t options2{
-      .hidden_    = false,
-      .level_     = 1,
-      .collapsed_ = false,
+      .hidden    = false,
+      .level     = 1,
+      .collapsed = false,
     };
 
     // Set the row outline properties set.
@@ -159,19 +159,19 @@ int main()
 
     // The option structs with the outline properties set.
     const xwpp::row_col_options_t options1{
-      .hidden_    = true,
-      .level_     = 2,
-      .collapsed_ = false,
+      .hidden    = true,
+      .level     = 2,
+      .collapsed = false,
     };
     const xwpp::row_col_options_t options2{
-      .hidden_    = true,
-      .level_     = 1,
-      .collapsed_ = false,
+      .hidden    = true,
+      .level     = 1,
+      .collapsed = false,
     };
     const xwpp::row_col_options_t options3{
-      .hidden_    = false,
-      .level_     = 0,
-      .collapsed_ = true,
+      .hidden    = false,
+      .level     = 0,
+      .collapsed = true,
     };
 
     // Set the row options with the outline level.
@@ -198,14 +198,14 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
     const xwpp::row_col_options_t options1{
-      .hidden_    = true,
-      .level_     = 2,
-      .collapsed_ = false,
+      .hidden    = true,
+      .level     = 2,
+      .collapsed = false,
     };
     const xwpp::row_col_options_t options2{
-      .hidden_    = false,
-      .level_     = 1,
-      .collapsed_ = true,
+      .hidden    = false,
+      .level     = 1,
+      .collapsed = true,
     };
 
     // Set the row options with the outline level.
@@ -231,19 +231,19 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
     const xwpp::row_col_options_t options1{
-      .hidden_    = true,
-      .level_     = 2,
-      .collapsed_ = false,
+      .hidden    = true,
+      .level     = 2,
+      .collapsed = false,
     };
     const xwpp::row_col_options_t options2{
-      .hidden_    = true,
-      .level_     = 1,
-      .collapsed_ = true,
+      .hidden    = true,
+      .level     = 1,
+      .collapsed = true,
     };
     const xwpp::row_col_options_t options3{
-      .hidden_    = false,
-      .level_     = 0,
-      .collapsed_ = true,
+      .hidden    = false,
+      .level     = 0,
+      .collapsed = true,
     };
 
     // Set the row options with the outline level.
@@ -270,9 +270,9 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
     const xwpp::row_col_options_t options{
-      .hidden_    = false,
-      .level_     = 1,
-      .collapsed_ = false,
+      .hidden    = false,
+      .level     = 1,
+      .collapsed = false,
     };
 
     // Write the sub-total data that is common to the column examples.
@@ -292,14 +292,14 @@ int main()
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
 
     const xwpp::row_col_options_t options1{
-      .hidden_    = true,
-      .level_     = 1,
-      .collapsed_ = false,
+      .hidden    = true,
+      .level     = 1,
+      .collapsed = false,
     };
     const xwpp::row_col_options_t options2{
-      .hidden_    = false,
-      .level_     = 0,
-      .collapsed_ = true,
+      .hidden    = false,
+      .level     = 0,
+      .collapsed = true,
     };
 
     // Write the sub-total data that is common to the column examples.

@@ -56,17 +56,17 @@ struct datetime_t
   friend bool operator!=(const datetime_t& lhs, const datetime_t& rhs) = default;
 
   /** Year     : 1900 - 9999 */
-  int year_{0};
+  int year{0};
   /** Month    : 1 - 12 */
-  int month_{0};
+  int month{0};
   /** Day      : 1 - 31 */
-  int day_{0};
+  int day{0};
   /** Hour     : 0 - 23 */
-  int hour_{0};
+  int hour{0};
   /** Minute   : 0 - 59 */
-  int min_{0};
+  int min{0};
   /** Seconds  : 0 - 59.999 */
-  double sec_{0.};
+  double sec{0.};
 };
 
 enum class custom_property_types_t
@@ -96,9 +96,9 @@ const std::string SCHEMA_CONTENT{SCHEMA_ROOT + "/package/2006/content-types"};
 // Define custom property used in workbook.c and custom.c.
 struct custom_property_t
 {
-  custom_property_types_t type_{custom_property_types_t::NONE};
-  std::string name_;
-  std::variant<std::string, int32_t, double, bool, datetime_t> value_;
+  custom_property_types_t type{custom_property_types_t::NONE};
+  std::string name;
+  std::variant<std::string, int32_t, double, bool, datetime_t> value;
 };
 
 /// @cond

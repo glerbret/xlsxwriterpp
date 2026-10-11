@@ -37,17 +37,17 @@ int main()
   worksheet.write("A1", "Foo", bold);
   worksheet.write("B1", "Bar", italic);
 
-  const xwpp::row_col_options_t row_hidden{.hidden_ = true};
+  const xwpp::row_col_options_t row_hidden{.hidden = true};
   worksheet.set_row(12, row_hidden);
 
-  const xwpp::row_col_options_t col_hidden{.hidden_ = true};
+  const xwpp::row_col_options_t col_hidden{.hidden = true};
   worksheet.set_column("F:F", 9, nullptr, col_hidden);
 
   chart.add_series("", "=Sheet1!$A$2:$A$6");
   chart.add_series("", "=Sheet1!$B$2:$B$6");
   chart.add_series("", "=Sheet1!$C$2:$C$6");
 
-  const xwpp::chart_options_t chart_options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
+  const xwpp::chart_options_t chart_options{.object_position = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
   worksheet.insert_chart("E9", &chart, chart_options);
 
   workbook.save("test_object_position09.xlsx");

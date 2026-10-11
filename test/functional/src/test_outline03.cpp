@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outline Columns");
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  const xwpp::row_col_options_t options6{.hidden_ = false, .level_ = 1, .collapsed_ = false};
+  const xwpp::row_col_options_t options6{.hidden = false, .level = 1, .collapsed = false};
 
   worksheet.write("A1", "Month");
   worksheet.write("B1", "Jan");

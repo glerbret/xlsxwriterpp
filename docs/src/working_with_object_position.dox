@@ -28,7 +28,7 @@ For example:
     worksheet.set_column("F:F", 2);
 
     // Hide row 12 (zero indexed).
-    xwpp::row_col_options_t row_options = {.hidden_ = true};
+    xwpp::row_col_options_t row_options = {.hidden = true};
     worksheet.set_row(11, row_options);
 
     workbook_save("images.xlsx");
@@ -88,11 +88,11 @@ Image and chart objects in `Xlsxwriter++` emulate these options using the
 `object_position_t` parameter in `image_options_t` and `chart_options_t`:
 
 @code
-  xwpp::image_options_t options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE};
+  xwpp::image_options_t options{.object_position = xwpp::object_position_t::MOVE_AND_SIZE};
   worksheet.insert_image("E9", "red.png", options);
 @endcode
 
-Where `%object_position_` has one of the following allowable values from
+Where `%object_position` has one of the following allowable values from
 `object_position_t`:
 
 1. `object_position_t::MOVE_AND_SIZE`: Move and size with cells. This is the Excel
@@ -119,13 +119,13 @@ image in a cell, possibly as part of an autofilter. For example:
     xwpp::workbook_t workbook;
     xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
-    xwpp::image_options_t image_options{.object_position_ = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
+    xwpp::image_options_t image_options{.object_position = xwpp::object_position_t::MOVE_AND_SIZE_AFTER};
 
     worksheet.insert_image("B4", "logo.png");
     worksheet.insert_image("B13", "logo.png", image_options);
 
     // Hide the rows that contain the images.
-    xwpp::row_col_options_t row_options{.hidden_ = true};
+    xwpp::row_col_options_t row_options{.hidden = true};
     for(xwpp::row_num_t row_num = 1; row_num < 22; row_num++)
       worksheet.set_row(row_num, row_options);
 

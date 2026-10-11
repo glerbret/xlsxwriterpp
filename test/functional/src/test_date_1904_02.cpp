@@ -12,12 +12,12 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
 
   const xwpp::format_t* format = workbook.format_builder().num_format_index(14).build();
-  const xwpp::datetime_t datetime1{.year_ = 1904, .month_ = 1, .day_ = 1, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
-  const xwpp::datetime_t datetime2{.year_ = 1906, .month_ = 9, .day_ = 27, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
-  const xwpp::datetime_t datetime3{.year_ = 1917, .month_ = 9, .day_ = 9, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
-  const xwpp::datetime_t datetime4{.year_ = 1931, .month_ = 5, .day_ = 19, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
-  const xwpp::datetime_t datetime5{.year_ = 2177, .month_ = 10, .day_ = 15, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
-  const xwpp::datetime_t datetime6{.year_ = 4641, .month_ = 11, .day_ = 27, .hour_ = 0, .min_ = 0, .sec_ = 0.0};
+  const xwpp::datetime_t datetime1{.year = 1904, .month = 1, .day = 1, .hour = 0, .min = 0, .sec = 0.0};
+  const xwpp::datetime_t datetime2{.year = 1906, .month = 9, .day = 27, .hour = 0, .min = 0, .sec = 0.0};
+  const xwpp::datetime_t datetime3{.year = 1917, .month = 9, .day = 9, .hour = 0, .min = 0, .sec = 0.0};
+  const xwpp::datetime_t datetime4{.year = 1931, .month = 5, .day = 19, .hour = 0, .min = 0, .sec = 0.0};
+  const xwpp::datetime_t datetime5{.year = 2177, .month = 10, .day = 15, .hour = 0, .min = 0, .sec = 0.0};
+  const xwpp::datetime_t datetime6{.year = 4641, .month = 11, .day = 27, .hour = 0, .min = 0, .sec = 0.0};
 
   worksheet.set_column(0, 0, 12);
 

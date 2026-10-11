@@ -639,26 +639,25 @@ enum class chart_axis_tick_mark_t
 
 struct series_data_point_t
 {
-  bool is_string_{false};
-  double number_{0};
-  std::string str_;
-  bool no_data_{false};
+  bool is_string{false};
+  double number{0};
+  std::string str;
+  bool no_data{false};
 };
 
 // TODO struct or class
 struct series_range_t
 {
-  std::string formula_;
-  std::string sheetname_;
-  row_num_t first_row_{0};
-  row_num_t last_row_{0};
-  col_num_t first_col_{0};
-  col_num_t last_col_{0};
-  bool ignore_cache_{false};
-
-  bool has_string_cache_{false};
-  uint16_t num_data_points_{0};
-  std::vector<series_data_point_t> data_cache_;
+  std::string formula;
+  std::string sheetname;
+  row_num_t first_row{0};
+  row_num_t last_row{0};
+  col_num_t first_col{0};
+  col_num_t last_col{0};
+  bool ignore_cache{false};
+  bool has_string_cache{false};
+  uint16_t num_data_points{0};
+  std::vector<series_data_point_t> data_cache;
 };
 
 /**
@@ -675,19 +674,19 @@ struct chart_line_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_;
+  color_t color;
 
   /** Turn off/hide line.*/
-  bool none_{false};
+  bool none{false};
 
   /** Width of the line in increments of 0.25. Default is 2.25. */
-  double width_{0.};
+  double width{0.};
 
   /** The line dash type. */
-  chart_line_dash_type_t dash_type_{chart_line_dash_type_t::SOLID};
+  chart_line_dash_type_t dash_type{chart_line_dash_type_t::SOLID};
 
   /** Set the transparency of the line. 0 - 100. Default 0. */
-  uint8_t transparency_{0};
+  uint8_t transparency{0};
 };
 
 /**
@@ -704,13 +703,13 @@ struct chart_fill_t
    *
    * @see @ref working_with_colors.
    */
-  color_t color_;
+  color_t color;
 
   /** Turn off/hide line.*/
-  bool none_{false};
+  bool none{false};
 
   /** Set the transparency of the fill. 0 - 100. Default 0. */
-  uint8_t transparency_{0};
+  uint8_t transparency{0};
 };
 
 /**
@@ -727,17 +726,17 @@ struct chart_pattern_t
    *
    * @see @ref working_with_colors.
    */
-  color_t fg_color_;
+  color_t fg_color;
 
   /**
    * The pattern background color.
    *
    * @see @ref working_with_colors.
    */
-  color_t bg_color_;
+  color_t bg_color;
 
   /** The pattern type. See `chart_pattern_type_t`. */
-  chart_pattern_type_t type_{chart_pattern_type_t::NONE};
+  chart_pattern_type_t type{chart_pattern_type_t::NONE};
 };
 
 /**
@@ -750,21 +749,21 @@ struct chart_pattern_t
 struct chart_font_t
 {
   /** The chart font name, such as `"Arial"` or `"Calibri"`. */
-  std::string name_;
+  std::string name;
 
   /** The chart font size. The default is 11. */
-  double size_{0.};
+  double size{0.};
 
   /** The chart font bold property. Set to 0 or 1. */
-  // By default, bold_ may be set to true (title) or false.
+  // By default, bold may be set to true (title) or false.
   // So with use optional to indicate unset value and get default behaviour.
-  std::optional<bool> bold_;
+  std::optional<bool> bold;
 
   /** The chart font italic property. Set to 0 or 1. */
-  bool italic_{false};
+  bool italic{false};
 
   /** The chart font underline property. Set to 0 or 1. */
-  bool underline_{false};
+  bool underline{false};
 
   /**
    * The chart font rotation property. Range: -90 to 90, and 270, 271 and 360:
@@ -774,26 +773,26 @@ struct chart_font_t
    *  - The angle 271 gives a stacked alignment for East Asian fonts.
    *  - The angle 360 gives an explicit angle of 0 to override the y axis default.
    */
-  int32_t rotation_{0};
+  int32_t rotation{0};
 
   /**
    * The chart font color.
    *
    * @see @ref working_with_colors.
    */
-  color_t color_;
+  color_t color;
 
   /** The chart font pitch family property. Rarely required, set to 0. */
-  uint8_t pitch_family_{0};
+  uint8_t pitch_family{0};
 
   /** The chart font character set property. Rarely required, set to 0. */
-  uint8_t charset_{0};
+  uint8_t charset{0};
 
   /** The chart font baseline property. Rarely required, set to 0. */
-  int8_t baseline_{0};
+  int8_t baseline{0};
 
-  // Use to distinguish title font (bold by default and we should set b="0" if bold_ is false) from others one
-  bool title_font_{false};
+  // Use to distinguish title font (bold by default and we should set b="0" if bold is false) from others one
+  bool title_font{false};
 };
 
 /**
@@ -845,49 +844,49 @@ struct chart_font_t
 struct chart_layout_t
 {
   /** The x offset in the range `0.0 < x <= 1.0` */
-  double x_{0.};
+  double x{0.};
 
   /** The y offset in the range `0.0 < y <= 1.0` */
-  double y_{0.};
+  double y{0.};
 
   /** The width of the plotarea or legend in the range `0.0 < x <= 1.0` */
-  double width_{0.};
+  double width{0.};
 
   /** The height of the plotarea or legend in the range `0.0 < x <= 1.0` */
-  double height_{0.};
+  double height{0.};
 
-  bool has_inner_{false};
+  bool has_inner{false};
 };
 
 struct chart_marker_t
 {
-  chart_marker_type_t type_{chart_marker_type_t::AUTOMATIC};
-  uint8_t size_{0};
-  std::optional<chart_line_t> line_;
-  std::optional<chart_fill_t> fill_;
-  std::optional<chart_pattern_t> pattern_;
+  chart_marker_type_t type{chart_marker_type_t::AUTOMATIC};
+  uint8_t size{0};
+  std::optional<chart_line_t> line;
+  std::optional<chart_fill_t> fill;
+  std::optional<chart_pattern_t> pattern;
 };
 
 struct chart_legend_t
 {
-  std::optional<chart_font_t> font_;
-  chart_legend_position_t position_{chart_legend_position_t::NONE};
-  std::optional<chart_layout_t> layout_;
+  std::optional<chart_font_t> font;
+  chart_legend_position_t position{chart_legend_position_t::NONE};
+  std::optional<chart_layout_t> layout;
 };
 
 struct chart_title_t
 {
-  std::string name_;
-  std::optional<chart_font_t> font_;
-  bool off_{false};
-  bool is_horizontal_{false};
-  bool has_overlay_{false};
+  std::string name;
+  std::optional<chart_font_t> font;
+  bool off{false};
+  bool is_horizontal{false};
+  bool has_overlay{false};
 
   // TODO ?
   /* We use a range to hold the title formula properties even though it
    * will only have 1 point in order to re-use similar functions.*/
-  series_range_t range_;
-  std::optional<chart_layout_t> layout_;
+  series_range_t range;
+  std::optional<chart_layout_t> layout;
 };
 
 /**
@@ -905,21 +904,21 @@ struct chart_point_t
    *
    * @see @ref chart_lines.
    */
-  std::optional<chart_line_t> line_;
+  std::optional<chart_line_t> line;
 
   /**
    * The fill for the chart point.
    *
    * @see @ref chart_fills.
    */
-  std::optional<chart_fill_t> fill_;
+  std::optional<chart_fill_t> fill;
 
   /**
    * The pattern for the chart point.
    *
    * @see @ref chart_patterns.
    */
-  std::optional<chart_pattern_t> pattern_;
+  std::optional<chart_pattern_t> pattern;
 };
 
 /**
@@ -935,57 +934,57 @@ struct chart_data_label_t
    *
    * @see @ref chart_custom_labels.
    */
-  std::string value_;
+  std::string value;
 
   /**
    * Option to hide/delete the data label from the chart series.
    *
    * @see @ref chart_custom_labels.
    */
-  bool hide_{false};
+  bool hide{false};
 
   /**
    * The font properties for the chart data label.
    *
    * @see @ref chart_fonts.
    */
-  std::optional<chart_font_t> font_;
+  std::optional<chart_font_t> font;
 
   /**
    * The line/border for the chart data label.
    *
    * @see @ref chart_lines.
    */
-  std::optional<chart_line_t> line_;
+  std::optional<chart_line_t> line;
 
   /**
    * The fill for the chart data label.
    *
    * @see @ref chart_fills.
    */
-  std::optional<chart_fill_t> fill_;
+  std::optional<chart_fill_t> fill;
 
   /**
    * The pattern for the chart data label.
    *
    * @see @ref chart_patterns.
    */
-  std::optional<chart_pattern_t> pattern_;
+  std::optional<chart_pattern_t> pattern;
 };
 
 // Internal version of lxw_chart_data_label with more metadata.
 struct chart_custom_label_t
 {
-  std::string value_;
-  bool hide_{false};
-  std::optional<chart_font_t> font_;
-  std::optional<chart_line_t> line_;
-  std::optional<chart_fill_t> fill_;
-  std::optional<chart_pattern_t> pattern_;
+  std::string value;
+  bool hide{false};
+  std::optional<chart_font_t> font;
+  std::optional<chart_line_t> line;
+  std::optional<chart_fill_t> fill;
+  std::optional<chart_pattern_t> pattern;
 
   // We use a range to hold the label formula properties even though it
   // will only have 1 point in order to re-use similar functions.
-  std::optional<series_range_t> range_;
+  std::optional<series_range_t> range;
 };
 
 /**
@@ -1089,15 +1088,15 @@ enum class chart_error_bar_cap_t
 
 struct series_error_bars_t
 {
-  chart_error_bar_type_t type_{chart_error_bar_type_t::STD_ERROR};
-  chart_error_bar_direction_t direction_{chart_error_bar_direction_t::BOTH};
-  chart_error_bar_cap_t endcap_{chart_error_bar_cap_t::END_CAP};
-  bool has_value_{false};
-  bool is_set_{false};
-  bool is_x_{false};
-  chart_type_t chart_group_{chart_type_t::NONE};
-  double value_{0.};
-  std::optional<chart_line_t> line_;
+  chart_error_bar_type_t type{chart_error_bar_type_t::STD_ERROR};
+  chart_error_bar_direction_t direction{chart_error_bar_direction_t::BOTH};
+  chart_error_bar_cap_t endcap{chart_error_bar_cap_t::END_CAP};
+  bool has_value{false};
+  bool is_set{false};
+  bool is_x{false};
+  chart_type_t chart_group{chart_type_t::NONE};
+  double value{0.};
+  std::optional<chart_line_t> line;
 };
 
 /**
@@ -1137,59 +1136,59 @@ enum class chart_trendline_type_t
  */
 struct chart_series_t
 {
-  series_range_t categories_;
-  series_range_t values_;
-  chart_title_t title_;
-  std::optional<chart_line_t> line_;
-  std::optional<chart_fill_t> fill_;
-  std::optional<chart_pattern_t> pattern_;
-  std::optional<chart_marker_t> marker_;
-  std::vector<chart_point_t> points_;
-  std::vector<chart_custom_label_t> data_labels_;
+  series_range_t categories;
+  series_range_t values;
+  chart_title_t title;
+  std::optional<chart_line_t> line;
+  std::optional<chart_fill_t> fill;
+  std::optional<chart_pattern_t> pattern;
+  std::optional<chart_marker_t> marker;
+  std::vector<chart_point_t> points;
+  std::vector<chart_custom_label_t> data_labels;
 
-  bool smooth_{false};
-  bool invert_if_negative_{false};
+  bool smooth{false};
+  bool invert_if_negative{false};
 
   // Data label parameters.
-  bool has_labels_{false};
-  bool show_labels_value_{false};
-  bool show_labels_category_{false};
-  bool show_labels_name_{false};
-  bool show_labels_leader_{false};
-  bool show_labels_legend_{false};
-  bool show_labels_percent_{false};
-  chart_label_position_t label_position_{chart_label_position_t::DEFAULT};
-  chart_label_separator_t label_separator_{chart_label_separator_t::COMMA};
-  chart_label_position_t default_label_position_{chart_label_position_t::DEFAULT};
-  std::string label_num_format_;
-  std::optional<chart_font_t> label_font_;
-  std::optional<chart_line_t> label_line_;
-  std::optional<chart_fill_t> label_fill_;
-  std::optional<chart_pattern_t> label_pattern_;
+  bool has_labels{false};
+  bool show_labels_value{false};
+  bool show_labels_category{false};
+  bool show_labels_name{false};
+  bool show_labels_leader{false};
+  bool show_labels_legend{false};
+  bool show_labels_percent{false};
+  chart_label_position_t label_position{chart_label_position_t::DEFAULT};
+  chart_label_separator_t label_separator{chart_label_separator_t::COMMA};
+  chart_label_position_t default_label_position{chart_label_position_t::DEFAULT};
+  std::string label_num_format;
+  std::optional<chart_font_t> label_font;
+  std::optional<chart_line_t> label_line;
+  std::optional<chart_fill_t> label_fill;
+  std::optional<chart_pattern_t> label_pattern;
 
-  series_error_bars_t x_error_bars_;
-  series_error_bars_t y_error_bars_;
+  series_error_bars_t x_error_bars;
+  series_error_bars_t y_error_bars;
 
-  bool has_trendline_{false};
-  bool has_trendline_forecast_{false};
-  bool has_trendline_equation_{false};
-  bool has_trendline_r_squared_{false};
-  bool has_trendline_intercept_{false};
-  chart_trendline_type_t trendline_type_{chart_trendline_type_t::LINEAR};
-  uint8_t trendline_value_{0};
-  double trendline_forward_{0.};
-  double trendline_backward_{0.};
-  chart_trendline_type_t trendline_value_type_{chart_trendline_type_t::LINEAR};
-  std::string trendline_name_;
-  std::optional<chart_line_t> trendline_line_;
-  double trendline_intercept_{0.};
+  bool has_trendline{false};
+  bool has_trendline_forecast{false};
+  bool has_trendline_equation{false};
+  bool has_trendline_r_squared{false};
+  bool has_trendline_intercept{false};
+  chart_trendline_type_t trendline_type{chart_trendline_type_t::LINEAR};
+  uint8_t trendline_value{0};
+  double trendline_forward{0.};
+  double trendline_backward{0.};
+  chart_trendline_type_t trendline_value_type{chart_trendline_type_t::LINEAR};
+  std::string trendline_name;
+  std::optional<chart_line_t> trendline_line;
+  double trendline_intercept{0.};
 };
 
 // Struct for major/minor axis gridlines.
 struct chart_gridline_t
 {
-  bool visible_{false};
-  std::optional<chart_line_t> line_;
+  bool visible{false};
+  std::optional<chart_line_t> line;
 };
 
 /**
@@ -1202,54 +1201,54 @@ struct chart_gridline_t
  */
 struct chart_axis_t
 {
-  chart_title_t title_;
-  std::string num_format_;
-  std::string default_num_format_;
-  uint8_t source_linked_{0};
+  chart_title_t title;
+  std::string num_format;
+  std::string default_num_format;
+  uint8_t source_linked{0};
 
-  chart_axis_tick_mark_t major_tick_mark_{chart_axis_tick_mark_t::DEFAULT};
-  chart_axis_tick_mark_t minor_tick_mark_{chart_axis_tick_mark_t::DEFAULT};
+  chart_axis_tick_mark_t major_tick_mark{chart_axis_tick_mark_t::DEFAULT};
+  chart_axis_tick_mark_t minor_tick_mark{chart_axis_tick_mark_t::DEFAULT};
 
-  chart_gridline_t major_gridlines_;
-  chart_gridline_t minor_gridlines_;
+  chart_gridline_t major_gridlines;
+  chart_gridline_t minor_gridlines;
 
-  std::optional<chart_font_t> num_font_;
-  std::optional<chart_line_t> line_;
-  std::optional<chart_fill_t> fill_;
-  std::optional<chart_pattern_t> pattern_;
+  std::optional<chart_font_t> num_font;
+  std::optional<chart_line_t> line;
+  std::optional<chart_fill_t> fill;
+  std::optional<chart_pattern_t> pattern;
 
-  bool is_category_{false};
-  bool is_value_{false};
+  bool is_category{false};
+  bool is_value{false};
 
-  chart_position_t axis_position_{chart_position_t::RIGHT};
-  chart_axis_tick_position_t position_axis_{chart_axis_tick_position_t::DEFAULT};
-  chart_axis_label_position_t label_position_{chart_axis_label_position_t::NEXT_TO};
-  chart_axis_label_alignment_t label_align_{chart_axis_label_alignment_t::CENTER};
-  bool hidden_{false};
-  bool reverse_{false};
+  chart_position_t axis_position{chart_position_t::RIGHT};
+  chart_axis_tick_position_t position_axis{chart_axis_tick_position_t::DEFAULT};
+  chart_axis_label_position_t label_position{chart_axis_label_position_t::NEXT_TO};
+  chart_axis_label_alignment_t label_align{chart_axis_label_alignment_t::CENTER};
+  bool hidden{false};
+  bool reverse{false};
 
-  bool has_min_{false};
-  double min_{0};
-  bool has_max_{false};
-  double max_{0};
+  bool has_min{false};
+  double min{0};
+  bool has_max{false};
+  double max{0};
 
-  bool has_major_unit_{false};
-  double major_unit_{0.};
-  bool has_minor_unit_{false};
-  double minor_unit_{0.};
+  bool has_major_unit{false};
+  double major_unit{0.};
+  bool has_minor_unit{false};
+  double minor_unit{0.};
 
-  uint16_t interval_unit_{0};
-  uint16_t interval_tick_{0};
+  uint16_t interval_unit{0};
+  uint16_t interval_tick{0};
 
-  uint16_t log_base_{0};
+  uint16_t log_base{0};
 
-  chart_axis_display_unit_t display_units_{chart_axis_display_unit_t::NONE};
-  bool display_units_visible_{false};
+  chart_axis_display_unit_t display_units{chart_axis_display_unit_t::NONE};
+  bool display_units_visible{false};
 
-  bool has_crossing_{false};
-  bool crossing_min_{false};
-  bool crossing_max_{false};
-  double crossing_{0.};
+  bool has_crossing{false};
+  bool crossing_min{false};
+  bool crossing_max{false};
+  double crossing{0.};
 };
 
 /**
@@ -1436,7 +1435,7 @@ public:
    * chart title:
    *
    * @code
-   *  xwpp::chart_font_t font{.color_ = xwpp::color_t::blue()};
+   *  xwpp::chart_font_t font{.color = xwpp::color_t::blue()};
    *
    *  chart.title_set_name("Year End Results");
    *  chart.title_set_name_font(font);
@@ -1559,8 +1558,8 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_     = xwpp::color_t::red(),
-   *    .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT,
+   *    .color     = xwpp::color_t::red(),
+   *    .dash_type = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
    *  chart.set_drop_lines(line);
@@ -1590,8 +1589,8 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_     = xwpp::color_t::red(),
-   *    .dash_type_ = xwpp::chart_line_dash_type_t::SQUARE_DOT,
+   *    .color     = xwpp::color_t::red(),
+   *    .dash_type = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
    *  chart_set_high_low_lines(line);
@@ -1635,11 +1634,11 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_ = xwpp::color_t::black()};
+   *    .color = xwpp::color_t::black()};
    *  xwpp::chart_fill_t up_fill{
-   *    .color_ = xwpp::color_t{0x00B050}};
+   *    .color = xwpp::color_t{0x00B050}};
    *  xwpp::chart_fill_t down_fill{
-   *    .color_ = xwpp::color_t::red()};
+   *    .color = xwpp::color_t::red()};
    *
    *  chart.set_up_down_bars_format(line, up_fill, line, down_fill);
    * @endcode
@@ -1725,8 +1724,8 @@ public:
    * @param value      The error value.
    *
    * Error bars can be added to a chart series to indicate error bounds in the
-   * data. The error bars can be vertical `%y_error_bars_` (the most common type)
-   * or horizontal `%x_error_bars_` (for Bar and Scatter charts only).
+   * data. The error bars can be vertical `%y_error_bars` (the most common type)
+   * or horizontal `%x_error_bars` (for Bar and Scatter charts only).
    *
    * @image html chart_error_bars0.png
    *
@@ -1737,7 +1736,7 @@ public:
    *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5",
    *                                                  "=Sheet1!$B$1:$B$5");
    *
-   *  chart.series_set_error_bars(series.y_error_bars_,
+   *  chart.series_set_error_bars(series.y_error_bars,
    *    xwpp::chart_error_bar_type_t::STD_ERROR, 0);
    * @endcode
    *
@@ -1821,8 +1820,8 @@ public:
    *
    * @code
    *  xwpp::chart_font_t font{
-   *    .bold_ = true,
-   *    .color_ = xwpp::color_t::blue(),
+   *    .bold = true,
+   *    .color = xwpp::color_t::blue(),
    *  };
    *
    *  chart.legend_set_font(font);
@@ -1865,8 +1864,8 @@ public:
    * is the background area behind the chart:
    *
    * @code
-   *  xwpp::chart_line_t line{.none_  = true};
-   *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::red()};
+   *  xwpp::chart_line_t line{.none  = true};
+   *  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
    *
    *  chart.chartarea_set_line(line);
    *  chart.chartarea_set_fill(fill);
@@ -1905,12 +1904,12 @@ public:
    *
    * @code
    *  xwpp::chart_line_t line{
-   *    .color_     = xwpp::color_t::red(),
-   *    .width_     = 2,
-   *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH,
+   *    .color     = xwpp::color_t::red(),
+   *    .width     = 2,
+   *    .dash_type = xwpp::chart_line_dash_type_t::DASH,
    *  };
    *  xwpp::chart_fill_t fill{
-   *    .color_     = xwpp::color_t{0xFFFFC2}
+   *    .color     = xwpp::color_t{0xFFFFC2}
    *  };
    *
    *  chart.plotarea_set_line(line);
@@ -2162,12 +2161,11 @@ public:
   // TODO Set to public as chart_axis_set_name access to it.
   // To be set private again, and chart_axis_set_name reworked
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-  chart_axis_t x_axis_{.default_num_format_ = "General",
-                       .major_gridlines_    = {.visible_ = false},
-                       .axis_position_      = chart_position_t::BOTTOM};
+  chart_axis_t x_axis_{
+    .default_num_format = "General", .major_gridlines = {.visible = false}, .axis_position = chart_position_t::BOTTOM};
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
   chart_axis_t y_axis_{
-    .default_num_format_ = "General", .major_gridlines_ = {.visible_ = true}, .axis_position_ = chart_position_t::LEFT};
+    .default_num_format = "General", .major_gridlines = {.visible = true}, .axis_position = chart_position_t::LEFT};
 
 private:
   friend class worksheet_t;  // TODO
@@ -2402,7 +2400,7 @@ private:
   uint16_t gap_y2_{DEFAULT_GAP};
   chart_grouping_t grouping_{chart_grouping_t::CLUSTERED};
   chart_axis_tick_position_t default_cross_between_{chart_axis_tick_position_t::DEFAULT};
-  chart_legend_t legend_{.position_ = chart_legend_position_t::RIGHT};
+  chart_legend_t legend_{.position = chart_legend_position_t::RIGHT};
   std::vector<int16_t> delete_series_;
   std::optional<chart_marker_t> default_marker_;
   std::optional<chart_line_t> chartarea_line_;
@@ -2530,7 +2528,7 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
  * Set the line/border properties of a chart series:
  *
  * @code
- *  xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
+ *  xwpp::chart_line_t line{.color = xwpp::color_t::red()};
  *
  *  chart_series_set_line(series1, line);
  *  chart_series_set_line(series2, line);
@@ -2552,9 +2550,9 @@ void chart_series_set_line(chart_series_t& series, const std::optional<chart_lin
  * Set the fill properties of a chart series:
  *
  * @code
- *  xwpp::chart_fill_t fill1{.color_ = xwpp::color_t::red()};
- *  xwpp::chart_fill_t fill2{.color_ = xwpp::color_t::yellow()};
- *  xwpp::chart_fill_t fill3{.color_ = xwpp::color_t::green()};
+ *  xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
+ *  xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
+ *  xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
  *
  *  chart_series_set_fill(series1, fill1);
  *  chart_series_set_fill(series2, fill2);
@@ -2591,15 +2589,15 @@ void chart_series_set_invert_if_negative(chart_series_t& series);
  *
  * @code
  *  xwpp::chart_pattern_t pattern1{
- *    .type_     = xwpp::chart_pattern_type_t::SHINGLE,
- *    .fg_color_ = xwpp::color_t{0x804000},
- *    .bg_color_ = xwpp::color_t{0xC68C53},
+ *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
+ *    .fg_color = xwpp::color_t{0x804000},
+ *    .bg_color = xwpp::color_t{0xC68C53},
  *  };
  *
  *  xwpp::chart_pattern_t pattern2{
- *    .type_     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
- *    .fg_color_ = xwpp::color_t{0xB30000},
- *    .bg_color_ = xwpp::color_t{0xFF6666},
+ *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
+ *    .fg_color = xwpp::color_t{0xB30000},
+ *    .bg_color = xwpp::color_t{0xFF6666},
  *  };
  *
  *  chart_series_set_pattern(series1, pattern1);
@@ -2641,8 +2639,8 @@ void chart_series_set_marker_size(chart_series_t& series, uint8_t size);
  * Set the line/border properties of a chart marker:
  *
  * @code
- *  xwpp::chart_line_t line{.color_ = xwpp::color_t::black()};
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::red()};
+ *  xwpp::chart_line_t line{.color = xwpp::color_t::black()};
+ *  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
  *
  *  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
  *  chart.series_set_marker_size(series, 8);
@@ -2979,8 +2977,8 @@ void chart_series_set_labels_num_format(chart_series_t& series, std::string_view
  *
  * @code
  *  xwpp::chart_font_t font{
- *    .name_ = "Consolas",
- *    .color_ = xwpp::color_t::red(),
+ *    .name = "Consolas",
+ *    .color = xwpp::color_t::red(),
  *  };
  *
  *  chart_series_set_labels(series);
@@ -3002,8 +3000,8 @@ void chart_series_set_labels_font(chart_series_t& series, const std::optional<ch
  * Set the line/border properties of the data labels in a chart series:
  *
  * @code
- *  xwpp::chart_line_t line{.color_ = xwpp::color_t::red()};
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
+ *  xwpp::chart_line_t line{.color = xwpp::color_t::red()};
+ *  xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
  *
  *  chart_series_set_labels_line(series, line);
  *  chart_series_set_labels_fill(series, fill);
@@ -3024,7 +3022,7 @@ void chart_series_set_labels_line(chart_series_t& series, const std::optional<ch
  * Set the fill properties of the data labels in a chart series:
  *
  * @code
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
+ *  xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
  *
  *  chart_series_set_labels_fill(series, fill);
  * @endcode
@@ -3128,7 +3126,7 @@ void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, u
  * @see @ref chart_trendlines.
  *
  * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type_` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
+ * @pre The `%trendline_type` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
  */
 void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward);
 
@@ -3152,7 +3150,7 @@ void chart_series_set_trendline_forecast(chart_series_t& series, double forward,
  * @see @ref chart_trendlines.
  *
  * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type_` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
+ * @pre The `%trendline_type` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
  */
 void chart_series_set_trendline_equation(chart_series_t& series);
 
@@ -3176,7 +3174,7 @@ void chart_series_set_trendline_equation(chart_series_t& series);
  * @see @ref chart_trendlines.
  *
  * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type_` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
+ * @pre The `%trendline_type` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
  */
 void chart_series_set_trendline_r_squared(chart_series_t& series);
 
@@ -3206,7 +3204,7 @@ void chart_series_set_trendline_r_squared(chart_series_t& series);
  * @see @ref chart_trendlines.
  *
  * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type_` member of `%series` parameter must be set to `%chart_trendline_type_t::EXP`
+ * @pre The `%trendline_type` member of `%series` parameter must be set to `%chart_trendline_type_t::EXP`
  * `%chart_trendline_type_t::LINEAR` or `%chart_trendline_type_t::POLY`.
  */
 void chart_series_set_trendline_intercept(chart_series_t& series, double intercept);
@@ -3260,8 +3258,8 @@ void chart_series_set_trendline_name(chart_series_t& series, std::string_view na
  *
  * @code
  *  xwpp::chart_line_t line{
- *    .color_     = xwpp::color_t::red(),
- *    .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH
+ *    .color     = xwpp::color_t::red(),
+ *    .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH
  *  };
  *
  *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
@@ -3285,10 +3283,10 @@ void series_set_trendline_line(chart_series_t& series, const std::optional<chart
  * direction of the error bars:
  *
  * @code
- *  chart.series_set_error_bars(series.y_error_bars_,
+ *  chart.series_set_error_bars(series.y_error_bars,
  *    xwpp::chart_error_bar_type_t::STD_ERROR, 0);
  *
- *  chart_series_set_error_bars_direction(series.y_error_bars_,
+ *  chart_series_set_error_bars_direction(series.y_error_bars,
  *    xwpp::chart_error_bar_direction_t::PLUS);
  * @endcode
  *
@@ -3318,10 +3316,10 @@ void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, char
  * type for the error bars:
  *
  * @code
- *  chart.series_set_error_bars(series.y_error_bars_,
+ *  chart.series_set_error_bars(series.y_error_bars,
  *    xwpp::chart_error_bar_type_t::STD_ERROR, 0);
  *
- *  chart_series_set_error_bars_endcap(series.y_error_bars_,
+ *  chart_series_set_error_bars_endcap(series.y_error_bars,
  *    xwpp::chart_error_bar_cap_tNO_CAP);
  * @endcode
  *
@@ -3351,14 +3349,14 @@ void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_e
  *
  * @code
  *  xwpp::chart_line_t line{
- *    .color_     = xwpp::color_t::red(),
- *    .dash_type_ = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
+ *    .color     = xwpp::color_t::red(),
+ *    .dash_type = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
  *  };
  *
- *  chart.series_set_error_bars(series.y_error_bars_,
+ *  chart.series_set_error_bars(series.y_error_bars,
  *    xwpp::chart_error_bar_type_t::STD_ERROR, 0);
  *
- *  chart_series_set_error_bars_line(series.y_error_bars_, line);
+ *  chart_series_set_error_bars_line(series.y_error_bars, line);
  * @endcode
  *
  * @image html chart_error_bars4.png
@@ -3451,8 +3449,8 @@ void chart_axis_set_name_layout(chart_axis_t& axis, const std::optional<chart_la
  *
  * @code
  *  xwpp::chart_font_t font{
- *    .bold_  = true,
- *    .color_ = xwpp::color_t::blue(),
+ *    .bold  = true,
+ *    .color = xwpp::color_t::blue(),
  *  };
  *
  *  chart_axis_set_name(chart->x_axis, "Yearly data");
@@ -3479,8 +3477,8 @@ void chart_axis_set_name_font(chart_axis_t& axis, const std::optional<chart_font
  *
  * @code
  *  xwpp::chart_font_t font{
- *    .bold_  = true,
- *    .color_ = xwpp::color_t::blue()
+ *    .bold  = true,
+ *    .color = xwpp::color_t::blue()
  *  };
  *
  *  chart_axis_set_num_font(chart->x_axis, font1);
@@ -3529,7 +3527,7 @@ void chart_axis_set_num_format(chart_axis_t& axis, std::string_view num_format);
  *
  * @code
  *  // Hide the Y axis.
- *  xwpp::chart_line_t line{.none_ = true};
+ *  xwpp::chart_line_t line{.none = true};
  *
  *  chart_axis_set_line(chart->y_axis, line);
  * @endcode
@@ -3552,7 +3550,7 @@ void chart_axis_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& 
  * Set the fill properties of a chart axis:
  *
  * @code
- *  xwpp::chart_fill_t fill{.color_ = xwpp::color_t::yellow()};
+ *  xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
  *
  *  chart_axis_set_fill(chart->y_axis, fill);
  * @endcode
@@ -4065,22 +4063,22 @@ void chart_axis_minor_gridlines_set_visible(chart_axis_t& axis, bool visible);
  *
  * @code
  *  xwpp::chart_line_t line1{
- *    .color_      = xwpp::color_t::red(),
- *    .width_      = 0.5,
- *    .dash_type_  = xwpp::xwpp::chart_line_dash_type_t::SQUARE_DOT,
+ *    .color     = xwpp::color_t::red(),
+ *    .width     = 0.5,
+ *    .dash_type = xwpp::xwpp::chart_line_dash_type_t::SQUARE_DOT,
  *  };
  *
  *  xwpp::chart_line_t line2{
- *    .color_      = xwpp::color_t::yellow(),
+ *    .color     = xwpp::color_t::yellow(),
  *  };
  *
  *  xwpp::chart_line_t line3{
- *    .width_      = 1.25,
- *    .dash_type   = xwpp::xwpp::chart_line_dash_type_t:DASH,
+ *    .width     = 1.25,
+ *    .dash_type = xwpp::xwpp::chart_line_dash_type_t:DASH,
  *  };
  *
  *  xwpp::chart_line_t line4{
- *    .color_      = xwpp::color_t{0x00B050},
+ *    .color     = xwpp::color_t{0x00B050},
  *  };
  *
  *  chart_axis_major_gridlines_set_line(chart->x_axis, line1);

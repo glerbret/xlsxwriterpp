@@ -11,16 +11,16 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
   const xwpp::doc_properties_t properties{
-    .title_        = "This is an example spreadsheet",
-    .subject_      = "With document properties",
-    .author_       = "Someone",
-    .modif_author_ = "Someone",
-    .manager_      = "Dr. Heinz Doofenshmirtz",
-    .company_      = "of Wolves",
-    .category_     = "Example spreadsheets",
-    .keywords_     = "Sample, Example, Properties",
-    .comments_     = "Created with Perl and Excel::Writer::XLSX",
-    .status_       = "Quo",
+    .title        = "This is an example spreadsheet",
+    .subject      = "With document properties",
+    .author       = "Someone",
+    .modif_author = "Someone",
+    .manager      = "Dr. Heinz Doofenshmirtz",
+    .company      = "of Wolves",
+    .category     = "Example spreadsheets",
+    .keywords     = "Sample, Example, Properties",
+    .comments     = "Created with Perl and Excel::Writer::XLSX",
+    .status       = "Quo",
   };
 
   workbook.set_properties(properties);

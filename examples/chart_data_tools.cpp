@@ -116,9 +116,9 @@ int main()
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Add Up-Down bars to the chart, with formatting.
-    xwpp::chart_line_t line{.color_ = xwpp::color_t::black()};
-    xwpp::chart_fill_t up_fill{.color_ = xwpp::color_t{0x00B050}};
-    xwpp::chart_fill_t down_fill{.color_ = xwpp::color_t::red()};
+    xwpp::chart_line_t line{.color = xwpp::color_t::black()};
+    xwpp::chart_fill_t up_fill{.color = xwpp::color_t{0x00B050}};
+    xwpp::chart_fill_t down_fill{.color = xwpp::color_t::red()};
 
     chart.set_up_down_bars_format(line, up_fill, line, down_fill);
 
@@ -159,7 +159,7 @@ int main()
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Add error bars to show Standard Error.
-    chart.series_set_error_bars(series.y_error_bars_, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
+    chart.series_set_error_bars(series.y_error_bars, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
     // Add series data labels.
     xwpp::chart_series_set_labels(series);
@@ -180,8 +180,7 @@ int main()
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Add a polynomial trendline.
-    xwpp::chart_line_t poly_line{.color_     = xwpp::color_t::gray(),
-                                 .dash_type_ = xwpp::chart_line_dash_type_t::LONG_DASH};
+    xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
     xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::POLY, 3);
     xwpp::series_set_trendline_line(series, poly_line);

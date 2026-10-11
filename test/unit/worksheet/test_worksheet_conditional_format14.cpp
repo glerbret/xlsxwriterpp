@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(condtional_format14)
   worksheet.write("A12", 12);
 
   const xwpp::conditional_format_t conditional_format{
-    .type_ = xwpp::conditional_format_types_t::DATA_BAR,
+    .type = xwpp::conditional_format_types_t::DATA_BAR,
   };
   worksheet.conditional_format_range("A1:A12", conditional_format);
 

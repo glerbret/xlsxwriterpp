@@ -21,18 +21,18 @@ int main()
                                        "Foobbx", "Foobby", "Foobbz", "Foobca", "End"};
 
   const xwpp::data_validation_t data_validation1{
-    .validate_      = xwpp::validation_types_t::LIST,
-    .value_list_    = list1,
-    .input_title_   = "This is the input title",
-    .input_message_ = "This is the input message",
+    .validate      = xwpp::validation_types_t::LIST,
+    .value_list    = list1,
+    .input_title   = "This is the input title",
+    .input_message = "This is the input message",
   };
   worksheet.data_validation_cell("C2", data_validation1);
 
   const xwpp::data_validation_t data_validation2{
-    .validate_    = xwpp::validation_types_t::LIST,
-    .value_list_  = list2,
-    .input_title_ = "This is the longest input title1",
-    .input_message_ =
+    .validate    = xwpp::validation_types_t::LIST,
+    .value_list  = list2,
+    .input_title = "This is the longest input title1",
+    .input_message =
       "This is the longest input message "
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

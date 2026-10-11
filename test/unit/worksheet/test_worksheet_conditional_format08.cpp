@@ -95,45 +95,45 @@ BOOST_AUTO_TEST_CASE(condtional_format08)
   worksheet.write("A4", 40);
 
   xwpp::conditional_format_t conditional_format{
-    .type_     = xwpp::conditional_format_types_t::TIME_PERIOD,
-    .criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_YESTERDAY,
+    .type     = xwpp::conditional_format_types_t::TIME_PERIOD,
+    .criteria = xwpp::conditional_criteria_t::TIME_PERIOD_YESTERDAY,
   };
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_TODAY;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_TODAY;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_TOMORROW;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_TOMORROW;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_7_DAYS;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_WEEK;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_WEEK;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_THIS_WEEK;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_THIS_WEEK;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_NEXT_WEEK;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_NEXT_WEEK;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_MONTH;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_LAST_MONTH;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_THIS_MONTH;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_THIS_MONTH;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
-  conditional_format.type_     = xwpp::conditional_format_types_t::TIME_PERIOD;
-  conditional_format.criteria_ = xwpp::conditional_criteria_t::TIME_PERIOD_NEXT_MONTH;
+  conditional_format.type     = xwpp::conditional_format_types_t::TIME_PERIOD;
+  conditional_format.criteria = xwpp::conditional_criteria_t::TIME_PERIOD_NEXT_MONTH;
   worksheet.conditional_format_range("A1:A4", conditional_format);
 
   BOOST_CHECK_EQUAL(expected, worksheet.assemble_xml_file());
