@@ -407,10 +407,10 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(FILES include/xlsxwriterpp.h DESTINATION include)
+install(FILES include/xlsxwriterpp.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
-  DIRECTORY include/xlsxwriter
+  DIRECTORY include/xwpp
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING
   PATTERN "*.h"

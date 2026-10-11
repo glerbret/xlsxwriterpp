@@ -64,11 +64,11 @@ After installing the requirement and cloning the repository just build the
 library:
 
 ```shell
-  mkdir build
-  cd build
+mkdir build
+cd build
 
-  cmake .. -DCMAKE_BUILD_TYPE=Release
-  cmake --build .
+cmake .. -DCMAKE_BUILD_TYPE=Release
+sudo cmake --build . --config Release --target install
 ```
 
 or, for Windows (with Visual Studio 2026):
