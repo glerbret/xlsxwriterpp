@@ -49,7 +49,9 @@ jobs:
         clang-tidy --version
         cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=on
         sha=$(git merge-base origin/main HEAD)
-        clang-tidy $(git diff --name-status $sha | grep -Ev "D[[:space:]]+" | grep -Ev "R[[:digit:]]+[[:space:]]+" | grep -E '\.cpp|\.h' | cut -f 2) -extra-arg=-std=c++20
+        files=$(git diff --name-status ${sha} | grep -Ev "D[[:space:]]+" | grep -Ev "R[[:digit:]]+[[:space:]]+" | grep -E '\.cpp|\.h' | cut -f 2)
+        nb_files=$(echo ${files} |wc -w)
+        if [[ nb_files -ne 0 ]]; then clang-tidy ${files} -extra-arg=-std=c++20; fi
 
   Cppcheck:
     runs-on: ubuntu-26.04
