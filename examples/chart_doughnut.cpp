@@ -71,7 +71,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    series.set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.title_set_name("Popular Doughnut Types");
@@ -91,7 +91,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    series.set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.title_set_name("Doughnut Chart with user defined colors");
@@ -111,7 +111,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    series.set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.title_set_name("Doughnut Chart with segment rotation");
@@ -131,7 +131,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    series.set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.title_set_name("Doughnut Chart with options applied.");

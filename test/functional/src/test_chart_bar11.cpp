@@ -40,14 +40,14 @@ int main()
   worksheet.write_url("A8", "http://www.perl.org/");
   worksheet.write_url("A9", "http://www.perl.net/");
 
-  chart1.add_series("", "=Sheet1!$A$1:$A$5");
-  chart1.add_series("", "=Sheet1!$B$1:$B$5");
-  chart1.add_series("", "=Sheet1!$C$1:$C$5");
+  chart1.add_series("=Sheet1!$A$1:$A$5");
+  chart1.add_series("=Sheet1!$B$1:$B$5");
+  chart1.add_series("=Sheet1!$C$1:$C$5");
 
-  chart2.add_series("", "=Sheet1!$A$1:$A$5");
-  chart2.add_series("", "=Sheet1!$B$1:$B$5");
+  chart2.add_series("=Sheet1!$A$1:$A$5");
+  chart2.add_series("=Sheet1!$B$1:$B$5");
 
-  chart3.add_series("", "=Sheet1!$A$1:$A$5");
+  chart3.add_series("=Sheet1!$A$1:$A$5");
 
   worksheet.insert_chart("E9", &chart1);
   worksheet.insert_chart("D25", &chart2);

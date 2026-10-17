@@ -39,7 +39,7 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("", "=Sheet1!$A$1:$A$5");
+  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
 
   const xwpp::chart_font_t font{.name = "Consolas", .pitch_family = 49, .charset = 0, .baseline = -1};
   const xwpp::chart_line_t line{.color = xwpp::color_t::red()};

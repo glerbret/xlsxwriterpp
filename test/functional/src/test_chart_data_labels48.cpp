@@ -35,9 +35,9 @@ int main()
   const std::vector<xwpp::chart_data_label_t> data_labels1{{.value = "31"}};
   const std::vector<xwpp::chart_data_label_t> data_labels2{{.value = "32"}};
 
-  xwpp::chart_series_t& series1 = chart.add_series("", "=Sheet1!$A$1:$A$5");
-  xwpp::chart_series_t& series2 = chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
+  xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   xwpp::chart_series_set_labels(series1);
   xwpp::chart_series_set_labels(series2);

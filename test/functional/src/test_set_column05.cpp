@@ -43,9 +43,9 @@ int main()
 
   worksheet.write_blank("F13", bold_italic);
 
-  chart.add_series("", "=Sheet1!$A$2:$A$6");
-  chart.add_series("", "=Sheet1!$B$2:$B$6");
-  chart.add_series("", "=Sheet1!$C$2:$C$6");
+  chart.add_series("=Sheet1!$A$2:$A$6");
+  chart.add_series("=Sheet1!$B$2:$B$6");
+  chart.add_series("=Sheet1!$C$2:$C$6");
 
   worksheet.insert_chart("E9", &chart);
 

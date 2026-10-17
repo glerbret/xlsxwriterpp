@@ -33,11 +33,11 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart1.add_series("", "=Sheet1!$B$1:$B$5");
-  chart1.add_series("", "=Sheet1!$C$1:$C$5");
+  xwpp::chart_series_t& series1 = chart1.add_series("=Sheet1!$B$1:$B$5");
+  chart1.add_series("=Sheet1!$C$1:$C$5");
 
-  xwpp::chart_series_t& series2 = chart2.add_series("", "=Sheet1!$B$1:$B$5");
-  chart2.add_series("", "=Sheet1!$C$1:$C$5");
+  xwpp::chart_series_t& series2 = chart2.add_series("=Sheet1!$B$1:$B$5");
+  chart2.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line{.color = xwpp::color_t::red(), .dash_type = xwpp::chart_line_dash_type_t::DASH};
 

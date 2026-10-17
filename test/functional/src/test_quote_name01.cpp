@@ -37,8 +37,7 @@ int main()
     }
 
     xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
-    xwpp::chart_series_t& series = chart.add_series("", "");
-    chart_series_set_values(series, name, 0, 0, 4, 0);
+    chart.add_series(xwpp::build_serie_range(name, 0, 0, 4, 0));
 
     const xwpp::chart_options_t options{.x_offset = 26, .y_offset = 17};
     worksheet.insert_chart("E6", &chart, options);

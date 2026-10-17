@@ -18,7 +18,7 @@ int main()
   worksheet.write(1, 0, 5);
   worksheet.write(2, 0, 4);
 
-  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$3");
+  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$3");
 
   const xwpp::chart_fill_t fill1{.color = xwpp::color_t{0xFF0000}};
   const xwpp::chart_fill_t fill2{.color = xwpp::color_t{0xCC0000}};

@@ -46,14 +46,14 @@ int main()
   worksheet2.insert_chart("E9", &chart2);
 
   // Add cache data for testing.
-  xwpp::chart_add_data_cache(series1.categories, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series2.categories, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series1.values, data[0].data(), 5, 3, 1);
-  xwpp::chart_add_data_cache(series2.values, data[0].data(), 5, 3, 2);
-  xwpp::chart_add_data_cache(series3.categories, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series4.categories, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series3.values, data[0].data(), 5, 3, 1);
-  xwpp::chart_add_data_cache(series4.values, data[0].data(), 5, 3, 2);
+  xwpp::chart_add_data_cache(series1.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series2.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series1.values_, data[0].data(), 5, 3, 1);
+  xwpp::chart_add_data_cache(series2.values_, data[0].data(), 5, 3, 2);
+  xwpp::chart_add_data_cache(series3.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series4.categories_, data[0].data(), 5, 3, 0);
+  xwpp::chart_add_data_cache(series3.values_, data[0].data(), 5, 3, 1);
+  xwpp::chart_add_data_cache(series4.values_, data[0].data(), 5, 3, 2);
 
   workbook.save("test_chart_bar54.xlsx");
 }

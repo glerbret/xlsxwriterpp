@@ -19,7 +19,7 @@ int main()
 
   worksheet.insert_image("E9", "images/red.png", options);
 
-  chart.add_series("", "=Sheet1!$A$1:$A$2");
+  chart.add_series("=Sheet1!$A$1:$A$2");
 
   worksheet.insert_chart("E12", &chart);
 
