@@ -36,8 +36,8 @@ int main()
 
   const xwpp::chart_line_t line{.none = true};
 
-  chart_axis_set_line(chart.x_axis_, line);
-  chart_axis_set_line(chart.y_axis_, line);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_line(line);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line);
 
   worksheet.insert_chart("E9", &chart);
 

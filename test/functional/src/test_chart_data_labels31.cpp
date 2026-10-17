@@ -32,14 +32,11 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
-
   const std::vector<xwpp::chart_data_label_t> data_labels{{.value = "33"}};
-  xwpp::chart_series_set_labels_custom(series, data_labels);
-  xwpp::chart_series_set_labels_options(series, true, true, true);
 
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels_custom(data_labels).set_labels_options(true, true, true);
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);
 

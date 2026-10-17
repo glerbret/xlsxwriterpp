@@ -10,6 +10,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <array>
 #include <string>
 
 BOOST_AUTO_TEST_SUITE(chart)
@@ -128,18 +129,13 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  xwpp::chart_series_t& series1  = chart.add_series("", "Sheet1!$A$1:$A$5");
-  series1.values.ignore_cache    = true;
-  series1.values.num_data_points = 5;
-  series1.values.data_cache      = {
-    {.number = 1}, {.number = 2}, {.number = 3}, {.number = 4}, {.number = 5},
+
+  const std::array<std::array<uint8_t, 2>, 5> data{
+    {{1, 2}, {2, 4}, {3, 6}, {4, 8}, {5, 10}}
   };
-  xwpp::chart_series_t& series2  = chart.add_series("", "Sheet1!$B$1:$B$5");
-  series2.values.ignore_cache    = true;
-  series2.values.num_data_points = 5;
-  series2.values.data_cache      = {
-    {.number = 2}, {.number = 4}, {.number = 6}, {.number = 8}, {.number = 10},
-  };
+
+  chart.add_series("Sheet1!$A$1:$A$5").add_data_cache_values(data, 0);
+  chart.add_series("Sheet1!$B$1:$B$5").add_data_cache_values(data, 1);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }

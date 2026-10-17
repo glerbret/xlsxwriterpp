@@ -629,9 +629,9 @@ public:
    *  xwpp::chart& chart = workbook.add_chart(LXW_CHART_COLUMN);
    *
    *  // Add data series to the chart.
-   *  chart.add_series("", "Sheet1!$A$1:$A$5");
-   *  chart.add_series("", "Sheet1!$B$1:$B$5");
-   *  chart.add_series("", "Sheet1!$C$1:$C$5");
+   *  chart.add_series("Sheet1!$A$1:$A$5");
+   *  chart.add_series("Sheet1!$B$1:$B$5");
+   *  chart.add_series("Sheet1!$C$1:$C$5");
    *
    *  // Insert the chart into the worksheet
    *  worksheet.insert_chart("B7", &chart);

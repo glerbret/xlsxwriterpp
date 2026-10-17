@@ -31,13 +31,14 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
-  xwpp::chart_axis_set_major_tick_mark(chart.x_axis_, xwpp::chart_axis_tick_mark_t::NONE);
-  xwpp::chart_axis_set_minor_tick_mark(chart.x_axis_, xwpp::chart_axis_tick_mark_t::INSIDE);
-  xwpp::chart_axis_set_minor_tick_mark(chart.y_axis_, xwpp::chart_axis_tick_mark_t::CROSSING);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X)
+    .set_major_tick_mark(xwpp::chart_axis_tick_mark_t::NONE)
+    .set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::CROSSING);
 
   worksheet.insert_chart("E9", &chart);
 

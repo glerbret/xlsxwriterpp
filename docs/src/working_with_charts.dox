@@ -42,8 +42,8 @@ and the API emits a warning if the wrong type is used.
 
 Some category axes, such as the one in the column chart example above, use
 numbers as the categories. However, these numbers can't be treated like value
-axes. In particular you can't use `chart_axis_set_max()` and
-`chart_axis_set_min()` for category axes, as you can see in the respective
+axes. In particular you can't use `chart_axis_t::set_max()` and
+`chart_axis_t::set_min()` for category axes, as you can see in the respective
 format dialogs above.
 
 For a Bar chart the Category and Value axes are reversed:
@@ -75,11 +75,11 @@ The chart types with `MARKERS` in the name have markers with default colors
 and shapes turned on by default but it is possible to change them using the
 functions shown below.
 
-The `chart_t::series_set_marker_type()` function is used to specify the type of
+The `chart_series_t::set_marker_type()` function is used to specify the type of
 the series marker:
 
 @code
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::DIAMOND);
+  series.set_marker_type(xwpp::chart_marker_type_t::DIAMOND);
 @endcode
 
 @image html chart_marker1.png
@@ -101,7 +101,7 @@ The available marker types defined by `chart_marker_type_t` are:
 The `chart_marker_type_t::NONE` type can be used to turn off default markers:
 
 @code
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::NONE);
+  series.set_marker_type(xwpp::chart_marker_type_t::NONE);
 @endcode
 
 @image html chart_series_set_marker_none.png
@@ -111,17 +111,17 @@ marker using the default marker style for the particular series. If
 automatic is on then other marker properties such as size, line or fill
 cannot be set.
 
-The `chart_series_set_marker_size()` function is used to specify the size of
+The `%chart_series_t::set_marker_size()` function is used to specify the size of
 the series marker:
 
 @code
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::CIRCLE);
-  xwpp::chart_series_set_marker_size(series, 10);
+  series.set_marker_type(xwpp::chart_marker_type_t::CIRCLE);
+  series.set_marker_size(10);
 @endcode
 
 @image html chart_series_set_marker_size.png
 
-The `chart_series_set_marker_line()` and `chart_series_set_marker_fill()`
+The `%chart_series_t::set_marker_line()` and `chart_series_t::set_marker_fill()`
 functions can be used to set the line/border and fill properties of a chart
 marker:
 
@@ -129,11 +129,10 @@ marker:
   xwpp::chart_line_t line{.color = xwpp::color_t::black()};
   xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  xwpp::chart_series_set_marker_size(series, 8);
-
-  xwpp::chart_series_set_marker_line(series, line);
-  xwpp::chart_series_set_marker_fill(series, fill);
+  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+  series.set_marker_size(8);
+  series.set_marker_line(line);
+  series.set_marker_fill(fill);
 @endcode
 
 @image html chart_marker2.png
@@ -148,14 +147,13 @@ shown in the following Excel dialog:
 
 @image html chart_trendline0.png
 
-The `series_set_trendline()` function turns on these trendlines for
+The `chart_series_t::set_trendline()` function turns on these trendlines for
 a data series:
 
 @code
   chart = workbook.add_chart(xwpp::chart_type_t::LINE);
-  series = chart.add_series("", "Sheet1!$A$1:$A$6");
-
-  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
+  chart.add_series("Sheet1!$A$1:$A$6").
+       set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
 @endcode
 
 @image html chart_trendline2.png
@@ -165,7 +163,7 @@ and *period* for a Moving Average trendline. It both cases it must be >= 2.
 The `value` parameter  is ignored for all other trendlines:
 
 @code
-  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::AVERAGE, 2);
+  series.set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
 @endcode
 
 @image html chart_trendline3.png
@@ -186,49 +184,49 @@ dialog, can be set using the functions described below.
 
 @image html chart_trendline1.png
 
-The `chart_series_set_trendline_forecast()` function sets the forward
+The `chart_series_t::set_trendline_forecast()` function sets the forward
 and backward forecast periods for the trendline:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_forecast(series, 0.5, 0.5);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_forecast(0.5, 0.5);
 @endcode
 
 @image html chart_trendline4.png
 
 @note This feature isn't available for Moving Average in Excel.
 
-The `chart_series_set_trendline_equation()` function displays the
+The `chart_series_t::set_trendline_equation()` function displays the
 equation of the trendline on the chart:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_equation(series);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_equation();
 @endcode
 
 @image html chart_trendline5.png
 
 @note This feature isn't available for Moving Average in Excel.
 
-The `chart_series_set_trendline_r_squared()` function displays the
+The `chart_series_t::set_trendline_r_squared()` function displays the
 R-squared value for the trendline on the chart:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_r_squared(series);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_r_squared();
 @endcode
 
 @image html chart_trendline6.png
 
 @note This feature isn't available for Moving Average in Excel.
 
-The `chart_series_set_trendline_intercept()` function sets the Y-axis
+The `chart_series_t::set_trendline_intercept()` function sets the Y-axis
 intercept for the trendline:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_equation(series);
-  chart_series_set_trendline_intercept(series, 0.8);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_equation();
+  series.set_trendline_intercept(0.8);
 @endcode
 
 @image html chart_trendline7.png
@@ -239,15 +237,15 @@ As can be seen from the equation on the chart the intercept point
 @note The intercept feature is only available in Excel for Exponential,
 Linear and Polynomial trendline types.
 
-The `chart_series_set_trendline_name()` function sets the name of the
+The `chart_series_t::set_trendline_name()` function sets the name of the
 trendline that is displayed in the chart legend. In the examples above
 the trendlines are displayed with default names like "Linear (Series 1)"
 and "2 per Mov. Avg. (Series 1)". If these names are too verbose or not
 descriptive enough you can set your own trendline name:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_name(series, "My trendline");
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_name("My trendline");
 @endcode
 
 @image html chart_trendline8.png
@@ -258,7 +256,7 @@ In `Xlsxwriter++` this is done using the `chart_t::legend_delete_series()`
 function to delete the zero based series numbers:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
 
   // Delete the series name for the second series (=1 in zero base).
   // The -1 value indicates the end of the array of values.
@@ -268,7 +266,7 @@ function to delete the zero based series numbers:
 
 @image html chart_trendline9.png
 
-The `series_set_trendline_line()` function is used to set the line
+The `set_trendline_line()` function is used to set the line
 properties of a trendline:
 
 @code
@@ -277,8 +275,8 @@ properties of a trendline:
     .dash_type = xwpp::chart_line_dash_type_t::DASH_LONG_DASH,
   };
 
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  series_set_trendline_line(series, &line);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_line(&line);
 @endcode
 
 @image html chart_trendline10.png
@@ -296,9 +294,8 @@ horizontal `%x_error_bars` (for Bar and Scatter charts only). For
 convenience these can be accessed from a series as follows:
 
 @code
-  chart.series_set_error_bars(series.y_error_bars, ...);
-
-  chart.series_set_error_bars(series.x_error_bars, ...);
+  xwpp::series_error_bars_t& bar_y = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y);
+  xwpp::series_error_bars_t& bar_x = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_X);
 @endcode
 
 The error bar properties that can be set in Excel are show in the following
@@ -308,15 +305,12 @@ dialog:
 
 Some of these properties can be set using the functions discussed below.
 
-The `chart_t::series_set_error_bars()` function sets the error bar type
+The `series_error_bars_t::enable_error_bars()` function sets the error bar type
 and value associated with the type:
 
 @code
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5",
-                                                  "=Sheet1!$B$1:$B$5");
-
-  chart.series_set_error_bars(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
+  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
+  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
 @endcode
 
 @image html chart_error_bars1.png
@@ -334,27 +328,19 @@ All error bar types, apart from Standard error, should have a valid
 value to set the error range:
 
 @code
-  chart.series_set_error_bars(series1.y_error_bars,
-    xwpp::chart_error_bar_direction_t::FIXED, 2);
-
-  chart.series_set_error_bars(series2.y_error_bars,
-    xwpp::chart_error_bar_direction_t::PERCENTAGE, 5);
-
-  chart.series_set_error_bars(series3.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_DEV, 1);
+  error_bars1.enable_error_bars(xwpp::chart_error_bar_direction_t::FIXED, 2);
+  error_bars2.enable_error_bars(xwpp::chart_error_bar_direction_t::PERCENTAGE, 5);
+  error_bars3.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_DEV, 1);
 @endcode
 
 For the Standard error type the value is ignored.
 
-The `chart_series_set_error_bars_direction()` function sets the
+The `series_error_bars_t::set_direction()` function sets the
 direction of the error bars:
 
 @code
-  chart.series_set_error_bars(series->y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
-
-  chart_series_set_error_bars_direction(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::PLUS);
+  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+            .set_direction(xwpp::chart_error_bar_direction_t::PLUS);
 @endcode
 
 @image html chart_error_bars2.png
@@ -366,15 +352,12 @@ The valid directions are:
 - `chart_error_bar_direction_t::PLUS`: Error bar extends in positive direction.
 - `chart_error_bar_direction_t::MINUS`: Error bar extends in negative direction.
 
-The `chart_series_set_error_bars_endcap()` function sets the end cap
+The `series_error_bars_t::set_endcap()` function sets the end cap
 type for the error bars:
 
 @code
-  chart.series_set_error_bars(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
-
-  chart_series_set_error_bars_endcap(series.y_error_bars,
-    xwpp::chart_error_bar_cap_t::NO_CAP);
+  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+            .set_endcap(xwpp::chart_error_bar_cap_t::NO_CAP);
 @endcode
 
 @image html chart_error_bars3.png
@@ -384,19 +367,17 @@ The valid values are:
 - `chart_error_bar_cap_t::END_CAP`: Flat end cap. The default.
 - `chart_error_bar_cap_t::NO_CAP`: No end cap.
 
-The `chart_series_set_error_bars_line()` function sets the line
+The `series_error_bars_t::set_line()` function sets the line
 properties for the error bars:
 
 @code
-  xwpp::chart_line_t line{
+  const xwpp::chart_line_t line{
     .color     = xwpp::color_t::red(),
     .dash_type = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
   };
 
-  chart.series_set_error_bars(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
-
-  chart_series_set_error_bars_line(series.y_error_bars, line);
+  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+            .set_line(line);
 @endcode
 
 @image html chart_error_bars4.png
@@ -438,7 +419,7 @@ The points should be passed as a vector of `chart_point` objects:
   std::vector<chart_point_t> points{{.fill = red_fill},
                                     {.fill = green_fill}};
 
-  series_set_points(series, points);
+  series.set_points(points);
 @endcode
 
 You can skip points in the series that you don't want to format by passing a
@@ -460,10 +441,10 @@ zero-initialized `chart_point_t`:
     {.fill = red_fill,   .line = line},
   };
 
-  series_set_points(series, points);
+  series.set_points(points);
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  xwpp::chart_series_set_marker_size(series, 10);
+  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+  series.set_marker_size(10);
 @endcode
 
 @image html chart_points2.png
@@ -483,7 +464,7 @@ For Bar/Column/Area charts "points" refer to bars/areas within the chart:
     {.fill = red_fill},
   };
 
-  series_set_points(series2, points);
+  series.set_points(points);
 @endcode
 
 @image html chart_points3.png
@@ -494,11 +475,11 @@ Data labels can be added to a chart series to indicate the values of the
 plotted data points. The functions described below turn on and set data
 label properties.
 
-The `chart_series_set_labels()` function is used to turn on data labels
+The `chart_series_t::set_labels()` function is used to turn on data labels
 for a chart series:
 
 @code
-  chart_series_set_labels(series);
+  series.set_labels();
 @endcode
 
 @image html chart_data_labels1.png
@@ -510,17 +491,17 @@ By default data labels are displayed in Excel with only the values shown:
 However, it is possible to configure other display options, as shown
 in the functions below.
 
-The `chart_series_set_labels_options()` function is used to set the
+The `chart_series_t::set_labels_options()` function is used to set the
 parameters that are displayed in the series data label:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_options(series, true, true, true);
+  series.set_labels();
+  series.set_labels_options(true, true, true);
 @endcode
 
 @image html chart_data_labels3.png
 
-The `chart_series_set_labels_separator()` function is used to change the
+The `chart_series_set_t::labels_separator()` function is used to change the
 separator between multiple data label items. The default options is a comma
 separator as shown in the previous example.
 
@@ -534,19 +515,19 @@ The available options are:
 For example:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_options(series, true, true, true);
-  chart_series_set_labels_separator(series, xwpp::chart_label_separator_t::NEWLINE);
+  series.set_labels();
+  series.set_labels_options(true, true, true);
+  series.set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
 @endcode
 
 @image html chart_data_labels4.png
 
-The `chart_series_set_labels_position()` function sets the position of
+The `chart_series_t::set_labels_position()` function sets the position of
 the labels in the data series:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_position(series, xwpp::chart_label_position_t::ABOVE);
+  series.set_labels();
+  series.set_labels_position(xwpp::chart_label_position_t::ABOVE);
 @endcode
 
 @image html chart_data_labels5.png
@@ -566,13 +547,13 @@ types. The allowable, and default, positions are:
 | `chart_label_position_t::OUTSIDE_END` |               | Yes (default) | Yes           |               |
 | `chart_label_position_t::BEST_FIT`    |               |               | Yes (default) |               |
 
-The `chart_series_set_labels_leader_line()` function  is used to turn on
+The `chart_series_t::set_labels_leader_line()` function  is used to turn on
 leader lines for the data label of a series. It is mainly used for pie
 or doughnut charts:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_leader_line(series);
+  series.set_labels();
+  series.set_labels_leader_line();
 @endcode
 
 @note Even when leader lines are turned on they aren't automatically
@@ -581,34 +562,34 @@ visible in Excel. Due to an Excel limitation
 manually or if the data labels are very close and need to be
 adjusted automatically.
 
-The `chart_series_set_labels_legend()` function is used to set the
+The `chart_series_t::set_labels_legend()` function is used to set the
 legend key for a data series:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_legend(series);
+  series.set_labels();
+  series.set_labels_legend();
 @endcode
 
 @image html chart_data_labels6.png
 
-The `chart_series_set_labels_percentage()` function is used to turn on
+The `chart_series_t::set_labels_percentage()` function is used to turn on
 the display of data labels as a percentage for a series. It is mainly
 used for pie charts:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_options(series, false, false, false);
-  chart_series_set_labels_percentage(series);
+  series.set_labels();
+  series.set_labels_options(false, false, false);
+  series.set_labels_percentage();
 @endcode
 
 @image html chart_data_labels7.png
 
-The `chart_series_set_labels_num_format()` function is used to set the
+The `chart_series_t::set_labels_num_format()` function is used to set the
 number format for data labels:
 
 @code
-  chart_series_set_labels(series);
-  chart_series_set_labels_num_format(series, "$0.00");
+  series.set_labels();
+  series.set_labels_num_format("$0.00");
 @endcode
 
 @image html chart_data_labels8.png
@@ -616,7 +597,7 @@ number format for data labels:
 The number format is similar to the Worksheet Cell Format num_format,
 see `format_t::set_num_format()`.
 
-The `chart_series_set_labels_font()` function is used to set the font
+The `chart_series_t::set_labels_font()` function is used to set the font
 for data labels:
 
 @code
@@ -625,37 +606,37 @@ for data labels:
     .color = xwpp::color_t::red(),
   };
 
-  chart_series_set_labels(series);
-  chart_series_set_labels_font(series, font);
+  series.set_labels();
+  series.set_labels_font(font);
 @endcode
 
 @image html chart_data_labels9.png
 
 For more information see @ref chart_fonts below.
 
-The `chart_series_set_labels_line()`, `chart_series_set_labels_fill()` and
-`chart_series_set_labels_pattern()` functions can be used to set the
+The `chart_series_t::set_labels_line()`, `chart_series_t::set_labels_fill()` and
+`chart_series_t::set_labels_pattern()` functions can be used to set the
 formatting for a data series using standard chart formatting structs:
 
 @code
   xwpp::chart_line_t line{.color = xwpp::color_t::red()};
   xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
 
-  chart_series_set_labels_line(series, line);
-  chart_series_set_labels_fill(series, fill);
+  series.set_labels_line(line);
+  series.set_labels_fill(fill);
 @endcode
 
 @image html chart_data_labels24.png
 
 @subsection chart_custom_labels Custom Chart Data Labels
 
-The `chart_series_set_labels_custom()` function is used to set the properties
+The `chart_series_t::set_labels_custom()` function is used to set the properties
 of individual data labels in a series. The most common use for this is to set
 custom text or number labels:
 
 @code
   // Add the series data labels.
-  chart_series_set_labels(series);
+  series.set_labels();
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{
@@ -668,19 +649,19 @@ custom text or number labels:
   };
 
   // Set the custom labels.
-  chart_series_set_labels_custom(series, data_labels);
+  series.set_labels_custom(data_labels);
 @endcode
 
 @image html chart_data_labels18.png
 
-As shown in the previous example the `chart_series_set_labels_custom()`
+As shown in the previous example the `chart_series_t::set_labels_custom()`
 function takes a vector of `chart_data_label_t` pointers.
 Any `chart_data_label_t` items set to a default initialization or omitted
 from the list will be assigned the default data label value:
 
 @code
   // Add the series data labels.
-  chart_series_set_labels(series);
+  series.set_labels();
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{
@@ -691,7 +672,7 @@ from the list will be assigned the default data label value:
   };
 
   // Set the custom labels.
-  chart_series_set_labels_custom(series, data_labels);
+  series.set_labels_custom(data_labels);
 @endcode
 
 @image html chart_data_labels19.png
@@ -702,7 +683,7 @@ value will be taken:
 
 @code
   // Add the series data labels.
-  chart_series_set_labels(series);
+  series.set_labels();
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{
@@ -715,7 +696,7 @@ value will be taken:
   };
 
   // Set the custom labels.
-  chart_series_set_labels_custom(series, data_labels);
+  series.set_labels_custom(data_labels);
 @endcode
 
 The `%font` element in the `chart_data_label_t` struct can be used to set the
@@ -725,7 +706,7 @@ font for the label in the data series (see @ref chart_fonts):
   xwpp::chart_font_t font{.color = xwpp::color_t::red()};
 
   // Add the series data labels.
-  chart_series_set_labels(series);
+  series.set_labels();
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{
@@ -738,7 +719,7 @@ font for the label in the data series (see @ref chart_fonts):
   };
 
   // Set the custom labels.
-  chart_series_set_labels_custom(series, data_labels);
+  series.set_labels_custom(data_labels);
 @endcode
 
 @image html chart_data_labels20.png
@@ -749,7 +730,7 @@ one or more cells in the series, for example the maximum and the minimum:
 
 @code
   // Add the series data labels.
-  chart_series_set_labels(series);
+  series.set_labels();
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{
@@ -762,7 +743,7 @@ one or more cells in the series, for example the maximum and the minimum:
   };
 
   // Set the custom labels.
-  chart_series_set_labels_custom(series, data_labels);
+  series.set_labels_custom(data_labels);
 @endcode
 
 @image html chart_data_labels21.png
@@ -779,8 +760,8 @@ Standard chart formatting such as `chart_line_t`, `chart_fill_t` and
   xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
 
   // Set the default formatting for the data labels in the series.
-  chart_series_set_labels_line(series, line2);
-  chart_series_set_labels_fill(series, fill2);
+  series.set_labels_line(line2);
+  series.set_labels_fill(fill2);
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{
@@ -793,7 +774,7 @@ Standard chart formatting such as `chart_line_t`, `chart_fill_t` and
   };
 
   // Set the custom labels.
-  chart_series_set_labels_custom(series, data_labels);
+  series.set_labels_custom(data_labels);
 @endcode
 
 @image html chart_data_labels25.png
@@ -816,12 +797,11 @@ For example:
   xwpp::chart_line_t marker_line = {.color = xwpp::color_t::red()};
   xwpp::chart_fill_t marker_fill = {.color = xwpp::color_t::yellow()};
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  chart_series_set_marker_size(series, 5);
-
-  chart_series_set_line(series, chart_line);
-  chart_series_set_marker_line(series, marker_line);
-  chart_series_set_marker_fill(series, marker_fill);
+  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+  series.set_marker_size(5);
+  series.set_marker_line(marker_line);
+  series.set_marker_fill(marker_fill);
+  series.set_line(chart_line);
 @endcode
 
 @image html chart_formatting2.png
@@ -901,7 +881,7 @@ Here is a longer example with several chart formats:
 
 @dontinclude chart_fonts.cpp
 @skip chart_font_t
-@until legend_set_font
+@until set_legend_font
 
 @image html chart_fonts.png
 
@@ -928,8 +908,8 @@ markers without a line, or a column fill without a border:
 @code
   xwpp::chart_line_t line{.none = true};
 
-  chart_series_set_line(series, line);
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::AUTOMATIC);
+  series.set_line(line);
+  series.set_marker_type(xwpp::chart_marker_type_t::AUTOMATIC);
 @endcode
 
 @image html chart_formatting3.png
@@ -941,7 +921,7 @@ more information):
 @code
   xwpp::chart_line_ line{.color = xwpp::color_t{0xFF9900}};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
 @endcode
 
 @image html chart_formatting4.png
@@ -952,7 +932,7 @@ increments of 0.25 of a point as in Excel:
 @code
   xwpp::chart_line_ line{.width = 4.25};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
 @endcode
 
 @image html chart_formatting_width.png
@@ -962,7 +942,7 @@ The `%dash_type` member sets the dash style of the line:
 @code
   xwpp::chart_line_ line{.dash_type = xwpp::chart_line_dash_type_t::DASH_DASH_DOT};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
 @endcode
 
 @image html chart_formatting5.png
@@ -1025,8 +1005,8 @@ default):
   xwpp::chart_line_t line = {.color = xwpp::color_t::black()};
   xwpp::chart_fill_t fill = {.none  = true};
 
-  chart_series_set_line(series, line);
-  chart_series_set_fill(series, fill);
+  series.set_line(line);
+  series.set_fill(fill);
 @endcode
 
 @image html chart_fill1.png
@@ -1038,7 +1018,7 @@ more information):
 @code
   xwpp::chart_fill_t fill{.color = xwpp::color_t{0xFF9900}};
 
-  chart_series_set_fill(series, fill);
+  series.set_fill(fill);
 @endcode
 
 @image html chart_fill2.png
@@ -1052,7 +1032,7 @@ integer range 1 - 100:
     .transparency = 50,
   };
 
-  chart_series_set_fill(series, fill);
+  series.set_fill(fill);
 @endcode
 
 @image html chart_fill3.png
@@ -1064,8 +1044,8 @@ set via the `%line` format:
   xwpp::chart_line_ line{.color = xwpp::color_t::black()};
   xwpp::chart_fill_ fill{.color = xwpp::color_t::red()};
 
-  chart_series_set_line(series, line);
-  chart_series_set_fill(series, fill);
+  series.set_line(line);
+  series.set_fill(fill);
 @endcode
 
 @image html chart_fill4.png
@@ -1111,8 +1091,8 @@ For example:
     .bg_color = xwpp::color_t{0XFF6666},
   };
 
-  chart_series_set_pattern(series1, pattern1);
-  chart_series_set_pattern(series2, pattern2);
+  series1.set_pattern(pattern1);
+  series2.set_pattern(pattern2);
 @endcode
 
 @image html chart_pattern.png
@@ -1210,7 +1190,7 @@ These units are cumbersome and can vary depending on other elements in the chart
 such as text lengths. However, these are the units that are required by Excel to
 allow relative positioning. Some trial and error is generally required.
 
-For the chart `chart_t::plotarea_set_layout()` and `chart_t::legend_set_layout()`
+For the chart `chart_t::plotarea_set_layout()` and `chart_t::set_legend_layout()`
 functions you can also set the width and height based on the following
 calculation:
 
@@ -1224,10 +1204,10 @@ dimensions.
 
 The chart functions that support `chart_layout_t` are:
 
-- `chart_t::title_set_layout()`
-- `chart_t::legend_set_layout()`
+- `chart_t::set_title_layout()`
+- `chart_t::set_legend_layout()`
 - `chart_t::plotarea_set_layout()`
-- `chart_axis_set_name_layout()`
+- `chart_axis_t::set_name_layout()`
 
 @section ww_charts_limitations Chart Limitations
 

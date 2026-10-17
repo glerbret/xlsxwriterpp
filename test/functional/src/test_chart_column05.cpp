@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Foo!$A$1:$A$5");
-  chart.add_series("", "=Foo!$B$1:$B$5");
-  chart.add_series("", "=Foo!$C$1:$C$5");
+  chart.add_series("=Foo!$A$1:$A$5");
+  chart.add_series("=Foo!$B$1:$B$5");
+  chart.add_series("=Foo!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);
 

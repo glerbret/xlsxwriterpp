@@ -21,10 +21,9 @@ int main()
   worksheet.write(3, 0, 20000000);
   worksheet.write(4, 0, 10000000);
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
 
-  chart_axis_set_display_units(chart.y_axis_, xwpp::chart_axis_display_unit_t::BILLIONS);
-  chart_axis_set_display_units_visible(chart.y_axis_, false);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_display_units(xwpp::chart_axis_display_unit_t::BILLIONS, false);
 
   worksheet.insert_chart("E9", &chart);
 

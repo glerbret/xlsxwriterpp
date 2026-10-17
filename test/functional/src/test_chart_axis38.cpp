@@ -31,15 +31,13 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line{.color = xwpp::color_t::yellow()};
   const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
-
-  xwpp::chart_axis_set_line(chart.y_axis_, line);
-  xwpp::chart_axis_set_fill(chart.y_axis_, fill);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line).set_fill(fill);
 
   worksheet.insert_chart("E9", &chart);
 

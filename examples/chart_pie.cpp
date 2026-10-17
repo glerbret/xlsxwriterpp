@@ -50,14 +50,11 @@ int main()
   {
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-    // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Pie sales data");
+    // Add the first series to the chart with aname for the series instead of the default "Series 1".
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Pie sales data");
 
     // Add a chart title.
-    chart.title_set_name("Popular Pie Types");
+    chart.set_title("Popular Pie Types");
 
     // Set an Excel chart style.
     chart.set_style(10);
@@ -74,10 +71,10 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Pie sales data");
+    series.set_name("Pie sales data");
 
     // Add a chart title.
-    chart.title_set_name("Pie Chart with user defined colors");
+    chart.set_title("Pie Chart with user defined colors");
 
     // Add for fills for use in the chart.
     xwpp::chart_fill_t fill1{.color = xwpp::color_t{0x5ABA10}};
@@ -92,7 +89,7 @@ int main()
     };
 
     // Add/override the points/segments of the chart.
-    series_set_points(series, points);
+    series.set_points(points);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D18", &chart);
@@ -103,13 +100,10 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Pie sales data");
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Pie sales data");
 
     // Add a chart title.
-    chart.title_set_name("Pie Chart with segment rotation");
+    chart.set_title("Pie Chart with segment rotation");
 
     // Change the angle/rotation of the first segment.
     chart.set_rotation(90);

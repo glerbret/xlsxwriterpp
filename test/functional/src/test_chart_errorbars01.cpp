@@ -31,11 +31,10 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
+  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
+  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
-
-  chart.series_set_error_bars(series1.y_error_bars, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
   worksheet.insert_chart("E9", &chart);
 

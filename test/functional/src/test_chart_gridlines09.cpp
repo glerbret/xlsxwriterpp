@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line1{
     .color = xwpp::color_t::red(), .width = 0.5, .dash_type = xwpp::chart_line_dash_type_t::SQUARE_DOT};
@@ -41,10 +41,8 @@ int main()
   const xwpp::chart_line_t line3{.width = 1.25, .dash_type = xwpp::chart_line_dash_type_t::DASH};
   const xwpp::chart_line_t line4{.color = xwpp::color_t{0x00B050}};
 
-  chart_axis_major_gridlines_set_line(chart.x_axis_, line1);
-  chart_axis_minor_gridlines_set_line(chart.x_axis_, line2);
-  chart_axis_major_gridlines_set_line(chart.y_axis_, line3);
-  chart_axis_minor_gridlines_set_line(chart.y_axis_, line4);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).major_gridlines_set_line(line1).minor_gridlines_set_line(line2);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).major_gridlines_set_line(line3).minor_gridlines_set_line(line4);
 
   worksheet.insert_chart("E9", &chart);
 

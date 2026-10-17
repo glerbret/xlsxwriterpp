@@ -67,14 +67,11 @@ int main()
   {
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
 
-    // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    // Add the first series to the chart with a name for the series instead of the default "Series 1".
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Doughnut sales data");
 
     // Add a chart title.
-    chart.title_set_name("Popular Doughnut Types");
+    chart.set_title("Popular Doughnut Types");
 
     // Set an Excel chart style.
     chart.set_style(10);
@@ -91,13 +88,13 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
-
-    // Add a chart title.
-    chart.title_set_name("Doughnut Chart with user defined colors");
+    series.set_name("Doughnut sales data");
 
     // Add/override the points/segments of the chart.
-    series_set_points(series, points);
+    series.set_points(points);
+
+    // Add a chart title.
+    chart.set_title("Doughnut Chart with user defined colors");
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D18", &chart);
@@ -108,13 +105,10 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Doughnut sales data");
 
     // Add a chart title.
-    chart.title_set_name("Doughnut Chart with segment rotation");
+    chart.set_title("Doughnut Chart with segment rotation");
 
     // Change the angle/rotation of the first segment.
     chart.set_rotation(90);
@@ -131,13 +125,13 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series, "Doughnut sales data");
+    series.set_name("Doughnut sales data");
+
+    // Add/override the points/segments defined in Chart 4.
+    series.set_points(points);
 
     // Add a chart title.
-    chart.title_set_name("Doughnut Chart with options applied.");
-
-    // Add/override the points/segments defined in Chart 2.
-    series_set_points(series, points);
+    chart.set_title("Doughnut Chart with options applied.");
 
     // Set an Excel chart style.
     chart.set_style(26);

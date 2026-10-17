@@ -35,11 +35,8 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  chart_axis_set_major_unit(chart.x_axis_, 3);
-  chart_axis_set_minor_unit(chart.x_axis_, 1);
-
-  chart_axis_set_major_unit(chart.y_axis_, 4);
-  chart_axis_set_minor_unit(chart.y_axis_, 2);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_major_unit(3).set_minor_unit(1);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_major_unit(4).set_minor_unit(2);
 
   worksheet.insert_chart("E9", &chart);
 

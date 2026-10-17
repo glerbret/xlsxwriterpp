@@ -55,7 +55,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with High-Low Lines");
+    chart.set_title("Chart with High-Low Lines");
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -73,7 +73,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with Drop Lines");
+    chart.set_title("Chart with Drop Lines");
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -91,7 +91,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with Up-Down bars");
+    chart.set_title("Chart with Up-Down bars");
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -109,7 +109,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with Up-Down bars");
+    chart.set_title("Chart with Up-Down bars");
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -120,7 +120,7 @@ int main()
     xwpp::chart_fill_t up_fill{.color = xwpp::color_t{0x00B050}};
     xwpp::chart_fill_t down_fill{.color = xwpp::color_t::red()};
 
-    chart.set_up_down_bars_format(line, up_fill, line, down_fill);
+    chart.set_up_down_bars(line, up_fill, line, down_fill);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E50", &chart);
@@ -131,17 +131,17 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with Data Labels and Markers");
+    chart.set_title("Chart with Data Labels and Markers");
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
+    chart
+      .add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7")
+      // Add series markers.
+      .set_marker_type(xwpp::chart_marker_type_t::CIRCLE)
+      // Add series data labels.
+      .set_labels();
+
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
-
-    // Add series markers.
-    chart.series_set_marker_type(series, xwpp::chart_marker_type_t::CIRCLE);
-
-    // Add series data labels.
-    xwpp::chart_series_set_labels(series);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E66", &chart);
@@ -152,17 +152,16 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with Error Bars");
+    chart.set_title("Chart with Error Bars");
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
+    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_labels();
 
     // Add error bars to show Standard Error.
-    chart.series_set_error_bars(series.y_error_bars, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
+    series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y)
+      .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
-    // Add series data labels.
-    xwpp::chart_series_set_labels(series);
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E82", &chart);
@@ -173,17 +172,19 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
 
     // Add a chart title.
-    chart.title_set_name("Chart with a Trendline");
+    chart.set_title("Chart with a Trendline");
 
     // Add the first series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Add a polynomial trendline.
-    xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
+    const xwpp::chart_line_t poly_line{.color     = xwpp::color_t::gray(),
+                                       .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
-    xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::POLY, 3);
-    xwpp::series_set_trendline_line(series, poly_line);
+    series.set_trendline(xwpp::chart_trendline_type_t::POLY, 3);
+    series.set_trendline_line(poly_line);
+
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E98", &chart);

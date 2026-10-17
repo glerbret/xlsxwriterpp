@@ -30,11 +30,11 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$3", "=Sheet1!$B$1:$B$3");
 
-  chart.title_set_name("Title");
+  chart.set_title("Title");
 
   // Axis formatting should be igmored.
-  xwpp::chart_axis_set_name(chart.x_axis_, "XXX");
-  xwpp::chart_axis_set_name(chart.y_axis_, "YYY");
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX");
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY");
 
   worksheet.insert_chart("E9", &chart);
 
