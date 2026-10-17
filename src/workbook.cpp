@@ -1142,7 +1142,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
   }
 
   // If the sheetname is already defined it was already set via
-  // chart_series_set_categories() or  chart_series_set_values().
+  // chart_series_set_categories() or chart_series_set_values().
   if(!range.sheetname.empty())
   {
     return;
@@ -1277,8 +1277,8 @@ void workbook_t::add_chart_cache_data() const
 
     for(auto& series: chart->series_list_)
     {
-      populate_range(series.categories);
-      populate_range(series.values);
+      populate_range(series.categories_);
+      populate_range(series.values_);
       populate_range(series.title.range);
       for(auto& data_label: series.data_labels)
       {

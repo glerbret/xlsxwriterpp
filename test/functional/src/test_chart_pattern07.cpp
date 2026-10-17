@@ -31,14 +31,14 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("", "=Sheet1!$A$1:$A$3");
-  xwpp::chart_series_t& series2 = chart.add_series("", "=Sheet1!$B$1:$B$3");
-  xwpp::chart_series_t& series3 = chart.add_series("", "=Sheet1!$C$1:$C$3");
-  xwpp::chart_series_t& series4 = chart.add_series("", "=Sheet1!$D$1:$D$3");
-  xwpp::chart_series_t& series5 = chart.add_series("", "=Sheet1!$E$1:$E$3");
-  xwpp::chart_series_t& series6 = chart.add_series("", "=Sheet1!$F$1:$F$3");
-  xwpp::chart_series_t& series7 = chart.add_series("", "=Sheet1!$G$1:$G$3");
-  xwpp::chart_series_t& series8 = chart.add_series("", "=Sheet1!$H$1:$H$3");
+  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$3");
+  xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$3");
+  xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$3");
+  xwpp::chart_series_t& series4 = chart.add_series("=Sheet1!$D$1:$D$3");
+  xwpp::chart_series_t& series5 = chart.add_series("=Sheet1!$E$1:$E$3");
+  xwpp::chart_series_t& series6 = chart.add_series("=Sheet1!$F$1:$F$3");
+  xwpp::chart_series_t& series7 = chart.add_series("=Sheet1!$G$1:$G$3");
+  xwpp::chart_series_t& series8 = chart.add_series("=Sheet1!$H$1:$H$3");
 
   const xwpp::chart_pattern_t pattern1{.fg_color = xwpp::color_t{0xC00000},
                                        .bg_color = xwpp::color_t{0xFFFFFF},

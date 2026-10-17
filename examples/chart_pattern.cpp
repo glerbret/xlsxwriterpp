@@ -34,8 +34,8 @@ int main()
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
   // Configure the chart.
-  xwpp::chart_series_t& series1 = chart.add_series("", "Sheet1!$A$2:$A$5");
-  xwpp::chart_series_t& series2 = chart.add_series("", "Sheet1!$B$2:$B$5");
+  xwpp::chart_series_t& series1 = chart.add_series("Sheet1!$A$2:$A$5");
+  xwpp::chart_series_t& series2 = chart.add_series("Sheet1!$B$2:$B$5");
 
   chart.series_set_name(series1, "=Sheet1!$A$1");
   chart.series_set_name(series2, "=Sheet1!$B$1");

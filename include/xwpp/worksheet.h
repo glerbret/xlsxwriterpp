@@ -3809,7 +3809,7 @@ public:
    *  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
    *
    *  // Add a data series to the chart.
-   *  chart.add_series("", "=Sheet1!$A$1:$A$6");
+   *  chart.add_series("=Sheet1!$A$1:$A$6");
    *
    *  // Insert the chart into the worksheet.
    *  worksheet.insert_chart(0, 2, &chart);
@@ -3858,7 +3858,7 @@ public:
    *  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
    *
    *  // Add a data series to the chart.
-   *  chart.add_series("", "=Sheet1!$A$1:$A$6");
+   *  chart.add_series("=Sheet1!$A$1:$A$6");
    *
    *  // Insert the chart into the worksheet.
    *  worksheet.insert_chart("C1", &chart);

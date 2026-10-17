@@ -31,7 +31,7 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$A$1:$A$5");
+  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
 
   chart.series_set_name(series, "Foo");
   chart.title_off();

@@ -31,7 +31,7 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("", "=Sheet1!$A$1:$A$5");
+  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
   xwpp::chart_series_t& series2 = chart.add_series("", "");
   xwpp::chart_series_t& series3 = chart.add_series("", "");
 

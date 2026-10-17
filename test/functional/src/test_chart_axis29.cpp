@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_font_t font1{.rotation = -90, .baseline = -1};
   xwpp::chart_axis_set_num_font(chart.x_axis_, font1);

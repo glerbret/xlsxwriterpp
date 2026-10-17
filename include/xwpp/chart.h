@@ -40,9 +40,9 @@
  *    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
  *
  *    // In the simplest case we just add some value data series.
- *    chart.add_series("", "=Sheet1!$A$1:$A$5");
- *    chart.add_series("", "=Sheet1!$B$1:$B$5");
- *    chart.add_series("", "=Sheet1!$C$1:$C$5");
+ *    chart.add_series("=Sheet1!$A$1:$A$5");
+ *    chart.add_series("=Sheet1!$B$1:$B$5");
+ *    chart.add_series("=Sheet1!$C$1:$C$5");
  *
  *    // Insert the chart into the worksheet
  *    worksheet.insert_chart("B7", &chart);
@@ -637,6 +637,133 @@ enum class chart_axis_tick_mark_t
   CROSSING
 };
 
+/**
+ * @brief Define how blank values are displayed in a chart.
+ *
+ * Define how blank values are displayed in a chart.
+ */
+enum class chart_blank_t
+{
+  /** Show empty chart cells as gaps in the data. The default. */
+  AS_GAP,
+
+  /** Show empty chart cells as zeros. */
+  AS_ZERO,
+
+  /** Show empty chart cells as connected. Only for charts with lines. */
+  AS_CONNECTED
+};
+
+enum class chart_position_t
+{
+  RIGHT,
+  LEFT,
+  TOP,
+  BOTTOM
+};
+
+enum class chart_layout_type_t
+{
+  TITLE,
+  LEGEND,
+  PLOTAREA,
+  AXIS_NAME
+};
+
+/**
+ * @brief Type/amount of data series error bar.
+ *
+ * Type/amount of data series error bar.
+ */
+enum class chart_error_bar_type_t
+{
+  /** Error bar type: Standard error. */
+  STD_ERROR,
+
+  /** Error bar type: Fixed value. */
+  FIXED,
+
+  /** Error bar type: Percentage. */
+  PERCENTAGE,
+
+  /** Error bar type: Standard deviation(s). */
+  STD_DEV
+};
+
+/**
+ * @brief Direction for a data series error bar.
+ *
+ * Direction for a data series error bar.
+ */
+enum class chart_error_bar_direction_t
+{
+
+  /** Error bar extends in both directions. The default. */
+  BOTH,
+
+  /** Error bar extends in positive direction. */
+  PLUS,
+
+  /** Error bar extends in negative direction. */
+  MINUS
+};
+
+/**
+ * @brief Direction for a data series error bar.
+ *
+ * Direction for a data series error bar.
+ */
+enum class chart_error_bar_axis_t
+{
+  /** X axis error bar. */
+  X,
+
+  /** Y axis error bar. */
+  Y
+};
+
+/**
+ * @brief End cap styles for a data series error bar.
+ *
+ * End cap styles for a data series error bar.
+ */
+enum class chart_error_bar_cap_t
+{
+  /** Flat end cap. The default. */
+  END_CAP,
+
+  /** No end cap. */
+  NO_CAP
+};
+
+/**
+ * @brief Series trendline/regression types.
+ *
+ * Series trendline/regression types.
+ */
+enum class chart_trendline_type_t
+{
+  /** Trendline type: Linear. */
+  LINEAR,
+
+  /** Trendline type: Logarithm. */
+  LOG,
+
+  /** Trendline type: Polynomial. */
+  POLY,
+
+  /** Trendline type: Power. */
+  POWER,
+
+  /** Trendline type: Exponential. */
+  EXP,
+
+  /** Trendline type: Moving Average. */
+  AVERAGE
+};
+
+////////// TODO Here begin
+
 struct series_data_point_t
 {
   bool is_string{false};
@@ -972,7 +1099,7 @@ struct chart_data_label_t
   std::optional<chart_pattern_t> pattern;
 };
 
-// Internal version of lxw_chart_data_label with more metadata.
+// Internal version of chart_data_label_t with more metadata.
 struct chart_custom_label_t
 {
   std::string value;
@@ -985,105 +1112,6 @@ struct chart_custom_label_t
   // We use a range to hold the label formula properties even though it
   // will only have 1 point in order to re-use similar functions.
   std::optional<series_range_t> range;
-};
-
-/**
- * @brief Define how blank values are displayed in a chart.
- *
- * Define how blank values are displayed in a chart.
- */
-enum class chart_blank_t
-{
-  /** Show empty chart cells as gaps in the data. The default. */
-  AS_GAP,
-
-  /** Show empty chart cells as zeros. */
-  AS_ZERO,
-
-  /** Show empty chart cells as connected. Only for charts with lines. */
-  AS_CONNECTED
-};
-
-enum class chart_position_t
-{
-  RIGHT,
-  LEFT,
-  TOP,
-  BOTTOM
-};
-
-enum class chart_layout_type_t
-{
-  TITLE,
-  LEGEND,
-  PLOTAREA,
-  AXIS_NAME
-};
-
-/**
- * @brief Type/amount of data series error bar.
- *
- * Type/amount of data series error bar.
- */
-enum class chart_error_bar_type_t
-{
-  /** Error bar type: Standard error. */
-  STD_ERROR,
-
-  /** Error bar type: Fixed value. */
-  FIXED,
-
-  /** Error bar type: Percentage. */
-  PERCENTAGE,
-
-  /** Error bar type: Standard deviation(s). */
-  STD_DEV
-};
-
-/**
- * @brief Direction for a data series error bar.
- *
- * Direction for a data series error bar.
- */
-enum class chart_error_bar_direction_t
-{
-
-  /** Error bar extends in both directions. The default. */
-  BOTH,
-
-  /** Error bar extends in positive direction. */
-  PLUS,
-
-  /** Error bar extends in negative direction. */
-  MINUS
-};
-
-/**
- * @brief Direction for a data series error bar.
- *
- * Direction for a data series error bar.
- */
-enum class chart_error_bar_axis_t
-{
-  /** X axis error bar. */
-  X,
-
-  /** Y axis error bar. */
-  Y
-};
-
-/**
- * @brief End cap styles for a data series error bar.
- *
- * End cap styles for a data series error bar.
- */
-enum class chart_error_bar_cap_t
-{
-  /** Flat end cap. The default. */
-  END_CAP,
-
-  /** No end cap. */
-  NO_CAP
 };
 
 struct series_error_bars_t
@@ -1099,45 +1127,24 @@ struct series_error_bars_t
   std::optional<chart_line_t> line;
 };
 
+////////// TODO Here end
+
+
+
+////////// TODO Here begin
 /**
- * @brief Series trendline/regression types.
+ * @brief Representation of an Excel chart data series.
  *
- * Series trendline/regression types.
+ * The representation of an Excel chart data series.
+ *
+ * The `%chart_series_t` is created using the chart_add_series function.
  */
-enum class chart_trendline_type_t
+class chart_series_t
 {
-  /** Trendline type: Linear. */
-  LINEAR,
+public:
+  chart_series_t(std::string_view categories, std::string_view values);
 
-  /** Trendline type: Logarithm. */
-  LOG,
-
-  /** Trendline type: Polynomial. */
-  POLY,
-
-  /** Trendline type: Power. */
-  POWER,
-
-  /** Trendline type: Exponential. */
-  EXP,
-
-  /** Trendline type: Moving Average. */
-  AVERAGE
-};
-
-/**
- * @brief Struct to represent an Excel chart data series.
- *
- * The `%chart_series_t` is created using the chart_add_series function. It is
- * used in functions that modify a chart series but the members of the struct
- * aren't modified directly.
- *
- * @todo Use a class and convert functions to membre functions.
- */
-struct chart_series_t
-{
-  series_range_t categories;
-  series_range_t values;
+public:
   chart_title_t title;
   std::optional<chart_line_t> line;
   std::optional<chart_fill_t> fill;
@@ -1182,7 +1189,20 @@ struct chart_series_t
   std::string trendline_name;
   std::optional<chart_line_t> trendline_line;
   double trendline_intercept{0.};
+
+//private:
+public:
+  friend class chart_t;
+  friend class workbook_t;
+
+  series_range_t categories_;
+  series_range_t values_;
+
 };
+////////// TODO Here end
+
+
+////////// TODO Here begin
 
 // Struct for major/minor axis gridlines.
 struct chart_gridline_t
@@ -1250,6 +1270,7 @@ struct chart_axis_t
   bool crossing_max{false};
   double crossing{0.};
 };
+////////// TODO Here end
 
 /**
  * @brief Representation of an Excel chart.
@@ -1259,7 +1280,8 @@ struct chart_axis_t
 class chart_t
 {
 public:
-  // TODO Constructor should not be public but only used by `workbook_t`.
+
+// TODO Constructor should not be public but only used by `workbook_t`.
   explicit chart_t(chart_type_t type);
 
   /**
@@ -1290,7 +1312,7 @@ public:
    *
    * @code
    *  // The empty category will default to 1 to 5 like in Excel.
-   *  chart.add_series("", "Sheet1!$A$1:$A$5");
+   *  chart.add_series("Sheet1!$A$1:$A$5");
    * @endcode
    *
    *  - `%values`: This is the most important property of a series and is the
@@ -1321,9 +1343,9 @@ public:
    * added in `Xlsxwriter++`:
    *
    * @code
-   *  chart.add_series("", "Sheet1!$A$1:$A$5");
-   *  chart.add_series("", "Sheet1!$B$1:$B$5");
-   *  chart.add_series("", "Sheet1!$C$1:$C$5");
+   *  chart.add_series("Sheet1!$A$1:$A$5");
+   *  chart.add_series("Sheet1!$B$1:$B$5");
+   *  chart.add_series("Sheet1!$C$1:$C$5");
    * @endcode
    *
    * It is also possible to specify non-contiguous ranges:
@@ -1334,8 +1356,13 @@ public:
    * @endcode
    *
    * @pre Scatter charts must have non-empty `categories` and `values` parameters.
+   * @pre `%categories` must not be empty.
    */
-  chart_series_t& add_series(const std::string& categories, const std::string& values);
+  chart_series_t& add_series(std::string_view categories, std::string_view values);
+  /// @brief Overload without categories
+  chart_series_t& add_series(std::string_view values);
+
+  ////////// TODO Here begin
 
   /**
    * @brief Set the chart style type.
@@ -1405,7 +1432,7 @@ public:
    * `add_series()`:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$B$2:$B$7");
+   *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
    *
    *  chart.series_set_name(series, "Quarterly budget data");
    * @endcode
@@ -1414,7 +1441,7 @@ public:
    * a cell in the workbook that contains the name:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$B$2:$B$7");
+   *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
    *
    *  chart.series_set_name(series, "=Sheet1!$B$1");
    * @endcode
@@ -2509,7 +2536,7 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
  * string formula:
  *
  * @code
- *  xwpp::chart_series_t& series = chart.add_series("", "=Sheet1!$B$2:$B$7");
+ *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
  *
  *  chart_series_set_name_range(series, "Sheet1", 0, 2); // "=Sheet1!$C$1"
  * @endcode
@@ -3065,7 +3092,7 @@ void chart_series_set_labels_pattern(chart_series_t& series, const std::optional
  *
  * @code
  *  chart = workbook.add_chart(xwpp::chart_type_t::LINE);
- *  series = chart.add_series("", "Sheet1!$A$1:$A$6");
+ *  series = chart.add_series("Sheet1!$A$1:$A$6");
  *
  *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
  * @endcode
@@ -4114,6 +4141,9 @@ void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional
 
 // TODO To rework (or remove). For test
 void chart_add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
+
+////////// TODO Here end
+
 
 /// @cond
 }

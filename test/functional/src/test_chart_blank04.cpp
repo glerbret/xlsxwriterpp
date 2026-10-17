@@ -29,9 +29,9 @@ int main()
   worksheet.write(3, 2, 12);
   worksheet.write(4, 2, 15);
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   chart.show_blanks_as(xwpp::chart_blank_t::AS_CONNECTED);
 

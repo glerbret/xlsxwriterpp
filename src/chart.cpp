@@ -159,43 +159,33 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
 
 }
 
+chart_series_t::chart_series_t(std::string_view categories, std::string_view values)
+{
+  categories_.formula = dup_formula(categories);
+  values_.formula = dup_formula(values);
+}
+
+
+
+
+
+////////// TODO Here begin
+
 chart_t::chart_t(chart_type_t type)
   : type_{type}
 {
   // Initialize the chart specific properties.
   initialize(type);
 }
+////////// TODO Here end
 
-chart_series_t& chart_t::add_series(const std::string& categories, const std::string& values)
+chart_series_t& chart_t::add_series(std::string_view categories, std::string_view values)
 {
   // Scatter charts require categories and values.
   assert(chart_group_ != chart_type_t::SCATTER || (!values.empty() && !categories.empty()));
+  assert(!values.empty());
 
-  chart_series_t series;
-
-  if(!categories.empty())
-  {
-    if(categories[0] == '=')
-    {
-      series.categories.formula = categories.substr(1);
-    }
-    else
-    {
-      series.categories.formula = categories;
-    }
-  }
-
-  if(!values.empty())
-  {
-    if(values[0] == '=')
-    {
-      series.values.formula = values.substr(1);
-    }
-    else
-    {
-      series.values.formula = values;
-    }
-  }
+  chart_series_t series{categories, values};
 
   if(type_ == chart_type_t::SCATTER_SMOOTH)
   {
@@ -216,6 +206,14 @@ chart_series_t& chart_t::add_series(const std::string& categories, const std::st
 
   return series_list_.back();
 }
+
+chart_series_t& chart_t::add_series(std::string_view values)
+{
+  return add_series("", values);
+}
+
+////////// TODO Here begin
+
 
 void chart_t::set_style(uint8_t style_id)
 {
@@ -2004,10 +2002,10 @@ std::string chart_t::write_v_num(double number)
 
 std::string chart_t::write_cat(chart_t& chart, const chart_series_t& series)
 {
-  const bool has_string_cache = series.categories.has_string_cache;
+  const bool has_string_cache = series.categories_.has_string_cache;
 
   // Ignore <c:cat> elements for charts without category values.
-  if(series.categories.formula.empty())
+  if(series.categories_.formula.empty())
   {
     return "";
   }
@@ -2015,7 +2013,7 @@ std::string chart_t::write_cat(chart_t& chart, const chart_series_t& series)
   chart.cat_has_num_fmt_ = !has_string_cache;
 
   std::string xml_data = xml_start_tag("c:cat");
-  xml_data += write_data_cache(series.categories, has_string_cache);
+  xml_data += write_data_cache(series.categories_, has_string_cache);
   xml_data += xml_end_tag("c:cat");
 
   return xml_data;
@@ -2178,7 +2176,7 @@ std::string chart_t::write_val(const chart_series_t& series)
   std::string xml_data = xml_start_tag("c:val");
   // Write the data cache elements. The string_cache is set to false since
   // this should always be a number series. */
-  xml_data += write_data_cache(series.values, false);
+  xml_data += write_data_cache(series.values_, false);
   xml_data += xml_end_tag("c:val");
 
   return xml_data;
@@ -3650,10 +3648,10 @@ std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
 
 std::string chart_t::write_x_val(const chart_series_t& series)
 {
-  const bool has_string_cache{series.categories.has_string_cache};
+  const bool has_string_cache{series.categories_.has_string_cache};
 
   std::string xml_data = xml_start_tag("c:xVal");
-  xml_data += write_data_cache(series.categories, has_string_cache);
+  xml_data += write_data_cache(series.categories_, has_string_cache);
   xml_data += xml_end_tag("c:xVal");
 
   return xml_data;
@@ -3664,7 +3662,7 @@ std::string chart_t::write_y_val(const chart_series_t& series)
   std::string xml_data = xml_start_tag("c:yVal");
   // Write the data cache elements. The string_cache is set to false since
   // this should always be a number series.
-  xml_data += write_data_cache(series.values, false);
+  xml_data += write_data_cache(series.values_, false);
   xml_data += xml_end_tag("c:yVal");
 
   return xml_data;
@@ -3892,7 +3890,7 @@ void chart_series_set_categories(chart_series_t& series, const std::string& shee
 {
   assert(!sheetname.empty());
 
-  set_range(series.categories, sheetname, first_row, first_col, last_row, last_col);
+  set_range(series.categories_, sheetname, first_row, first_col, last_row, last_col);
 }
 
 void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
@@ -3900,7 +3898,7 @@ void chart_series_set_values(chart_series_t& series, const std::string& sheetnam
 {
   assert(!sheetname.empty());
 
-  set_range(series.values, sheetname, first_row, first_col, last_row, last_col);
+  set_range(series.values_, sheetname, first_row, first_col, last_row, last_col);
 }
 
 // TODO series_range_t function
@@ -4439,5 +4437,6 @@ void chart_add_data_cache(series_range_t& range, const uint8_t* data, uint16_t r
     range.data_cache.push_back(data_point);
   }
 }
+////////// TODO Here end
 
 }
