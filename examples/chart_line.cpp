@@ -56,11 +56,11 @@ int main()
     xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series1, "=Sheet1!$B$1");
+    series1.set_name("=Sheet1!$B$1");
 
     // Add a second series with ranges.
     xwpp::chart_series_t& series2 = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
-  xwpp::build_serie_range( "Sheet1", 1, 2, 6, 2));  // "=Sheet1!$C$2:$C$7"
+                                                     xwpp::build_serie_range( "Sheet1", 1, 2, 6, 2));  // "=Sheet1!$C$2:$C$7"
 
     xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
@@ -84,13 +84,13 @@ int main()
     xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series1, "=Sheet1!$B$1");
+    series1.set_name("=Sheet1!$B$1");
 
     // Add the second series to the chart.
     xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Set the name for the series instead of the default "Series 2".
-    chart.series_set_name(series2, "=Sheet1!$C$1");
+    series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
     chart.title_set_name("Results of sample analysis");
@@ -112,13 +112,13 @@ int main()
     xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series1, "=Sheet1!$B$1");
+    series1.set_name("=Sheet1!$B$1");
 
     // Add the second series to the chart.
     xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Set the name for the series instead of the default "Series 2".
-    chart.series_set_name(series2, "=Sheet1!$C$1");
+    series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
     chart.title_set_name("Results of sample analysis");

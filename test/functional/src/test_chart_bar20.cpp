@@ -37,8 +37,8 @@ int main()
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
   xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$5");
 
-  chart.series_set_name(series2, "Apple");
-  chart.series_set_name(series3, "=Sheet1!$A$7");
+  series2.set_name("Apple");
+  series3.set_name("=Sheet1!$A$7");
 
   worksheet.insert_chart("E9", &chart);
 

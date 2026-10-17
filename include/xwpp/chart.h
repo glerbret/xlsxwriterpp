@@ -1131,7 +1131,6 @@ struct series_error_bars_t
 
 
 
-////////// TODO Here begin
 /**
  * @brief Representation of an Excel chart data series.
  *
@@ -1142,10 +1141,41 @@ struct series_error_bars_t
 class chart_series_t
 {
 public:
-  chart_series_t(std::string_view categories, std::string_view values);
-  chart_series_t(const series_range_t& categories, const series_range_t& values);
 
-public:
+  /**
+   * @brief Set the name of a chart series range.
+   *
+   * @param name   The series name.
+   *
+   * The `%set_name` function is used to set the name for a chart
+   * data series. The series name in Excel is displayed in the chart legend and
+   * in the formula bar. The name property is optional and if it isn't supplied
+   * it will default to `Series 1..n`.
+   *
+   * The function applies to a `chart_series_t` object created using
+   * `add_series()`:
+   *
+   * @code
+   *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
+   *
+   *  series.set_name("Quarterly budget data");
+   * @endcode
+   *
+   * The name parameter can also be a formula such as `=Sheet1!$A$1` to point to
+   * a cell in the workbook that contains the name:
+   *
+   * @code
+   *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
+   *
+   *  series.set_name(series, "=Sheet1!$B$1");
+   * @endcode
+   *
+   * See also the `chart_series_set_name_range()` function to see how to set the
+   * name formula programmatically.
+   */
+  void set_name(std::string_view name);
+
+////////// TODO Here begin
   chart_title_t title;
   std::optional<chart_line_t> line;
   std::optional<chart_fill_t> fill;
@@ -1191,11 +1221,13 @@ public:
   std::optional<chart_line_t> trendline_line;
   double trendline_intercept{0.};
 
-//private:
-public:
+private:
   friend class chart_t;
   friend class workbook_t;
 
+  chart_series_t(const series_range_t& categories, const series_range_t& values);
+
+public: // TODO
   series_range_t categories_;
   series_range_t values_;
 
@@ -1381,9 +1413,6 @@ public:
   /// @brief Overload with ranges but without categories.
   chart_series_t& add_series(const series_range_t& values);
 
-
-  ////////// TODO Here begin
-
   /**
    * @brief Set the chart style type.
    *
@@ -1437,41 +1466,8 @@ public:
    */
   void title_set_name(const std::string& name);
 
-  /**
-   * @brief Set the name of a chart series range.
-   *
-   * @param series A series object created via `add_series()`.
-   * @param name   The series name.
-   *
-   * The `%series_set_name` function is used to set the name for a chart
-   * data series. The series name in Excel is displayed in the chart legend and
-   * in the formula bar. The name property is optional and if it isn't supplied
-   * it will default to `Series 1..n`.
-   *
-   * The function applies to a `chart_series_t` object created using
-   * `add_series()`:
-   *
-   * @code
-   *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
-   *
-   *  chart.series_set_name(series, "Quarterly budget data");
-   * @endcode
-   *
-   * The name parameter can also be a formula such as `=Sheet1!$A$1` to point to
-   * a cell in the workbook that contains the name:
-   *
-   * @code
-   *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
-   *
-   *  chart.series_set_name(series, "=Sheet1!$B$1");
-   * @endcode
-   *
-   * See also the `chart_series_set_name_range()` function to see how to set the
-   * name formula programmatically.
-   *
-   * @todo Should be member of `chart_series_t`.
-   */
-  void series_set_name(chart_series_t& series, const std::string& name) const;
+
+  ////////// TODO Here begin
 
   /**
    * @brief Set the font properties for a chart title.

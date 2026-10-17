@@ -159,16 +159,25 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
 
 }
 
-chart_series_t::chart_series_t(std::string_view categories, std::string_view values)
-{
-  categories_.formula = dup_formula(categories);
-  values_.formula = dup_formula(values);
-}
-
 chart_series_t::chart_series_t(const series_range_t& categories, const series_range_t& values)
   : categories_{categories}
   , values_{values}
 {
+}
+
+void chart_series_t::set_name(std::string_view name)
+{
+  if(!name.empty())
+  {
+    if(name[0] == '=')
+    {
+      title.range.formula = name.substr(1);
+    }
+    else
+    {
+      title.name = name;
+    }
+  }
 }
 
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
@@ -183,6 +192,12 @@ series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row
   };
 }
 
+series_range_t build_serie_range(std::string_view formula)
+{
+  return{.formula = dup_formula(formula)};
+  // TODO Parse formula, populate other member (and replace populate_range_dimensions if possible)
+}
+
 ////////// TODO Here begin
 
 chart_t::chart_t(chart_type_t type)
@@ -195,30 +210,7 @@ chart_t::chart_t(chart_type_t type)
 
 chart_series_t& chart_t::add_series(std::string_view categories, std::string_view values)
 {
-  // Scatter charts require categories and values.
-  assert(chart_group_ != chart_type_t::SCATTER || (!values.empty() && !categories.empty()));
-  assert(!values.empty());
-
-  chart_series_t series{categories, values};
-
-  if(type_ == chart_type_t::SCATTER_SMOOTH)
-  {
-    series.smooth = true;
-  }
-  if(type_ == chart_type_t::SCATTER_SMOOTH_WITH_MARKERS)
-  {
-    series.smooth = true;
-  }
-
-  series.y_error_bars.chart_group = chart_group_;
-  series.x_error_bars.chart_group = chart_group_;
-  series.x_error_bars.is_x        = true;
-
-  series.default_label_position = default_label_position_;
-
-  series_list_.push_back(series);
-
-  return series_list_.back();
+  return add_series(build_serie_range(categories), build_serie_range(values));
 }
 
 chart_series_t& chart_t::add_series(std::string_view values)
@@ -230,7 +222,6 @@ chart_series_t& chart_t::add_series(const series_range_t& categories, const seri
 {
   chart_series_t series{categories, values};
 
-// TODO A mutualiser
   if(type_ == chart_type_t::SCATTER_SMOOTH)
   {
     series.smooth = true;
@@ -255,9 +246,6 @@ chart_series_t& chart_t::add_series(const series_range_t& values)
 {
   return add_series({}, values);
 }
-
-////////// TODO Here begin
-
 
 void chart_t::set_style(uint8_t style_id)
 {
@@ -285,21 +273,8 @@ void chart_t::title_set_name(const std::string& name)
   }
 }
 
-// cppcheck-suppress functionStatic
-void chart_t::series_set_name(chart_series_t& series, const std::string& name) const
-{
-  if(!name.empty())
-  {
-    if(name[0] == '=')
-    {
-      series.title.range.formula = name.substr(1);
-    }
-    else
-    {
-      series.title.name = name;
-    }
-  }
-}
+////////// TODO Here begin
+
 
 void chart_t::title_set_name_font(const chart_font_t& font)
 {

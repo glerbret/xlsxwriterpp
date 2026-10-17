@@ -55,7 +55,7 @@ int main()
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
   // Set the name for the series instead of the default "Series 1".
-  chart.series_set_name(series1, "=Sheet1!$B$1");
+  series1.set_name("=Sheet1!$B$1");
 
   // Add a second series with ranges.
   xwpp::chart_series_t& series2 = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
