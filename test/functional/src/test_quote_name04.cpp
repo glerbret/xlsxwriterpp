@@ -33,8 +33,7 @@ int main()
 
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-  xwpp::chart_series_t& series = chart.add_series("", "");
-  chart_series_set_values(series, sheetname, 0, 0, 4, 0);
+  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range(sheetname, 0, 0, 4, 0));
   chart_series_set_name_range(series, sheetname, 0, 0);
 
   chart.title_set_name("Foo");

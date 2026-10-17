@@ -165,9 +165,23 @@ chart_series_t::chart_series_t(std::string_view categories, std::string_view val
   values_.formula = dup_formula(values);
 }
 
+chart_series_t::chart_series_t(const series_range_t& categories, const series_range_t& values)
+  : categories_{categories}
+  , values_{values}
+{
+}
 
-
-
+series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+{
+  return {
+    .formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col),
+    .sheetname = std::string{sheetname},
+    .first_row = first_row,
+    .last_row  = last_row,
+    .first_col = first_col,
+    .last_col  = last_col,
+  };
+}
 
 ////////// TODO Here begin
 
@@ -210,6 +224,36 @@ chart_series_t& chart_t::add_series(std::string_view categories, std::string_vie
 chart_series_t& chart_t::add_series(std::string_view values)
 {
   return add_series("", values);
+}
+
+chart_series_t& chart_t::add_series(const series_range_t& categories, const series_range_t& values)
+{
+  chart_series_t series{categories, values};
+
+// TODO A mutualiser
+  if(type_ == chart_type_t::SCATTER_SMOOTH)
+  {
+    series.smooth = true;
+  }
+  if(type_ == chart_type_t::SCATTER_SMOOTH_WITH_MARKERS)
+  {
+    series.smooth = true;
+  }
+
+  series.y_error_bars.chart_group = chart_group_;
+  series.x_error_bars.chart_group = chart_group_;
+  series.x_error_bars.is_x        = true;
+
+  series.default_label_position = default_label_position_;
+
+  series_list_.push_back(series);
+
+  return series_list_.back();
+}
+
+chart_series_t& chart_t::add_series(const series_range_t& values)
+{
+  return add_series({}, values);
 }
 
 ////////// TODO Here begin
@@ -3883,22 +3927,6 @@ void chart_t::adjust_max_crossing(chart_t& chart)
       chart.x_axis_.axis_position = chart_position_t::TOP;
     }
   }
-}
-
-void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
-                                 col_num_t first_col, row_num_t last_row, col_num_t last_col)
-{
-  assert(!sheetname.empty());
-
-  set_range(series.categories_, sheetname, first_row, first_col, last_row, last_col);
-}
-
-void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
-                             col_num_t first_col, row_num_t last_row, col_num_t last_col)
-{
-  assert(!sheetname.empty());
-
-  set_range(series.values_, sheetname, first_row, first_col, last_row, last_col);
 }
 
 // TODO series_range_t function

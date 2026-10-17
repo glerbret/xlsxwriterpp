@@ -47,7 +47,7 @@ namespace xwpp
                                           col_num_t last_col);
 [[nodiscard]] std::string rowcol_to_range_abs(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                               col_num_t last_col);
-[[nodiscard]] std::string rowcol_to_formula_abs(const std::string& sheetname, row_num_t first_row, col_num_t first_col,
+[[nodiscard]] std::string rowcol_to_formula_abs(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
                                                 row_num_t last_row, col_num_t last_col);
 
 [[nodiscard]] col_num_t col_from_name(std::string_view name);

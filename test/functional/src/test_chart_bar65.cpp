@@ -31,13 +31,9 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
-  xwpp::chart_series_t& series2 = chart.add_series("", "");
-  xwpp::chart_series_t& series3 = chart.add_series("", "");
-
-  xwpp::chart_series_set_values(series1, "Sheet1", 0, 0, 4, 0);
-  xwpp::chart_series_set_values(series2, "Sheet1", 0, 1, 4, 1);
-  xwpp::chart_series_set_values(series3, "Sheet1", 0, 2, 4, 2);
+  xwpp::chart_series_t& series1 = chart.add_series(xwpp::build_serie_range("Sheet1", 0, 0, 4, 0));
+  xwpp::chart_series_t& series2 = chart.add_series(xwpp::build_serie_range("Sheet1", 0, 1, 4, 1));
+  xwpp::chart_series_t& series3 = chart.add_series(xwpp::build_serie_range("Sheet1", 0, 2, 4, 2));
 
   worksheet.insert_chart("E9", &chart);
 

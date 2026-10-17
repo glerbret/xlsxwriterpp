@@ -1143,6 +1143,7 @@ class chart_series_t
 {
 public:
   chart_series_t(std::string_view categories, std::string_view values);
+  chart_series_t(const series_range_t& categories, const series_range_t& values);
 
 public:
   chart_title_t title;
@@ -1273,6 +1274,23 @@ struct chart_axis_t
 ////////// TODO Here end
 
 /**
+ * @brief Build a serie range
+ *
+ * Build a serie range from sheetname, columns and rows.
+ *
+ * @param sheetname The name of the sheet.
+ * @param first_row The first row of the range.
+ * @param first_col The first column of the range.
+ * @param last_row  The last row of the range.
+ * @param last_col  The last column of the range.
+ *
+ * @return A serie range.
+ *
+ * @pre `sheetname` must not be empty
+ */
+series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+
+/**
  * @brief Representation of an Excel chart.
  *
  * Representation of an Excel chart.
@@ -1323,15 +1341,12 @@ public:
    * `"=Sheet1!$A$2:$A$7"` in the same way it is represented in Excel. This is
    * convenient when recreating a chart from an example in Excel but it is
    * trickier to generate programmatically. For these cases you can set the
-   * `%categories` and `%values` to an empty string and use the
-   * `chart_series_set_categories()` and `chart_series_set_values()` functions:
+   * `%categories` and `%values` to a serie range built with the
+   * `build_serie_range()` functions:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series("", "");
-   *
-   *  // Configure the series using a syntax that is easier to define programmatically.
-   *  chart_series_set_categories(series, "Sheet1", 1, 0, 6, 0); // "=Sheet1!$A$2:$A$7"
-   *  chart_series_set_values(series, "Sheet1", 1, 2, 6, 2); // "=Sheet1!$C$2:$C$7"
+   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0),  // "=Sheet1!$A$2:$A$7"
+   *                                                  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
    * @endcode
    *
    * As shown in the previous example the return value from
@@ -1359,8 +1374,13 @@ public:
    * @pre `%categories` must not be empty.
    */
   chart_series_t& add_series(std::string_view categories, std::string_view values);
-  /// @brief Overload without categories
+  /// @brief Overload without categories.
   chart_series_t& add_series(std::string_view values);
+  /// @brief Overload with ranges.
+  chart_series_t& add_series(const series_range_t& categories, const series_range_t& values);
+  /// @brief Overload with ranges but without categories.
+  chart_series_t& add_series(const series_range_t& values);
+
 
   ////////// TODO Here begin
 
@@ -2460,63 +2480,6 @@ private:
 
   static const uint16_t DEFAULT_GAP{501};
 };
-
-/**
- * @brief Set a series "categories" range using row and column values.
- *
- * @param series    A series object created via `chart_t::add_series()`.
- * @param sheetname The name of the worksheet that contains the data range.
- * @param first_row The first row of the range.
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- *
- * The `categories` and `values` of a chart data series are generally set
- * using the `chart_t::add_series()` function and Excel range formulas like
- * `"=Sheet1!$A$2:$A$7"`.
- *
- * The `%chart_series_set_categories()` function is an alternative method that
- * is easier to generate programmatically. It requires that you set the
- * `categories` and `values` parameters in `chart_add_series()`to ann empty
- * string and then set them using row and column values in
- * `chart_series_set_categories()` and `chart_series_set_values()`:
- *
- * @code
- *  xwpp::chart_series_t& series = chart.add_series("", "");
- *
- *  // Configure the series ranges programmatically.
- *  chart_series_set_categories(series, "Sheet1", 1, 0, 6, 0);  // "=Sheet1!$A$2:$A$7"
- *  chart_series_set_values(series, "Sheet1", 1, 2, 6, 2);      // "=Sheet1!$C$2:$C$7"
- * @endcode
- *
- * @pre The `%sheetname` parameter should not be empty.
- */
-void chart_series_set_categories(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
-                                 col_num_t first_col, row_num_t last_row, col_num_t last_col);
-
-/**
- * @brief Set a series "values" range using row and column values.
- *
- * @param series    A series object created via `chart_t::add_series()`.
- * @param sheetname The name of the worksheet that contains the data range.
- * @param first_row The first row of the range.
- * @param first_col The first column of the range.
- * @param last_row  The last row of the range.
- * @param last_col  The last col of the range.
- *
- * The `categories` and `values` of a chart data series are generally set
- * using the `chart_t::add_series()` function and Excel range formulas like
- * `"=Sheet1!$A$2:$A$7"`.
- *
- * The `%chart_series_set_values()` function is an alternative method that is
- * easier to generate programmatically.
- *
- * @see the documentation for `chart_series_set_categories()` above.
- *
- * @pre The `%sheetname` parameter should not be empty.
- */
-void chart_series_set_values(chart_series_t& series, const std::string& sheetname, row_num_t first_row,
-                             col_num_t first_col, row_num_t last_row, col_num_t last_col);
 
 // TODO Add doc.
 void set_range(series_range_t& range, const std::string& sheetname, row_num_t first_row, col_num_t first_col,

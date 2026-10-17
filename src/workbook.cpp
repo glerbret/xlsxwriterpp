@@ -1142,7 +1142,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
   }
 
   // If the sheetname is already defined it was already set via
-  // chart_series_set_categories() or chart_series_set_values().
+  // ranges.
   if(!range.sheetname.empty())
   {
     return;
