@@ -90,7 +90,7 @@ int main()
     xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Set the name for the series instead of the default "Series 2".
-    series1.set_name("=Sheet1!$C$1");
+    series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
     chart.title_set_name("Results of sample analysis");
