@@ -40,7 +40,7 @@ int main()
     {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  xwpp::chart_add_data_cache(series1.values, test_data[0].data(), 4, 3, 0);
+  xwpp::chart_add_data_cache(series1.values_, test_data[0].data(), 4, 3, 0);
 
   workbook.save("test_chart_column07.xlsx");
 }
