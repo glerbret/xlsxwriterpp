@@ -56,14 +56,14 @@ int main()
   const xwpp::chart_pattern_t pattern8{.fg_color = xwpp::color_t{0x0070C0},
                                        .type     = xwpp::chart_pattern_type_t::SOLID_DIAMOND};
 
-  chart_series_set_pattern(series1, pattern1);
-  chart_series_set_pattern(series2, pattern2);
-  chart_series_set_pattern(series3, pattern3);
-  chart_series_set_pattern(series4, pattern4);
-  chart_series_set_pattern(series5, pattern5);
-  chart_series_set_pattern(series6, pattern6);
-  chart_series_set_pattern(series7, pattern7);
-  chart_series_set_pattern(series8, pattern8);
+  series1.set_pattern(pattern1);
+  series2.set_pattern(pattern2);
+  series3.set_pattern(pattern3);
+  series4.set_pattern(pattern4);
+  series5.set_pattern(pattern5);
+  series6.set_pattern(pattern6);
+  series7.set_pattern(pattern7);
+  series8.set_pattern(pattern8);
 
   worksheet.insert_chart("E9", &chart);
 

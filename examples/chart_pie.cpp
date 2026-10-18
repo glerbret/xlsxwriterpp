@@ -92,7 +92,7 @@ int main()
     };
 
     // Add/override the points/segments of the chart.
-    series_set_points(series, points);
+    series.set_points(points);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D18", &chart);

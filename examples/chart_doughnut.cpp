@@ -97,7 +97,7 @@ int main()
     chart.set_title("Doughnut Chart with user defined colors");
 
     // Add/override the points/segments of the chart.
-    series_set_points(series, points);
+    series.set_points(points);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D18", &chart);
@@ -137,7 +137,7 @@ int main()
     chart.set_title("Doughnut Chart with options applied.");
 
     // Add/override the points/segments defined in Chart 2.
-    series_set_points(series, points);
+    series.set_points(points);
 
     // Set an Excel chart style.
     chart.set_style(26);

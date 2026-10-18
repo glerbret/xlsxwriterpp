@@ -42,8 +42,8 @@ int main()
     {.fill = red_fill},
   };
 
-  // Add the points to the series. */
-  series_set_points(series, points);
+  // Add the points to the series.
+  series.set_points(points);
 
   // Insert the chart into the worksheet.
   worksheet.insert_chart("D2", &chart);

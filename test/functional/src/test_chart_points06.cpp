@@ -38,7 +38,7 @@ int main()
   const xwpp::chart_fill_t red_fill{.color = xwpp::color_t::red()};
   const std::vector<xwpp::chart_point_t> points{{.fill = red_fill}};
 
-  series_set_points(series1, points);
+  series1.set_points(points);
 
   series1.set_marker_type(xwpp::chart_marker_type_t::AUTOMATIC);
   series2.set_marker_type(xwpp::chart_marker_type_t::AUTOMATIC);

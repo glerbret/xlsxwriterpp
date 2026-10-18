@@ -32,18 +32,17 @@ int main()
   }
 
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
+  series1.set_labels();
+  series1.set_labels_options(false, true, true);
+
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
-  xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$5");
-
-  xwpp::chart_series_set_labels(series1);
-  xwpp::chart_series_set_labels(series2);
-  xwpp::chart_series_set_labels(series3);
-
-  xwpp::chart_series_set_labels_options(series1, false, true, true);
-  xwpp::chart_series_set_labels_options(series2, false, true, true);
-  xwpp::chart_series_set_labels_options(series3, false, true, true);
-
+  series2.set_labels();
+  series2.set_labels_options(false, true, true);
   xwpp::chart_series_set_labels_separator(series2, xwpp::chart_label_separator_t::NEWLINE);
+
+  xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$5");
+  series3.set_labels();
+  series3.set_labels_options(false, true, true);
   xwpp::chart_series_set_labels_separator(series3, xwpp::chart_label_separator_t::SPACE);
 
   worksheet.insert_chart("E9", &chart);

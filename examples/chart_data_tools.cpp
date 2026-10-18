@@ -141,7 +141,7 @@ int main()
     series.set_marker_type(xwpp::chart_marker_type_t::CIRCLE);
 
     // Add series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E66", &chart);
@@ -162,7 +162,7 @@ int main()
     chart.series_set_error_bars(series.y_error_bars, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
     // Add series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E82", &chart);

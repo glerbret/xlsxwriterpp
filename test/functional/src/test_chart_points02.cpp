@@ -27,7 +27,7 @@ int main()
   const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
   const std::vector<xwpp::chart_point_t> points{{}, {.line = line}, {}, {.fill = fill}};
 
-  series_set_points(series, points);
+  series.set_points(points);
 
   worksheet.insert_chart("E9", &chart);
 

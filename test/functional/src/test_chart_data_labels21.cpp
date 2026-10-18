@@ -31,19 +31,18 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
-
   const xwpp::chart_font_t font{.name = "Consolas", .pitch_family = 49, .charset = 0, .baseline = -1};
 
-  xwpp::chart_series_set_labels(series1);
-  xwpp::chart_series_set_labels_options(series1, true, true, true);
-  xwpp::chart_series_set_labels_position(series1, xwpp::chart_label_position_t::INSIDE_END);
-  xwpp::chart_series_set_labels_separator(series1, xwpp::chart_label_separator_t::SEMICOLON);
-  xwpp::chart_series_set_labels_leader_line(series1);
-  xwpp::chart_series_set_labels_legend(series1);
-  xwpp::chart_series_set_labels_percentage(series1);
-  xwpp::chart_series_set_labels_num_format(series1, "#,##0.00");
-  xwpp::chart_series_set_labels_font(series1, font);
+  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
+  series.set_labels();
+  series.set_labels_options(true, true, true);
+  xwpp::chart_series_set_labels_position(series, xwpp::chart_label_position_t::INSIDE_END);
+  xwpp::chart_series_set_labels_separator(series, xwpp::chart_label_separator_t::SEMICOLON);
+  xwpp::chart_series_set_labels_leader_line(series);
+  xwpp::chart_series_set_labels_legend(series);
+  xwpp::chart_series_set_labels_percentage(series);
+  xwpp::chart_series_set_labels_num_format(series, "#,##0.00");
+  xwpp::chart_series_set_labels_font(series, font);
 
   worksheet.insert_chart("E9", &chart);
 

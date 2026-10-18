@@ -40,8 +40,8 @@ int main()
   const std::vector<xwpp::chart_point_t> points1{{.fill = red_fill}, {.fill = yellow_fill}};
   const std::vector<xwpp::chart_point_t> points2{{}, {}, {.fill = yellow_fill}};
 
-  series_set_points(series1, points1);
-  series_set_points(series2, points2);
+  series1.set_points(points1);
+  series2.set_points(points2);
 
   worksheet.insert_chart("E9", &chart);
 

@@ -1169,10 +1169,30 @@ public:
    *  series.set_name(series, "=Sheet1!$B$1");
    * @endcode
    *
-   * See also the `chart_series_set_name_range()` function to see how to set the
+   * See also the `%set_name()` overload to see how to set the
    * name formula programmatically.
    */
   void set_name(std::string_view name);
+
+/**
+ * @brief Set a series name formula using row and column values.
+ *
+ * @param sheetname The name of the worksheet that contains the cell range.
+ * @param row_num   The zero indexed row number of the range.
+ * @param col_num   The zero indexed column number of the range.
+ *
+ * This `%set_name()` overload is an alternative to using `%set_name()` and a
+ * string formula:
+ *
+ * @code
+ *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
+ *
+ *  series.set_name("Sheet1", 0, 2); // "=Sheet1!$C$1"
+ * @endcode
+ *
+ * @pre The `%sheetname` parameter should not be empty.
+ */
+void set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
 
   /**
    * @brief Set the data marker type for a series.
@@ -1330,21 +1350,197 @@ void set_marker_pattern(const chart_pattern_t& pattern);
  */
 void set_line(const chart_line_t& line);
 
+/**
+ * @brief Set the fill properties for a chart series.
+ *
+ * @param fill   A `chart_fill_t` struct.
+ *
+ * Set the fill properties of a chart series:
+ *
+ * @code
+ *  xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
+ *  xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
+ *  xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
+ *
+ *  series1.set_fill(fill1);
+ *  series2.set_fill(fill2);
+ *  series3.set_fill(fill3);
+ * @endcode
+ *
+ * @image html chart_series_set_fill.png
+ *
+ * @see @ref chart_fills.
+ */
+void set_fill(const chart_fill_t& fill);
+
+/**
+ * @brief Set the pattern properties for a chart series.
+ *
+ * @param series  A series object created via `chart_t::add_series()`.
+ * @param pattern A `chart_pattern_t` struct.
+ *
+ * Set the pattern properties of a chart series:
+ *
+ * @code
+ *  xwpp::chart_pattern_t pattern1{
+ *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
+ *    .fg_color = xwpp::color_t{0x804000},
+ *    .bg_color = xwpp::color_t{0xC68C53},
+ *  };
+ *
+ *  xwpp::chart_pattern_t pattern2{
+ *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
+ *    .fg_color = xwpp::color_t{0xB30000},
+ *    .bg_color = xwpp::color_t{0xFF6666},
+ *  };
+ *
+ *  series1.set_pattern(pattern1);
+ *  series2.set_pattern(pattern2);
+ * @endcode
+ *
+ * @image html chart_pattern.png
+ *
+ * @see `chart_pattern_type_t` and @ref chart_patterns.
+ */
+void set_pattern(const chart_pattern_t& pattern);
+
+/**
+ * @brief Invert the fill color for negative series values.
+ *
+ * Invert the fill color for negative values. Usually only applicable to
+ * column and bar charts.
+ *
+ * @code
+ *  series.set_invert_if_negative();
+ * @endcode
+ */
+void set_invert_if_negative();
+
+/**
+ * @brief Smooth a line or scatter chart series.
+ *
+ * @param smooth Turn off/on the line smoothing.
+ *
+ * The `set_smooth()` function is used to set the smooth property
+ * of a line series. It is only applicable to the line and scatter chart
+ * types:
+ *
+ * @code
+ *  series.set_smooth(true);
+ * @endcode
+ *
+ * @image html chart_smooth.png
+ */
+void set_smooth(bool smooth);
+
+/**
+ * @brief Set the formatting for points in the series.
+ *
+ * @param points A vector of `chart_point_t` pointers.
+ *
+ * In general formatting is applied to an entire series in a chart. However,
+ * it is occasionally required to format individual points in a series. In
+ * particular this is required for Pie/Doughnut charts where each segment is
+ * represented by a point.
+ *
+ * @dontinclude chart_pie_colors.cpp
+ * @skip Add the data series
+ * @until series_set_points
+ *
+ * @image html chart_points1.png
+ *
+ * @see @ref chart_points
+ *
+ * @pre The `%points` parameter should not be empty.
+ */
+void set_points(const std::vector<chart_point_t>& points);
+
+/**
+ * @brief Add data labels to a chart series.
+ *
+ * The `%set_labels()` function is used to turn on data labels for a chart series.
+ * Data labels indicate the values of the plotted data points.
+ *
+ * @code
+ *  series.set_labels();
+ * @endcode
+ *
+ * @image html chart_data_labels1.png
+ *
+ * By default data labels are displayed in Excel with only the values shown:
+ *
+ * @image html chart_data_labels2.png
+ *
+ * However, it is possible to configure other display options, as shown
+ * in the functions below.
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels();
+
+/**
+ * @brief Set the display options for the labels of a data series.
+ *
+ * @param show_name     Turn on/off the series name in the label caption.
+ * @param show_category Turn on/off the category name in the label caption.
+ * @param show_value    Turn on/off the value in the label caption.
+ *
+ * The `%set_labels_options()` function is used to set the
+ * parameters that are displayed in the series data label:
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_options(true, true, true);
+ * @endcode
+ *
+ * @image html chart_data_labels3.png
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_options(bool show_name, bool show_category, bool show_value);
+
+/** @brief Set the properties for data labels in a series.
+ *
+ * @param data_labels A vector of `chart_data_label_t` pointers.
+ *
+ * The `%set_labels_custom()` function is used to set the properties
+ * for data labels in a series. It can also be used to delete individual data
+ * labels in a series.
+ *
+ * In general properties are set for all the data labels in a chart
+ * series. However, it is also possible to set properties for individual data
+ * labels in a series using `%chart_series_set_labels_custom()`.
+ *
+ * @code
+ *  // Add the series data labels.
+ *  series.set_labels();
+ *
+ *  // Create some custom labels.
+ *  std::vector<xwpp::chart_data_label_t> data_labels{
+ *    {.value = "Jan"},
+ *    {.value = "Feb"},
+ *    {.value = "Mar"},
+ *    {.value = "Apr"},
+ *    {.value = "May"},
+ *    {.value = "Jun"},
+ *  };
+ *
+ *  // Set the custom labels.
+ *  series.set_labels_custom(data_labels);
+ * @endcode
+ *
+ * @image html chart_data_labels18.png
+ *
+ * @see @ref chart_custom_labels.
+ *
+ * @pre The `%data_labels` parameter should not be empty.
+ */
+void set_labels_custom(const std::vector<chart_data_label_t>& data_labels);
+
 ////////// TODO Here begin
-  chart_title_t title;
-  std::optional<chart_fill_t> fill_;
-  std::optional<chart_pattern_t> pattern_;
-  std::vector<chart_point_t> points;
-  std::vector<chart_custom_label_t> data_labels;
 
-  bool smooth{false};
-  bool invert_if_negative{false};
 
-  // Data label parameters.
-  bool has_labels{false};
-  bool show_labels_value{false};
-  bool show_labels_category{false};
-  bool show_labels_name{false};
+
   bool show_labels_leader{false};
   bool show_labels_legend{false};
   bool show_labels_percent{false};
@@ -1380,11 +1576,25 @@ private:
 
   chart_series_t(const series_range_t& categories, const series_range_t& values);
 
-public: // TODO
+//public: // TODO
+  bool invert_if_negative_{false};
+  bool smooth_{false};
+
+  chart_title_t title_;
   series_range_t categories_;
   series_range_t values_;
   std::optional<chart_marker_t> marker_;
   std::optional<chart_line_t> line_;
+  std::optional<chart_fill_t> fill_;
+  std::optional<chart_pattern_t> pattern_;
+  std::vector<chart_point_t> points_;
+
+  // Data label parameters.
+  bool has_labels_{false};
+  bool show_labels_name_{false};
+  bool show_labels_category_{false};
+  bool show_labels_value_{false};
+  std::vector<chart_custom_label_t> data_labels_;
 };
 ////////// TODO Here end
 
@@ -1922,6 +2132,43 @@ public:
                         const std::optional<chart_line_t>& down_bar_line = std::nullopt,
                         const std::optional<chart_fill_t>& down_bar_fill = std::nullopt);
 
+  /**
+   * @brief Set the Pie/Doughnut chart rotation.
+   *
+   * @param rotation The angle of rotation.
+   *
+   * The `%set_rotation()` function is used to set the rotation of the
+   * first segment of a Pie/Doughnut chart. This has the effect of rotating
+   * the entire chart:
+   *
+   * @code
+   *  chart.set_rotation(28);
+   * @endcode
+   *
+   * This option is only available for Pie/Doughnut charts.
+   *
+   * @pre The `rotation` paramter must be in the range `[0, 360]`.
+   */
+  void set_rotation(uint16_t rotation);
+
+  /**
+   * @brief Set the Doughnut chart hole size.
+   *
+   * @param size The hole size as a percentage.
+   *
+   * The `%set_hole_size()` function is used to set the hole size of a
+   * Doughnut chart:
+   *
+   * @code
+   *  chart.set_hole_size(33);
+   * @endcode
+   *
+   * This option is only available for Doughnut charts.
+   *
+   * @pre The `size` paramter must be in the range `[10, 90]`.
+   */
+  void set_hole_size(uint8_t size);
+
   ////////// TODO Here begin
 
   /**
@@ -1980,43 +2227,6 @@ public:
    * @pre `%error_bars` should not be already set.
    */
   void series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const;
-
-  /**
-   * @brief Set the Pie/Doughnut chart rotation.
-   *
-   * @param rotation The angle of rotation.
-   *
-   * The `%set_rotation()` function is used to set the rotation of the
-   * first segment of a Pie/Doughnut chart. This has the effect of rotating
-   * the entire chart:
-   *
-   * @code
-   *  chart.set_rotation(28);
-   * @endcode
-   *
-   * This option is only available for Pie/Doughnut charts.
-   *
-   * @pre The `rotation` paramter must be in the range `[0, 360]`.
-   */
-  void set_rotation(uint16_t rotation);
-
-  /**
-   * @brief Set the Doughnut chart hole size.
-   *
-   * @param size The hole size as a percentage.
-   *
-   * The `%set_hole_size()` function is used to set the hole size of a
-   * Doughnut chart:
-   *
-   * @code
-   *  chart.set_hole_size(33);
-   * @endcode
-   *
-   * This option is only available for Doughnut charts.
-   *
-   * @pre The `size` paramter must be in the range `[10, 90]`.
-   */
-  void set_hole_size(uint8_t size);
 
   /**
    * @brief Set the gap between series in a Bar/Column chart.
@@ -2543,227 +2753,7 @@ private:
 void set_range(series_range_t& range, const std::string& sheetname, row_num_t first_row, col_num_t first_col,
                row_num_t last_row, col_num_t last_col);
 
-// TODO To move out chart_t
-/**
- * @brief Set a series name formula using row and column values.
- *
- * @param series    A series object created via `chart_t::add_series()`.
- * @param sheetname The name of the worksheet that contains the cell range.
- * @param row_num   The zero indexed row number of the range.
- * @param col_num   The zero indexed column number of the range.
- *
- * The `%chart_series_set_name_range()` function can be used to set a series
- * name range and is an alternative to using `chart_series_set_name()` and a
- * string formula:
- *
- * @code
- *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$B$2:$B$7");
- *
- *  chart_series_set_name_range(series, "Sheet1", 0, 2); // "=Sheet1!$C$1"
- * @endcode
- *
- * @pre The `%sheetname` parameter should not be empty.
- */
-void chart_series_set_name_range(chart_series_t& series, const std::string& sheetname, row_num_t row_num,
-                                 col_num_t col_num);
-
-/**
- * @brief Set the fill properties for a chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param fill   A `chart_fill_t` struct.
- *
- * Set the fill properties of a chart series:
- *
- * @code
- *  xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
- *  xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
- *  xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
- *
- *  chart_series_set_fill(series1, fill1);
- *  chart_series_set_fill(series2, fill2);
- *  chart_series_set_fill(series3, fill3);
- * @endcode
- *
- * @image html chart_series_set_fill.png
- *
- * @see @ref chart_fills.
- */
-void chart_series_set_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill);
-
-/**
- * @brief Invert the fill color for negative series values.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * Invert the fill color for negative values. Usually only applicable to
- * column and bar charts.
- *
- * @code
- *  chart_series_set_invert_if_negative(series);
- * @endcode
- */
-void chart_series_set_invert_if_negative(chart_series_t& series);
-
-/**
- * @brief Set the pattern properties for a chart series.
- *
- * @param series  A series object created via `chart_t::add_series()`.
- * @param pattern A `chart_pattern_t` struct.
- *
- * Set the pattern properties of a chart series:
- *
- * @code
- *  xwpp::chart_pattern_t pattern1{
- *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
- *    .fg_color = xwpp::color_t{0x804000},
- *    .bg_color = xwpp::color_t{0xC68C53},
- *  };
- *
- *  xwpp::chart_pattern_t pattern2{
- *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
- *    .fg_color = xwpp::color_t{0xB30000},
- *    .bg_color = xwpp::color_t{0xFF6666},
- *  };
- *
- *  chart_series_set_pattern(series1, pattern1);
- *  chart_series_set_pattern(series2, pattern2);
- * @endcode
- *
- * @image html chart_pattern.png
- *
- * @see `chart_pattern_type_t` and @ref chart_patterns.
- */
-void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
-
-/**
- * @brief Set the formatting for points in the series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param points A vector of `chart_point_t` pointers.
- *
- * In general formatting is applied to an entire series in a chart. However,
- * it is occasionally required to format individual points in a series. In
- * particular this is required for Pie/Doughnut charts where each segment is
- * represented by a point.
- *
- * @dontinclude chart_pie_colors.cpp
- * @skip Add the data series
- * @until series_set_points
- *
- * @image html chart_points1.png
- *
- * @see @ref chart_points
- *
- * @pre The `%points` parameter should not be empty.
- */
-void series_set_points(chart_series_t& series, const std::vector<chart_point_t>& points);
-
-/**
- * @brief Smooth a line or scatter chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param smooth Turn off/on the line smoothing. (0/1)
- *
- * The `chart_series_set_smooth()` function is used to set the smooth property
- * of a line series. It is only applicable to the line and scatter chart
- * types:
- *
- * @code
- *  chart_series_set_smooth(series2, true);
- * @endcode
- *
- * @image html chart_smooth.png
- */
-void chart_series_set_smooth(chart_series_t& series, bool smooth);
-
 // TODO Member function of series
-/**
- * @brief Add data labels to a chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * The `%chart_series_set_labels()` function is used to turn on data labels
- * for a chart series. Data labels indicate the values of the plotted data
- * points.
- *
- * @code
- *  chart_series_set_labels(series);
- * @endcode
- *
- * @image html chart_data_labels1.png
- *
- * By default data labels are displayed in Excel with only the values shown:
- *
- * @image html chart_data_labels2.png
- *
- * However, it is possible to configure other display options, as shown
- * in the functions below.
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels(chart_series_t& series);
-
-/**
- * @brief Set the display options for the labels of a data series.
- *
- * @param series        A series object created via `chart_t::add_series()`.
- * @param show_name     Turn on/off the series name in the label caption.
- * @param show_category Turn on/off the category name in the label caption.
- * @param show_value    Turn on/off the value in the label caption.
- *
- * The `%chart_series_set_labels_options()` function is used to set the
- * parameters that are displayed in the series data label:
- *
- * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_options(series, true, true, true);
- * @endcode
- *
- * @image html chart_data_labels3.png
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_options(chart_series_t& series, bool show_name, bool show_category, bool show_value);
-
-/** @brief Set the properties for data labels in a series.
- *
- * @param series      A series object created via `chart_t::add_series()`.
- * @param data_labels A vector of `chart_data_label_t` pointers.
- *
- * The `%chart_series_set_labels_custom()` function is used to set the properties
- * for data labels in a series. It can also be used to delete individual data
- * labels in a series.
- *
- * In general properties are set for all the data labels in a chart
- * series. However, it is also possible to set properties for individual data
- * labels in a series using `%chart_series_set_labels_custom()`.
- *
- * @code
- *  // Add the series data labels.
- *  chart_series_set_labels(series);
- *
- *  // Create some custom labels.
- *  std::vector<xwpp::chart_data_label_t> data_labels{
- *    {.value = "Jan"},
- *    {.value = "Feb"},
- *    {.value = "Mar"},
- *    {.value = "Apr"},
- *    {.value = "May"},
- *    {.value = "Jun"},
- *  };
- *
- *  // Set the custom labels.
- *  chart_series_set_labels_custom(series, data_labels);
- * @endcode
- *
- * @image html chart_data_labels18.png
- *
- * @see @ref chart_custom_labels.
- *
- * @pre The `%data_labels` parameter should not be empty.
- */
-void chart_series_set_labels_custom(chart_series_t& series, const std::vector<chart_data_label_t>& data_labels);
 
 /**
  * @brief Set the separator for the data label captions.
@@ -2783,9 +2773,9 @@ void chart_series_set_labels_custom(chart_series_t& series, const std::vector<ch
  * - `%chart_label_separator_t::SPACE`: a space separator.
  *
  * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_options(series, true, true, true);
- *  chart_series_set_labels_separator(series, xwpp::chart_label_separator_t::NEWLINE);
+ *  series.set_labels();
+ *  series.set_labels_options(true, true, true);
+ *  series.set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
  * @endcode
  *
  * @image html chart_data_labels4.png
@@ -2804,8 +2794,8 @@ void chart_series_set_labels_separator(chart_series_t& series, chart_label_separ
  * the labels in the data series:
  *
  * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_position(series, xwpp::chart_label_position_t::ABOVE);
+ *  series.set_labels();
+ *  series.set_labels_position(xwpp::chart_label_position_t::ABOVE);
  * @endcode
  *
  * @image html chart_data_labels5.png
@@ -2839,8 +2829,8 @@ void chart_series_set_labels_position(chart_series_t& series, chart_label_positi
  * or doughnut charts:
  *
  * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_leader_line(series);
+ *  series.set_labels();
+ *  series.set_labels_leader_line();
  * @endcode
  *
  * @note Even when leader lines are turned on they aren't automatically
@@ -2861,8 +2851,8 @@ void chart_series_set_labels_leader_line(chart_series_t& series);
  * legend key for a data series:
  *
  * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_legend(series);
+ *  series.set_labels();
+ *  series.set_labels_legend();
  * @endcode
  *
  * @image html chart_data_labels6.png
@@ -2881,9 +2871,9 @@ void chart_series_set_labels_legend(chart_series_t& series);
  * used for pie charts:
  *
  * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_options(series, false, false, false);
- *  chart_series_set_labels_percentage(series);
+ *  series.set_labels();
+ *  series.set_labels_options(false, false, false);
+ *  series.set_labels_percentage();
  * @endcode
  *
  * @image html chart_data_labels7.png
@@ -2902,8 +2892,8 @@ void chart_series_set_labels_percentage(chart_series_t& series);
  * number format for data labels:
  *
  * @code
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_num_format(series, "$0.00");
+ *  series.set_labels();
+ *  series.set_labels_num_format("$0.00");
  * @endcode
  *
  * @image html chart_data_labels8.png
@@ -2930,8 +2920,8 @@ void chart_series_set_labels_num_format(chart_series_t& series, std::string_view
  *    .color = xwpp::color_t::red(),
  *  };
  *
- *  chart_series_set_labels(series);
- *  chart_series_set_labels_font(series, font);
+ *  series.set_labels();
+ *  series.set_labels_font(font);
  * @endcode
  *
  * @image html chart_data_labels9.png

@@ -36,7 +36,7 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
   series.set_line(line);
-  chart_series_set_fill(series, fill);
+  series.set_fill(fill);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 

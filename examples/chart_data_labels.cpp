@@ -58,7 +58,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -78,10 +78,10 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Turn on Value and Category labels.
-    xwpp::chart_series_set_labels_options(series, false, true, true);
+    series.set_labels_options(false, true, true);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -101,7 +101,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     const xwpp::chart_font_t font{.bold = true, .rotation = -30, .color = xwpp::color_t::red()};
     xwpp::chart_series_set_labels_font(series, font);
@@ -124,7 +124,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Set the border/line and fill for the data labels.
     const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
@@ -151,7 +151,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -159,7 +159,7 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -179,7 +179,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -188,7 +188,7 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -210,7 +210,7 @@ int main()
     const xwpp::chart_font_t font{.color = xwpp::color_t::red()};
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -221,7 +221,7 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -241,7 +241,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const xwpp::chart_data_label_t hide{.hide = true};
@@ -251,7 +251,7 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -271,7 +271,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Set the border/line and fill for the data labels.
     xwpp::chart_line_t line2{.color = xwpp::color_t::red()};
@@ -294,7 +294,7 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);

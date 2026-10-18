@@ -62,7 +62,7 @@ int main()
     xwpp::chart_series_t& series2 = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
                                                      xwpp::build_serie_range( "Sheet1", 1, 2, 6, 2));  // "=Sheet1!$C$2:$C$7"
 
-    xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
+    series2.set_name("Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
     // Add a chart title and some axis labels.
     chart.set_title("Results of sample analysis");

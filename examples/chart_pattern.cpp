@@ -57,8 +57,8 @@ int main()
     .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
   };
 
-  xwpp::chart_series_set_pattern(series1, pattern1);
-  xwpp::chart_series_set_pattern(series2, pattern2);
+  series1.set_pattern(pattern1);
+  series2.set_pattern(pattern2);
 
   // Configure and set the chart series borders.
   xwpp::chart_line_t line2{.color = xwpp::color_t{0xb30000}};
