@@ -710,25 +710,6 @@ void chart_t::set_hole_size(uint8_t size)
   hole_size_ = size;
 }
 
-////////// TODO Here begin
-
-// cppcheck-suppress functionStatic
-void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const
-{
-  assert(!error_bars.is_set);
-  assert(check_error_bars(error_bars) == true);
-
-  error_bars.type      = type;
-  error_bars.value     = value;
-  error_bars.has_value = true;
-  error_bars.is_set    = true;
-
-  if(type == chart_error_bar_type_t::STD_ERROR)
-  {
-    error_bars.has_value = false;
-  }
-}
-
 void chart_t::set_series_gap(uint16_t gap)
 {
   assert(gap <= 500);
@@ -736,24 +717,38 @@ void chart_t::set_series_gap(uint16_t gap)
   gap_y1_ = gap;
 }
 
-void chart_t::chartarea_set_line(const std::optional<chart_line_t>& line)
+void chart_t::chartarea_set_line(const chart_line_t& line)
 {
   chartarea_line_ = convert_line_args(line);
 }
 
-void chart_t::chartarea_set_fill(const std::optional<chart_fill_t>& fill)
+void chart_t::chartarea_set_fill(const chart_fill_t& fill)
 {
   chartarea_fill_ = convert_fill_args(fill);
 }
+void chart_t::chartarea_set_pattern(const chart_pattern_t& pattern)
+{
+  chartarea_pattern_ = convert_pattern_args(pattern);
+}
 
-void chart_t::plotarea_set_line(const std::optional<chart_line_t>& line)
+void chart_t::plotarea_set_line(const chart_line_t& line)
 {
   plotarea_line_ = convert_line_args(line);
 }
 
-void chart_t::plotarea_set_fill(const std::optional<chart_fill_t>& fill)
+void chart_t::plotarea_set_fill(const chart_fill_t& fill)
 {
   plotarea_fill_ = convert_fill_args(fill);
+}
+
+void chart_t::plotarea_set_layout(const chart_layout_t& layout)
+{
+  plotarea_layout_ = convert_layout_args(layout, chart_layout_type_t::PLOTAREA);
+}
+
+void chart_t::plotarea_set_pattern(const chart_pattern_t& pattern)
+{
+  plotarea_pattern_ = convert_pattern_args(pattern);
 }
 
 void chart_t::show_blanks_as(chart_blank_t option)
@@ -773,6 +768,36 @@ void chart_t::set_series_overlap(int8_t overlap)
   overlap_y1_ = overlap;
 }
 
+void chart_t::title_off()
+{
+  title_.off = true;
+}
+
+void chart_t::set_table_font(const chart_font_t& font)
+{
+  has_table_  = true;
+  table_font_ = convert_font_args(font);
+}
+
+////////// TODO Here begin
+
+// cppcheck-suppress functionStatic
+void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const
+{
+  assert(!error_bars.is_set);
+  assert(check_error_bars(error_bars) == true);
+
+  error_bars.type      = type;
+  error_bars.value     = value;
+  error_bars.has_value = true;
+  error_bars.is_set    = true;
+
+  if(type == chart_error_bar_type_t::STD_ERROR)
+  {
+    error_bars.has_value = false;
+  }
+}
+
 chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
 {
   if(axis_type == chart_axis_type_t::TYPE_X)
@@ -785,32 +810,6 @@ chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
   }
 }
 
-void chart_t::plotarea_set_layout(const std::optional<chart_layout_t>& layout)
-{
-  plotarea_layout_ = convert_layout_args(layout, chart_layout_type_t::PLOTAREA);
-}
-
-void chart_t::plotarea_set_pattern(const std::optional<chart_pattern_t>& pattern)
-{
-  plotarea_pattern_ = convert_pattern_args(pattern);
-}
-
-void chart_t::set_table_font(const std::optional<chart_font_t>& font)
-{
-  has_table_  = true;
-  table_font_ = convert_font_args(font);
-}
-
-void chart_t::title_off()
-{
-  title_.off = true;
-}
-
-// TODO Add test
-void chart_t::chartarea_set_pattern(const std::optional<chart_pattern_t>& pattern)
-{
-  chartarea_pattern_ = convert_pattern_args(pattern);
-}
 
 std::string chart_t::assemble_xml_file()
 {

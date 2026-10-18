@@ -1975,7 +1975,7 @@ void add_data_cache_values(const uint8_t* data, uint16_t rows, uint8_t cols, uin
 ////////// TODO Here begin
 
 
-
+// TODO add getter to get error bars and add fct to series_error_bars_t
 
   series_error_bars_t x_error_bars;
   series_error_bars_t y_error_bars;
@@ -2607,7 +2607,225 @@ public:
    */
   void set_hole_size(uint8_t size);
 
-  ////////// TODO Here begin
+  /**
+   * @brief Set the gap between series in a Bar/Column chart.
+   *
+   * @param gap The gap between the series.  0 to 500.
+   *
+   * The `%set_series_gap()` function sets the gap between series in
+   * Bar and Column charts.
+   *
+   * @code
+   *  chart.set_series_gap(400);
+   * @endcode
+   *
+   * @image html chart_gap.png
+   *
+   * @note The default value  is 150.
+   *
+   * This option is only available for Bar/Column charts.
+   *
+   * @pre The `gap` parameter must be in the range `[0, 500]`.
+   */
+  void set_series_gap(uint16_t gap);
+
+  /**
+   * @brief Set the line properties for a chartarea.
+   *
+   * @param line A `chart_line_t` struct.
+   *
+   * Set the line/border properties of a chartarea. In Excel the chartarea
+   * is the background area behind the chart:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{.none  = true};
+   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+   *
+   *  chart.chartarea_set_line(line);
+   *  chart.chartarea_set_fill(fill);
+   * @endcode
+   *
+   * @image html chart_chartarea.png
+   *
+   * @see @ref chart_lines.
+   */
+  void chartarea_set_line(const chart_line_t& line);
+
+  /**
+   * @brief Set the fill properties for a chartarea.
+   *
+   * @param fill  A `chart_fill_t` struct.
+   *
+   * Set the fill properties of a chartarea:
+   *
+   * @code
+   *  chart.chartarea_set_fill(fill);
+   * @endcode
+   *
+   * @see The example and image above.
+   *
+   * @see @ref chart_fills.
+   */
+  void chartarea_set_fill(const chart_fill_t& fill);
+
+  /**
+   * @brief Set the pattern properties for a chartarea.
+   *
+   * @param pattern A `chart_pattern_t` struct.
+   *
+   * Set the pattern properties of a chartarea:
+   *
+   * @code
+   *  chart.chartarea_set_pattern(pattern);
+   * @endcode
+   *
+   * @see `chart_pattern_type_t` and @ref chart_patterns.
+   */
+  void chartarea_set_pattern(const chart_pattern_t& pattern);
+
+  /**
+   * @brief Set the line properties for a plotarea.
+   *
+   * @param line  A `chart_line_t` struct.
+   *
+   * Set the line/border properties of a plotarea. In Excel the plotarea is
+   * the area between the axes on which the chart series are plotted:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{
+   *    .color     = xwpp::color_t::red(),
+   *    .width     = 2,
+   *    .dash_type = xwpp::chart_line_dash_type_t::DASH,
+   *  };
+   *  const xwpp::chart_fill_t fill{
+   *    .color     = xwpp::color_t{0xFFFFC2}
+   *  };
+   *
+   *  chart.plotarea_set_line(line);
+   *  chart.plotarea_set_fill(fill);
+   * @endcode
+   *
+   * @image html chart_plotarea.png
+   *
+   * @see @ref chart_lines.
+   */
+  void plotarea_set_line(const chart_line_t& line);
+
+  /**
+   * @brief Set the fill properties for a plotarea.
+   *
+   * @param fill A `chart_fill_t` struct.
+   *
+   * Set the fill properties of a plotarea:
+   *
+   * @code
+   *  chart.plotarea_set_fill(fill);
+   * @endcode
+   *
+   * @see The example and image above.
+   *
+   * @see @ref chart_fills.
+   */
+  void plotarea_set_fill(const chart_fill_t& fill);
+
+  /**
+   * @brief Set the manual layout of the chart plotarea.
+   *
+   * @param layout A pointer to a chart `chart_layout_t` struct.
+   *
+   * This function is used to simulate setting the manual position of the chart
+   * plotarea.
+   *
+   * @see @ref chart_layout for more information.
+   */
+  void plotarea_set_layout(const chart_layout_t& layout);
+
+  /**
+   * @brief Set the pattern properties for a plotarea.
+   *
+   * @param pattern A `chart_pattern_t` struct.
+   *
+   * Set the pattern properties of a plotarea:
+   *
+   * @code
+   *  chart.plotarea_set_pattern(series1, pattern);
+   * @endcode
+   *
+   * @see `chart_pattern_type_t` and @ref chart_patterns.
+   */
+  void plotarea_set_pattern(const chart_pattern_t& pattern);
+
+  /**
+   * @brief Set the option for displaying blank data in a chart.
+   *
+   * @param option The display option. A `chart_blank_t` option.
+   *
+   * The `%show_blanks_as()` function controls how blank data is displayed
+   * in a chart:
+   *
+   * @code
+   *  chart.show_blanks_as(xwpp::chart_blank_t::AS_CONNECTED);
+   * @endcode
+   *
+   * The `option` parameter can have one of the following values:
+   *
+   * - `%chart_blank_t::AS_GAP`: Show empty chart cells as gaps in the data.
+   *   This is the default option for Excel charts.
+   * - `%chart_blank_t::AS_ZERO`: Show empty chart cells as zeros.
+   * - `%chart_blank_t::AS_CONNECTED`: Show empty chart cells as connected.
+   *   Only for charts with lines.
+   */
+  void show_blanks_as(chart_blank_t option);
+
+  /**
+   * @brief Display data on charts from hidden rows or columns.
+   *
+   * Display data that is in hidden rows or columns on the chart:
+   *
+   * @code
+   *  chart.show_hidden_data();
+   * @endcode
+   */
+  void show_hidden_data();
+
+  /**
+   * @brief Set the overlap between series in a Bar/Column chart.
+   *
+   * @param overlap The overlap between the series. -100 to 100.
+   *
+   * The `%set_series_overlap()` function sets the overlap between series
+   * in Bar and Column charts.
+   *
+   * @code
+   *  chart.set_series_overlap(chart, -50);
+   * @endcode
+   *
+   * @image html chart_overlap.png
+   *
+   * @note The default value is 0.
+   * @note This option is only available for Bar/Column charts.
+   *
+   * @pre The `%overlap` parameter must be in the range `[0, 500]`.
+   */
+  void set_series_overlap(int8_t overlap);
+
+  /**
+   * @brief Turn off an automatic chart title.
+   *
+   * In general in Excel a chart title isn't displayed unless the user
+   * explicitly adds one. However, Excel adds an automatic chart title to charts
+   * with a single series and a user defined series name. The
+   * `title_off()` function allows you to turn off this automatic chart
+   * title:
+   *
+   * @code
+   *  chart.title_off();
+   * @endcode
+   */
+  void title_off();
+
+  // TODO Add documentation
+
 
   /**
    * Set the X or Y error bars for a chart series.
@@ -2667,164 +2885,27 @@ public:
   void series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const;
 
   /**
-   * @brief Set the gap between series in a Bar/Column chart.
+   * @brief Set the font properties for a table.
    *
-   * @param gap The gap between the series.  0 to 500.
+   * @param font A pointer to a chart `chart_font_t` font struct.
    *
-   * The `%set_series_gap()` function sets the gap between series in
-   * Bar and Column charts.
-   *
-   * @code
-   *  chart.set_series_gap(400);
-   * @endcode
-   *
-   * @image html chart_gap.png
-   *
-   * @note The default value  is 150.
-   *
-   * This option is only available for Bar/Column charts.
-   *
-   * @pre The `gap` parameter must be in the range `[0, 500]`.
-   */
-  void set_series_gap(uint16_t gap);
-
-  /**
-   * @brief Set the line properties for a chartarea.
-   *
-   * @param line A `chart_line_t` struct.
-   *
-   * Set the line/border properties of a chartarea. In Excel the chartarea
-   * is the background area behind the chart:
+   * The `%set_table_font()` function is used to set the font of a
+   * table:
    *
    * @code
-   *  xwpp::chart_line_t line{.none  = true};
-   *  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
-   *
-   *  chart.chartarea_set_line(line);
-   *  chart.chartarea_set_fill(fill);
-   * @endcode
-   *
-   * @image html chart_chartarea.png
-   *
-   * @see @ref chart_lines.
-   */
-  void chartarea_set_line(const std::optional<chart_line_t>& line);
-
-  /**
-   * @brief Set the fill properties for a chartarea.
-   *
-   * @param fill  A `chart_fill_t` struct.
-   *
-   * Set the fill properties of a chartarea:
-   *
-   * @code
-   *  chart.chartarea_set_fill(fill);
-   * @endcode
-   *
-   * @see The example and image above.
-   *
-   * @see @ref chart_fills.
-   */
-  void chartarea_set_fill(const std::optional<chart_fill_t>& fill);
-
-  /**
-   * @brief Set the line properties for a plotarea.
-   *
-   * @param line  A `chart_line_t` struct.
-   *
-   * Set the line/border properties of a plotarea. In Excel the plotarea is
-   * the area between the axes on which the chart series are plotted:
-   *
-   * @code
-   *  xwpp::chart_line_t line{
-   *    .color     = xwpp::color_t::red(),
-   *    .width     = 2,
-   *    .dash_type = xwpp::chart_line_dash_type_t::DASH,
-   *  };
-   *  xwpp::chart_fill_t fill{
-   *    .color     = xwpp::color_t{0xFFFFC2}
+   *  xwpp::chart_font_t font{
+   *    .bold = true,
+   *    .color = xwpp::color_t::blue(),
    *  };
    *
-   *  chart.plotarea_set_line(line);
-   *  chart.plotarea_set_fill(fill);
+   *  chart.set_table_font(font);
    * @endcode
    *
-   * @image html chart_plotarea.png
-   *
-   * @see @ref chart_lines.
+   * @see @ref chart_fonts.
    */
-  void plotarea_set_line(const std::optional<chart_line_t>& line);
+  void set_table_font(const chart_font_t& font);
 
-  /**
-   * @brief Set the fill properties for a plotarea.
-   *
-   * @param fill A `chart_fill_t` struct.
-   *
-   * Set the fill properties of a plotarea:
-   *
-   * @code
-   *  chart.plotarea_set_fill(fill);
-   * @endcode
-   *
-   * @see The example and image above.
-   *
-   * @see @ref chart_fills.
-   */
-  void plotarea_set_fill(const std::optional<chart_fill_t>& fill);
-
-  /**
-   * @brief Set the option for displaying blank data in a chart.
-   *
-   * @param option The display option. A `chart_blank_t` option.
-   *
-   * The `%show_blanks_as()` function controls how blank data is displayed
-   * in a chart:
-   *
-   * @code
-   *  chart.show_blanks_as(xwpp::chart_blank_t::AS_CONNECTED);
-   * @endcode
-   *
-   * The `option` parameter can have one of the following values:
-   *
-   * - `%chart_blank_t::AS_GAP`: Show empty chart cells as gaps in the data.
-   *   This is the default option for Excel charts.
-   * - `%chart_blank_t::AS_ZERO`: Show empty chart cells as zeros.
-   * - `%chart_blank_t::AS_CONNECTED`: Show empty chart cells as connected.
-   *   Only for charts with lines.
-   */
-  void show_blanks_as(chart_blank_t option);
-
-  /**
-   * @brief Display data on charts from hidden rows or columns.
-   *
-   * Display data that is in hidden rows or columns on the chart:
-   *
-   * @code
-   *  chart.show_hidden_data();
-   * @endcode
-   */
-  void show_hidden_data();
-
-  /**
-   * @brief Set the overlap between series in a Bar/Column chart.
-   *
-   * @param overlap The overlap between the series. -100 to 100.
-   *
-   * The `%set_series_overlap()` function sets the overlap between series
-   * in Bar and Column charts.
-   *
-   * @code
-   *  chart.set_series_overlap(chart, -50);
-   * @endcode
-   *
-   * @image html chart_overlap.png
-   *
-   * @note The default value is 0.
-   * @note This option is only available for Bar/Column charts.
-   *
-   * @pre The `%overlap` parameter must be in the range `[0, 500]`.
-   */
-  void set_series_overlap(int8_t overlap);
+  ////////// TODO Here begin
 
   /**
    * @brief Get an axis pointer from a chart.
@@ -2845,67 +2926,6 @@ public:
    */
   [[nodiscard]] chart_axis_t& axis_get(chart_axis_type_t axis_type);
 
-  /**
-   * @brief Set the manual layout of the chart plotarea.
-   *
-   * @param layout A pointer to a chart `chart_layout_t` struct.
-   *
-   * This function is used to simulate setting the manual position of the chart
-   * plotarea.
-   *
-   * @see @ref chart_layout for more information.
-   */
-  void plotarea_set_layout(const std::optional<chart_layout_t>& layout);
-
-  /**
-   * @brief Set the pattern properties for a plotarea.
-   *
-   * @param pattern A `chart_pattern_t` struct.
-   *
-   * Set the pattern properties of a plotarea:
-   *
-   * @code
-   *  chart.plotarea_set_pattern(series1, pattern);
-   * @endcode
-   *
-   * @see `chart_pattern_type_t` and @ref chart_patterns.
-   */
-  void plotarea_set_pattern(const std::optional<chart_pattern_t>& pattern);
-
-  // TODO Add documentation
-  void set_table_font(const std::optional<chart_font_t>& font);
-
-  /**
-   * @brief Turn off an automatic chart title.
-   *
-   * In general in Excel a chart title isn't displayed unless the user
-   * explicitly adds one. However, Excel adds an automatic chart title to charts
-   * with a single series and a user defined series name. The
-   * `title_off()` function allows you to turn off this automatic chart
-   * title:
-   *
-   * @code
-   *  chart.title_off();
-   * @endcode
-   */
-  void title_off();
-
-  /**
-   * @brief Set the pattern properties for a chartarea.
-   *
-   * @param pattern A `chart_pattern_t` struct.
-   *
-   * Set the pattern properties of a chartarea:
-   *
-   * @code
-   *  chart.chartarea_set_pattern(pattern);
-   * @endcode
-   *
-   * @see `chart_pattern_type_t` and @ref chart_patterns.
-   */
-  void chartarea_set_pattern(const std::optional<chart_pattern_t>& pattern);
-
-  // TODO Only used by packager, should be private.
   [[nodiscard]] std::string assemble_xml_file();
 
   // TODO For test
@@ -2921,8 +2941,8 @@ public:
     .default_num_format = "General", .major_gridlines = {.visible = true}, .axis_position = chart_position_t::LEFT};
 
 private:
-  friend class worksheet_t;  // TODO
-  friend class chartsheet_t; // TODO
+  friend class worksheet_t;
+  friend class chartsheet_t;
   friend class workbook_t;
 
   // Initialisation functions
