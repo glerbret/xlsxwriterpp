@@ -182,8 +182,8 @@ int main()
     // Add a polynomial trendline.
     xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
-    xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::POLY, 3);
-    xwpp::series_set_trendline_line(series, poly_line);
+    series.set_trendline(xwpp::chart_trendline_type_t::POLY, 3);
+    series.set_trendline_line(poly_line);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E98", &chart);

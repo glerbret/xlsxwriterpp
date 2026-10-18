@@ -135,10 +135,10 @@ BOOST_AUTO_TEST_CASE(assemble_xml_file)
   };
 
   xwpp::chart_series_t& series1  = chart.add_series("Sheet1!$A$1:$A$5");
-  xwpp::chart_add_data_cache(series1.values_, data[0].data(), 5, 1, 0);
+  series1.add_data_cache_values(data[0].data(), 5, 1, 0);
 
   xwpp::chart_series_t& series2  = chart.add_series("Sheet1!$B$1:$B$5");
-  xwpp::chart_add_data_cache(series2.values_, data[0].data(), 5, 1, 1);
+  series2.add_data_cache_values(data[0].data(), 5, 1, 1);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }

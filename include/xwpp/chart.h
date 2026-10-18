@@ -1753,6 +1753,225 @@ void set_labels_fill(const chart_fill_t& fill);
  */
 void set_labels_pattern(const chart_pattern_t& pattern);
 
+/**
+ * @brief Turn on a trendline for a chart data series.
+ *
+ * @param type   The type of trendline: `chart_trendline_type_t`.
+ * @param value  The order/period value for polynomial and moving average trendlines.
+ *
+ * A trendline can be added to a chart series to indicate trends in the data
+ * such as a moving average or a polynomial fit. The trendlines types are
+ * shown in the following Excel dialog:
+ *
+ * @image html chart_trendline0.png
+ *
+ * The `%set_trendline()` function turns on these trendlines for
+ * a data series:
+ *
+ * @code
+ *  chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+ *  series = chart.add_series("Sheet1!$A$1:$A$6");
+ *
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ * @endcode
+ *
+ * @image html chart_trendline2.png
+ *
+ * The `value` parameter corresponds to *order* for a polynomial trendline
+ * and *period* for a Moving Average trendline. It both cases it must be >= 2.
+ * The `value` parameter  is ignored for all other trendlines:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
+ * @endcode
+ *
+ * @image html chart_trendline3.png
+ *
+ * The allowable values for the the trendline `type` are:
+ *
+ * - `chart_trendline_type_t::LINEAR`: Linear trendline.
+ * - `chart_trendline_type_t::LOG`: Logarithm trendline.
+ * - `chart_trendline_type_t::POLY`: Polynomial trendline. The `value`
+ *   parameter corresponds to *order*.
+ * - `chart_trendline_type_t::POWER`: Power trendline.
+ * - `chart_trendline_type_t::EXP`: Exponential trendline.
+ * - `chart_trendline_type_t::AVERAGE`: Moving Average trendline. The `value`
+ *   parameter corresponds to *period*.
+ *
+ * Other trendline options, such as those shown in the following Excel
+ * dialog, can be set using the functions below.
+ *
+ * @image html chart_trendline1.png
+ *
+ * @see @ref chart_trendlines.
+ *
+ * @pre The `%value` parameter must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
+ */
+void set_trendline(chart_trendline_type_t type, uint8_t value);
+
+/**
+ * @brief Set the trendline forecast for a chart data series.
+ *
+ * @param forward  The forward period.
+ * @param backward The backwards period.
+ *
+ * The `%set_trendline_forecast()` function sets the forward
+ * and backward forecast periods for the trendline:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *  series.set_trendline_forecast(0.5, 0.5);
+ * @endcode
+ *
+ * @image html chart_trendline4.png
+ *
+ * @note This feature isn't available for Moving Average in Excel.
+ *
+ * @see @ref chart_trendlines.
+ *
+ * @pre The series must have a trendline.
+ * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
+ */
+void set_trendline_forecast(double forward, double backward);
+
+/**
+ * @brief Set the trendline Y-axis intercept for a chart data series.
+ *
+ * @param intercept Y-axis intercept value.
+ *
+ * The `%set_trendline_intercept()` function sets the Y-axis
+ * intercept for the trendline:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *  series.set_trendline_equation();
+ *  series.set_trendline_intercept(0.8);
+ * @endcode
+ *
+ * @image html chart_trendline7.png
+ *
+ * As can be seen from the equation on the chart the intercept point
+ * (when X=0) is the same as the value set in the equation.
+ *
+ * @note The intercept feature is only available in Excel for Exponential,
+ * Linear and Polynomial trendline types.
+ *
+ * @see @ref chart_trendlines.
+ *
+ * @pre The series must have a trendline.
+ * @pre The type of trendline must be `%chart_trendline_type_t::EXP`
+ * `%chart_trendline_type_t::LINEAR` or `%chart_trendline_type_t::POLY`.
+ */
+void set_trendline_intercept(double intercept);
+
+/**
+ * @brief Display the equation of a trendline for a chart data series.
+ *
+ * The `%set_trendline_equation()` function displays the
+ * equation of the trendline on the chart:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *  series.set_trendline_equation();
+ * @endcode
+ *
+ * @image html chart_trendline5.png
+ *
+ * @note This feature isn't available for Moving Average in Excel.
+ *
+ * @see @ref chart_trendlines.
+ *
+ * @pre The series must have a trendline.
+ * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
+ */
+void set_trendline_equation();
+
+/**
+ * @brief Display the R squared value of a trendline for a chart data series.
+ *
+ * The `%set_trendline_r_squared()` function displays the
+ * R-squared value for the trendline on the chart:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *  series.set_trendline_r_squared();
+ * @endcode
+ *
+ * @image html chart_trendline6.png
+ *
+ * @note This feature isn't available for Moving Average in Excel.
+ *
+ * @see @ref chart_trendlines.
+ *
+ * @pre The series must have a trendline.
+ * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
+ */
+void set_trendline_r_squared();
+
+/**
+ * @brief Set the trendline name for a chart data series.
+ *
+ * @param name   The name of the trendline to display in the legend.
+ *
+ * The `%set_trendline_name()` function sets the name of the
+ * trendline that is displayed in the chart legend. In the examples above
+ * the trendlines are displayed with default names like "Linear (Series 1)"
+ * and "2 per Mov. Avg. (Series 1)". If these names are too verbose or not
+ * descriptive enough you can set your own trendline name:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *  series.set_trendline_name("My trendline");
+ * @endcode
+ *
+ * @image html chart_trendline8.png
+ *
+ * It is often preferable to turn off the trendline caption in the legend.
+ * This is down in Excel by deleting the trendline name from the legend.
+ * In `Xlsxwriter++` this is done using the `chart_legend_delete_series()`
+ * function to delete the zero based series numbers:
+ *
+ * @code
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *
+ *  // Delete the series name for the second series (=1 in zero base).
+ *  const std::vector<int16_t> names{1};
+ *  chart_legend_delete_series(chart, names);
+ * @endcode
+ *
+ * @image html chart_trendline9.png
+ *
+ * @see @ref chart_trendlines.
+ */
+void set_trendline_name(std::string_view name);
+
+/**
+ * @brief Set the trendline line properties for a chart data series.
+ *
+ * @param line   A `chart_line_t` struct.
+ *
+ * The `%set_trendline_line()` function is used to set the line
+ * properties of a trendline:
+ *
+ * @code
+ *  const xwpp::chart_line_t line{
+ *    .color     = xwpp::color_t::red(),
+ *    .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH
+ *  };
+ *
+ *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+ *  series.set_trendline_line(&line);
+ * @endcode
+ *
+ * @image html chart_trendline10.png
+ *
+ * @see @ref chart_trendlines and @ref chart_lines.
+ */
+void set_trendline_line(const chart_line_t& line);
+
+// For test only
+void add_data_cache_categories(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
+void add_data_cache_values(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
 ////////// TODO Here begin
 
 
@@ -1761,19 +1980,6 @@ void set_labels_pattern(const chart_pattern_t& pattern);
   series_error_bars_t x_error_bars;
   series_error_bars_t y_error_bars;
 
-  bool has_trendline{false};
-  bool has_trendline_forecast{false};
-  bool has_trendline_equation{false};
-  bool has_trendline_r_squared{false};
-  bool has_trendline_intercept{false};
-  chart_trendline_type_t trendline_type{chart_trendline_type_t::LINEAR};
-  uint8_t trendline_value{0};
-  double trendline_forward{0.};
-  double trendline_backward{0.};
-  chart_trendline_type_t trendline_value_type{chart_trendline_type_t::LINEAR};
-  std::string trendline_name;
-  std::optional<chart_line_t> trendline_line;
-  double trendline_intercept{0.};
 
 private:
   friend class chart_t;
@@ -1781,14 +1987,14 @@ private:
 
   chart_series_t(const series_range_t& categories, const series_range_t& values);
 
+  static void add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
+
   bool invert_if_negative_{false};
   bool smooth_{false};
 
   chart_title_t title_;
-public: // TODO
   series_range_t categories_;
   series_range_t values_;
-private:
   std::optional<chart_marker_t> marker_;
   std::optional<chart_line_t> line_;
   std::optional<chart_fill_t> fill_;
@@ -1813,6 +2019,20 @@ private:
   std::optional<chart_fill_t> label_fill_;
   std::optional<chart_pattern_t> label_pattern_;
 
+  // Trendline
+  bool has_trendline_{false};
+  bool has_trendline_forecast_{false};
+  bool has_trendline_equation_{false};
+  bool has_trendline_r_squared_{false};
+  bool has_trendline_intercept_{false};
+  chart_trendline_type_t trendline_type_{chart_trendline_type_t::LINEAR};
+  uint8_t trendline_value_{0};
+  double trendline_forward_{0.};
+  double trendline_backward_{0.};
+  chart_trendline_type_t trendline_value_type_{chart_trendline_type_t::LINEAR};
+  std::string trendline_name_;
+  std::optional<chart_line_t> trendline_line_;
+  double trendline_intercept_{0.};
 };
 ////////// TODO Here end
 
@@ -2974,231 +3194,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
 // TODO Member function of series
 
 /**
- * @brief Turn on a trendline for a chart data series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param type   The type of trendline: `chart_trendline_type_t`.
- * @param value  The order/period value for polynomial and moving average trendlines.
- *
- * A trendline can be added to a chart series to indicate trends in the data
- * such as a moving average or a polynomial fit. The trendlines types are
- * shown in the following Excel dialog:
- *
- * @image html chart_trendline0.png
- *
- * The `%series_set_trendline()` function turns on these trendlines for
- * a data series:
- *
- * @code
- *  chart = workbook.add_chart(xwpp::chart_type_t::LINE);
- *  series = chart.add_series("Sheet1!$A$1:$A$6");
- *
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- * @endcode
- *
- * @image html chart_trendline2.png
- *
- * The `value` parameter corresponds to *order* for a polynomial trendline
- * and *period* for a Moving Average trendline. It both cases it must be >= 2.
- * The `value` parameter  is ignored for all other trendlines:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::AVERAGE, 2);
- * @endcode
- *
- * @image html chart_trendline3.png
- *
- * The allowable values for the the trendline `type` are:
- *
- * - `chart_trendline_type_t::LINEAR`: Linear trendline.
- * - `chart_trendline_type_t::LOG`: Logarithm trendline.
- * - `chart_trendline_type_t::POLY`: Polynomial trendline. The `value`
- *   parameter corresponds to *order*.
- * - `chart_trendline_type_t::POWER`: Power trendline.
- * - `chart_trendline_type_t::EXP`: Exponential trendline.
- * - `chart_trendline_type_t::AVERAGE`: Moving Average trendline. The `value`
- *   parameter corresponds to *period*.
- *
- * Other trendline options, such as those shown in the following Excel
- * dialog, can be set using the functions below.
- *
- * @image html chart_trendline1.png
- *
- * @see @ref chart_trendlines.
- *
- * @pre The `%value` parameter must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
- */
-void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, uint8_t value);
-
-/**
- * @brief Set the trendline forecast for a chart data series.
- *
- * @param series   A series object created via `chart_t::add_series()`.
- * @param forward  The forward period.
- * @param backward The backwards period.
- *
- * The `%series_set_trendline_forecast()` function sets the forward
- * and backward forecast periods for the trendline:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *  chart_series_set_trendline_forecast(series, 0.5, 0.5);
- * @endcode
- *
- * @image html chart_trendline4.png
- *
- * @note This feature isn't available for Moving Average in Excel.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
- */
-void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward);
-
-/**
- * @brief Display the equation of a trendline for a chart data series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * The `%chart_series_set_trendline_equation()` function displays the
- * equation of the trendline on the chart:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *  chart_series_set_trendline_equation(series);
- * @endcode
- *
- * @image html chart_trendline5.png
- *
- * @note This feature isn't available for Moving Average in Excel.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
- */
-void chart_series_set_trendline_equation(chart_series_t& series);
-
-/**
- * @brief Display the R squared value of a trendline for a chart data series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * The `%chart_series_set_trendline_r_squared()` function displays the
- * R-squared value for the trendline on the chart:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *  chart_series_set_trendline_r_squared(series);
- * @endcode
- *
- * @image html chart_trendline6.png
- *
- * @note This feature isn't available for Moving Average in Excel.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type` member of `%series` parameter should not be `%chart_trendline_type_t::AVERAGE`.
- */
-void chart_series_set_trendline_r_squared(chart_series_t& series);
-
-/**
- * @brief Set the trendline Y-axis intercept for a chart data series.
- *
- * @param series    A series object created via `chart_t::add_series()`.
- * @param intercept Y-axis intercept value.
- *
- * The `%chart_series_set_trendline_intercept()` function sets the Y-axis
- * intercept for the trendline:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *  chart_series_set_trendline_equation(series);
- *  chart_series_set_trendline_intercept(series, 0.8);
- * @endcode
- *
- * @image html chart_trendline7.png
- *
- * As can be seen from the equation on the chart the intercept point
- * (when X=0) is the same as the value set in the equation.
- *
- * @note The intercept feature is only available in Excel for Exponential,
- * Linear and Polynomial trendline types.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The `%series` parameter must have a trendline.
- * @pre The `%trendline_type` member of `%series` parameter must be set to `%chart_trendline_type_t::EXP`
- * `%chart_trendline_type_t::LINEAR` or `%chart_trendline_type_t::POLY`.
- */
-void chart_series_set_trendline_intercept(chart_series_t& series, double intercept);
-
-/**
- * @brief Set the trendline name for a chart data series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param name   The name of the trendline to display in the legend.
- *
- * The `%chart_series_set_trendline_name()` function sets the name of the
- * trendline that is displayed in the chart legend. In the examples above
- * the trendlines are displayed with default names like "Linear (Series 1)"
- * and "2 per Mov. Avg. (Series 1)". If these names are too verbose or not
- * descriptive enough you can set your own trendline name:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *  chart_series_set_trendline_name(series, "My trendline");
- * @endcode
- *
- * @image html chart_trendline8.png
- *
- * It is often preferable to turn off the trendline caption in the legend.
- * This is down in Excel by deleting the trendline name from the legend.
- * In `Xlsxwriter++` this is done using the `chart_legend_delete_series()`
- * function to delete the zero based series numbers:
- *
- * @code
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *
- *  // Delete the series name for the second series (=1 in zero base).
- *  std::vector<int16_t> names{1};
- *  chart_legend_delete_series(chart, names);
- * @endcode
- *
- * @image html chart_trendline9.png
- *
- * @see @ref chart_trendlines.
- */
-void chart_series_set_trendline_name(chart_series_t& series, std::string_view name);
-
-/**
- * @brief Set the trendline line properties for a chart data series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param line   A `chart_line_t` struct.
- *
- * The `%chart_series_set_trendline_line()` function is used to set the line
- * properties of a trendline:
- *
- * @code
- *  xwpp::chart_line_t line{
- *    .color     = xwpp::color_t::red(),
- *    .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH
- *  };
- *
- *  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
- *  chart_series_set_trendline_line(series, &line);
- * @endcode
- *
- * @image html chart_trendline10.png
- *
- * @see @ref chart_trendlines and @ref chart_lines.
- */
-void series_set_trendline_line(chart_series_t& series, const std::optional<chart_line_t>& line);
-
-/**
  * @brief Set the direction (up, down or both) of the error bars for a chart
  * series.
  *
@@ -4037,9 +4032,6 @@ void chart_axis_major_gridlines_set_line(chart_axis_t& axis, const std::optional
  *                 See @ref ww_charts_axes.
  */
 void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
-
-// TODO To rework (or remove). For test
-void chart_add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
 
 ////////// TODO Here end
 

@@ -36,9 +36,9 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_equation(series);
-  chart_series_set_trendline_r_squared(series);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_equation();
+  series.set_trendline_r_squared();
 
   const std::vector<int16_t> names{0, 2};
   chart.legend_delete_series(names);

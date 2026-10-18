@@ -38,8 +38,8 @@ int main()
   const xwpp::chart_line_t line{
     .color = xwpp::color_t::red(), .width = 1, .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
-  series_set_trendline(series, xwpp::chart_trendline_type_t::AVERAGE, 2);
-  series_set_trendline_line(series, line);
+  series.set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
+  series.set_trendline_line(line);
 
   worksheet.insert_chart("E9", &chart);
 

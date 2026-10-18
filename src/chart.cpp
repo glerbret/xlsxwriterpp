@@ -408,6 +408,108 @@ void chart_series_t::set_labels_pattern(const chart_pattern_t& pattern)
   label_pattern_ = convert_pattern_args(pattern);
 }
 
+void chart_series_t::set_trendline(chart_trendline_type_t type, uint8_t value)
+{
+  if(type == chart_trendline_type_t::POLY || type == chart_trendline_type_t::AVERAGE)
+  {
+    assert(value >= 2);
+
+    trendline_value_type_ = type;
+  }
+
+  has_trendline_   = true;
+  trendline_type_  = type;
+  trendline_value_ = value;
+}
+
+void chart_series_t::set_trendline_forecast(double forward, double backward)
+{
+  assert(has_trendline_);
+  assert(trendline_type_ != chart_trendline_type_t::AVERAGE);
+
+  has_trendline_forecast_ = true;
+  trendline_forward_      = forward;
+  trendline_backward_     = backward;
+}
+
+void chart_series_t::set_trendline_intercept(double intercept)
+{
+  assert(has_trendline_);
+  assert(trendline_type_ == chart_trendline_type_t::EXP ||
+         trendline_type_ == chart_trendline_type_t::LINEAR ||
+         trendline_type_ == chart_trendline_type_t::POLY);
+
+  has_trendline_intercept_ = true;
+  trendline_intercept_     = intercept;
+}
+
+void chart_series_t::set_trendline_equation()
+{
+  assert(has_trendline_);
+  assert(trendline_type_ != chart_trendline_type_t::AVERAGE);
+
+  has_trendline_equation_ = true;
+}
+
+void chart_series_t::set_trendline_r_squared()
+{
+  assert(has_trendline_);
+  assert(trendline_type_ != chart_trendline_type_t::AVERAGE);
+
+  has_trendline_r_squared_ = true;
+}
+
+void chart_series_t::set_trendline_name(std::string_view name)
+{
+  if(!name.empty())
+  {
+    trendline_name_ = name;
+  }
+}
+
+void chart_series_t::set_trendline_line(const chart_line_t& line)
+{
+  trendline_line_ = convert_line_args(line);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void chart_series_t::add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
+{
+  range.ignore_cache    = true;
+  range.num_data_points = rows;
+
+  // Initialize the series range data cache.
+  for(size_t i{0}; i < rows; i++)
+  {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    const series_data_point_t data_point{.number = static_cast<double>(data[(i * cols) + col])};
+    range.data_cache.push_back(data_point);
+  }
+}
+
+void chart_series_t::add_data_cache_categories(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
+{
+  add_data_cache(categories_, data, rows, cols, col);
+}
+
+void chart_series_t::add_data_cache_values(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
+{
+  add_data_cache(values_, data, rows, cols, col);
+}
+
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   return {
@@ -3541,48 +3643,48 @@ std::string chart_t::write_error_val(double value)
 
 std::string chart_t::write_trendline(const chart_series_t& series)
 {
-  if(!series.has_trendline)
+  if(!series.has_trendline_)
   {
     return "";
   }
 
   std::string xml_data = xml_start_tag("c:trendline");
 
-  if(!series.trendline_name.empty())
+  if(!series.trendline_name_.empty())
   {
-    xml_data += write_name(series.trendline_name);
+    xml_data += write_name(series.trendline_name_);
   }
 
-  xml_data += write_sp_pr(series.trendline_line, std::nullopt, std::nullopt);
-  xml_data += write_trendline_type(series.trendline_type);
+  xml_data += write_sp_pr(series.trendline_line_, std::nullopt, std::nullopt);
+  xml_data += write_trendline_type(series.trendline_type_);
 
-  if(series.trendline_type == chart_trendline_type_t::POLY && series.trendline_value >= 2)
+  if(series.trendline_type_ == chart_trendline_type_t::POLY && series.trendline_value_ >= 2)
   {
-    xml_data += write_order(series.trendline_value);
+    xml_data += write_order(series.trendline_value_);
   }
 
-  if(series.trendline_type == chart_trendline_type_t::AVERAGE && series.trendline_value >= 2)
+  if(series.trendline_type_ == chart_trendline_type_t::AVERAGE && series.trendline_value_ >= 2)
   {
-    xml_data += write_period(series.trendline_value);
+    xml_data += write_period(series.trendline_value_);
   }
 
-  if(series.has_trendline_forecast)
+  if(series.has_trendline_forecast_)
   {
-    xml_data += write_forward(series.trendline_forward);
-    xml_data += write_backward(series.trendline_backward);
+    xml_data += write_forward(series.trendline_forward_);
+    xml_data += write_backward(series.trendline_backward_);
   }
 
-  if(series.has_trendline_intercept)
+  if(series.has_trendline_intercept_)
   {
-    xml_data += write_intercept(series.trendline_intercept);
+    xml_data += write_intercept(series.trendline_intercept_);
   }
 
-  if(series.has_trendline_r_squared)
+  if(series.has_trendline_r_squared_)
   {
     xml_data += write_disp_rsqr();
   }
 
-  if(series.has_trendline_equation)
+  if(series.has_trendline_equation_)
   {
     xml_data += write_disp_eq();
     xml_data += write_trendline_lbl();
@@ -4131,71 +4233,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
   range.formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col);
 }
 
-void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, uint8_t value)
-{
-  if(type == chart_trendline_type_t::POLY || type == chart_trendline_type_t::AVERAGE)
-  {
-    assert(value >= 2);
-
-    series.trendline_value_type = type;
-  }
-
-  series.has_trendline   = true;
-  series.trendline_type  = type;
-  series.trendline_value = value;
-}
-
-void chart_series_set_trendline_forecast(chart_series_t& series, double forward, double backward)
-{
-  assert(series.has_trendline);
-  assert(series.trendline_type != chart_trendline_type_t::AVERAGE);
-
-  series.has_trendline_forecast = true;
-  series.trendline_forward      = forward;
-  series.trendline_backward     = backward;
-}
-
-void chart_series_set_trendline_equation(chart_series_t& series)
-{
-  assert(series.has_trendline);
-  assert(series.trendline_type != chart_trendline_type_t::AVERAGE);
-
-  series.has_trendline_equation = true;
-}
-
-void chart_series_set_trendline_r_squared(chart_series_t& series)
-{
-  assert(series.has_trendline);
-  assert(series.trendline_type != chart_trendline_type_t::AVERAGE);
-
-  series.has_trendline_r_squared = true;
-}
-
-void chart_series_set_trendline_intercept(chart_series_t& series, double intercept)
-{
-  assert(series.has_trendline);
-
-  assert(series.trendline_type == chart_trendline_type_t::EXP ||
-         series.trendline_type == chart_trendline_type_t::LINEAR ||
-         series.trendline_type == chart_trendline_type_t::POLY);
-
-  series.has_trendline_intercept = true;
-  series.trendline_intercept     = intercept;
-}
-
-void chart_series_set_trendline_name(chart_series_t& series, std::string_view name)
-{
-  if(!name.empty())
-  {
-    series.trendline_name = name;
-  }
-}
-
-void series_set_trendline_line(chart_series_t& series, const std::optional<chart_line_t>& line)
-{
-  series.trendline_line = convert_line_args(line);
-}
-
 void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, chart_error_bar_direction_t direction)
 {
   assert(error_bars.is_set);
@@ -4434,19 +4471,6 @@ void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional
   }
 }
 
-void chart_add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
-{
-  range.ignore_cache    = true;
-  range.num_data_points = rows;
-
-  // Initialize the series range data cache.
-  for(size_t i{0}; i < rows; i++)
-  {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    const series_data_point_t data_point{.number = static_cast<double>(data[(i * cols) + col])};
-    range.data_cache.push_back(data_point);
-  }
-}
 ////////// TODO Here end
 
 }

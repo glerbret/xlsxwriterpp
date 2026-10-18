@@ -147,14 +147,14 @@ shown in the following Excel dialog:
 
 @image html chart_trendline0.png
 
-The `series_set_trendline()` function turns on these trendlines for
+The `chart_series_t::set_trendline()` function turns on these trendlines for
 a data series:
 
 @code
   chart = workbook.add_chart(xwpp::chart_type_t::LINE);
   series = chart.add_series("Sheet1!$A$1:$A$6");
 
-  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
 @endcode
 
 @image html chart_trendline2.png
@@ -164,7 +164,7 @@ and *period* for a Moving Average trendline. It both cases it must be >= 2.
 The `value` parameter  is ignored for all other trendlines:
 
 @code
-  xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::AVERAGE, 2);
+  series.set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
 @endcode
 
 @image html chart_trendline3.png
@@ -185,49 +185,49 @@ dialog, can be set using the functions described below.
 
 @image html chart_trendline1.png
 
-The `chart_series_set_trendline_forecast()` function sets the forward
+The `chart_series_t::set_trendline_forecast()` function sets the forward
 and backward forecast periods for the trendline:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_forecast(series, 0.5, 0.5);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_forecast(0.5, 0.5);
 @endcode
 
 @image html chart_trendline4.png
 
 @note This feature isn't available for Moving Average in Excel.
 
-The `chart_series_set_trendline_equation()` function displays the
+The `chart_series_t::set_trendline_equation()` function displays the
 equation of the trendline on the chart:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_equation(series);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_equation();
 @endcode
 
 @image html chart_trendline5.png
 
 @note This feature isn't available for Moving Average in Excel.
 
-The `chart_series_set_trendline_r_squared()` function displays the
+The `chart_series_t::set_trendline_r_squared()` function displays the
 R-squared value for the trendline on the chart:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_r_squared(series);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_r_squared();
 @endcode
 
 @image html chart_trendline6.png
 
 @note This feature isn't available for Moving Average in Excel.
 
-The `chart_series_set_trendline_intercept()` function sets the Y-axis
+The `chart_series_t::set_trendline_intercept()` function sets the Y-axis
 intercept for the trendline:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_equation(series);
-  chart_series_set_trendline_intercept(series, 0.8);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_equation();
+  series.set_trendline_intercept(0.8);
 @endcode
 
 @image html chart_trendline7.png
@@ -238,15 +238,15 @@ As can be seen from the equation on the chart the intercept point
 @note The intercept feature is only available in Excel for Exponential,
 Linear and Polynomial trendline types.
 
-The `chart_series_set_trendline_name()` function sets the name of the
+The `chart_series_t::set_trendline_name()` function sets the name of the
 trendline that is displayed in the chart legend. In the examples above
 the trendlines are displayed with default names like "Linear (Series 1)"
 and "2 per Mov. Avg. (Series 1)". If these names are too verbose or not
 descriptive enough you can set your own trendline name:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  chart_series_set_trendline_name(series, "My trendline");
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_name("My trendline");
 @endcode
 
 @image html chart_trendline8.png
@@ -257,7 +257,7 @@ In `Xlsxwriter++` this is done using the `chart_t::legend_delete_series()`
 function to delete the zero based series numbers:
 
 @code
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
 
   // Delete the series name for the second series (=1 in zero base).
   // The -1 value indicates the end of the array of values.
@@ -267,7 +267,7 @@ function to delete the zero based series numbers:
 
 @image html chart_trendline9.png
 
-The `series_set_trendline_line()` function is used to set the line
+The `set_trendline_line()` function is used to set the line
 properties of a trendline:
 
 @code
@@ -276,8 +276,8 @@ properties of a trendline:
     .dash_type = xwpp::chart_line_dash_type_t::DASH_LONG_DASH,
   };
 
-  series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
-  series_set_trendline_line(series, &line);
+  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series.set_trendline_line(&line);
 @endcode
 
 @image html chart_trendline10.png

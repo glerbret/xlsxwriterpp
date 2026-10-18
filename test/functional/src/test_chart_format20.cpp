@@ -41,10 +41,10 @@ int main()
 
   const xwpp::chart_line_t line{.color = xwpp::color_t::red(), .dash_type = xwpp::chart_line_dash_type_t::DASH};
 
-  series_set_trendline(series1, xwpp::chart_trendline_type_t::LINEAR, 0);
-  series_set_trendline_line(series1, line);
-  series_set_trendline(series2, xwpp::chart_trendline_type_t::LINEAR, 0);
-  series_set_trendline_line(series2, line);
+  series1.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series1.set_trendline_line(line);
+  series2.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  series2.set_trendline_line(line);
 
   worksheet.insert_chart("E9", &chart1);
   worksheet.insert_chart("E25", &chart2);

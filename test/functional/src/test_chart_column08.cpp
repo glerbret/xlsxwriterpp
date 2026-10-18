@@ -31,7 +31,7 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 =
+  xwpp::chart_series_t& series =
     chart.add_series("=(Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5)", "=(Sheet1!$B$1:$B$2,Sheet1!$B$4:$B$5)");
 
   worksheet.insert_chart("E9", &chart);
@@ -41,8 +41,8 @@ int main()
     {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  xwpp::chart_add_data_cache(series1.categories_, test_data[0].data(), 4, 3, 0);
-  xwpp::chart_add_data_cache(series1.values_, test_data[0].data(), 4, 3, 1);
+  series.add_data_cache_categories(test_data[0].data(), 4, 3, 0);
+  series.add_data_cache_values(test_data[0].data(), 4, 3, 1);
 
   workbook.save("test_chart_column08.xlsx");
 }
