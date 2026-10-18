@@ -104,7 +104,7 @@ int main()
     series.set_labels();
 
     const xwpp::chart_font_t font{.bold = true, .rotation = -30, .color = xwpp::color_t::red()};
-    xwpp::chart_series_set_labels_font(series, font);
+    series.set_labels_font(font);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -130,8 +130,8 @@ int main()
     const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
     const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
 
-    xwpp::chart_series_set_labels_line(series, line);
-    xwpp::chart_series_set_labels_fill(series, fill);
+    series.set_labels_line(line);
+    series.set_labels_fill(fill);
 
     // Turn off the legend.
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
@@ -280,8 +280,8 @@ int main()
     xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
 
     // Set the default formatting for the data labels in the series.
-    xwpp::chart_series_set_labels_line(series, line2);
-    xwpp::chart_series_set_labels_fill(series, fill2);
+    series.set_labels_line(line2);
+    series.set_labels_fill(fill2);
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{

@@ -602,7 +602,7 @@ used for pie charts:
 
 @image html chart_data_labels7.png
 
-The `chart_series_set_labels_num_format()` function is used to set the
+The `chart_series_t::set_labels_num_format()` function is used to set the
 number format for data labels:
 
 @code
@@ -615,7 +615,7 @@ number format for data labels:
 The number format is similar to the Worksheet Cell Format num_format,
 see `format_t::set_num_format()`.
 
-The `chart_series_set_labels_font()` function is used to set the font
+The `chart_series_t::set_labels_font()` function is used to set the font
 for data labels:
 
 @code
@@ -632,16 +632,16 @@ for data labels:
 
 For more information see @ref chart_fonts below.
 
-The `chart_series_set_labels_line()`, `chart_series_set_labels_fill()` and
-`chart_series_set_labels_pattern()` functions can be used to set the
+The `chart_series_t::set_labels_line()`, `chart_series_t::set_labels_fill()` and
+`chart_series_t::set_labels_pattern()` functions can be used to set the
 formatting for a data series using standard chart formatting structs:
 
 @code
   xwpp::chart_line_t line{.color = xwpp::color_t::red()};
   xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
 
-  chart_series_set_labels_line(series, line);
-  chart_series_set_labels_fill(series, fill);
+  series.set_labels_line(line);
+  series.set_labels_fill(fill);
 @endcode
 
 @image html chart_data_labels24.png
@@ -778,8 +778,8 @@ Standard chart formatting such as `chart_line_t`, `chart_fill_t` and
   xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
 
   // Set the default formatting for the data labels in the series.
-  chart_series_set_labels_line(series, line2);
-  chart_series_set_labels_fill(series, fill2);
+  series.set_labels_line(line2);
+  series.set_labels_fill(fill2);
 
   // Create an array of label pointers.
   std::vector<xwpp::chart_data_label_t> data_labels{

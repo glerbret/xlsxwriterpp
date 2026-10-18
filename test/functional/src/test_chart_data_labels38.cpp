@@ -43,9 +43,9 @@ int main()
   const xwpp::chart_fill_t fill{.color = xwpp::color_t{0x00B050}};
   const xwpp::chart_pattern_t pattern{.fg_color = xwpp::color_t{0x00B050},
                                       .type     = xwpp::chart_pattern_type_t::LIGHT_VERTICAL};
-  xwpp::chart_series_set_labels_line(series, line);
-  xwpp::chart_series_set_labels_fill(series, fill);
-  xwpp::chart_series_set_labels_pattern(series, pattern);
+  series.set_labels_line(line);
+  series.set_labels_fill(fill);
+  series.set_labels_pattern(pattern);
 
   worksheet.insert_chart("E9", &chart);
 

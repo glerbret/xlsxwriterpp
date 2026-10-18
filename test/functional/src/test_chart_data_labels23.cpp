@@ -35,7 +35,7 @@ int main()
 
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
   series1.set_labels();
-  xwpp::chart_series_set_labels_font(series1, font);
+  series1.set_labels_font(font);
 
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
   series2.set_labels();

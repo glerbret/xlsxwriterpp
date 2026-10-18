@@ -1282,8 +1282,8 @@ void set_marker_size(uint8_t size);
  * Set the line/border properties of a chart marker:
  *
  * @code
- *  xwpp::chart_line_t line{.color = xwpp::color_t::black()};
- *  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+ *  const xwpp::chart_line_t line{.color = xwpp::color_t::black()};
+ *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
  *
  *  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
  *  series.set_marker_size(8);
@@ -1300,7 +1300,6 @@ void set_marker_line(const chart_line_t& line);
 /**
  * @brief Set the fill properties for a chart series marker.
  *
- * @param series A series object created via `chart_t::add_series()`.
  * @param fill   A `chart_fill_t` struct.
  *
  * Set the fill properties of a chart marker:
@@ -1316,7 +1315,6 @@ void set_marker_fill(const chart_fill_t& fill);
 /**
  * @brief Set the pattern properties for a chart series marker.
  *
- * @param series  A series object created via `chart_t::add_series()`.
  * @param pattern A `chart_pattern_t` struct.
  *
  * Set the pattern properties of a chart marker:
@@ -1337,7 +1335,7 @@ void set_marker_pattern(const chart_pattern_t& pattern);
  * Set the line/border properties of a chart series:
  *
  * @code
- *  xwpp::chart_line_t line{.color = xwpp::color_t::red()};
+ *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
  *
  *  series1.set_line(line);
  *  series2.set_line(line);
@@ -1358,9 +1356,9 @@ void set_line(const chart_line_t& line);
  * Set the fill properties of a chart series:
  *
  * @code
- *  xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
- *  xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
- *  xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
+ *  const xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
+ *  const xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
+ *  const xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
  *
  *  series1.set_fill(fill1);
  *  series2.set_fill(fill2);
@@ -1382,13 +1380,13 @@ void set_fill(const chart_fill_t& fill);
  * Set the pattern properties of a chart series:
  *
  * @code
- *  xwpp::chart_pattern_t pattern1{
+ *  const xwpp::chart_pattern_t pattern1{
  *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
  *    .fg_color = xwpp::color_t{0x804000},
  *    .bg_color = xwpp::color_t{0xC68C53},
  *  };
  *
- *  xwpp::chart_pattern_t pattern2{
+ *  const xwpp::chart_pattern_t pattern2{
  *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
  *    .fg_color = xwpp::color_t{0xB30000},
  *    .bg_color = xwpp::color_t{0xFF6666},
@@ -1516,7 +1514,7 @@ void set_labels_options(bool show_name, bool show_category, bool show_value);
  *  series.set_labels();
  *
  *  // Create some custom labels.
- *  std::vector<xwpp::chart_data_label_t> data_labels{
+ *  const std::vector<xwpp::chart_data_label_t> data_labels{
  *    {.value = "Jan"},
  *    {.value = "Feb"},
  *    {.value = "Mar"},
@@ -1656,15 +1654,109 @@ void set_labels_legend();
  */
 void set_labels_percentage();
 
+/**
+ * @brief Set the number format for chart data labels in a series.
+ *
+ * @param num_format The number format string.
+ *
+ * The `%set_labels_num_format()` function is used to set the
+ * number format for data labels:
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_num_format("$0.00");
+ * @endcode
+ *
+ * @image html chart_data_labels8.png
+ *
+ * The number format is similar to the Worksheet Cell Format num_format,
+ * see `format_t::set_num_format()`.
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_num_format(std::string_view num_format);
+
+/**
+ * @brief Set the font properties for chart data labels in a series
+ *
+ * @param font   A pointer to a chart `chart_font_t` font struct.
+ *
+ * The `%set_labels_font()` function is used to set the font
+ * for data labels:
+ *
+ * @code
+ *  const xwpp::chart_font_t font{
+ *    .name = "Consolas",
+ *    .color = xwpp::color_t::red(),
+ *  };
+ *
+ *  series.set_labels();
+ *  series.set_labels_font(font);
+ * @endcode
+ *
+ * @image html chart_data_labels9.png
+ *
+ * @see @ref chart_fonts and @ref chart_labels.
+ */
+void set_labels_font(const chart_font_t& font);
+
+/**
+ * @brief Set the line properties for the data labels in a chart series.
+ *
+ * @param line   A `chart_line_t` struct.
+ *
+ * Set the line/border properties of the data labels in a chart series:
+ *
+ * @code
+ *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
+ *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
+ *
+ *  series.set_labels_line(line);
+ *  series.set_labels_fill(fill);
+ * @endcode
+ *
+ * @image html chart_data_labels24.png
+ *
+ * @see @ref chart_lines and @ref chart_labels.
+ */
+void set_labels_line(const chart_line_t& line);
+
+/**
+ * @brief Set the fill properties for the data labels in a chart series.
+ *
+ * @param fill   A `chart_fill_t` struct.
+ *
+ * Set the fill properties of the data labels in a chart series:
+ *
+ * @code
+ *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
+ *
+ *  series.set_labels_fill(fill);
+ * @endcode
+ *
+ * @see @ref chart_fills and @ref chart_labels.
+ */
+void set_labels_fill(const chart_fill_t& fill);
+
+/**
+ * @brief Set the pattern properties for the data labels in a chart series.
+ *
+ * @param pattern A `chart_pattern_t` struct.
+ *
+ * Set the pattern properties of the data labels in a chart series:
+ *
+ * @code
+ *  series.set_labels_pattern(pattern);
+ * @endcode
+ *
+ * @see `chart_pattern_type_t` and @ref chart_patterns.
+ */
+void set_labels_pattern(const chart_pattern_t& pattern);
+
 ////////// TODO Here begin
 
 
 
-  std::string label_num_format;
-  std::optional<chart_font_t> label_font;
-  std::optional<chart_line_t> label_line;
-  std::optional<chart_fill_t> label_fill;
-  std::optional<chart_pattern_t> label_pattern;
 
   series_error_bars_t x_error_bars;
   series_error_bars_t y_error_bars;
@@ -1689,13 +1781,14 @@ private:
 
   chart_series_t(const series_range_t& categories, const series_range_t& values);
 
-//public: // TODO
   bool invert_if_negative_{false};
   bool smooth_{false};
 
   chart_title_t title_;
+public: // TODO
   series_range_t categories_;
   series_range_t values_;
+private:
   std::optional<chart_marker_t> marker_;
   std::optional<chart_line_t> line_;
   std::optional<chart_fill_t> fill_;
@@ -1714,6 +1807,11 @@ private:
   chart_label_separator_t label_separator_{chart_label_separator_t::COMMA};
   chart_label_position_t label_position_{chart_label_position_t::DEFAULT};
   chart_label_position_t default_label_position_{chart_label_position_t::DEFAULT};
+  std::string label_num_format_;
+  std::optional<chart_font_t> label_font_;
+  std::optional<chart_line_t> label_line_;
+  std::optional<chart_fill_t> label_fill_;
+  std::optional<chart_pattern_t> label_pattern_;
 
 };
 ////////// TODO Here end
@@ -2874,110 +2972,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
                row_num_t last_row, col_num_t last_col);
 
 // TODO Member function of series
-
-/**
- * @brief Set the number format for chart data labels in a series.
- *
- * @param series     A series object created via `chart_t::add_series()`.
- * @param num_format The number format string.
- *
- * The `%chart_series_set_labels_num_format()` function is used to set the
- * number format for data labels:
- *
- * @code
- *  series.set_labels();
- *  series.set_labels_num_format("$0.00");
- * @endcode
- *
- * @image html chart_data_labels8.png
- *
- * The number format is similar to the Worksheet Cell Format num_format,
- * see `format_t::set_num_format()`.
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_num_format(chart_series_t& series, std::string_view num_format);
-
-/**
- * @brief Set the font properties for chart data labels in a series
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param font   A pointer to a chart `chart_font_t` font struct.
- *
- * The `%chart_series_set_labels_font()` function is used to set the font
- * for data labels:
- *
- * @code
- *  xwpp::chart_font_t font{
- *    .name = "Consolas",
- *    .color = xwpp::color_t::red(),
- *  };
- *
- *  series.set_labels();
- *  series.set_labels_font(font);
- * @endcode
- *
- * @image html chart_data_labels9.png
- *
- * @see @ref chart_fonts and @ref chart_labels.
- */
-void chart_series_set_labels_font(chart_series_t& series, const std::optional<chart_font_t>& font);
-
-/**
- * @brief Set the line properties for the data labels in a chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param line   A `chart_line_t` struct.
- *
- * Set the line/border properties of the data labels in a chart series:
- *
- * @code
- *  xwpp::chart_line_t line{.color = xwpp::color_t::red()};
- *  xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
- *
- *  chart_series_set_labels_line(series, line);
- *  chart_series_set_labels_fill(series, fill);
- * @endcode
- *
- * @image html chart_data_labels24.png
- *
- * @see @ref chart_lines and @ref chart_labels.
- */
-void chart_series_set_labels_line(chart_series_t& series, const std::optional<chart_line_t>& line);
-
-/**
- * @brief Set the fill properties for the data labels in a chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param fill   A `chart_fill_t` struct.
- *
- * Set the fill properties of the data labels in a chart series:
- *
- * @code
- *  xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
- *
- *  chart_series_set_labels_fill(series, fill);
- * @endcode
- *
- * @see @ref chart_fills and @ref chart_labels.
- */
-void chart_series_set_labels_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill);
-
-/**
- * @brief Set the pattern properties for the data labels in a chart series.
- *
- * @param series  A series object created via `chart_t::add_series()`.
- * @param pattern A `chart_pattern_t` struct.
- *
- * Set the pattern properties of the data labels in a chart series:
- *
- * @code
- *  chart_series_set_labels_pattern(series, pattern);
- * @endcode
- *
- * @see `chart_pattern_type_t` and @ref chart_patterns.
- */
-void chart_series_set_labels_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
 
 /**
  * @brief Turn on a trendline for a chart data series.

@@ -1280,7 +1280,7 @@ void workbook_t::add_chart_cache_data() const
       populate_range(series.categories_);
       populate_range(series.values_);
       populate_range(series.title_.range);
-      for(auto& data_label: series.data_labels)
+      for(auto& data_label: series.data_labels_)
       {
         if(data_label.range)
         {

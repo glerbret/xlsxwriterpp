@@ -41,8 +41,8 @@ int main()
   const xwpp::chart_line_t line{
     .color = xwpp::color_t::red(), .width = 1, .dash_type = xwpp::chart_line_dash_type_t::DASH};
   const xwpp::chart_fill_t fill{.color = xwpp::color_t{0x00B050}};
-  xwpp::chart_series_set_labels_line(series, line);
-  xwpp::chart_series_set_labels_fill(series, fill);
+  series.set_labels_line(line);
+  series.set_labels_fill(fill);
 
   worksheet.insert_chart("E9", &chart);
 

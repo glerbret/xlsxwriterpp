@@ -41,8 +41,8 @@ int main()
   series.set_labels_leader_line();
   series.set_labels_legend();
   series.set_labels_percentage();
-  xwpp::chart_series_set_labels_num_format(series, "#,##0.00");
-  xwpp::chart_series_set_labels_font(series, font);
+  series.set_labels_num_format("#,##0.00");
+  series.set_labels_font(font);
 
   worksheet.insert_chart("E9", &chart);
 

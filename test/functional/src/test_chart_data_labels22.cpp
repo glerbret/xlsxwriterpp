@@ -33,12 +33,12 @@ int main()
 
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
   series1.set_labels();
-  xwpp::chart_series_set_labels_num_format(series1, "#,##0.00");
+  series1.set_labels_num_format("#,##0.00");
 
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
   series2.set_labels();
   series2.set_labels_position(xwpp::chart_label_position_t::INSIDE_BASE);
-  xwpp::chart_series_set_labels_num_format(series2, "0.00");
+  series2.set_labels_num_format("0.00");
 
   chart.add_series("=Sheet1!$C$1:$C$5");
 

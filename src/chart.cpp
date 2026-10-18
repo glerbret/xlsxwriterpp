@@ -380,6 +380,34 @@ void chart_series_t::set_labels_percentage()
   show_labels_percent_ = true;
 }
 
+void chart_series_t::set_labels_num_format(std::string_view num_format)
+{
+  if(!num_format.empty())
+  {
+    label_num_format_ = num_format;
+  }
+}
+
+void chart_series_t::set_labels_font(const chart_font_t& font)
+{
+  label_font_ = convert_font_args(font);
+}
+
+void chart_series_t::set_labels_line(const chart_line_t& line)
+{
+  label_line_ = convert_line_args(line);
+}
+
+void chart_series_t::set_labels_fill(const chart_fill_t& fill)
+{
+  label_fill_ = convert_fill_args(fill);
+}
+
+void chart_series_t::set_labels_pattern(const chart_pattern_t& pattern)
+{
+  label_pattern_ = convert_pattern_args(pattern);
+}
+
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   return {
@@ -2921,16 +2949,16 @@ std::string chart_t::write_d_lbls(const chart_series_t& series)
     xml_data += write_custom_labels(series);
   }
 
-  if(!series.label_num_format.empty())
+  if(!series.label_num_format_.empty())
   {
-    xml_data += write_label_num_fmt(series.label_num_format);
+    xml_data += write_label_num_fmt(series.label_num_format_);
   }
 
-  xml_data += write_sp_pr(series.label_line, series.label_fill, series.label_pattern);
+  xml_data += write_sp_pr(series.label_line_, series.label_fill_, series.label_pattern_);
 
-  if(series.label_font)
+  if(series.label_font_)
   {
-    xml_data += write_tx_pr(false, series.label_font);
+    xml_data += write_tx_pr(false, series.label_font_);
   }
 
   if(series.label_position_ != chart_label_position_t::DEFAULT)
@@ -4101,34 +4129,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
   range.last_row  = last_row;
   range.last_col  = last_col;
   range.formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col);
-}
-
-void chart_series_set_labels_num_format(chart_series_t& series, std::string_view num_format)
-{
-  if(!num_format.empty())
-  {
-    series.label_num_format = num_format;
-  }
-}
-
-void chart_series_set_labels_font(chart_series_t& series, const std::optional<chart_font_t>& font)
-{
-  series.label_font = convert_font_args(font);
-}
-
-void chart_series_set_labels_line(chart_series_t& series, const std::optional<chart_line_t>& line)
-{
-  series.label_line = convert_line_args(line);
-}
-
-void chart_series_set_labels_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
-{
-  series.label_fill = convert_fill_args(fill);
-}
-
-void chart_series_set_labels_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
-{
-  series.label_pattern = convert_pattern_args(pattern);
 }
 
 void series_set_trendline(chart_series_t& series, chart_trendline_type_t type, uint8_t value)
