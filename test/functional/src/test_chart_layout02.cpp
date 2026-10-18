@@ -42,7 +42,7 @@ int main()
     .height = 0.25115157480314,
   };
 
-  chart.legend_set_layout(layout);
+  chart.set_legend_layout(layout);
 
   worksheet.insert_chart("E9", &chart);
 

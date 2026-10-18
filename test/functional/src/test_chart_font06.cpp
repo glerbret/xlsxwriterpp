@@ -42,8 +42,7 @@ int main()
   const xwpp::chart_font_t font4{.name = "Century", .color = xwpp::color_t::red(), .pitch_family = 18, .charset = 0};
   const xwpp::chart_font_t font5{.bold = true, .italic = true, .underline = true, .color = xwpp::color_t{0x7030A0}};
 
-  chart.title_set_name("Title");
-  chart.title_set_name_font(font1);
+  chart.set_title("Title", font1);
 
   chart_axis_set_name(chart.x_axis_, "XXX");
   chart_axis_set_name_font(chart.x_axis_, font2);

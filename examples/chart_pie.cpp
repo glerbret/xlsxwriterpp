@@ -57,7 +57,7 @@ int main()
     series.set_name("Pie sales data");
 
     // Add a chart title.
-    chart.title_set_name("Popular Pie Types");
+    chart.set_title("Popular Pie Types");
 
     // Set an Excel chart style.
     chart.set_style(10);
@@ -77,7 +77,7 @@ int main()
     series.set_name("Pie sales data");
 
     // Add a chart title.
-    chart.title_set_name("Pie Chart with user defined colors");
+    chart.set_title("Pie Chart with user defined colors");
 
     // Add for fills for use in the chart.
     xwpp::chart_fill_t fill1{.color = xwpp::color_t{0x5ABA10}};
@@ -109,7 +109,7 @@ int main()
     series.set_name("Pie sales data");
 
     // Add a chart title.
-    chart.title_set_name("Pie Chart with segment rotation");
+    chart.set_title("Pie Chart with segment rotation");
 
     // Change the angle/rotation of the first segment.
     chart.set_rotation(90);

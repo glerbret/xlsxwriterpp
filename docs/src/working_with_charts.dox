@@ -75,11 +75,11 @@ The chart types with `MARKERS` in the name have markers with default colors
 and shapes turned on by default but it is possible to change them using the
 functions shown below.
 
-The `chart_t::series_set_marker_type()` function is used to specify the type of
+The `chart_series_t::set_marker_type()` function is used to specify the type of
 the series marker:
 
 @code
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::DIAMOND);
+  series.set_marker_type(xwpp::chart_marker_type_t::DIAMOND);
 @endcode
 
 @image html chart_marker1.png
@@ -101,7 +101,7 @@ The available marker types defined by `chart_marker_type_t` are:
 The `chart_marker_type_t::NONE` type can be used to turn off default markers:
 
 @code
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::NONE);
+  series.set_marker_type(xwpp::chart_marker_type_t::NONE);
 @endcode
 
 @image html chart_series_set_marker_none.png
@@ -111,17 +111,17 @@ marker using the default marker style for the particular series. If
 automatic is on then other marker properties such as size, line or fill
 cannot be set.
 
-The `chart_series_set_marker_size()` function is used to specify the size of
+The `%chart_series_t::set_marker_size()` function is used to specify the size of
 the series marker:
 
 @code
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::CIRCLE);
-  xwpp::chart_series_set_marker_size(series, 10);
+  series.set_marker_type(xwpp::chart_marker_type_t::CIRCLE);
+  series.set_marker_size(10);
 @endcode
 
 @image html chart_series_set_marker_size.png
 
-The `chart_series_set_marker_line()` and `chart_series_set_marker_fill()`
+The `%chart_series_t::set_marker_line()` and `chart_series_t::set_marker_fill()`
 functions can be used to set the line/border and fill properties of a chart
 marker:
 
@@ -129,11 +129,10 @@ marker:
   xwpp::chart_line_t line{.color = xwpp::color_t::black()};
   xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  xwpp::chart_series_set_marker_size(series, 8);
-
-  xwpp::chart_series_set_marker_line(series, line);
-  xwpp::chart_series_set_marker_fill(series, fill);
+  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+  series.set_marker_size(8);
+  series.set_marker_line(line);
+  series.set_marker_fill(fill);
 @endcode
 
 @image html chart_marker2.png
@@ -153,7 +152,7 @@ a data series:
 
 @code
   chart = workbook.add_chart(xwpp::chart_type_t::LINE);
-  series = chart.add_series("", "Sheet1!$A$1:$A$6");
+  series = chart.add_series("Sheet1!$A$1:$A$6");
 
   xwpp::series_set_trendline(series, xwpp::chart_trendline_type_t::LINEAR, 0);
 @endcode
@@ -462,8 +461,8 @@ zero-initialized `chart_point_t`:
 
   series_set_points(series, points);
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  xwpp::chart_series_set_marker_size(series, 10);
+  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+  series.set_marker_size(10);
 @endcode
 
 @image html chart_points2.png
@@ -816,12 +815,11 @@ For example:
   xwpp::chart_line_t marker_line = {.color = xwpp::color_t::red()};
   xwpp::chart_fill_t marker_fill = {.color = xwpp::color_t::yellow()};
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  chart_series_set_marker_size(series, 5);
-
-  chart_series_set_line(series, chart_line);
-  chart_series_set_marker_line(series, marker_line);
-  chart_series_set_marker_fill(series, marker_fill);
+  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+  series.set_marker_size(5);
+  series.set_marker_line(marker_line);
+  series.set_marker_fill(marker_fill);
+  series.set_line(chart_line);
 @endcode
 
 @image html chart_formatting2.png
@@ -901,7 +899,7 @@ Here is a longer example with several chart formats:
 
 @dontinclude chart_fonts.cpp
 @skip chart_font_t
-@until legend_set_font
+@until set_legend_font
 
 @image html chart_fonts.png
 
@@ -928,8 +926,8 @@ markers without a line, or a column fill without a border:
 @code
   xwpp::chart_line_t line{.none = true};
 
-  chart_series_set_line(series, line);
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::AUTOMATIC);
+  series.set_line(line);
+  series.set_marker_type(xwpp::chart_marker_type_t::AUTOMATIC);
 @endcode
 
 @image html chart_formatting3.png
@@ -941,7 +939,7 @@ more information):
 @code
   xwpp::chart_line_ line{.color = xwpp::color_t{0xFF9900}};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
 @endcode
 
 @image html chart_formatting4.png
@@ -952,7 +950,7 @@ increments of 0.25 of a point as in Excel:
 @code
   xwpp::chart_line_ line{.width = 4.25};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
 @endcode
 
 @image html chart_formatting_width.png
@@ -962,7 +960,7 @@ The `%dash_type` member sets the dash style of the line:
 @code
   xwpp::chart_line_ line{.dash_type = xwpp::chart_line_dash_type_t::DASH_DASH_DOT};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
 @endcode
 
 @image html chart_formatting5.png
@@ -1025,7 +1023,7 @@ default):
   xwpp::chart_line_t line = {.color = xwpp::color_t::black()};
   xwpp::chart_fill_t fill = {.none  = true};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
   chart_series_set_fill(series, fill);
 @endcode
 
@@ -1064,7 +1062,7 @@ set via the `%line` format:
   xwpp::chart_line_ line{.color = xwpp::color_t::black()};
   xwpp::chart_fill_ fill{.color = xwpp::color_t::red()};
 
-  chart_series_set_line(series, line);
+  series.set_line(line);
   chart_series_set_fill(series, fill);
 @endcode
 
@@ -1210,7 +1208,7 @@ These units are cumbersome and can vary depending on other elements in the chart
 such as text lengths. However, these are the units that are required by Excel to
 allow relative positioning. Some trial and error is generally required.
 
-For the chart `chart_t::plotarea_set_layout()` and `chart_t::legend_set_layout()`
+For the chart `chart_t::plotarea_set_layout()` and `chart_t::set_legend_layout()`
 functions you can also set the width and height based on the following
 calculation:
 
@@ -1224,8 +1222,8 @@ dimensions.
 
 The chart functions that support `chart_layout_t` are:
 
-- `chart_t::title_set_layout()`
-- `chart_t::legend_set_layout()`
+- `chart_t::set_title_layout()`
+- `chart_t::set_legend_layout()`
 - `chart_t::plotarea_set_layout()`
 - `chart_axis_set_name_layout()`
 

@@ -40,7 +40,7 @@ int main()
   series1.set_name("=Sheet1!$A$1");
   series2.set_name("=Sheet1!$B$1");
 
-  chart.title_set_name("Cladding types");
+  chart.set_title("Cladding types");
   xwpp::chart_axis_set_name(chart.x_axis_, "Region");
   xwpp::chart_axis_set_name(chart.y_axis_, "Number of houses");
 
@@ -64,8 +64,8 @@ int main()
   xwpp::chart_line_t line2{.color = xwpp::color_t{0xb30000}};
   xwpp::chart_line_t line1{.color = xwpp::color_t{0x804000}};
 
-  xwpp::chart_series_set_line(series1, line1);
-  xwpp::chart_series_set_line(series2, line2);
+  series1.set_line(line1);
+  series2.set_line(line2);
 
   // Widen the gap between the series/categories.
   chart.set_series_gap(70);

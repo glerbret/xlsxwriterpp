@@ -39,7 +39,7 @@ int main()
       {
         xwpp::chart_t& chart = workbook.add_chart(chart_type);
         chart.add_series("=Data!$A$1:$A$6");
-        chart.title_set_name(std::format("Style {}", style_num));
+        chart.set_title(std::format("Style {}", style_num));
         chart.set_style(style_num);
         worksheet.insert_chart(row_num, col_num, &chart);
 

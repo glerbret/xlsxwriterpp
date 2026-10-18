@@ -37,7 +37,7 @@ int main()
 
   xwpp::chart_axis_set_name(chart.x_axis_, "=Sheet1!$A$2");
   xwpp::chart_axis_set_name(chart.y_axis_, "=Sheet1!$A$3");
-  chart.title_set_name("=Sheet1!$A$1");
+  chart.set_title("=Sheet1!$A$1");
 
   worksheet.insert_chart("E9", &chart);
 

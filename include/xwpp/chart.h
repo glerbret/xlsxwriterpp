@@ -948,7 +948,7 @@ struct chart_font_t
  * Excel to allow relative positioning. Some trial and error is generally
  * required.
  *
- * For the chart `chart_t::plotarea_set_layout()` and `chart_t::legend_set_layout()`
+ * For the chart `chart_t::plotarea_set_layout()` and `chart_t::set_legend_layout()`
  * functions you can also set the width and height based on the following
  * calculation:
  *
@@ -962,8 +962,8 @@ struct chart_font_t
  *
  * The chart functions that support `%chart_layout_t` are:
  *
- * - `chart_t::title_set_layout()`
- * - `chart_t::legend_set_layout()`
+ * - `chart_t::set_title_layout()`
+ * - `chart_t::set_legend_layout()`
  * - `chart_t::plotarea_set_layout()`
  * - `chart_axis_set_name_layout()`
  *
@@ -1141,7 +1141,6 @@ struct series_error_bars_t
 class chart_series_t
 {
 public:
-
   /**
    * @brief Set the name of a chart series range.
    *
@@ -1175,12 +1174,166 @@ public:
    */
   void set_name(std::string_view name);
 
+  /**
+   * @brief Set the data marker type for a series.
+   *
+   * @param type   The marker type, see `chart_marker_type_t`.
+   *
+   * In Excel a chart marker is used to distinguish data points in a plotted
+   * series. In general only Line and Scatter and Radar chart types use
+   * markers. The `Xlsxwriter++` chart types that can have markers are:
+   *
+   * - `chart_type_t::LINE`
+   * - `chart_type_t::SCATTER`
+   * - `chart_type_t::SCATTER_STRAIGHT`
+   * - `chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS`
+   * - `chart_type_t::SCATTER_SMOOTH`
+   * - `chart_type_t::SCATTER_SMOOTH_WITH_MARKERS`
+   * - `chart_type_t::RADAR`
+   * - `chart_type_t::RADAR_WITH_MARKERS`
+   *
+   * The chart types with `MARKERS` in the name have markers with default colors
+   * and shapes turned on by default but it is possible using the various
+   * `%set_marker_xxx()` functions below to change these defaults. It
+   * is also possible to turn on an off markers.
+   *
+   * The `%set_marker_type()` function is used to specify the
+   * type of the series marker:
+   *
+   * @code
+   *  chart.set_marker_type(xwpp::chart_marker_type_t::DIAMOND);
+   * @endcode
+   *
+   * @image html chart_marker1.png
+   *
+   * The available marker types defined by `chart_marker_type_t` are:
+   *
+   * - `%chart_marker_type_t::AUTOMATIC`
+   * - `%chart_marker_type_t::NONE`
+   * - `%chart_marker_type_t::SQUARE`
+   * - `%chart_marker_type_t::DIAMOND`
+   * - `%chart_marker_type_t::TRIANGLE`
+   * - `%chart_marker_type_t::X`
+   * - `%chart_marker_type_t::STAR`
+   * - `%chart_marker_type_t::SHORT_DASH`
+   * - `%chart_marker_type_t::LONG_DASH`
+   * - `%chart_marker_type_t::CIRCLE`
+   * - `%chart_marker_type_t::PLUS`
+   *
+   * The `%chart_marker_type_t::NONE` type can be used to turn off default markers:
+   *
+   * @code
+   *  chart.set_marker_type(series, xwpp::chart_marker_type_t::NONE);
+   * @endcode
+   *
+   * @image html chart_series_set_marker_none.png
+   *
+   * The `%chart_marker_type_t::AUTOMATIC` type is a special case which turns on a
+   * marker using the default marker style for the particular series. If
+   * automatic is on then other marker properties such as size, line or fill
+   * cannot be set.
+   */
+  void set_marker_type(chart_marker_type_t type);
+
+/**
+ * @brief Set the size of a data marker for a series.
+ *
+ * @param size   The size of the marker.
+ *
+ * The `%set_marker_size()` function is used to specify the
+ * size of the series marker:
+ *
+ * @code
+ *  series.set_marker_type(xwpp::chart_marker_type_t::CIRCLE);
+ *  series.set_marker_size(10);
+ * @endcode
+ *
+ * @image html chart_series_set_marker_size.png
+ *
+ * @pre The `%size` parameter must be in the range `[2, 72]`.
+ */
+void set_marker_size(uint8_t size);
+
+/**
+ * @brief Set the line properties for a chart series marker.
+ *
+ * @param line   A `chart_line_t` struct.
+ *
+ * Set the line/border properties of a chart marker:
+ *
+ * @code
+ *  xwpp::chart_line_t line{.color = xwpp::color_t::black()};
+ *  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+ *
+ *  series.set_marker_type(xwpp::chart_marker_type_t::SQUARE);
+ *  series.set_marker_size(8);
+ *  series.set_marker_line(line);
+ *  series.set_marker_fill(fill);
+ * @endcode
+ *
+ * @image html chart_marker2.png
+ *
+ * @see @ref chart_lines.
+ */
+void set_marker_line(const chart_line_t& line);
+
+/**
+ * @brief Set the fill properties for a chart series marker.
+ *
+ * @param series A series object created via `chart_t::add_series()`.
+ * @param fill   A `chart_fill_t` struct.
+ *
+ * Set the fill properties of a chart marker:
+ *
+ * @code
+ *  series.set_marker_fill(fill);
+ * @endcode
+ *
+ * @see @ref chart_fills.
+ */
+void set_marker_fill(const chart_fill_t& fill);
+
+/**
+ * @brief Set the pattern properties for a chart series marker.
+ *
+ * @param series  A series object created via `chart_t::add_series()`.
+ * @param pattern A `chart_pattern_t` struct.
+ *
+ * Set the pattern properties of a chart marker:
+ *
+ * @code
+ *  series.set_marker_pattern(pattern);
+ * @endcode
+ *
+ * @see `chart_pattern_type_t` and @ref chart_patterns.
+ */
+void set_marker_pattern(const chart_pattern_t& pattern);
+
+/**
+ * @brief Set the line properties for a chart series.
+ *
+ * @param line   A `chart_line_t` struct.
+ *
+ * Set the line/border properties of a chart series:
+ *
+ * @code
+ *  xwpp::chart_line_t line{.color = xwpp::color_t::red()};
+ *
+ *  series1.set_line(line);
+ *  series2.set_line(line);
+ *  series3.set_line(line);
+ * @endcode
+ *
+ * @image html chart_series_set_line.png
+ *
+ * @see @ref chart_lines.
+ */
+void set_line(const chart_line_t& line);
+
 ////////// TODO Here begin
   chart_title_t title;
-  std::optional<chart_line_t> line;
-  std::optional<chart_fill_t> fill;
-  std::optional<chart_pattern_t> pattern;
-  std::optional<chart_marker_t> marker;
+  std::optional<chart_fill_t> fill_;
+  std::optional<chart_pattern_t> pattern_;
   std::vector<chart_point_t> points;
   std::vector<chart_custom_label_t> data_labels;
 
@@ -1230,7 +1383,8 @@ private:
 public: // TODO
   series_range_t categories_;
   series_range_t values_;
-
+  std::optional<chart_marker_t> marker_;
+  std::optional<chart_line_t> line_;
 };
 ////////// TODO Here end
 
@@ -1442,12 +1596,13 @@ public:
    * @brief Set the title of the chart.
    *
    * @param name The chart title name.
+   * @param font An optional font used to display the title.
    *
-   * The `%title_set_name()` function sets the name (title) for the
+   * The `%set_title()` function sets the name (title) for the
    * chart. The name is displayed above the chart.
    *
    * @code
-   *  chart.title_set_name("Year End Results");
+   *  chart.set_title("Year End Results");
    * @endcode
    *
    * @image html chart_title_set_name.png
@@ -1456,32 +1611,20 @@ public:
    * a cell in the workbook that contains the name:
    *
    * @code
-   *  chart.title_set_name("=Sheet1!$B$1");
+   *  chart.set_title("=Sheet1!$B$1");
    * @endcode
    *
    * The Excel default is to have no chart title.
    *
-   * @see the `title_set_name_range()` function to see how to set the
-   * name formula programmatically.
-   */
-  void title_set_name(const std::string& name);
-
-
-  ////////// TODO Here begin
-
-  /**
-   * @brief Set the font properties for a chart title.
+   * @see The overload with sheetname, column and row to
+   * see how to set the name formula programmatically.
    *
-   * @param font A reference to a chart `chart_font_t` font struct.
-   *
-   * The `%title_set_name_font()` function is used to set the font of a
-   * chart title:
+   * The optional parameter `%font` set the font of the chart title:
    *
    * @code
    *  xwpp::chart_font_t font{.color = xwpp::color_t::blue()};
    *
-   *  chart.title_set_name("Year End Results");
-   *  chart.title_set_name_font(font);
+   *  chart.set_title("Year End Results", font);
    * @endcode
    *
    * @image html chart_title_set_name_font.png
@@ -1490,14 +1633,78 @@ public:
    *
    * @see @ref chart_fonts.
    */
-  void title_set_name_font(const chart_font_t& font);
+  void set_title(std::string_view name, const std::optional<chart_font_t>& font = std::nullopt);
+
+  /**
+   * @brief Set a chart title formula using row and column values.
+   *
+   * @param sheetname The name of the worksheet that contains the cell range.
+   * @param row_num   The zero indexed row number of the range.
+   * @param col_num   The zero indexed column number of the range.
+   * @param font      An optional font used to display the title.
+   *
+   * This overload of `%set_title()` function is an alternative to using
+   * `%set_title()` and a string formula:
+   *
+   * @code
+   *  chart.set_title("Sheet1", 1, 0);
+   * @endcode
+   *
+   * @pre The `%sheetname` parameter should not be empty.
+   */
+  void set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num, const std::optional<chart_font_t>& font = std::nullopt);
+
+  /**
+   * @brief Set the manual position of the chart title.
+   *
+   * @param layout A pointer to a chart `chart_layout_t` struct.
+   *
+   * This function is used to simulate setting the manual position of the chart
+   * title.
+   *
+   * @see @ref chart_layout for more information.
+   */
+  void set_title_layout(const std::optional<chart_layout_t>& layout);
+
+  /**
+   * @brief Allow the chart title to overlay the chart.
+   *
+   * @param overlay Turn off/on the overlay.
+   *
+   * This option allows the chart title to overlay the chart when the
+   * `set_title_layout()` function.
+   */
+  void set_title_overlay(bool overlay);
+
+  /**
+   * @brief Set the font properties for a chart legend.
+   *
+   * @param font A pointer to a chart `chart_font_t` font struct.
+   *
+   * The `%set_legend_font()` function is used to set the font of a
+   * chart legend:
+   *
+   * @code
+   *  xwpp::chart_font_t font{
+   *    .bold = true,
+   *    .color = xwpp::color_t::blue(),
+   *  };
+   *
+   *  chart.set_legend_font(font);
+   * @endcode
+   *
+   * @image html chart_legend_set_font.png
+   *
+   * @see @ref chart_fonts.
+   */
+  void set_legend_font(const std::optional<chart_font_t>& font);
 
   /**
    * @brief Set the position of the chart legend.
    *
    * @param position The `chart_legend_position_t` value for the legend.
    *
-   * The `%legend_set_position()` function is used to set the chart
+   * The `%set_legend_position()` function is used to set the chart
    * legend to one of the `chart_legend_position_t` values:
    *
    *  - `%chart_legend_position_t::NONE`
@@ -1511,7 +1718,7 @@ public:
    *  - `%chart_legend_position_t::OVERLAY_TOP_RIGHT`
    *
    * @code
-   *  chart.legend_set_position(xwpp::chart_legend_position_t::::BOTTOM);
+   *  chart.set_legend_position(xwpp::chart_legend_position_t::::BOTTOM);
    * @endcode
    *
    * @image html chart_legend_bottom.png
@@ -1519,12 +1726,51 @@ public:
    * This function can also be used to turn off a chart legend:
    *
    * @code
-   *  chart_legend_set_position(xwpp::chart_legend_position_t::NONE);
+   *  set_legend_position(xwpp::chart_legend_position_t::NONE);
    * @endcode
    *
    * @image html chart_legend_none.png
    */
-  void legend_set_position(chart_legend_position_t position);
+  void set_legend_position(chart_legend_position_t position);
+
+  /**
+   * @brief Set the manual layout of the chart legend.
+   *
+   * @param layout A pointer to a chart `chart_layout_t` struct.
+   *
+   * This function is used to simulate setting the manual position of the chart
+   * legend.
+   *
+   * @see @ref chart_layout for more information.
+   */
+  void set_legend_layout(const std::optional<chart_layout_t>& layout);
+
+  /**
+   * @brief Remove one or more series from the the legend.
+   *
+   * @param delete_series An array of zero-indexed values to delete from series.
+   *
+   * The `%legend_delete_series()` function allows you to remove/hide one
+   * or more series in a chart legend (the series will still display on the chart).
+   *
+   * This function takes a vector of one or more zero indexed series
+   * numbers.
+   *
+   * For example to remove the first and third zero-indexed series from the
+   * legend of a chart with 3 series:
+   *
+   * @code
+   *  std::vector<int16_t> series{0, 2};
+   *
+   *  chart.legend_delete_series(series);
+   * @endcode
+   *
+   * @image html chart_legend_delete.png
+   *
+   * @pre The `%delete_series` parameter should not be empty.
+   * @pre The size of `%delete_series` parameter must be less than or equal to 255.
+   */
+  void legend_delete_series(const std::vector<int16_t>& delete_series);
 
   /**
    * @brief Turn on a data table below the horizontal axis.
@@ -1551,13 +1797,13 @@ public:
    * @param outline     Turn on/off the outline lines in the table.
    * @param legend_keys Turn on/off the legend keys in the table.
    *
-   * The `%set_table_grid()` function turns on/off grid options for a
+   * This `%set_table()` overload turns on/off grid options for a
    * chart data table. The data table grid options in Excel are shown in the
    * dialog below:
    *
    * @image html chart_data_table3.png
    *
-   * These options can be passed to the `%set_table_grid()` function.
+   * These options can be passed to the `%set_table()` function.
    * The values for a default chart are:
    *
    * - `%horizontal`: On.
@@ -1566,14 +1812,11 @@ public:
    * - `%legend_keys`: Off.
    *
    * @code
-   *  // Turn on the data table with default options.
-   *  chart.set_table();
-   *
    *  // Turn on all grid lines and the grid legend.
-   *  chart.set_table_grid(true, true, true, true);
+   *  chart.set_table(true, true, true, true);
    *
    *  // Turn off the legend since it is show in the table.
-   *  chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+   *  chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
    *
    * @endcode
    *
@@ -1581,7 +1824,7 @@ public:
    *
    * The data table can only be shown with Bar, Column, Line and Area charts.
    */
-  void set_table_grid(bool horizontal, bool vertical, bool outline, bool legend_keys);
+  void set_table(bool horizontal, bool vertical, bool outline, bool legend_keys);
 
   /**
    * @brief Turn on and format Drop Lines for a chart.
@@ -1646,32 +1889,14 @@ public:
   void set_high_low_lines(const std::optional<chart_line_t>& line);
 
   /**
-   * @brief Turn on up-down bars for the chart.
+   * @brief Turn on up-down bars for the chart, with optional formatting.
    *
-   * The `%set_up_down_bars()` function adds Up-Down bars to Line charts
-   * to indicate the difference between the first and last data series:
+   * @param up_bar_line   An optional `chart_line_t` struct for the up-bar border.
+   * @param up_bar_fill   An optional `chart_fill_t` struct for the up-bar fill.
+   * @param down_bar_line An optional `chart_line_t` struct for the down-bar border.
+   * @param down_bar_fill An optional `chart_fill_t` struct for the down-bar fill.
    *
-   * @code
-   *  chart.set_up_down_bars();
-   * @endcode
-   *
-   * @image html chart_data_tools4.png
-   *
-   * Up-Down bars are only available in Line charts. By default Up-Down bars are
-   * black and white like in the above example. To format the border or fill
-   * of the bars see the `set_up_down_bars_format()` function below.
-   */
-  void set_up_down_bars();
-
-  /**
-   * @brief Turn on up-down bars for the chart, with formatting.
-   *
-   * @param up_bar_line   A `chart_line_t` struct for the up-bar border.
-   * @param up_bar_fill   A `chart_fill_t` struct for the up-bar fill.
-   * @param down_bar_line A `chart_line_t` struct for the down-bar border.
-   * @param down_bar_fill A `chart_fill_t` struct for the down-bar fill.
-   *
-   * The `%set_up_down_bars_format()` function adds Up-Down bars to Line
+   * The `%set_up_down_bars()` function adds Up-Down bars to Line
    * charts to indicate the difference between the first and last data series.
    * It also allows the up and down bars to be formatted:
    *
@@ -1683,7 +1908,7 @@ public:
    *  xwpp::chart_fill_t down_fill{
    *    .color = xwpp::color_t::red()};
    *
-   *  chart.set_up_down_bars_format(line, up_fill, line, down_fill);
+   *  chart.set_up_down_bars(line, up_fill, line, down_fill);
    * @endcode
    *
    * @image html chart_up_down_bars.png
@@ -1692,72 +1917,12 @@ public:
    *
    * @see @ref chart_lines and @ref chart_fills.
    */
-  void set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_line,
-                               const std::optional<chart_fill_t>& up_bar_fill,
-                               const std::optional<chart_line_t>& down_bar_line,
-                               const std::optional<chart_fill_t>& down_bar_fill);
+  void set_up_down_bars(const std::optional<chart_line_t>& up_bar_line = std::nullopt,
+                        const std::optional<chart_fill_t>& up_bar_fill = std::nullopt,
+                        const std::optional<chart_line_t>& down_bar_line = std::nullopt,
+                        const std::optional<chart_fill_t>& down_bar_fill = std::nullopt);
 
-  /**
-   * @brief Set the data marker type for a series.
-   *
-   * @param series A series object created via `add_series()`.
-   * @param type   The marker type, see `chart_marker_type_t`.
-   *
-   * In Excel a chart marker is used to distinguish data points in a plotted
-   * series. In general only Line and Scatter and Radar chart types use
-   * markers. The `Xlsxwriter++` chart types that can have markers are:
-   *
-   * - `chart_type_t::LINE`
-   * - `chart_type_t::SCATTER`
-   * - `chart_type_t::SCATTER_STRAIGHT`
-   * - `chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS`
-   * - `chart_type_t::SCATTER_SMOOTH`
-   * - `chart_type_t::SCATTER_SMOOTH_WITH_MARKERS`
-   * - `chart_type_t::RADAR`
-   * - `chart_type_t::RADAR_WITH_MARKERS`
-   *
-   * The chart types with `MARKERS` in the name have markers with default colors
-   * and shapes turned on by default but it is possible using the various
-   * `%series_set_marker_xxx()` functions below to change these defaults. It
-   * is also possible to turn on an off markers.
-   *
-   * The `%series_set_marker_type()` function is used to specify the
-   * type of the series marker:
-   *
-   * @code
-   *  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::DIAMOND);
-   * @endcode
-   *
-   * @image html chart_marker1.png
-   *
-   * The available marker types defined by `chart_marker_type_t` are:
-   *
-   * - `%chart_marker_type_t::AUTOMATIC`
-   * - `%chart_marker_type_t::NONE`
-   * - `%chart_marker_type_t::SQUARE`
-   * - `%chart_marker_type_t::DIAMOND`
-   * - `%chart_marker_type_t::TRIANGLE`
-   * - `%chart_marker_type_t::X`
-   * - `%chart_marker_type_t::STAR`
-   * - `%chart_marker_type_t::SHORT_DASH`
-   * - `%chart_marker_type_t::LONG_DASH`
-   * - `%chart_marker_type_t::CIRCLE`
-   * - `%chart_marker_type_t::PLUS`
-   *
-   * The `%chart_marker_type_t::NONE` type can be used to turn off default markers:
-   *
-   * @code
-   *  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::NONE);
-   * @endcode
-   *
-   * @image html chart_series_set_marker_none.png
-   *
-   * The `%chart_marker_type_t::AUTOMATIC` type is a special case which turns on a
-   * marker using the default marker style for the particular series. If
-   * automatic is on then other marker properties such as size, line or fill
-   * cannot be set.
-   */
-  void series_set_marker_type(chart_series_t& series, chart_marker_type_t type) const;
+  ////////// TODO Here begin
 
   /**
    * Set the X or Y error bars for a chart series.
@@ -1852,29 +2017,6 @@ public:
    * @pre The `size` paramter must be in the range `[10, 90]`.
    */
   void set_hole_size(uint8_t size);
-
-  /**
-   * @brief Set the font properties for a chart legend.
-   *
-   * @param font A pointer to a chart `chart_font_t` font struct.
-   *
-   * The `%legend_set_font()` function is used to set the font of a
-   * chart legend:
-   *
-   * @code
-   *  xwpp::chart_font_t font{
-   *    .bold = true,
-   *    .color = xwpp::color_t::blue(),
-   *  };
-   *
-   *  chart.legend_set_font(font);
-   * @endcode
-   *
-   * @image html chart_legend_set_font.png
-   *
-   * @see @ref chart_fonts.
-   */
-  void legend_set_font(const std::optional<chart_font_t>& font);
 
   /**
    * @brief Set the gap between series in a Bar/Column chart.
@@ -2016,52 +2158,6 @@ public:
   void show_hidden_data();
 
   /**
-   * @brief Set a chart title formula using row and column values.
-   *
-   * @param sheetname The name of the worksheet that contains the cell range.
-   * @param row_num   The zero indexed row number of the range.
-   * @param col_num   The zero indexed column number of the range.
-   *
-   * The `%title_set_name_range()` function can be used to set a chart
-   * title range and is an alternative to using `title_set_name()` and a
-   * string formula:
-   *
-   * @code
-   *  chart.title_set_name_range("Sheet1", 1, 0);
-   * @endcode
-   *
-   * @pre The `%sheetname` parameter should not be empty.
-   */
-  void title_set_name_range(const std::string& sheetname, row_num_t row_num, col_num_t col_num);
-
-  /**
-   * @brief Remove one or more series from the the legend.
-   *
-   * @param delete_series An array of zero-indexed values to delete from series.
-   *
-   * The `%legend_delete_series()` function allows you to remove/hide one
-   * or more series in a chart legend (the series will still display on the chart).
-   *
-   * This function takes a vector of one or more zero indexed series
-   * numbers.
-   *
-   * For example to remove the first and third zero-indexed series from the
-   * legend of a chart with 3 series:
-   *
-   * @code
-   *  std::vector<int16_t> series{0, 2};
-   *
-   *  chart.legend_delete_series(series);
-   * @endcode
-   *
-   * @image html chart_legend_delete.png
-   *
-   * @pre The `%delete_series` parameter should not be empty.
-   * @pre The size of `%delete_series` parameter must be less than or equal to 255.
-   */
-  void legend_delete_series(const std::vector<int16_t>& delete_series);
-
-  /**
    * @brief Set the overlap between series in a Bar/Column chart.
    *
    * @param overlap The overlap between the series. -100 to 100.
@@ -2112,40 +2208,6 @@ public:
    * @see @ref chart_layout for more information.
    */
   void plotarea_set_layout(const std::optional<chart_layout_t>& layout);
-
-  /**
-   * @brief Set the manual layout of the chart legend.
-   *
-   * @param layout A pointer to a chart `chart_layout_t` struct.
-   *
-   * This function is used to simulate setting the manual position of the chart
-   * legend.
-   *
-   * @see @ref chart_layout for more information.
-   */
-  void legend_set_layout(const std::optional<chart_layout_t>& layout);
-
-  /**
-   * @brief Set the manual position of the chart title.
-   *
-   * @param layout A pointer to a chart `chart_layout_t` struct.
-   *
-   * This function is used to simulate setting the manual position of the chart
-   * title.
-   *
-   * @see @ref chart_layout for more information.
-   */
-  void title_set_layout(const std::optional<chart_layout_t>& layout);
-
-  /**
-   * @brief Allow the chart title to overlay the chart.
-   *
-   * @param overlay Turn off/on the overlay. (0/1)
-   *
-   * This option allows the chart title to overlay the chart when the
-   * `title_set_layout()` function.
-   */
-  void title_set_overlay(bool overlay);
 
   /**
    * @brief Set the pattern properties for a plotarea.
@@ -2506,28 +2568,6 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
                                  col_num_t col_num);
 
 /**
- * @brief Set the line properties for a chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param line   A `chart_line_t` struct.
- *
- * Set the line/border properties of a chart series:
- *
- * @code
- *  xwpp::chart_line_t line{.color = xwpp::color_t::red()};
- *
- *  chart_series_set_line(series1, line);
- *  chart_series_set_line(series2, line);
- *  chart_series_set_line(series3, line);
- * @endcode
- *
- * @image html chart_series_set_line.png
- *
- * @see @ref chart_lines.
- */
-void chart_series_set_line(chart_series_t& series, const std::optional<chart_line_t>& line);
-
-/**
  * @brief Set the fill properties for a chart series.
  *
  * @param series A series object created via `chart_t::add_series()`.
@@ -2595,83 +2635,6 @@ void chart_series_set_invert_if_negative(chart_series_t& series);
  * @see `chart_pattern_type_t` and @ref chart_patterns.
  */
 void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
-
-/**
- * @brief Set the size of a data marker for a series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param size   The size of the marker.
- *
- * The `%chart_series_set_marker_size()` function is used to specify the
- * size of the series marker:
- *
- * @code
- *  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::CIRCLE);
- *  chart.series_set_marker_size(series, 10);
- * @endcode
- *
- * @image html chart_series_set_marker_size.png
- *
- * @pre The `%size` parameter must be in the range `[2, 72]`.
- */
-void chart_series_set_marker_size(chart_series_t& series, uint8_t size);
-
-/**
- * @brief Set the line properties for a chart series marker.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param line   A `chart_line_t` struct.
- *
- * Set the line/border properties of a chart marker:
- *
- * @code
- *  xwpp::chart_line_t line{.color = xwpp::color_t::black()};
- *  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
- *
- *  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
- *  chart.series_set_marker_size(series, 8);
- *
- *  chart_series_set_marker_line(series, line);
- *  chart_series_set_marker_fill(series, fill);
- * @endcode
- *
- * @image html chart_marker2.png
- *
- * @see @ref chart_lines.
- */
-void chart_series_set_marker_line(chart_series_t& series, const std::optional<chart_line_t>& line);
-
-/**
- * @brief Set the fill properties for a chart series marker.
- *
- * @param series A series object created via `chart_t::add_series()`.
- * @param fill   A `chart_fill_t` struct.
- *
- * Set the fill properties of a chart marker:
- *
- * @code
- *  chart_series_set_marker_fill(series, fill);
- * @endcode
- *
- * @see @ref chart_fills.
- */
-void chart_series_set_marker_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill);
-
-/**
- * @brief Set the pattern properties for a chart series marker.
- *
- * @param series  A series object created via `chart_t::add_series()`.
- * @param pattern A `chart_pattern_t` struct.
- *
- * Set the pattern properties of a chart marker:
- *
- * @code
- *  chart_series_set_marker_pattern(series, pattern);
- * @endcode
- *
- * @see `chart_pattern_type_t` and @ref chart_patterns.
- */
-void chart_series_set_marker_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern);
 
 /**
  * @brief Set the formatting for points in the series.

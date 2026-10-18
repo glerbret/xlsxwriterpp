@@ -40,8 +40,8 @@ int main()
 
   series_set_points(series1, points);
 
-  chart.series_set_marker_type(series1, xwpp::chart_marker_type_t::AUTOMATIC);
-  chart.series_set_marker_type(series2, xwpp::chart_marker_type_t::AUTOMATIC);
+  series1.set_marker_type(xwpp::chart_marker_type_t::AUTOMATIC);
+  series2.set_marker_type(xwpp::chart_marker_type_t::AUTOMATIC);
 
   worksheet.insert_chart("E9", &chart);
 

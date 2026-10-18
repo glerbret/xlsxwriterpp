@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(legend_right)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::RIGHT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::RIGHT);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(legend_top)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::TOP);
+  chart.set_legend_position(xwpp::chart_legend_position_t::TOP);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(legend_left)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::LEFT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::LEFT);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(legend_bottom)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::BOTTOM);
+  chart.set_legend_position(xwpp::chart_legend_position_t::BOTTOM);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(legend_none)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+  chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }
@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE(legend_overlay_right)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(legend_overlay_left)
   // clang-format on
 
   xwpp::chart_t chart{xwpp::chart_type_t::BAR};
-  chart.legend_set_position(xwpp::chart_legend_position_t::OVERLAY_LEFT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::OVERLAY_LEFT);
 
   BOOST_CHECK_EQUAL(expected, chart.assemble_xml_file());
 }

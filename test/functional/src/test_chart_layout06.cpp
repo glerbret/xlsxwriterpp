@@ -40,9 +40,9 @@ int main()
     .y = 0.16203703703703,
   };
 
-  chart.title_set_name("Title");
-  chart.title_set_layout(layout);
-  chart.title_set_overlay(true);
+  chart.set_title("Title");
+  chart.set_title_layout(layout);
+  chart.set_title_overlay(true);
 
   worksheet.insert_chart("E9", &chart);
 

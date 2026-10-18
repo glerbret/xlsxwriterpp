@@ -40,8 +40,7 @@ int main()
   const xwpp::chart_font_t font3{.size = 11, .bold = true, .italic = true};
   const xwpp::chart_font_t font4{.size = 9, .italic = true};
 
-  chart.title_set_name("Title");
-  chart.title_set_name_font(font1);
+  chart.set_title("Title", font1);
 
   chart_axis_set_name(chart.x_axis_, "XXX");
   chart_axis_set_name_font(chart.x_axis_, font1);

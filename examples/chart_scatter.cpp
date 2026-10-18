@@ -65,7 +65,7 @@ int main()
     xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
     // Add a chart title.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -93,7 +93,7 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -121,7 +121,7 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -149,7 +149,7 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -177,7 +177,7 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 

@@ -37,7 +37,7 @@ int main()
 
   xwpp::chart_axis_set_name(chart.x_axis_, "Apple");
   xwpp::chart_axis_set_name(chart.y_axis_, "Pear");
-  chart.title_set_name("Title");
+  chart.set_title("Title");
 
   worksheet.insert_chart("E9", &chart);
 

@@ -36,7 +36,7 @@ int main()
   chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_font_t font{.bold = true, .italic = true, .baseline = -1};
-  chart.legend_set_font(font);
+  chart.set_legend_font(font);
 
   worksheet.insert_chart("E9", &chart);
 

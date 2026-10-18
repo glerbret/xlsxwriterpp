@@ -65,7 +65,7 @@ int main()
     xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Chart with Data Table");
+    chart.set_title("Chart with Data Table");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -93,16 +93,15 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Data Table with legend keys");
+    chart.set_title("Data Table with legend keys");
     chart_axis_set_name(chart.x_axis_, "Test number");
     chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
     // Set a data table on the X-axis with the legend keys shown.
-    chart.set_table();
-    chart.set_table_grid(true, true, true, true);
+    chart.set_table(true, true, true, true);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E18", &chart);

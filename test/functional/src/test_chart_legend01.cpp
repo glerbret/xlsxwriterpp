@@ -35,7 +35,7 @@ int main()
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 
-  chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+  chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
   worksheet.insert_chart("E9", &chart);
 

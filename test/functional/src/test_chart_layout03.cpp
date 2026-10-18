@@ -42,8 +42,8 @@ int main()
     .height = 0.25115157480314,
   };
 
-  chart.legend_set_layout(layout);
-  chart.legend_set_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
+  chart.set_legend_layout(layout);
 
   worksheet.insert_chart("E9", &chart);
 

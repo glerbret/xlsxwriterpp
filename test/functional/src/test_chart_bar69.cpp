@@ -37,7 +37,7 @@ int main()
 
   xwpp::chart_axis_set_name_range(chart.x_axis_, "Sheet1", 1, 0);
   xwpp::chart_axis_set_name_range(chart.y_axis_, "Sheet1", 2, 0);
-  chart.title_set_name_range("Sheet1", 0, 0);
+  chart.set_title("Sheet1", 0, 0);
 
   worksheet.insert_chart("E9", &chart);
 

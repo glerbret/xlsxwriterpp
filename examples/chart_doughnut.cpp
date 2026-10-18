@@ -74,7 +74,7 @@ int main()
     series.set_name("Doughnut sales data");
 
     // Add a chart title.
-    chart.title_set_name("Popular Doughnut Types");
+    chart.set_title("Popular Doughnut Types");
 
     // Set an Excel chart style.
     chart.set_style(10);
@@ -94,7 +94,7 @@ int main()
     series.set_name("Doughnut sales data");
 
     // Add a chart title.
-    chart.title_set_name("Doughnut Chart with user defined colors");
+    chart.set_title("Doughnut Chart with user defined colors");
 
     // Add/override the points/segments of the chart.
     series_set_points(series, points);
@@ -114,7 +114,7 @@ int main()
     series.set_name("Doughnut sales data");
 
     // Add a chart title.
-    chart.title_set_name("Doughnut Chart with segment rotation");
+    chart.set_title("Doughnut Chart with segment rotation");
 
     // Change the angle/rotation of the first segment.
     chart.set_rotation(90);
@@ -134,7 +134,7 @@ int main()
     series.set_name("Doughnut sales data");
 
     // Add a chart title.
-    chart.title_set_name("Doughnut Chart with options applied.");
+    chart.set_title("Doughnut Chart with options applied.");
 
     // Add/override the points/segments defined in Chart 2.
     series_set_points(series, points);

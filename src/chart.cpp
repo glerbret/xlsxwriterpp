@@ -180,6 +180,63 @@ void chart_series_t::set_name(std::string_view name)
   }
 }
 
+void chart_series_t::set_marker_type(chart_marker_type_t type)
+{
+  if(!marker_.has_value())
+  {
+    marker_ = chart_marker_t{};
+  }
+
+  marker_->type = type;
+}
+
+void chart_series_t::set_marker_size(uint8_t size)
+{
+  assert(size >= 2 && size <= 72);
+
+  if(!marker_)
+  {
+    marker_ = chart_marker_t{};
+  }
+
+  marker_->size = size;
+}
+
+void chart_series_t::set_marker_line(const chart_line_t& line)
+{
+  if(!marker_)
+  {
+    marker_ = chart_marker_t{};
+  }
+
+  marker_->line = convert_line_args(line);
+}
+
+void chart_series_t::set_marker_fill(const chart_fill_t& fill)
+{
+  if(!marker_)
+  {
+    marker_ = chart_marker_t{};
+  }
+
+  marker_->fill = convert_fill_args(fill);
+}
+
+void chart_series_t::set_marker_pattern(const chart_pattern_t& pattern)
+{
+  if(!marker_)
+  {
+    marker_ = chart_marker_t{};
+  }
+
+  marker_->pattern = convert_pattern_args(pattern);
+}
+
+void chart_series_t::set_line(const chart_line_t& line)
+{
+  line_ = convert_line_args(line);
+}
+
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   return {
@@ -258,7 +315,7 @@ void chart_t::set_style(uint8_t style_id)
   style_id_ = style_id;
 }
 
-void chart_t::title_set_name(const std::string& name)
+void chart_t::set_title(std::string_view name, const std::optional<chart_font_t>& font)
 {
   if(!name.empty())
   {
@@ -271,19 +328,57 @@ void chart_t::title_set_name(const std::string& name)
       title_.name = name;
     }
   }
-}
 
-////////// TODO Here begin
-
-
-void chart_t::title_set_name_font(const chart_font_t& font)
-{
   title_.font = convert_font_args(font, true);
 }
 
-void chart_t::legend_set_position(chart_legend_position_t position)
+void chart_t::set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num, const std::optional<chart_font_t>& font)
+{
+  assert(!sheetname.empty());
+
+  // Start and end row, col are the same for single cell range.
+  title_.range.sheetname = sheetname;
+  title_.range.first_row = row_num;
+  title_.range.first_col = col_num;
+  title_.range.last_row  = row_num;
+  title_.range.last_col  = col_num;
+  title_.range.formula   = rowcol_to_formula_abs(sheetname, row_num, col_num, row_num, col_num);
+
+  title_.font = convert_font_args(font, true);
+}
+
+void chart_t::set_title_layout(const std::optional<chart_layout_t>& layout)
+{
+  title_.layout = convert_layout_args(layout, chart_layout_type_t::TITLE);
+}
+
+void chart_t::set_title_overlay(bool overlay)
+{
+  title_.has_overlay = overlay;
+}
+
+void chart_t::set_legend_font(const std::optional<chart_font_t>& font)
+{
+  legend_.font = convert_font_args(font);
+}
+
+void chart_t::set_legend_position(chart_legend_position_t position)
 {
   legend_.position = position;
+}
+
+void chart_t::set_legend_layout(const std::optional<chart_layout_t>& layout)
+{
+  legend_.layout = convert_layout_args(layout, chart_layout_type_t::LEGEND);
+}
+
+void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
+{
+  assert(!delete_series.empty());
+  // The maximum number of series in a chart is 255.
+  assert(delete_series.size() <= 255);
+
+  delete_series_ = delete_series;
 }
 
 void chart_t::set_table()
@@ -295,7 +390,7 @@ void chart_t::set_table()
   has_table_legend_keys_ = false;
 }
 
-void chart_t::set_table_grid(bool horizontal, bool vertical, bool outline, bool legend_keys)
+void chart_t::set_table(bool horizontal, bool vertical, bool outline, bool legend_keys)
 {
   has_table_             = true;
   has_table_horizontal_  = horizontal;
@@ -316,15 +411,10 @@ void chart_t::set_high_low_lines(const std::optional<chart_line_t>& line)
   high_low_lines_line_ = convert_line_args(line);
 }
 
-void chart_t::set_up_down_bars()
-{
-  has_up_down_bars_ = true;
-}
-
-void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_line,
-                                      const std::optional<chart_fill_t>& up_bar_fill,
-                                      const std::optional<chart_line_t>& down_bar_line,
-                                      const std::optional<chart_fill_t>& down_bar_fill)
+void chart_t::set_up_down_bars(const std::optional<chart_line_t>& up_bar_line,
+                               const std::optional<chart_fill_t>& up_bar_fill,
+                               const std::optional<chart_line_t>& down_bar_line,
+                               const std::optional<chart_fill_t>& down_bar_fill)
 {
   has_up_down_bars_ = true;
   up_bar_line_      = convert_line_args(up_bar_line);
@@ -333,16 +423,7 @@ void chart_t::set_up_down_bars_format(const std::optional<chart_line_t>& up_bar_
   down_bar_fill_    = convert_fill_args(down_bar_fill);
 }
 
-// cppcheck-suppress functionStatic
-void chart_t::series_set_marker_type(chart_series_t& series, chart_marker_type_t type) const
-{
-  if(!series.marker.has_value())
-  {
-    series.marker = chart_marker_t{};
-  }
-
-  series.marker->type = type;
-}
+////////// TODO Here begin
 
 // cppcheck-suppress functionStatic
 void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const
@@ -373,11 +454,6 @@ void chart_t::set_hole_size(uint8_t size)
   assert(size >= 10 && size <= 90);
 
   hole_size_ = size;
-}
-
-void chart_t::legend_set_font(const std::optional<chart_font_t>& font)
-{
-  legend_.font = convert_font_args(font);
 }
 
 void chart_t::set_series_gap(uint16_t gap)
@@ -417,23 +493,6 @@ void chart_t::show_hidden_data()
   show_hidden_data_ = true;
 }
 
-void chart_t::title_set_name_range(const std::string& sheetname, row_num_t row_num, col_num_t col_num)
-{
-  assert(!sheetname.empty());
-
-  // Start and end row, col are the same for single cell range.
-  set_range(title_.range, sheetname, row_num, col_num, row_num, col_num);
-}
-
-void chart_t::legend_delete_series(const std::vector<int16_t>& delete_series)
-{
-  assert(!delete_series.empty());
-  // The maximum number of series in a chart is 255.
-  assert(delete_series.size() <= 255);
-
-  delete_series_ = delete_series;
-}
-
 void chart_t::set_series_overlap(int8_t overlap)
 {
   assert(overlap >= -100 && overlap <= 100);
@@ -456,21 +515,6 @@ chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
 void chart_t::plotarea_set_layout(const std::optional<chart_layout_t>& layout)
 {
   plotarea_layout_ = convert_layout_args(layout, chart_layout_type_t::PLOTAREA);
-}
-
-void chart_t::legend_set_layout(const std::optional<chart_layout_t>& layout)
-{
-  legend_.layout = convert_layout_args(layout, chart_layout_type_t::LEGEND);
-}
-
-void chart_t::title_set_layout(const std::optional<chart_layout_t>& layout)
-{
-  title_.layout = convert_layout_args(layout, chart_layout_type_t::TITLE);
-}
-
-void chart_t::title_set_overlay(bool overlay)
-{
-  title_.has_overlay = overlay;
 }
 
 void chart_t::plotarea_set_pattern(const std::optional<chart_pattern_t>& pattern)
@@ -918,7 +962,7 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
   {
     // Add default scatter chart formatting to the series data unless
     // it has already been specified by the user
-    if(chart.type_ == chart_type_t::SCATTER && !series.line)
+    if(chart.type_ == chart_type_t::SCATTER && !series.line_)
     {
       chart_line_t line{
         .color        = color_t{0x000000},
@@ -927,7 +971,7 @@ std::string chart_t::write_scatter_chart(chart_t& chart)
         .dash_type    = chart_line_dash_type_t::SOLID,
         .transparency = 0,
       };
-      series.line = convert_line_args(line);
+      series.line_ = convert_line_args(line);
     }
     xml_data += write_xval_ser(chart, series);
   }
@@ -1483,8 +1527,8 @@ std::string chart_t::write_ser(chart_t& chart, chart_series_t& series)
   xml_data += write(index);
   xml_data += write_order(index);
   xml_data += write_series_name(series);
-  xml_data += write_sp_pr(series.line, series.fill, series.pattern);
-  xml_data += write_marker(chart, series.marker);
+  xml_data += write_sp_pr(series.line_, series.fill_, series.pattern_);
+  xml_data += write_marker(chart, series.marker_);
   xml_data += write_invert_if_negative(series);
   xml_data += write_points(chart, series);
   xml_data += write_d_lbls(series);
@@ -3651,8 +3695,8 @@ std::string chart_t::write_xval_ser(chart_t& chart, chart_series_t& series)
   xml_data += write(index);
   xml_data += write_order(index);
   xml_data += write_series_name(series);
-  xml_data += write_sp_pr(series.line, series.fill, series.pattern);
-  xml_data += write_marker(chart, series.marker);
+  xml_data += write_sp_pr(series.line_, series.fill_, series.pattern_);
+  xml_data += write_marker(chart, series.marker_);
   xml_data += write_points(chart, series);
   xml_data += write_d_lbls(series);
   xml_data += write_trendline(series);
@@ -3924,14 +3968,9 @@ void chart_series_set_name_range(chart_series_t& series, const std::string& shee
   set_range(series.title.range, sheetname, row_num, col_num, row_num, col_num);
 }
 
-void chart_series_set_line(chart_series_t& series, const std::optional<chart_line_t>& line)
-{
-  series.line = convert_line_args(line);
-}
-
 void chart_series_set_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
 {
-  series.fill = convert_fill_args(fill);
+  series.fill_ = convert_fill_args(fill);
 }
 
 void chart_series_set_invert_if_negative(chart_series_t& series)
@@ -3941,50 +3980,7 @@ void chart_series_set_invert_if_negative(chart_series_t& series)
 
 void chart_series_set_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
 {
-  series.pattern = convert_pattern_args(pattern);
-}
-
-void chart_series_set_marker_size(chart_series_t& series, uint8_t size)
-{
-  assert(size >= 2 && size <= 72);
-
-  if(!series.marker)
-  {
-    series.marker = chart_marker_t{};
-  }
-
-  series.marker->size = size;
-}
-
-void chart_series_set_marker_line(chart_series_t& series, const std::optional<chart_line_t>& line)
-{
-  if(!series.marker)
-  {
-    series.marker = chart_marker_t{};
-  }
-
-  series.marker->line = convert_line_args(line);
-}
-
-void chart_series_set_marker_fill(chart_series_t& series, const std::optional<chart_fill_t>& fill)
-{
-  if(!series.marker)
-  {
-    series.marker = chart_marker_t{};
-  }
-
-  series.marker->fill = convert_fill_args(fill);
-}
-
-// TODO Add test
-void chart_series_set_marker_pattern(chart_series_t& series, const std::optional<chart_pattern_t>& pattern)
-{
-  if(!series.marker)
-  {
-    series.marker = chart_marker_t{};
-  }
-
-  series.marker->pattern = convert_pattern_args(pattern);
+  series.pattern_ = convert_pattern_args(pattern);
 }
 
 void series_set_points(chart_series_t& series, const std::vector<chart_point_t>& points)

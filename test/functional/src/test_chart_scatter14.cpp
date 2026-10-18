@@ -31,14 +31,14 @@ int main()
     row_num++;
   }
 
+
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
+  series1.set_marker_type(xwpp::chart_marker_type_t::STAR);
+  series1.set_marker_size(5);
+
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
-
-  chart.series_set_marker_type(series1, xwpp::chart_marker_type_t::STAR);
-  chart_series_set_marker_size(series1, 5);
-
-  chart.series_set_marker_type(series2, xwpp::chart_marker_type_t::PLUS);
-  chart_series_set_marker_size(series2, 5);
+  series2.set_marker_type(xwpp::chart_marker_type_t::PLUS);
+  series2.set_marker_size(5);
 
   worksheet.insert_chart("E9", &chart);
 

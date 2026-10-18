@@ -73,7 +73,7 @@ int main()
   chart.set_style(37);
 
   // Turn off the legend.
-  chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+  chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
   // Insert the chart into the worksheet.
   worksheet.insert_chart("G3", &chart);

@@ -36,7 +36,7 @@ int main()
   xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range(sheetname, 0, 0, 4, 0));
   chart_series_set_name_range(series, sheetname, 0, 0);
 
-  chart.title_set_name("Foo");
+  chart.set_title("Foo");
 
   worksheet.insert_chart("E9", &chart);
 

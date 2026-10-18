@@ -37,8 +37,8 @@ int main()
   const xwpp::chart_line_t line1{.width = 5};
   const xwpp::chart_line_t line2{.width = 0.1};
 
-  chart_series_set_line(series1, line1);
-  chart_series_set_line(series2, line2);
+  series1.set_line(line1);
+  series2.set_line(line2);
 
   worksheet.insert_chart("E9", &chart);
 

@@ -40,8 +40,8 @@ int main()
     .y = 0.1388888888888889,
   };
 
-  chart.title_set_name_range("Sheet1", 0, 0);
-  chart.title_set_layout(layout);
+  chart.set_title("Sheet1", 0, 0);
+  chart.set_title_layout(layout);
 
   worksheet.insert_chart("E9", &chart);
 

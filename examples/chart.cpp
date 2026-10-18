@@ -52,8 +52,7 @@ int main()
 
   const xwpp::chart_font_t font{.bold = false, .color = xwpp::color_t::blue()};
 
-  chart.title_set_name("Year End Results");
-  chart.title_set_name_font(font);
+  chart.set_title("Year End Results", font);
 
   // Insert the chart into the worksheet.
   worksheet.insert_chart("B7", &chart);

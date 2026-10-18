@@ -65,7 +65,7 @@ int main()
     xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
     // Add a chart title.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
 
     // Set an Excel chart style.
     chart.set_style(11);
@@ -91,7 +91,7 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
 
     // Set an Excel chart style.
     chart.set_style(12);
@@ -117,7 +117,7 @@ int main()
     series2.set_name("=Sheet1!$C$1");
 
     // Add a chart title.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
 
     // Set an Excel chart style.
     chart.set_style(13);
