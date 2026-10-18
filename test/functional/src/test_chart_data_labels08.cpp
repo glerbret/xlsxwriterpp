@@ -33,10 +33,9 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
   series.set_labels();
+  series.set_labels_position(xwpp::chart_label_position_t::RIGHT);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
-
-  xwpp::chart_series_set_labels_position(series, xwpp::chart_label_position_t::RIGHT);
 
   worksheet.insert_chart("E9", &chart);
 

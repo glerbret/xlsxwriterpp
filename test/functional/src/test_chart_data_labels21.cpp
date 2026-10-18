@@ -36,11 +36,11 @@ int main()
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
   series.set_labels();
   series.set_labels_options(true, true, true);
-  xwpp::chart_series_set_labels_position(series, xwpp::chart_label_position_t::INSIDE_END);
-  xwpp::chart_series_set_labels_separator(series, xwpp::chart_label_separator_t::SEMICOLON);
-  xwpp::chart_series_set_labels_leader_line(series);
-  xwpp::chart_series_set_labels_legend(series);
-  xwpp::chart_series_set_labels_percentage(series);
+  series.set_labels_position(xwpp::chart_label_position_t::INSIDE_END);
+  series.set_labels_separator(xwpp::chart_label_separator_t::SEMICOLON);
+  series.set_labels_leader_line();
+  series.set_labels_legend();
+  series.set_labels_percentage();
   xwpp::chart_series_set_labels_num_format(series, "#,##0.00");
   xwpp::chart_series_set_labels_font(series, font);
 

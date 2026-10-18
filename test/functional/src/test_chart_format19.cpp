@@ -36,7 +36,7 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$C$1:$C$5");
   series.set_labels();
-  chart_series_set_labels_position(series, xwpp::chart_label_position_t::INSIDE_BASE);
+  series.set_labels_position(xwpp::chart_label_position_t::INSIDE_BASE);
 
   worksheet.insert_chart("E9", &chart);
 

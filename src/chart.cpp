@@ -345,6 +345,41 @@ void chart_series_t::set_labels_custom(const std::vector<chart_data_label_t>& da
   }
 }
 
+void chart_series_t::set_labels_separator(chart_label_separator_t separator)
+{
+  has_labels_      = true;
+  label_separator_ = separator;
+}
+
+void chart_series_t::set_labels_position(chart_label_position_t position)
+{
+  has_labels_        = true;
+  show_labels_value_ = true;
+
+  if(position != default_label_position_)
+  {
+    label_position_ = position;
+  }
+}
+
+void chart_series_t::set_labels_leader_line()
+{
+  has_labels_         = true;
+  show_labels_leader_ = true;
+}
+
+void chart_series_t::set_labels_legend()
+{
+  has_labels_         = true;
+  show_labels_legend_ = true;
+}
+
+void chart_series_t::set_labels_percentage()
+{
+  has_labels_          = true;
+  show_labels_percent_ = true;
+}
+
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   return {
@@ -400,7 +435,7 @@ chart_series_t& chart_t::add_series(const series_range_t& categories, const seri
   series.x_error_bars.chart_group = chart_group_;
   series.x_error_bars.is_x        = true;
 
-  series.default_label_position = default_label_position_;
+  series.default_label_position_ = default_label_position_;
 
   series_list_.push_back(series);
 
@@ -2898,12 +2933,12 @@ std::string chart_t::write_d_lbls(const chart_series_t& series)
     xml_data += write_tx_pr(false, series.label_font);
   }
 
-  if(series.label_position != chart_label_position_t::DEFAULT)
+  if(series.label_position_ != chart_label_position_t::DEFAULT)
   {
-    xml_data += write_d_lbl_pos(series.label_position);
+    xml_data += write_d_lbl_pos(series.label_position_);
   }
 
-  if(series.show_labels_legend)
+  if(series.show_labels_legend_)
   {
     xml_data += write_show_legend_key();
   }
@@ -2923,17 +2958,17 @@ std::string chart_t::write_d_lbls(const chart_series_t& series)
     xml_data += write_show_ser_name();
   }
 
-  if(series.show_labels_percent)
+  if(series.show_labels_percent_)
   {
     xml_data += write_show_percent();
   }
 
-  if(series.label_separator != chart_label_separator_t::COMMA)
+  if(series.label_separator_ != chart_label_separator_t::COMMA)
   {
-    xml_data += write_separator(series.label_separator);
+    xml_data += write_separator(series.label_separator_);
   }
 
-  if(series.show_labels_leader)
+  if(series.show_labels_leader_)
   {
     xml_data += write_show_leader_lines();
   }
@@ -2953,9 +2988,9 @@ std::string chart_t::write_custom_label_str(const chart_series_t& series, const 
   xml_data += xml_end_tag("c:tx");
   xml_data += write_sp_pr(data_label.line, data_label.fill, data_label.pattern);
 
-  if(series.label_position != chart_label_position_t::DEFAULT)
+  if(series.label_position_ != chart_label_position_t::DEFAULT)
   {
-    xml_data += write_d_lbl_pos(series.label_position);
+    xml_data += write_d_lbl_pos(series.label_position_);
   }
 
   if(series.show_labels_value_)
@@ -3081,9 +3116,9 @@ std::string chart_t::write_custom_label_formula(const chart_series_t& series, co
   xml_data += xml_end_tag("c:tx");
   xml_data += write_custom_label_format_only(data_label);
 
-  if(series.label_position != chart_label_position_t::DEFAULT)
+  if(series.label_position_ != chart_label_position_t::DEFAULT)
   {
-    xml_data += write_d_lbl_pos(series.label_position);
+    xml_data += write_d_lbl_pos(series.label_position_);
   }
 
   if(series.show_labels_value_)
@@ -4066,41 +4101,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
   range.last_row  = last_row;
   range.last_col  = last_col;
   range.formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col);
-}
-
-void chart_series_set_labels_separator(chart_series_t& series, chart_label_separator_t separator)
-{
-  series.has_labels      = true;
-  series.label_separator = separator;
-}
-
-void chart_series_set_labels_position(chart_series_t& series, chart_label_position_t position)
-{
-  series.has_labels        = true;
-  series.show_labels_value = true;
-
-  if(position != series.default_label_position)
-  {
-    series.label_position = position;
-  }
-}
-
-void chart_series_set_labels_leader_line(chart_series_t& series)
-{
-  series.has_labels         = true;
-  series.show_labels_leader = true;
-}
-
-void chart_series_set_labels_legend(chart_series_t& series)
-{
-  series.has_labels         = true;
-  series.show_labels_legend = true;
-}
-
-void chart_series_set_labels_percentage(chart_series_t& series)
-{
-  series.has_labels          = true;
-  series.show_labels_percent = true;
 }
 
 void chart_series_set_labels_num_format(chart_series_t& series, std::string_view num_format)

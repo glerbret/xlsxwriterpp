@@ -1537,16 +1537,129 @@ void set_labels_options(bool show_name, bool show_category, bool show_value);
  */
 void set_labels_custom(const std::vector<chart_data_label_t>& data_labels);
 
+/**
+ * @brief Set the separator for the data label captions.
+ *
+ * @param separator The separator for the data label options: `chart_label_separator_t`.
+ *
+ * The `%set_labels_separator()` function is used to change the
+ * separator between multiple data label items. The default options is a comma
+ * separator as shown in the previous example.
+ *
+ * The available options are:
+ *
+ * - `%chart_label_separator_t::SEMICOLON`: semicolon separator.
+ * - `%chart_label_separator_t::PERIOD`: a period (dot) separator.
+ * - `%chart_label_separator_t::NEWLINE`: a newline separator.
+ * - `%chart_label_separator_t::SPACE`: a space separator.
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_options(true, true, true);
+ *  series.set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
+ * @endcode
+ *
+ * @image html chart_data_labels4.png
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_separator(chart_label_separator_t separator);
+
+/**
+ * @brief Set the data label position for a series.
+ *
+ * @param position The data label position: `chart_label_position_t`.
+ *
+ * The `%set_labels_position()` function sets the position of
+ * the labels in the data series:
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_position(xwpp::chart_label_position_t::ABOVE);
+ * @endcode
+ *
+ * @image html chart_data_labels5.png
+ *
+ * In Excel the allowable data label positions vary for different chart
+ * types. The allowable, and default, positions are:
+ *
+ * | Position                                | Line, Scatter | Bar, Column   | Pie, Doughnut | Area, Radar   |
+ * | :-------------------------------------- | :------------ | :------------ | :------------ | :------------ |
+ * | `%chart_label_position_t::CENTER`       | Yes           | Yes           | Yes           | Yes (default) |
+ * | `%chart_label_position_t::RIGHT`        | Yes (default) |               |               |               |
+ * | `%chart_label_position_t::LEFT`         | Yes           |               |               |               |
+ * | `%chart_label_position_t::ABOVE`        | Yes           |               |               |               |
+ * | `%chart_label_position_t::BELOW`        | Yes           |               |               |               |
+ * | `%chart_label_position_t::INSIDE_BASE`  |               | Yes           |               |               |
+ * | `%chart_label_position_t::INSIDE_END`   |               | Yes           | Yes           |               |
+ * | `%chart_label_position_t::OUTSIDE_END`  |               | Yes (default) | Yes           |               |
+ * | `%chart_label_position_t::BEST_FIT`     |               |               | Yes (default) |               |
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_position(chart_label_position_t position);
+
+/**
+ * @brief Set leader lines for Pie and Doughnut charts.
+ *
+ * The `%set_labels_leader_line()` function  is used to turn on
+ * leader lines for the data label of a series. It is mainly used for pie
+ * or doughnut charts:
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_leader_line();
+ * @endcode
+ *
+ * @note Even when leader lines are turned on they aren't automatically
+ * visible in Excel. Due to an Excel limitation (or design) leader
+ * lines only appear if the data label is moved manually or if
+ * the data labels are very close and need to be adjusted automatically.
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_leader_line();
+
+/**
+ * @brief Set the legend key for a data label in a chart series.
+ *
+ * The `%set_labels_legend()` function is used to set the
+ * legend key for a data series:
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_legend();
+ * @endcode
+ *
+ * @image html chart_data_labels6.png
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_legend();
+
+/**
+ * @brief Set the percentage for a Pie/Doughnut data point.
+ *
+ * The `%set_labels_percentage()` function is used to turn on
+ * the display of data labels as a percentage for a series. It is mainly
+ * used for pie charts:
+ *
+ * @code
+ *  series.set_labels();
+ *  series.set_labels_options(false, false, false);
+ *  series.set_labels_percentage();
+ * @endcode
+ *
+ * @image html chart_data_labels7.png
+ *
+ * @see @ref chart_labels.
+ */
+void set_labels_percentage();
+
 ////////// TODO Here begin
 
 
 
-  bool show_labels_leader{false};
-  bool show_labels_legend{false};
-  bool show_labels_percent{false};
-  chart_label_position_t label_position{chart_label_position_t::DEFAULT};
-  chart_label_separator_t label_separator{chart_label_separator_t::COMMA};
-  chart_label_position_t default_label_position{chart_label_position_t::DEFAULT};
   std::string label_num_format;
   std::optional<chart_font_t> label_font;
   std::optional<chart_line_t> label_line;
@@ -1594,7 +1707,14 @@ private:
   bool show_labels_name_{false};
   bool show_labels_category_{false};
   bool show_labels_value_{false};
+  bool show_labels_leader_{false};
+  bool show_labels_legend_{false};
+  bool show_labels_percent_{false};
   std::vector<chart_custom_label_t> data_labels_;
+  chart_label_separator_t label_separator_{chart_label_separator_t::COMMA};
+  chart_label_position_t label_position_{chart_label_position_t::DEFAULT};
+  chart_label_position_t default_label_position_{chart_label_position_t::DEFAULT};
+
 };
 ////////// TODO Here end
 
@@ -2754,133 +2874,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
                row_num_t last_row, col_num_t last_col);
 
 // TODO Member function of series
-
-/**
- * @brief Set the separator for the data label captions.
- *
- * @param series    A series object created via `chart_t::add_series()`.
- * @param separator The separator for the data label options: `chart_label_separator_t`.
- *
- * The `%chart_series_set_labels_separator()` function is used to change the
- * separator between multiple data label items. The default options is a comma
- * separator as shown in the previous example.
- *
- * The available options are:
- *
- * - `%chart_label_separator_t::SEMICOLON`: semicolon separator.
- * - `%chart_label_separator_t::PERIOD`: a period (dot) separator.
- * - `%chart_label_separator_t::NEWLINE`: a newline separator.
- * - `%chart_label_separator_t::SPACE`: a space separator.
- *
- * @code
- *  series.set_labels();
- *  series.set_labels_options(true, true, true);
- *  series.set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
- * @endcode
- *
- * @image html chart_data_labels4.png
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_separator(chart_series_t& series, chart_label_separator_t separator);
-
-/**
- * @brief Set the data label position for a series.
- *
- * @param series   A series object created via `chart_t::add_series()`.
- * @param position The data label position: `chart_label_position_t`.
- *
- * The `%chart_series_set_labels_position()` function sets the position of
- * the labels in the data series:
- *
- * @code
- *  series.set_labels();
- *  series.set_labels_position(xwpp::chart_label_position_t::ABOVE);
- * @endcode
- *
- * @image html chart_data_labels5.png
- *
- * In Excel the allowable data label positions vary for different chart
- * types. The allowable, and default, positions are:
- *
- * | Position                                | Line, Scatter | Bar, Column   | Pie, Doughnut | Area, Radar   |
- * | :-------------------------------------- | :------------ | :------------ | :------------ | :------------ |
- * | `%chart_label_position_t::CENTER`       | Yes           | Yes           | Yes           | Yes (default) |
- * | `%chart_label_position_t::RIGHT`        | Yes (default) |               |               |               |
- * | `%chart_label_position_t::LEFT`         | Yes           |               |               |               |
- * | `%chart_label_position_t::ABOVE`        | Yes           |               |               |               |
- * | `%chart_label_position_t::BELOW`        | Yes           |               |               |               |
- * | `%chart_label_position_t::INSIDE_BASE`  |               | Yes           |               |               |
- * | `%chart_label_position_t::INSIDE_END`   |               | Yes           | Yes           |               |
- * | `%chart_label_position_t::OUTSIDE_END`  |               | Yes (default) | Yes           |               |
- * | `%chart_label_position_t::BEST_FIT`     |               |               | Yes (default) |               |
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_position(chart_series_t& series, chart_label_position_t position);
-
-/**
- * @brief Set leader lines for Pie and Doughnut charts.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * The `%chart_series_set_labels_leader_line()` function  is used to turn on
- * leader lines for the data label of a series. It is mainly used for pie
- * or doughnut charts:
- *
- * @code
- *  series.set_labels();
- *  series.set_labels_leader_line();
- * @endcode
- *
- * @note Even when leader lines are turned on they aren't automatically
- * visible in Excel. Due to an Excel limitation (or design) leader
- * lines only appear if the data label is moved manually or if
- * the data labels are very close and need to be adjusted automatically.
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_leader_line(chart_series_t& series);
-
-/**
- * @brief Set the legend key for a data label in a chart series.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * The `%chart_series_set_labels_legend()` function is used to set the
- * legend key for a data series:
- *
- * @code
- *  series.set_labels();
- *  series.set_labels_legend();
- * @endcode
- *
- * @image html chart_data_labels6.png
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_legend(chart_series_t& series);
-
-/**
- * @brief Set the percentage for a Pie/Doughnut data point.
- *
- * @param series A series object created via `chart_t::add_series()`.
- *
- * The `%chart_series_set_labels_percentage()` function is used to turn on
- * the display of data labels as a percentage for a series. It is mainly
- * used for pie charts:
- *
- * @code
- *  series.set_labels();
- *  series.set_labels_options(false, false, false);
- *  series.set_labels_percentage();
- * @endcode
- *
- * @image html chart_data_labels7.png
- *
- * @see @ref chart_labels.
- */
-void chart_series_set_labels_percentage(chart_series_t& series);
 
 /**
  * @brief Set the number format for chart data labels in a series.

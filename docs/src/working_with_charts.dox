@@ -540,7 +540,7 @@ For example:
 
 @image html chart_data_labels4.png
 
-The `chart_series_set_labels_position()` function sets the position of
+The `chart_series_t::set_labels_position()` function sets the position of
 the labels in the data series:
 
 @code
@@ -565,7 +565,7 @@ types. The allowable, and default, positions are:
 | `chart_label_position_t::OUTSIDE_END` |               | Yes (default) | Yes           |               |
 | `chart_label_position_t::BEST_FIT`    |               |               | Yes (default) |               |
 
-The `chart_series_set_labels_leader_line()` function  is used to turn on
+The `chart_series_t::set_labels_leader_line()` function  is used to turn on
 leader lines for the data label of a series. It is mainly used for pie
 or doughnut charts:
 
@@ -580,7 +580,7 @@ visible in Excel. Due to an Excel limitation
 manually or if the data labels are very close and need to be
 adjusted automatically.
 
-The `chart_series_set_labels_legend()` function is used to set the
+The `chart_series_t::set_labels_legend()` function is used to set the
 legend key for a data series:
 
 @code
@@ -590,7 +590,7 @@ legend key for a data series:
 
 @image html chart_data_labels6.png
 
-The `chart_series_set_labels_percentage()` function is used to turn on
+The `chart_series_t::set_labels_percentage()` function is used to turn on
 the display of data labels as a percentage for a series. It is mainly
 used for pie charts:
 
