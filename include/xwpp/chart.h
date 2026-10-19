@@ -2087,7 +2087,7 @@ private:
   friend class chart_t;
   friend class workbook_t;
 
-  chart_series_t(const series_range_t& categories, const series_range_t& values);
+  chart_series_t(series_range_t categories, series_range_t values);
 
   template<size_t R, size_t C>
   static void add_data_cache(series_range_t& range, const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
@@ -2098,7 +2098,7 @@ private:
     // Initialize the series range data cache.
     for(const auto& row: data)
     {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
       const series_data_point_t data_point{.number = static_cast<double>(row[col])};
       range.data_cache.push_back(data_point);
     }

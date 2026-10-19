@@ -45,13 +45,13 @@ int main()
   xwpp::chart_axis_set_name(chart.y_axis_, "Number of houses");
 
   // Configure an add the chart series patterns.
-  xwpp::chart_pattern_t pattern1{
+  const xwpp::chart_pattern_t pattern1{
     .fg_color = xwpp::color_t{0x804000},
     .bg_color = xwpp::color_t{0XC68C53},
     .type     = xwpp::chart_pattern_type_t::SHINGLE,
   };
 
-  xwpp::chart_pattern_t pattern2{
+  const xwpp::chart_pattern_t pattern2{
     .fg_color = xwpp::color_t{0XB30000},
     .bg_color = xwpp::color_t{0XFF6666},
     .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
@@ -61,8 +61,8 @@ int main()
   series2.set_pattern(pattern2);
 
   // Configure and set the chart series borders.
-  xwpp::chart_line_t line2{.color = xwpp::color_t{0xb30000}};
-  xwpp::chart_line_t line1{.color = xwpp::color_t{0x804000}};
+  const xwpp::chart_line_t line2{.color = xwpp::color_t{0xb30000}};
+  const xwpp::chart_line_t line1{.color = xwpp::color_t{0x804000}};
 
   series1.set_line(line1);
   series2.set_line(line2);

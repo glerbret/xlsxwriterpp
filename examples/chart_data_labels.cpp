@@ -274,10 +274,10 @@ int main()
     series.set_labels();
 
     // Set the border/line and fill for the data labels.
-    xwpp::chart_line_t line2{.color = xwpp::color_t::red()};
-    xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
-    xwpp::chart_line_t line3{.color = xwpp::color_t::blue()};
-    xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
+    const xwpp::chart_line_t line2{.color = xwpp::color_t::red()};
+    const xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
+    const xwpp::chart_line_t line3{.color = xwpp::color_t::blue()};
+    const xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
 
     // Set the default formatting for the data labels in the series.
     series.set_labels_line(line2);

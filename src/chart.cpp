@@ -159,9 +159,9 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
 
 }
 
-chart_series_t::chart_series_t(const series_range_t& categories, const series_range_t& values)
-  : categories_{categories}
-  , values_{values}
+chart_series_t::chart_series_t(series_range_t categories, series_range_t values)
+  : categories_{std::move(categories)}
+  , values_{std::move(values)}
 {
 }
 
@@ -543,7 +543,7 @@ series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row
   };
 }
 
-series_range_t build_serie_range(std::string_view formula)
+static series_range_t build_serie_range(std::string_view formula)
 {
   return {.formula = dup_formula(formula)};
   // TODO Parse formula, populate other member (and replace populate_range_dimensions if possible)

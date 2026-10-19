@@ -177,7 +177,7 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add a polynomial trendline.
-    xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
+    const xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
     series.set_trendline(xwpp::chart_trendline_type_t::POLY, 3);
     series.set_trendline_line(poly_line);
