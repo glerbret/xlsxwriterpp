@@ -1129,8 +1129,6 @@ struct series_error_bars_t
 
 ////////// TODO Here end
 
-
-
 /**
  * @brief Representation of an Excel chart data series.
  *

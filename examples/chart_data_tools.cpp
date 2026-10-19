@@ -134,11 +134,12 @@ int main()
     chart.set_title("Chart with Data Labels and Markers");
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7")
-                                   // Add series markers.
-                                   .set_marker_type(xwpp::chart_marker_type_t::CIRCLE)
-                                   // Add series data labels.
-                                   .set_labels();
+    xwpp::chart_series_t& series = chart
+                                     .add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7")
+                                     // Add series markers.
+                                     .set_marker_type(xwpp::chart_marker_type_t::CIRCLE)
+                                     // Add series data labels.
+                                     .set_labels();
 
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 

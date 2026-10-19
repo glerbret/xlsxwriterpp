@@ -58,8 +58,8 @@ int main()
     // Add a second series with ranges.
     chart
       .add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
-                  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2))// "=Sheet1!$C$2:$C$7"
-      .set_name("Sheet1", 0, 2); // "=Sheet1!$C$1"
+                  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)) // "=Sheet1!$C$2:$C$7"
+      .set_name("Sheet1", 0, 2);                                 // "=Sheet1!$C$1"
 
     // Add a chart title and some axis labels.
     chart.set_title("Chart with Data Table");
