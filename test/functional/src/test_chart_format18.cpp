@@ -34,10 +34,7 @@ int main()
   const xwpp::chart_line_t line{.none = true};
   const xwpp::chart_fill_t fill{.none = true};
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
-  series.set_line(line);
-  series.set_fill(fill);
-
+  chart.add_series("=Sheet1!$A$1:$A$5").set_line(line).set_fill(fill);
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 

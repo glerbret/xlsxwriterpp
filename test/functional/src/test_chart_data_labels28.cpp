@@ -35,12 +35,9 @@ int main()
   worksheet.write("D1", "foo");
   worksheet.write("D2", "bar");
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
-
   const std::vector<xwpp::chart_data_label_t> data_labels{
     {.value = "123"}, {.value = "abc"}, {}, {.value = "=Sheet1!$D$1"}, {.value = "=Sheet1!$D$2"}};
-  series.set_labels_custom(data_labels);
-
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels_custom(data_labels);
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 

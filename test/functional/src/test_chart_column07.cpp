@@ -39,7 +39,6 @@ int main()
   const std::array<std::array<uint8_t, 3>, 4> test_data{
     {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
   };
-
   series.add_data_cache_values(test_data, 0);
 
   workbook.save("test_chart_column07.xlsx");

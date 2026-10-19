@@ -152,9 +152,8 @@ a data series:
 
 @code
   chart = workbook.add_chart(xwpp::chart_type_t::LINE);
-  series = chart.add_series("Sheet1!$A$1:$A$6");
-
-  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+  chart.add_series("Sheet1!$A$1:$A$6").
+       set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
 @endcode
 
 @image html chart_trendline2.png

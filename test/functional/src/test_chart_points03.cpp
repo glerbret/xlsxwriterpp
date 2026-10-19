@@ -18,14 +18,11 @@ int main()
   worksheet.write(1, 0, 5);
   worksheet.write(2, 0, 4);
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$3");
-
   const xwpp::chart_fill_t fill1{.color = xwpp::color_t{0xFF0000}};
   const xwpp::chart_fill_t fill2{.color = xwpp::color_t{0xCC0000}};
   const xwpp::chart_fill_t fill3{.color = xwpp::color_t{0x990000}};
   const std::vector<xwpp::chart_point_t> points{{.fill = fill1}, {.fill = fill2}, {.fill = fill3}};
-
-  series.set_points(points);
+  chart.add_series("=Sheet1!$A$1:$A$3").set_points(points);
 
   worksheet.insert_chart("E9", &chart);
 

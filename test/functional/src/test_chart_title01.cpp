@@ -31,9 +31,8 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$A$1:$A$5").set_name("Foo");
 
-  series.set_name("Foo");
   chart.title_off();
 
   worksheet.insert_chart("E9", &chart);

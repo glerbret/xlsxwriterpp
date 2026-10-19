@@ -42,17 +42,17 @@ int main()
   const xwpp::chart_font_t font{.name = "Consolas", .pitch_family = 49, .charset = 0, .baseline = -1};
   const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
-  series.set_labels();
-  series.set_labels_options(true, true, true);
-  series.set_labels_position(xwpp::chart_label_position_t::INSIDE_END);
-  series.set_labels_separator(xwpp::chart_label_separator_t::SEMICOLON);
-  series.set_labels_leader_line();
-  series.set_labels_legend();
-  series.set_labels_percentage();
-  series.set_labels_num_format("#,##0.00");
-  series.set_labels_font(font);
-  series.set_labels_line(line);
+  chart.add_series("=Sheet1!$A$1:$A$5")
+       .set_labels()
+       .set_labels_options(true, true, true)
+       .set_labels_position(xwpp::chart_label_position_t::INSIDE_END)
+       .set_labels_separator(xwpp::chart_label_separator_t::SEMICOLON)
+       .set_labels_leader_line()
+       .set_labels_legend()
+       .set_labels_percentage()
+       .set_labels_num_format("#,##0.00")
+       .set_labels_font(font)
+       .set_labels_line(line);
 
   worksheet.insert_chart("E9", &chart);
 

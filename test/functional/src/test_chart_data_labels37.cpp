@@ -32,17 +32,12 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
-  series.set_labels();
-
-  chart.add_series("=Sheet1!$B$1:$B$5");
-  chart.add_series("=Sheet1!$C$1:$C$5");
-
   const xwpp::chart_line_t line{
     .color = xwpp::color_t::red(), .width = 1, .dash_type = xwpp::chart_line_dash_type_t::DASH};
   const xwpp::chart_fill_t fill{.color = xwpp::color_t{0x00B050}};
-  series.set_labels_line(line);
-  series.set_labels_fill(fill);
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_line(line).set_labels_fill(fill);
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);
 

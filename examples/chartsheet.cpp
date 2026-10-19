@@ -51,17 +51,13 @@ int main()
   // Create a bar chart.
   xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::BAR);
 
-  // Add the first series to the chart.
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-
-  // Set the name for the series instead of the default "Series 1".
-  series1.set_name("=Sheet1!$B$1");
+  // Add the first series to the chart with a name for the series instead of the default "Series 1".
+  chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
 
   // Add a second series with ranges.
-  xwpp::chart_series_t& series2 = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
-  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2));  // "=Sheet1!$C$2:$C$7"
-
-  series2.set_name("Sheet1", 0, 2);       // "=Sheet1!$C$1"
+  chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
+  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)).  // "=Sheet1!$C$2:$C$7"
+  set_name("Sheet1", 0, 2);       // "=Sheet1!$C$1"
 
   // Add a chart title and some axis labels.
   chart.set_title("Results of sample analysis");

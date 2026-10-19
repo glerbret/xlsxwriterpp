@@ -33,19 +33,13 @@ int main()
   }
 
   const std::vector<xwpp::chart_data_label_t> data_labels1{{.value = "31"}};
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_custom(data_labels1);
+
   const std::vector<xwpp::chart_data_label_t> data_labels2{{.value = "32"}};
-
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
-  series1.set_labels();
-
-  xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
-  series2.set_labels();
-  series2.set_labels_position(xwpp::chart_label_position_t::INSIDE_BASE);
+  chart.add_series("=Sheet1!$B$1:$B$5").set_labels().set_labels_position(xwpp::chart_label_position_t::INSIDE_BASE).set_labels_custom(data_labels2);
 
   chart.add_series("=Sheet1!$C$1:$C$5");
 
-  series1.set_labels_custom(data_labels1);
-  series2.set_labels_custom(data_labels2);
 
   worksheet.insert_chart("E9", &chart);
 

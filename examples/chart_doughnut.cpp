@@ -67,11 +67,9 @@ int main()
   {
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
 
-    // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    series.set_name("Doughnut sales data");
+    // Add the first series to the chart with a name for the series instead of the default "Series 1".
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").
+    set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.set_title("Popular Doughnut Types");
@@ -93,11 +91,11 @@ int main()
     // Set the name for the series instead of the default "Series 1".
     series.set_name("Doughnut sales data");
 
-    // Add a chart title.
-    chart.set_title("Doughnut Chart with user defined colors");
-
     // Add/override the points/segments of the chart.
     series.set_points(points);
+
+    // Add a chart title.
+    chart.set_title("Doughnut Chart with user defined colors");
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D18", &chart);
@@ -108,10 +106,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    series.set_name("Doughnut sales data");
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.set_title("Doughnut Chart with segment rotation");
@@ -133,11 +128,11 @@ int main()
     // Set the name for the series instead of the default "Series 1".
     series.set_name("Doughnut sales data");
 
+    // Add/override the points/segments defined in Chart 4.
+    series.set_points(points);
+
     // Add a chart title.
     chart.set_title("Doughnut Chart with options applied.");
-
-    // Add/override the points/segments defined in Chart 2.
-    series.set_points(points);
 
     // Set an Excel chart style.
     chart.set_style(26);

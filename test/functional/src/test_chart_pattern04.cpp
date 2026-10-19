@@ -31,41 +31,38 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$3");
-  xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$3");
-  xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$3");
-  xwpp::chart_series_t& series4 = chart.add_series("=Sheet1!$D$1:$D$3");
-  xwpp::chart_series_t& series5 = chart.add_series("=Sheet1!$E$1:$E$3");
-  xwpp::chart_series_t& series6 = chart.add_series("=Sheet1!$F$1:$F$3");
-  xwpp::chart_series_t& series7 = chart.add_series("=Sheet1!$G$1:$G$3");
-  xwpp::chart_series_t& series8 = chart.add_series("=Sheet1!$H$1:$H$3");
-
   const xwpp::chart_pattern_t pattern1{.fg_color = xwpp::color_t{0xC00000},
                                        .bg_color = xwpp::color_t{0xFFFFFF},
                                        .type     = xwpp::chart_pattern_type_t::PERCENT_20};
+  chart.add_series("=Sheet1!$A$1:$A$3").set_pattern(pattern1);
+
   const xwpp::chart_pattern_t pattern2{.fg_color = xwpp::color_t{0xFF0000},
                                        .type     = xwpp::chart_pattern_type_t::PERCENT_70};
+  chart.add_series("=Sheet1!$B$1:$B$3").set_pattern(pattern2);
+
   const xwpp::chart_pattern_t pattern3{.fg_color = xwpp::color_t{0xFFC000},
                                        .type     = xwpp::chart_pattern_type_t::DARK_DOWNWARD_DIAGONAL};
+  chart.add_series("=Sheet1!$C$1:$C$3").set_pattern(pattern3);
+
   const xwpp::chart_pattern_t pattern4{.fg_color = xwpp::color_t{0xFFFF00},
                                        .type     = xwpp::chart_pattern_type_t::NARROW_VERTICAL};
+  chart.add_series("=Sheet1!$D$1:$D$3").set_pattern(pattern4);
+
   const xwpp::chart_pattern_t pattern5{.fg_color = xwpp::color_t{0x92D050},
                                        .type     = xwpp::chart_pattern_type_t::DASHED_HORIZONTAL};
+  chart.add_series("=Sheet1!$E$1:$E$3").set_pattern(pattern5);
+
   const xwpp::chart_pattern_t pattern6{.fg_color = xwpp::color_t{0x00B050},
                                        .type     = xwpp::chart_pattern_type_t::DIAGONAL_BRICK};
+  chart.add_series("=Sheet1!$F$1:$F$3").set_pattern(pattern6);
+
   const xwpp::chart_pattern_t pattern7{.fg_color = xwpp::color_t{0x00B0F0},
                                        .type     = xwpp::chart_pattern_type_t::DOTTED_DIAMOND};
+  chart.add_series("=Sheet1!$G$1:$G$3").set_pattern(pattern7);
+
   const xwpp::chart_pattern_t pattern8{.fg_color = xwpp::color_t{0x0070C0},
                                        .type     = xwpp::chart_pattern_type_t::SMALL_CHECK};
-
-  series1.set_pattern(pattern1);
-  series2.set_pattern(pattern2);
-  series3.set_pattern(pattern3);
-  series4.set_pattern(pattern4);
-  series5.set_pattern(pattern5);
-  series6.set_pattern(pattern6);
-  series7.set_pattern(pattern7);
-  series8.set_pattern(pattern8);
+  chart.add_series("=Sheet1!$H$1:$H$3").set_pattern(pattern8);
 
   worksheet.insert_chart("E9", &chart);
 

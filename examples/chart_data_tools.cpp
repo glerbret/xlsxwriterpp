@@ -134,14 +134,14 @@ int main()
     chart.set_title("Chart with Data Labels and Markers");
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
+    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").
+    // Add series markers.
+    set_marker_type(xwpp::chart_marker_type_t::CIRCLE).
+    // Add series data labels.
+    set_labels();
+
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
-    // Add series markers.
-    series.set_marker_type(xwpp::chart_marker_type_t::CIRCLE);
-
-    // Add series data labels.
-    series.set_labels();
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E66", &chart);
@@ -155,14 +155,12 @@ int main()
     chart.set_title("Chart with Error Bars");
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
+    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_labels();
 
     // Add error bars to show Standard Error.
     chart.series_set_error_bars(series.y_error_bars, xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
-    // Add series data labels.
-    series.set_labels();
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E82", &chart);
@@ -177,13 +175,14 @@ int main()
 
     // Add the first series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Add a polynomial trendline.
     xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
     series.set_trendline(xwpp::chart_trendline_type_t::POLY, 3);
     series.set_trendline_line(poly_line);
+
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("E98", &chart);

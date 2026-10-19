@@ -31,11 +31,7 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-  series.set_labels();
-  series.set_labels_options(true, true, true);
-  series.set_labels_position(xwpp::chart_label_position_t::CENTER);
-
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5").set_labels().set_labels_options(true, true, true).set_labels_position(xwpp::chart_label_position_t::CENTER);
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);

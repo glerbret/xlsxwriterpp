@@ -33,11 +33,7 @@ int main()
   }
 
   const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
-
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
-  series.set_labels();
-  series.set_labels_line(line);
-
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_line(line);
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 

@@ -31,19 +31,9 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
-  series1.set_labels();
-  series1.set_labels_options(false, true, true);
-
-  xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
-  series2.set_labels();
-  series2.set_labels_options(false, true, true);
-  series2.set_labels_separator(xwpp::chart_label_separator_t::SEMICOLON);
-
-  xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$5");
-  series3.set_labels();
-  series3.set_labels_options(false, true, true);
-  series3.set_labels_separator(xwpp::chart_label_separator_t::PERIOD);
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_options(false, true, true);
+  chart.add_series("=Sheet1!$B$1:$B$5").set_labels().set_labels_options(false, true, true).set_labels_separator(xwpp::chart_label_separator_t::SEMICOLON);
+  chart.add_series("=Sheet1!$C$1:$C$5").set_labels().set_labels_options(false, true, true).set_labels_separator(xwpp::chart_label_separator_t::PERIOD);
 
   worksheet.insert_chart("E9", &chart);
 

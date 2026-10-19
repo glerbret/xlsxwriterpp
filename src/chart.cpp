@@ -165,7 +165,7 @@ chart_series_t::chart_series_t(const series_range_t& categories, const series_ra
 {
 }
 
-void chart_series_t::set_name(std::string_view name)
+chart_series_t& chart_series_t::set_name(std::string_view name)
 {
   if(!name.empty())
   {
@@ -178,9 +178,11 @@ void chart_series_t::set_name(std::string_view name)
       title_.name = name;
     }
   }
+
+  return *this;
 }
 
-void chart_series_t::set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num)
+chart_series_t& chart_series_t::set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num)
 {
   assert(!sheetname.empty());
 
@@ -190,9 +192,11 @@ void chart_series_t::set_name(std::string_view sheetname, row_num_t row_num, col
   title_.range.last_row  = row_num;
   title_.range.last_col  = col_num;
   title_.range.formula   = rowcol_to_formula_abs(sheetname, row_num, col_num, row_num, col_num);
+
+  return *this;
 }
 
-void chart_series_t::set_marker_type(chart_marker_type_t type)
+chart_series_t& chart_series_t::set_marker_type(chart_marker_type_t type)
 {
   if(!marker_.has_value())
   {
@@ -200,9 +204,11 @@ void chart_series_t::set_marker_type(chart_marker_type_t type)
   }
 
   marker_->type = type;
+
+  return *this;
 }
 
-void chart_series_t::set_marker_size(uint8_t size)
+chart_series_t& chart_series_t::set_marker_size(uint8_t size)
 {
   assert(size >= 2 && size <= 72);
 
@@ -212,9 +218,11 @@ void chart_series_t::set_marker_size(uint8_t size)
   }
 
   marker_->size = size;
+
+  return *this;
 }
 
-void chart_series_t::set_marker_line(const chart_line_t& line)
+chart_series_t& chart_series_t::set_marker_line(const chart_line_t& line)
 {
   if(!marker_)
   {
@@ -222,9 +230,11 @@ void chart_series_t::set_marker_line(const chart_line_t& line)
   }
 
   marker_->line = convert_line_args(line);
+
+  return *this;
 }
 
-void chart_series_t::set_marker_fill(const chart_fill_t& fill)
+chart_series_t& chart_series_t::set_marker_fill(const chart_fill_t& fill)
 {
   if(!marker_)
   {
@@ -232,9 +242,11 @@ void chart_series_t::set_marker_fill(const chart_fill_t& fill)
   }
 
   marker_->fill = convert_fill_args(fill);
+
+  return *this;
 }
 
-void chart_series_t::set_marker_pattern(const chart_pattern_t& pattern)
+chart_series_t& chart_series_t::set_marker_pattern(const chart_pattern_t& pattern)
 {
   if(!marker_)
   {
@@ -242,34 +254,46 @@ void chart_series_t::set_marker_pattern(const chart_pattern_t& pattern)
   }
 
   marker_->pattern = convert_pattern_args(pattern);
+
+  return *this;
 }
 
-void chart_series_t::set_line(const chart_line_t& line)
+chart_series_t& chart_series_t::set_line(const chart_line_t& line)
 {
   line_ = convert_line_args(line);
+
+  return *this;
 }
 
-void chart_series_t::set_fill(const chart_fill_t& fill)
+chart_series_t& chart_series_t::set_fill(const chart_fill_t& fill)
 {
   fill_ = convert_fill_args(fill);
+
+  return *this;
 }
 
-void chart_series_t::set_pattern(const chart_pattern_t& pattern)
+chart_series_t& chart_series_t::set_pattern(const chart_pattern_t& pattern)
 {
   pattern_ = convert_pattern_args(pattern);
+
+  return *this;
 }
 
-void chart_series_t::set_invert_if_negative()
+chart_series_t& chart_series_t::set_invert_if_negative()
 {
   invert_if_negative_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_smooth(bool smooth)
+chart_series_t& chart_series_t::set_smooth(bool smooth)
 {
   smooth_ = smooth;
+
+  return *this;
 }
 
-void chart_series_t::set_points(const std::vector<chart_point_t>& points)
+chart_series_t& chart_series_t::set_points(const std::vector<chart_point_t>& points)
 {
   assert(!points.empty());
 
@@ -282,20 +306,26 @@ void chart_series_t::set_points(const std::vector<chart_point_t>& points)
     };
     points_.push_back(dst_point);
   }
+
+  return *this;
 }
 
-void chart_series_t::set_labels()
+chart_series_t& chart_series_t::set_labels()
 {
   has_labels_        = true;
   show_labels_value_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_labels_options(bool show_name, bool show_category, bool show_value)
+chart_series_t& chart_series_t::set_labels_options(bool show_name, bool show_category, bool show_value)
 {
   has_labels_           = true;
   show_labels_name_     = show_name;
   show_labels_category_ = show_category;
   show_labels_value_    = show_value;
+
+  return *this;
 }
 
 
@@ -305,7 +335,7 @@ void chart_series_t::set_labels_options(bool show_name, bool show_category, bool
 
 
 
-void chart_series_t::set_labels_custom(const std::vector<chart_data_label_t>& data_labels)
+chart_series_t& chart_series_t::set_labels_custom(const std::vector<chart_data_label_t>& data_labels)
 {
   assert(!data_labels.empty());
 
@@ -343,15 +373,19 @@ void chart_series_t::set_labels_custom(const std::vector<chart_data_label_t>& da
 
     data_labels_.push_back(data_label);
   }
+
+  return *this;
 }
 
-void chart_series_t::set_labels_separator(chart_label_separator_t separator)
+chart_series_t& chart_series_t::set_labels_separator(chart_label_separator_t separator)
 {
   has_labels_      = true;
   label_separator_ = separator;
+
+  return *this;
 }
 
-void chart_series_t::set_labels_position(chart_label_position_t position)
+chart_series_t& chart_series_t::set_labels_position(chart_label_position_t position)
 {
   has_labels_        = true;
   show_labels_value_ = true;
@@ -360,55 +394,73 @@ void chart_series_t::set_labels_position(chart_label_position_t position)
   {
     label_position_ = position;
   }
+
+  return *this;
 }
 
-void chart_series_t::set_labels_leader_line()
+chart_series_t& chart_series_t::set_labels_leader_line()
 {
   has_labels_         = true;
   show_labels_leader_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_labels_legend()
+chart_series_t& chart_series_t::set_labels_legend()
 {
   has_labels_         = true;
   show_labels_legend_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_labels_percentage()
+chart_series_t& chart_series_t::set_labels_percentage()
 {
   has_labels_          = true;
   show_labels_percent_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_labels_num_format(std::string_view num_format)
+chart_series_t& chart_series_t::set_labels_num_format(std::string_view num_format)
 {
   if(!num_format.empty())
   {
     label_num_format_ = num_format;
   }
+
+  return *this;
 }
 
-void chart_series_t::set_labels_font(const chart_font_t& font)
+chart_series_t& chart_series_t::set_labels_font(const chart_font_t& font)
 {
   label_font_ = convert_font_args(font);
+
+  return *this;
 }
 
-void chart_series_t::set_labels_line(const chart_line_t& line)
+chart_series_t& chart_series_t::set_labels_line(const chart_line_t& line)
 {
   label_line_ = convert_line_args(line);
+
+  return *this;
 }
 
-void chart_series_t::set_labels_fill(const chart_fill_t& fill)
+chart_series_t& chart_series_t::set_labels_fill(const chart_fill_t& fill)
 {
   label_fill_ = convert_fill_args(fill);
+
+  return *this;
 }
 
-void chart_series_t::set_labels_pattern(const chart_pattern_t& pattern)
+chart_series_t& chart_series_t::set_labels_pattern(const chart_pattern_t& pattern)
 {
   label_pattern_ = convert_pattern_args(pattern);
+
+  return *this;
 }
 
-void chart_series_t::set_trendline(chart_trendline_type_t type, uint8_t value)
+chart_series_t& chart_series_t::set_trendline(chart_trendline_type_t type, uint8_t value)
 {
   if(type == chart_trendline_type_t::POLY || type == chart_trendline_type_t::AVERAGE)
   {
@@ -420,9 +472,11 @@ void chart_series_t::set_trendline(chart_trendline_type_t type, uint8_t value)
   has_trendline_   = true;
   trendline_type_  = type;
   trendline_value_ = value;
+
+  return *this;
 }
 
-void chart_series_t::set_trendline_forecast(double forward, double backward)
+chart_series_t& chart_series_t::set_trendline_forecast(double forward, double backward)
 {
   assert(has_trendline_);
   assert(trendline_type_ != chart_trendline_type_t::AVERAGE);
@@ -430,9 +484,11 @@ void chart_series_t::set_trendline_forecast(double forward, double backward)
   has_trendline_forecast_ = true;
   trendline_forward_      = forward;
   trendline_backward_     = backward;
+
+  return *this;
 }
 
-void chart_series_t::set_trendline_intercept(double intercept)
+chart_series_t& chart_series_t::set_trendline_intercept(double intercept)
 {
   assert(has_trendline_);
   assert(trendline_type_ == chart_trendline_type_t::EXP ||
@@ -441,35 +497,45 @@ void chart_series_t::set_trendline_intercept(double intercept)
 
   has_trendline_intercept_ = true;
   trendline_intercept_     = intercept;
+
+  return *this;
 }
 
-void chart_series_t::set_trendline_equation()
+chart_series_t& chart_series_t::set_trendline_equation()
 {
   assert(has_trendline_);
   assert(trendline_type_ != chart_trendline_type_t::AVERAGE);
 
   has_trendline_equation_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_trendline_r_squared()
+chart_series_t& chart_series_t::set_trendline_r_squared()
 {
   assert(has_trendline_);
   assert(trendline_type_ != chart_trendline_type_t::AVERAGE);
 
   has_trendline_r_squared_ = true;
+
+  return *this;
 }
 
-void chart_series_t::set_trendline_name(std::string_view name)
+chart_series_t& chart_series_t::set_trendline_name(std::string_view name)
 {
   if(!name.empty())
   {
     trendline_name_ = name;
   }
+
+  return *this;
 }
 
-void chart_series_t::set_trendline_line(const chart_line_t& line)
+chart_series_t& chart_series_t::set_trendline_line(const chart_line_t& line)
 {
   trendline_line_ = convert_line_args(line);
+
+  return *this;
 }
 
 

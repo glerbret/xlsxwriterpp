@@ -33,10 +33,7 @@ int main()
 
   const xwpp::chart_line_t line{
     .color = xwpp::color_t::red(), .width = 1.25, .dash_type = xwpp::chart_line_dash_type_t::SQUARE_DOT};
-
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-  series.set_line(line);
-
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5").set_line(line);
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);

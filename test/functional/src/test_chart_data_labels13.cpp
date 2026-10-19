@@ -31,10 +31,7 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5");
-  series.set_labels();
-  series.set_labels_position(xwpp::chart_label_position_t::INSIDE_END);
-  series.set_labels_leader_line();
+  chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_position(xwpp::chart_label_position_t::INSIDE_END).set_labels_leader_line();
 
   worksheet.insert_chart("E9", &chart);
 

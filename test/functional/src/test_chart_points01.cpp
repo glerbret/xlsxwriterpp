@@ -21,12 +21,9 @@ int main()
   worksheet.write(4, 0, 7);
   worksheet.write(5, 0, 4);
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$6");
-
   const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
   const std::vector<xwpp::chart_point_t> points{{.fill = fill}};
-
-  series.set_points(points);
+  chart.add_series("=Sheet1!$A$1:$A$6").set_points(points);
 
   worksheet.insert_chart("E9", &chart);
 

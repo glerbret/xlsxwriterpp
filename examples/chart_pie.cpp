@@ -50,11 +50,8 @@ int main()
   {
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
-    // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    series.set_name("Pie sales data");
+    // Add the first series to the chart with aname for the series instead of the default "Series 1".
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Pie sales data");
 
     // Add a chart title.
     chart.set_title("Popular Pie Types");
@@ -103,10 +100,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
-
-    // Set the name for the series instead of the default "Series 1".
-    series.set_name("Pie sales data");
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Pie sales data");
 
     // Add a chart title.
     chart.set_title("Pie Chart with segment rotation");
