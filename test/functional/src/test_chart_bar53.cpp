@@ -22,6 +22,9 @@ int main()
   const std::array<std::array<uint8_t, 3>, 5> data{
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
+  const std::array<std::array<uint8_t, 3>, 4> data2{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}}
+  };
 
   for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
@@ -46,10 +49,10 @@ int main()
   series2.add_data_cache_categories(data, 0);
   series1.add_data_cache_values(data, 1);
   series2.add_data_cache_values(data, 2);
-  series3.add_data_cache_categories(data, 0);
-  series4.add_data_cache_categories(data, 0);
-  series3.add_data_cache_values(data, 1);
-  series4.add_data_cache_values(data, 2);
+  series3.add_data_cache_categories(data2, 0);
+  series4.add_data_cache_categories(data2, 0);
+  series3.add_data_cache_values(data2, 1);
+  series4.add_data_cache_values(data2, 2);
 
   workbook.save("test_chart_bar53.xlsx");
 }
