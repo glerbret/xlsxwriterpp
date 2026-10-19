@@ -68,8 +68,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
 
     // Add the first series to the chart with a name for the series instead of the default "Series 1".
-    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").
-    set_name("Doughnut sales data");
+    chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Doughnut sales data");
 
     // Add a chart title.
     chart.set_title("Popular Doughnut Types");

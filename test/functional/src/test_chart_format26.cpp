@@ -32,7 +32,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5").set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).set_trendline_equation();
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5")
+    .set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0)
+    .set_trendline_equation();
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   const std::vector<int16_t> names{2, 0};

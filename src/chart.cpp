@@ -328,13 +328,6 @@ chart_series_t& chart_series_t::set_labels_options(bool show_name, bool show_cat
   return *this;
 }
 
-
-
-
-
-
-
-
 chart_series_t& chart_series_t::set_labels_custom(const std::vector<chart_data_label_t>& data_labels)
 {
   assert(!data_labels.empty());
@@ -491,8 +484,7 @@ chart_series_t& chart_series_t::set_trendline_forecast(double forward, double ba
 chart_series_t& chart_series_t::set_trendline_intercept(double intercept)
 {
   assert(has_trendline_);
-  assert(trendline_type_ == chart_trendline_type_t::EXP ||
-         trendline_type_ == chart_trendline_type_t::LINEAR ||
+  assert(trendline_type_ == chart_trendline_type_t::EXP || trendline_type_ == chart_trendline_type_t::LINEAR ||
          trendline_type_ == chart_trendline_type_t::POLY);
 
   has_trendline_intercept_ = true;
@@ -538,20 +530,8 @@ chart_series_t& chart_series_t::set_trendline_line(const chart_line_t& line)
   return *this;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
+series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
+                                 row_num_t last_row, col_num_t last_col)
 {
   return {
     .formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col),
@@ -565,7 +545,7 @@ series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row
 
 series_range_t build_serie_range(std::string_view formula)
 {
-  return{.formula = dup_formula(formula)};
+  return {.formula = dup_formula(formula)};
   // TODO Parse formula, populate other member (and replace populate_range_dimensions if possible)
 }
 
@@ -646,7 +626,8 @@ void chart_t::set_title(std::string_view name, const std::optional<chart_font_t>
   title_.font = convert_font_args(font, true);
 }
 
-void chart_t::set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num, const std::optional<chart_font_t>& font)
+void chart_t::set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num,
+                        const std::optional<chart_font_t>& font)
 {
   assert(!sheetname.empty());
 
@@ -850,7 +831,6 @@ chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
     return y_axis_;
   }
 }
-
 
 std::string chart_t::assemble_xml_file()
 {

@@ -32,8 +32,14 @@ int main()
   }
 
   chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_options(false, true, true);
-  chart.add_series("=Sheet1!$B$1:$B$5").set_labels().set_labels_options(false, true, true).set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
-  chart.add_series("=Sheet1!$C$1:$C$5").set_labels().set_labels_options(false, true, true).set_labels_separator(xwpp::chart_label_separator_t::SPACE);
+  chart.add_series("=Sheet1!$B$1:$B$5")
+    .set_labels()
+    .set_labels_options(false, true, true)
+    .set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
+  chart.add_series("=Sheet1!$C$1:$C$5")
+    .set_labels()
+    .set_labels_options(false, true, true)
+    .set_labels_separator(xwpp::chart_label_separator_t::SPACE);
 
   worksheet.insert_chart("E9", &chart);
 

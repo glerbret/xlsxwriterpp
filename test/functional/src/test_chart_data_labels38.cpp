@@ -37,7 +37,11 @@ int main()
   const xwpp::chart_fill_t fill{.color = xwpp::color_t{0x00B050}};
   const xwpp::chart_pattern_t pattern{.fg_color = xwpp::color_t{0x00B050},
                                       .type     = xwpp::chart_pattern_type_t::LIGHT_VERTICAL};
-  chart.add_series("=Sheet1!$A$1:$A$5").set_labels().set_labels_line(line).set_labels_fill(fill).set_labels_pattern(pattern);
+  chart.add_series("=Sheet1!$A$1:$A$5")
+    .set_labels()
+    .set_labels_line(line)
+    .set_labels_fill(fill)
+    .set_labels_pattern(pattern);
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 

@@ -1174,26 +1174,26 @@ public:
    */
   chart_series_t& set_name(std::string_view name);
 
-/**
- * @brief Set a series name formula using row and column values.
- *
- * @param sheetname The name of the worksheet that contains the cell range.
- * @param row_num   The zero indexed row number of the range.
- * @param col_num   The zero indexed column number of the range.
+  /**
+   * @brief Set a series name formula using row and column values.
+   *
+   * @param sheetname The name of the worksheet that contains the cell range.
+   * @param row_num   The zero indexed row number of the range.
+   * @param col_num   The zero indexed column number of the range.
    *
    * @return Reference to this.
- *
- * This `%set_name()` overload is an alternative to using `%set_name()` and a
- * string formula:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_name("Sheet1", 0, 2); // "=Sheet1!$C$1"
- * @endcode
- *
- * @pre The `%sheetname` parameter should not be empty.
- */
-chart_series_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
+   *
+   * This `%set_name()` overload is an alternative to using `%set_name()` and a
+   * string formula:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_name("Sheet1", 0, 2); // "=Sheet1!$C$1"
+   * @endcode
+   *
+   * @pre The `%sheetname` parameter should not be empty.
+   */
+  chart_series_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
 
   /**
    * @brief Set the data marker type for a series.
@@ -1259,833 +1259,831 @@ chart_series_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_
    */
   chart_series_t& set_marker_type(chart_marker_type_t type);
 
-/**
- * @brief Set the size of a data marker for a series.
- *
- * @param size   The size of the marker.
+  /**
+   * @brief Set the size of a data marker for a series.
+   *
+   * @param size   The size of the marker.
    *
    * @return Reference to this.
- *
- * The `%set_marker_size()` function is used to specify the
- * size of the series marker:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_marker_type(xwpp::chart_marker_type_t::CIRCLE).
- *        set_marker_size(10);
- * @endcode
- *
- * @image html chart_series_set_marker_size.png
- *
- * @pre The `%size` parameter must be in the range `[2, 72]`.
- */
-chart_series_t& set_marker_size(uint8_t size);
+   *
+   * The `%set_marker_size()` function is used to specify the
+   * size of the series marker:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_marker_type(xwpp::chart_marker_type_t::CIRCLE).
+   *        set_marker_size(10);
+   * @endcode
+   *
+   * @image html chart_series_set_marker_size.png
+   *
+   * @pre The `%size` parameter must be in the range `[2, 72]`.
+   */
+  chart_series_t& set_marker_size(uint8_t size);
 
-/**
- * @brief Set the line properties for a chart series marker.
- *
- * @param line   A `chart_line_t` struct.
+  /**
+   * @brief Set the line properties for a chart series marker.
+   *
+   * @param line   A `chart_line_t` struct.
    *
    * @return Reference to this.
- *
- * Set the line/border properties of a chart marker:
- *
- * @code
- *  const xwpp::chart_line_t line{.color = xwpp::color_t::black()};
- *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_marker_type(xwpp::chart_marker_type_t::SQUARE).
- *        set_marker_size(8).
- *        set_marker_line(line).
- *        set_marker_fill(fill);
- * @endcode
- *
- * @image html chart_marker2.png
- *
- * @see @ref chart_lines.
- */
-chart_series_t& set_marker_line(const chart_line_t& line);
+   *
+   * Set the line/border properties of a chart marker:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{.color = xwpp::color_t::black()};
+   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_marker_type(xwpp::chart_marker_type_t::SQUARE).
+   *        set_marker_size(8).
+   *        set_marker_line(line).
+   *        set_marker_fill(fill);
+   * @endcode
+   *
+   * @image html chart_marker2.png
+   *
+   * @see @ref chart_lines.
+   */
+  chart_series_t& set_marker_line(const chart_line_t& line);
 
-/**
- * @brief Set the fill properties for a chart series marker.
- *
- * @param fill   A `chart_fill_t` struct.
+  /**
+   * @brief Set the fill properties for a chart series marker.
+   *
+   * @param fill   A `chart_fill_t` struct.
    *
    * @return Reference to this.
- *
- * Set the fill properties of a chart marker:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_marker_fill(fill);
- * @endcode
- *
- * @see @ref chart_fills.
- */
-chart_series_t& set_marker_fill(const chart_fill_t& fill);
+   *
+   * Set the fill properties of a chart marker:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_marker_fill(fill);
+   * @endcode
+   *
+   * @see @ref chart_fills.
+   */
+  chart_series_t& set_marker_fill(const chart_fill_t& fill);
 
-/**
- * @brief Set the pattern properties for a chart series marker.
- *
- * @param pattern A `chart_pattern_t` struct.
+  /**
+   * @brief Set the pattern properties for a chart series marker.
+   *
+   * @param pattern A `chart_pattern_t` struct.
    *
    * @return Reference to this.
- *
- * Set the pattern properties of a chart marker:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_marker_pattern(pattern);
- * @endcode
- *
- * @see `chart_pattern_type_t` and @ref chart_patterns.
- */
-chart_series_t& set_marker_pattern(const chart_pattern_t& pattern);
+   *
+   * Set the pattern properties of a chart marker:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_marker_pattern(pattern);
+   * @endcode
+   *
+   * @see `chart_pattern_type_t` and @ref chart_patterns.
+   */
+  chart_series_t& set_marker_pattern(const chart_pattern_t& pattern);
 
-/**
- * @brief Set the line properties for a chart series.
- *
- * @param line   A `chart_line_t` struct.
+  /**
+   * @brief Set the line properties for a chart series.
+   *
+   * @param line   A `chart_line_t` struct.
    *
    * @return Reference to this.
- *
- * Set the line/border properties of a chart series:
- *
- * @code
- *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_line(line);
- * @endcode
- *
- * @image html chart_series_set_line.png
- *
- * @see @ref chart_lines.
- */
-chart_series_t& set_line(const chart_line_t& line);
+   *
+   * Set the line/border properties of a chart series:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_line(line);
+   * @endcode
+   *
+   * @image html chart_series_set_line.png
+   *
+   * @see @ref chart_lines.
+   */
+  chart_series_t& set_line(const chart_line_t& line);
 
-/**
- * @brief Set the fill properties for a chart series.
- *
- * @param fill   A `chart_fill_t` struct.
+  /**
+   * @brief Set the fill properties for a chart series.
+   *
+   * @param fill   A `chart_fill_t` struct.
    *
    * @return Reference to this.
- *
- * Set the fill properties of a chart series:
- *
- * @code
- *  const xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
- *  const xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
- *  const xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_fill(fill1);
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_fill(fill2);
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_fill(fill3);
- * @endcode
- *
- * @image html chart_series_set_fill.png
- *
- * @see @ref chart_fills.
- */
-chart_series_t& set_fill(const chart_fill_t& fill);
+   *
+   * Set the fill properties of a chart series:
+   *
+   * @code
+   *  const xwpp::chart_fill_t fill1{.color = xwpp::color_t::red()};
+   *  const xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
+   *  const xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_fill(fill1);
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_fill(fill2);
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_fill(fill3);
+   * @endcode
+   *
+   * @image html chart_series_set_fill.png
+   *
+   * @see @ref chart_fills.
+   */
+  chart_series_t& set_fill(const chart_fill_t& fill);
 
-/**
- * @brief Set the pattern properties for a chart series.
- *
- * @param series  A series object created via `chart_t::add_series()`.
- * @param pattern A `chart_pattern_t` struct.
+  /**
+   * @brief Set the pattern properties for a chart series.
+   *
+   * @param series  A series object created via `chart_t::add_series()`.
+   * @param pattern A `chart_pattern_t` struct.
    *
    * @return Reference to this.
- *
- * Set the pattern properties of a chart series:
- *
- * @code
- *  const xwpp::chart_pattern_t pattern1{
- *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
- *    .fg_color = xwpp::color_t{0x804000},
- *    .bg_color = xwpp::color_t{0xC68C53},
- *  };
- *
- *  const xwpp::chart_pattern_t pattern2{
- *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
- *    .fg_color = xwpp::color_t{0xB30000},
- *    .bg_color = xwpp::color_t{0xFF6666},
- *  };
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_pattern(pattern1);
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_pattern(pattern2);
- * @endcode
- *
- * @image html chart_pattern.png
- *
- * @see `chart_pattern_type_t` and @ref chart_patterns.
- */
-chart_series_t& set_pattern(const chart_pattern_t& pattern);
+   *
+   * Set the pattern properties of a chart series:
+   *
+   * @code
+   *  const xwpp::chart_pattern_t pattern1{
+   *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
+   *    .fg_color = xwpp::color_t{0x804000},
+   *    .bg_color = xwpp::color_t{0xC68C53},
+   *  };
+   *
+   *  const xwpp::chart_pattern_t pattern2{
+   *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
+   *    .fg_color = xwpp::color_t{0xB30000},
+   *    .bg_color = xwpp::color_t{0xFF6666},
+   *  };
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_pattern(pattern1);
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_pattern(pattern2);
+   * @endcode
+   *
+   * @image html chart_pattern.png
+   *
+   * @see `chart_pattern_type_t` and @ref chart_patterns.
+   */
+  chart_series_t& set_pattern(const chart_pattern_t& pattern);
 
-/**
- * @brief Invert the fill color for negative series values.
+  /**
+   * @brief Invert the fill color for negative series values.
    *
    * @return Reference to this.
- *
- * Invert the fill color for negative values. Usually only applicable to
- * column and bar charts.
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_invert_if_negative();
- * @endcode
- */
-chart_series_t& set_invert_if_negative();
+   *
+   * Invert the fill color for negative values. Usually only applicable to
+   * column and bar charts.
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_invert_if_negative();
+   * @endcode
+   */
+  chart_series_t& set_invert_if_negative();
 
-/**
- * @brief Smooth a line or scatter chart series.
- *
- * @param smooth Turn off/on the line smoothing.
+  /**
+   * @brief Smooth a line or scatter chart series.
+   *
+   * @param smooth Turn off/on the line smoothing.
    *
    * @return Reference to this.
- *
- * The `set_smooth()` function is used to set the smooth property
- * of a line series. It is only applicable to the line and scatter chart
- * types:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_smooth(true);
- * @endcode
- *
- * @image html chart_smooth.png
- */
-chart_series_t& set_smooth(bool smooth);
+   *
+   * The `set_smooth()` function is used to set the smooth property
+   * of a line series. It is only applicable to the line and scatter chart
+   * types:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_smooth(true);
+   * @endcode
+   *
+   * @image html chart_smooth.png
+   */
+  chart_series_t& set_smooth(bool smooth);
 
-/**
- * @brief Set the formatting for points in the series.
- *
- * @param points A vector of `chart_point_t` pointers.
+  /**
+   * @brief Set the formatting for points in the series.
+   *
+   * @param points A vector of `chart_point_t` pointers.
    *
    * @return Reference to this.
- *
- * In general formatting is applied to an entire series in a chart. However,
- * it is occasionally required to format individual points in a series. In
- * particular this is required for Pie/Doughnut charts where each segment is
- * represented by a point.
- *
- * @dontinclude chart_pie_colors.cpp
- * @skip Add the data series
- * @until series_set_points
- *
- * @image html chart_points1.png
- *
- * @see @ref chart_points
- *
- * @pre The `%points` parameter should not be empty.
- */
-chart_series_t& set_points(const std::vector<chart_point_t>& points);
+   *
+   * In general formatting is applied to an entire series in a chart. However,
+   * it is occasionally required to format individual points in a series. In
+   * particular this is required for Pie/Doughnut charts where each segment is
+   * represented by a point.
+   *
+   * @dontinclude chart_pie_colors.cpp
+   * @skip Add the data series
+   * @until series_set_points
+   *
+   * @image html chart_points1.png
+   *
+   * @see @ref chart_points
+   *
+   * @pre The `%points` parameter should not be empty.
+   */
+  chart_series_t& set_points(const std::vector<chart_point_t>& points);
 
-/**
- * @brief Add data labels to a chart series.
+  /**
+   * @brief Add data labels to a chart series.
    *
    * @return Reference to this.
- *
- * The `%set_labels()` function is used to turn on data labels for a chart series.
- * Data labels indicate the values of the plotted data points.
- *
- * @code
- *  series.set_labels();
- * @endcode
- *
- * @image html chart_data_labels1.png
- *
- * By default data labels are displayed in Excel with only the values shown:
- *
- * @image html chart_data_labels2.png
- *
- * However, it is possible to configure other display options, as shown
- * in the functions below.
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels();
+   *
+   * The `%set_labels()` function is used to turn on data labels for a chart series.
+   * Data labels indicate the values of the plotted data points.
+   *
+   * @code
+   *  series.set_labels();
+   * @endcode
+   *
+   * @image html chart_data_labels1.png
+   *
+   * By default data labels are displayed in Excel with only the values shown:
+   *
+   * @image html chart_data_labels2.png
+   *
+   * However, it is possible to configure other display options, as shown
+   * in the functions below.
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels();
 
-/**
- * @brief Set the display options for the labels of a data series.
- *
- * @param show_name     Turn on/off the series name in the label caption.
- * @param show_category Turn on/off the category name in the label caption.
- * @param show_value    Turn on/off the value in the label caption.
+  /**
+   * @brief Set the display options for the labels of a data series.
+   *
+   * @param show_name     Turn on/off the series name in the label caption.
+   * @param show_category Turn on/off the category name in the label caption.
+   * @param show_value    Turn on/off the value in the label caption.
    *
    * @return Reference to this.
- *
- * The `%set_labels_options()` function is used to set the
- * parameters that are displayed in the series data label:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_options(true, true, true);
- * @endcode
- *
- * @image html chart_data_labels3.png
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_options(bool show_name, bool show_category, bool show_value);
+   *
+   * The `%set_labels_options()` function is used to set the
+   * parameters that are displayed in the series data label:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_options(true, true, true);
+   * @endcode
+   *
+   * @image html chart_data_labels3.png
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_options(bool show_name, bool show_category, bool show_value);
 
-/** @brief Set the properties for data labels in a series.
- *
- * @param data_labels A vector of `chart_data_label_t` pointers.
+  /** @brief Set the properties for data labels in a series.
+   *
+   * @param data_labels A vector of `chart_data_label_t` pointers.
    *
    * @return Reference to this.
- *
- * The `%set_labels_custom()` function is used to set the properties
- * for data labels in a series. It can also be used to delete individual data
- * labels in a series.
- *
- * In general properties are set for all the data labels in a chart
- * series. However, it is also possible to set properties for individual data
- * labels in a series using `%chart_series_set_labels_custom()`.
- *
- * @code
- *  // Add the series data labels.
- *  series.set_labels();
- *
- *  // Create some custom labels.
- *  const std::vector<xwpp::chart_data_label_t> data_labels{
- *    {.value = "Jan"},
- *    {.value = "Feb"},
- *    {.value = "Mar"},
- *    {.value = "Apr"},
- *    {.value = "May"},
- *    {.value = "Jun"},
- *  };
- *
- *  // Set the custom labels.
- *  series.set_labels_custom(data_labels);
- * @endcode
- *
- * @image html chart_data_labels18.png
- *
- * @see @ref chart_custom_labels.
- *
- * @pre The `%data_labels` parameter should not be empty.
- */
-chart_series_t& set_labels_custom(const std::vector<chart_data_label_t>& data_labels);
+   *
+   * The `%set_labels_custom()` function is used to set the properties
+   * for data labels in a series. It can also be used to delete individual data
+   * labels in a series.
+   *
+   * In general properties are set for all the data labels in a chart
+   * series. However, it is also possible to set properties for individual data
+   * labels in a series using `%chart_series_set_labels_custom()`.
+   *
+   * @code
+   *  // Add the series data labels.
+   *  series.set_labels();
+   *
+   *  // Create some custom labels.
+   *  const std::vector<xwpp::chart_data_label_t> data_labels{
+   *    {.value = "Jan"},
+   *    {.value = "Feb"},
+   *    {.value = "Mar"},
+   *    {.value = "Apr"},
+   *    {.value = "May"},
+   *    {.value = "Jun"},
+   *  };
+   *
+   *  // Set the custom labels.
+   *  series.set_labels_custom(data_labels);
+   * @endcode
+   *
+   * @image html chart_data_labels18.png
+   *
+   * @see @ref chart_custom_labels.
+   *
+   * @pre The `%data_labels` parameter should not be empty.
+   */
+  chart_series_t& set_labels_custom(const std::vector<chart_data_label_t>& data_labels);
 
-/**
- * @brief Set the separator for the data label captions.
- *
- * @param separator The separator for the data label options: `chart_label_separator_t`.
+  /**
+   * @brief Set the separator for the data label captions.
+   *
+   * @param separator The separator for the data label options: `chart_label_separator_t`.
    *
    * @return Reference to this.
- *
- * The `%set_labels_separator()` function is used to change the
- * separator between multiple data label items. The default options is a comma
- * separator as shown in the previous example.
- *
- * The available options are:
- *
- * - `%chart_label_separator_t::SEMICOLON`: semicolon separator.
- * - `%chart_label_separator_t::PERIOD`: a period (dot) separator.
- * - `%chart_label_separator_t::NEWLINE`: a newline separator.
- * - `%chart_label_separator_t::SPACE`: a space separator.
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_options(true, true, true).
- *        set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
- * @endcode
- *
- * @image html chart_data_labels4.png
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_separator(chart_label_separator_t separator);
+   *
+   * The `%set_labels_separator()` function is used to change the
+   * separator between multiple data label items. The default options is a comma
+   * separator as shown in the previous example.
+   *
+   * The available options are:
+   *
+   * - `%chart_label_separator_t::SEMICOLON`: semicolon separator.
+   * - `%chart_label_separator_t::PERIOD`: a period (dot) separator.
+   * - `%chart_label_separator_t::NEWLINE`: a newline separator.
+   * - `%chart_label_separator_t::SPACE`: a space separator.
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_options(true, true, true).
+   *        set_labels_separator(xwpp::chart_label_separator_t::NEWLINE);
+   * @endcode
+   *
+   * @image html chart_data_labels4.png
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_separator(chart_label_separator_t separator);
 
-/**
- * @brief Set the data label position for a series.
- *
- * @param position The data label position: `chart_label_position_t`.
+  /**
+   * @brief Set the data label position for a series.
+   *
+   * @param position The data label position: `chart_label_position_t`.
    *
    * @return Reference to this.
- *
- * The `%set_labels_position()` function sets the position of
- * the labels in the data series:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_position(xwpp::chart_label_position_t::ABOVE);
- * @endcode
- *
- * @image html chart_data_labels5.png
- *
- * In Excel the allowable data label positions vary for different chart
- * types. The allowable, and default, positions are:
- *
- * | Position                                | Line, Scatter | Bar, Column   | Pie, Doughnut | Area, Radar   |
- * | :-------------------------------------- | :------------ | :------------ | :------------ | :------------ |
- * | `%chart_label_position_t::CENTER`       | Yes           | Yes           | Yes           | Yes (default) |
- * | `%chart_label_position_t::RIGHT`        | Yes (default) |               |               |               |
- * | `%chart_label_position_t::LEFT`         | Yes           |               |               |               |
- * | `%chart_label_position_t::ABOVE`        | Yes           |               |               |               |
- * | `%chart_label_position_t::BELOW`        | Yes           |               |               |               |
- * | `%chart_label_position_t::INSIDE_BASE`  |               | Yes           |               |               |
- * | `%chart_label_position_t::INSIDE_END`   |               | Yes           | Yes           |               |
- * | `%chart_label_position_t::OUTSIDE_END`  |               | Yes (default) | Yes           |               |
- * | `%chart_label_position_t::BEST_FIT`     |               |               | Yes (default) |               |
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_position(chart_label_position_t position);
+   *
+   * The `%set_labels_position()` function sets the position of
+   * the labels in the data series:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_position(xwpp::chart_label_position_t::ABOVE);
+   * @endcode
+   *
+   * @image html chart_data_labels5.png
+   *
+   * In Excel the allowable data label positions vary for different chart
+   * types. The allowable, and default, positions are:
+   *
+   * | Position                                | Line, Scatter | Bar, Column   | Pie, Doughnut | Area, Radar   |
+   * | :-------------------------------------- | :------------ | :------------ | :------------ | :------------ |
+   * | `%chart_label_position_t::CENTER`       | Yes           | Yes           | Yes           | Yes (default) |
+   * | `%chart_label_position_t::RIGHT`        | Yes (default) |               |               |               |
+   * | `%chart_label_position_t::LEFT`         | Yes           |               |               |               |
+   * | `%chart_label_position_t::ABOVE`        | Yes           |               |               |               |
+   * | `%chart_label_position_t::BELOW`        | Yes           |               |               |               |
+   * | `%chart_label_position_t::INSIDE_BASE`  |               | Yes           |               |               |
+   * | `%chart_label_position_t::INSIDE_END`   |               | Yes           | Yes           |               |
+   * | `%chart_label_position_t::OUTSIDE_END`  |               | Yes (default) | Yes           |               |
+   * | `%chart_label_position_t::BEST_FIT`     |               |               | Yes (default) |               |
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_position(chart_label_position_t position);
 
-/**
- * @brief Set leader lines for Pie and Doughnut charts.
+  /**
+   * @brief Set leader lines for Pie and Doughnut charts.
    *
    * @return Reference to this.
- *
- * The `%set_labels_leader_line()` function  is used to turn on
- * leader lines for the data label of a series. It is mainly used for pie
- * or doughnut charts:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_leader_line();
- * @endcode
- *
- * @note Even when leader lines are turned on they aren't automatically
- * visible in Excel. Due to an Excel limitation (or design) leader
- * lines only appear if the data label is moved manually or if
- * the data labels are very close and need to be adjusted automatically.
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_leader_line();
+   *
+   * The `%set_labels_leader_line()` function  is used to turn on
+   * leader lines for the data label of a series. It is mainly used for pie
+   * or doughnut charts:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_leader_line();
+   * @endcode
+   *
+   * @note Even when leader lines are turned on they aren't automatically
+   * visible in Excel. Due to an Excel limitation (or design) leader
+   * lines only appear if the data label is moved manually or if
+   * the data labels are very close and need to be adjusted automatically.
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_leader_line();
 
-/**
- * @brief Set the legend key for a data label in a chart series.
+  /**
+   * @brief Set the legend key for a data label in a chart series.
    *
    * @return Reference to this.
- *
- * The `%set_labels_legend()` function is used to set the
- * legend key for a data series:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_legend();
- * @endcode
- *
- * @image html chart_data_labels6.png
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_legend();
+   *
+   * The `%set_labels_legend()` function is used to set the
+   * legend key for a data series:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_legend();
+   * @endcode
+   *
+   * @image html chart_data_labels6.png
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_legend();
 
-/**
- * @brief Set the percentage for a Pie/Doughnut data point.
+  /**
+   * @brief Set the percentage for a Pie/Doughnut data point.
    *
    * @return Reference to this.
- *
- * The `%set_labels_percentage()` function is used to turn on
- * the display of data labels as a percentage for a series. It is mainly
- * used for pie charts:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_options(false, false, false).
- *        set_labels_percentage();
- * @endcode
- *
- * @image html chart_data_labels7.png
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_percentage();
+   *
+   * The `%set_labels_percentage()` function is used to turn on
+   * the display of data labels as a percentage for a series. It is mainly
+   * used for pie charts:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_options(false, false, false).
+   *        set_labels_percentage();
+   * @endcode
+   *
+   * @image html chart_data_labels7.png
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_percentage();
 
-/**
- * @brief Set the number format for chart data labels in a series.
- *
- * @param num_format The number format string.
+  /**
+   * @brief Set the number format for chart data labels in a series.
+   *
+   * @param num_format The number format string.
    *
    * @return Reference to this.
- *
- * The `%set_labels_num_format()` function is used to set the
- * number format for data labels:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_num_format("$0.00");
- * @endcode
- *
- * @image html chart_data_labels8.png
- *
- * The number format is similar to the Worksheet Cell Format num_format,
- * see `format_t::set_num_format()`.
- *
- * @see @ref chart_labels.
- */
-chart_series_t& set_labels_num_format(std::string_view num_format);
+   *
+   * The `%set_labels_num_format()` function is used to set the
+   * number format for data labels:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_num_format("$0.00");
+   * @endcode
+   *
+   * @image html chart_data_labels8.png
+   *
+   * The number format is similar to the Worksheet Cell Format num_format,
+   * see `format_t::set_num_format()`.
+   *
+   * @see @ref chart_labels.
+   */
+  chart_series_t& set_labels_num_format(std::string_view num_format);
 
-/**
- * @brief Set the font properties for chart data labels in a series
- *
- * @param font   A pointer to a chart `chart_font_t` font struct.
+  /**
+   * @brief Set the font properties for chart data labels in a series
+   *
+   * @param font   A pointer to a chart `chart_font_t` font struct.
    *
    * @return Reference to this.
- *
- * The `%set_labels_font()` function is used to set the font
- * for data labels:
- *
- * @code
- *  const xwpp::chart_font_t font{
- *    .name = "Consolas",
- *    .color = xwpp::color_t::red(),
- *  };
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels().
- *        set_labels_font(font);
- * @endcode
- *
- * @image html chart_data_labels9.png
- *
- * @see @ref chart_fonts and @ref chart_labels.
- */
-chart_series_t& set_labels_font(const chart_font_t& font);
+   *
+   * The `%set_labels_font()` function is used to set the font
+   * for data labels:
+   *
+   * @code
+   *  const xwpp::chart_font_t font{
+   *    .name = "Consolas",
+   *    .color = xwpp::color_t::red(),
+   *  };
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels().
+   *        set_labels_font(font);
+   * @endcode
+   *
+   * @image html chart_data_labels9.png
+   *
+   * @see @ref chart_fonts and @ref chart_labels.
+   */
+  chart_series_t& set_labels_font(const chart_font_t& font);
 
-/**
- * @brief Set the line properties for the data labels in a chart series.
- *
- * @param line   A `chart_line_t` struct.
+  /**
+   * @brief Set the line properties for the data labels in a chart series.
+   *
+   * @param line   A `chart_line_t` struct.
    *
    * @return Reference to this.
- *
- * Set the line/border properties of the data labels in a chart series:
- *
- * @code
- *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
- *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels_line(line).
- *        set_labels_fill(fill);
- * @endcode
- *
- * @image html chart_data_labels24.png
- *
- * @see @ref chart_lines and @ref chart_labels.
- */
-chart_series_t& set_labels_line(const chart_line_t& line);
+   *
+   * Set the line/border properties of the data labels in a chart series:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
+   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels_line(line).
+   *        set_labels_fill(fill);
+   * @endcode
+   *
+   * @image html chart_data_labels24.png
+   *
+   * @see @ref chart_lines and @ref chart_labels.
+   */
+  chart_series_t& set_labels_line(const chart_line_t& line);
 
-/**
- * @brief Set the fill properties for the data labels in a chart series.
- *
- * @param fill   A `chart_fill_t` struct.
+  /**
+   * @brief Set the fill properties for the data labels in a chart series.
+   *
+   * @param fill   A `chart_fill_t` struct.
    *
    * @return Reference to this.
- *
- * Set the fill properties of the data labels in a chart series:
- *
- * @code
- *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels_fill(fill);
- * @endcode
- *
- * @see @ref chart_fills and @ref chart_labels.
- */
-chart_series_t& set_labels_fill(const chart_fill_t& fill);
+   *
+   * Set the fill properties of the data labels in a chart series:
+   *
+   * @code
+   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels_fill(fill);
+   * @endcode
+   *
+   * @see @ref chart_fills and @ref chart_labels.
+   */
+  chart_series_t& set_labels_fill(const chart_fill_t& fill);
 
-/**
- * @brief Set the pattern properties for the data labels in a chart series.
- *
- * @param pattern A `chart_pattern_t` struct.
+  /**
+   * @brief Set the pattern properties for the data labels in a chart series.
+   *
+   * @param pattern A `chart_pattern_t` struct.
    *
    * @return Reference to this.
- *
- * Set the pattern properties of the data labels in a chart series:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_labels_pattern(pattern);
- * @endcode
- *
- * @see `chart_pattern_type_t` and @ref chart_patterns.
- */
-chart_series_t& set_labels_pattern(const chart_pattern_t& pattern);
+   *
+   * Set the pattern properties of the data labels in a chart series:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_labels_pattern(pattern);
+   * @endcode
+   *
+   * @see `chart_pattern_type_t` and @ref chart_patterns.
+   */
+  chart_series_t& set_labels_pattern(const chart_pattern_t& pattern);
 
-/**
- * @brief Turn on a trendline for a chart data series.
- *
- * @param type   The type of trendline: `chart_trendline_type_t`.
- * @param value  The order/period value for polynomial and moving average trendlines.
+  /**
+   * @brief Turn on a trendline for a chart data series.
+   *
+   * @param type   The type of trendline: `chart_trendline_type_t`.
+   * @param value  The order/period value for polynomial and moving average trendlines.
    *
    * @return Reference to this.
- *
- * A trendline can be added to a chart series to indicate trends in the data
- * such as a moving average or a polynomial fit. The trendlines types are
- * shown in the following Excel dialog:
- *
- * @image html chart_trendline0.png
- *
- * The `%set_trendline()` function turns on these trendlines for
- * a data series:
- *
- * @code
- *  chart = workbook.add_chart(xwpp::chart_type_t::LINE);
- *  chart.add_series("Sheet1!$A$1:$A$6").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
- * @endcode
- *
- * @image html chart_trendline2.png
- *
- * The `value` parameter corresponds to *order* for a polynomial trendline
- * and *period* for a Moving Average trendline. It both cases it must be >= 2.
- * The `value` parameter  is ignored for all other trendlines:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
- * @endcode
- *
- * @image html chart_trendline3.png
- *
- * The allowable values for the the trendline `type` are:
- *
- * - `chart_trendline_type_t::LINEAR`: Linear trendline.
- * - `chart_trendline_type_t::LOG`: Logarithm trendline.
- * - `chart_trendline_type_t::POLY`: Polynomial trendline. The `value`
- *   parameter corresponds to *order*.
- * - `chart_trendline_type_t::POWER`: Power trendline.
- * - `chart_trendline_type_t::EXP`: Exponential trendline.
- * - `chart_trendline_type_t::AVERAGE`: Moving Average trendline. The `value`
- *   parameter corresponds to *period*.
- *
- * Other trendline options, such as those shown in the following Excel
- * dialog, can be set using the functions below.
- *
- * @image html chart_trendline1.png
- *
- * @see @ref chart_trendlines.
- *
- * @pre The `%value` parameter must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
- */
-chart_series_t& set_trendline(chart_trendline_type_t type, uint8_t value);
+   *
+   * A trendline can be added to a chart series to indicate trends in the data
+   * such as a moving average or a polynomial fit. The trendlines types are
+   * shown in the following Excel dialog:
+   *
+   * @image html chart_trendline0.png
+   *
+   * The `%set_trendline()` function turns on these trendlines for
+   * a data series:
+   *
+   * @code
+   *  chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+   *  chart.add_series("Sheet1!$A$1:$A$6").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+   * @endcode
+   *
+   * @image html chart_trendline2.png
+   *
+   * The `value` parameter corresponds to *order* for a polynomial trendline
+   * and *period* for a Moving Average trendline. It both cases it must be >= 2.
+   * The `value` parameter  is ignored for all other trendlines:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
+   * @endcode
+   *
+   * @image html chart_trendline3.png
+   *
+   * The allowable values for the the trendline `type` are:
+   *
+   * - `chart_trendline_type_t::LINEAR`: Linear trendline.
+   * - `chart_trendline_type_t::LOG`: Logarithm trendline.
+   * - `chart_trendline_type_t::POLY`: Polynomial trendline. The `value`
+   *   parameter corresponds to *order*.
+   * - `chart_trendline_type_t::POWER`: Power trendline.
+   * - `chart_trendline_type_t::EXP`: Exponential trendline.
+   * - `chart_trendline_type_t::AVERAGE`: Moving Average trendline. The `value`
+   *   parameter corresponds to *period*.
+   *
+   * Other trendline options, such as those shown in the following Excel
+   * dialog, can be set using the functions below.
+   *
+   * @image html chart_trendline1.png
+   *
+   * @see @ref chart_trendlines.
+   *
+   * @pre The `%value` parameter must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
+   */
+  chart_series_t& set_trendline(chart_trendline_type_t type, uint8_t value);
 
-/**
- * @brief Set the trendline forecast for a chart data series.
- *
- * @param forward  The forward period.
- * @param backward The backwards period.
+  /**
+   * @brief Set the trendline forecast for a chart data series.
+   *
+   * @param forward  The forward period.
+   * @param backward The backwards period.
    *
    * @return Reference to this.
- *
- * The `%set_trendline_forecast()` function sets the forward
- * and backward forecast periods for the trendline:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
- *        set_trendline_forecast(0.5, 0.5);
- * @endcode
- *
- * @image html chart_trendline4.png
- *
- * @note This feature isn't available for Moving Average in Excel.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The series must have a trendline.
- * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
- */
-chart_series_t& set_trendline_forecast(double forward, double backward);
+   *
+   * The `%set_trendline_forecast()` function sets the forward
+   * and backward forecast periods for the trendline:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
+   *        set_trendline_forecast(0.5, 0.5);
+   * @endcode
+   *
+   * @image html chart_trendline4.png
+   *
+   * @note This feature isn't available for Moving Average in Excel.
+   *
+   * @see @ref chart_trendlines.
+   *
+   * @pre The series must have a trendline.
+   * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
+   */
+  chart_series_t& set_trendline_forecast(double forward, double backward);
 
-/**
- * @brief Set the trendline Y-axis intercept for a chart data series.
- *
- * @param intercept Y-axis intercept value.
+  /**
+   * @brief Set the trendline Y-axis intercept for a chart data series.
+   *
+   * @param intercept Y-axis intercept value.
    *
    * @return Reference to this.
- *
- * The `%set_trendline_intercept()` function sets the Y-axis
- * intercept for the trendline:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
- *        set_trendline_equation().
- *        set_trendline_intercept(0.8);
- * @endcode
- *
- * @image html chart_trendline7.png
- *
- * As can be seen from the equation on the chart the intercept point
- * (when X=0) is the same as the value set in the equation.
- *
- * @note The intercept feature is only available in Excel for Exponential,
- * Linear and Polynomial trendline types.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The series must have a trendline.
- * @pre The type of trendline must be `%chart_trendline_type_t::EXP`
- * `%chart_trendline_type_t::LINEAR` or `%chart_trendline_type_t::POLY`.
- */
-chart_series_t& set_trendline_intercept(double intercept);
+   *
+   * The `%set_trendline_intercept()` function sets the Y-axis
+   * intercept for the trendline:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
+   *        set_trendline_equation().
+   *        set_trendline_intercept(0.8);
+   * @endcode
+   *
+   * @image html chart_trendline7.png
+   *
+   * As can be seen from the equation on the chart the intercept point
+   * (when X=0) is the same as the value set in the equation.
+   *
+   * @note The intercept feature is only available in Excel for Exponential,
+   * Linear and Polynomial trendline types.
+   *
+   * @see @ref chart_trendlines.
+   *
+   * @pre The series must have a trendline.
+   * @pre The type of trendline must be `%chart_trendline_type_t::EXP`
+   * `%chart_trendline_type_t::LINEAR` or `%chart_trendline_type_t::POLY`.
+   */
+  chart_series_t& set_trendline_intercept(double intercept);
 
-/**
- * @brief Display the equation of a trendline for a chart data series.
+  /**
+   * @brief Display the equation of a trendline for a chart data series.
    *
    * @return Reference to this.
- *
- * The `%set_trendline_equation()` function displays the
- * equation of the trendline on the chart:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
- *        set_trendline_equation();
- * @endcode
- *
- * @image html chart_trendline5.png
- *
- * @note This feature isn't available for Moving Average in Excel.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The series must have a trendline.
- * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
- */
-chart_series_t& set_trendline_equation();
+   *
+   * The `%set_trendline_equation()` function displays the
+   * equation of the trendline on the chart:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
+   *        set_trendline_equation();
+   * @endcode
+   *
+   * @image html chart_trendline5.png
+   *
+   * @note This feature isn't available for Moving Average in Excel.
+   *
+   * @see @ref chart_trendlines.
+   *
+   * @pre The series must have a trendline.
+   * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
+   */
+  chart_series_t& set_trendline_equation();
 
-/**
- * @brief Display the R squared value of a trendline for a chart data series.
+  /**
+   * @brief Display the R squared value of a trendline for a chart data series.
    *
    * @return Reference to this.
- *
- * The `%set_trendline_r_squared()` function displays the
- * R-squared value for the trendline on the chart:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
- *        set_trendline_r_squared();
- * @endcode
- *
- * @image html chart_trendline6.png
- *
- * @note This feature isn't available for Moving Average in Excel.
- *
- * @see @ref chart_trendlines.
- *
- * @pre The series must have a trendline.
- * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
- */
-chart_series_t& set_trendline_r_squared();
+   *
+   * The `%set_trendline_r_squared()` function displays the
+   * R-squared value for the trendline on the chart:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
+   *        set_trendline_r_squared();
+   * @endcode
+   *
+   * @image html chart_trendline6.png
+   *
+   * @note This feature isn't available for Moving Average in Excel.
+   *
+   * @see @ref chart_trendlines.
+   *
+   * @pre The series must have a trendline.
+   * @pre The type of trendline must not be `%chart_trendline_type_t::AVERAGE`.
+   */
+  chart_series_t& set_trendline_r_squared();
 
-/**
- * @brief Set the trendline name for a chart data series.
- *
- * @param name   The name of the trendline to display in the legend.
+  /**
+   * @brief Set the trendline name for a chart data series.
+   *
+   * @param name   The name of the trendline to display in the legend.
    *
    * @return Reference to this.
- *
- * The `%set_trendline_name()` function sets the name of the
- * trendline that is displayed in the chart legend. In the examples above
- * the trendlines are displayed with default names like "Linear (Series 1)"
- * and "2 per Mov. Avg. (Series 1)". If these names are too verbose or not
- * descriptive enough you can set your own trendline name:
- *
- * @code
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
- *        set_trendline_name("My trendline");
- * @endcode
- *
- * @image html chart_trendline8.png
- *
- * It is often preferable to turn off the trendline caption in the legend.
- * This is down in Excel by deleting the trendline name from the legend.
- * In `Xlsxwriter++` this is done using the `chart_legend_delete_series()`
- * function to delete the zero based series numbers:
- *
- * @code
- *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
- *
- *  // Delete the series name for the second series (=1 in zero base).
- *  const std::vector<int16_t> names{1};
- *  chart_legend_delete_series(chart, names);
- * @endcode
- *
- * @image html chart_trendline9.png
- *
- * @see @ref chart_trendlines.
- */
-chart_series_t& set_trendline_name(std::string_view name);
+   *
+   * The `%set_trendline_name()` function sets the name of the
+   * trendline that is displayed in the chart legend. In the examples above
+   * the trendlines are displayed with default names like "Linear (Series 1)"
+   * and "2 per Mov. Avg. (Series 1)". If these names are too verbose or not
+   * descriptive enough you can set your own trendline name:
+   *
+   * @code
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
+   *        set_trendline_name("My trendline");
+   * @endcode
+   *
+   * @image html chart_trendline8.png
+   *
+   * It is often preferable to turn off the trendline caption in the legend.
+   * This is down in Excel by deleting the trendline name from the legend.
+   * In `Xlsxwriter++` this is done using the `chart_legend_delete_series()`
+   * function to delete the zero based series numbers:
+   *
+   * @code
+   *  series.set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+   *
+   *  // Delete the series name for the second series (=1 in zero base).
+   *  const std::vector<int16_t> names{1};
+   *  chart_legend_delete_series(chart, names);
+   * @endcode
+   *
+   * @image html chart_trendline9.png
+   *
+   * @see @ref chart_trendlines.
+   */
+  chart_series_t& set_trendline_name(std::string_view name);
 
-/**
- * @brief Set the trendline line properties for a chart data series.
- *
- * @param line   A `chart_line_t` struct.
+  /**
+   * @brief Set the trendline line properties for a chart data series.
+   *
+   * @param line   A `chart_line_t` struct.
    *
    * @return Reference to this.
- *
- * The `%set_trendline_line()` function is used to set the line
- * properties of a trendline:
- *
- * @code
- *  const xwpp::chart_line_t line{
- *    .color     = xwpp::color_t::red(),
- *    .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH
- *  };
- *
- *  chart.add_series("=Sheet1!$B$2:$B$7").
- *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
- *        set_trendline_line(&line);
- * @endcode
- *
- * @image html chart_trendline10.png
- *
- * @see @ref chart_trendlines and @ref chart_lines.
- */
-chart_series_t& set_trendline_line(const chart_line_t& line);
+   *
+   * The `%set_trendline_line()` function is used to set the line
+   * properties of a trendline:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{
+   *    .color     = xwpp::color_t::red(),
+   *    .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH
+   *  };
+   *
+   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
+   *        set_trendline_line(&line);
+   * @endcode
+   *
+   * @image html chart_trendline10.png
+   *
+   * @see @ref chart_trendlines and @ref chart_lines.
+   */
+  chart_series_t& set_trendline_line(const chart_line_t& line);
 
-// For test only
+  // For test only
 
-template<size_t R, size_t C>
-chart_series_t& add_data_cache_categories(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
-{
-  add_data_cache(categories_, data, col);
+  template<size_t R, size_t C>
+  chart_series_t& add_data_cache_categories(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
+  {
+    add_data_cache(categories_, data, col);
 
-  return *this;
-}
+    return *this;
+  }
 
-template<size_t R, size_t C>
-chart_series_t& add_data_cache_values(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
-{
-  add_data_cache(values_, data, col);
+  template<size_t R, size_t C>
+  chart_series_t& add_data_cache_values(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
+  {
+    add_data_cache(values_, data, col);
 
-  return *this;
-}
+    return *this;
+  }
 
-////////// TODO Here begin
+  ////////// TODO Here begin
 
-
-// TODO add getter to get error bars and add fct to series_error_bars_t
+  // TODO add getter to get error bars and add fct to series_error_bars_t
 
   series_error_bars_t x_error_bars;
   series_error_bars_t y_error_bars;
-
 
 private:
   friend class chart_t;
@@ -2093,20 +2091,20 @@ private:
 
   chart_series_t(const series_range_t& categories, const series_range_t& values);
 
-template<size_t R, size_t C>
-static void add_data_cache(series_range_t& range, const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
-{
-  range.ignore_cache    = true;
-  range.num_data_points = R;
-
-  // Initialize the series range data cache.
-  for( const auto& row : data)
+  template<size_t R, size_t C>
+  static void add_data_cache(series_range_t& range, const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
   {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    const series_data_point_t data_point{.number = static_cast<double>(row[col])};
-    range.data_cache.push_back(data_point);
+    range.ignore_cache    = true;
+    range.num_data_points = R;
+
+    // Initialize the series range data cache.
+    for(const auto& row: data)
+    {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      const series_data_point_t data_point{.number = static_cast<double>(row[col])};
+      range.data_cache.push_back(data_point);
+    }
   }
-}
 
   bool invert_if_negative_{false};
   bool smooth_{false};
@@ -2154,7 +2152,6 @@ static void add_data_cache(series_range_t& range, const std::array<std::array<ui
   double trendline_intercept_{0.};
 };
 ////////// TODO Here end
-
 
 ////////// TODO Here begin
 
@@ -2241,7 +2238,8 @@ struct chart_axis_t
  *
  * @pre `sheetname` must not be empty
  */
-series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col);
+series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
+                                 row_num_t last_row, col_num_t last_col);
 
 /**
  * @brief Representation of an Excel chart.
@@ -2251,8 +2249,7 @@ series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row
 class chart_t
 {
 public:
-
-// TODO Constructor should not be public but only used by `workbook_t`.
+  // TODO Constructor should not be public but only used by `workbook_t`.
   explicit chart_t(chart_type_t type);
 
   /**
@@ -2298,8 +2295,8 @@ public:
    * `build_serie_range()` functions:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0),  // "=Sheet1!$A$2:$A$7"
-   *                                                  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
+   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0),  //
+   * "=Sheet1!$A$2:$A$7" xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
    * @endcode
    *
    * As shown in the previous example the return value from
@@ -2419,7 +2416,8 @@ public:
    *
    * @pre The `%sheetname` parameter should not be empty.
    */
-  void set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num, const std::optional<chart_font_t>& font = std::nullopt);
+  void set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num,
+                 const std::optional<chart_font_t>& font = std::nullopt);
 
   /**
    * @brief Set the manual position of the chart title.
@@ -2684,8 +2682,8 @@ public:
    *
    * @see @ref chart_lines and @ref chart_fills.
    */
-  void set_up_down_bars(const std::optional<chart_line_t>& up_bar_line = std::nullopt,
-                        const std::optional<chart_fill_t>& up_bar_fill = std::nullopt,
+  void set_up_down_bars(const std::optional<chart_line_t>& up_bar_line   = std::nullopt,
+                        const std::optional<chart_fill_t>& up_bar_fill   = std::nullopt,
                         const std::optional<chart_line_t>& down_bar_line = std::nullopt,
                         const std::optional<chart_fill_t>& down_bar_fill = std::nullopt);
 
@@ -2944,7 +2942,6 @@ public:
   void title_off();
 
   // TODO Add documentation
-
 
   /**
    * Set the X or Y error bars for a chart series.
@@ -4173,7 +4170,6 @@ void chart_axis_major_gridlines_set_line(chart_axis_t& axis, const std::optional
 void chart_axis_minor_gridlines_set_line(chart_axis_t& axis, const std::optional<chart_line_t>& line);
 
 ////////// TODO Here end
-
 
 /// @cond
 }

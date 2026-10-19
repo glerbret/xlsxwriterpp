@@ -31,16 +31,16 @@ int main()
     row_num++;
   }
 
-    const xwpp::chart_line_t line{
+  const xwpp::chart_line_t line{
     .color = xwpp::color_t::red(), .width = 1, .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5")
-      .set_trendline(xwpp::chart_trendline_type_t::POLY, 2)
-      .set_trendline_line(line)
-      .set_trendline_name("My trend name")
-      .set_trendline_forecast(0.5, 0.5)
-      .set_trendline_equation()
-      .set_trendline_r_squared();
+    .set_trendline(xwpp::chart_trendline_type_t::POLY, 2)
+    .set_trendline_line(line)
+    .set_trendline_name("My trend name")
+    .set_trendline_forecast(0.5, 0.5)
+    .set_trendline_equation()
+    .set_trendline_r_squared();
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 

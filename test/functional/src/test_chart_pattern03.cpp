@@ -31,7 +31,6 @@ int main()
     row_num++;
   }
 
-
   const xwpp::chart_pattern_t pattern1{.fg_color = xwpp::color_t{0xC00000},
                                        .bg_color = xwpp::color_t{0xFFFFFF},
                                        .type     = xwpp::chart_pattern_type_t::PERCENT_10};

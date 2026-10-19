@@ -32,7 +32,6 @@ int main()
     row_num++;
   }
 
-
   const xwpp::chart_line_t border{.color = xwpp::color_t::yellow()};
   const xwpp::chart_fill_t red_fill{.color = xwpp::color_t::red()};
 

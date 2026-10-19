@@ -31,8 +31,12 @@ int main()
     row_num++;
   }
 
-  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5").set_marker_type(xwpp::chart_marker_type_t::STAR).set_marker_size(5);
-  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5").set_marker_type(xwpp::chart_marker_type_t::PLUS).set_marker_size(5);
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5")
+    .set_marker_type(xwpp::chart_marker_type_t::STAR)
+    .set_marker_size(5);
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5")
+    .set_marker_type(xwpp::chart_marker_type_t::PLUS)
+    .set_marker_size(5);
 
   worksheet.insert_chart("E9", &chart);
 

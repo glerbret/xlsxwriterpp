@@ -33,7 +33,9 @@ int main()
 
   const xwpp::chart_line_t line{
     .color = xwpp::color_t::red(), .width = 1, .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
-  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5").set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).set_trendline_line(line);
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5")
+    .set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0)
+    .set_trendline_line(line);
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);

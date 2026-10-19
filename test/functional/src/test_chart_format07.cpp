@@ -35,10 +35,10 @@ int main()
   const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5")
-  .set_marker_type(xwpp::chart_marker_type_t::SQUARE)
-  .set_marker_size(5)
-  .set_marker_line(line)
-  .set_marker_fill(fill);
+    .set_marker_type(xwpp::chart_marker_type_t::SQUARE)
+    .set_marker_size(5)
+    .set_marker_line(line)
+    .set_marker_fill(fill);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 

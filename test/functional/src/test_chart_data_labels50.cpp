@@ -38,7 +38,9 @@ int main()
     {.font = font, .line = line}
   };
 
-  chart.add_series("=Sheet1!$A$1:$A$5").set_labels_custom(data_labels).set_labels_position(xwpp::chart_label_position_t::CENTER);
+  chart.add_series("=Sheet1!$A$1:$A$5")
+    .set_labels_custom(data_labels)
+    .set_labels_position(xwpp::chart_label_position_t::CENTER);
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 
