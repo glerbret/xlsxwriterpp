@@ -485,31 +485,6 @@ void chart_series_t::set_trendline_line(const chart_line_t& line)
 
 
 
-
-void chart_series_t::add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
-{
-  range.ignore_cache    = true;
-  range.num_data_points = rows;
-
-  // Initialize the series range data cache.
-  for(size_t i{0}; i < rows; i++)
-  {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    const series_data_point_t data_point{.number = static_cast<double>(data[(i * cols) + col])};
-    range.data_cache.push_back(data_point);
-  }
-}
-
-void chart_series_t::add_data_cache_categories(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
-{
-  add_data_cache(categories_, data, rows, cols, col);
-}
-
-void chart_series_t::add_data_cache_values(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col)
-{
-  add_data_cache(values_, data, rows, cols, col);
-}
-
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col, row_num_t last_row, col_num_t last_col)
 {
   return {

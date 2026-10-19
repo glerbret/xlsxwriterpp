@@ -32,8 +32,8 @@ int main()
   xwpp::chart_series_t series2 = chart.add_series("", "Sheet1!$B$1:$B$5");
 
   // Add the cached data for testing.
-  series1.add_data_cache_values(data[0].data(), 5, 3, 0);
-  series2.add_data_cache_values(data[0].data(), 5, 3, 1);
+  series1.add_data_cache_values(data, 0);
+  series2.add_data_cache_values(data, 1);
 
   worksheet.insert_chart("E9", &chart);
 

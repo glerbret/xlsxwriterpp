@@ -41,8 +41,8 @@ int main()
     {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
   };
 
-  series.add_data_cache_categories(test_data[0].data(), 4, 3, 0);
-  series.add_data_cache_values(test_data[0].data(), 4, 3, 1);
+  series.add_data_cache_categories(test_data, 0);
+  series.add_data_cache_values(test_data, 1);
 
   workbook.save("test_chart_column08.xlsx");
 }

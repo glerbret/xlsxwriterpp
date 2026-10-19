@@ -1970,8 +1970,19 @@ void set_trendline_name(std::string_view name);
 void set_trendline_line(const chart_line_t& line);
 
 // For test only
-void add_data_cache_categories(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
-void add_data_cache_values(const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
+
+template<size_t R, size_t C>
+void add_data_cache_categories(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
+{
+  add_data_cache(categories_, data, col);
+}
+
+template<size_t R, size_t C>
+void add_data_cache_values(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
+{
+  add_data_cache(values_, data, col);
+}
+
 ////////// TODO Here begin
 
 
@@ -1987,7 +1998,20 @@ private:
 
   chart_series_t(const series_range_t& categories, const series_range_t& values);
 
-  static void add_data_cache(series_range_t& range, const uint8_t* data, uint16_t rows, uint8_t cols, uint8_t col);
+template<size_t R, size_t C>
+static void add_data_cache(series_range_t& range, const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
+{
+  range.ignore_cache    = true;
+  range.num_data_points = R;
+
+  // Initialize the series range data cache.
+  for( const auto& row : data)
+  {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    const series_data_point_t data_point{.number = static_cast<double>(row[col])};
+    range.data_cache.push_back(data_point);
+  }
+}
 
   bool invert_if_negative_{false};
   bool smooth_{false};
