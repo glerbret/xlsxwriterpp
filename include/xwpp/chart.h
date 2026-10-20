@@ -1168,95 +1168,95 @@ public:
    */
   series_error_bars_t& enable_error_bars(chart_error_bar_type_t type, double value);
 
-/**
- * @brief Set the direction (up, down or both) of the error bars.
- *
- * @param direction  The bar direction: `chart_error_bar_direction_t`.
- *
- * @return Reference to this.
- *
- * The `%set_direction()` function sets the
- * direction of the error bars:
- *
- * @code
- *   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
- *             .set_direction(xwpp::chart_error_bar_direction_t::PLUS);
- * @endcode
- *
- * @image html chart_error_bars2.png
- *
- * The valid directions are:
- *
- * - `%chart_error_bar_direction_t::BOTH`: Error bar extends in both directions. The default.
- * - `%chart_error_bar_direction_t::PLUS`: Error bar extends in positive direction.
- * - `%chart_error_bar_direction_t::MINUS`: Error bar extends in negative direction.
- *
- * @see @ref chart_error_bars.
- *
- * @pre Error bar must be enabled (see `%enable_error_bars`).
- * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
- * @pre 'Y error bar' properties not available for Bar charts in Excel.
- */
-series_error_bars_t& set_direction(chart_error_bar_direction_t direction);
+  /**
+   * @brief Set the direction (up, down or both) of the error bars.
+   *
+   * @param direction  The bar direction: `chart_error_bar_direction_t`.
+   *
+   * @return Reference to this.
+   *
+   * The `%set_direction()` function sets the
+   * direction of the error bars:
+   *
+   * @code
+   *   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+   *             .set_direction(xwpp::chart_error_bar_direction_t::PLUS);
+   * @endcode
+   *
+   * @image html chart_error_bars2.png
+   *
+   * The valid directions are:
+   *
+   * - `%chart_error_bar_direction_t::BOTH`: Error bar extends in both directions. The default.
+   * - `%chart_error_bar_direction_t::PLUS`: Error bar extends in positive direction.
+   * - `%chart_error_bar_direction_t::MINUS`: Error bar extends in negative direction.
+   *
+   * @see @ref chart_error_bars.
+   *
+   * @pre Error bar must be enabled (see `%enable_error_bars`).
+   * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
+   * @pre 'Y error bar' properties not available for Bar charts in Excel.
+   */
+  series_error_bars_t& set_direction(chart_error_bar_direction_t direction);
 
-/**
- * @brief Set the end cap type for the error bars.
- *
- * @param endcap  The error bar end cap type: `chart_error_bar_cap_t`.
- *
- * @return Reference to this.
- *
- * The `%set_endcap()` function sets the end cap
- * type for the error bars:
- *
- * @code
- *   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
- *             .set_endcap(xwpp::chart_error_bar_cap_tNO_CAP);
- * @endcode
- *
- * @image html chart_error_bars3.png
- *
- * The valid values are:
- *
- * - `%chart_error_bar_cap_t::END_CAP`: Flat end cap. The default.
- * - `%chart_error_bar_cap_t::NO_CAP`: No end cap.
- *
- * @see @ref chart_error_bars.
- *
- * @pre Error bars must be enabled (see `%enable_error_bars`).
- * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
- * @pre 'Y error bar' properties not available for Bar charts in Excel.
- */
-series_error_bars_t& set_endcap(chart_error_bar_cap_t endcap);
+  /**
+   * @brief Set the end cap type for the error bars.
+   *
+   * @param endcap  The error bar end cap type: `chart_error_bar_cap_t`.
+   *
+   * @return Reference to this.
+   *
+   * The `%set_endcap()` function sets the end cap
+   * type for the error bars:
+   *
+   * @code
+   *   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+   *             .set_endcap(xwpp::chart_error_bar_cap_tNO_CAP);
+   * @endcode
+   *
+   * @image html chart_error_bars3.png
+   *
+   * The valid values are:
+   *
+   * - `%chart_error_bar_cap_t::END_CAP`: Flat end cap. The default.
+   * - `%chart_error_bar_cap_t::NO_CAP`: No end cap.
+   *
+   * @see @ref chart_error_bars.
+   *
+   * @pre Error bars must be enabled (see `%enable_error_bars`).
+   * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
+   * @pre 'Y error bar' properties not available for Bar charts in Excel.
+   */
+  series_error_bars_t& set_endcap(chart_error_bar_cap_t endcap);
 
-/**
- * @brief Set the line properties for an error bars.
- *
- * @param line  A `chart_line_t` struct.
- *
- * @return Reference to this.
- *
- * The `%set_line()` function sets the line properties for the error bars:
- *
- * @code
- *  const xwpp::chart_line_t line{
- *    .color     = xwpp::color_t::red(),
- *    .dash_type = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
- *  };
- *
- *  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
- *            .set_line(line);
- * @endcode
- *
- * @image html chart_error_bars4.png
- *
- * @see @ref chart_lines and @ref chart_error_bars.
- *
- * @pre Error bar must be set (see `%enable_error_bars`).
- * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
- * @pre 'Y error bar' properties not available for Bar charts in Excel.
- */
-series_error_bars_t& set_line(const chart_line_t& line);
+  /**
+   * @brief Set the line properties for an error bars.
+   *
+   * @param line  A `chart_line_t` struct.
+   *
+   * @return Reference to this.
+   *
+   * The `%set_line()` function sets the line properties for the error bars:
+   *
+   * @code
+   *  const xwpp::chart_line_t line{
+   *    .color     = xwpp::color_t::red(),
+   *    .dash_type = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
+   *  };
+   *
+   *  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+   *            .set_line(line);
+   * @endcode
+   *
+   * @image html chart_error_bars4.png
+   *
+   * @see @ref chart_lines and @ref chart_error_bars.
+   *
+   * @pre Error bar must be set (see `%enable_error_bars`).
+   * @pre 'X error bar' properties only available for Scatter and Bar charts in Excel.
+   * @pre 'Y error bar' properties not available for Bar charts in Excel.
+   */
+  series_error_bars_t& set_line(const chart_line_t& line);
 
 private:
   friend class chart_t;
@@ -1272,7 +1272,6 @@ private:
   chart_type_t chart_group_{chart_type_t::NONE};
   std::optional<chart_line_t> line_;
   double value_{0.};
-
 };
 
 ////////// TODO Here end

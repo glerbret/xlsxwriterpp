@@ -35,8 +35,8 @@ int main()
 
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
   series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y)
-        .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0)
-        .set_line(line);
+    .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0)
+    .set_line(line);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 

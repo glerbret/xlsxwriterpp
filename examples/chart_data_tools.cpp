@@ -158,7 +158,8 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_labels();
 
     // Add error bars to show Standard Error.
-    series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
+    series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y)
+      .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
@@ -177,7 +178,8 @@ int main()
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add a polynomial trendline.
-    const xwpp::chart_line_t poly_line{.color = xwpp::color_t::gray(), .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
+    const xwpp::chart_line_t poly_line{.color     = xwpp::color_t::gray(),
+                                       .dash_type = xwpp::chart_line_dash_type_t::LONG_DASH};
 
     series.set_trendline(xwpp::chart_trendline_type_t::POLY, 3);
     series.set_trendline_line(poly_line);

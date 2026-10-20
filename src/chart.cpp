@@ -519,7 +519,6 @@ series_error_bars_t& chart_series_t::get_error_bars(chart_axis_type_t axis)
   }
 }
 
-
 // Verify that a X/Y error bar property is supported for the chart type.
 // All chart types, except Bar have Y error bars. Only Bar and Scatter
 // support X error bars.
