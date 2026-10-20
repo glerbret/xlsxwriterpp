@@ -134,29 +134,6 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
   }
 }
 
-// Verify that a X/Y error bar property is supported for the chart type.
-// All chart types, except Bar have Y error bars. Only Bar and Scatter
-// support X error bars.
-[[maybe_unused]] bool check_error_bars(const series_error_bars_t& error_bars)
-{
-  if(error_bars.is_x)
-  {
-    if(error_bars.chart_group != chart_type_t::SCATTER && error_bars.chart_group != chart_type_t::BAR)
-    {
-      return false;
-    }
-  }
-  else
-  {
-    if(error_bars.chart_group == chart_type_t::BAR)
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 }
 
 chart_series_t::chart_series_t(series_range_t categories, series_range_t values)
@@ -530,6 +507,90 @@ chart_series_t& chart_series_t::set_trendline_line(const chart_line_t& line)
   return *this;
 }
 
+series_error_bars_t& chart_series_t::get_error_bars(chart_axis_type_t axis)
+{
+  if(axis == chart_axis_type_t::TYPE_X)
+  {
+    return x_error_bars_;
+  }
+  else
+  {
+    return y_error_bars_;
+  }
+}
+
+
+// Verify that a X/Y error bar property is supported for the chart type.
+// All chart types, except Bar have Y error bars. Only Bar and Scatter
+// support X error bars.
+bool series_error_bars_t::check_error_bars() const
+{
+  if(is_x_)
+  {
+    if(chart_group_ != chart_type_t::SCATTER && chart_group_ != chart_type_t::BAR)
+    {
+      return false;
+    }
+  }
+  else
+  {
+    if(chart_group_ == chart_type_t::BAR)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+series_error_bars_t& series_error_bars_t::enable_error_bars(chart_error_bar_type_t type, double value)
+{
+  assert(!is_set_);
+  assert(check_error_bars());
+
+  type_      = type;
+  value_     = value;
+  has_value_ = true;
+  is_set_    = true;
+
+  if(type == chart_error_bar_type_t::STD_ERROR)
+  {
+    has_value_ = false;
+  }
+
+  return *this;
+}
+
+series_error_bars_t& series_error_bars_t::set_direction(chart_error_bar_direction_t direction)
+{
+  assert(is_set_);
+  assert(check_error_bars());
+
+  direction_ = direction;
+
+  return *this;
+}
+
+series_error_bars_t& series_error_bars_t::set_endcap(chart_error_bar_cap_t endcap)
+{
+  assert(is_set_);
+  assert(check_error_bars());
+
+  endcap_ = endcap;
+
+  return *this;
+}
+
+series_error_bars_t& series_error_bars_t::set_line(const chart_line_t& line)
+{
+  assert(is_set_);
+  assert(check_error_bars());
+
+  line_ = convert_line_args(line);
+
+  return *this;
+}
+
 series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
                                  row_num_t last_row, col_num_t last_col)
 {
@@ -582,9 +643,9 @@ chart_series_t& chart_t::add_series(const series_range_t& categories, const seri
     series.smooth_ = true;
   }
 
-  series.y_error_bars.chart_group = chart_group_;
-  series.x_error_bars.chart_group = chart_group_;
-  series.x_error_bars.is_x        = true;
+  series.y_error_bars_.chart_group_ = chart_group_;
+  series.x_error_bars_.chart_group_ = chart_group_;
+  series.x_error_bars_.is_x_        = true;
 
   series.default_label_position_ = default_label_position_;
 
@@ -802,23 +863,6 @@ void chart_t::set_table_font(const chart_font_t& font)
 }
 
 ////////// TODO Here begin
-
-// cppcheck-suppress functionStatic
-void chart_t::series_set_error_bars(series_error_bars_t& error_bars, chart_error_bar_type_t type, double value) const
-{
-  assert(!error_bars.is_set);
-  assert(check_error_bars(error_bars) == true);
-
-  error_bars.type      = type;
-  error_bars.value     = value;
-  error_bars.has_value = true;
-  error_bars.is_set    = true;
-
-  if(type == chart_error_bar_type_t::STD_ERROR)
-  {
-    error_bars.has_value = false;
-  }
-}
 
 chart_axis_t& chart_t::axis_get(chart_axis_type_t axis_type)
 {
@@ -3549,39 +3593,39 @@ std::string chart_t::write_marker_size(uint8_t size)
 
 std::string chart_t::write_error_bars(const chart_series_t& series)
 {
-  std::string xml_data = write_err_bars(series.x_error_bars);
-  xml_data += write_err_bars(series.y_error_bars);
+  std::string xml_data = write_err_bars(series.x_error_bars_);
+  xml_data += write_err_bars(series.y_error_bars_);
 
   return xml_data;
 }
 
 std::string chart_t::write_err_bars(const series_error_bars_t& error_bars)
 {
-  if(!error_bars.is_set)
+  if(!error_bars.is_set_)
   {
     return "";
   }
 
   std::string xml_data = xml_start_tag("c:errBars");
 
-  if(error_bars.chart_group != chart_type_t::BAR && error_bars.chart_group != chart_type_t::COLUMN)
+  if(error_bars.chart_group_ != chart_type_t::BAR && error_bars.chart_group_ != chart_type_t::COLUMN)
   {
-    xml_data += write_err_dir(error_bars.is_x);
+    xml_data += write_err_dir(error_bars.is_x_);
   }
-  xml_data += write_err_bar_type(error_bars.direction);
-  xml_data += write_err_val_type(error_bars.type);
+  xml_data += write_err_bar_type(error_bars.direction_);
+  xml_data += write_err_val_type(error_bars.type_);
 
-  if(error_bars.endcap == chart_error_bar_cap_t::NO_CAP)
+  if(error_bars.endcap_ == chart_error_bar_cap_t::NO_CAP)
   {
     xml_data += write_no_end_cap();
   }
 
-  if(error_bars.has_value)
+  if(error_bars.has_value_)
   {
-    xml_data += write_error_val(error_bars.value);
+    xml_data += write_error_val(error_bars.value_);
   }
 
-  xml_data += write_sp_pr(error_bars.line, std::nullopt, std::nullopt);
+  xml_data += write_sp_pr(error_bars.line_, std::nullopt, std::nullopt);
   xml_data += xml_end_tag("c:errBars");
 
   return xml_data;
@@ -4251,30 +4295,6 @@ void set_range(series_range_t& range, const std::string& sheetname, row_num_t fi
   range.last_row  = last_row;
   range.last_col  = last_col;
   range.formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col);
-}
-
-void chart_series_set_error_bars_direction(series_error_bars_t& error_bars, chart_error_bar_direction_t direction)
-{
-  assert(error_bars.is_set);
-  assert(check_error_bars(error_bars) == true);
-
-  error_bars.direction = direction;
-}
-
-void chart_series_set_error_bars_endcap(series_error_bars_t& error_bars, chart_error_bar_cap_t endcap)
-{
-  assert(error_bars.is_set);
-  assert(check_error_bars(error_bars) == true);
-
-  error_bars.endcap = endcap;
-}
-
-void chart_series_set_error_bars_line(series_error_bars_t& error_bars, const std::optional<chart_line_t>& line)
-{
-  assert(error_bars.is_set);
-  assert(check_error_bars(error_bars) == true);
-
-  error_bars.line = convert_line_args(line);
 }
 
 void chart_axis_set_name(chart_axis_t& axis, const std::string& name)

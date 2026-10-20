@@ -32,14 +32,14 @@ int main()
   }
 
   xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-  chart.series_set_error_bars(series1.y_error_bars, xwpp::chart_error_bar_type_t::FIXED, 2);
-  chart_series_set_error_bars_direction(series1.y_error_bars, xwpp::chart_error_bar_direction_t::MINUS);
-  chart_series_set_error_bars_endcap(series1.y_error_bars, xwpp::chart_error_bar_cap_t::NO_CAP);
+  series1.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_type_t::FIXED, 2)
+    .set_direction(xwpp::chart_error_bar_direction_t::MINUS)
+    .set_endcap(xwpp::chart_error_bar_cap_t::NO_CAP);
 
   xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
-  chart.series_set_error_bars(series2.y_error_bars, xwpp::chart_error_bar_type_t::PERCENTAGE, 5);
-  chart_series_set_error_bars_direction(series2.y_error_bars, xwpp::chart_error_bar_direction_t::PLUS);
-  chart_series_set_error_bars_endcap(series2.y_error_bars, xwpp::chart_error_bar_cap_t::END_CAP);
+  series2.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_type_t::PERCENTAGE, 5)
+              .set_direction(xwpp::chart_error_bar_direction_t::PLUS)
+              .set_endcap(xwpp::chart_error_bar_cap_t::END_CAP);
 
   worksheet.insert_chart("E9", &chart);
 

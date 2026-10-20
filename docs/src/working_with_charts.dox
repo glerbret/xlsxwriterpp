@@ -294,9 +294,8 @@ horizontal `%x_error_bars` (for Bar and Scatter charts only). For
 convenience these can be accessed from a series as follows:
 
 @code
-  chart.series_set_error_bars(series.y_error_bars, ...);
-
-  chart.series_set_error_bars(series.x_error_bars, ...);
+  xwpp::series_error_bars_t& bar_y = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y);
+  xwpp::series_error_bars_t& bar_x = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_X);
 @endcode
 
 The error bar properties that can be set in Excel are show in the following
@@ -306,15 +305,12 @@ dialog:
 
 Some of these properties can be set using the functions discussed below.
 
-The `chart_t::series_set_error_bars()` function sets the error bar type
+The `series_error_bars_t::enable_error_bars()` function sets the error bar type
 and value associated with the type:
 
 @code
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5",
-                                                  "=Sheet1!$B$1:$B$5");
-
-  chart.series_set_error_bars(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
+  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
+  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
 @endcode
 
 @image html chart_error_bars1.png
@@ -332,27 +328,19 @@ All error bar types, apart from Standard error, should have a valid
 value to set the error range:
 
 @code
-  chart.series_set_error_bars(series1.y_error_bars,
-    xwpp::chart_error_bar_direction_t::FIXED, 2);
-
-  chart.series_set_error_bars(series2.y_error_bars,
-    xwpp::chart_error_bar_direction_t::PERCENTAGE, 5);
-
-  chart.series_set_error_bars(series3.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_DEV, 1);
+  error_bars1.enable_error_bars(xwpp::chart_error_bar_direction_t::FIXED, 2);
+  error_bars2.enable_error_bars(xwpp::chart_error_bar_direction_t::PERCENTAGE, 5);
+  error_bars3.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_DEV, 1);
 @endcode
 
 For the Standard error type the value is ignored.
 
-The `chart_series_set_error_bars_direction()` function sets the
+The `series_error_bars_t::set_direction()` function sets the
 direction of the error bars:
 
 @code
-  chart.series_set_error_bars(series->y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
-
-  chart_series_set_error_bars_direction(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::PLUS);
+  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+            .set_direction(xwpp::chart_error_bar_direction_t::PLUS);
 @endcode
 
 @image html chart_error_bars2.png
@@ -364,15 +352,12 @@ The valid directions are:
 - `chart_error_bar_direction_t::PLUS`: Error bar extends in positive direction.
 - `chart_error_bar_direction_t::MINUS`: Error bar extends in negative direction.
 
-The `chart_series_set_error_bars_endcap()` function sets the end cap
+The `series_error_bars_t::set_endcap()` function sets the end cap
 type for the error bars:
 
 @code
-  chart.series_set_error_bars(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
-
-  chart_series_set_error_bars_endcap(series.y_error_bars,
-    xwpp::chart_error_bar_cap_t::NO_CAP);
+  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+            .set_endcap(xwpp::chart_error_bar_cap_t::NO_CAP);
 @endcode
 
 @image html chart_error_bars3.png
@@ -382,19 +367,17 @@ The valid values are:
 - `chart_error_bar_cap_t::END_CAP`: Flat end cap. The default.
 - `chart_error_bar_cap_t::NO_CAP`: No end cap.
 
-The `chart_series_set_error_bars_line()` function sets the line
+The `series_error_bars_t::set_line()` function sets the line
 properties for the error bars:
 
 @code
-  xwpp::chart_line_t line{
+  const xwpp::chart_line_t line{
     .color     = xwpp::color_t::red(),
     .dash_type = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
   };
 
-  chart.series_set_error_bars(series.y_error_bars,
-    xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
-
-  chart_series_set_error_bars_line(series.y_error_bars, line);
+  error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
+            .set_line(line);
 @endcode
 
 @image html chart_error_bars4.png
