@@ -31,18 +31,16 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-
-  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
-
   const xwpp::chart_line_t line{.color = xwpp::color_t::yellow()};
   const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
 
-  chart.series_set_marker_type(series, xwpp::chart_marker_type_t::SQUARE);
-  chart_series_set_marker_size(series, 5);
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5")
+    .set_marker_type(xwpp::chart_marker_type_t::SQUARE)
+    .set_marker_size(5)
+    .set_marker_line(line)
+    .set_marker_fill(fill);
 
-  chart_series_set_marker_line(series, line);
-  chart_series_set_marker_fill(series, fill);
+  chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart);
 

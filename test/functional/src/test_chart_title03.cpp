@@ -31,12 +31,11 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
 
   const xwpp::chart_font_t font{.bold = false, .baseline = -1};
 
-  chart.title_set_name("Title!");
-  chart.title_set_name_font(font);
+  chart.set_title("Title!", font);
 
   worksheet.insert_chart("E9", &chart);
 

@@ -31,15 +31,14 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_font_t font1{.italic = true};
   const xwpp::chart_font_t font2{.bold = true, .italic = true};
 
-  chart.title_set_name_range("Sheet1", 0, 0);
-  chart.title_set_name_font(font1);
+  chart.set_title("Sheet1", 0, 0, font1);
 
   chart_axis_set_name_range(chart.x_axis_, "Sheet1", 1, 0);
   chart_axis_set_name_font(chart.x_axis_, font1);

@@ -31,17 +31,17 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_layout_t layout{
     .x = 0.426319335083114,
     .y = 0.143518518518518,
   };
 
-  chart.title_set_layout(layout);
-  chart.title_set_name("Title");
+  chart.set_title("Title");
+  chart.set_title_layout(layout);
 
   worksheet.insert_chart("E9", &chart);
 

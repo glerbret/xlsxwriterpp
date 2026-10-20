@@ -43,9 +43,9 @@ int main()
   const xwpp::row_col_options_t col_hidden{.hidden = true};
   worksheet.set_column("F:F", col_hidden);
 
-  chart.add_series("", "=Sheet1!$A$2:$A$6");
-  chart.add_series("", "=Sheet1!$B$2:$B$6");
-  chart.add_series("", "=Sheet1!$C$2:$C$6");
+  chart.add_series("=Sheet1!$A$2:$A$6");
+  chart.add_series("=Sheet1!$B$2:$B$6");
+  chart.add_series("=Sheet1!$C$2:$C$6");
 
   const xwpp::chart_options_t chart_options{.object_position = xwpp::object_position_t::MOVE_DONT_SIZE};
   worksheet.insert_chart("E9", &chart, chart_options);

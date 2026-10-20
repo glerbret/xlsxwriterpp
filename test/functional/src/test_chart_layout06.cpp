@@ -31,18 +31,18 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_layout_t layout{
     .x = 0.42354155730533,
     .y = 0.16203703703703,
   };
 
-  chart.title_set_name("Title");
-  chart.title_set_layout(layout);
-  chart.title_set_overlay(true);
+  chart.set_title("Title");
+  chart.set_title_layout(layout);
+  chart.set_title_overlay(true);
 
   worksheet.insert_chart("E9", &chart);
 

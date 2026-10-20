@@ -38,13 +38,13 @@ int main()
     row_num++;
   }
 
-  chart1.add_series("", "=Sheet1!$A$1:$A$5");
-  chart1.add_series("", "=Sheet1!$B$1:$B$5");
-  chart1.add_series("", "=Sheet1!$C$1:$C$5");
+  chart1.add_series("=Sheet1!$A$1:$A$5");
+  chart1.add_series("=Sheet1!$B$1:$B$5");
+  chart1.add_series("=Sheet1!$C$1:$C$5");
 
-  chart2.add_series("", "=Sheet1!$A$1:$A$5");
-  chart2.add_series("", "=Sheet1!$B$1:$B$5");
-  chart2.add_series("", "=Sheet1!$C$1:$C$5");
+  chart2.add_series("=Sheet1!$A$1:$A$5");
+  chart2.add_series("=Sheet1!$B$1:$B$5");
+  chart2.add_series("=Sheet1!$C$1:$C$5");
 
   chartsheet1.set_chart(&chart1);
   chartsheet2.set_chart(&chart2);

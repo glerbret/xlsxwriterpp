@@ -32,15 +32,12 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
-
   const xwpp::chart_line_t border{.color = xwpp::color_t::yellow()};
   const xwpp::chart_fill_t red_fill{.color = xwpp::color_t::red()};
 
-  chart_series_set_line(series1, border);
-  chart_series_set_fill(series1, red_fill);
+  chart.add_series("=Sheet1!$A$1:$A$5").set_line(border).set_fill(red_fill);
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   chartsheet.set_chart(&chart);
   chartsheet.activate();

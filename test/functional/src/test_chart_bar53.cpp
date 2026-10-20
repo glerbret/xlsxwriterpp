@@ -22,6 +22,9 @@ int main()
   const std::array<std::array<uint8_t, 3>, 5> data{
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
   };
+  const std::array<std::array<uint8_t, 3>, 4> data2{
+    {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}}
+  };
 
   for(xwpp::row_num_t row_num{0}; const auto& row: data)
   {
@@ -42,14 +45,14 @@ int main()
   worksheet.insert_chart("F25", &chart2);
 
   // Add cache data for testing.
-  xwpp::chart_add_data_cache(series1.categories, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series2.categories, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series1.values, data[0].data(), 5, 3, 1);
-  xwpp::chart_add_data_cache(series2.values, data[0].data(), 5, 3, 2);
-  xwpp::chart_add_data_cache(series3.categories, data[0].data(), 4, 3, 0);
-  xwpp::chart_add_data_cache(series4.categories, data[0].data(), 4, 3, 0);
-  xwpp::chart_add_data_cache(series3.values, data[0].data(), 4, 3, 1);
-  xwpp::chart_add_data_cache(series4.values, data[0].data(), 4, 3, 2);
+  series1.add_data_cache_categories(data, 0);
+  series2.add_data_cache_categories(data, 0);
+  series1.add_data_cache_values(data, 1);
+  series2.add_data_cache_values(data, 2);
+  series3.add_data_cache_categories(data2, 0);
+  series4.add_data_cache_categories(data2, 0);
+  series3.add_data_cache_values(data2, 1);
+  series4.add_data_cache_values(data2, 2);
 
   workbook.save("test_chart_bar53.xlsx");
 }

@@ -33,18 +33,17 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart1.add_series("", "=Sheet1!$B$1:$B$5");
-  chart1.add_series("", "=Sheet1!$C$1:$C$5");
-
-  xwpp::chart_series_t& series2 = chart2.add_series("", "=Sheet1!$B$1:$B$5");
-  chart2.add_series("", "=Sheet1!$C$1:$C$5");
-
   const xwpp::chart_line_t line{.color = xwpp::color_t::red(), .dash_type = xwpp::chart_line_dash_type_t::DASH};
 
-  series_set_trendline(series1, xwpp::chart_trendline_type_t::LINEAR, 0);
-  series_set_trendline_line(series1, line);
-  series_set_trendline(series2, xwpp::chart_trendline_type_t::LINEAR, 0);
-  series_set_trendline_line(series2, line);
+  chart1.add_series("=Sheet1!$B$1:$B$5")
+    .set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0)
+    .set_trendline_line(line);
+  chart1.add_series("=Sheet1!$C$1:$C$5");
+
+  chart2.add_series("=Sheet1!$B$1:$B$5")
+    .set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0)
+    .set_trendline_line(line);
+  chart2.add_series("=Sheet1!$C$1:$C$5");
 
   worksheet.insert_chart("E9", &chart1);
   worksheet.insert_chart("E25", &chart2);

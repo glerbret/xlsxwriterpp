@@ -21,7 +21,7 @@ int main()
   worksheet.write(3, 0, 20000000);
   worksheet.write(4, 0, 10000000);
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
 
   worksheet.insert_chart("E9", &chart);
 

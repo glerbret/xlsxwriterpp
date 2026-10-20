@@ -30,7 +30,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$3", "=Sheet1!$B$1:$B$3");
 
-  chart.title_set_name("Title");
+  chart.set_title("Title");
 
   // Axis formatting should be igmored.
   xwpp::chart_axis_set_name(chart.x_axis_, "XXX");

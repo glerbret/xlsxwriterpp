@@ -52,16 +52,16 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Chart with standard data labels");
+    chart.set_title("Chart with standard data labels");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D2", &chart, options);
@@ -72,19 +72,19 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Category and Value data labels");
+    chart.set_title("Category and Value data labels");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Turn on Value and Category labels.
-    xwpp::chart_series_set_labels_options(series, false, true, true);
+    series.set_labels_options(false, true, true);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D18", &chart, options);
@@ -95,19 +95,19 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Data labels with user defined font");
+    chart.set_title("Data labels with user defined font");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     const xwpp::chart_font_t font{.bold = true, .rotation = -30, .color = xwpp::color_t::red()};
-    xwpp::chart_series_set_labels_font(series, font);
+    series.set_labels_font(font);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D34", &chart, options);
@@ -118,23 +118,23 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Data labels with formatting");
+    chart.set_title("Data labels with formatting");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Set the border/line and fill for the data labels.
     const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
     const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
 
-    xwpp::chart_series_set_labels_line(series, line);
-    xwpp::chart_series_set_labels_fill(series, fill);
+    series.set_labels_line(line);
+    series.set_labels_fill(fill);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D50", &chart, options);
@@ -145,13 +145,13 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Chart with custom string data labels");
+    chart.set_title("Chart with custom string data labels");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -159,10 +159,10 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D66", &chart, options);
@@ -173,13 +173,13 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Chart with custom data labels from cells");
+    chart.set_title("Chart with custom data labels from cells");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -188,10 +188,10 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D82", &chart, options);
@@ -202,7 +202,7 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Mixed custom and default data labels");
+    chart.set_title("Mixed custom and default data labels");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
@@ -210,7 +210,7 @@ int main()
     const xwpp::chart_font_t font{.color = xwpp::color_t::red()};
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -221,10 +221,10 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D98", &chart, options);
@@ -235,13 +235,13 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Chart with deleted data labels");
+    chart.set_title("Chart with deleted data labels");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Create some custom labels.
     const xwpp::chart_data_label_t hide{.hide = true};
@@ -251,10 +251,10 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D114", &chart, options);
@@ -265,23 +265,23 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
 
     // Add a chart title.
-    chart.title_set_name("Chart with custom labels and formatting");
+    chart.set_title("Chart with custom labels and formatting");
 
     // Add a data series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
 
     // Add the series data labels.
-    xwpp::chart_series_set_labels(series);
+    series.set_labels();
 
     // Set the border/line and fill for the data labels.
-    xwpp::chart_line_t line2{.color = xwpp::color_t::red()};
-    xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
-    xwpp::chart_line_t line3{.color = xwpp::color_t::blue()};
-    xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
+    const xwpp::chart_line_t line2{.color = xwpp::color_t::red()};
+    const xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
+    const xwpp::chart_line_t line3{.color = xwpp::color_t::blue()};
+    const xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
 
     // Set the default formatting for the data labels in the series.
-    xwpp::chart_series_set_labels_line(series, line2);
-    xwpp::chart_series_set_labels_fill(series, fill2);
+    series.set_labels_line(line2);
+    series.set_labels_fill(fill2);
 
     // Create some custom labels.
     const std::vector<xwpp::chart_data_label_t> data_labels{
@@ -294,10 +294,10 @@ int main()
     };
 
     // Set the custom labels.
-    chart_series_set_labels_custom(series, data_labels);
+    series.set_labels_custom(data_labels);
 
     // Turn off the legend.
-    chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+    chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
     worksheet.insert_chart("D130", &chart, options);

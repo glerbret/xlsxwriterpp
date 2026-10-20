@@ -31,14 +31,14 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$3");
-  chart.add_series("", "=Sheet1!$B$1:$B$3");
-  chart.add_series("", "=Sheet1!$C$1:$C$3");
-  chart.add_series("", "=Sheet1!$D$1:$D$3");
-  chart.add_series("", "=Sheet1!$E$1:$E$3");
-  chart.add_series("", "=Sheet1!$F$1:$F$3");
-  chart.add_series("", "=Sheet1!$G$1:$G$3");
-  chart.add_series("", "=Sheet1!$H$1:$H$3");
+  chart.add_series("=Sheet1!$A$1:$A$3");
+  chart.add_series("=Sheet1!$B$1:$B$3");
+  chart.add_series("=Sheet1!$C$1:$C$3");
+  chart.add_series("=Sheet1!$D$1:$D$3");
+  chart.add_series("=Sheet1!$E$1:$E$3");
+  chart.add_series("=Sheet1!$F$1:$F$3");
+  chart.add_series("=Sheet1!$G$1:$G$3");
+  chart.add_series("=Sheet1!$H$1:$H$3");
 
   worksheet.insert_chart("E9", &chart);
 

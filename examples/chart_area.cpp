@@ -52,23 +52,17 @@ int main()
   {
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::AREA);
 
-    // Add the first series to the chart.
-    xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
+    // Add the first series to the chartn, with a name for the series instead of the default "Series 1".
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
 
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series1, "=Sheet1!$B$1");
-
-    // Add a second series but leave the categories and values undefined. They
-    // can be defined later using the alternative syntax shown below.  */
-    xwpp::chart_series_t& series2 = chart.add_series("", "");
-
-    // Configure the series using a syntax that is easier to define programmatically.
-    xwpp::chart_series_set_categories(series2, "Sheet1", 1, 0, 6, 0); // "=Sheet1!$A$2:$A$7"
-    xwpp::chart_series_set_values(series2, "Sheet1", 1, 2, 6, 2);     // "=Sheet1!$C$2:$C$7"
-    xwpp::chart_series_set_name_range(series2, "Sheet1", 0, 2);       // "=Sheet1!$C$1"
+    // Add a second series with ranges.
+    chart
+      .add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
+                  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)) // "=Sheet1!$C$2:$C$7"
+      .set_name("Sheet1", 0, 2);                                 // "=Sheet1!$C$1"
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -83,20 +77,14 @@ int main()
   {
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::AREA_STACKED);
 
-    // Add the first series to the chart.
-    xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series1, "=Sheet1!$B$1");
+    // Add the first series to the chart with name for the series instead of the default "Series 1".
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
 
     // Add the second series to the chart.
-    xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
-
-    // Set the name for the series instead of the default "Series 2".
-    chart.series_set_name(series2, "=Sheet1!$C$1");
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7").set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
@@ -112,19 +100,13 @@ int main()
     xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::AREA_STACKED_PERCENT);
 
     // Add the first series to the chart.
-    xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7");
-
-    // Set the name for the series instead of the default "Series 1".
-    chart.series_set_name(series1, "=Sheet1!$B$1");
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
 
     // Add the second series to the chart.
-    xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
-
-    // Set the name for the series instead of the default "Series 2".
-    chart.series_set_name(series2, "=Sheet1!$C$1");
+    chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7").set_name("=Sheet1!$C$1");
 
     // Add a chart title and some axis labels.
-    chart.title_set_name("Results of sample analysis");
+    chart.set_title("Results of sample analysis");
     xwpp::chart_axis_set_name(chart.x_axis_, "Test number");
     xwpp::chart_axis_set_name(chart.y_axis_, "Sample length (mm)");
 
