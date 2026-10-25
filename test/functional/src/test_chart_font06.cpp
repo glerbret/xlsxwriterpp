@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_font_t font1{.name = "Calibri", .color = xwpp::color_t::yellow(), .pitch_family = 34, .charset = 0};
   const xwpp::chart_font_t font2{
@@ -42,16 +42,11 @@ int main()
   const xwpp::chart_font_t font4{.name = "Century", .color = xwpp::color_t::red(), .pitch_family = 18, .charset = 0};
   const xwpp::chart_font_t font5{.bold = true, .italic = true, .underline = true, .color = xwpp::color_t{0x7030A0}};
 
-  chart.title_set_name("Title");
-  chart.title_set_name_font(font1);
+  chart.set_title("Title", font1);
 
-  chart_axis_set_name(chart.x_axis_, "XXX");
-  chart_axis_set_name_font(chart.x_axis_, font2);
-  chart_axis_set_num_font(chart.x_axis_, font3);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX").set_name_font(font2).set_num_font(font3);
 
-  chart_axis_set_name(chart.y_axis_, "YYY");
-  chart_axis_set_name_font(chart.y_axis_, font4);
-  chart_axis_set_num_font(chart.y_axis_, font5);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY").set_name_font(font4).set_num_font(font5);
 
   worksheet.insert_chart("E9", &chart);
 

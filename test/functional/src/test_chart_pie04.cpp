@@ -30,7 +30,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$3", "=Sheet1!$B$1:$B$3");
 
-  chart.legend_set_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
 
   worksheet.insert_chart("E9", &chart);
 

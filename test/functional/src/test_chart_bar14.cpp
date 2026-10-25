@@ -41,15 +41,15 @@ int main()
 
   worksheet2.write_url("A6", "http://www.perl.com/");
 
-  chart3.add_series("", "=Sheet2!$A$1:$A$5");
-  chart3.add_series("", "=Sheet2!$B$1:$B$5");
-  chart3.add_series("", "=Sheet2!$C$1:$C$5");
+  chart3.add_series("=Sheet2!$A$1:$A$5");
+  chart3.add_series("=Sheet2!$B$1:$B$5");
+  chart3.add_series("=Sheet2!$C$1:$C$5");
 
-  chart1.add_series("", "=Sheet2!$A$1:$A$5");
-  chart1.add_series("", "=Sheet2!$B$1:$B$5");
-  chart1.add_series("", "=Sheet2!$C$1:$C$5");
+  chart1.add_series("=Sheet2!$A$1:$A$5");
+  chart1.add_series("=Sheet2!$B$1:$B$5");
+  chart1.add_series("=Sheet2!$C$1:$C$5");
 
-  chart2.add_series("", "=Sheet2!$A$1:$A$5");
+  chart2.add_series("=Sheet2!$A$1:$A$5");
 
   worksheet2.insert_chart("E9", &chart1);
   worksheet2.insert_chart("F25", &chart2);

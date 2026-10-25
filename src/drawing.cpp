@@ -414,12 +414,6 @@ std::string drawing_t::write_two_cell_anchor(uint32_t index, const drawing_objec
   {
     xml_data += write_pic(index, drawing_object);
   }
-  else
-  {
-    // TODO ???
-    /* Write the xdr:sp element for shapes. */
-    /* _drawing_write_sp(self, index, col_absolute, row_absolute, width, height,  shape); */
-  }
   xml_data += write_client_data();
   xml_data += xml_end_tag("xdr:twoCellAnchor");
 

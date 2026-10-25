@@ -61,13 +61,10 @@ int main()
   // Write some data for the chart.
   write_worksheet_data(worksheet, bold);
 
-  /*
-   * Configure the series. Note, that the categories are 2D ranges (from
-   * column A to column B). This creates the clusters. The series are shown
-   * as formula strings for clarity but you can also use variables with the
-   * chart_series_set_categories() and chart_series_set_values()
-   * functions. See the docs.
-   */
+  // Configure the series. Note, that the categories are 2D ranges (from
+  // column A to column B). This creates the clusters. The series are shown
+  // as formula strings for clarity but you can also use variables with the
+  // ranges overload of `. See the docs.
   chart.add_series("=Sheet1!$A$2:$B$6", "=Sheet1!$C$2:$C$6");
   chart.add_series("=Sheet1!$A$2:$B$6", "=Sheet1!$D$2:$D$6");
   chart.add_series("=Sheet1!$A$2:$B$6", "=Sheet1!$E$2:$E$6");
@@ -76,7 +73,7 @@ int main()
   chart.set_style(37);
 
   // Turn off the legend.
-  chart.legend_set_position(xwpp::chart_legend_position_t::NONE);
+  chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
   // Insert the chart into the worksheet.
   worksheet.insert_chart("G3", &chart);

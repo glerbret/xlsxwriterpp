@@ -31,14 +31,14 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_series_t& series1 = chart.add_series("", "=Sheet1!$A$1:$A$5");
-  xwpp::chart_series_t& series2 = chart.add_series("", "=Sheet1!$B$1:$B$5");
-  xwpp::chart_series_t& series3 = chart.add_series("", "=Sheet1!$C$1:$C$5");
+  xwpp::chart_series_t& series1 = chart.add_series("=Sheet1!$A$1:$A$5");
+  xwpp::chart_series_t& series2 = chart.add_series("=Sheet1!$B$1:$B$5");
+  xwpp::chart_series_t& series3 = chart.add_series("=Sheet1!$C$1:$C$5");
 
   // Add cache data for testing.
-  xwpp::chart_add_data_cache(series1.values, data[0].data(), 5, 3, 0);
-  xwpp::chart_add_data_cache(series2.values, data[0].data(), 5, 3, 1);
-  xwpp::chart_add_data_cache(series3.values, data[0].data(), 5, 3, 2);
+  series1.add_data_cache_values(data, 0);
+  series2.add_data_cache_values(data, 1);
+  series3.add_data_cache_values(data, 2);
 
   worksheet.insert_chart("E9", &chart);
 

@@ -39,16 +39,14 @@ int main()
     .y = 0.850902595508894,
   };
 
-  chart_axis_set_name(chart.x_axis_, "XXX");
-  chart_axis_set_name_layout(chart.x_axis_, layout_x);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX").set_name_layout(layout_x);
 
   const xwpp::chart_layout_t layout_y{
     .x = 0.213888888888888,
     .y = 0.263499198016914,
   };
 
-  chart_axis_set_name(chart.y_axis_, "YYY");
-  chart_axis_set_name_layout(chart.y_axis_, layout_y);
+  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY").set_name_layout(layout_y);
 
   worksheet.insert_chart("E9", &chart);
 

@@ -1142,7 +1142,7 @@ void workbook_t::populate_range_dimensions(series_range_t& range) const
   }
 
   // If the sheetname is already defined it was already set via
-  // chart_series_set_categories() or  chart_series_set_values().
+  // ranges.
   if(!range.sheetname.empty())
   {
     return;
@@ -1272,15 +1272,15 @@ void workbook_t::add_chart_cache_data() const
   for(auto* chart: ordered_charts_)
   {
     populate_range(chart->title_.range);
-    populate_range(chart->x_axis_.title.range);
-    populate_range(chart->y_axis_.title.range);
+    populate_range(chart->x_axis_.title_.range);
+    populate_range(chart->y_axis_.title_.range);
 
     for(auto& series: chart->series_list_)
     {
-      populate_range(series.categories);
-      populate_range(series.values);
-      populate_range(series.title.range);
-      for(auto& data_label: series.data_labels)
+      populate_range(series.categories_);
+      populate_range(series.values_);
+      populate_range(series.title_.range);
+      for(auto& data_label: series.data_labels_)
       {
         if(data_label.range)
         {

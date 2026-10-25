@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
 
-  chart.title_set_name("Title!");
+  chart.set_title("Title!");
 
   worksheet.insert_chart("E9", &chart);
 

@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series("", "=Sheet1!$A$1:$A$5");
-  chart.add_series("", "=Sheet1!$B$1:$B$5");
-  chart.add_series("", "=Sheet1!$C$1:$C$5");
+  chart.add_series("=Sheet1!$A$1:$A$5");
+  chart.add_series("=Sheet1!$B$1:$B$5");
+  chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_layout_t layout{
     .x      = 0.80197353455818,
@@ -42,8 +42,8 @@ int main()
     .height = 0.25115157480314,
   };
 
-  chart.legend_set_layout(layout);
-  chart.legend_set_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
+  chart.set_legend_position(xwpp::chart_legend_position_t::OVERLAY_RIGHT);
+  chart.set_legend_layout(layout);
 
   worksheet.insert_chart("E9", &chart);
 
