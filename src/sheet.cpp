@@ -431,7 +431,7 @@ void sheet_t::set_dpi(uint16_t horizontal_dpi, uint16_t vertical_dpi)
   }
 }
 
-void sheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
+void sheet_t::set_header_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
   assert(!str.empty());
   assert(utf8_len(str) <= HEADER_FOOTER_MAX);
@@ -447,7 +447,7 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
   }
   if(placeholder_count > 0 && !options)
   {
-    throw xwpp_exception_t("sheet_t::set_header(): '&G' placeholders present but no image supplied.");
+    throw xwpp_exception_t("sheet_t::set_header_footer(): '&G' placeholders present but no image supplied.");
   }
 
   if(options)
@@ -473,9 +473,17 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
     if(placeholder_count != image_count)
     {
       throw xwpp_exception_t(
-        "sheet_t::set_header(): number of '&G' placeholders does not match number of supplied images.");
+        "sheet_t::set_header_footer(): number of '&G' placeholders does not match number of supplied images.");
     }
+  }
+}
 
+void sheet_t::set_header(const std::string& str, const std::optional<header_footer_options_t>& options)
+{
+  set_header_footer(str, options);
+
+  if(options.has_value())
+  {
     if(options->margin > 0.0)
     {
       margin_header_ = options->margin;
@@ -490,51 +498,12 @@ void sheet_t::set_header(const std::string& str, const std::optional<header_foot
   header_footer_changed_ = true;
 }
 
-// TODO Quite similar to set_header. Maybe merged in one generic function
 void sheet_t::set_footer(const std::string& str, const std::optional<header_footer_options_t>& options)
 {
-  assert(!str.empty());
-  assert(utf8_len(str) <= HEADER_FOOTER_MAX);
+  set_header_footer(str, options);
 
-  // Count &G placeholders and ensure there are sufficient images.
-  uint8_t placeholder_count{0};
-  for(size_t i{0}; i < str.size() - 1; ++i)
+  if(options.has_value())
   {
-    if(str[i] == '&' && str[i + 1] == 'G')
-    {
-      placeholder_count++;
-    }
-  }
-  if(placeholder_count > 0 && !options)
-  {
-    throw xwpp_exception_t("sheet_t::set_footer(): '&G' placeholders present but no image supplied.");
-  }
-
-  if(options)
-  {
-    uint8_t image_count{0};
-
-    // Ensure there are enough images to match the placeholders. There is
-    // a potential bug where there are sufficient images but in the wrong
-    // positions but we don't currently try to deal with that.
-    if(!options->image_left.empty())
-    {
-      image_count++;
-    }
-    if(!options->image_center.empty())
-    {
-      image_count++;
-    }
-    if(!options->image_right.empty())
-    {
-      image_count++;
-    }
-    if(placeholder_count != image_count)
-    {
-      throw xwpp_exception_t(
-        "sheet_t::set_footer(): number of '&G' placeholders does not match number of supplied images.");
-    }
-
     if(options->margin > 0.0)
     {
       margin_footer_ = options->margin;

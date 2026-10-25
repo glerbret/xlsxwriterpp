@@ -239,7 +239,7 @@ void chartsheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obj
 {
   drawing_object_t drawing_object{
     .type          = drawing_types_t::IMAGE,
-    .anchor        = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE),
+    .anchor        = object_position_t::MOVE_DONT_SIZE,
     .rel_index     = 0,
     .url_rel_index = 0,
     .description   = object_props.description,
@@ -270,7 +270,7 @@ void chartsheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, obj
 {
   drawing_object_t drawing_object{
     .type          = drawing_types_t::CHART,
-    .anchor        = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE),
+    .anchor        = object_position_t::MOVE_AND_SIZE,
     .rel_index     = get_drawing_rel_index(""),
     .url_rel_index = 0,
     .description   = object_props.description,

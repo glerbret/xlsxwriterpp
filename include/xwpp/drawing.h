@@ -46,7 +46,7 @@ struct drawing_coords_t
 struct drawing_object_t
 {
   drawing_types_t type{drawing_types_t::NONE};
-  uint8_t anchor{0}; // TODO Use object_position_t (but crossed inclusion for the moment)
+  object_position_t anchor{object_position_t::DEFAULT};
   drawing_coords_t from;
   drawing_coords_t to;
   uint64_t col_absolute{0};

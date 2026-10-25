@@ -2240,7 +2240,6 @@ void worksheet_t::embed_image(row_num_t row_num, col_num_t col_num, const std::f
         object_props.format = default_url_format_;
       }
 
-      // TODO Don't use a member data but a local variable.
       storing_embedded_image_ = true;
       write_url(row_num, col_num, options->url, object_props.format);
       storing_embedded_image_ = false;
@@ -2304,7 +2303,6 @@ void worksheet_t::embed_image_buffer(row_num_t row_num, col_num_t col_num,
         object_props.format = default_url_format_;
       }
 
-      // TODO Don't use a member data but a local variable.
       storing_embedded_image_ = true;
       write_url(row_num, col_num, options->url, object_props.format);
       storing_embedded_image_ = false;
@@ -2727,28 +2725,6 @@ void worksheet_t::conditional_format_cell(std::string_view cell_name, const cond
 void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_col, row_num_t last_row,
                                            col_num_t last_col, const conditional_format_t& conditional_format)
 {
-  // TODO Add a conversion function.
-  const std::vector<std::string> type_strings{
-    "none",
-    "cellIs",
-    "containsText",
-    "timePeriod",
-    "aboveAverage",
-    "duplicateValues",
-    "uniqueValues",
-    "top10",
-    "top10",
-    "containsBlanks",
-    "notContainsBlanks",
-    "containsErrors",
-    "notContainsErrors",
-    "expression",
-    "colorScale",
-    "colorScale",
-    "dataBar",
-    "iconSet",
-  };
-
   // Swap last row/col with first row/col as necessary.
   reorder_index(first_row, last_row, first_col, last_col);
 
@@ -2792,55 +2768,92 @@ void worksheet_t::conditional_format_range(row_num_t first_row, col_num_t first_
   cond_format.type         = conditional_format.type;
   cond_format.criteria     = conditional_format.criteria;
   cond_format.stop_if_true = conditional_format.stop_if_true;
-  cond_format.type_string  = type_strings[static_cast<size_t>(cond_format.type)];
 
   // Check that the criteria matches the conditional type.
   assert(validate_conditional_criteria(cond_format));
+  switch(cond_format.type)
+  {
+    case conditional_format_types_t::NONE:
+      cond_format.type_string = "none";
+      break;
 
-  // Validate the user input for various types of rules.
-  if(cond_format.type == conditional_format_types_t::CELL ||
-     cond_format.type == conditional_format_types_t::DUPLICATE ||
-     cond_format.type == conditional_format_types_t::UNIQUE)
-  {
-    validate_conditional_cell(cond_format, conditional_format);
-  }
-  else if(cond_format.type == conditional_format_types_t::TEXT)
-  {
-    assert(validate_conditional_text(conditional_format));
-    cond_format.min_value_string = dup_formula(conditional_format.value_string);
-  }
-  else if(cond_format.type == conditional_format_types_t::TIME_PERIOD)
-  {
-    assert(validate_conditional_time_period(conditional_format));
-  }
-  else if(cond_format.type == conditional_format_types_t::AVERAGE)
-  {
-    assert(validate_conditional_average(conditional_format));
-  }
-  else if(cond_format.type == conditional_format_types_t::TOP || cond_format.type == conditional_format_types_t::BOTTOM)
-  {
-    assert(validate_conditional_top(conditional_format));
-    cond_format.min_value = static_cast<uint16_t>(conditional_format.value);
-  }
-  else if(cond_format.type == conditional_format_types_t::FORMULA)
-  {
-    assert(validate_conditional_formula(conditional_format));
-    cond_format.min_value_string = dup_formula(conditional_format.value_string);
-  }
-  else if(cond_format.type == conditional_format_types_t::TWO_COLOR_SCALE ||
-          cond_format.type == conditional_format_types_t::THREE_COLOR_SCALE)
-  {
-    validate_conditional_scale(cond_format, conditional_format);
-  }
-  else if(cond_format.type == conditional_format_types_t::DATA_BAR)
-  {
-    validate_conditional_data_bar(cond_format, conditional_format);
-  }
-  else if(cond_format.type == conditional_format_types_t::ICON_SETS)
-  {
-    cond_format.icon_style    = conditional_format.icon_style;
-    cond_format.reverse_icons = conditional_format.reverse_icons;
-    cond_format.icons_only    = conditional_format.icons_only;
+    case conditional_format_types_t::CELL:
+      validate_conditional_cell(cond_format, conditional_format);
+      cond_format.type_string = "cellIs";
+      break;
+
+    case conditional_format_types_t::DUPLICATE:
+      validate_conditional_cell(cond_format, conditional_format);
+      cond_format.type_string = "duplicateValues";
+      break;
+
+    case conditional_format_types_t::UNIQUE:
+      validate_conditional_cell(cond_format, conditional_format);
+      cond_format.type_string = "uniqueValues";
+      break;
+
+    case conditional_format_types_t::TEXT:
+      assert(validate_conditional_text(conditional_format));
+      cond_format.min_value_string = dup_formula(conditional_format.value_string);
+      cond_format.type_string      = "containsText";
+      break;
+
+    case conditional_format_types_t::TIME_PERIOD:
+      assert(validate_conditional_time_period(conditional_format));
+      cond_format.type_string = "timePeriod";
+      break;
+
+    case conditional_format_types_t::AVERAGE:
+      assert(validate_conditional_average(conditional_format));
+      cond_format.type_string = "aboveAverage";
+      break;
+
+    case conditional_format_types_t::TOP:
+    case conditional_format_types_t::BOTTOM:
+      assert(validate_conditional_top(conditional_format));
+      cond_format.min_value   = static_cast<uint16_t>(conditional_format.value);
+      cond_format.type_string = "top10";
+      break;
+
+    case conditional_format_types_t::BLANKS:
+      cond_format.type_string = "containsBlanks";
+      break;
+
+    case conditional_format_types_t::NO_BLANKS:
+      cond_format.type_string = "notContainsBlanks";
+      break;
+
+    case conditional_format_types_t::ERRORS:
+      cond_format.type_string = "containsErrors";
+      break;
+
+    case conditional_format_types_t::NO_ERRORS:
+      cond_format.type_string = "notContainsErrors";
+      break;
+
+    case conditional_format_types_t::FORMULA:
+      assert(validate_conditional_formula(conditional_format));
+      cond_format.min_value_string = dup_formula(conditional_format.value_string);
+      cond_format.type_string      = "expression";
+      break;
+
+    case conditional_format_types_t::TWO_COLOR_SCALE:
+    case conditional_format_types_t::THREE_COLOR_SCALE:
+      validate_conditional_scale(cond_format, conditional_format);
+      cond_format.type_string = "colorScale";
+      break;
+
+    case conditional_format_types_t::DATA_BAR:
+      validate_conditional_data_bar(cond_format, conditional_format);
+      cond_format.type_string = "dataBar";
+      break;
+
+    case conditional_format_types_t::ICON_SETS:
+      cond_format.icon_style    = conditional_format.icon_style;
+      cond_format.reverse_icons = conditional_format.reverse_icons;
+      cond_format.icons_only    = conditional_format.icons_only;
+      cond_format.type_string   = "iconSet";
+      break;
   }
 
   // Set the priority based on the order of adding.
@@ -3186,13 +3199,11 @@ void worksheet_t::show_comments()
   comment_display_default_ = comment_display_t::VISIBLE;
 }
 
-// TODO Add test and revert
 void worksheet_t::right_to_left()
 {
   right_to_left_ = true;
 }
 
-// TODO Add test and revert
 void worksheet_t::hide_zero()
 {
   show_zeros_ = false;
@@ -3257,12 +3268,12 @@ void worksheet_t::gridlines(gridlines_t option)
     screen_gridlines_ = false;
   }
 
-  if((option & gridlines_t::SHOW_SCREEN_GRIDLINES) != 0)
+  if(option == gridlines_t::SHOW_SCREEN_GRIDLINES || option == gridlines_t::SHOW_ALL_GRIDLINES)
   {
     screen_gridlines_ = true;
   }
 
-  if((option & gridlines_t::SHOW_PRINT_GRIDLINES) != 0)
+  if(option == gridlines_t::SHOW_PRINT_GRIDLINES || option == gridlines_t::SHOW_ALL_GRIDLINES)
   {
     print_gridlines_       = true;
     print_options_changed_ = true;
@@ -3878,7 +3889,7 @@ void worksheet_t::position_vml_object(vml_obj_t& vml_obj) const
   };
 
   drawing_object_t drawing_object{
-    .anchor = static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE),
+    .anchor = object_position_t::DONT_MOVE_DONT_SIZE,
   };
 
   position_object_pixels(object_props, drawing_object);
@@ -4056,7 +4067,7 @@ void worksheet_t::position_object_pixels(const object_properties_t& object_props
   double height{object_props.height};        // Height of object frame.
   uint32_t x_abs{0};                         // Abs. distance to left side of object.
   uint32_t y_abs{0};                         // Abs. distance to top  side of object.
-  const auto anchor{static_cast<object_position_t>(drawing_object.anchor)};
+  const auto anchor{drawing_object.anchor};
   const auto ignore_anchor{object_position_t::DEFAULT};
 
   // Adjust start column for negative offsets.
@@ -4189,10 +4200,10 @@ void worksheet_t::position_object_emus(const object_properties_t& image, drawing
 void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, object_properties_t& object_props)
 {
   drawing_object_t drawing_object;
-  drawing_object.anchor = static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE);
+  drawing_object.anchor = object_position_t::MOVE_DONT_SIZE;
   if(object_props.object_position != object_position_t::DEFAULT)
   {
-    drawing_object.anchor = static_cast<uint8_t>(object_props.object_position);
+    drawing_object.anchor = object_props.object_position;
   }
 
   drawing_object.type          = drawing_types_t::IMAGE;
@@ -4281,10 +4292,10 @@ void worksheet_t::prepare_image(uint32_t image_ref_id, uint32_t drawing_id, obje
 void worksheet_t::prepare_chart(uint32_t chart_ref_id, uint32_t drawing_id, object_properties_t& object_props)
 {
   drawing_object_t drawing_object;
-  drawing_object.anchor = static_cast<uint8_t>(object_position_t::MOVE_AND_SIZE);
+  drawing_object.anchor = object_position_t::MOVE_AND_SIZE;
   if(object_props.object_position != object_position_t::DEFAULT)
   {
-    drawing_object.anchor = static_cast<uint8_t>(object_props.object_position);
+    drawing_object.anchor = object_props.object_position;
   }
 
   drawing_object.type          = drawing_types_t::CHART;
@@ -5723,11 +5734,6 @@ std::string worksheet_t::write_cf_rule(cond_format_obj_t& cond_format)
 
 std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format)
 {
-  // TODO Add conversion function
-  const std::vector<std::string> operators{
-    "none",    "equal",      "notEqual", "greaterThan", "lessThan", "greaterThanOrEqual", "lessThanOrEqual",
-    "between", "notBetween",
-  };
   attributes_t attributes{"type", cond_format.type_string};
 
   if(cond_format.dxf_index != format_t::PROPERTY_UNSET)
@@ -5742,7 +5748,48 @@ std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format
     attributes.add_attribute("stopIfTrue", "1");
   }
 
-  attributes.add_attribute("operator", operators[static_cast<size_t>(cond_format.criteria)]);
+  switch(cond_format.criteria)
+  {
+    case conditional_criteria_t::NONE:
+      attributes.add_attribute("operator", "none");
+      break;
+
+    case conditional_criteria_t::EQUAL_TO:
+      attributes.add_attribute("operator", "equal");
+      break;
+
+    case conditional_criteria_t::NOT_EQUAL_TO:
+      attributes.add_attribute("operator", "notEqual");
+      break;
+
+    case conditional_criteria_t::GREATER_THAN:
+      attributes.add_attribute("operator", "greaterThan");
+      break;
+
+    case conditional_criteria_t::LESS_THAN:
+      attributes.add_attribute("operator", "lessThan");
+      break;
+
+    case conditional_criteria_t::GREATER_THAN_OR_EQUAL_TO:
+      attributes.add_attribute("operator", "greaterThanOrEqual");
+      break;
+
+    case conditional_criteria_t::LESS_THAN_OR_EQUAL_TO:
+      attributes.add_attribute("operator", "lessThanOrEqual");
+      break;
+
+    case conditional_criteria_t::BETWEEN:
+      attributes.add_attribute("operator", "between");
+      break;
+
+    case conditional_criteria_t::NOT_BETWEEN:
+      attributes.add_attribute("operator", "notBetween");
+      break;
+
+    default:
+      // NOP
+      break;
+  }
 
   std::string xml_data = xml_start_tag("cfRule", attributes);
 
@@ -5775,31 +5822,29 @@ std::string worksheet_t::write_cf_rule_cell(const cond_format_obj_t& cond_format
 std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format)
 {
   attributes_t attributes;
-  // TODO Add conversion function
-  const std::vector<std::string> operators{
-    "containsText",
-    "notContains",
-    "beginsWith",
-    "endsWith",
-  };
 
   const conditional_criteria_t criteria{cond_format.criteria};
   switch(criteria)
   {
     case conditional_criteria_t::TEXT_CONTAINING:
       attributes.add_attribute("type", "containsText");
+      attributes.add_attribute("operator", "containsText");
       break;
 
     case conditional_criteria_t::TEXT_NOT_CONTAINING:
       attributes.add_attribute("type", "notContainsText");
+      attributes.add_attribute("operator", "notContains");
+
       break;
 
     case conditional_criteria_t::TEXT_BEGINS_WITH:
       attributes.add_attribute("type", "beginsWith");
+      attributes.add_attribute("operator", "beginsWith");
       break;
 
     case conditional_criteria_t::TEXT_ENDS_WITH:
       attributes.add_attribute("type", "endsWith");
+      attributes.add_attribute("operator", "endsWith");
       break;
 
     default:
@@ -5818,9 +5863,6 @@ std::string worksheet_t::write_cf_rule_text(const cond_format_obj_t& cond_format
   {
     attributes.add_attribute("stopIfTrue", "1");
   }
-
-  const size_t pos{static_cast<size_t>(criteria) - static_cast<size_t>(conditional_criteria_t::TEXT_CONTAINING)};
-  attributes.add_attribute("operator", operators[pos]);
 
   attributes.add_attribute("text", cond_format.min_value_string);
 

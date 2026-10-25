@@ -31,6 +31,9 @@ const uint32_t DEF_COL_WIDTH_PIXELS{64};
 /** Default Excel column height in pixels. */
 const uint32_t DEF_ROW_HEIGHT_PIXELS{20};
 
+// Custom number formats start at 0xA4
+const uint16_t FIRST_CUSTOM_FORMAT = 0xA4;
+
 /**
  * Integer data type to represent a row value. Equivalent to `uint32_t`.
  *
@@ -83,6 +86,31 @@ enum class drawing_orientation_t
 {
   LANDSCAPE,
   PORTRAIT,
+};
+
+/**
+ * @brief Options to control the positioning of objects.
+ *
+ * Options to control the positioning of sheet objects such as images
+ * or charts. See @ref working_with_object_positioning.
+ */
+enum class object_position_t
+{
+  /** Default positioning for the object. */
+  DEFAULT,
+
+  /** Move and size the worksheet object with the cells. */
+  MOVE_AND_SIZE,
+
+  /** Move but don't size the worksheet object with the cells. */
+  MOVE_DONT_SIZE,
+
+  /** Don't move or size the worksheet object with the cells. */
+  DONT_MOVE_DONT_SIZE,
+
+  /** Same as `MOVE_AND_SIZE` except `Xlsxwriter++` applies hidden
+   *  cells after the object is inserted. */
+  MOVE_AND_SIZE_AFTER
 };
 
 const std::string SCHEMA_MS{"http://schemas.microsoft.com/office/2006/relationships"};

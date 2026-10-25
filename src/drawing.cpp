@@ -392,11 +392,11 @@ std::string drawing_t::write_absolute_anchor(uint32_t frame_index) const
 std::string drawing_t::write_two_cell_anchor(uint32_t index, const drawing_object_t& drawing_object) const
 {
   attributes_t attributes;
-  if(drawing_object.anchor == static_cast<uint8_t>(object_position_t::MOVE_DONT_SIZE))
+  if(drawing_object.anchor == object_position_t::MOVE_DONT_SIZE)
   {
     attributes.add_attribute("editAs", "oneCell");
   }
-  else if(drawing_object.anchor == static_cast<uint8_t>(object_position_t::DONT_MOVE_DONT_SIZE))
+  else if(drawing_object.anchor == object_position_t::DONT_MOVE_DONT_SIZE)
   {
     attributes.add_attribute("editAs", "absolute");
   }

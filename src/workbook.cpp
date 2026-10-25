@@ -637,8 +637,7 @@ void workbook_t::prepare_num_formats()
       }
       else
       {
-        // Custom number formats start at 0xA4
-        format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + 0xA4;
+        format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + FIRST_CUSTOM_FORMAT;
         num_formats.push_back(format);
       }
     }
@@ -669,8 +668,7 @@ void workbook_t::prepare_num_formats()
 
       if(format->num_format_index_ == 0)
       {
-        // Custom number formats start at 0xA4
-        format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + 0xA4;
+        format->num_format_index_ = static_cast<uint16_t>(num_formats.size()) + FIRST_CUSTOM_FORMAT;
         num_formats.push_back(format);
       }
     }

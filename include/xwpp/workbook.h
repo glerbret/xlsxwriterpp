@@ -803,15 +803,7 @@ public:
    */
   void define_name(const std::string& name, const std::string& formula);
 
-  /**
-   * @brief Set default index for format.
-   *
-   * Set default index for format.
-   *
-   * @note Only used by tests.
-   *
-   * @todo Check to remove it.
-   */
+  // For test only
   void set_default_xf_indices();
 
   [[nodiscard]] std::string assemble_xml_file();
