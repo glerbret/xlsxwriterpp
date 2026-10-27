@@ -68,11 +68,8 @@ const size_t BREAKS_MAX{1023};
  * @brief Gridline options.
  *
  * Gridline options using in `worksheet_t::gridlines()`.
- *
- * @todo Use `enum class`.
  */
-// NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
-enum gridlines_t : uint16_t
+enum class gridlines_t
 {
   /** Hide screen and print gridlines. */
   HIDE_ALL_GRIDLINES = 0,
@@ -766,8 +763,6 @@ struct row_col_options_t
  * @brief Options for data validation.
  *
  * Options for data validation.
- *
- * @todo  Values can be mutualised (`std::variant`).
  */
 struct data_validation_t
 {
@@ -5594,8 +5589,8 @@ private:
   std::optional<std::tuple<std::string, std::string, std::string>> external_vml_header_link_;
 
   // Excel version
-  uint16_t excel_version_{0};       // TODO Default value
-  uint32_t data_bar_2010_index_{0}; // TODO Useful ?
+  uint16_t excel_version_{2006};
+  uint32_t data_bar_2010_index_{0};
 };
 
 /// @cond

@@ -86,7 +86,7 @@ namespace
 
     attributes.add_attribute("formatCode", format_codes[num_fmt_id]);
   }
-  else if(num_fmt_id < 164)
+  else if(num_fmt_id < FIRST_CUSTOM_FORMAT)
   {
     attributes.add_attribute("formatCode", "General");
   }
@@ -375,6 +375,71 @@ namespace
   }
 }
 
+[[nodiscard]] std::string convert_pattern(format_patterns_t pattern)
+{
+  switch(pattern)
+  {
+    case format_patterns_t::NONE:
+      return "none";
+
+    case format_patterns_t::SOLID:
+      return "solid";
+
+    case format_patterns_t::MEDIUM_GRAY:
+      return "mediumGray";
+
+    case format_patterns_t::DARK_GRAY:
+      return "darkGray";
+
+    case format_patterns_t::LIGHT_GRAY:
+      return "lightGray";
+
+    case format_patterns_t::DARK_HORIZONTAL:
+      return "darkHorizontal";
+
+    case format_patterns_t::DARK_VERTICAL:
+      return "darkVertical";
+
+    case format_patterns_t::DARK_DOWN:
+      return "darkDown";
+
+    case format_patterns_t::DARK_UP:
+      return "darkUp";
+
+    case format_patterns_t::DARK_GRID:
+      return "darkGrid";
+
+    case format_patterns_t::DARK_TRELLIS:
+      return "darkTrellis";
+
+    case format_patterns_t::LIGHT_HORIZONTAL:
+      return "lightHorizontal";
+
+    case format_patterns_t::LIGHT_VERTICAL:
+      return "lightVertical";
+
+    case format_patterns_t::LIGHT_DOWN:
+      return "lightDown";
+
+    case format_patterns_t::LIGHT_UP:
+      return "lightUp";
+
+    case format_patterns_t::LIGHT_GRID:
+      return "lightGrid";
+
+    case format_patterns_t::LIGHT_TRELLIS:
+      return "lightTrellis";
+
+    case format_patterns_t::GRAY_125:
+      return "gray125";
+
+    case format_patterns_t::GRAY_0625:
+      return "gray0625";
+  }
+
+  return "";
+}
+
 }
 
 style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count, uint32_t num_format_count,
@@ -389,7 +454,6 @@ style_t::style_t(uint32_t font_count, uint32_t fill_count, uint32_t border_count
 {
 }
 
-// TODO Add const (remove to change hyperlink property)
 std::string style_t::assemble_xml_file()
 {
   std::string xml_data = xml_declaration();
@@ -438,9 +502,8 @@ std::string style_t::write_num_fmts() const
 
   for(uint16_t last_format_index{0}; const auto* format: xf_formats_)
   {
-    // Ignore built-in number formats, i.e., < 0xA4.
-    // TODO Add constantes for 0xA4
-    if(format->num_format_index_ < 0xA4)
+    // Ignore built-in number formats.
+    if(format->num_format_index_ < FIRST_CUSTOM_FORMAT)
     {
       continue;
     }
@@ -1079,13 +1142,6 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf)
   color_t bg_color{format->bg_color_};
   color_t fg_color{format->fg_color_};
 
-  // TODO Add function of conversion
-  const std::vector<std::string> patterns{
-    "none",     "solid",     "mediumGray",   "darkGray",    "lightGray",       "darkHorizontal", "darkVertical",
-    "darkDown", "darkUp",    "darkGrid",     "darkTrellis", "lightHorizontal", "lightVertical",  "lightDown",
-    "lightUp",  "lightGrid", "lightTrellis", "gray125",     "gray0625",
-  };
-
   if(is_dxf)
   {
     bg_color = format->dxf_bg_color_;
@@ -1095,7 +1151,7 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf)
   // Special handling for pattern only case.
   if(!bg_color && !fg_color && pattern != format_patterns_t::NONE)
   {
-    return write_default_fill(patterns[static_cast<uint32_t>(pattern)]);
+    return write_default_fill(convert_pattern(pattern));
   }
 
   std::string xml_data = xml_start_tag("fill");
@@ -1104,7 +1160,7 @@ std::string style_t::write_fill(const format_t* format, bool is_dxf)
   if(pattern != format_patterns_t::NONE &&
      (!is_dxf || static_cast<uint32_t>(pattern) > static_cast<uint32_t>(format_patterns_t::SOLID)))
   {
-    attributes.add_attribute("patternType", patterns[static_cast<uint32_t>(pattern)]);
+    attributes.add_attribute("patternType", convert_pattern(pattern));
   }
 
   xml_data += xml_start_tag("patternFill", attributes);

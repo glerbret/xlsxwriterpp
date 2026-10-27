@@ -94,31 +94,6 @@ struct header_footer_options_t
 };
 
 /**
- * @brief Options to control the positioning of objects.
- *
- * Options to control the positioning of sheet objects such as images
- * or charts. See @ref working_with_object_positioning.
- */
-enum class object_position_t
-{
-  /** Default positioning for the object. */
-  DEFAULT,
-
-  /** Move and size the worksheet object with the cells. */
-  MOVE_AND_SIZE,
-
-  /** Move but don't size the worksheet object with the cells. */
-  MOVE_DONT_SIZE,
-
-  /** Don't move or size the worksheet object with the cells. */
-  DONT_MOVE_DONT_SIZE,
-
-  /** Same as `MOVE_AND_SIZE` except `Xlsxwriter++` applies hidden
-   *  cells after the object is inserted. */
-  MOVE_AND_SIZE_AFTER
-};
-
-/**
  * @brief Display type for a cell comment.
  *
  * Set the display type for a cell comment. This is hidden by default but
@@ -357,9 +332,6 @@ struct protection_t
 
   /**
    * Protect drawing objects. Worksheets only.
-   *
-   * @todo Not clear, why there is two options `%objects` and `%no_objects`.
-   * @todo And `%objects` seems to be wrong name as XML object option is set to 1 iff objects is false.
    */
   bool objects{false};
 
@@ -1092,6 +1064,8 @@ protected:
 private:
   friend class packager_t;
   friend class workbook_t;
+
+  static void set_header_footer(const std::string& str, const std::optional<header_footer_options_t>& options);
 
   // Preparation functions called by workbook and/or packager.
   void virtual set_error_cell(const object_properties_t& object_props, uint32_t ref_id)     = 0;
