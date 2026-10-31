@@ -25,6 +25,7 @@
 #include <fstream>
 #include <numeric>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -510,11 +511,10 @@ std::string expand_table_formula(const std::string& formula)
 
 void set_custom_table_columns(table_obj_t& table_obj, const table_options_t& user_options)
 {
-  // TODO Check size consistency, and if possible use algorithm.
-  for(size_t i{0}; i < user_options.columns.size(); i++)
+  for(auto item: std::views::zip(user_options.columns, table_obj.columns))
   {
-    const table_column_t& user_column = user_options.columns[i];
-    table_column_t& table_column      = table_obj.columns[i];
+    const table_column_t& user_column = std::get<0>(item);
+    table_column_t& table_column      = std::get<1>(item);
 
     if(!user_column.header.empty())
     {

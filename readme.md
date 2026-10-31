@@ -8,7 +8,7 @@
 >
 > Future commit will change architecture, implementation and API without backward compatibility.
 
-Xlsxwriter++ is a C++20 library for writing Excel XLSX files.
+Xlsxwriter++ is a C++23 library for writing Excel XLSX files.
 
 It is a C++ port of [libxlsxwriter](https://libxlsxwriter.github.io/).
 
@@ -48,7 +48,7 @@ int main()
 
 ## Requirement
 
-- C++20
+- C++23
 - ZLIB
 - Openssl
 - Boost.Test for unit tests

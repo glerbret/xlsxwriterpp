@@ -9,7 +9,7 @@
 
 @section mainpage_intro Xlsxwriter++
 
-`Xlsxwriter++` is a C++20 library that can be used to write text, numbers, formulas
+`Xlsxwriter++` is a C++23 library that can be used to write text, numbers, formulas
 and hyperlinks to multiple worksheets in an Excel 2007+ XLSX file. It supports
 features such as:
 
@@ -27,7 +27,7 @@ features such as:
 - Memory optimization mode for writing large files.
 - Source code available on [GitHub](https://github.com/glerbret/xlsxwriterpp).
 - FreeBSD @ref license.
-- C++20.
+- C++23.
 - Tested with GCC 15.2, Clang 21, MSVC 2026.
 - Tested on Linux and Windows.
 - The only dependency is on `zlib`, `openssl` and, for unit test only, `Boost`.
