@@ -14,10 +14,10 @@ int main()
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet3 = workbook.add_worksheet();
-  xwpp::chart_t& chart1         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
-  xwpp::chart_t& chart2         = workbook.add_chart(xwpp::chart_type_t::BAR);
-  xwpp::chart_t& chart3         = workbook.add_chart(xwpp::chart_type_t::LINE);
-  xwpp::chart_t& chart4         = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart1          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
+  xwpp::chart_t chart2          = xwpp::chart_t{xwpp::chart_type_t::BAR};
+  xwpp::chart_t chart3          = xwpp::chart_t{xwpp::chart_type_t::LINE};
+  xwpp::chart_t chart4          = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart1.set_axis_ids(54976896, 54978432);
@@ -46,10 +46,10 @@ int main()
   chart3.add_series("=Sheet3!$A$1:$A$5");
   chart4.add_series("=Sheet1!$B$1:$B$5");
 
-  worksheet1.insert_chart("E9", &chart1);
-  worksheet2.insert_chart("E9", &chart2);
-  worksheet3.insert_chart("E9", &chart3);
-  worksheet1.insert_chart("E24", &chart4);
+  worksheet1.insert_chart("E9", chart1);
+  worksheet2.insert_chart("E9", chart2);
+  worksheet3.insert_chart("E9", chart3);
+  worksheet1.insert_chart("E24", chart4);
 
   workbook.save("test_chart_order01.xlsx");
 }

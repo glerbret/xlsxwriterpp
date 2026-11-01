@@ -25,11 +25,9 @@ chartsheet_t::chartsheet_t(const sheet_init_data_t& init_data)
 {
 }
 
-void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t>& options)
+void chartsheet_t::set_chart(const chart_t& chart, const std::optional<chart_options_t>& options)
 {
-  assert(chart);
-  assert(!chart->in_use_);
-  assert(!chart->series_list_.empty());
+  assert(!chart.series_list_.empty());
 
   object_properties_t object_props;
   if(options.has_value())
@@ -54,14 +52,11 @@ void chartsheet_t::set_chart(chart_t* chart, const std::optional<chart_options_t
   }
 
   // Store chart references so they can be ordered in the workbook.
-  object_props.chart = chart;
+  object_props.chart                 = chart;
+  object_props.chart->is_chartsheet_ = true;
+  object_props.chart->is_protected_  = is_protected_;
 
-  push_chart(object_props);
-
-  chart->in_use_        = true;
-  chart->is_chartsheet_ = true;
-  chart->is_protected_  = is_protected_;
-  chart_                = chart;
+  chart_ = push_chart(object_props);
 }
 
 void chartsheet_t::protect(const std::string& password, std::optional<protection_t> options)

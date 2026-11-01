@@ -581,9 +581,19 @@ sheet_t::sheet_t(bool is_chartsheet, const sheet_init_data_t& init_data)
 {
 }
 
-void sheet_t::push_chart(const object_properties_t& object_props)
+chart_t* sheet_t::push_chart(const object_properties_t& object_props)
 {
   chart_data_.push_back(object_props);
+
+  if(chart_data_.back().chart.has_value())
+  {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    return std::addressof(chart_data_.back().chart.value());
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 void sheet_t::get_image_properties(object_properties_t& image_props)

@@ -42,7 +42,7 @@ int main()
   write_worksheet_data(worksheet);
 
   // Create a chart object.
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // Configure the chart. In simplest case we just add some value data
   // series. The nullptr categories will default to 1 to 5 like in Excel.
@@ -55,7 +55,7 @@ int main()
   chart.set_title("Year End Results", font);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart("B7", &chart);
+  worksheet.insert_chart("B7", chart);
 
   workbook.save("chart.xlsx");
 }

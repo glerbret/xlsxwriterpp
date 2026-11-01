@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::BAR);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::BAR};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(66558592, 66569344);
@@ -39,7 +39,7 @@ int main()
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sheet1", 2, 0);
   chart.set_title("Sheet1", 0, 0);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_bar69.xlsx");
 }

@@ -31,7 +31,7 @@ int main()
   worksheet.write(4, 1, 110);
 
   // Create a chart object.
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // Configure the chart.
   xwpp::chart_series_t& series1 = chart.add_series("Sheet1!$A$2:$A$5");
@@ -71,7 +71,7 @@ int main()
   chart.set_series_gap(70);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart("D2", &chart);
+  worksheet.insert_chart("D2", chart);
 
   workbook.save("chart_pattern.xlsx");
 }

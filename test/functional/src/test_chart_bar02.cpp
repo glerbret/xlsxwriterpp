@@ -13,7 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet1 = workbook.add_worksheet();
   xwpp::worksheet_t& worksheet2 = workbook.add_worksheet();
-  xwpp::chart_t& chart          = workbook.add_chart(xwpp::chart_type_t::BAR);
+  xwpp::chart_t chart           = xwpp::chart_t{xwpp::chart_type_t::BAR};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(93218304, 93219840);
@@ -37,7 +37,7 @@ int main()
   chart.add_series("Sheet2!$A$1:$A$5", "Sheet2!$B$1:$B$5");
   chart.add_series("Sheet2!$A$1:$A$5", "Sheet2!$C$1:$C$5");
 
-  worksheet2.insert_chart("E9", &chart);
+  worksheet2.insert_chart("E9", chart);
 
   workbook.save("test_chart_bar02.xlsx");
 }

@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::BAR);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::BAR};
 
   const std::array<std::array<uint8_t, 3>, 5> data{
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
@@ -35,7 +35,7 @@ int main()
   series1.add_data_cache_values(data, 0);
   series2.add_data_cache_values(data, 1);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_bar51.xlsx");
 }

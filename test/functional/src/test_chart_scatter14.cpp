@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::SCATTER_STRAIGHT);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::SCATTER_STRAIGHT};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(69216512, 69214976);
@@ -38,7 +38,7 @@ int main()
     .set_marker_type(xwpp::chart_marker_type_t::PLUS)
     .set_marker_size(5);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_scatter14.xlsx");
 }

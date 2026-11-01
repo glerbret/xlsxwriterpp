@@ -16,7 +16,7 @@ int main()
 
   const std::string sheetname{"Sheet1"};
   xwpp::worksheet_t& worksheet = workbook.add_worksheet(sheetname);
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(54437760, 59195776);
@@ -43,7 +43,7 @@ int main()
   chart.add_series(xwpp::build_serie_range(sheetname, 0, 1, 4, 1));
   chart.add_series(xwpp::build_serie_range(sheetname, 0, 2, 4, 2));
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_quote_name05.xlsx");
 }

@@ -49,10 +49,8 @@ int main()
   write_worksheet_data(worksheet, bold);
 
   // Chart 1. Create a bar chart.
-  // TODO Create chart outside workbook and calling API insert_chart directly with the chart (note: add chart ctor for
-  // convenience)
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::BAR);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::BAR};
 
     // Add the first series to the chart with a name for the series instead of the default "Series 1".
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -72,12 +70,12 @@ int main()
     chart.set_style(11);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E2", &chart);
+    worksheet.insert_chart("E2", chart);
   }
 
   // Chart 2. Create a stacked bar chart.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::BAR_STACKED);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::BAR_STACKED};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -94,12 +92,12 @@ int main()
     chart.set_style(12);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E18", &chart);
+    worksheet.insert_chart("E18", chart);
   }
 
   // Chart 3. Create a percent stacked bar chart.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::BAR_STACKED_PERCENT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::BAR_STACKED_PERCENT};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -116,7 +114,7 @@ int main()
     chart.set_style(13);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E34", &chart);
+    worksheet.insert_chart("E34", chart);
   }
 
   workbook.save("chart_bar.xlsx");

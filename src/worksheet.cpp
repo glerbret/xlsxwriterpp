@@ -2340,11 +2340,10 @@ void worksheet_t::embed_image_buffer(std::string_view cell_name, const std::vect
   embed_image_buffer(row_num, col_num, image_buffer, options);
 }
 
-void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
+void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, const chart_t& chart,
                                const std::optional<chart_options_t>& user_options)
 {
-  assert(!chart->in_use_);
-  assert(!chart->series_list_.empty());
+  assert(!chart.series_list_.empty());
 
   object_properties_t object_props;
   if(user_options.has_value())
@@ -2379,11 +2378,9 @@ void worksheet_t::insert_chart(row_num_t row_num, col_num_t col_num, chart_t* ch
   object_props.chart = chart;
 
   push_chart(object_props);
-
-  chart->in_use_ = true;
 }
 
-void worksheet_t::insert_chart(std::string_view cell_name, chart_t* chart,
+void worksheet_t::insert_chart(std::string_view cell_name, const chart_t& chart,
                                const std::optional<chart_options_t>& options)
 {
   const auto [row_num, col_num] = cell_from_name(cell_name);

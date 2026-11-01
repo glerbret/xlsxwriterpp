@@ -34,9 +34,9 @@
  *  int main()
  *  {
  *    xwpp::workbook_t workbook;
- *    xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+ *    xwpp::worksheet_t& worksheet   = workbook.add_worksheet();
  *    xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
- *    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::BAR);
+ *    xwpp::chart_t chart            = xwpp::chart_t{xwpp::chart_type_t::BAR};
  *
  *    //... Set up the chart.
  *
@@ -82,26 +82,25 @@ public:
   /**
    * @brief Insert a chart object into a chartsheet.
    *
-   * @param chart   A `chart_t` object created via `workbook_t::add_chart()`.
+   * @param chart   A `chart_t` object.
    * @param options Optional chart parameters.
    *
    * The `%set_chart()` function can be used to insert a chart into a
-   * chartsheet. The chart object must be created first using the
-   * `workbook_t::add_chart()` function and configured using the @ref chart.h
-   * functions.
+   * chartsheet. The chart object must be created first and configured
+   * using the @ref chart.h functions.
    *
    * @code
    *  // Create the chartsheet.
    *  xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
    *
    *  // Create a chart object.
-   *  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+   *  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
    *
    *  // Add a data series to the chart.
    *  chart.add_series("=Sheet1!$A$1:$A$6");
    *
    *  // Insert the chart into the chartsheet.
-   *  chartsheet.set_chart(&chart);
+   *  chartsheet.set_chart(chart);
    * @endcode
    *
    * @image html chartsheet2.png
@@ -110,11 +109,9 @@ public:
    * If several similar charts are required then each one must be created
    * separately.
    *
-   * @pre The `%chart` parameter should not be null.
-   * @pre The chart should not be already used.
    * @pre The `%chart` parameter must have a non empty `%series_list_` member.
    */
-  void set_chart(chart_t* chart, const std::optional<chart_options_t>& options = std::nullopt);
+  void set_chart(const chart_t& chart, const std::optional<chart_options_t>& options = std::nullopt);
 
   /**
    * @brief Protect elements of a chartsheet from modification.

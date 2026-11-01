@@ -434,16 +434,6 @@ void workbook_t::unset_default_url_format()
   default_url_format_ = default_format_;
 }
 
-// TODO No need to create chart through workbook. Can be autonomous object and be added
-// to worksheet with insert_chart API (without duplication check).
-chart_t& workbook_t::add_chart(chart_type_t chart_type)
-{
-  assert(chart_type != chart_type_t::NONE);
-
-  charts_.emplace_back(chart_type);
-  return charts_.back();
-}
-
 void workbook_t::add_vba_project(const std::filesystem::path& filename)
 {
   assert(!filename.empty());
@@ -1091,9 +1081,9 @@ void workbook_t::prepare_drawings()
     {
       chart_ref_id++;
       sheet->prepare_chart(chart_ref_id, drawing_id, object_props);
-      if(object_props.chart)
+      if(object_props.chart.has_value())
       {
-        ordered_charts_.push_back(object_props.chart);
+        ordered_charts_.push_back(std::addressof(object_props.chart.value()));
       }
     }
 

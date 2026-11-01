@@ -49,7 +49,7 @@ int main()
   write_worksheet_data(worksheet, bold);
 
   // Create a bar chart.
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::BAR);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::BAR};
 
   // Add the first series to the chart with a name for the series instead of the default "Series 1".
   chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -69,7 +69,7 @@ int main()
   chart.set_style(11);
 
   // Add the chart to the chartsheet.
-  chartsheet.set_chart(&chart);
+  chartsheet.set_chart(chart);
 
   // Display the chartsheet as the active sheet when the workbook is opened.
   chartsheet.activate();

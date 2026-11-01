@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(54461952, 54463872);
@@ -37,7 +37,7 @@ int main()
 
   chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_legend01.xlsx");
 }

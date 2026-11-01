@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::SCATTER);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::SCATTER};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(45740416, 45705856);
@@ -38,7 +38,7 @@ int main()
     .set_labels()
     .set_labels_position(xwpp::chart_label_position_t::CENTER);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_data_labels10.xlsx");
 }

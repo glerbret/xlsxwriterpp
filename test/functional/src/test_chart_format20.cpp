@@ -12,8 +12,8 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart1        = workbook.add_chart(xwpp::chart_type_t::LINE);
-  xwpp::chart_t& chart2        = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart1         = xwpp::chart_t{xwpp::chart_type_t::LINE};
+  xwpp::chart_t chart2         = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart1.set_axis_ids(80553856, 80555392);
@@ -45,8 +45,8 @@ int main()
     .set_trendline_line(line);
   chart2.add_series("=Sheet1!$C$1:$C$5");
 
-  worksheet.insert_chart("E9", &chart1);
-  worksheet.insert_chart("E25", &chart2);
+  worksheet.insert_chart("E9", chart1);
+  worksheet.insert_chart("E25", chart2);
 
   workbook.save("test_chart_format20.xlsx");
 }

@@ -13,7 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet   = workbook.add_worksheet();
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
-  xwpp::chart_t& chart           = workbook.add_chart(xwpp::chart_type_t::BAR);
+  xwpp::chart_t chart            = xwpp::chart_t{xwpp::chart_type_t::BAR};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(64784640, 65429504);
@@ -41,7 +41,7 @@ int main()
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Pear");
   chart.set_legend_position(xwpp::chart_legend_position_t::BOTTOM);
 
-  chartsheet.set_chart(&chart);
+  chartsheet.set_chart(chart);
 
   workbook.save("test_chart_bar16.xlsx");
 }

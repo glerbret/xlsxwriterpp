@@ -418,7 +418,7 @@ struct object_properties_t
   std::string extension;
   double x_dpi{0.};
   double y_dpi{0.};
-  chart_t* chart{nullptr};
+  std::optional<chart_t> chart;
   bool is_duplicate{false};
   bool is_background{false};
   std::string md5;
@@ -1021,7 +1021,7 @@ protected:
   sheet_t(bool is_chartsheet, const sheet_init_data_t& init_data);
 
   // Helper functions.
-  void push_chart(const object_properties_t& object_props);
+  chart_t* push_chart(const object_properties_t& object_props);
   static void get_image_properties(object_properties_t& image_props);
   void set_header_footer_image(const std::string& filename, image_position_t image_position);
   void add_drawing_object(const drawing_object_t& drawing_object, uint32_t drawing_id, bool chartsheet);

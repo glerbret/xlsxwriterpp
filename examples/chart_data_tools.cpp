@@ -52,7 +52,7 @@ int main()
 
   // Chart 1. Example with High Low Lines.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with High-Low Lines");
@@ -65,12 +65,12 @@ int main()
     chart.set_high_low_lines(std::nullopt);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E2", &chart);
+    worksheet.insert_chart("E2", chart);
   }
 
   // Chart 2. Example with Drop Lines.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with Drop Lines");
@@ -83,12 +83,12 @@ int main()
     chart.set_drop_lines(std::nullopt);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E18", &chart);
+    worksheet.insert_chart("E18", chart);
   }
 
   // Chart 3. Example with Up-Down bars.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with Up-Down bars");
@@ -101,12 +101,12 @@ int main()
     chart.set_up_down_bars();
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E34", &chart);
+    worksheet.insert_chart("E34", chart);
   }
 
   // Chart 4. Example with Up-Down bars with formatting.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with Up-Down bars");
@@ -123,12 +123,12 @@ int main()
     chart.set_up_down_bars(line, up_fill, line, down_fill);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E50", &chart);
+    worksheet.insert_chart("E50", chart);
   }
 
   // Chart 5. Example with Markers and data labels.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with Data Labels and Markers");
@@ -144,12 +144,12 @@ int main()
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E66", &chart);
+    worksheet.insert_chart("E66", chart);
   }
 
   // Chart 6. Example with Error Bars.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with Error Bars");
@@ -164,12 +164,12 @@ int main()
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E82", &chart);
+    worksheet.insert_chart("E82", chart);
   }
 
   // Chart 7. Example with a trendline
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add a chart title.
     chart.set_title("Chart with a Trendline");
@@ -187,7 +187,7 @@ int main()
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$C$2:$C$7");
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E98", &chart);
+    worksheet.insert_chart("E98", chart);
   }
 
   workbook.save("chart_data_tools.xlsx");

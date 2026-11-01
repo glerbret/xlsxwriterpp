@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   const std::array<std::array<uint8_t, 2>, 3> data{
     {{2, 60}, {4, 30}, {6, 10}}
@@ -36,7 +36,7 @@ int main()
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX");
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY");
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_axis06.xlsx");
 }

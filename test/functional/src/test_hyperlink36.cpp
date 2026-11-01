@@ -10,7 +10,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   const xwpp::image_options_t options{.url = "https://github.com/jmcnamara"};
 
@@ -21,7 +21,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$2");
 
-  worksheet.insert_chart("E12", &chart);
+  worksheet.insert_chart("E12", chart);
 
   workbook.save("test_hyperlink36.xlsx");
 }

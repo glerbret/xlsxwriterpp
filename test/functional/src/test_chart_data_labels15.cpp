@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::DOUGHNUT};
 
   const std::array<std::array<uint8_t, 3>, 5> data{
     {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}, {5, 10, 15}}
@@ -33,7 +33,7 @@ int main()
     .set_labels_position(xwpp::chart_label_position_t::BEST_FIT)
     .set_labels_leader_line();
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_data_labels15.xlsx");
 }

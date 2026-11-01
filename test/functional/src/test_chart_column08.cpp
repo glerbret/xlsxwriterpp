@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(68809856, 68811392);
@@ -34,8 +34,6 @@ int main()
   xwpp::chart_series_t& series =
     chart.add_series("=(Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5)", "=(Sheet1!$B$1:$B$2,Sheet1!$B$4:$B$5)");
 
-  worksheet.insert_chart("E9", &chart);
-
   // Add the cached data for testing.
   const std::array<std::array<uint8_t, 3>, 4> test_data{
     {{1, 2, 3}, {2, 4, 6}, {4, 8, 12}, {5, 10, 15}}
@@ -43,6 +41,8 @@ int main()
 
   series.add_data_cache_categories(test_data, 0);
   series.add_data_cache_values(test_data, 1);
+
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_column08.xlsx");
 }

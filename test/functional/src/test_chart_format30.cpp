@@ -13,7 +13,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(108652416, 108655744);
@@ -42,7 +42,7 @@ int main()
   const std::vector<int16_t> names{0, 2};
   chart.legend_delete_series(names);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_format30.xlsx");
 }

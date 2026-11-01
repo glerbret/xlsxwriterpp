@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(115375104, 115390720);
@@ -38,7 +38,7 @@ int main()
   const xwpp::chart_font_t font1{.rotation = 90, .baseline = -1};
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_num_font(font1);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_axis28.xlsx");
 }

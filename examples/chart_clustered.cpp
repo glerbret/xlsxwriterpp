@@ -53,7 +53,7 @@ int main()
   // Create a new workbook and add a worksheet.
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // Add a bold format to use to highlight the header cells.
   const xwpp::format_t* bold = workbook.format_builder().bold().build();
@@ -76,7 +76,7 @@ int main()
   chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart("G3", &chart);
+  worksheet.insert_chart("G3", chart);
 
   workbook.save("chart_clustered2.xlsx");
 }

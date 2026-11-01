@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   worksheet.write(0, 0, 2);
   worksheet.write(1, 0, 5);
@@ -25,7 +25,7 @@ int main()
   const std::vector<xwpp::chart_point_t> points{{.fill = fill}};
   chart.add_series("=Sheet1!$A$1:$A$6").set_points(points);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_points01.xlsx");
 }
