@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::SCATTER);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::SCATTER};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(46210048, 46208512);
@@ -47,7 +47,7 @@ int main()
   chart.plotarea_set_line(line2);
   chart.plotarea_set_fill(fill2);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_chartarea03.xlsx");
 }

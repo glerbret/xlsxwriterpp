@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(69198592, 69200128);
@@ -44,7 +44,7 @@ int main()
 
   chart.plotarea_set_layout(layout);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_layout01.xlsx");
 }

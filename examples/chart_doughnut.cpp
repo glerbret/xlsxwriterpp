@@ -65,7 +65,7 @@ int main()
 
   // Chart 1: Create a simple doughnut chart.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::DOUGHNUT};
 
     // Add the first series to the chart with a name for the series instead of the default "Series 1".
     chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Doughnut sales data");
@@ -77,12 +77,12 @@ int main()
     chart.set_style(10);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D2", &chart);
+    worksheet.insert_chart("D2", chart);
   }
 
   // Chart 2: Create a doughnut chart with user defined segment colors.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::DOUGHNUT};
 
     // Add the first series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
@@ -97,12 +97,12 @@ int main()
     chart.set_title("Doughnut Chart with user defined colors");
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D18", &chart);
+    worksheet.insert_chart("D18", chart);
   }
 
   // Chart 3: Create a Doughnut chart with rotation of the segments.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::DOUGHNUT};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4").set_name("Doughnut sales data");
@@ -114,12 +114,12 @@ int main()
     chart.set_rotation(90);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D34", &chart);
+    worksheet.insert_chart("D34", chart);
   }
 
   // Chart 4: Create a Doughnut chart with user defined hole size and other options.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::DOUGHNUT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::DOUGHNUT};
 
     // Add the first series to the chart.
     xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$2:$A$4", "=Sheet1!$B$2:$B$4");
@@ -143,7 +143,7 @@ int main()
     chart.set_hole_size(33);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D50", &chart);
+    worksheet.insert_chart("D50", chart);
   }
 
   workbook.save("chart_doughnut.xlsx");

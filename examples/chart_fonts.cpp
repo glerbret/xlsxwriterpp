@@ -24,7 +24,7 @@ int main()
   worksheet.write(5, 0, 50);
 
   // Create a chart object.
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   // Configure the chart.
   chart.add_series("", "Sheet1!$A$1:$A$6");
@@ -51,7 +51,7 @@ int main()
   chart.set_legend_font(font6);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart("C1", &chart);
+  worksheet.insert_chart("C1", chart);
 
   workbook.save("chart_fonts.xlsx");
 }

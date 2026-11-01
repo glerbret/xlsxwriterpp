@@ -50,7 +50,7 @@ int main()
 
   // Chart 1. Create a scatter chart, the default shows points only.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::SCATTER);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::SCATTER};
 
     // Add the first series to the chart with a name for the series instead of the default "Series 1".
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -70,12 +70,12 @@ int main()
     chart.set_style(11);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E2", &chart);
+    worksheet.insert_chart("E2", chart);
   }
 
   // Chart 2. Create a scatter chart with straight lines and markers connecting the points.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -92,12 +92,12 @@ int main()
     chart.set_style(12);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E18", &chart);
+    worksheet.insert_chart("E18", chart);
   }
 
   // Chart 3. Create a scatter chart with straight lines connecting the points.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::SCATTER_STRAIGHT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::SCATTER_STRAIGHT};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -114,12 +114,12 @@ int main()
     chart.set_style(13);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E34", &chart);
+    worksheet.insert_chart("E34", chart);
   }
 
   // Chart 4. Create a scatter chart with smooth lines and markers connecting the points.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::SCATTER_SMOOTH_WITH_MARKERS);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::SCATTER_SMOOTH_WITH_MARKERS};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -136,12 +136,12 @@ int main()
     chart.set_style(14);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E50", &chart);
+    worksheet.insert_chart("E50", chart);
   }
 
   // Chart 5. Create a scatter chart with smooth lines connecting the points.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::SCATTER_SMOOTH);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::SCATTER_SMOOTH};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -158,7 +158,7 @@ int main()
     chart.set_style(15);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E66", &chart);
+    worksheet.insert_chart("E66", chart);
   }
 
   workbook.save("chart_scatter.xlsx");

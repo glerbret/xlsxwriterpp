@@ -36,11 +36,11 @@ int main()
       row_num++;
     }
 
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::PIE};
     chart.add_series(xwpp::build_serie_range(name, 0, 0, 4, 0));
 
     const xwpp::chart_options_t options{.x_offset = 26, .y_offset = 17};
-    worksheet.insert_chart("E6", &chart, options);
+    worksheet.insert_chart("E6", chart, options);
   }
 
   workbook.save("test_quote_name01.xlsx");

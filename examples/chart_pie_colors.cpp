@@ -27,7 +27,7 @@ int main()
   worksheet.write("B2", 10);
 
   // Create a pie chart.
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   // Add the data series to the chart.
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$2", "=Sheet1!$B$1:$B$2");
@@ -46,7 +46,7 @@ int main()
   series.set_points(points);
 
   // Insert the chart into the worksheet.
-  worksheet.insert_chart("D2", &chart);
+  worksheet.insert_chart("D2", chart);
 
   workbook.save("chart_pie_colors.xlsx");
 }

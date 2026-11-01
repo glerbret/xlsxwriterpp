@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::SCATTER);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::SCATTER};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(57940608, 57938688);
@@ -37,7 +37,7 @@ int main()
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).major_gridlines_set_visible(true);
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).major_gridlines_set_visible(false);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_gridlines02.xlsx");
 }

@@ -13,7 +13,7 @@ int main()
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet   = workbook.add_worksheet();
   xwpp::chartsheet_t& chartsheet = workbook.add_chartsheet();
-  xwpp::chart_t& chart           = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart            = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(57619968, 57621504);
@@ -38,7 +38,7 @@ int main()
 
   chart.show_blanks_as(xwpp::chart_blank_t::AS_CONNECTED);
 
-  chartsheet.set_chart(&chart);
+  chartsheet.set_chart(chart);
 
   workbook.save("test_chart_blank05.xlsx");
 }

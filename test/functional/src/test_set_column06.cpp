@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   const xwpp::row_col_options_t options{.hidden = true};
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
@@ -45,7 +45,7 @@ int main()
   chart.add_series("=Sheet1!$B$2:$B$6");
   chart.add_series("=Sheet1!$C$2:$C$6");
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_set_column06.xlsx");
 }

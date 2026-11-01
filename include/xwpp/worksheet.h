@@ -3789,23 +3789,22 @@ public:
    *
    * @param row_num The zero indexed row number.
    * @param col_num The zero indexed column number.
-   * @param chart   A xwpp::chart_t object created via xwpp::workbook_t::add_chart().
+   * @param chart   A `xwpp::chart_t` object.
    * @param options Optional chart parameters.
    *
    * The `%insert_chart()` function can be used to insert a chart into
-   * a worksheet. The chart object must be created first using the
-   * `workbook_t::add_chart()` function and configured using the @ref chart.h
-   * functions.
+   * a worksheet. The chart object must be created first and configured
+   * using the @ref chart.h functions.
    *
    * @code
    *  // Create a chart object.
-   *  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+   *  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
    *
    *  // Add a data series to the chart.
    *  chart.add_series("=Sheet1!$A$1:$A$6");
    *
    *  // Insert the chart into the worksheet.
-   *  worksheet.insert_chart(0, 2, &chart);
+   *  worksheet.insert_chart(0, 2, chart);
    * @endcode
    *
    * @image html chart_working.png
@@ -3824,46 +3823,44 @@ public:
    *    .y_scale  = 0.75,
    *  };
    *
-   *  worksheet.insert_chart(0, 2, &chart, options);
+   *  worksheet.insert_chart(0, 2, chart, options);
    * @endcode
    *
    * @image html chart_line_opt.png
    *
    * @pre The `%row_num` parameter must be less than 1048576.
    * @pre The `%col_num` parameter must be less than 16384.
-   * @pre The chart should not be already used.
    * @pre The serie list of the chart should not be empty.
    */
-  void insert_chart(row_num_t row_num, col_num_t col_num, chart_t* chart,
+  void insert_chart(row_num_t row_num, col_num_t col_num, const chart_t& chart,
                     const std::optional<chart_options_t>& options = std::nullopt);
 
   /**
    * @brief Insert a chart object into a worksheet.
    *
    * @param cell_name The name of the cell ("A1").
-   * @param chart     A xwpp::chart_t object created via xwpp::workbook_t::add_chart().
+   * @param chart     A `xwpp::chart_t` object.
    * @param options   Optional chart parameters.
    *
    * This function is similar to index-based one except they use name of the cell.
    *
    * @code
    *  // Create a chart object.
-   *  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+   *  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
    *
    *  // Add a data series to the chart.
    *  chart.add_series("=Sheet1!$A$1:$A$6");
    *
    *  // Insert the chart into the worksheet.
-   *  worksheet.insert_chart("C1", &chart);
+   *  worksheet.insert_chart("C1", chart);
    * @endcode
    *
    * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` is a valid cell name ("A1").
-   * @pre The chart should not be already used.
    * @pre The serie list of the chart should not be empty.
    */
-  void insert_chart(std::string_view cell_name, chart_t* chart,
+  void insert_chart(std::string_view cell_name, const chart_t& chart,
                     const std::optional<chart_options_t>& options = std::nullopt);
 
   /**

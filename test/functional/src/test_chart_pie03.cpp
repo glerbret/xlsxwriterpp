@@ -13,7 +13,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   const std::array<std::array<uint8_t, 2>, 3> data{
     {{2, 60}, {4, 30}, {6, 10}}
@@ -34,7 +34,7 @@ int main()
   const std::vector<int16_t> series{1};
   chart.legend_delete_series(series);
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_pie03.xlsx");
 }

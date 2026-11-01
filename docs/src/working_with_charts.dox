@@ -151,7 +151,7 @@ The `chart_series_t::set_trendline()` function turns on these trendlines for
 a data series:
 
 @code
-  chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
   chart.add_series("Sheet1!$A$1:$A$6").
        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
 @endcode

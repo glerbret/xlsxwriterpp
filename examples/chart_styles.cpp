@@ -37,11 +37,11 @@ int main()
     {
       for(xwpp::col_num_t col_num{0}; col_num < 64; col_num += 8)
       {
-        xwpp::chart_t& chart = workbook.add_chart(chart_type);
+        xwpp::chart_t chart = xwpp::chart_t{chart_type};
         chart.add_series("=Data!$A$1:$A$6");
         chart.set_title(std::format("Style {}", style_num));
         chart.set_style(style_num);
-        worksheet.insert_chart(row_num, col_num, &chart);
+        worksheet.insert_chart(row_num, col_num, chart);
 
         style_num++;
       }

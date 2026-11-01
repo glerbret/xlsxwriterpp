@@ -615,63 +615,6 @@ public:
   void unset_default_url_format();
 
   /**
-   * @brief Create a new chart to be added to a worksheet.
-   *
-   * @param chart_type The type of chart to be created. See `chart_type_t`.
-   *
-   * @return A reference to a chart_t object.
-   *
-   * The `%add_chart()` function creates a new chart object that can
-   * be added to a worksheet.
-   *
-   * @code
-   *  // Create a chart object.
-   *  xwpp::chart& chart = workbook.add_chart(LXW_CHART_COLUMN);
-   *
-   *  // Add data series to the chart.
-   *  chart.add_series("Sheet1!$A$1:$A$5");
-   *  chart.add_series("Sheet1!$B$1:$B$5");
-   *  chart.add_series("Sheet1!$C$1:$C$5");
-   *
-   *  // Insert the chart into the worksheet
-   *  worksheet.insert_chart("B7", &chart);
-   * @endcode
-   *
-   * The available chart types are defined in `chart_type_t`. The types of
-   * charts that are supported are:
-   *
-   * | Chart type                                     | Description                           |
-   * | :--------------------------------------------- | :-----------------------------------  |
-   * | `%chart_type_t::AREA`                          | Area chart                            |
-   * | `%chart_type_t::AREA_STACKED`                  | Area chart - stacked                  |
-   * | `%chart_type_t::AREA_STACKED_PERCENT`          | Area chart - percentage stacked       |
-   * | `%chart_type_t::BAR`                           | Bar chart                             |
-   * | `%chart_type_t::BAR_STACKED`                   | Bar chart - stacked                   |
-   * | `%chart_type_t::BAR_STACKED_PERCENT`           | Bar chart - percentage stacked        |
-   * | `%chart_type_t::COLUMN`                        | Column chart                          |
-   * | `%chart_type_t::COLUMN_STACKED`                | Column chart - stacked                |
-   * | `%chart_type_t::COLUMN_STACKED_PERCENT`        | Column chart - percentage stacked     |
-   * | `%chart_type_t::DOUGHNUT`                      | Doughnut chart                        |
-   * | `%chart_type_t::LINE`                          | Line chart                            |
-   * | `%chart_type_t::LINE_STACKED`                  | Line chart - stacked                  |
-   * | `%chart_type_t::LINE_STACKED_PERCENT`          | Line chart - percentage stacked       |
-   * | `%chart_type_t::PIE`                           | Pie chart                             |
-   * | `%chart_type_t::SCATTER`                       | Scatter chart                         |
-   * | `%chart_type_t::SCATTER_STRAIGHT`              | Scatter chart - straight              |
-   * | `%chart_type_t::SCATTER_STRAIGHT_WITH_MARKERS` | Scatter chart - straight with markers |
-   * | `%chart_type_t::SCATTER_SMOOTH`                | Scatter chart - smooth                |
-   * | `%chart_type_t::SCATTER_SMOOTH_WITH_MARKERS`   | Scatter chart - smooth with markers   |
-   * | `%chart_type_t::RADAR`                         | Radar chart                           |
-   * | `%chart_type_t::RADAR_WITH_MARKERS`            | Radar chart - with markers            |
-   * | `%chart_type_t::RADAR_FILLED`                  | Radar chart - filled                  |
-   *
-   * @see @ref chart.h for details.
-   *
-   * @pre The `%chart_type` parameter should not be set to `%chart_type_t::NONE`.
-   */
-  [[nodiscard]] chart_t& add_chart(chart_type_t chart_type);
-
-  /**
    * @brief Add a vbaProject binary to the Excel workbook.
    *
    * @param filename The path/filename of the vbaProject.bin file.
@@ -858,7 +801,6 @@ private:
   std::map<std::string, chartsheet_t*, std::less<>> chartsheet_names_;
   // Complete list of sheets (worksheets and chartsheets) in creation order
   std::vector<sheet_t*> sheets_;
-  std::list<chart_t> charts_;
   std::list<format_t> formats_;
   std::list<defined_name_t> defined_names_;
   std::map<std::string, uint32_t, std::less<>> image_md5_;

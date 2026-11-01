@@ -50,7 +50,7 @@ int main()
 
   // Chart 1. Create a area chart.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
     // Add the first series to the chart wuth a name for the series instead of the default "Series 1".
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -70,12 +70,12 @@ int main()
     chart.set_style(10);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E2", &chart);
+    worksheet.insert_chart("E2", chart);
   }
 
   // Chart 2. Create a stacked bar chart.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE_STACKED);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE_STACKED};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -92,12 +92,12 @@ int main()
     chart.set_style(12);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E18", &chart);
+    worksheet.insert_chart("E18", chart);
   }
 
   // Chart 3. Create a percent stacked bar chart.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::LINE_STACKED_PERCENT);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE_STACKED_PERCENT};
 
     // Add the first series to the chart.
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
@@ -114,7 +114,7 @@ int main()
     chart.set_style(13);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("E34", &chart);
+    worksheet.insert_chart("E34", chart);
   }
 
   workbook.save("chart_line.xlsx");

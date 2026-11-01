@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(61355904, 61365248);
@@ -36,7 +36,7 @@ int main()
   chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_options_t options{.x_scale = 1.06666667, .y_scale = 1.11111112};
-  worksheet.insert_chart("E9", &chart, options);
+  worksheet.insert_chart("E9", chart, options);
 
   workbook.save("test_chart_size01.xlsx");
 }

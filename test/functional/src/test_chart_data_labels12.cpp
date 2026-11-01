@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   // For testing, copy the randomly generated axis ids in the target file.
   chart.set_axis_ids(45848832, 47718784);
@@ -36,7 +36,7 @@ int main()
     .set_labels_position(xwpp::chart_label_position_t::OUTSIDE_END)
     .set_labels_leader_line();
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_chart_data_labels12.xlsx");
 }

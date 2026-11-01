@@ -12,7 +12,7 @@ int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  xwpp::chart_t& chart         = workbook.add_chart(xwpp::chart_type_t::LINE);
+  xwpp::chart_t chart          = xwpp::chart_t{xwpp::chart_type_t::LINE};
 
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
   const xwpp::format_t* italic = workbook.format_builder().italic().build();
@@ -48,7 +48,7 @@ int main()
   chart.add_series("=Sheet1!$C$2:$C$6");
 
   const xwpp::chart_options_t chart_options{.object_position = xwpp::object_position_t::MOVE_DONT_SIZE};
-  worksheet.insert_chart("E9", &chart, chart_options);
+  worksheet.insert_chart("E9", chart, chart_options);
 
   workbook.save("test_object_position08.xlsx");
 }

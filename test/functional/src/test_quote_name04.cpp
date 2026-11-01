@@ -31,13 +31,13 @@ int main()
     row_num++;
   }
 
-  xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::PIE);
+  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
   chart.add_series(xwpp::build_serie_range(sheetname, 0, 0, 4, 0)).set_name(sheetname, 0, 0);
 
   chart.set_title("Foo");
 
-  worksheet.insert_chart("E9", &chart);
+  worksheet.insert_chart("E9", chart);
 
   workbook.save("test_quote_name04.xlsx");
 }

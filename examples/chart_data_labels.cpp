@@ -49,7 +49,7 @@ int main()
 
   // Chart 1. Example with standard data labels.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Chart with standard data labels");
@@ -64,12 +64,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D2", &chart, options);
+    worksheet.insert_chart("D2", chart, options);
   }
 
   // Chart 2. Example with value and category data labels.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Category and Value data labels");
@@ -87,12 +87,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D18", &chart, options);
+    worksheet.insert_chart("D18", chart, options);
   }
 
   // Chart 3. Example with standard data labels with different font.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Data labels with user defined font");
@@ -110,12 +110,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D34", &chart, options);
+    worksheet.insert_chart("D34", chart, options);
   }
 
   // Chart 4. Example with standard data labels and formatting.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Data labels with formatting");
@@ -137,12 +137,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D50", &chart, options);
+    worksheet.insert_chart("D50", chart, options);
   }
 
   // Chart 5.Example with custom string data labels.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Chart with custom string data labels");
@@ -165,12 +165,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D66", &chart, options);
+    worksheet.insert_chart("D66", chart, options);
   }
 
   // Chart 6. Example with custom data labels from cells.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Chart with custom data labels from cells");
@@ -194,12 +194,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D82", &chart, options);
+    worksheet.insert_chart("D82", chart, options);
   }
 
   // Chart 7. Example with custom and default data labels.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Mixed custom and default data labels");
@@ -227,12 +227,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D98", &chart, options);
+    worksheet.insert_chart("D98", chart, options);
   }
 
   // Chart 8. Example with deleted/hidden custom data labels.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Chart with deleted data labels");
@@ -257,12 +257,12 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D114", &chart, options);
+    worksheet.insert_chart("D114", chart, options);
   }
 
   // Chart 9.Example with custom string data labels and formatting.
   {
-    xwpp::chart_t& chart = workbook.add_chart(xwpp::chart_type_t::COLUMN);
+    xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
     // Add a chart title.
     chart.set_title("Chart with custom labels and formatting");
@@ -300,7 +300,7 @@ int main()
     chart.set_legend_position(xwpp::chart_legend_position_t::NONE);
 
     // Insert the chart into the worksheet.
-    worksheet.insert_chart("D130", &chart, options);
+    worksheet.insert_chart("D130", chart, options);
   }
 
   workbook.save("chart_data_labels.xlsx");
