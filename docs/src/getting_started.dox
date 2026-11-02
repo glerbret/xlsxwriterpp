@@ -6,29 +6,6 @@
 Here are some instructions to get you up and running with the `Xlsxwriter++`
 library on different OS.
 
-@section gsg_quick_start Quick-start on Linux
-
-If you prefer to assemble Ikea furniture first and only read the instructions
-when you have parts left over then the following minimal set of commands
-should get you up and running on a Debian like system:
-
-@code
-  sudo apt-get install -y zlib1g-dev libssl-dev
-
-  git clone https://github.com/glerbret/xlsxwriterpp.git
-  cd xlsxwriterpp
-
-  mkdir build
-  cd build
-
-  cmake .. -DCMAKE_BUILD_TYPE=Release
-
-  cmake --build . --target install
-@endcode
-
-If you read the instructions first and then assemble the furniture you will
-know how to proceed.
-
 @section gsg_linux Installation on Linux
 
 @subsection gsg_dependencies Install the dependencies
@@ -111,7 +88,7 @@ You can install the library `Xlsxwriter++` with cmake as follows:
 @subsection gsg_using Using the library
 
 Using your source code editor create a file like the following called
-`myexcel.c`:
+`myexcel.cpp`:
 
 @code
   #include "xlsxwriterpp.h"

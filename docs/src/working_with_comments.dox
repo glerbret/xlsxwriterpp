@@ -53,7 +53,7 @@ The following options are available in `comment_options_t`:
 
 The options are explained in detail below and shown in @ref comments2.cpp.
 
-@subsection ww_comments_author Cell comments: `%author`
+@subsection ww_comments_author `%author`
 
 This `%author` option is used to indicate who is the author of the cell
 comment. Excel displays the author of the comment in the status bar at the
@@ -73,7 +73,7 @@ the `worksheet_t::set_comments_author()` function:
   worksheet.set_comments_author("John Doe")
 @endcode
 
-@subsection ww_comments_visible Cell comments: `%visible`
+@subsection ww_comments_visible `%visible`
 
 The `%visible` option is used to make a cell comment visible when the worksheet
 is opened. The default behavior in Excel is that comments are initially
@@ -100,7 +100,7 @@ cell comments have been made visible you can hide individual comments:
   worksheet.write_comment("C6", "Hello", options);
 @endcode
 
-@subsection ww_comments_width Cell comments: `%width`
+@subsection ww_comments_width `%width`
 
 The `%width` option is used to set the width of the cell comment box explicitly
 in pixels:
@@ -117,7 +117,7 @@ The width and height can be adjusted together:
   xwpp::comment_options_t options{.width = 200, .height = 50};
 @endcode
 
-@subsection ww_comments_height Cell comments: `%height`
+@subsection ww_comments_height `%height`
 
 The `%height` option is used to set the height of the cell comment box
 explicitly in pixels:
@@ -134,7 +134,7 @@ The width and height can be adjusted together:
   xwpp::comment_options_t options{.width = 200, .height = 50};
 @endcode
 
-@subsection ww_comments_x_scale Cell comments: `%x_scale`
+@subsection ww_comments_x_scale `%x_scale`
 
 The `%x_scale` option is used to set the width of the cell comment box
 as a factor of the default width:
@@ -145,7 +145,7 @@ as a factor of the default width:
   worksheet.write_comment("C6", "Hello", options);
 @endcode
 
-@subsection ww_comments_y_scale Cell comments: `%y_scale`
+@subsection ww_comments_y_scale `%y_scale`
 
 The `%y_scale` option is used to set the height of the cell comment box
 as a factor of the default height:
@@ -156,7 +156,7 @@ as a factor of the default height:
   worksheet.write_comment("C6", "Hello", options);
 @endcode
 
-@subsection ww_comments_color Cell comments: `%color`
+@subsection ww_comments_color `%color`
 
 The `%color` option is used to set the background color of cell comment
 box. The color should be an RGB integer value, see @ref
@@ -170,7 +170,7 @@ working_with_colors.
   worksheet.write_comment("C7", "Hello", options2);
 @endcode
 
-@subsection ww_comments_font_name Cell comments: `%font_name`
+@subsection ww_comments_font_name `%font_name`
 
 The `%font_name` option is used to set the font for the comment:
 
@@ -180,7 +180,7 @@ The `%font_name` option is used to set the font for the comment:
 
 The default font is 'Tahoma'.
 
-@subsection ww_comments_font_size Cell comments: `%font_size`
+@subsection ww_comments_font_size `%font_size`
 
 The `%font_size` option is used to set the font size for the comment:
 
@@ -190,7 +190,7 @@ The `%font_size` option is used to set the font size for the comment:
 
 The  default font size is 8.
 
-@subsection ww_comments_start_row Cell comments: `%start_row`
+@subsection ww_comments_start_row `%start_row`
 
 The `%start_row` option is used to set the row in which the comment will
 appear. By default Excel displays comments one cell to the right and one cell
@@ -204,7 +204,7 @@ above the cell to which the comment relates.  The row is zero indexed:
 
 See @ref ww_comments_notes
 
-@subsection ww_comments_start_col Cell comments: `%start_col`
+@subsection ww_comments_start_col `%start_col`
 
 The `%start_col` option is used to set the column in which the comment will
 appear. By default Excel displays comments one cell to the right and one cell
@@ -218,7 +218,7 @@ above the cell to which the comment relates. The column is zero indexed:
 
 See @ref ww_comments_notes
 
-@subsection ww_comments_x_offset Cell comments: `%x_offset`
+@subsection ww_comments_x_offset `%x_offset`
 
 The `%x_offset` option is used to change the x offset, in pixels, of a
 comment within a cell:
@@ -231,7 +231,7 @@ comment within a cell:
 
 See @ref ww_comments_notes
 
-@subsection ww_comments_y_offset Cell comments: `%y_offset`
+@subsection ww_comments_y_offset `%y_offset`
 
 The `%y_offset` option is used to change the y offset, in pixels, of a
 comment within a cell:

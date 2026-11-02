@@ -671,16 +671,16 @@ enum class chart_layout_type_t
  */
 enum class chart_error_bar_type_t
 {
-  /** Error bar type: Standard error. */
+  /** Standard error. */
   STD_ERROR,
 
-  /** Error bar type: Fixed value. */
+  /** Fixed value. */
   FIXED,
 
-  /** Error bar type: Percentage. */
+  /** Percentage. */
   PERCENTAGE,
 
-  /** Error bar type: Standard deviation(s). */
+  /** Standard deviation(s). */
   STD_DEV
 };
 
@@ -737,22 +737,22 @@ enum class chart_error_bar_cap_t
  */
 enum class chart_trendline_type_t
 {
-  /** Trendline type: Linear. */
+  /** Linear. */
   LINEAR,
 
-  /** Trendline type: Logarithm. */
+  /** Logarithm. */
   LOG,
 
-  /** Trendline type: Polynomial. */
+  /** Polynomial. */
   POLY,
 
-  /** Trendline type: Power. */
+  /** Power. */
   POWER,
 
-  /** Trendline type: Exponential. */
+  /** Exponential. */
   EXP,
 
-  /** Trendline type: Moving Average. */
+  /** Moving Average. */
   AVERAGE
 };
 
@@ -909,7 +909,7 @@ struct chart_font_t
   /** The chart font baseline property. Rarely required, set to 0. */
   int8_t baseline{0};
 
-  // Use to distinguish title font (bold by default and we should set b="0" if bold is false) from others one
+  // Use to distinguish title font (bold by default and we should set b="0" if bold is false) from others one.
   bool title_font{false};
 };
 
@@ -961,16 +961,16 @@ struct chart_font_t
  */
 struct chart_layout_t
 {
-  /** The x offset in the range `0.0 < x <= 1.0` */
+  /** The x offset in the range `0.0 < x <= 1.0`. */
   double x{0.};
 
-  /** The y offset in the range `0.0 < y <= 1.0` */
+  /** The y offset in the range `0.0 < y <= 1.0`. */
   double y{0.};
 
-  /** The width of the plotarea or legend in the range `0.0 < x <= 1.0` */
+  /** The width of the plotarea or legend in the range `0.0 < x <= 1.0`. */
   double width{0.};
 
-  /** The height of the plotarea or legend in the range `0.0 < x <= 1.0` */
+  /** The height of the plotarea or legend in the range `0.0 < x <= 1.0`. */
   double height{0.};
 
   bool has_inner{false};
@@ -1154,19 +1154,18 @@ public:
    *
    * @see @ref chart_error_bars.
    *
-   * @pre `%error_bars` should not be already enabled.
+   * @pre The error bar must not be already enabled.
    */
   series_error_bars_t& enable_error_bars(chart_error_bar_type_t type, double value);
 
   /**
    * @brief Set the direction (up, down or both) of the error bars.
    *
-   * @param direction  The bar direction: `chart_error_bar_direction_t`.
+   * @param direction  The bar direction.
    *
    * @return Reference to this.
    *
-   * The `%set_direction()` function sets the
-   * direction of the error bars:
+   * The `%set_direction()` function sets the direction of the error bars:
    *
    * @code
    *   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
@@ -1324,7 +1323,7 @@ public:
    *        set_name("Sheet1", 0, 2); // "=Sheet1!$C$1"
    * @endcode
    *
-   * @pre The `%sheetname` parameter should not be empty.
+   * @pre `%sheetname` must not be empty.
    */
   chart_series_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
 
@@ -1357,7 +1356,8 @@ public:
    * type of the series marker:
    *
    * @code
-   *  chart.set_marker_type(xwpp::chart_marker_type_t::DIAMOND);
+   *  chart.add_series("=Sheet1!$A$1:$A$6").
+   *        set_marker_type(xwpp::chart_marker_type_t::DIAMOND);
    * @endcode
    *
    * @image html chart_marker1.png
@@ -1379,7 +1379,7 @@ public:
    * The `%chart_marker_type_t::NONE` type can be used to turn off default markers:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *  chart.add_series("=Sheet1!$A$1:$A$6").
    *        set_marker_type(series, xwpp::chart_marker_type_t::NONE);
    * @endcode
    *
@@ -1403,14 +1403,14 @@ public:
    * size of the series marker:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *  chart.add_series("=Sheet1!$A$1:$A$6").
    *        set_marker_type(xwpp::chart_marker_type_t::CIRCLE).
    *        set_marker_size(10);
    * @endcode
    *
    * @image html chart_series_set_marker_size.png
    *
-   * @pre The `%size` parameter must be in the range `[2, 72]`.
+   * @pre `%size` must be in the range `[2, 72]`.
    */
   chart_series_t& set_marker_size(uint8_t size);
 
@@ -1425,13 +1425,11 @@ public:
    *
    * @code
    *  const xwpp::chart_line_t line{.color = xwpp::color_t::black()};
-   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
    *
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *  chart.add_series("=Sheet1!$A$1:$A$6").
    *        set_marker_type(xwpp::chart_marker_type_t::SQUARE).
    *        set_marker_size(8).
-   *        set_marker_line(line).
-   *        set_marker_fill(fill);
+   *        set_marker_line(line);
    * @endcode
    *
    * @image html chart_marker2.png
@@ -1450,9 +1448,15 @@ public:
    * Set the fill properties of a chart marker:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
+   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+   *
+   *  chart.add_series("=Sheet1!$A$1:$A$6").
+   *        set_marker_type(xwpp::chart_marker_type_t::SQUARE).
+   *        set_marker_size(8).
    *        set_marker_fill(fill);
    * @endcode
+   *
+   * @image html chart_marker_fill.png
    *
    * @see @ref chart_fills.
    */
@@ -1468,9 +1472,17 @@ public:
    * Set the pattern properties of a chart marker:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_marker_pattern(pattern);
+   *  const xwpp::chart_pattern_t pattern{.fg_color = xwpp::color_t::black(),
+   *                                      .bg_color = xwpp::color_t::white(),
+   *                                      .type = xwpp::chart_pattern_type_t::DARK_VERTICAL};
+   *
+   *  chart.add_series("=Sheet1!$A$1:$A$6").
+   *        set_marker_type(xwpp::chart_marker_type_t::SQUARE).
+   *        set_marker_size(8).
+   *        set_marker_fill(fill);
    * @endcode
+   *
+   * @image html chart_marker_pattern.png
    *
    * @see `chart_pattern_type_t` and @ref chart_patterns.
    */
@@ -1488,8 +1500,7 @@ public:
    * @code
    *  const xwpp::chart_line_t line{.color = xwpp::color_t::red()};
    *
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_line(line);
+   *  chart.add_series("=Sheet1!$A$1:$A$6").set_line(line);
    * @endcode
    *
    * @image html chart_series_set_line.png
@@ -1512,12 +1523,9 @@ public:
    *  const xwpp::chart_fill_t fill2{.color = xwpp::color_t::yellow()};
    *  const xwpp::chart_fill_t fill3{.color = xwpp::color_t::green()};
    *
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_fill(fill1);
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_fill(fill2);
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_fill(fill3);
+   *  chart.add_series("=Sheet1!$A$1:$A$5").set_fill(fill1);
+   *  chart.add_series("=Sheet1!$B$1:$B$5").set_fill(fill2);
+   *  chart.add_series("=Sheet1!$C$1:$C$5").set_fill(fill3);
    * @endcode
    *
    * @image html chart_series_set_fill.png
@@ -1529,7 +1537,6 @@ public:
   /**
    * @brief Set the pattern properties for a chart series.
    *
-   * @param series  A series object created via `chart_t::add_series()`.
    * @param pattern A `chart_pattern_t` struct.
    *
    * @return Reference to this.
@@ -1538,21 +1545,19 @@ public:
    *
    * @code
    *  const xwpp::chart_pattern_t pattern1{
-   *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
    *    .fg_color = xwpp::color_t{0x804000},
    *    .bg_color = xwpp::color_t{0xC68C53},
+   *    .type     = xwpp::chart_pattern_type_t::SHINGLE,
    *  };
    *
    *  const xwpp::chart_pattern_t pattern2{
-   *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
    *    .fg_color = xwpp::color_t{0xB30000},
    *    .bg_color = xwpp::color_t{0xFF6666},
+   *    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
    *  };
    *
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_pattern(pattern1);
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_pattern(pattern2);
+   *  chart.add_series("Sheet1!$A$2:$A$5").set_pattern(pattern1);
+   *  chart.add_series("Sheet1!$B$2:$B$5").set_pattern(pattern2);
    * @endcode
    *
    * @image html chart_pattern.png
@@ -1570,9 +1575,14 @@ public:
    * column and bar charts.
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_invert_if_negative();
+   * const xwpp::chart_pattern_t pattern{.fg_color = xwpp::color_t{0x804000},
+   *                                     .bg_color = xwpp::color_t{0xC68C53},
+   *                                     .type     = xwpp::chart_pattern_type_t::SHINGLE,};
+   *
+   *  chart.add_series("=Sheet1!$A$1:$A$5").set_pattern(pattern).set_invert_if_negative();
    * @endcode
+   *
+   * @image html chart_invert_if_negative.png
    */
   chart_series_t& set_invert_if_negative();
 
@@ -1588,8 +1598,7 @@ public:
    * types:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_smooth(true);
+   *  chart.add_series("=Sheet1!$B$2:$B$7").set_smooth(true);
    * @endcode
    *
    * @image html chart_smooth.png
@@ -1610,13 +1619,13 @@ public:
    *
    * @dontinclude chart_pie_colors.cpp
    * @skip Add the data series
-   * @until series_set_points
+   * @until series.set_points
    *
    * @image html chart_points1.png
    *
    * @see @ref chart_points
    *
-   * @pre The `%points` parameter should not be empty.
+   * @pre `%points` must not be empty.
    */
   chart_series_t& set_points(const std::vector<chart_point_t>& points);
 
@@ -1669,7 +1678,8 @@ public:
    */
   chart_series_t& set_labels_options(bool show_name, bool show_category, bool show_value);
 
-  /** @brief Set the properties for data labels in a series.
+  /**
+   * @brief Set the properties for data labels in a series.
    *
    * @param data_labels A vector of `chart_data_label_t` pointers.
    *
@@ -1705,7 +1715,7 @@ public:
    *
    * @see @ref chart_custom_labels.
    *
-   * @pre The `%data_labels` parameter should not be empty.
+   * @pre `%data_labels` must not be empty.
    */
   chart_series_t& set_labels_custom(const std::vector<chart_data_label_t>& data_labels);
 
@@ -1810,9 +1820,7 @@ public:
    * legend key for a data series:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_labels().
-   *        set_labels_legend();
+   *  chart.add_series("=Sheet1!$B$2:$B$7").set_labels().set_labels_legend();
    * @endcode
    *
    * @image html chart_data_labels6.png
@@ -1976,8 +1984,7 @@ public:
    *
    * @code
    *  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::LINE};
-   *  chart.add_series("Sheet1!$A$1:$A$6").
-   *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
+   *  chart.add_series("Sheet1!$A$1:$A$6").set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0);
    * @endcode
    *
    * @image html chart_trendline2.png
@@ -1987,8 +1994,7 @@ public:
    * The `value` parameter  is ignored for all other trendlines:
    *
    * @code
-   *  chart.add_series("=Sheet1!$B$2:$B$7").
-   *        set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
+   *  chart.add_series("=Sheet1!$B$2:$B$7").set_trendline(xwpp::chart_trendline_type_t::AVERAGE, 2);
    * @endcode
    *
    * @image html chart_trendline3.png
@@ -2004,14 +2010,9 @@ public:
    * - `chart_trendline_type_t::AVERAGE`: Moving Average trendline. The `value`
    *   parameter corresponds to *period*.
    *
-   * Other trendline options, such as those shown in the following Excel
-   * dialog, can be set using the functions below.
-   *
-   * @image html chart_trendline1.png
-   *
    * @see @ref chart_trendlines.
    *
-   * @pre The `%value` parameter must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
+   * @pre `%value` must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
    */
   chart_series_t& set_trendline(chart_trendline_type_t type, uint8_t value);
 
@@ -2157,7 +2158,7 @@ public:
    *
    *  // Delete the series name for the second series (=1 in zero base).
    *  const std::vector<int16_t> names{1};
-   *  chart_legend_delete_series(chart, names);
+   *  chart.legend_delete_series(names);
    * @endcode
    *
    * @image html chart_trendline9.png
@@ -2184,7 +2185,7 @@ public:
    *
    *  chart.add_series("=Sheet1!$B$2:$B$7").
    *        set_trendline(xwpp::chart_trendline_type_t::LINEAR, 0).
-   *        set_trendline_line(&line);
+   *        set_trendline_line(line);
    * @endcode
    *
    * @image html chart_trendline10.png
@@ -2194,7 +2195,6 @@ public:
   chart_series_t& set_trendline_line(const chart_line_t& line);
 
   // For test only
-
   template<size_t R, size_t C>
   chart_series_t& add_data_cache_categories(const std::array<std::array<uint8_t, C>, R>& data, uint8_t col)
   {
@@ -2212,14 +2212,14 @@ public:
   }
 
   /**
-   * @brief Get reference to an error bar of the serie.
+   * @brief Get reference to an error bar of the series.
    *
    * @param axis   The axis of error bar.
    *
    * @return Reference to the error bar.
    *
    * The `%get_error_bars()` function is used to get the
-   * reference to an error bar of the serie:
+   * reference to an error bar of the series:
    *
    * @code
    *  series_error_bars_t error_bar = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_X);
@@ -2325,8 +2325,8 @@ public:
    * displayed below an X axis and to the side of a Y axis.
    *
    * @code
-   *  x_axis.set_name("Earnings per Quarter");
-   *  y_axis.set_name("US Dollars (Millions)");
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Earnings per Quarter");
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("US Dollars (Millions)");
    * @endcode
    *
    * @image html chart_axis_set_name.png
@@ -2340,7 +2340,7 @@ public:
    *
    * @see @ref ww_charts_axes.
    *
-   * @pre The `%name` parameter should not be empty.
+   * @pre `%name` must not be empty.
    */
   chart_axis_t& set_name(std::string_view name);
 
@@ -2358,13 +2358,13 @@ public:
    * formula:
    *
    * @code
-   *  x_axis.set_name("Sheet1", 1, 0);
-   *  y_axis.set_name("Sheet1", 2, 0);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Sheet1", 1, 0);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sheet1", 2, 0);
    * @endcode
    *
    * @see @ref ww_charts_axes.
    *
-   * @pre The `%sheetname` parameter should not be empty.
+   * @pre `%sheetname` must not be empty.
    */
   chart_axis_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
 
@@ -2384,8 +2384,8 @@ public:
    *    .color = xwpp::color_t::blue(),
    *  };
    *
-   *  x_axis.set_name("Yearly data");
-   *  x_axis.set_name_font(font);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Yearly data");
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name_font(font);
    * @endcode
    *
    * @image html chart_axis_set_name_font.png
@@ -2427,7 +2427,7 @@ public:
    *    .color = xwpp::color_t::blue()
    *  };
    *
-   *  x_axis.set_num_font(font1);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_num_font(font);
    * @endcode
    *
    * @image html chart_axis_set_num_font.png
@@ -2448,8 +2448,8 @@ public:
    * the numbers on an axis:
    *
    * @code
-   *  x_axis.set_num_format("0.00%");
-   *  y_axis.set_num_format("$#,##0.00");
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_num_format("0.00%");
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_num_format("$#,##0.00");
    * @endcode
    *
    * The number format is similar to the Worksheet Cell Format num_format,
@@ -2472,9 +2472,9 @@ public:
    *
    * @code
    *  // Hide the Y axis.
-   *  const xwpp::chart_line_t line{.none = true};
+   *  const xwpp::chart_line_t line{ .none = true };
    *
-   *  y_axis.set_line(line);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line);
    * @endcode
    *
    * @image html chart_axis_set_line.png
@@ -2496,7 +2496,7 @@ public:
    * @code
    *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
    *
-   *  y_axis.set_fill(fill);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_fill(fill);
    * @endcode
    *
    * @image html chart_axis_set_fill.png
@@ -2516,7 +2516,7 @@ public:
    * Set the pattern properties of a chart axis:
    *
    * @code
-   *  y_axis.set_pattern(pattern);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_pattern(pattern);
    * @endcode
    *
    * @see `chart_pattern_type_t` and @ref chart_patterns.
@@ -2532,7 +2532,7 @@ public:
    * Reverse the order of the axis categories or values:
    *
    * @code
-   *  x_axis.set_reverse();
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_reverse();
    * @endcode
    *
    * @image html chart_reverse.png
@@ -2551,8 +2551,8 @@ public:
    * Set the position that the axis will cross the opposite axis:
    *
    * @code
-   *  x_axis.set_crossing(3);
-   *  y_axis.set_crossing(8);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing(3);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing(8);
    * @endcode
    *
    * @image html chart_crossing1.png
@@ -2575,8 +2575,8 @@ public:
    * the number sequence:
    *
    * @code
-   *  x_axis.set_crossing_max();
-   *  y_axis.set_crossing_max();
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing_max();
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing_max();
    * @endcode
    *
    * @image html chart_crossing2.png
@@ -2596,8 +2596,8 @@ public:
    * the number sequence:
    *
    * @code
-   *  x_axis.set_crossing_min();
-   *  y_axis.set_crossing_min();
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing_min();
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing_min();
    * @endcode
    *
    * @see @ref ww_charts_axes.
@@ -2612,7 +2612,7 @@ public:
    * Turn off, hide, a chart axis:
    *
    * @code
-   *  x_axis.off();
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).off();
    * @endcode
    *
    * @image html chart_axis_off.png
@@ -2636,7 +2636,7 @@ public:
    * - `%chart_axis_tick_position_t::BETWEEN`
    *
    * @code
-   *  x_axis.set_position(xwpp::chart_axis_tick_position_t::BETWEEN);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_position(xwpp::chart_axis_tick_position_t::BETWEEN);
    * @endcode
    *
    * @image html chart_axis_set_position.png
@@ -2657,8 +2657,8 @@ public:
    * the axis.
    *
    * @code
-   *  x_axis.set_label_position(xwpp::chart_axis_label_position_t::HIGH);
-   *  y_axis.set_label_position(xwpp::chart_axis_label_position_t::HIGH);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_label_position(xwpp::chart_axis_label_position_t::HIGH);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_label_position(xwpp::chart_axis_label_position_t::HIGH);
    * @endcode
    *
    * @image html chart_label_position2.png
@@ -2698,7 +2698,7 @@ public:
    * - `%chart_axis_label_alignment_t::RIGHT` - Align label right.
    *
    * @code
-   *  x_axis.set_label_align(xwpp::chart_axis_label_alignment_t::RIGHT);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_label_align(xwpp::chart_axis_label_alignment_t::RIGHT);
    * @endcode
    *
    * @see @ref ww_charts_axes.
@@ -2715,8 +2715,8 @@ public:
    * Set the minimum value for the axis range.
    *
    * @code
-   *  y_axis.set_min(-4);
-   *  y_axis.set_max(21);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_min(-4);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_max(21);
    * @endcode
    *
    * @image html chart_max_min.png
@@ -2735,9 +2735,11 @@ public:
    * Set the maximum value for the axis range.
    *
    * @code
-   *  y_axis.set_min(-4);
-   *  y_axis.set_max(21);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_min(-4);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_max(21);
    * @endcode
+   *
+   * @image html chart_max_min.png
    *
    * @see @ref ww_charts_axes.
    */
@@ -2753,7 +2755,7 @@ public:
    * Set the log base for the axis:
    *
    * @code
-   *  y_axis.set_log_base(10);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_log_base(10);
    * @endcode
    *
    * @image html chart_log_base.png
@@ -2777,14 +2779,15 @@ public:
    * Set the type of the major axis tick mark:
    *
    * @code
-   *  x_axis.set_major_tick_mark(xwpp::chart_axis_tick_mark_t::CROSSING);
-   *  x_axis.set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).
+   *        set_major_tick_mark(xwpp::chart_axis_tick_mark_t::CROSSING).
+   *        set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE);
    *
-   *  y_axis.set_major_tick_mark(xwpp::chart_axis_tick_mark_t::OUTSIDE);
-   *  y_axis.set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE);
-   *
-   *  // Hide the default gridlines so the tick marks are visible.
-   *  y_axis.major_gridlines_set_visible(false);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *        set_major_tick_mark(xwpp::chart_axis_tick_mark_t::OUTSIDE).
+   *        set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE).
+   *        // Hide the default gridlines so the tick marks are visible.
+   *        major_gridlines_set_visible(false);
    * @endcode
    *
    * @image html chart_tick_marks.png
@@ -2834,7 +2837,7 @@ public:
    *     1, 3, 5, 7, etc.
    *
    * @code
-   *  x_axis.set_interval_unit(2);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_interval_unit(2);
    * @endcode
    *
    * @image html chart_set_interval1.png
@@ -2854,7 +2857,7 @@ public:
    * between each category but it can be set to other integer values:
    *
    * @code
-   *  x_axis.set_interval_tick(2);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_interval_tick(2);
    * @endcode
    *
    * @image html chart_set_interval2.png
@@ -2874,10 +2877,10 @@ public:
    *
    * @code
    *  // Turn on the minor gridline (it is off by default).
-   *  y_axis.minor_gridlines_set_visible(true);
-   *
-   *  y_axis.set_major_unit(4);
-   *  y_axis.set_minor_unit(2);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *        minor_gridlines_set_visible(true).
+   *        set_major_unit(4).
+   *        set_minor_unit(2);
    * @endcode
    *
    * @image html chart_set_major_units.png
@@ -2896,7 +2899,7 @@ public:
    * Set the increment of the minor units in the axis range.
    *
    * @code
-   *  chart_axis_set_minor_unit(chart->y_axis, 2);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_minor_unit(2);
    * @endcode
    *
    * See the image above
@@ -2917,8 +2920,8 @@ public:
    * are very large but you don't want to represent them in scientific notation:
    *
    * @code
-   *  x_axis.set_display_units(xwpp::chart_axis_display_unit_t::THOUSANDS);
-   *  y_axis.set_display_units(xwpp::chart_axis_display_unit_t::MILLIONS);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *        set_display_units(xwpp::chart_axis_display_unit_t::MILLIONS);
    * @endcode
    *
    * @image html chart_display_units.png
@@ -2940,8 +2943,8 @@ public:
    *
    * @code
    *  // Reverse the normal visible/hidden gridlines for a column chart.
-   *  x_axis.major_gridlines_set_visible(true);
-   *  y_axis.major_gridlines_set_visible(false);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).major_gridlines_set_visible(true);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).major_gridlines_set_visible(false);
    * @endcode
    *
    * @image html chart_gridline1.png
@@ -2963,10 +2966,12 @@ public:
    * Example, turn on all major and minor gridlines:
    *
    * @code
-   *  x_axis.major_gridlines_set_visible(true);
-   *  x_axis.minor_gridlines_set_visible(true);
-   *  y_axis.major_gridlines_set_visible(true);
-   *  y_axis.minor_gridlines_set_visible(true);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).
+   *        major_gridlines_set_visible(true).
+   *        minor_gridlines_set_visible(true);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *        major_gridlines_set_visible(true).
+   *        minor_gridlines_set_visible(true);
    * @endcode
    *
    * @image html chart_gridline2.png
@@ -2988,7 +2993,7 @@ public:
    *  const xwpp::chart_line_t line1{
    *    .color     = xwpp::color_t::red(),
    *    .width     = 0.5,
-   *    .dash_type = xwpp::xwpp::chart_line_dash_type_t::SQUARE_DOT,
+   *    .dash_type = xwpp::chart_line_dash_type_t::SQUARE_DOT,
    *  };
    *
    *  const xwpp::chart_line_t line2{
@@ -2997,17 +3002,23 @@ public:
    *
    *  const xwpp::chart_line_t line3{
    *    .width     = 1.25,
-   *    .dash_type = xwpp::xwpp::chart_line_dash_type_t:DASH,
+   *    .dash_type = xwpp::chart_line_dash_type_t::DASH,
    *  };
    *
    *  const xwpp::chart_line_t line4{
    *    .color     = xwpp::color_t{0x00B050},
    *  };
    *
-   *  x_axis.major_gridlines_set_line(line1);
-   *  x_axis.minor_gridlines_set_line(line2);
-   *  y_axis.major_gridlines_set_line(line3);
-   *  y_axis.minor_gridlines_set_line(line4);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).
+   *        major_gridlines_set_visible(true).
+   *        minor_gridlines_set_visible(true).
+   *        major_gridlines_set_line(line1).
+   *        minor_gridlines_set_line(line2);
+   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *        major_gridlines_set_visible(true).
+   *        minor_gridlines_set_visible(true).
+   *        major_gridlines_set_line(line3).
+   *        minor_gridlines_set_line(line4);
    * @endcode
    *
    * @image html chart_gridline3.png
@@ -3092,9 +3103,9 @@ private:
 };
 
 /**
- * @brief Build a serie range
+ * @brief Build a series range
  *
- * Build a serie range from sheetname, columns and rows.
+ * Build a series range from sheetname, columns and rows.
  *
  * @param sheetname The name of the sheet.
  * @param first_row The first row of the range.
@@ -3102,12 +3113,12 @@ private:
  * @param last_row  The last row of the range.
  * @param last_col  The last column of the range.
  *
- * @return A serie range.
+ * @return A series range.
  *
- * @pre `sheetname` must not be empty
+ * @pre `%sheetname` must not be empty
  */
-series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
-                                 row_num_t last_row, col_num_t last_col);
+series_range_t build_series_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
+                                  row_num_t last_row, col_num_t last_col);
 
 /**
  * @brief Representation of an Excel chart.
@@ -3120,7 +3131,7 @@ public:
   /**
    * @brief Create a new chart to be added to a worksheet or a chartsheet.
    *
-   * @param chart_type The type of chart to be created. See `chart_type_t`.
+   * @param type The type of chart to be created. See `chart_type_t`.
    *
    * @code
    *  // Create a chart object.
@@ -3165,7 +3176,7 @@ public:
    *
    * @see @ref chart.h for details.
    *
-   * @pre The `%chart_type` parameter should not be set to `%chart_type_t::NONE`.
+   * @pre `%chart_type` must not be set to `%chart_type_t::NONE`.
    */
   explicit chart_t(chart_type_t type);
 
@@ -3208,12 +3219,12 @@ public:
    * `"=Sheet1!$A$2:$A$7"` in the same way it is represented in Excel. This is
    * convenient when recreating a chart from an example in Excel but it is
    * trickier to generate programmatically. For these cases you can set the
-   * `%categories` and `%values` to a serie range built with the
-   * `build_serie_range()` functions:
+   * `%categories` and `%values` to a series range built with the
+   * `build_series_range()` functions:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0),  //
-   * "=Sheet1!$A$2:$A$7" xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
+   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_series_range("Sheet1", 1, 0, 6, 0),  //
+   * "=Sheet1!$A$2:$A$7" xwpp::build_series_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
    * @endcode
    *
    * As shown in the previous example the return value from
@@ -3312,8 +3323,6 @@ public:
    *
    * @image html chart_title_set_name_font.png
    *
-   * @image html chart_title_set_name_font2.png
-   *
    * @see @ref chart_fonts.
    */
   void set_title(std::string_view name, const std::optional<chart_font_t>& font = std::nullopt);
@@ -3333,7 +3342,7 @@ public:
    *  chart.set_title("Sheet1", 1, 0);
    * @endcode
    *
-   * @pre The `%sheetname` parameter should not be empty.
+   * @pre `%sheetname` must not be empty.
    */
   void set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num,
                  const std::optional<chart_font_t>& font = std::nullopt);
@@ -3402,7 +3411,7 @@ public:
    *  - `%chart_legend_position_t::OVERLAY_TOP_RIGHT`
    *
    * @code
-   *  chart.set_legend_position(xwpp::chart_legend_position_t::::BOTTOM);
+   *  chart.set_legend_position(xwpp::chart_legend_position_t::BOTTOM);
    * @endcode
    *
    * @image html chart_legend_bottom.png
@@ -3451,8 +3460,8 @@ public:
    *
    * @image html chart_legend_delete.png
    *
-   * @pre The `%delete_series` parameter should not be empty.
-   * @pre The size of `%delete_series` parameter must be less than or equal to 255.
+   * @pre `%delete_series` must not be empty.
+   * @pre The size of `%delete_series` must be less than or equal to 255.
    */
   void legend_delete_series(const std::vector<int16_t>& delete_series);
 
@@ -3535,6 +3544,8 @@ public:
    *  chart.set_drop_lines(line);
    * @endcode
    *
+   * @image html chart_data_tools10.png
+   *
    * Drop Lines are only available in Line and Area charts.
    *
    * @see @ref chart_lines.
@@ -3565,6 +3576,8 @@ public:
    *
    *  chart_set_high_low_lines(line);
    * @endcode
+   *
+   * @image html chart_data_tools11.png
    *
    * High-Low Lines are only available in Line charts.
    *
@@ -3621,7 +3634,7 @@ public:
    *
    * This option is only available for Pie/Doughnut charts.
    *
-   * @pre The `rotation` paramter must be in the range `[0, 360]`.
+   * @pre `%rotation` must be in the range `[0, 360]`.
    */
   void set_rotation(uint16_t rotation);
 
@@ -3639,7 +3652,7 @@ public:
    *
    * This option is only available for Doughnut charts.
    *
-   * @pre The `size` paramter must be in the range `[10, 90]`.
+   * @pre `%size` must be in the range `[10, 90]`.
    */
   void set_hole_size(uint8_t size);
 
@@ -3661,7 +3674,7 @@ public:
    *
    * This option is only available for Bar/Column charts.
    *
-   * @pre The `gap` parameter must be in the range `[0, 500]`.
+   * @pre `%gap` must be in the range `[0, 500]`.
    */
   void set_series_gap(uint16_t gap);
 
@@ -3695,6 +3708,8 @@ public:
    * Set the fill properties of a chartarea:
    *
    * @code
+   *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
+   *
    *  chart.chartarea_set_fill(fill);
    * @endcode
    *
@@ -3755,6 +3770,10 @@ public:
    * Set the fill properties of a plotarea:
    *
    * @code
+   *  const xwpp::chart_fill_t fill{
+   *    .color     = xwpp::color_t{0xFFFFC2}
+   *  };
+   *
    *  chart.plotarea_set_fill(fill);
    * @endcode
    *
@@ -3784,7 +3803,7 @@ public:
    * Set the pattern properties of a plotarea:
    *
    * @code
-   *  chart.plotarea_set_pattern(series1, pattern);
+   *  chart.plotarea_set_pattern(pattern);
    * @endcode
    *
    * @see `chart_pattern_type_t` and @ref chart_patterns.
@@ -3833,7 +3852,7 @@ public:
    * in Bar and Column charts.
    *
    * @code
-   *  chart.set_series_overlap(chart, -50);
+   *  chart.set_series_overlap(-50);
    * @endcode
    *
    * @image html chart_overlap.png
@@ -3841,7 +3860,7 @@ public:
    * @note The default value is 0.
    * @note This option is only available for Bar/Column charts.
    *
-   * @pre The `%overlap` parameter must be in the range `[0, 500]`.
+   * @pre `%overlap` must be in the range `[0, 500]`.
    */
   void set_series_overlap(int8_t overlap);
 

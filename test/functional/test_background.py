@@ -2,8 +2,6 @@
 #
 # Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
 
-import os
-import pytest
 import base_test_class
 
 

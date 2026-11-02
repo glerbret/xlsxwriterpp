@@ -155,7 +155,7 @@ int main()
   // Example 2: Create a worksheet with collapsed outlined rows.
   // This is the same as the example 1  except that the all rows are collapsed.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Rows 1");
 
     // The option structs with the outline properties set.
     const xwpp::row_col_options_t options1{
@@ -195,7 +195,7 @@ int main()
   // Example 3: Create a worksheet with collapsed outlined rows. Same as the
   // example 1 except that the two sub-totals are collapsed.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Rows 2");
 
     const xwpp::row_col_options_t options1{
       .hidden    = true,
@@ -228,7 +228,7 @@ int main()
   // Example 4: Create a worksheet with outlined rows. Same as the example 1
   // except that the two sub-totals are collapsed.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Rows 3");
 
     const xwpp::row_col_options_t options1{
       .hidden    = true,
@@ -267,7 +267,7 @@ int main()
 
   // Example 5: Create a worksheet with outlined columns.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outline Columns");
 
     const xwpp::row_col_options_t options{
       .hidden    = false,
@@ -289,7 +289,7 @@ int main()
 
   // Example 6: Create a worksheet with outlined columns.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Columns");
 
     const xwpp::row_col_options_t options1{
       .hidden    = true,

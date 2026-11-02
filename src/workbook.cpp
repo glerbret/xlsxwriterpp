@@ -569,7 +569,6 @@ void workbook_t::prepare_fonts()
                   format->bold_ == font->bold_ && format->italic_ == font->italic_ &&
                   format->underline_ == font->underline_ && format->theme_ == font->theme_ &&
                   format->font_color_ == font->font_color_ && format->font_strikeout_ == font->font_strikeout_ &&
-                  format->font_outline_ == font->font_outline_ && format->font_shadow_ == font->font_shadow_ &&
                   format->font_script_ == font->font_script_ && format->font_family_ == font->font_family_ &&
                   format->font_charset_ == font->font_charset_ && format->font_condense_ == font->font_condense_ &&
                   format->font_extend_ == font->font_extend_;

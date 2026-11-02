@@ -31,7 +31,7 @@ For example:
     xwpp::row_col_options_t row_options = {.hidden = true};
     worksheet.set_row(11, row_options);
 
-    workbook_save("images.xlsx");
+    workbook.save("images.xlsx");
   }
 @endcode
 
@@ -67,7 +67,7 @@ may appear as if it is sized incorrectly. For example::
     worksheet.insert_image("B1",  "logo.png");
     worksheet.insert_image("B10", "logo.png");
 
-    workbook_save("images.xlsx");
+    workbook.save("images.xlsx");
   }
 @endcode
 
@@ -79,10 +79,6 @@ set the height of the row using `worksheet_t::set_row()` if it crosses an
 inserted object.
 
 @section ww_object_position_options Object Positioning with Cell Moving and Sizing
-
-Excel supports three options for "Object Positioning" within a worksheet:
-
-@image html object_position3.png
 
 Image and chart objects in `Xlsxwriter++` emulate these options using the
 `object_position_t` parameter in `image_options_t` and `chart_options_t`:

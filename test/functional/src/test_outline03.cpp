@@ -12,7 +12,7 @@ int main()
   xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outline Columns");
   const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  const xwpp::row_col_options_t options6{.hidden = false, .level = 1, .collapsed = false};
+  const xwpp::row_col_options_t options{.hidden = false, .level = 1, .collapsed = false};
 
   worksheet.write("A1", "Month");
   worksheet.write("B1", "Jan");
@@ -65,7 +65,7 @@ int main()
 
   worksheet.set_column("A:A", 10, bold);
   worksheet.set_column("H:H", 10);
-  worksheet.set_column("B:G", 6, nullptr, options6);
+  worksheet.set_column("B:G", 6, nullptr, options);
 
   workbook.save("test_outline03.xlsx");
 }

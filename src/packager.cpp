@@ -73,7 +73,6 @@ namespace xwpp
 
 packager_t::packager_t(std::filesystem::path filename, bool use_zip64)
     // Initialize the zip_fileinfo struct to Jan 1 1980 like Excel.
-    // TODO To set locally in create function.
     : zip_fileinfo_{
         .tmz_date =
             {
@@ -94,10 +93,8 @@ packager_t::packager_t(std::filesystem::path filename, bool use_zip64)
 {
 }
 
-// TODO const remove to allow prepare, to be refactored.
 void packager_t::create_package(workbook_t& workbook)
 {
-  // TODO Use it as local variable (not data member) and use unique_ptr.
   zipfile_ = zipOpen(filename_.string().c_str(), 0);
 
   write_content_types_file(workbook);
@@ -131,11 +128,10 @@ void packager_t::create_package(workbook_t& workbook)
   write_rich_value_rels_file(workbook);
   write_app_file(workbook);
 
-  // TODO Manage errors (exception)
-  /*zip_error =*/zipClose(zipfile_, nullptr);
-  //     if (zip_error) {
-  //         RETURN_ON_ZIP_ERROR(zip_error, LXW_ERROR_ZIP_CLOSE);
-  //     }
+  if(zipClose(zipfile_, nullptr) != ZIP_OK)
+  {
+    throw xwpp_exception_t(std::format("packager_t::create_package(): error closing ZIP file"));
+  }
 }
 
 void packager_t::write_content_types_file(const workbook_t& workbook)
@@ -336,7 +332,6 @@ void packager_t::write_workbook_file(workbook_t& workbook)
 
 void packager_t::write_styles_file(const workbook_t& workbook)
 {
-  // TODO Manage style in workbook
   style_t styles{workbook.font_count_,       workbook.fill_count_,   workbook.border_count_,
                  workbook.num_format_count_, workbook.has_comments_, workbook.used_xf_formats_,
                  workbook.used_dxf_formats_};

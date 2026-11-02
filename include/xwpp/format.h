@@ -290,26 +290,9 @@ enum class format_borders_t
 };
 
 /**
- * @brief Cell reading order.
+ * @brief Representation of the formatting properties of an Excel format.
  *
- * Cell reading order for use with `format_builder_t::reading_order()`.
- */
-enum class format_reading_order_t
-{
-  /** Reading order is determined by the first non-whitespace character. */
-  CONTEXT_DEPENDENT,
-
-  /** Reading order is left-to-right in the cell, as in English. */
-  LEFT_TO_RIGHT,
-
-  /** Reading order is right-to-left in the cell, as in Hebrew. */
-  RIGHT_TO_LEFT,
-};
-
-/**
- * @brief Representation the formatting properties of an Excel format.
- *
- * Representation the formatting properties of an Excel format.
+ * Representation of the formatting properties of an Excel format.
  *
  * @code
  *  // Create the Format.
@@ -374,8 +357,6 @@ private:
   void set_font_script(format_scripts_t style);
   void set_font_family(uint8_t value);
   void set_font_charset(uint8_t value);
-  void set_font_outline();
-  void set_font_shadow();
   void set_font_scheme(std::string_view font_scheme);
   void set_font_condense();
   void set_font_extend();
@@ -385,7 +366,6 @@ private:
   void set_rotation(int16_t angle);
   void set_indent(uint8_t level);
   void set_shrink();
-  void set_reading_order(format_reading_order_t value);
   void set_theme(uint8_t value);
   void set_color_indexed(uint8_t value);
   void set_quote_prefix();
@@ -412,8 +392,6 @@ private:
   color_t font_color_;
   format_underlines_t underline_{format_underlines_t::NONE};
   bool font_strikeout_{false};
-  bool font_outline_{false};
-  bool font_shadow_{false};
   format_scripts_t font_script_{format_scripts_t::NONE};
   uint8_t font_family_{DEFAULT_FONT_FAMILY};
   uint8_t font_charset_{0};
@@ -454,7 +432,6 @@ private:
   uint8_t indent_{0};
   bool shrink_{false};
   bool merge_range_{false};
-  format_reading_order_t reading_order_{format_reading_order_t::CONTEXT_DEPENDENT};
   bool just_distrib_{false};
   uint8_t color_indexed_{0};
   bool font_only_{false};
@@ -579,9 +556,10 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder()
    *                                         .align(xwpp::format_horizontal_alignments_t::CENTER,
-   * xwpp::format_vertical_alignments_t::CENTER) .build();
+   *  xwpp::format_vertical_alignments_t::CENTER) .build();
    *
    *  worksheet.set_row(0, 30);
+   * worksheet.set_column(0, 0, 50);
    *  worksheet.write(0, 0, "Some Text", format);
    * @endcode
    *
@@ -605,7 +583,9 @@ public:
    * @param horizontal The horizontal alignment.
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_horizontal_alignments_t::RIGHT).build();
+   *  const xwpp::format_t* format = workbook.format_builder().
+   *                                          align(xwpp::format_horizontal_alignments_t::RIGHT).
+   *                                          build();
    *
    *  worksheet.write(0, 0, "Right alignment", format);
    * @endcode
@@ -620,7 +600,9 @@ public:
    * @param vertical The vertical alignment.
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder().align(xwpp::format_vertical_alignments_t::BOTTOM).build();
+   *  const xwpp::format_t* format = workbook.format_builder().
+   *                                          align(xwpp::format_vertical_alignments_t::BOTTOM).
+   *                                          build();
    *
    *  worksheet.write(0, 0, "Bottom alignment", format);
    * @endcode
@@ -636,7 +618,9 @@ public:
    * Set the font color:
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder().font_color(xwpp::color_t::red()).build();
+   *  const xwpp::format_t* format = workbook.format_builder().
+   *                                          font_color(xwpp::color_t::red()).
+   *                                          build();
    *
    *  worksheet.write(0, 0, "Wheelbarrow", format);
    * @endcode
@@ -676,10 +660,10 @@ public:
    * Here is an example of how to set up a solid fill in a cell:
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder()
-   *                                         .pattern(xwpp::format_patterns_t::SOLID)
-   *                                         .bg_color(xwpp::color_t::green())
-   *                                         .build();
+   *  const xwpp::format_t* format = workbook.format_builder().
+   *                                          pattern(xwpp::format_patterns_t::SOLID).
+   *                                          bg_color(xwpp::color_t::green()).
+   *                                          build();
    *
    *  worksheet.write(0, 0, "Ray", format);
    * @endcode
@@ -698,7 +682,11 @@ public:
    * Set the underline property of the format:
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder().underline(xwpp::format_underlines_t::SINGLE).build();
+   *  const xwpp::format_t* format = workbook.format_builder().
+   *                                          underline(xwpp::format_underlines_t::SINGLE).
+   *                                          build();
+   *
+   *  worksheet.write(0, 0, "Underlined text");
    * @endcode
    *
    * @image html format_font_underlined.png
@@ -729,7 +717,7 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().text_wrap().build();
    *
-   *  worksheet.write(0, 0, "It's\na bum\nwrap", format);
+   *  worksheet.write(2, 0, "It's\na bum\nwrap", format);
    * @endcode
    *
    * @image html format_font_text_wrap.png
@@ -1069,7 +1057,9 @@ public:
    * Specify the font used used in the cell format:
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder().font_name("Avenir Black Oblique").build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_name("Times New Roman").build();
+   *
+   *  worksheet.write("B2", "Times New Roman", format);
    * @endcode
    *
    * @image html format_set_font_name.png
@@ -1090,7 +1080,9 @@ public:
    * Set the font size of the cell format:
    *
    * @code
-   *  const xwpp::format_t* format = workbook.format_builder().set_font_size(30).build();
+   *  const xwpp::format_t* format = workbook.format_builder().font_size(30).build();
+   *
+   *  worksheet.write(0, 0, "Font size 30", format);
    * @endcode
    *
    * @image html format_font_size.png
@@ -1104,6 +1096,14 @@ public:
   /**
    * @brief Set the strikeout property of the font.
    *
+   * Set the strikeout property of the font.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().font_strikeout().build();
+   *
+   *  worksheet.write(0, 0, "Strikeout text", format);
+   * @endcode
+   *
    * @image html format_font_strikeout.png
    */
   format_builder_t& font_strikeout();
@@ -1114,6 +1114,12 @@ public:
    * @param style Superscript or subscript style.
    *
    * Set the superscript or subscript property of the font.
+   *
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().font_script(xwpp::format_scripts_t::SUPERSCRIPT).build();
+   *
+   *  worksheet.write(0, 0, "Superscript text", format);
+   * @endcode
    *
    * @image html format_font_script.png
    *
@@ -1151,32 +1157,6 @@ public:
   format_builder_t& font_charset(uint8_t value);
 
   /**
-   * @brief Set the Format font outline property.
-   *
-   * Set the font outline property.
-   *
-   * @code
-   *  const xwpp::format_t* format = workbook.format_builder().font_outline().build();
-   * @endcode
-   *
-   * @todo Add image in description.
-   */
-  format_builder_t& font_outline();
-
-  /**
-   * @brief Set the Format font shadow property.
-   *
-   * Set the font shadow property.
-   *
-   * @code
-   *  const xwpp::format_t* format = workbook.format_builder().font_shadow().build();
-   * @endcode
-   *
-   * @todo Add image in description.
-   */
-  format_builder_t& font_shadow();
-
-  /**
    * @brief Set the Format font scheme property.
    *
    * @param font_scheme The font scheme.
@@ -1186,9 +1166,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_scheme("fs").build();
    * @endcode
-   *
-   * @todo Add image in description.
-   * @todo Add an example (and fix example here).
    */
   format_builder_t& font_scheme(std::string_view font_scheme);
 
@@ -1200,8 +1177,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_condense().build();
    * @endcode
-   *
-   * @todo Add image in description.
    */
   format_builder_t& font_condense();
 
@@ -1213,8 +1188,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_extend().build();
    * @endcode
-   *
-   * @todo Add image in description.
    */
   format_builder_t& font_extend();
 
@@ -1226,9 +1199,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_only().build();
    * @endcode
-   *
-   * @todo Add image in description.
-   * @todo Add an example (and fix example here).
    */
   format_builder_t& font_only();
 
@@ -1295,22 +1265,22 @@ public:
    * The angle 270 is also supported. This indicates text where the letters run
    * from top to bottom.
    *
-   * @pre The `%angle` parameter must be in range `[-90, 90]`.
+   * @pre `%angle` must be in range `[-90, 90]`.
    */
   format_builder_t& rotation(int16_t angle);
 
   /**
    * @brief Set vertical text.
    *
-   * Text is wrote verticaly. Letters run from top to bottom.
+   * Text is wrote vertically, letters run from top to bottom.
    *
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().vertical_text().build();
    *
-   *  worksheet.write(0, 0, "This text is vertical", format);
+   * worksheet.write(0, 0, "Vertical text", format);
    * @endcode
    *
-   * @todo Add image.
+   * @image html format_font_text_vertical.png
    */
   format_builder_t& vertical_text();
 
@@ -1323,11 +1293,11 @@ public:
    * be an integer, is taken as the level of indentation:
    *
    * @code
-   *  format1 = workbook.format_builder().indent(1).build();
-   *  format2 = workbook.format_builder().indent(2).build();
+   *  const xwpp::format_t* format1 = workbook.format_builder().indent(1).build();
+   *  const xwpp::format_t* format2 = workbook.format_builder().indent(2).build();
    *
    *  worksheet.write(0, 0, "This text is indented 1 level", format1);
-   *  worksheet_write(1, 0, "This text is indented 2 levels", format2);
+   *  worksheet.write(1, 0, "This text is indented 2 levels", format2);
    * @endcode
    *
    * @image html text_indent.png
@@ -1352,25 +1322,11 @@ public:
   format_builder_t& shrink();
 
   /**
-   * @brief Set reading order.
-   *
-   * @param value The reading order.
-   *
-   * Set the reading order.
-   *
-   * @todo Add image in documentation.
-   */
-  format_builder_t& reading_order(format_reading_order_t value);
-
-  /**
    * @brief Set the theme.
    *
    * @param value The theme.
    *
    * Set the theme.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
    */
   format_builder_t& theme(uint8_t value);
 
@@ -1380,9 +1336,6 @@ public:
    * @param value The indexed color.
    *
    * Set the indexed color.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
    */
   format_builder_t& color_indexed(uint8_t value);
 
@@ -1407,7 +1360,13 @@ public:
    *
    * Set the format as hyperlink format.
    *
-   * @todo Add image.
+   * @code
+   *  const xwpp::format_t* format = workbook.format_builder().hyperlink().build();
+   *
+   *  worksheet.write(0, 0, "Hyperlink style", format);
+   * @endcode
+   *
+   * @image html hyperlink_style.png
    */
   format_builder_t& hyperlink();
 

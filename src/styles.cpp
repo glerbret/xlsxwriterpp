@@ -561,16 +561,6 @@ std::string style_t::write_font(const format_t* format, bool is_dxf, bool is_ric
     xml_data += xml_empty_tag("strike");
   }
 
-  if(format->font_outline_)
-  {
-    xml_data += xml_empty_tag("outline");
-  }
-
-  if(format->font_shadow_)
-  {
-    xml_data += xml_empty_tag("shadow");
-  }
-
   if(format->underline_ != format_underlines_t::NONE)
   {
     xml_data += write_font_underline(format->underline_);
@@ -842,8 +832,7 @@ bool style_t::apply_alignment(const format_t* format)
 {
   return format->text_h_align_ != format_horizontal_alignments_t::NONE ||
          format->text_v_align_ != format_vertical_alignments_t::NONE || format->indent_ != 0 ||
-         format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
-         format->reading_order_ != format_reading_order_t::CONTEXT_DEPENDENT;
+         format->rotation_ != 0 || format->text_wrap_ || format->shrink_;
 }
 
 bool style_t::has_alignment(const format_t* format)
@@ -851,8 +840,7 @@ bool style_t::has_alignment(const format_t* format)
   return format->text_h_align_ != format_horizontal_alignments_t::NONE ||
          (format->text_v_align_ != format_vertical_alignments_t::NONE &&
           format->text_v_align_ != format_vertical_alignments_t::BOTTOM) ||
-         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_ ||
-         format->reading_order_ != format_reading_order_t::CONTEXT_DEPENDENT;
+         format->indent_ != 0 || format->rotation_ != 0 || format->text_wrap_ || format->shrink_;
 }
 
 std::string style_t::write_alignment(const format_t* format)
@@ -985,16 +973,6 @@ std::string style_t::write_alignment(const format_t* format)
   if(shrink)
   {
     attributes.add_attribute("shrinkToFit", "1");
-  }
-
-  if(format->reading_order_ == format_reading_order_t::LEFT_TO_RIGHT)
-  {
-    attributes.add_attribute("readingOrder", "1");
-  }
-
-  if(format->reading_order_ == format_reading_order_t::RIGHT_TO_LEFT)
-  {
-    attributes.add_attribute("readingOrder", "2");
   }
 
   if(!attributes.empty())

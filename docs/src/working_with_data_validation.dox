@@ -329,12 +329,15 @@ The `%input_message` parameter is used to set the input message that is
 displayed when a cell is entered. It has no default value:
 
 @code
-  data_validation.validate       = xwpp::validation_types_t::INTEGER;
-  data_validation.criteria       = xwpp::validation_criteria_t::BETWEEN;
-  data_validation.minimum_number = 1;
-  data_validation.maximum_number = 100;
-  data_validation.input_title    = "Enter an integer:";
-  data_validation.input_message  = "between 1 and 100";
+  const xwpp::data_validation_t data_validation{
+    .validate       = xwpp::validation_types_t::INTEGER,
+    .criteria       = xwpp::validation_criteria_t::BETWEEN,
+    .minimum_number = 1,
+    .maximum_number = 100,
+    .input_title    = "Enter an integer:",
+    .input_message  = "between 1 and 100",
+  };
+  worksheet.data_validation_cell("B3", data_validation);
 @endcode
 
 The input message generated from the above example is:

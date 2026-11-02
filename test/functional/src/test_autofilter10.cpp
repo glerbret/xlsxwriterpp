@@ -106,8 +106,7 @@ int main()
 
   worksheet.autofilter(0, 0, 50, 3);
 
-  const std::vector<std::string> list{"East", "North", "South", "Blanks"};
-  worksheet.filter_list(0, list);
+  worksheet.filter_list(0, {"East", "North", "South", "Blanks"});
 
   workbook.save("test_autofilter10.xlsx");
 }

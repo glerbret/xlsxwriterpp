@@ -501,7 +501,7 @@ public:
    * @note `%set_zoom()` does not affect the scale of the printed
    * page. For that you should use `set_print_scale()`.
    *
-   * @pre The `%scale` parameter must be in range `[10, 400]`.
+   * @pre `%scale` must be in range `[10, 400]`.
    */
   void set_zoom(uint16_t scale);
 
@@ -572,7 +572,7 @@ public:
    * the end user since it will depend on the paper formats that the user's
    * printer supports.
    *
-   * @pre The `%paper_size` parameter must be less than or equal to 118.
+   * @pre `%paper_size` must be less than or equal to 118.
    */
   void set_paper(uint8_t paper_size);
   /// @brief Overload with predefined values.
@@ -774,13 +774,13 @@ public:
    * @code
    *  xwpp::header_footer_options_t header_options{.image_left = "logo.png"};
    *
-   *  worksheet1set_header("&L&G", header_options);
+   *  worksheet.set_header("&L&G", header_options);
    * @endcode
    *
    * @image html headers_footers.png
    *
-   * @pre The `%str` parameter must not be empty.
-   * @pre The size of `%str` parameter must be less than or equal to 255 UTF-8 characters.
+   * @pre `%str` must not be empty.
+   * @pre The size of `%str` must be less than or equal to 255 UTF-8 characters.
    */
   void set_header(const std::string& str, const std::optional<header_footer_options_t>& options = std::nullopt);
 
@@ -795,8 +795,8 @@ public:
    *
    * The syntax of this function is the same as `set_header()`.
    *
-   * @pre The `%str` parameter must not be empty.
-   * @pre The size of `%str` parameter must be less than or equal to 255 UTF-8 characters.
+   * @pre `%str` must not be empty.
+   * @pre The size of `%str` must be less than or equal to 255 UTF-8 characters.
    */
   void set_footer(const std::string& str, const std::optional<header_footer_options_t>& options = std::nullopt);
 
@@ -831,7 +831,7 @@ public:
    *  worksheet.set_left_margin(1.3);
    * @endcode
    *
-   * @pre margin >= 0
+   * @pre `%margin` must be positive.
    */
   void set_left_margin(double margin);
 
@@ -844,7 +844,7 @@ public:
    *  worksheet.set_right_margin(1.3);
    * @endcode
    *
-   * @pre margin >= 0
+   * @pre `%margin` must be positive.
    */
   void set_right_margin(double margin);
 
@@ -857,7 +857,7 @@ public:
    *  worksheet.set_top_margin(1.3);
    * @endcode
    *
-   * @pre margin >= 0
+   * @pre `%margin` must be positive.
    */
   void set_top_margin(double margin);
 
@@ -870,7 +870,7 @@ public:
    *  worksheet.set_bottom_margin(1.3);
    * @endcode
    *
-   * @pre margin >= 0
+   * @pre `%margin` must be positive.
    */
   void set_bottom_margin(double margin);
 
@@ -1031,7 +1031,7 @@ protected:
   [[nodiscard]] uint32_t add_image_link_get_index(uint32_t image_ref_id, const object_properties_t& object_props);
   [[nodiscard]] uint32_t get_drawing_rel_index(const std::string& target);
 
-  // Getter/setter for properties
+  // Getter/setter for properties.
   [[nodiscard]] virtual bool is_outline_changed() const;
   [[nodiscard]] bool is_selected() const;
   [[nodiscard]] uint16_t get_zoom() const;
