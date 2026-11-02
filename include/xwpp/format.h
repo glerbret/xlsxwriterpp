@@ -307,9 +307,9 @@ enum class format_reading_order_t
 };
 
 /**
- * @brief Representation the formatting properties of an Excel format.
+ * @brief Representation of the formatting properties of an Excel format.
  *
- * Representation the formatting properties of an Excel format.
+ * Representation of the formatting properties of an Excel format.
  *
  * @code
  *  // Create the Format.
@@ -1295,14 +1295,14 @@ public:
    * The angle 270 is also supported. This indicates text where the letters run
    * from top to bottom.
    *
-   * @pre The `%angle` parameter must be in range `[-90, 90]`.
+   * @pre `%angle` must be in range `[-90, 90]`.
    */
   format_builder_t& rotation(int16_t angle);
 
   /**
    * @brief Set vertical text.
    *
-   * Text is wrote verticaly. Letters run from top to bottom.
+   * Text is wrote vertically. Letters run from top to bottom.
    *
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().vertical_text().build();

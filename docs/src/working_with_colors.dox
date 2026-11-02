@@ -1,7 +1,7 @@
 /**
 @page working_with_colors Working with Colors
 
-Throughout `Xlsxwriter++` colors are specified using a HTML style RGB
+`Xlsxwriter++` colors are specified using a HTML style RGB
 integer value. For example with a Format object:
 
 @code
@@ -9,7 +9,7 @@ integer value. For example with a Format object:
 @endcode
 
 `Xlsxwriter++` support color defined by the three RBG components or CMYK
-components too.
+components too:
 
 @code
   format->set_font_color(xwpp::color_t::rgb(0x30, 0x30, 0xE0));

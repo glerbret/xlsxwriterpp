@@ -153,20 +153,20 @@ struct doc_properties_t
   std::string hyperlink_base;
 
   /**
-   * @brief The file creation date/time shown in Excel.
+   * @brief The file creation date and time shown in Excel.
    *
-   * The file creation date/time shown in Excel.
+   * The file creation date and time shown in Excel.
    *
-   * @note This defaults to the current time and date. If you wish to create files that are
+   * @note This defaults to the current date and time. If you wish to create files that are
    * binary equivalent (for the same input data) then you should set this
-   * creation date/time to a known value.
+   * creation date and time to a known value.
    */
   std::chrono::system_clock::time_point created;
 
   /**
-   * @brief The file modification date/time shown in Excel.
+   * @brief The file modification date and time shown in Excel.
    *
-   * The file modification date/time shown in Excel.
+   * The file modification date and time shown in Excel.
    */
   std::chrono::system_clock::time_point modified;
 };
@@ -261,10 +261,10 @@ public:
    *
    * @image html doc_properties.png
    *
-   * The `created` parameter sets the file creation date/time shown in
-   * Excel. This defaults to the current time and date if not set. If you wish
+   * The `created` parameter sets the file creation date and time shown in
+   * Excel. This defaults to the current date and time if not set. If you wish
    * to create files that are binary equivalent (for the same input data) then
-   * you should set this creation date/time to a known value.
+   * you should set this creation date and time to a known value.
    *
    */
   void set_properties(const doc_properties_t& properties);
@@ -295,8 +295,8 @@ public:
    * - datetime
    * - boolean
    *
-   * @pre The `%name` parameter should not be empty.
-   * @pre The `%name` and `%value` parameters are limited to 255 UTF-8 characters by Excel.
+   * @pre `%name` must not be empty.
+   * @pre `%name` and `%value` are limited to 255 UTF-8 characters by Excel.
    * @pre The datetime `%value` must be valid.
    */
   void set_custom_property(std::string_view name, std::string_view value);
@@ -386,7 +386,7 @@ public:
    *
    * - The name cannot be empty.
    * - The name is less than or equal to 31 UTF-8 characters.
-   * - The name doesn't contain any of the characters: ` [ ] : * ? / \ `
+   * - The name doesn't contain any of the characters: `[]:*?/\ `
    * - The name doesn't start or end with an apostrophe.
    * - The name isn't already in use. (Case insensitive).
    *
@@ -397,7 +397,7 @@ public:
    * insensitive) which is reserved in English language versions of
    * Excel. Non-English versions may have restrictions on the equivalent word.
    *
-   * @pre The `%sheetname` parameter must be a valid Excel worksheet name.
+   * @pre `%sheetname` must be a valid Excel worksheet name.
    */
   worksheet_t& add_worksheet(std::string_view sheetname);
 
@@ -444,7 +444,7 @@ public:
    *
    * - The name cannot be empty.
    * - The name is less than or equal to 31 UTF-8 characters.
-   * - The name doesn't contain any of the characters: ` [ ] : * ? / \ `
+   * - The name doesn't contain any of the characters: `[]:*?/\ `
    * - The name doesn't start or end with an apostrophe.
    * - The name isn't already in use. (Case insensitive).
    *
@@ -460,7 +460,7 @@ public:
    * "Worksheet" object is used to write data and configure a worksheet in the
    * workbook.
    *
-   * @pre The `%sheetname` parameter must be a valid Excel worksheet name.
+   * @pre `%sheetname` must be a valid Excel worksheet name.
    */
   chartsheet_t& add_chartsheet(std::string_view sheetname);
 
@@ -539,7 +539,7 @@ public:
    *
    * - The name cannot be empty.
    * - The name is less than or equal to 31 UTF-8 characters.
-   * - The name doesn't contain any of the characters: ` [ ] : * ? / \ `
+   * - The name doesn't contain any of the characters: `[]:*?/\ `
    * - The name doesn't start or end with an apostrophe.
    * - The name isn't already in use. (Case insensitive, see the note below).
    *
@@ -639,7 +639,7 @@ public:
    *
    * @see @ref working_with_macros
    *
-   * @pre The `%filename` parameter should not be empty.
+   * @pre `%filename` must not be empty.
    */
   void add_vba_project(const std::filesystem::path& filename);
 
@@ -670,8 +670,8 @@ public:
    *
    * @see @ref working_with_macros
    *
-   * @pre The `%vba_project` parameter should not be empty.
-   * @pre The `%signature` parameter should not be empty.
+   * @pre `%vba_project` must not be empty.
+   * @pre `%signature` must not be empty.
    */
   void add_signed_vba_project(const std::filesystem::path& vba_project, const std::filesystem::path& signature);
 
@@ -694,7 +694,7 @@ public:
    *
    * @see @ref working_with_macros.
    *
-   * @pre The `%name` parameter should not be empty.
+   * @pre `%name` must not be empty.
    */
   void set_vba_name(std::string_view name);
 
@@ -741,8 +741,8 @@ public:
    * @see [Microsoft Office
    * documentation](https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64).
    *
-   * @pre The `%name` parameter should not be empty.
-   * @pre The `%formula` parameter should not be empty.
+   * @pre `%name` must not be empty.
+   * @pre `%formula` must not be empty.
    */
   void define_name(const std::string& name, const std::string& formula);
 

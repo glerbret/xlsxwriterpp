@@ -20,13 +20,13 @@ namespace xwpp
 class md5_t
 {
 public:
-  // Build MD5 digest
+  // Build MD5 digest.
   [[nodiscard]] static std::array<uint8_t, 16> digest(const std::vector<uint8_t>& input);
-  // Build MD5 digest and return it in a "hex string"
+  // Build MD5 digest and return it in a "hex string".
   [[nodiscard]] static std::string digest_to_string(const std::vector<uint8_t>& input);
 
 private:
-  // Only usable through static functions hereafter
+  // Only usable through static functions hereafter.
   md5_t() = default;
 
   [[nodiscard]] static uint32_t leftrotate(uint32_t x, uint32_t n);

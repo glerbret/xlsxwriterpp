@@ -28,7 +28,7 @@ int main()
   worksheet.write(1, 0, "B2 is unlocked. It can be edited.");
   worksheet.write(2, 0, "B3 is hidden. The formula isn't visible.");
 
-  worksheet.write_formula(0, 1, "=1+2"); /* Locked by default. */
+  worksheet.write_formula(0, 1, "=1+2"); // Locked by default.
   worksheet.write_formula(1, 1, "=1+2", unlocked);
   worksheet.write_formula(2, 1, "=1+2", hidden);
 

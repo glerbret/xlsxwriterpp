@@ -37,7 +37,7 @@ namespace xwpp
  */
 [[nodiscard]] std::string version();
 
-// Create a quoted version of the worksheet name
+// Create a quoted version of the worksheet name.
 [[nodiscard]] std::string quote_sheetname(std::string_view sheetname);
 
 [[nodiscard]] std::string col_to_name(col_num_t col_num, bool absolute);
@@ -99,7 +99,7 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * @see The `workbook_t::use_1904_epoch()` function.
  *
- * @pre The `%datetime` parameter must be a valid date and time or a valid time.
+ * @pre `%datetime` must be a valid date and time or a valid time.
  */
 [[nodiscard]] double datetime_to_excel_date_with_epoch(const datetime_t& datetime, bool use_1904_epoch);
 /// @brief `std::chrono` overload.
@@ -124,7 +124,7 @@ void reorder_index(row_num_t& first_row, row_num_t& last_row, col_num_t& first_c
  *
  * @see @ref working_with_dates for more details on the Excel datetime format.
  *
- * @pre The `%datetime` parameter must be a valid date and time or a valid time.
+ * @pre `%datetime` must be a valid date and time or a valid time.
  */
 [[nodiscard]] double datetime_to_excel_datetime(const datetime_t& datetime);
 /// @brief `std::chrono` overload.

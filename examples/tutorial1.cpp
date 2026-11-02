@@ -19,15 +19,15 @@ int main()
 {
   struct expense
   {
-    std::string item_;
-    int cost_{0};
+    std::string item;
+    int cost{0};
   };
 
   const std::vector<expense> expenses{
-    {.item_ = "Rent", .cost_ = 1000},
-    {.item_ = "Gas",  .cost_ = 100 },
-    {.item_ = "Food", .cost_ = 300 },
-    {.item_ = "Gym",  .cost_ = 50  },
+    {.item = "Rent", .cost = 1000},
+    {.item = "Gas",  .cost = 100 },
+    {.item = "Food", .cost = 300 },
+    {.item = "Gym",  .cost = 50  },
   };
 
   // Create a workbook and add a worksheet.
@@ -40,8 +40,8 @@ int main()
   // Iterate over the data and write it out element by element.
   for(const auto& value: expenses)
   {
-    worksheet.write(row_num, 0, value.item_);
-    worksheet.write(row_num, 1, value.cost_);
+    worksheet.write(row_num, 0, value.item);
+    worksheet.write(row_num, 1, value.cost);
     row_num++;
   }
 

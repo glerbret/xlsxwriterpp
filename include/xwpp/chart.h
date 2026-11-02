@@ -671,16 +671,16 @@ enum class chart_layout_type_t
  */
 enum class chart_error_bar_type_t
 {
-  /** Error bar type: Standard error. */
+  /** Standard error. */
   STD_ERROR,
 
-  /** Error bar type: Fixed value. */
+  /** Fixed value. */
   FIXED,
 
-  /** Error bar type: Percentage. */
+  /** Percentage. */
   PERCENTAGE,
 
-  /** Error bar type: Standard deviation(s). */
+  /** Standard deviation(s). */
   STD_DEV
 };
 
@@ -737,22 +737,22 @@ enum class chart_error_bar_cap_t
  */
 enum class chart_trendline_type_t
 {
-  /** Trendline type: Linear. */
+  /** Linear. */
   LINEAR,
 
-  /** Trendline type: Logarithm. */
+  /** Logarithm. */
   LOG,
 
-  /** Trendline type: Polynomial. */
+  /** Polynomial. */
   POLY,
 
-  /** Trendline type: Power. */
+  /** Power. */
   POWER,
 
-  /** Trendline type: Exponential. */
+  /** Exponential. */
   EXP,
 
-  /** Trendline type: Moving Average. */
+  /** Moving Average. */
   AVERAGE
 };
 
@@ -909,7 +909,7 @@ struct chart_font_t
   /** The chart font baseline property. Rarely required, set to 0. */
   int8_t baseline{0};
 
-  // Use to distinguish title font (bold by default and we should set b="0" if bold is false) from others one
+  // Use to distinguish title font (bold by default and we should set b="0" if bold is false) from others one.
   bool title_font{false};
 };
 
@@ -961,16 +961,16 @@ struct chart_font_t
  */
 struct chart_layout_t
 {
-  /** The x offset in the range `0.0 < x <= 1.0` */
+  /** The x offset in the range `0.0 < x <= 1.0`. */
   double x{0.};
 
-  /** The y offset in the range `0.0 < y <= 1.0` */
+  /** The y offset in the range `0.0 < y <= 1.0`. */
   double y{0.};
 
-  /** The width of the plotarea or legend in the range `0.0 < x <= 1.0` */
+  /** The width of the plotarea or legend in the range `0.0 < x <= 1.0`. */
   double width{0.};
 
-  /** The height of the plotarea or legend in the range `0.0 < x <= 1.0` */
+  /** The height of the plotarea or legend in the range `0.0 < x <= 1.0`. */
   double height{0.};
 
   bool has_inner{false};
@@ -1154,19 +1154,18 @@ public:
    *
    * @see @ref chart_error_bars.
    *
-   * @pre `%error_bars` should not be already enabled.
+   * @pre The error bar must not be already enabled.
    */
   series_error_bars_t& enable_error_bars(chart_error_bar_type_t type, double value);
 
   /**
    * @brief Set the direction (up, down or both) of the error bars.
    *
-   * @param direction  The bar direction: `chart_error_bar_direction_t`.
+   * @param direction  The bar direction.
    *
    * @return Reference to this.
    *
-   * The `%set_direction()` function sets the
-   * direction of the error bars:
+   * The `%set_direction()` function sets the direction of the error bars:
    *
    * @code
    *   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
@@ -1324,7 +1323,7 @@ public:
    *        set_name("Sheet1", 0, 2); // "=Sheet1!$C$1"
    * @endcode
    *
-   * @pre The `%sheetname` parameter should not be empty.
+   * @pre `%sheetname` must not be empty.
    */
   chart_series_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
 
@@ -1410,7 +1409,7 @@ public:
    *
    * @image html chart_series_set_marker_size.png
    *
-   * @pre The `%size` parameter must be in the range `[2, 72]`.
+   * @pre `%size` must be in the range `[2, 72]`.
    */
   chart_series_t& set_marker_size(uint8_t size);
 
@@ -1529,7 +1528,6 @@ public:
   /**
    * @brief Set the pattern properties for a chart series.
    *
-   * @param series  A series object created via `chart_t::add_series()`.
    * @param pattern A `chart_pattern_t` struct.
    *
    * @return Reference to this.
@@ -1610,13 +1608,13 @@ public:
    *
    * @dontinclude chart_pie_colors.cpp
    * @skip Add the data series
-   * @until series_set_points
+   * @until series.set_points
    *
    * @image html chart_points1.png
    *
    * @see @ref chart_points
    *
-   * @pre The `%points` parameter should not be empty.
+   * @pre `%points` must not be empty.
    */
   chart_series_t& set_points(const std::vector<chart_point_t>& points);
 
@@ -1669,7 +1667,8 @@ public:
    */
   chart_series_t& set_labels_options(bool show_name, bool show_category, bool show_value);
 
-  /** @brief Set the properties for data labels in a series.
+  /**
+   * @brief Set the properties for data labels in a series.
    *
    * @param data_labels A vector of `chart_data_label_t` pointers.
    *
@@ -1705,7 +1704,7 @@ public:
    *
    * @see @ref chart_custom_labels.
    *
-   * @pre The `%data_labels` parameter should not be empty.
+   * @pre `%data_labels` must not be empty.
    */
   chart_series_t& set_labels_custom(const std::vector<chart_data_label_t>& data_labels);
 
@@ -2011,7 +2010,7 @@ public:
    *
    * @see @ref chart_trendlines.
    *
-   * @pre The `%value` parameter must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
+   * @pre `%value` must be higher than or equal to 2 for 'Moving Average' and 'Polynomial' trendline.
    */
   chart_series_t& set_trendline(chart_trendline_type_t type, uint8_t value);
 
@@ -2212,14 +2211,14 @@ public:
   }
 
   /**
-   * @brief Get reference to an error bar of the serie.
+   * @brief Get reference to an error bar of the series.
    *
    * @param axis   The axis of error bar.
    *
    * @return Reference to the error bar.
    *
    * The `%get_error_bars()` function is used to get the
-   * reference to an error bar of the serie:
+   * reference to an error bar of the series:
    *
    * @code
    *  series_error_bars_t error_bar = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_X);
@@ -2340,7 +2339,7 @@ public:
    *
    * @see @ref ww_charts_axes.
    *
-   * @pre The `%name` parameter should not be empty.
+   * @pre `%name` must not be empty.
    */
   chart_axis_t& set_name(std::string_view name);
 
@@ -2364,7 +2363,7 @@ public:
    *
    * @see @ref ww_charts_axes.
    *
-   * @pre The `%sheetname` parameter should not be empty.
+   * @pre `%sheetname` must not be empty.
    */
   chart_axis_t& set_name(std::string_view sheetname, row_num_t row_num, col_num_t col_num);
 
@@ -3092,9 +3091,9 @@ private:
 };
 
 /**
- * @brief Build a serie range
+ * @brief Build a series range
  *
- * Build a serie range from sheetname, columns and rows.
+ * Build a series range from sheetname, columns and rows.
  *
  * @param sheetname The name of the sheet.
  * @param first_row The first row of the range.
@@ -3102,12 +3101,12 @@ private:
  * @param last_row  The last row of the range.
  * @param last_col  The last column of the range.
  *
- * @return A serie range.
+ * @return A series range.
  *
- * @pre `sheetname` must not be empty
+ * @pre `%sheetname` must not be empty
  */
-series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
-                                 row_num_t last_row, col_num_t last_col);
+series_range_t build_series_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
+                                  row_num_t last_row, col_num_t last_col);
 
 /**
  * @brief Representation of an Excel chart.
@@ -3120,7 +3119,7 @@ public:
   /**
    * @brief Create a new chart to be added to a worksheet or a chartsheet.
    *
-   * @param chart_type The type of chart to be created. See `chart_type_t`.
+   * @param type The type of chart to be created. See `chart_type_t`.
    *
    * @code
    *  // Create a chart object.
@@ -3165,7 +3164,7 @@ public:
    *
    * @see @ref chart.h for details.
    *
-   * @pre The `%chart_type` parameter should not be set to `%chart_type_t::NONE`.
+   * @pre `%chart_type` must not be set to `%chart_type_t::NONE`.
    */
   explicit chart_t(chart_type_t type);
 
@@ -3208,12 +3207,12 @@ public:
    * `"=Sheet1!$A$2:$A$7"` in the same way it is represented in Excel. This is
    * convenient when recreating a chart from an example in Excel but it is
    * trickier to generate programmatically. For these cases you can set the
-   * `%categories` and `%values` to a serie range built with the
-   * `build_serie_range()` functions:
+   * `%categories` and `%values` to a series range built with the
+   * `build_series_range()` functions:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0),  //
-   * "=Sheet1!$A$2:$A$7" xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
+   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_series_range("Sheet1", 1, 0, 6, 0),  //
+   * "=Sheet1!$A$2:$A$7" xwpp::build_series_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
    * @endcode
    *
    * As shown in the previous example the return value from
@@ -3333,7 +3332,7 @@ public:
    *  chart.set_title("Sheet1", 1, 0);
    * @endcode
    *
-   * @pre The `%sheetname` parameter should not be empty.
+   * @pre `%sheetname` must not be empty.
    */
   void set_title(std::string_view sheetname, row_num_t row_num, col_num_t col_num,
                  const std::optional<chart_font_t>& font = std::nullopt);
@@ -3451,8 +3450,8 @@ public:
    *
    * @image html chart_legend_delete.png
    *
-   * @pre The `%delete_series` parameter should not be empty.
-   * @pre The size of `%delete_series` parameter must be less than or equal to 255.
+   * @pre `%delete_series` must not be empty.
+   * @pre The size of `%delete_series` must be less than or equal to 255.
    */
   void legend_delete_series(const std::vector<int16_t>& delete_series);
 
@@ -3621,7 +3620,7 @@ public:
    *
    * This option is only available for Pie/Doughnut charts.
    *
-   * @pre The `rotation` paramter must be in the range `[0, 360]`.
+   * @pre `%rotation` must be in the range `[0, 360]`.
    */
   void set_rotation(uint16_t rotation);
 
@@ -3639,7 +3638,7 @@ public:
    *
    * This option is only available for Doughnut charts.
    *
-   * @pre The `size` paramter must be in the range `[10, 90]`.
+   * @pre `%size` must be in the range `[10, 90]`.
    */
   void set_hole_size(uint8_t size);
 
@@ -3661,7 +3660,7 @@ public:
    *
    * This option is only available for Bar/Column charts.
    *
-   * @pre The `gap` parameter must be in the range `[0, 500]`.
+   * @pre `%gap` must be in the range `[0, 500]`.
    */
   void set_series_gap(uint16_t gap);
 
@@ -3841,7 +3840,7 @@ public:
    * @note The default value is 0.
    * @note This option is only available for Bar/Column charts.
    *
-   * @pre The `%overlap` parameter must be in the range `[0, 500]`.
+   * @pre `%overlap` must be in the range `[0, 500]`.
    */
   void set_series_overlap(int8_t overlap);
 

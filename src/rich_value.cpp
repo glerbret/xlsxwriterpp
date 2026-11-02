@@ -38,7 +38,6 @@ std::string rich_value_t::assemble_xml_file(const workbook_t& workbook)
   return xml_data;
 }
 
-// TODO Move in anonymous namespace after removing friendship with workbook_t
 std::string rich_value_t::write_rv_data(const workbook_t& workbook)
 {
   return xml_start_tag(
