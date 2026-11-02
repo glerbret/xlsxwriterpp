@@ -44,7 +44,7 @@ int main()
 
   const std::string preview{"Select Print Preview to see the header and footer"};
 
-  // A simple example to start
+  // A simple example to start.
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Simple");
 
@@ -55,7 +55,7 @@ int main()
     worksheet.write(0, 0, preview);
   }
 
-  // A simple example to start
+  // A simple example to start.
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Image");
     const xwpp::header_footer_options_t header_options{.image_left = "logo_small.png"};
@@ -105,7 +105,7 @@ int main()
     worksheet.write(0, 0, preview);
   }
 
-  // Example of inserting a literal ampersand &
+  // Example of inserting a literal ampersand &.
   {
     xwpp::worksheet_t& worksheet = workbook.add_worksheet("Ampersand");
 

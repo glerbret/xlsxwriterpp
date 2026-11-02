@@ -3106,7 +3106,7 @@ private:
  *
  * @pre `sheetname` must not be empty
  */
-series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
+series_range_t build_series_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
                                  row_num_t last_row, col_num_t last_col);
 
 /**
@@ -3209,11 +3209,11 @@ public:
    * convenient when recreating a chart from an example in Excel but it is
    * trickier to generate programmatically. For these cases you can set the
    * `%categories` and `%values` to a serie range built with the
-   * `build_serie_range()` functions:
+   * `build_series_range()` functions:
    *
    * @code
-   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0),  //
-   * "=Sheet1!$A$2:$A$7" xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
+   *  xwpp::chart_series_t& series = chart.add_series(xwpp::build_series_range("Sheet1", 1, 0, 6, 0),  //
+   * "=Sheet1!$A$2:$A$7" xwpp::build_series_range("Sheet1", 1, 2, 6, 2)); // "=Sheet1!$C$2:$C$7"
    * @endcode
    *
    * As shown in the previous example the return value from

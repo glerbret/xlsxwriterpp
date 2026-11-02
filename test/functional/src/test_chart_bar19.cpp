@@ -31,9 +31,9 @@ int main()
     row_num++;
   }
 
-  chart.add_series(xwpp::build_serie_range("Sheet1", 0, 0, 4, 0));
-  chart.add_series(xwpp::build_serie_range("Sheet1", 0, 1, 4, 1));
-  chart.add_series(xwpp::build_serie_range("Sheet1", 0, 2, 4, 2));
+  chart.add_series(xwpp::build_series_range("Sheet1", 0, 0, 4, 0));
+  chart.add_series(xwpp::build_series_range("Sheet1", 0, 1, 4, 1));
+  chart.add_series(xwpp::build_series_range("Sheet1", 0, 2, 4, 2));
 
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("=Sheet1!$A$2");
   chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("=Sheet1!$A$3");

@@ -28,10 +28,8 @@ int main()
   // Write the number without formatting.
   worksheet.write(0, 0, number); // 41333.5
 
-  /* Write the number with formatting. Note: the worksheet_write_datetime()
-   * or worksheet_write_unixtime() functions are preferable for writing
-   * dates and times. This is for demonstration purposes only.
-   */
+  // Write the number with formatting. Note: the xwpp::worksheet_t::write_datetime()
+  // function is preferable for writing dates and times. This is for demonstration purposes only.
   worksheet.write(1, 0, number, format); // Feb 28 2013 12:00 PM
 
   workbook.save("date_and_times01.xlsx");

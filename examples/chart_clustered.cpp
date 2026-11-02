@@ -64,7 +64,7 @@ int main()
   // Configure the series. Note, that the categories are 2D ranges (from
   // column A to column B). This creates the clusters. The series are shown
   // as formula strings for clarity but you can also use variables with the
-  // ranges overload of `. See the docs.
+  // ranges overload of `xwpp::chart_t::add_series`. See the docs.
   chart.add_series("=Sheet1!$A$2:$B$6", "=Sheet1!$C$2:$C$6");
   chart.add_series("=Sheet1!$A$2:$B$6", "=Sheet1!$D$2:$D$6");
   chart.add_series("=Sheet1!$A$2:$B$6", "=Sheet1!$E$2:$E$6");

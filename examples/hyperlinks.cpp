@@ -43,7 +43,7 @@ int main()
   worksheet.write_url(8, 0, "mailto:john@doe.com");
   worksheet.write(8, 0, "Drop me a line.", url_format);
 
-  // Write a hyperlink with a text and a tooltip
+  // Write a hyperlink with a text and a tooltip.
   worksheet.write_url(10, 0, "https://github.com/glerbret/xlsxwriterpp", url_format, "With text and tooltip",
                       "tooltip");
 

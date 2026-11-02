@@ -36,6 +36,6 @@ int main()
   };
   worksheet.insert_button(2, 1, options);
 
-  // Note the xlsm extension of the filename
+  // Note the xlsm extension of the filename.
   workbook.save("macro.xlsm");
 }

@@ -33,7 +33,7 @@ int main()
 
   xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::PIE};
 
-  chart.add_series(xwpp::build_serie_range(sheetname, 0, 0, 4, 0)).set_name(sheetname, 0, 0);
+  chart.add_series(xwpp::build_series_range(sheetname, 0, 0, 4, 0)).set_name(sheetname, 0, 0);
 
   chart.set_title("Foo");
 

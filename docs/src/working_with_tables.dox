@@ -371,28 +371,28 @@ the column, see the next section):
     },
     {
       .header         = "Quarter 1",
-      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .total_function = xwpp::table_total_functions_t::SUM,
       .format         = currency_format,
     },
     {
       .header         = "Quarter 2",
-      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .total_function = xwpp::table_total_functions_t::SUM,
       .format         = currency_format,
     },
     {
       .header         = "Quarter 3",
-      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .total_function = xwpp::table_total_functions_t::SUM,
       .format         = currency_format,
     },
     {
       .header         = "Quarter 4",
-      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .total_function = xwpp::table_total_functions_t::SUM,
       .format         = currency_format,
     },
     {
       .header         = "Year",
       .formula        = "=SUM(Table13[@[Quarter 1]:[Quarter 4]])",
-      .total_function = LXW_TABLE_FUNCTION_SUM,
+      .total_function = xwpp::table_total_functions_t::SUM,
       .format         = currency_format,
     },
   };
