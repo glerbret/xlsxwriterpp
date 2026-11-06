@@ -1186,9 +1186,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_scheme("fs").build();
    * @endcode
-   *
-   * @todo Add image in description.
-   * @todo Add an example (and fix example here).
    */
   format_builder_t& font_scheme(std::string_view font_scheme);
 
@@ -1226,9 +1223,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_only().build();
    * @endcode
-   *
-   * @todo Add image in description.
-   * @todo Add an example (and fix example here).
    */
   format_builder_t& font_only();
 
@@ -1306,8 +1300,6 @@ public:
    *
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().vertical_text().build();
-   *
-   *  worksheet.write(0, 0, "This text is vertical", format);
    * @endcode
    *
    * @todo Add image.
@@ -1368,9 +1360,6 @@ public:
    * @param value The theme.
    *
    * Set the theme.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
    */
   format_builder_t& theme(uint8_t value);
 
@@ -1380,9 +1369,6 @@ public:
    * @param value The indexed color.
    *
    * Set the indexed color.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
    */
   format_builder_t& color_indexed(uint8_t value);
 
