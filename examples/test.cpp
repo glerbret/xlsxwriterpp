@@ -1,6 +1,4 @@
 /*
- * An example of creating an Excel chartsheet using the Xlsxwriter++ library.
- *
  * Copyright 2026, Grégory Lerbret
  *
  * Xlsxwriter++ is a C++ port of libxlsxwriter (https://libxlsxwriter.github.io/).
@@ -8,73 +6,66 @@
 
 #include "xlsxwriterpp.h"
 
-#include <array>
-
-namespace
-{
-
-void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bold)
-{
-  const std::array<std::array<uint8_t, 3>, 6> data{
-    {{2, 10, 30}, {3, 40, 60}, {4, 50, 70}, {5, 20, 50}, {6, 10, 40}, {7, 50, 30}}
-  };
-
-  worksheet.write("A1", "Number", bold);
-  worksheet.write("B1", "Batch 1", bold);
-  worksheet.write("C1", "Batch 2", bold);
-
-  for(xwpp::row_num_t row_num{0}; const auto& row: data)
-  {
-    for(xwpp::col_num_t col_num{0}; const auto value: row)
-    {
-      worksheet.write(row_num, col_num, value);
-      col_num++;
-    }
-    row_num++;
-  }
-}
-
-}
-
 int main()
 {
   xwpp::workbook_t workbook;
-  xwpp::worksheet_t& worksheet   = workbook.add_worksheet();
-  xwpp::chartsheet_t& chartsheet1 = workbook.add_chartsheet("My Chart");
-  xwpp::chartsheet_t& chartsheet2 = workbook.add_chartsheet();
+  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
+  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  // Add a bold format to use to highlight the header cells.
-  const xwpp::format_t* bold = workbook.format_builder().bold().build();
+  const xwpp::row_col_options_t options{.hidden = true, .level = 0, .collapsed = false};
 
-  // Write some data for the chart.
-  write_worksheet_data(worksheet, bold);
+  worksheet.write("A1", "Month");
+  worksheet.write("B1", "Jan");
+  worksheet.write("C1", "Feb");
+  worksheet.write("D1", "Mar");
+  worksheet.write("E1", "Apr");
+  worksheet.write("F1", "May");
+  worksheet.write("G1", "Jun");
+  worksheet.write("H1", "Total");
 
-  // Create a bar chart.
-  xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::BAR};
+  worksheet.write("A2", "North");
+  worksheet.write("B2", 50);
+  worksheet.write("C2", 20);
+  worksheet.write("D2", 15);
+  worksheet.write("E2", 25);
+  worksheet.write("F2", 65);
+  worksheet.write("G2", 80);
+  worksheet.write_formula("H2", "=SUM(B2:G2)", nullptr, 255);
 
-  // Add the first series to the chart with a name for the series instead of the default "Series 1".
-  chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
+  worksheet.write("A3", "South");
+  worksheet.write("B3", 10);
+  worksheet.write("C3", 20);
+  worksheet.write("D3", 30);
+  worksheet.write("E3", 50);
+  worksheet.write("F3", 50);
+  worksheet.write("G3", 50);
+  worksheet.write_formula("H3", "=SUM(B3:G3)", nullptr, 210);
 
-  // Add a second series with ranges.
-  chart
-    .add_series(xwpp::build_series_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
-                xwpp::build_series_range("Sheet1", 1, 2, 6, 2)) // "=Sheet1!$C$2:$C$7"
-    .set_name("Sheet1", 0, 2);                                  // "=Sheet1!$C$1"
+  worksheet.write("A4", "East");
+  worksheet.write("B4", 45);
+  worksheet.write("C4", 75);
+  worksheet.write("D4", 50);
+  worksheet.write("E4", 15);
+  worksheet.write("F4", 75);
+  worksheet.write("G4", 100);
+  worksheet.write_formula("H4", "=SUM(B4:G4)", nullptr, 360);
 
-  // Add a chart title and some axis labels.
-  chart.set_title("Results of sample analysis");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Test number");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sample length (mm)");
+  worksheet.write("A5", "West");
+  worksheet.write("B5", 15);
+  worksheet.write("C5", 15);
+  worksheet.write("D5", 55);
+  worksheet.write("E5", 35);
+  worksheet.write("F5", 20);
+  worksheet.write("G5", 50);
+  worksheet.write_formula("H5", "=SUM(B5:G5)", nullptr, 190);
 
-  // Set an Excel chart style.
-  chart.set_style(11);
+  worksheet.write_formula("H6", "=SUM(H2:H5)", bold, 1015);
 
-  // Add the chart to the chartsheet.
-  chartsheet1.set_chart(chart);
-  chartsheet2.set_chart(chart);
+  worksheet.set_row(0, bold);
 
-  // Display the chartsheet as the active sheet when the workbook is opened.
-  chartsheet1.activate();
+  worksheet.set_column("A:A", 10, bold);
+  worksheet.set_column("H:H", 10);
+  worksheet.set_column(3,4, 6, nullptr, options);
 
-  workbook.save("chartsheet.xlsx");
+  workbook.save("test_outline03.xlsx");
 }
