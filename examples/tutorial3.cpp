@@ -45,7 +45,7 @@ int main()
   const xwpp::format_t* date_format = workbook.format_builder().num_format("mmmm d yyyy").build();
 
   // Adjust the column width.
-  worksheet.set_column(0, 0, 15);
+  worksheet.set_column(1, 1, 15);
 
   xwpp::row_num_t row_num{0};
 

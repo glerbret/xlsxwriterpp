@@ -375,9 +375,13 @@ public:
    * worksheet.h "Worksheet" object is used to write data and configure a
    * worksheet in the workbook.
    *
+   * The default Excel convention is followed to name sheet, i.e. `Sheet1`, `Sheet2`, etc.:
+   *
    * @code
-   *  worksheet = workbook.add_worksheet("Foglio2");    // Foglio2
-   *  worksheet = workbook.add_worksheet("Data");       // Data
+   *  worksheet1 = workbook.add_worksheet();           // Sheet1
+   *  worksheet2 = workbook.add_worksheet("Foglio2");  // Foglio2
+   *  worksheet3 = workbook.add_worksheet("Data");     // Data
+   *  worksheet4 = workbook.add_worksheet();           // Sheet4
    * @endcode
    *
    * @image html workbook02.png
@@ -401,26 +405,7 @@ public:
    */
   worksheet_t& add_worksheet(std::string_view sheetname);
 
-  /**
-   * @brief Add a new worksheet to a workbook.
-   *
-   * @return A reference on @ref worksheet.h "Worksheet" object.
-   *
-   * The `%add_worksheet()` function adds a new worksheet to a workbook.
-   *
-   * At least one worksheet should be added to a new workbook: The @ref
-   * worksheet.h "Worksheet" object is used to write data and configure a
-   * worksheet in the workbook.
-   *
-   * The default Excel convention is followed to name sheet, i.e. `Sheet1`, `Sheet2`, etc.:
-   *
-   * @code
-   *  worksheet = workbook.add_worksheet();     // Sheet1
-   *  worksheet = workbook.add_worksheet();     // Sheet2
-   * @endcode
-   *
-   * @image html workbook02.png
-   */
+  /// @brief Overload without user-provided name.
   worksheet_t& add_worksheet();
 
   /**
@@ -434,11 +419,14 @@ public:
    * workbook. The @ref chartsheet.h "Chartsheet" object is like a worksheet
    * except it displays a chart instead of cell data.
    *
+   * The default Excel convention is followed to named sheet, i.e. `Chart1`, `Chart2`, etc.:
+   *
    * @code
-   *  chartsheet = workbook_add_chartsheet(workbook, "My Chart"); // My Chart
+   *  chartsheet1 = workbook.add_chartsheet("My Chart"); // My Chart
+   *  chartsheet2 = workbook.add_chartsheet();           // Chart2
    * @endcode
    *
-   * @image html chartsheet.png
+   * @image html chartsheet_01.png
    *
    * The chartsheet name must be a valid Excel worksheet name, i.e.:
    *
@@ -464,29 +452,7 @@ public:
    */
   chartsheet_t& add_chartsheet(std::string_view sheetname);
 
-  /**
-   * @brief Add a new chartsheet to a workbook.
-   *
-   * @return A reference on @ref chartsheet.h "Chartsheet" object.
-   *
-   * The `%add_chartsheet()` function adds a new chartsheet to a
-   * workbook. The @ref chartsheet.h "Chartsheet" object is like a worksheet
-   * except it displays a chart instead of cell data.
-   *
-   * The default Excel convention is followed to named sheet, i.e. `Chart1`, `Chart2`, etc.:
-   *
-   * @code
-   *  chartsheet = workbook.add_chartsheet();     // Chart1
-   *  chartsheet = workbook.add_chartsheet();     // Chart2
-   * @endcode
-   *
-   * @image html chartsheet.png
-   *
-   * At least one worksheet should be added to a new workbook when creating a
-   * chartsheet in order to provide data for the chart. The @ref worksheet.h
-   * "Worksheet" object is used to write data and configure a worksheet in the
-   * workbook.
-   */
+  /// @brief Overload without user-provided name.
   chartsheet_t& add_chartsheet();
 
   /**
