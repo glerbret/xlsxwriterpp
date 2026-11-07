@@ -10,7 +10,7 @@ Two mechanism are used in Xlsxwriter++ for error management:
 
 @section contract Contracts
 
-Errors related to usage of library like authorised values, function prerequisite, etc. are managed through programmation by contracts.
+Errors related to usage of library like authorized values, function prerequisite, etc. are managed through design by contracts.
 
 Such contracts are documented and callers are responsible of their respect. In debug mode, asserts check these contracts.
 

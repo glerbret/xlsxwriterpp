@@ -25,8 +25,6 @@ namespace
 
 [[nodiscard]] std::string write_application()
 {
-  // TODO Check why name is important and which default are different following the case (e.g. chart_data_labels)
-  // Application name must be "Microsoft Excel", even some default change
   return xml_data_element("Application", "Microsoft Excel");
 }
 

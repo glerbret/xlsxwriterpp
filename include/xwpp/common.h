@@ -31,7 +31,7 @@ const uint32_t DEF_COL_WIDTH_PIXELS{64};
 /** Default Excel column height in pixels. */
 const uint32_t DEF_ROW_HEIGHT_PIXELS{20};
 
-// Custom number formats start at 0xA4
+// Custom number formats start at 0xA4.
 const uint16_t FIRST_CUSTOM_FORMAT = 0xA4;
 
 /**
@@ -58,17 +58,41 @@ struct datetime_t
   friend bool operator==(const datetime_t& lhs, const datetime_t& rhs) = default;
   friend bool operator!=(const datetime_t& lhs, const datetime_t& rhs) = default;
 
-  /** Year     : 1900 - 9999 */
+  /**
+   * Year.
+   *
+   * @pre Must be in the range [1900 - 9999].
+   */
   int year{0};
-  /** Month    : 1 - 12 */
+  /**
+   * Month.
+   *
+   * @pre Must be in the range [1 - 12].
+   */
   int month{0};
-  /** Day      : 1 - 31 */
+  /**
+   * Day.
+   *
+   * @pre Must be a valid day.
+   */
   int day{0};
-  /** Hour     : 0 - 23 */
+  /**
+   * Hour.
+   *
+   * @pre Must be in the range [0 - 23].
+   */
   int hour{0};
-  /** Minute   : 0 - 59 */
+  /**
+   * Minute.
+   *
+   * @pre Must be in the range [0 - 59].
+   */
   int min{0};
-  /** Seconds  : 0 - 59.999 */
+  /**
+   * Seconds.
+   *
+   * @pre Must be in the range [0 - 59.999].
+   */
   double sec{0.};
 };
 

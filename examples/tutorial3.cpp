@@ -19,16 +19,16 @@ int main()
 {
   struct expense
   {
-    std::string item_;
-    int cost_{0};
-    xwpp::datetime_t datetime_;
+    std::string item;
+    int cost{0};
+    xwpp::datetime_t datetime;
   };
 
   const std::vector<expense> expenses{
-    {.item_ = "Rent", .cost_ = 1000, .datetime_ = {.year = 2013, .month = 1, .day = 13}},
-    {.item_ = "Gas",  .cost_ = 100,  .datetime_ = {.year = 2013, .month = 1, .day = 14}},
-    {.item_ = "Food", .cost_ = 300,  .datetime_ = {.year = 2013, .month = 1, .day = 16}},
-    {.item_ = "Gym",  .cost_ = 50,   .datetime_ = {.year = 2013, .month = 1, .day = 17}},
+    {.item = "Rent", .cost = 1000, .datetime = {.year = 2013, .month = 1, .day = 13}},
+    {.item = "Gas",  .cost = 100,  .datetime = {.year = 2013, .month = 1, .day = 14}},
+    {.item = "Food", .cost = 300,  .datetime = {.year = 2013, .month = 1, .day = 16}},
+    {.item = "Gym",  .cost = 50,   .datetime = {.year = 2013, .month = 1, .day = 17}},
   };
 
   // Create a workbook and add a worksheet.
@@ -45,7 +45,7 @@ int main()
   const xwpp::format_t* date_format = workbook.format_builder().num_format("mmmm d yyyy").build();
 
   // Adjust the column width.
-  worksheet.set_column(0, 0, 15);
+  worksheet.set_column(1, 1, 15);
 
   xwpp::row_num_t row_num{0};
 
@@ -58,9 +58,9 @@ int main()
   // Iterate over the data and write it out element by element.
   for(const auto& value: expenses)
   {
-    worksheet.write(row_num, 0, value.item_);
-    worksheet.write_datetime(row_num, 1, value.datetime_, date_format);
-    worksheet.write(row_num, 2, value.cost_, money);
+    worksheet.write(row_num, 0, value.item);
+    worksheet.write_datetime(row_num, 1, value.datetime, date_format);
+    worksheet.write(row_num, 2, value.cost, money);
     row_num++;
   }
 

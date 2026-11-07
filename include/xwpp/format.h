@@ -307,9 +307,9 @@ enum class format_reading_order_t
 };
 
 /**
- * @brief Representation the formatting properties of an Excel format.
+ * @brief Representation of the formatting properties of an Excel format.
  *
- * Representation the formatting properties of an Excel format.
+ * Representation of the formatting properties of an Excel format.
  *
  * @code
  *  // Create the Format.
@@ -1186,9 +1186,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_scheme("fs").build();
    * @endcode
-   *
-   * @todo Add image in description.
-   * @todo Add an example (and fix example here).
    */
   format_builder_t& font_scheme(std::string_view font_scheme);
 
@@ -1226,9 +1223,6 @@ public:
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().font_only().build();
    * @endcode
-   *
-   * @todo Add image in description.
-   * @todo Add an example (and fix example here).
    */
   format_builder_t& font_only();
 
@@ -1295,19 +1289,17 @@ public:
    * The angle 270 is also supported. This indicates text where the letters run
    * from top to bottom.
    *
-   * @pre The `%angle` parameter must be in range `[-90, 90]`.
+   * @pre `%angle` must be in range `[-90, 90]`.
    */
   format_builder_t& rotation(int16_t angle);
 
   /**
    * @brief Set vertical text.
    *
-   * Text is wrote verticaly. Letters run from top to bottom.
+   * Text is wrote vertically. Letters run from top to bottom.
    *
    * @code
    *  const xwpp::format_t* format = workbook.format_builder().vertical_text().build();
-   *
-   *  worksheet.write(0, 0, "This text is vertical", format);
    * @endcode
    *
    * @todo Add image.
@@ -1368,9 +1360,6 @@ public:
    * @param value The theme.
    *
    * Set the theme.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
    */
   format_builder_t& theme(uint8_t value);
 
@@ -1380,9 +1369,6 @@ public:
    * @param value The indexed color.
    *
    * Set the indexed color.
-   *
-   * @todo Add image in documentation.
-   * @todo Add example.
    */
   format_builder_t& color_indexed(uint8_t value);
 

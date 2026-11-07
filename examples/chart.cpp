@@ -45,7 +45,7 @@ int main()
   xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::COLUMN};
 
   // Configure the chart. In simplest case we just add some value data
-  // series. The nullptr categories will default to 1 to 5 like in Excel.
+  // series. The categories will default to 1 to 5 like in Excel.
   chart.add_series("Sheet1!$A$1:$A$5");
   chart.add_series("Sheet1!$B$1:$B$5");
   chart.add_series("Sheet1!$C$1:$C$5");

@@ -15,7 +15,6 @@
 #include <cassert>
 #include <optional>
 
-// TODO add gradient
 namespace xwpp
 {
 
@@ -134,7 +133,7 @@ std::optional<chart_layout_t> convert_layout_args(const std::optional<chart_layo
   }
 }
 
-series_range_t build_serie_range(std::string_view formula)
+series_range_t build_series_range(std::string_view formula)
 {
   return {.formula = dup_formula(formula)};
 }
@@ -595,8 +594,8 @@ series_error_bars_t& series_error_bars_t::set_line(const chart_line_t& line)
   return *this;
 }
 
-series_range_t build_serie_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
-                                 row_num_t last_row, col_num_t last_col)
+series_range_t build_series_range(std::string_view sheetname, row_num_t first_row, col_num_t first_col,
+                                  row_num_t last_row, col_num_t last_col)
 {
   return {
     .formula   = rowcol_to_formula_abs(sheetname, first_row, first_col, last_row, last_col),
@@ -617,7 +616,7 @@ chart_t::chart_t(chart_type_t type)
 
 chart_series_t& chart_t::add_series(std::string_view categories, std::string_view values)
 {
-  return add_series(build_serie_range(categories), build_serie_range(values));
+  return add_series(build_series_range(categories), build_series_range(values));
 }
 
 chart_series_t& chart_t::add_series(std::string_view values)
@@ -1331,7 +1330,6 @@ void chart_t::initialize_scatter_chart(chart_type_t type)
   write_plot_area_  = write_scatter_plot_area;
 }
 
-// TODO Add stock chart
 void chart_t::initialize(chart_type_t type)
 {
   switch(type)
@@ -1818,7 +1816,7 @@ std::string chart_t::write_a_def_rpr(const std::optional<chart_font_t>& font)
       attributes.add_attribute("sz", font->size);
     }
 
-    // To manage defautl value for tile
+    // To manage default value for tile
     if(use_font_default)
     {
       attributes.add_attribute("b", font->bold.has_value() ? font->bold.value() : false);
@@ -1918,7 +1916,7 @@ std::string chart_t::write_a_r_pr(const std::optional<chart_font_t>& font)
       attributes.add_attribute("sz", font->size);
     }
 
-    // To manage defautl value for tile
+    // To manage default value for tile
     if(use_font_default)
     {
       attributes.add_attribute("b", font->bold.has_value() ? font->bold.value() : false);

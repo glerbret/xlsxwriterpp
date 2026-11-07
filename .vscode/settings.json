@@ -14,5 +14,6 @@
   "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
     "cppcoreguidelines-pro-bounds-avoid-unchecked-container-access",
     "misc-use-internal-linkage"
-  ]
+  ],
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}\\compile_commands.json"
 }

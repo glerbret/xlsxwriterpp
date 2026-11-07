@@ -47,7 +47,7 @@ A simple example of some of the features of the `Xlsxwriter++` library.
 <table  width="600">
 <tr>
   <td>@ref demo.cpp "&lt;&lt; demo.cpp"</td>
-  <td align="right">@ref format_num_format.cpp "format_num_format.cpp &gt;&gt;"</td>
+  <td align="right">@ref format_font2.cpp "format_font2.cpp &gt;&gt;"</td>
 </tr>
 </table>
 
@@ -55,6 +55,20 @@ Example of writing some data with font formatting to a simple Excel
 file using `Xlsxwriter++`.
 
 @image html format_font.png
+
+@example format_font2.cpp
+
+<table  width="600">
+<tr>
+  <td>@ref format_font.cpp "&lt;&lt; format_font.cpp"</td>
+  <td align="right">@ref format_num_format.cpp "format_num_format.cpp &gt;&gt;"</td>
+</tr>
+</table>
+
+More examples of writing some data with font formatting to a simple Excel
+file using `Xlsxwriter++`.
+
+@image html format_font2.png
 
 @example format_num_format.cpp
 

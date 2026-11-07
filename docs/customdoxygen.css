@@ -531,6 +531,11 @@ div.center {
     padding: 0px;
 }
 
+img {
+	border: 1px solid lightgray;
+	border-radius: 8px;
+}
+
 div.center img {
     border: 0px;
 }
