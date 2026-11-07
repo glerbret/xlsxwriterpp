@@ -4140,12 +4140,6 @@ public:
    *
    * @image html autofilter2.png
    *
-   * @code
-   *  std::vector<std::string> list{"March", "April", "May", "Blanks"};
-   *
-   *  worksheet.filter_list(0, list);
-   * @endcode
-   *
    * It isn't sufficient to just specify the filter condition. You must also
    * hide any rows that don't match the filter condition.
    *
@@ -4542,7 +4536,8 @@ public:
    * string that looks like a number:
    *
    * @code
-   *  worksheet.write("D2", "123");
+   *  worksheet.write("C3", "123");
+   *  worksheet.ignore_errors(xwpp::ignore_errors_t::NUMBER_STORED_AS_TEXT, "C3");
    * @endcode
    *
    * This causes Excel to display a small green triangle in the top left hand
