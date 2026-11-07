@@ -95,7 +95,7 @@ int main()
   // to indicate the row that contains the collapsed symbol '+' with the
   // optional parameter, 'collapsed'.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Collapsed Rows");
 
     // The option structs with the outline level and collapsed property set.
     const xwpp::row_col_options_t options1{
@@ -164,7 +164,7 @@ int main()
 
   // Example 3: Create a worksheet with outlined columns.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Columns");
 
     const xwpp::row_col_options_t options{
       .hidden    = false,
@@ -231,7 +231,7 @@ int main()
 
   // Example 4: Show all possible outline levels.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined Rows");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Outlined levels");
 
     const xwpp::row_col_options_t level1{
       .hidden    = false,

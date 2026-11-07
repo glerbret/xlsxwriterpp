@@ -93,7 +93,7 @@ int main()
 
   // Example of using the UNIQUE() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Unique");
 
     worksheet.write_dynamic_formula("F2", "=_xlfn.UNIQUE(B2:B17)");
 
@@ -111,7 +111,7 @@ int main()
 
   // Example of using the SORT() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Sort");
 
     worksheet.write_dynamic_formula("F2", "=_xlfn._xlws.SORT(B2:B17)");
 
@@ -130,7 +130,7 @@ int main()
 
   // Example of using the SORTBY() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("SortBy");
 
     worksheet.write_dynamic_formula("D2", "=_xlfn.SORTBY(A2:B9,B2:B9)");
 
@@ -164,7 +164,7 @@ int main()
 
   // Example of using the XLOOKUP() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Xloopup");
 
     worksheet.write_dynamic_formula("F1", "=_xlfn.XLOOKUP(E1,A2:A9,C2:C9)");
 
@@ -208,7 +208,7 @@ int main()
 
   // Example of using the XMATCH() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Xmatch");
 
     worksheet.write_dynamic_formula("D2", "=_xlfn.XMATCH(C2,A2:A6)");
 
@@ -230,21 +230,21 @@ int main()
 
   // Example of using the RANDARRAY() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Randarray");
 
     worksheet.write_dynamic_formula("A1", "=_xlfn.RANDARRAY(5,3,1,100, TRUE)");
   }
 
   // Example of using the SEQUENCE() function.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Sequence");
 
     worksheet.write_dynamic_formula("A1", "=_xlfn.SEQUENCE(4,5)");
   }
 
   // Example of using the Spill range operator.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Spill ranges");
 
     worksheet.write_dynamic_formula("H2", "=_xlfn.ANCHORARRAY(F2)");
     worksheet.write_dynamic_formula("J2", "=COUNTA(_xlfn.ANCHORARRAY(F2))");
@@ -264,7 +264,7 @@ int main()
 
   // Example of using dynamic ranges with older Excel functions.
   {
-    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Filter");
+    xwpp::worksheet_t& worksheet = workbook.add_worksheet("Older functions");
 
     worksheet.write_dynamic_array_formula("B1:B3", "=LEN(A1:A3)");
 

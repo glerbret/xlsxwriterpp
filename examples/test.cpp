@@ -6,66 +6,116 @@
 
 #include "xlsxwriterpp.h"
 
+void write_worksheet_header(xwpp::worksheet_t& worksheet, const xwpp::format_t* header)
+{
+  // Make the columns wider for clarity.
+  worksheet.set_column(0, 3, 12);
+
+  // Write the column headers.
+  worksheet.set_row(0, 20, header);
+  worksheet.write(0, 0, "Region");
+  worksheet.write(0, 1, "Item");
+  worksheet.write(0, 2, "Volume");
+  worksheet.write(0, 3, "Month");
+}
+
 int main()
 {
   xwpp::workbook_t workbook;
   xwpp::worksheet_t& worksheet = workbook.add_worksheet();
-  const xwpp::format_t* bold   = workbook.format_builder().bold().build();
 
-  const xwpp::row_col_options_t options{.hidden = true, .level = 0, .collapsed = false};
+  struct row
+  {
+    std::string region;
+    std::string item;
+    int volume{0};
+    std::string month;
+  };
 
-  worksheet.write("A1", "Month");
-  worksheet.write("B1", "Jan");
-  worksheet.write("C1", "Feb");
-  worksheet.write("D1", "Mar");
-  worksheet.write("E1", "Apr");
-  worksheet.write("F1", "May");
-  worksheet.write("G1", "Jun");
-  worksheet.write("H1", "Total");
+  std::vector<row> data{
+    {.region = "East",  .item = "Apple",  .volume = 9000,  .month = "July"     },
+    {.region = "East",  .item = "Apple",  .volume = 5000,  .month = "July"     },
+    {.region = "South", .item = "Orange", .volume = 9000,  .month = "September"},
+    {.region = "North", .item = "Apple",  .volume = 2000,  .month = "November" },
+    {.region = "West",  .item = "Apple",  .volume = 9000,  .month = "November" },
+    {.region = "South", .item = "Pear",   .volume = 7000,  .month = "October"  },
+    {.region = "North", .item = "Pear",   .volume = 9000,  .month = "August"   },
+    {.region = "West",  .item = "Orange", .volume = 1000,  .month = "December" },
+    {.region = "West",  .item = "Grape",  .volume = 1000,  .month = "November" },
+    {.region = "South", .item = "Pear",   .volume = 10000, .month = "April"    },
+    {.region = "West",  .item = "Grape",  .volume = 6000,  .month = "January"  },
+    {.region = "South", .item = "Orange", .volume = 3000,  .month = "May"      },
+    {.region = "North", .item = "Apple",  .volume = 3000,  .month = "December" },
+    {.region = "South", .item = "Apple",  .volume = 7000,  .month = "February" },
+    {.region = "West",  .item = "Grape",  .volume = 1000,  .month = "December" },
+    {.region = "East",  .item = "Grape",  .volume = 8000,  .month = "February" },
+    {.region = "South", .item = "Grape",  .volume = 10000, .month = "June"     },
+    {.region = "West",  .item = "Pear",   .volume = 7000,  .month = "December" },
+    {.region = "South", .item = "Apple",  .volume = 2000,  .month = "October"  },
+    {.region = "East",  .item = "Grape",  .volume = 7000,  .month = "December" },
+    {.region = "North", .item = "Grape",  .volume = 6000,  .month = "April"    },
+    {.region = "East",  .item = "Pear",   .volume = 8000,  .month = "February" },
+    {.region = "North", .item = "Apple",  .volume = 7000,  .month = "August"   },
+    {.region = "North", .item = "Orange", .volume = 7000,  .month = "July"     },
+    {.region = "North", .item = "Apple",  .volume = 6000,  .month = "June"     },
+    {.region = "South", .item = "Grape",  .volume = 8000,  .month = "September"},
+    {.region = "West",  .item = "Apple",  .volume = 3000,  .month = "October"  },
+    {.region = "South", .item = "Orange", .volume = 10000, .month = "November" },
+    {.region = "West",  .item = "Grape",  .volume = 4000,  .month = "July"     },
+    {.region = "North", .item = "Orange", .volume = 5000,  .month = "August"   },
+    {.region = "East",  .item = "Orange", .volume = 1000,  .month = "November" },
+    {.region = "East",  .item = "Orange", .volume = 4000,  .month = "October"  },
+    {.region = "North", .item = "Grape",  .volume = 5000,  .month = "August"   },
+    {.region = "East",  .item = "Apple",  .volume = 1000,  .month = "December" },
+    {.region = "South", .item = "Apple",  .volume = 10000, .month = "March"    },
+    {.region = "East",  .item = "Grape",  .volume = 7000,  .month = "October"  },
+    {.region = "West",  .item = "Grape",  .volume = 1000,  .month = "September"},
+    {.region = "East",  .item = "Grape",  .volume = 10000, .month = "October"  },
+    {.region = "South", .item = "Orange", .volume = 8000,  .month = "March"    },
+    {.region = "North", .item = "Apple",  .volume = 4000,  .month = "July"     },
+    {.region = "South", .item = "Orange", .volume = 5000,  .month = "July"     },
+    {.region = "West",  .item = "Apple",  .volume = 4000,  .month = "June"     },
+    {.region = "East",  .item = "Apple",  .volume = 5000,  .month = "April"    },
+    {.region = "North", .item = "Pear",   .volume = 3000,  .month = "August"   },
+    {.region = "East",  .item = "Grape",  .volume = 9000,  .month = "November" },
+    {.region = "North", .item = "Orange", .volume = 8000,  .month = "October"  },
+    {.region = "East",  .item = "Apple",  .volume = 10000, .month = "June"     },
+    {.region = "South", .item = "Pear",   .volume = 1000,  .month = "December" },
+    {.region = "North", .item = "Grape",  .volume = 10000, .month = "July"     },
+    {.region = "East",  .item = "Grape",  .volume = 6000,  .month = "February" }
+  };
 
-  worksheet.write("A2", "North");
-  worksheet.write("B2", 50);
-  worksheet.write("C2", 20);
-  worksheet.write("D2", 15);
-  worksheet.write("E2", 25);
-  worksheet.write("F2", 65);
-  worksheet.write("G2", 80);
-  worksheet.write_formula("H2", "=SUM(B2:G2)", nullptr, 255);
+  const xwpp::row_col_options_t hidden{.hidden = true};
+const xwpp::format_t* header = workbook.format_builder().bold().build();
 
-  worksheet.write("A3", "South");
-  worksheet.write("B3", 10);
-  worksheet.write("C3", 20);
-  worksheet.write("D3", 30);
-  worksheet.write("E3", 50);
-  worksheet.write("F3", 50);
-  worksheet.write("G3", 50);
-  worksheet.write_formula("H3", "=SUM(B3:G3)", nullptr, 210);
+  write_worksheet_header(worksheet, header);
 
-  worksheet.write("A4", "East");
-  worksheet.write("B4", 45);
-  worksheet.write("C4", 75);
-  worksheet.write("D4", 50);
-  worksheet.write("E4", 15);
-  worksheet.write("F4", 75);
-  worksheet.write("G4", 100);
-  worksheet.write_formula("H4", "=SUM(B4:G4)", nullptr, 360);
+    // Write the row data.
+    for(xwpp::row_num_t i{0}; const auto& [region, item, volume, month]: data)
+    {
+      worksheet.write(i + 1, 0, region);
+      worksheet.write(i + 1, 1, item);
+      worksheet.write(i + 1, 2, volume);
+      worksheet.write(i + 1, 3, month);
 
-  worksheet.write("A5", "West");
-  worksheet.write("B5", 15);
-  worksheet.write("C5", 15);
-  worksheet.write("D5", 55);
-  worksheet.write("E5", 35);
-  worksheet.write("F5", 20);
-  worksheet.write("G5", 50);
-  worksheet.write_formula("H5", "=SUM(B5:G5)", nullptr, 190);
+      if(region == "East" || region == "North" || region == "South")
+      {
+        // Row matches the filter, no further action required.
+      }
+      else
+      {
+        // We need to hide rows that don't match the filter.
+        worksheet.set_row(i + 1, hidden);
+      }
+      i++;
+    }
 
-  worksheet.write_formula("H6", "=SUM(H2:H5)", bold, 1015);
+    // Add the autofilter.
+    worksheet.autofilter(0, 0, 50, 3);
 
-  worksheet.set_row(0, bold);
+    // Add the filter criteria.
+    const std::vector<std::string> list{"March", "April", "May"};
+    worksheet.filter_list(3, list);
 
-  worksheet.set_column("A:A", 10, bold);
-  worksheet.set_column("H:H", 10);
-  worksheet.set_column(3,4, 6, nullptr, options);
-
-  workbook.save("test_outline03.xlsx");
+  workbook.save("test.xlsx");
 }

@@ -2078,6 +2078,9 @@ struct filter_rule_obj_t
  * @code
  *  xwpp::worksheet_t& worksheet = workbook.add_worksheet();
  * @endcode
+ *
+ * @note Due to string parsing, functions using row, column or cell names are
+ * less performant than index-base ones.
  */
 class worksheet_t : public sheet_t
 {
@@ -2222,8 +2225,6 @@ public:
    *  worksheet.set_column("B", 30);
    * @endcode
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cols_name` is a valid columns ranges ("A:B") or a valid column name ("A").
    */
   void set_column(std::string_view cols_name, double width, const format_t* format = nullptr,
@@ -2296,8 +2297,8 @@ public:
    *  xwpp::row_col_options_t options{.hidden = true, .level = 0, .collapsed = false};
    *
    *  // Hide the fourth and fifth (zero indexed) rows.
-   *  worksheet.set_row(3, 15, options);
-   *  worksheet.set_row(4, 15, options);
+   *  worksheet.set_row(3, 15, nullptr, options);
+   *  worksheet.set_row(4, 15, nullptr, options);
    * @endcode
    *
    * @image html hide_row_col2.png
@@ -2381,8 +2382,6 @@ public:
    *
    * @image html set_column_pixels.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cols_name` is a valid columns ranges ("A:B") or a valid column name ("A").
    */
   void set_column_pixels(std::string_view cols_name, uint32_t pixels, const format_t* format = nullptr,
@@ -2457,8 +2456,10 @@ public:
    * - Boolean:
    *
    * @code
-   *  worksheet.write(2, 2, false, my_format);
+   *  worksheet.write(2, 2, false);
    * @endcode
+   *
+   * @image html write_bool.png
    *
    * The `format` parameter is used to apply formatting to the cell. This
    * parameter can be omitted to indicate no formatting or it can be a
@@ -2518,8 +2519,6 @@ public:
    *
    * @image html write_string01.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
   void write(const std::string& cell_name, std::string_view data, const format_t* format = nullptr);
@@ -2562,8 +2561,11 @@ public:
    *  worksheet.write_datetime(0, 0, datetime); // 41333.5
    *
    *  // Write the datetime with formatting.
+   *  const xwpp::format_t* format = workbook.format_builder().num_format("mmm d yyyy hh:mm AM/PM").build();
    *  worksheet.write_datetime(1, 0, datetime, format); // Feb 28 2013 12:00 PM
    * @endcode
+   *
+   * @image html write_datetime01.png
    *
    * - `%std::chrono`.
    * - `%struct tm`.
@@ -2574,12 +2576,14 @@ public:
    *  // 1970-01-01. The Unix epoch.
    *  worksheet.write_datetime(0, 0, static_cast<time_t>(0), format);
    *
-   *  // 2000-01-01.
+   *  // 2020-01-01.
    *  worksheet.write_datetime(1, 0, static_cast<time_t>(1577836800LL), format);
    *
    *  // 1900-01-01.
    *  worksheet.write_datetime(2, 0, static_cast<time_t>(-2208988800LL), format);
    * @endcode
+   *
+   * @image html write_datetime02.png
    *
    * The `format` parameter should be used to apply formatting to the cell using
    * a @ref format.h "Format" object as shown above. Without a date format the
@@ -2618,10 +2622,11 @@ public:
    *  worksheet.write_datetime("A1", datetime); // 41333.5
    *
    *  // Write the datetime with formatting.
+   *  const xwpp::format_t* format = workbook.format_builder().num_format("mmm d yyyy hh:mm AM/PM").build();
    *  worksheet.write_datetime("A2", datetime, format); // Feb 28 2013 12:00 PM
    * @endcode
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
+   * @image html write_datetime01.png
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -2673,8 +2678,6 @@ public:
    * @code
    *  worksheet.write_blank("B2", border_format);
    * @endcode
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -2778,8 +2781,6 @@ public:
    *
    * @image html rich_strings_small.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
   void write_rich_string(std::string_view cell_name, const std::vector<rich_string_tuple_t>& rich_strings,
@@ -2797,7 +2798,7 @@ public:
    * worksheet cell specified by `%row` and `%column`.
    *
    * @code
-   *  worksheet.write_url(0, 0, "http://libxlsxwriter.github.io");
+   *  worksheet.write_url(0, 0, "https://github.com/glerbret/xlsxwriterpp");
    * @endcode
    *
    * @image html hyperlinks_short.png
@@ -2821,7 +2822,7 @@ public:
    *  worksheet.write_url(0, 0, "ftp://www.python.org/");
    *  worksheet.write_url(1, 0, "http://www.python.org/");
    *  worksheet.write_url(2, 0, "https://www.python.org/");
-   *  worksheet.write_url(3, 0, "mailto:jmcnamara@cpan.org");
+   *  worksheet.write_url(3, 0, "mailto:test@test.org");
    * @endcode
    *
    * An Excel hyperlink is comprised of two elements: the displayed string and
@@ -2834,7 +2835,7 @@ public:
    *
    * @code
    *  // Write a hyperlink with the default blue underline format.
-   *  worksheet.write_url(2, 0, "http://libxlsxwriter.github.io");
+   *  worksheet.write_url(2, 0, "https://github.com/glerbret/xlsxwriterpp");
    *
    *  // Get the default url format.
    *  const xwpp::format_t* url_format = workbook.get_default_url_format();
@@ -2933,12 +2934,10 @@ public:
    * These functions are similar to index-based ones except they use name of the cell.
    *
    * @code
-   *  worksheet.write_url("A1", "http://libxlsxwriter.github.io");
+   *  worksheet.write_url("A1", "https://github.com/glerbret/xlsxwriterpp");
    * @endcode
    *
    * @image html hyperlinks_short.png
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` is a valid cell name ("A1").
    */
@@ -3024,8 +3023,6 @@ public:
    * @endcode
    *
    * @image html comments1.png
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -3117,8 +3114,6 @@ public:
    *
    * @image html write_formula01.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
   void write_formula(std::string_view cell_name, std::string_view formula, const format_t* format = nullptr,
@@ -3182,8 +3177,6 @@ public:
    * @code
    *  worksheet.write_array_formula("A5:A7", "{=TREND(C5:C7,B5:B7)}");
    * @endcode
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` must be a valid range name.
    */
@@ -3254,8 +3247,6 @@ public:
    *
    * @image html dynamic_arrays02.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%range_name` must be a valid range name.
    */
   void write_dynamic_array_formula(std::string_view range_name, std::string_view formula,
@@ -3311,8 +3302,6 @@ public:
    * This formula gives the following result:
    *
    * @image html dynamic_arrays01.png
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -3398,8 +3387,6 @@ public:
    *  worksheet.merge_range("B2:D2", "Merged Range", merge_format);
    * @endcode
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%range_name` must be a valid range name.
    */
   void merge_range(std::string_view range_name, const std::string& str, const format_t* format = nullptr);
@@ -3457,8 +3444,6 @@ public:
    *
    * @image html tables1.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%range_name` must be a valid range name.
    * @pre If `%options` parameter is set, the size of `%header` must be less than or equal to 255 UTF-8 characters.
    * @pre If `%options` parameter is set, the size of `%name` must be less than or equal to 255 UTF-8 characters.
@@ -3481,19 +3466,17 @@ public:
    * be in `PNG`, `JPEG`, `GIF` or `BMP` format:
    *
    * @code
-   *  worksheet.insert_image(2, 1, "logo.png");
+   *  worksheet.insert_image(1, 1, "logo.png");
    * @endcode
    *
    * @image html insert_image.png
    *
-   * **NOTE**:
-   * The scaling of a image may be affected if is crosses a row that has its
+   * @note The scaling of a image may be affected if is crosses a row that has its
    * default height changed due to a font that is larger than the default font
    * size or that has text wrapping turned on. To avoid this you should explicitly
    * set the height of the row using `set_row()` if it crosses an
    * inserted image. See @ref working_with_object_positioning.
    *
-   * **NOTE on `SVG` files**:
    * Excel doesn't directly support SVG files in the same way as other image file
    * formats. It allows SVG to be inserted into a worksheet but converts them to,
    * and displays them as, PNG files. It stores the original SVG image in the file
@@ -3523,13 +3506,11 @@ public:
    *
    * @code
    *  xwpp::image_options_t options{
-   *    .x_offset = 30,
-   *    .y_offset = 10,
    *    .x_scale  = 0.5,
    *    .y_scale  = 0.5,
    *  };
    *
-   *  worksheet.insert_image(2, 1, "logo.png", options);
+   *  worksheet.insert_image(1, 21, "logo.png", options);
    * @endcode
    *
    * @image html insert_image_opt.png
@@ -3581,8 +3562,6 @@ public:
    * @endcode
    *
    * @image html insert_image.png
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    * @pre `%filename` must not be empty.
@@ -3661,8 +3640,6 @@ public:
    *
    * @image html image_buffer.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%image_buffer` must not be empty.
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -3721,8 +3698,6 @@ public:
    *
    * This function is similar to index-based one except they use name of the cell.
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%filename` must not be empty.
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -3773,8 +3748,6 @@ public:
    * @param options      Optional image parameters.
    *
    * This function is similar to index-based one except they use name of the cell.
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%image_buffer` must not be empty.
    * @pre `%cell_name` must be a valid cell name ("A1").
@@ -3853,8 +3826,6 @@ public:
    *  worksheet.insert_chart("C1", chart);
    * @endcode
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cell_name` must be a valid cell name ("A1").
    * @pre The series list of the chart must not be empty.
    */
@@ -3912,8 +3883,6 @@ public:
    * @endcode
    *
    * @image html macros.png
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -4053,8 +4022,6 @@ public:
    * @code
    *  worksheet.autofilter("A1:D51");
    * @endcode
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` must be a valid range name.
    */
@@ -4233,8 +4200,6 @@ public:
    * @endcode
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    */
   void freeze_panes(std::string_view cell_name);
 
@@ -4312,8 +4277,6 @@ public:
    *  worksheet4.set_selection("D4:G7");
    * @endcode
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%range_name` must be a valid range name.
    */
   void set_selection(std::string_view range_name);
@@ -4362,8 +4325,6 @@ public:
    *
    *  worksheet.conditional_format_cell("A1", conditional_format);
    * @endcode
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
@@ -4430,8 +4391,6 @@ public:
    *
    * @image html conditional_format1.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%range_name` must be a valid range name.
    * @pre The `%conditional_format` content must be consistent.
    */
@@ -4493,8 +4452,6 @@ public:
    * @endcode
    *
    * @image html data_validate4.png
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%cell_name` must be a valid cell name ("A1").
    * @pre Length of error title must be less than or equal to 32 UTF-8 characters.
@@ -4564,8 +4521,6 @@ public:
    *
    *  worksheet.data_validation_range("B3:B5", data_validation);
    * @endcode
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` must be a valid range name.
    * @pre Length of error title must be less than or equal to 32 UTF-8 characters.
@@ -4833,8 +4788,6 @@ public:
    *
    * @image html top_left_cell.png
    *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
-   *
    * @pre `%cell_name` must be a valid cell name ("A1").
    */
   void set_top_left_cell(std::string_view cell_name);
@@ -5081,8 +5034,6 @@ public:
    * @code
    *  worksheet.print_area("A1:K42");
    * @endcode
-   *
-   * @note Due to string parsing, these functions are less performant than index-base ones.
    *
    * @pre `%range_name` must be a valid range name.
    */
