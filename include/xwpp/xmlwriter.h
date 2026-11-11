@@ -106,7 +106,7 @@ private:
 /**
  * Write an XML end tag.
  *
- * @param tag        The XML tag to write.
+ * @param tag The XML tag to write.
  *
  * @return XML content.
  */

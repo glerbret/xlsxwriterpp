@@ -15,6 +15,8 @@ to see if the `Xlsxwriter++` library is installed and working correctly.
 
 @image html hello01.png
 
+<div style="height: 20px;"></div>
+
 @example anatomy.cpp
 
 <table  width="600">
@@ -29,6 +31,8 @@ by line with comments.
 
 @image html anatomy.png
 
+<div style="height: 20px;"></div>
+
 @example demo.cpp
 
 <table  width="600">
@@ -41,6 +45,8 @@ by line with comments.
 A simple example of some of the features of the `Xlsxwriter++` library.
 
 @image html demo.png
+
+<div style="height: 20px;"></div>
 
 @example format_font.cpp
 
@@ -56,6 +62,8 @@ file using `Xlsxwriter++`.
 
 @image html format_font.png
 
+<div style="height: 20px;"></div>
+
 @example format_num_format.cpp
 
 <table  width="600">
@@ -70,6 +78,8 @@ file using `Xlsxwriter++`.
 
 @image html format_set_num_format.png
 
+<div style="height: 20px;"></div>
+
 @example tutorial1.cpp
 
 <table  width="600">
@@ -82,6 +92,8 @@ file using `Xlsxwriter++`.
 A tutorial program which is shown, with explanations, in @ref tutorial01.
 
 @image html tutorial01.png
+
+<div style="height: 20px;"></div>
 
 @example tutorial2.cpp
 
@@ -96,6 +108,8 @@ A tutorial program which is shown, with explanations, in @ref tutorial02.
 
 @image html tutorial02.png
 
+<div style="height: 20px;"></div>
+
 @example tutorial3.cpp
 
 <table  width="600">
@@ -108,6 +122,8 @@ A tutorial program which is shown, with explanations, in @ref tutorial02.
 A tutorial program which is shown, with explanations, in @ref tutorial03.
 
 @image html tutorial03.png
+
+<div style="height: 20px;"></div>
 
 @example dates_and_times01.cpp
 
@@ -125,6 +141,8 @@ next examples.
 
 @image html date_example01.png
 
+<div style="height: 20px;"></div>
+
 @example dates_and_times02.cpp
 
 <table  width="600">
@@ -138,6 +156,8 @@ Example of writing dates and times in Excel using a `datetime_t` struct and
 date formatting.
 
 @image html date_example02.png
+
+<div style="height: 20px;"></div>
 
 @example dates_and_times03.cpp
 
@@ -153,6 +173,7 @@ date formatting.
 
 @image html date_example02.png
 
+<div style="height: 20px;"></div>
 
 @example dates_and_times04.cpp
 
@@ -168,6 +189,8 @@ formatting.
 
 @image html date_example03.png
 
+<div style="height: 20px;"></div>
+
 @example dates_and_times05.cpp
 
 <table  width="600">
@@ -180,6 +203,8 @@ formatting.
 Example of writing dates and times in Excel using different date formats.
 
 @image html date_example04.png
+
+<div style="height: 20px;"></div>
 
 @example hyperlinks.cpp
 
@@ -194,6 +219,8 @@ Example of writing urls/hyperlinks to a worksheet.
 
 @image html hyperlinks.png
 
+<div style="height: 20px;"></div>
+
 @example rich_strings.cpp
 
 <table  width="600">
@@ -206,6 +233,8 @@ Example of writing urls/hyperlinks to a worksheet.
 Example of writing "rich" multi-format strings to a worksheet.
 
 @image html rich_strings.png
+
+<div style="height: 20px;"></div>
 
 @example array_formula.cpp
 
@@ -220,6 +249,8 @@ Example of writing array formulas to a worksheet.
 
 @image html array_formula.png
 
+<div style="height: 20px;"></div>
+
 @example dynamic_arrays.cpp
 
 <table  width="600">
@@ -233,6 +264,8 @@ Example of writing Excel 365 dynamic array formulas to a worksheet.
 
 @image html dynamic_arrays01.png
 
+<div style="height: 20px;"></div>
+
 @example utf8.cpp
 
 <table  width="600">
@@ -244,6 +277,8 @@ Example of writing Excel 365 dynamic array formulas to a worksheet.
 A simple Unicode UTF-8 example. Note, the source file is UTF-8 encoded.
 
 @image html utf8.png
+
+<div style="height: 20px;"></div>
 
 @example image_buffer.cpp
 
@@ -258,6 +293,8 @@ Example of inserting an image in a worksheet from a memory buffer.
 
 @image html image_buffer2.png
 
+<div style="height: 20px;"></div>
+
 @example embed_image_buffer.cpp
 
 <table  width="600">
@@ -270,6 +307,8 @@ Example of inserting an image in a worksheet from a memory buffer.
 Example of embedding an image in a worksheet from a memory buffer.
 
 @image html embed_image_buffer.png
+
+<div style="height: 20px;"></div>
 
 @example merge_range.cpp
 
@@ -284,6 +323,8 @@ Example of merging cells in a worksheet.
 
 @image html merge_range.png
 
+<div style="height: 20px;"></div>
+
 @example merge_rich_string.cpp
 
 <table  width="600">
@@ -296,6 +337,8 @@ Example of merging cells in a worksheet.
 Example of merging cells with a rich string in a worksheet.
 
 @image html merge_rich.png
+
+<div style="height: 20px;"></div>
 
 @example autofilter.cpp
 
@@ -310,6 +353,8 @@ Example of adding autofilters to a worksheets and adding filter conditions.
 
 @image html autofilter3.png
 
+<div style="height: 20px;"></div>
+
 @example data_validate.cpp
 
 <table  width="600">
@@ -322,6 +367,8 @@ Example of adding autofilters to a worksheets and adding filter conditions.
 Example of adding data validations to a worksheet.
 
 @image html data_validate4.png
+
+<div style="height: 20px;"></div>
 
 @example conditional_format1.cpp
 
@@ -337,6 +384,8 @@ A simple example of how to add a conditional format a
 a format to a cell or a range of cells based on certain criteria.
 
 @image html conditional_format12.png
+
+<div style="height: 20px;"></div>
 
 @example conditional_format2.cpp
 
@@ -354,6 +403,8 @@ criteria.
 
 @image html conditional_format1.png
 
+<div style="height: 20px;"></div>
+
 @example tables.cpp
 
 <table  width="600">
@@ -369,6 +420,8 @@ formula or formatted collectively.
 
 @image html tables12.png
 
+<div style="height: 20px;"></div>
+
 @example images.cpp
 
 <table  width="600">
@@ -381,6 +434,8 @@ formula or formatted collectively.
 Example of inserting images in a worksheet.
 
 @image html images.png
+
+<div style="height: 20px;"></div>
 
 @example embed_images.cpp
 
@@ -395,6 +450,8 @@ Example of embedding images in a worksheet.
 
 @image html embed_image.png
 
+<div style="height: 20px;"></div>
+
 @example headers_footers.cpp
 
 <table  width="600">
@@ -407,6 +464,8 @@ Example of embedding images in a worksheet.
 Example of adding worksheet headers and footers to worksheets.
 
 @image html headers_footers.png
+
+<div style="height: 20px;"></div>
 
 @example defined_name.cpp
 
@@ -424,6 +483,8 @@ single cell or a range of cells in a workbook or worksheet.
 
 @image html defined_name.png
 
+<div style="height: 20px;"></div>
+
 @example outline.cpp
 
 <table  width="600">
@@ -436,6 +497,8 @@ single cell or a range of cells in a workbook or worksheet.
 Example of how to generate Excel outlines and grouping.
 
 @image html outline1.png
+
+<div style="height: 20px;"></div>
 
 @example outline_collapsed.cpp
 
@@ -451,6 +514,8 @@ mainly on collapsed outlines.
 
 @image html outline2.png
 
+<div style="height: 20px;"></div>
+
 @example watermark.cpp
 
 <table  width="600">
@@ -465,6 +530,8 @@ in the [Microsoft documentation](https://support.microsoft.com/en-us/office/add-
 
 @image html worksheet_watermark.png
 
+<div style="height: 20px;"></div>
+
 @example background.cpp
 
 <table  width="600">
@@ -477,6 +544,8 @@ in the [Microsoft documentation](https://support.microsoft.com/en-us/office/add-
 Example of how to set the background image for a worksheet.
 
 @image html background.png
+
+<div style="height: 20px;"></div>
 
 @example tab_colors.cpp
 
@@ -491,6 +560,8 @@ Example of how to set Excel worksheet tab colors.
 
 @image html tab_colors.png
 
+<div style="height: 20px;"></div>
+
 @example diagonal_border.cpp
 
 <table  width="600">
@@ -503,6 +574,8 @@ Example of how to set Excel worksheet tab colors.
 Example of how to set a worksheet cell diagonal border.
 
 @image html diagonal_border.png
+
+<div style="height: 20px;"></div>
 
 @example hide_sheet.cpp
 
@@ -517,6 +590,8 @@ Example of how to hide an Excel worksheet.
 
 @image html hide_sheet.png
 
+<div style="height: 20px;"></div>
+
 @example doc_properties.cpp
 
 <table  width="600">
@@ -529,6 +604,8 @@ Example of how to hide an Excel worksheet.
 Example of setting Excel document properties.
 
 @image html doc_properties.png
+
+<div style="height: 20px;"></div>
 
 @example doc_custom_properties.cpp
 
@@ -544,6 +621,8 @@ non-standard document properties.
 
 @image html custom_properties.png
 
+<div style="height: 20px;"></div>
+
 @example worksheet_protection.cpp
 
 <table  width="600">
@@ -556,6 +635,8 @@ non-standard document properties.
 Example of setting Excel worksheet protection.
 
 @image html worksheet_protection.png
+
+<div style="height: 20px;"></div>
 
 @example macro.cpp
 
@@ -570,6 +651,8 @@ Example adding a VBA macro to a workbook.
 
 @image html macros.png
 
+<div style="height: 20px;"></div>
+
 @example comments1.cpp
 
 <table  width="600">
@@ -582,6 +665,8 @@ Example adding a VBA macro to a workbook.
 A simple example of adding cell comments to a worksheet.
 
 @image html comments1.png
+
+<div style="height: 20px;"></div>
 
 @example comments2.cpp
 
@@ -597,6 +682,8 @@ demonstrates most of the available comment formatting options.
 
 @image html comments2.png
 
+<div style="height: 20px;"></div>
+
 @example hide_row_col.cpp
 
 <table  width="600">
@@ -609,6 +696,8 @@ demonstrates most of the available comment formatting options.
 Example of hiding rows and columns in an Excel worksheet.
 
 @image html hide_row_col.png
+
+<div style="height: 20px;"></div>
 
 @example panes.cpp
 
@@ -624,6 +713,8 @@ An example of how to create panes in a worksheet, both "freeze" panes and
 
 @image html panes.png
 
+<div style="height: 20px;"></div>
+
 @example ignore_errors.cpp
 
 <table  width="600">
@@ -636,6 +727,8 @@ An example of how to create panes in a worksheet, both "freeze" panes and
 Example of hiding worksheet errors and warnings.
 
 @image html ignore_errors2.png
+
+<div style="height: 20px;"></div>
 
 @example lambda.cpp
 
@@ -653,6 +746,8 @@ from Fahrenheit to Celsius.
 
 @image html lambda01.png
 
+<div style="height: 20px;"></div>
+
 @example chart.cpp
 
 <table  width="600">
@@ -665,6 +760,8 @@ from Fahrenheit to Celsius.
 An example of creating a simple column chart with 3 data series.
 
 @image html chart_simple.png
+
+<div style="height: 20px;"></div>
 
 @example chart_area.cpp
 
@@ -686,6 +783,8 @@ Stacked area chart:
 Percent stacked area chart:
 @image html chart_area3.png
 
+<div style="height: 20px;"></div>
+
 @example chart_bar.cpp
 
 <table  width="600">
@@ -705,6 +804,8 @@ Stacked bar chart:
 
 Percent stacked bar chart:
 @image html chart_bar3.png
+
+<div style="height: 20px;"></div>
 
 @example chart_column.cpp
 
@@ -726,6 +827,8 @@ Stacked column chart:
 Percent stacked column chart:
 @image html chart_column3.png
 
+<div style="height: 20px;"></div>
+
 @example chart_line.cpp
 
 <table  width="600">
@@ -745,6 +848,8 @@ Stacked line chart:
 
 Percent stacked line chart:
 @image html chart_line3.png
+
+<div style="height: 20px;"></div>
 
 @example chart_scatter.cpp
 
@@ -772,6 +877,8 @@ Smooth scatter chart with markers:
 Smooth scatter chart:
 @image html chart_scatter5.png
 
+<div style="height: 20px;"></div>
+
 @example chart_radar.cpp
 
 <table  width="600">
@@ -792,6 +899,8 @@ Radar chart with markers:
 Filled radar chart:
 @image html chart_radar3.png
 
+<div style="height: 20px;"></div>
+
 @example chart_pie.cpp
 
 <table  width="600">
@@ -811,6 +920,8 @@ A pie chart with user defined colors:
 
 A pie chart with rotated segments:
 @image html chart_pie3.png
+
+<div style="height: 20px;"></div>
 
 @example chart_doughnut.cpp
 
@@ -834,6 +945,8 @@ to assign formatting to each point in the series.
 Chart 4 shows how to set segment colors and other options.
 @image html chart_doughnut2.png
 
+<div style="height: 20px;"></div>
+
 @example chart_clustered.cpp
 
 <table  width="600">
@@ -852,6 +965,8 @@ also use the a list syntax.
 
 @image html chart_clustered.png
 
+<div style="height: 20px;"></div>
+
 @example chart_data_table.cpp
 
 <table  width="600">
@@ -868,6 +983,8 @@ Chart 1 in the following example is a column chart with default data table:
 
 Chart 2 is a column chart with default data table with legend keys:
 @image html chart_data_table2.png
+
+<div style="height: 20px;"></div>
 
 @example chart_data_tools.cpp
 
@@ -901,6 +1018,8 @@ Chart 6: chart with error bars.
 
 Chart 7: chart with a trendline.
 @image html chart_data_tools9.png
+
+<div style="height: 20px;"></div>
 
 @example chart_data_labels.cpp
 
@@ -943,6 +1062,8 @@ Chart 8: chart with some deleted custom labels and defaults.
 Chart 9: chart with custom string data labels and formatting.
 @image html chart_data_labels23.png
 
+<div style="height: 20px;"></div>
+
 @example chart_fonts.cpp
 
 <table  width="600">
@@ -955,6 +1076,8 @@ Chart 9: chart with custom string data labels and formatting.
 An example of creating a simple chart with different fonts.
 
 @image html chart_fonts.png
+
+<div style="height: 20px;"></div>
 
 @example chart_pattern.cpp
 
@@ -969,6 +1092,8 @@ An example of creating a simple chart with different patterns.
 
 @image html chart_pattern.png
 
+<div style="height: 20px;"></div>
+
 @example chart_styles.cpp
 
 <table  width="600">
@@ -982,6 +1107,8 @@ An example showing all 48 default chart styles available in Excel 2007 using
 the chart `chart_set_style()` method.
 
 @image html chart_styles.png
+
+<div style="height: 20px;"></div>
 
 @example chartsheet.cpp
 

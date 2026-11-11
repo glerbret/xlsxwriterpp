@@ -23,7 +23,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write("B1", "Batch 1", bold);
   worksheet.write("C1", "Batch 2", bold);
 
-  for(xwpp::row_num_t row_num{0}; const auto& row: data)
+  for(xwpp::row_num_t row_num{1}; const auto& row: data)
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
@@ -52,14 +52,14 @@ int main()
   {
     xwpp::chart_t chart = xwpp::chart_t{xwpp::chart_type_t::AREA};
 
-    // Add the first series to the chartn, with a name for the series instead of the default "Series 1".
+    // Add the first series to the chart, with a name for the series instead of the default "Series 1".
     chart.add_series("=Sheet1!$A$2:$A$7", "=Sheet1!$B$2:$B$7").set_name("=Sheet1!$B$1");
 
     // Add a second series with ranges.
     chart
-      .add_series(xwpp::build_serie_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
-                  xwpp::build_serie_range("Sheet1", 1, 2, 6, 2)) // "=Sheet1!$C$2:$C$7"
-      .set_name("Sheet1", 0, 2);                                 // "=Sheet1!$C$1"
+      .add_series(xwpp::build_series_range("Sheet1", 1, 0, 6, 0), // "=Sheet1!$A$2:$A$7"
+                  xwpp::build_series_range("Sheet1", 1, 2, 6, 2)) // "=Sheet1!$C$2:$C$7"
+      .set_name("Sheet1", 0, 2);                                  // "=Sheet1!$C$1"
 
     // Add a chart title and some axis labels.
     chart.set_title("Results of sample analysis");

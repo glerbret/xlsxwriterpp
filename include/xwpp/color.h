@@ -54,7 +54,7 @@ public:
    *  xwpp::color_t{0xFF9900};  // Orange.
    * @endcode
    *
-   * @pre color <= 0XFFFFFF
+   * @pre `%color` must be less than or equal to 0XFFFFFF.
    */
   explicit color_t(uint32_t color);
 
@@ -87,10 +87,10 @@ public:
    *  xwpp::color_t::cmyk(0, 40, 100, 0);  // Orange.
    * @endcode
    *
-   * @pre cyan <= 100
-   * @pre magenta <= 100
-   * @pre yellow <= 100
-   * @pre black <= 100
+   * @pre `%cyan` must be less than or equal to 100.
+   * @pre `%magenta` must be less than or equal to 100.
+   * @pre `%yellow` must be less than or equal to 100.
+   * @pre `%black` must be less than or equal to 100.
    */
   [[nodiscard]] static color_t cmyk(uint8_t cyan, uint8_t magenta, uint8_t yellow, uint8_t black);
 

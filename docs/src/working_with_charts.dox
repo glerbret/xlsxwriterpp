@@ -310,17 +310,17 @@ and value associated with the type:
 
 @code
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0);
+  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y).enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
 @endcode
 
 @image html chart_error_bars1.png
 
 The error bar types that be used are:
 
-- `chart_error_bar_direction_t::STD_ERROR`: Standard error.
-- `chart_error_bar_direction_t::FIXED`: Fixed value.
-- `chart_error_bar_direction_t::PERCENTAGE`: Percentage.
-- `chart_error_bar_direction_t::STD_DEV`: Standard deviation(s).
+- `chart_error_bar_type_t::STD_ERROR`: Standard error.
+- `chart_error_bar_type_t::FIXED`: Fixed value.
+- `chart_error_bar_type_t::PERCENTAGE`: Percentage.
+- `chart_error_bar_type_t::STD_DEV`: Standard deviation(s).
 
 @note Custom error bars are not currently supported.
 
@@ -373,7 +373,7 @@ properties for the error bars:
 @code
   const xwpp::chart_line_t line{
     .color     = xwpp::color_t::red(),
-    .dash_type = xwpp::chart_line_dash_type_t::DASH_ROUND_DOT,
+    .dash_type = xwpp::chart_line_dash_type_t::ROUND_DOT,
   };
 
   error_bars.enable_error_bars(xwpp::chart_error_bar_direction_t::STD_ERROR, 0)
@@ -433,12 +433,12 @@ zero-initialized `chart_point_t`:
   xwpp::chart_fill_t green_fill{
     .color = xwpp::color_t::green()};
 
-  std::vector<chart_point_t> points{
-    {.fill = red_fill,   .line = line},
+  std::vector<xwpp::chart_point_t> points{
+    {.line = line, .fill = red_fill},
     {},
-    {.fill = green_fill, .line = line},
+    {.line = line, .fill = green_fill},
     {},
-    {.fill = red_fill,   .line = line},
+    {.line = line, .fill = red_fill},
   };
 
   series.set_points(points);
@@ -919,7 +919,7 @@ color or a limited number of named colors (see @ref working_with_colors for
 more information):
 
 @code
-  xwpp::chart_line_ line{.color = xwpp::color_t{0xFF9900}};
+  xwpp::chart_line_t line{.color = xwpp::color_t{0xFF9900}};
 
   series.set_line(line);
 @endcode
@@ -930,7 +930,7 @@ The `%width` member sets the width of the line. It should be specified in
 increments of 0.25 of a point as in Excel:
 
 @code
-  xwpp::chart_line_ line{.width = 4.25};
+  xwpp::chart_line_t line{.width = 4.25};
 
   series.set_line(line);
 @endcode
@@ -940,7 +940,7 @@ increments of 0.25 of a point as in Excel:
 The `%dash_type` member sets the dash style of the line:
 
 @code
-  xwpp::chart_line_ line{.dash_type = xwpp::chart_line_dash_type_t::DASH_DASH_DOT};
+  xwpp::chart_line_t line{.dash_type = xwpp::chart_line_dash_type_t::DASH_DOT};
 
   series.set_line(line);
 @endcode
@@ -952,16 +952,16 @@ in the order that they appear in the Excel dialog:
 
 |Define                                           | Excel name          |
 |------------------------------------------------ | ------------------- |
-|`chart_line_dash_type_t::DASH_SOLID`             | Solid               |
-|`chart_line_dash_type_t::DASH_ROUND_DOT`         | Round Dot           |
-|`chart_line_dash_type_t::DASH_SQUARE_DOT`        | Square Dot          |
-|`chart_line_dash_type_t::DASH_DASH`              | Dash                |
-|`chart_line_dash_type_t::DASH_DASH_DOT`          | Dash Dot            |
-|`chart_line_dash_type_t::DASH_LONG_DASH`         | Long Dash           |
-|`chart_line_dash_type_t::DASH_LONG_DASH_DOT`     | Long Dash Dot       |
-|`chart_line_dash_type_t::DASH_LONG_DASH_DOT_DOT` | Long Dash Dot Dot   |
+|`chart_line_dash_type_t::SOLID`             | Solid               |
+|`chart_line_dash_type_t::ROUND_DOT`         | Round Dot           |
+|`chart_line_dash_type_t::SQUARE_DOT`        | Square Dot          |
+|`chart_line_dash_type_t::DASH`              | Dash                |
+|`chart_line_dash_type_t::DASH_DOT`          | Dash Dot            |
+|`chart_line_dash_type_t::LONG_DASH`         | Long Dash           |
+|`chart_line_dash_type_t::LONG_DASH_DOT`     | Long Dash Dot       |
+|`chart_line_dash_type_t::LONG_DASH_DOT_DOT` | Long Dash Dot Dot   |
 
-The default line style is `chart_line_dash_type_t::DASH_SOLID`.
+The default line style is `chart_line_dash_type_t::SOLID`.
 
 More than one line property can be specified at a time:
 
@@ -969,7 +969,7 @@ More than one line property can be specified at a time:
   xwpp::chart_line_t line{
     .color     = xwpp::color_t::red(),
     .width     = 1.25,
-    .dash_type = xwpp::chart_line_dash_type_t::DASH_SQUARE_DOT,
+    .dash_type = xwpp::chart_line_dash_type_t::SQUARE_DOT,
   };
 @endcode
 
@@ -1027,7 +1027,7 @@ The `%transparency` member sets the transparency of the solid fill color in the
 integer range 1 - 100:
 
 @code
-  xwpp::chart_fill_ fill{
+  xwpp::chart_fill_t fill{
     .color        = xwpp::color_t::yellow(),
     .transparency = 50,
   };
@@ -1041,8 +1041,8 @@ The `%fill` format is generally used in conjunction with a border which can be
 set via the `%line` format:
 
 @code
-  xwpp::chart_line_ line{.color = xwpp::color_t::black()};
-  xwpp::chart_fill_ fill{.color = xwpp::color_t::red()};
+  xwpp::chart_line_t line{.color = xwpp::color_t::black()};
+  xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
 
   series.set_line(line);
   series.set_fill(fill);
@@ -1080,15 +1080,15 @@ For example:
 
 @code
   xwpp::chart_pattern_t pattern1{
-    .type     = xwpp::chart_pattern_type_t::SHINGLE,
     .fg_color = xwpp::color_t{0x804000},
     .bg_color = xwpp::color_t{0XC68C53},
+    .type     = xwpp::chart_pattern_type_t::SHINGLE,
   };
 
   xwpp::chart_pattern_t pattern2{
-    .type     = xwpp::chart_pattern_type_t::BRICK,
     .fg_color = xwpp::color_t{0XB30000},
     .bg_color = xwpp::color_t{0XFF6666},
+    .type     = xwpp::chart_pattern_type_t::HORIZONTAL_BRICK,
   };
 
   series1.set_pattern(pattern1);

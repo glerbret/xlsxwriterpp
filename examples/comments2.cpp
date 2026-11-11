@@ -71,7 +71,7 @@ int main()
 
     worksheet.write("C6",
                     "This cell comment is also visible because "
-                    "we used worksheet_show_comments().",
+                    "we used worksheet_t::show_comments().",
                     text_wrap);
 
     worksheet.write_comment("C6", "Hello");

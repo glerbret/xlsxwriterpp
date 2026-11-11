@@ -109,7 +109,7 @@ public:
    * If several similar charts are required then each one must be created
    * separately.
    *
-   * @pre The `%chart` parameter must have a non empty `%series_list_` member.
+   * @pre `%chart` must have a non empty `%series_list_` member.
    */
   void set_chart(const chart_t& chart, const std::optional<chart_options_t>& options = std::nullopt);
 
@@ -178,7 +178,7 @@ private:
   friend class packager_t;
   friend class workbook_t;
 
-  // Functions to generate XML
+  // Functions to generate XML.
   [[nodiscard]] static std::string write_chartsheet();
   [[nodiscard]] std::string write_sheet_view() override;
   [[nodiscard]] std::string write_page_setup() const override;

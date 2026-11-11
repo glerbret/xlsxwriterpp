@@ -225,16 +225,6 @@ void format_t::set_font_charset(uint8_t value)
   font_charset_ = value;
 }
 
-void format_t::set_font_outline()
-{
-  font_outline_ = true;
-}
-
-void format_t::set_font_shadow()
-{
-  font_shadow_ = true;
-}
-
 void format_t::set_font_scheme(std::string_view font_scheme)
 {
   font_scheme_ = font_scheme;
@@ -296,11 +286,6 @@ void format_t::set_shrink()
   shrink_ = true;
 }
 
-void format_t::set_reading_order(format_reading_order_t value)
-{
-  reading_order_ = value;
-}
-
 void format_t::set_theme(uint8_t value)
 {
   theme_ = value;
@@ -331,8 +316,7 @@ bool operator==(const format_t& lhs, const format_t& rhs)
          lhs.font_index_ == rhs.font_index_ && lhs.has_font_ == rhs.has_font_ &&
          lhs.has_dxf_font_ == rhs.has_dxf_font_ && lhs.font_size_ == rhs.font_size_ && lhs.bold_ == rhs.bold_ &&
          lhs.italic_ == rhs.italic_ && lhs.font_color_ == rhs.font_color_ && lhs.underline_ == rhs.underline_ &&
-         lhs.font_strikeout_ == rhs.font_strikeout_ && lhs.font_outline_ == rhs.font_outline_ &&
-         lhs.font_shadow_ == rhs.font_shadow_ && lhs.font_script_ == rhs.font_script_ &&
+         lhs.font_strikeout_ == rhs.font_strikeout_ && lhs.font_script_ == rhs.font_script_ &&
          lhs.font_family_ == rhs.font_family_ && lhs.font_charset_ == rhs.font_charset_ &&
          lhs.font_condense_ == rhs.font_condense_ && lhs.font_extend_ == rhs.font_extend_ && lhs.theme_ == rhs.theme_ &&
          lhs.hyperlink_ == rhs.hyperlink_ && lhs.hidden_ == rhs.hidden_ && lhs.locked_ == rhs.locked_ &&
@@ -348,9 +332,9 @@ bool operator==(const format_t& lhs, const format_t& rhs)
          lhs.top_ == rhs.top_ && lhs.bottom_color_ == rhs.bottom_color_ && lhs.diag_color_ == rhs.diag_color_ &&
          lhs.left_color_ == rhs.left_color_ && lhs.right_color_ == rhs.right_color_ &&
          lhs.top_color_ == rhs.top_color_ && lhs.indent_ == rhs.indent_ && lhs.shrink_ == rhs.shrink_ &&
-         lhs.merge_range_ == rhs.merge_range_ && lhs.reading_order_ == rhs.reading_order_ &&
-         lhs.just_distrib_ == rhs.just_distrib_ && lhs.color_indexed_ == rhs.color_indexed_ &&
-         lhs.font_only_ == rhs.font_only_ && lhs.quote_prefix_ == rhs.quote_prefix_;
+         lhs.merge_range_ == rhs.merge_range_ && lhs.just_distrib_ == rhs.just_distrib_ &&
+         lhs.color_indexed_ == rhs.color_indexed_ && lhs.font_only_ == rhs.font_only_ &&
+         lhs.quote_prefix_ == rhs.quote_prefix_;
 }
 
 int32_t format_t::get_xf_index() const
@@ -573,18 +557,6 @@ format_builder_t& format_builder_t::font_charset(uint8_t value)
   return *this;
 }
 
-format_builder_t& format_builder_t::font_outline()
-{
-  current_.set_font_outline();
-  return *this;
-}
-
-format_builder_t& format_builder_t::font_shadow()
-{
-  current_.set_font_shadow();
-  return *this;
-}
-
 format_builder_t& format_builder_t::font_scheme(std::string_view font_scheme)
 {
   current_.set_font_scheme(font_scheme);
@@ -644,12 +616,6 @@ format_builder_t& format_builder_t::indent(uint8_t level)
 format_builder_t& format_builder_t::shrink()
 {
   current_.set_shrink();
-  return *this;
-}
-
-format_builder_t& format_builder_t::reading_order(format_reading_order_t value)
-{
-  current_.set_reading_order(value);
   return *this;
 }
 

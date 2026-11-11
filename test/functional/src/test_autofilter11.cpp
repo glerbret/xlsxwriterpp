@@ -106,8 +106,7 @@ int main()
 
   worksheet.autofilter(0, 0, 50, 3);
 
-  const std::vector<std::string> list{"3000", "5000", "8000"};
-  worksheet.filter_list(2, list);
+  worksheet.filter_list(2, {"3000", "5000", "8000"});
 
   workbook.save("test_autofilter11.xlsx");
 }

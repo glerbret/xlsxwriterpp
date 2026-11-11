@@ -378,7 +378,7 @@ void sheet_t::hide()
 {
   hidden_ = true;
 
-  // A hidden ksheet shouldn't be active or selected.
+  // A hidden sheet shouldn't be active or selected.
   selected_ = false;
 
   // If this is active_sheet or first_sheet reset the workbook value.

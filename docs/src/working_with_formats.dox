@@ -132,11 +132,6 @@ Excel and set the format that you want:
 
 @image html currency_format2.png
 
-Then, while still in the dialog, change to Custom. The format displayed is the
-format used by Excel.
-
-@image html currency_format3.png
-
 If we put the format that we found (`"[$$-409]#,##0.00"`) into our previous
 example and rerun it we will get a number format in the Currency category:
 
@@ -197,14 +192,9 @@ set in the "Region" settings of Windows or Mac OS.  Excel handles this by
 storing the number format in the file format in the US locale, in this case
 `#,##0.00`, but renders it according to the regional settings of the host
 OS. For example, here is the same, unmodified, output file shown above in a
-German locale:
+French locale:
 
 @image html currency_format6.png
-
-And here is the same file in a Russian locale. Note the use of a space as the
-"grouping/thousands" separator:
-
-@image html currency_format7.png
 
 In order to replicate Excel's behavior all XlsxWriter programs should use US
 locale formatting which will then be rendered in the settings of your host OS.

@@ -26,7 +26,7 @@ void write_worksheet_data(xwpp::worksheet_t& worksheet, const xwpp::format_t* bo
   worksheet.write("B1", "Batch 1", bold);
   worksheet.write("C1", "Batch 2", bold);
 
-  for(xwpp::row_num_t row_num{0}; const auto& row: data)
+  for(xwpp::row_num_t row_num{1}; const auto& row: data)
   {
     for(xwpp::col_num_t col_num{0}; const auto value: row)
     {
