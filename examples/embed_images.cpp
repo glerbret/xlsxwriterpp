@@ -20,17 +20,17 @@ int main()
 
   // Embed an image.
   worksheet.write("A2", "Embed an image in a cell:");
-  worksheet.embed_image("B2", "logo.png");
+  worksheet.embed_image("B2", "images.d/logo.png");
 
   // Make a row bigger and embed the image.
   worksheet.set_row(3, 72);
   worksheet.write("A4", "Embed an image in a cell:");
-  worksheet.embed_image("B4", "logo.png");
+  worksheet.embed_image("B4", "images.d/logo.png");
 
   // Make a row bigger and embed the image.
   worksheet.set_row(5, 150);
   worksheet.write("A6", "Embed an image in a cell:");
-  worksheet.embed_image("B6", "logo.png");
+  worksheet.embed_image("B6", "images.d/logo.png");
 
   workbook.save("embed_images.xlsx");
 }

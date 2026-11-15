@@ -21,14 +21,14 @@ int main()
   // Insert an image.
   worksheet.write("A2", "Insert an image in a cell:");
 
-  worksheet.insert_image("B2", "logo.png");
+  worksheet.insert_image("B2", "images.d/logo.png");
 
   // Insert an image offset in the cell.
   worksheet.write("A12", "Insert an offset image:");
 
   {
     const xwpp::image_options_t options{.x_offset = 15, .y_offset = 10};
-    worksheet.insert_image("B12", "logo.png", options);
+    worksheet.insert_image("B12", "images.d/logo.png", options);
   }
 
   // Insert an image with scaling.
@@ -36,7 +36,7 @@ int main()
 
   {
     const xwpp::image_options_t options{.x_scale = 0.5, .y_scale = 0.5};
-    worksheet.insert_image("B22", "logo.png", options);
+    worksheet.insert_image("B22", "images.d/logo.png", options);
   }
 
   // Insert an image with a hyperlink.
@@ -44,7 +44,7 @@ int main()
 
   {
     const xwpp::image_options_t options{.url = "https://github.com/glerbret"};
-    worksheet.insert_image("B32", "logo.png", options);
+    worksheet.insert_image("B32", "images.d/logo.png", options);
   }
 
   workbook.save("images.xlsx");

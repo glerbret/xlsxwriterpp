@@ -5,6 +5,7 @@
 
 - Replace `get_axis()` function by `x_axis()`/`y_axis()` function.
 - Replace `get_error_bars()` function by `x_error_bars()`/`y_error_bars()` function.
+- Use subdirectory in examples.
 
 ## 0.2.0 November 11 2026
 
