@@ -37,9 +37,9 @@ int main()
 
   const xwpp::chart_font_t font1{.rotation = -45, .baseline = -1};
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX").set_name_font(font1);
+  chart.x_axis().set_name("XXX").set_name_font(font1);
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY").set_name_font(font1);
+  chart.y_axis().set_name("YYY").set_name_font(font1);
 
   worksheet.insert_chart("E9", chart);
 

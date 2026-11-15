@@ -35,7 +35,7 @@ int main()
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_label_align(xwpp::chart_axis_label_alignment_t::LEFT);
+  chart.x_axis().set_label_align(xwpp::chart_axis_label_alignment_t::LEFT);
 
   worksheet.insert_chart("E9", chart);
 

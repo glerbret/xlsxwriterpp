@@ -36,7 +36,7 @@ int main()
   chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_font_t font1{.rotation = -90, .baseline = -1};
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_num_font(font1);
+  chart.x_axis().set_num_font(font1);
 
   worksheet.insert_chart("E9", chart);
 

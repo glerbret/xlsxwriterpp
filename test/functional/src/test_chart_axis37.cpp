@@ -38,8 +38,8 @@ int main()
   const xwpp::chart_line_t line1{.color = xwpp::color_t::yellow()};
   const xwpp::chart_line_t line2{.color = xwpp::color_t::red()};
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_line(line1);
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line2);
+  chart.x_axis().set_line(line1);
+  chart.y_axis().set_line(line2);
 
   worksheet.insert_chart("E9", chart);
 

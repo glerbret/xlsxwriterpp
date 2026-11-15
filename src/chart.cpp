@@ -1122,16 +1122,14 @@ void chart_t::set_table_font(const chart_font_t& font)
   table_font_ = convert_font_args(font);
 }
 
-chart_axis_t& chart_t::get_axis(chart_axis_type_t axis_type)
+chart_axis_t& chart_t::x_axis()
 {
-  if(axis_type == chart_axis_type_t::TYPE_X)
-  {
-    return x_axis_;
-  }
-  else
-  {
-    return y_axis_;
-  }
+  return x_axis_;
+}
+
+chart_axis_t& chart_t::y_axis()
+{
+  return y_axis_;
 }
 
 std::string chart_t::assemble_xml_file()

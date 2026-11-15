@@ -35,8 +35,8 @@ int main()
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Apple");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Pear");
+  chart.x_axis().set_name("Apple");
+  chart.y_axis().set_name("Pear");
   chart.set_title("Title");
 
   worksheet.insert_chart("E9", chart);

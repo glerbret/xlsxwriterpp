@@ -36,7 +36,7 @@ int main()
   chart.add_series("=Sheet1!$C$1:$C$5");
 
   const xwpp::chart_line_t line{.none = true};
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line);
+  chart.y_axis().set_line(line);
 
   worksheet.insert_chart("E9", chart);
 

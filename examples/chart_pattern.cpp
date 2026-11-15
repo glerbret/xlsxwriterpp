@@ -41,8 +41,8 @@ int main()
   series2.set_name("=Sheet1!$B$1");
 
   chart.set_title("Cladding types");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Region");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Number of houses");
+  chart.x_axis().set_name("Region");
+  chart.y_axis().set_name("Number of houses");
 
   // Configure an add the chart series patterns.
   const xwpp::chart_pattern_t pattern1{

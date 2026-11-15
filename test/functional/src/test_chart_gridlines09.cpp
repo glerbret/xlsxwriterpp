@@ -41,8 +41,8 @@ int main()
   const xwpp::chart_line_t line3{.width = 1.25, .dash_type = xwpp::chart_line_dash_type_t::DASH};
   const xwpp::chart_line_t line4{.color = xwpp::color_t{0x00B050}};
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).major_gridlines_set_line(line1).minor_gridlines_set_line(line2);
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).major_gridlines_set_line(line3).minor_gridlines_set_line(line4);
+  chart.x_axis().major_gridlines_set_line(line1).minor_gridlines_set_line(line2);
+  chart.y_axis().major_gridlines_set_line(line3).minor_gridlines_set_line(line4);
 
   worksheet.insert_chart("E9", chart);
 

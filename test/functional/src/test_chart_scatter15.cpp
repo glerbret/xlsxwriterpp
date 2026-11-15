@@ -27,8 +27,8 @@ int main()
   chart.add_series("=Sheet1!$A$2:$A$3", "=Sheet1!$B$2:$B$3");
 
   const xwpp::chart_font_t font{.italic = true, .baseline = -1};
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Sheet1", 0, 0).set_name_font(font);
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sheet1", 0, 1);
+  chart.x_axis().set_name("Sheet1", 0, 0).set_name_font(font);
+  chart.y_axis().set_name("Sheet1", 0, 1);
 
   worksheet.insert_chart("E9", chart);
 

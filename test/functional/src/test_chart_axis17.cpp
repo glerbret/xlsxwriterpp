@@ -35,7 +35,7 @@ int main()
   chart.add_series("=Sheet1!$B$1:$B$5");
   chart.add_series("=Sheet1!$C$1:$C$5");
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_log_base(10);
+  chart.y_axis().set_log_base(10);
 
   worksheet.insert_chart("E9", chart);
 

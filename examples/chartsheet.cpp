@@ -62,8 +62,8 @@ int main()
 
   // Add a chart title and some axis labels.
   chart.set_title("Results of sample analysis");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Test number");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sample length (mm)");
+  chart.x_axis().set_name("Test number");
+  chart.y_axis().set_name("Sample length (mm)");
 
   // Set an Excel chart style.
   chart.set_style(11);

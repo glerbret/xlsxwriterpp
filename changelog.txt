@@ -1,6 +1,10 @@
 /**
 @page changes Changes
 
+## 0.3.0
+
+- Replace `get_axis()` function by `x_axis()`/`y_axis()` function.
+
 ## 0.2.0 November 11 2026
 
 - Improve build process and CI.

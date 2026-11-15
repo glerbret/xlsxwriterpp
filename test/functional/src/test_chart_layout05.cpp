@@ -39,14 +39,14 @@ int main()
     .y = 0.850902595508894,
   };
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX").set_name_layout(layout_x);
+  chart.x_axis().set_name("XXX").set_name_layout(layout_x);
 
   const xwpp::chart_layout_t layout_y{
     .x = 0.213888888888888,
     .y = 0.263499198016914,
   };
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY").set_name_layout(layout_y);
+  chart.y_axis().set_name("YYY").set_name_layout(layout_y);
 
   worksheet.insert_chart("E9", chart);
 

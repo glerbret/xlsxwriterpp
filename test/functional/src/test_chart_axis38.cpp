@@ -37,7 +37,7 @@ int main()
 
   const xwpp::chart_line_t line{.color = xwpp::color_t::yellow()};
   const xwpp::chart_fill_t fill{.color = xwpp::color_t::red()};
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line).set_fill(fill);
+  chart.y_axis().set_line(line).set_fill(fill);
 
   worksheet.insert_chart("E9", chart);
 
