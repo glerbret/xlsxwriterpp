@@ -486,20 +486,6 @@ enum class chart_label_separator_t
   SPACE
 };
 
-/**
- * @brief Chart axis types.
- *
- * Chart axis types.
- */
-enum class chart_axis_type_t
-{
-  /** Chart X axis. */
-  TYPE_X,
-
-  /** Chart Y axis. */
-  TYPE_Y
-};
-
 enum class chart_subtype_t
 {
   NONE,
@@ -1126,8 +1112,7 @@ public:
    *
    * @code
    *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-   *  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y)
-   *        .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
+   *  series.y_error_bars().enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
    * @endcode
    *
    * @image html chart_error_bars1.png
@@ -2212,20 +2197,32 @@ public:
   }
 
   /**
-   * @brief Get reference to an error bar of the series.
-   *
-   * @param axis   The axis of error bar.
+   * @brief Get reference to the X-error bar of the series.
    *
    * @return Reference to the error bar.
    *
-   * The `%get_error_bars()` function is used to get the
-   * reference to an error bar of the series:
+   * The `%x_error_bars()` function is used to get the
+   * reference to the X-error bar of the series:
    *
    * @code
-   *  series_error_bars_t error_bar = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_X);
+   *  series_error_bars_t error_bar = series.x_error_bars();
    * @endcode
    */
-  series_error_bars_t& get_error_bars(chart_axis_type_t axis);
+  series_error_bars_t& x_error_bars();
+
+  /**
+   * @brief Get reference to the Y-error bar of the series.
+   *
+   * @return Reference to the error bar.
+   *
+   * The `%y_error_bars()` function is used to get the
+   * reference to the Y-error bar of the series:
+   *
+   * @code
+   *  series_error_bars_t error_bar = series.y_error_bars();
+   * @endcode
+   */
+  series_error_bars_t& y_error_bars();
 
 private:
   friend class chart_t;
@@ -2325,8 +2322,8 @@ public:
    * displayed below an X axis and to the side of a Y axis.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Earnings per Quarter");
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("US Dollars (Millions)");
+   *  chart.x_axis().set_name("Earnings per Quarter");
+   *  chart.y_axis().set_name("US Dollars (Millions)");
    * @endcode
    *
    * @image html chart_axis_set_name.png
@@ -2358,8 +2355,8 @@ public:
    * formula:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Sheet1", 1, 0);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sheet1", 2, 0);
+   *  chart.x_axis().set_name("Sheet1", 1, 0);
+   *  chart.y_axis().set_name("Sheet1", 2, 0);
    * @endcode
    *
    * @see @ref ww_charts_axes.
@@ -2384,8 +2381,8 @@ public:
    *    .color = xwpp::color_t::blue(),
    *  };
    *
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Yearly data");
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name_font(font);
+   *  chart.x_axis().set_name("Yearly data");
+   *  chart.x_axis().set_name_font(font);
    * @endcode
    *
    * @image html chart_axis_set_name_font.png
@@ -2427,7 +2424,7 @@ public:
    *    .color = xwpp::color_t::blue()
    *  };
    *
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_num_font(font);
+   *  chart.x_axis().set_num_font(font);
    * @endcode
    *
    * @image html chart_axis_set_num_font.png
@@ -2448,8 +2445,8 @@ public:
    * the numbers on an axis:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_num_format("0.00%");
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_num_format("$#,##0.00");
+   *  chart.x_axis().set_num_format("0.00%");
+   *  chart.y_axis().set_num_format("$#,##0.00");
    * @endcode
    *
    * The number format is similar to the Worksheet Cell Format num_format,
@@ -2474,7 +2471,7 @@ public:
    *  // Hide the Y axis.
    *  const xwpp::chart_line_t line{ .none = true };
    *
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_line(line);
+   *  chart.y_axis().set_line(line);
    * @endcode
    *
    * @image html chart_axis_set_line.png
@@ -2496,7 +2493,7 @@ public:
    * @code
    *  const xwpp::chart_fill_t fill{.color = xwpp::color_t::yellow()};
    *
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_fill(fill);
+   *  chart.y_axis().set_fill(fill);
    * @endcode
    *
    * @image html chart_axis_set_fill.png
@@ -2516,7 +2513,7 @@ public:
    * Set the pattern properties of a chart axis:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_pattern(pattern);
+   *  chart.y_axis().set_pattern(pattern);
    * @endcode
    *
    * @see `chart_pattern_type_t` and @ref chart_patterns.
@@ -2532,7 +2529,7 @@ public:
    * Reverse the order of the axis categories or values:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_reverse();
+   *  chart.x_axis().set_reverse();
    * @endcode
    *
    * @image html chart_reverse.png
@@ -2551,8 +2548,8 @@ public:
    * Set the position that the axis will cross the opposite axis:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing(3);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing(8);
+   *  chart.x_axis().set_crossing(3);
+   *  chart.y_axis().set_crossing(8);
    * @endcode
    *
    * @image html chart_crossing1.png
@@ -2575,8 +2572,8 @@ public:
    * the number sequence:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing_max();
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing_max();
+   *  chart.x_axis().set_crossing_max();
+   *  chart.y_axis().set_crossing_max();
    * @endcode
    *
    * @image html chart_crossing2.png
@@ -2596,8 +2593,8 @@ public:
    * the number sequence:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing_min();
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing_min();
+   *  chart.x_axis().set_crossing_min();
+   *  chart.y_axis().set_crossing_min();
    * @endcode
    *
    * @see @ref ww_charts_axes.
@@ -2612,7 +2609,7 @@ public:
    * Turn off, hide, a chart axis:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).off();
+   *  chart.x_axis().off();
    * @endcode
    *
    * @image html chart_axis_off.png
@@ -2636,7 +2633,7 @@ public:
    * - `%chart_axis_tick_position_t::BETWEEN`
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_position(xwpp::chart_axis_tick_position_t::BETWEEN);
+   *  chart.x_axis().set_position(xwpp::chart_axis_tick_position_t::BETWEEN);
    * @endcode
    *
    * @image html chart_axis_set_position.png
@@ -2657,8 +2654,8 @@ public:
    * the axis.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_label_position(xwpp::chart_axis_label_position_t::HIGH);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_label_position(xwpp::chart_axis_label_position_t::HIGH);
+   *  chart.x_axis().set_label_position(xwpp::chart_axis_label_position_t::HIGH);
+   *  chart.y_axis().set_label_position(xwpp::chart_axis_label_position_t::HIGH);
    * @endcode
    *
    * @image html chart_label_position2.png
@@ -2698,7 +2695,7 @@ public:
    * - `%chart_axis_label_alignment_t::RIGHT` - Align label right.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_label_align(xwpp::chart_axis_label_alignment_t::RIGHT);
+   *  chart.x_axis().set_label_align(xwpp::chart_axis_label_alignment_t::RIGHT);
    * @endcode
    *
    * @see @ref ww_charts_axes.
@@ -2715,8 +2712,8 @@ public:
    * Set the minimum value for the axis range.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_min(-4);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_max(21);
+   *  chart.y_axis().set_min(-4);
+   *  chart.y_axis().set_max(21);
    * @endcode
    *
    * @image html chart_max_min.png
@@ -2735,8 +2732,8 @@ public:
    * Set the maximum value for the axis range.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_min(-4);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_max(21);
+   *  chart.y_axis().set_min(-4);
+   *  chart.y_axis().set_max(21);
    * @endcode
    *
    * @image html chart_max_min.png
@@ -2755,7 +2752,7 @@ public:
    * Set the log base for the axis:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_log_base(10);
+   *  chart.y_axis().set_log_base(10);
    * @endcode
    *
    * @image html chart_log_base.png
@@ -2779,11 +2776,11 @@ public:
    * Set the type of the major axis tick mark:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).
+   *  chart.x_axis().
    *        set_major_tick_mark(xwpp::chart_axis_tick_mark_t::CROSSING).
    *        set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE);
    *
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *  chart.y_axis().
    *        set_major_tick_mark(xwpp::chart_axis_tick_mark_t::OUTSIDE).
    *        set_minor_tick_mark(xwpp::chart_axis_tick_mark_t::INSIDE).
    *        // Hide the default gridlines so the tick marks are visible.
@@ -2837,7 +2834,7 @@ public:
    *     1, 3, 5, 7, etc.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_interval_unit(2);
+   *  chart.x_axis().set_interval_unit(2);
    * @endcode
    *
    * @image html chart_set_interval1.png
@@ -2857,7 +2854,7 @@ public:
    * between each category but it can be set to other integer values:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_interval_tick(2);
+   *  chart.x_axis().set_interval_tick(2);
    * @endcode
    *
    * @image html chart_set_interval2.png
@@ -2877,7 +2874,7 @@ public:
    *
    * @code
    *  // Turn on the minor gridline (it is off by default).
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *  chart.y_axis().
    *        minor_gridlines_set_visible(true).
    *        set_major_unit(4).
    *        set_minor_unit(2);
@@ -2899,7 +2896,7 @@ public:
    * Set the increment of the minor units in the axis range.
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_minor_unit(2);
+   *  chart.y_axis().set_minor_unit(2);
    * @endcode
    *
    * See the image above
@@ -2920,7 +2917,7 @@ public:
    * are very large but you don't want to represent them in scientific notation:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *  chart.y_axis().
    *        set_display_units(xwpp::chart_axis_display_unit_t::MILLIONS);
    * @endcode
    *
@@ -2943,8 +2940,8 @@ public:
    *
    * @code
    *  // Reverse the normal visible/hidden gridlines for a column chart.
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).major_gridlines_set_visible(true);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).major_gridlines_set_visible(false);
+   *  chart.x_axis().major_gridlines_set_visible(true);
+   *  chart.y_axis().major_gridlines_set_visible(false);
    * @endcode
    *
    * @image html chart_gridline1.png
@@ -2966,10 +2963,10 @@ public:
    * Example, turn on all major and minor gridlines:
    *
    * @code
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).
+   *  chart.x_axis().
    *        major_gridlines_set_visible(true).
    *        minor_gridlines_set_visible(true);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *  chart.y_axis().
    *        major_gridlines_set_visible(true).
    *        minor_gridlines_set_visible(true);
    * @endcode
@@ -3009,12 +3006,12 @@ public:
    *    .color     = xwpp::color_t{0x00B050},
    *  };
    *
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).
+   *  chart.x_axis().
    *        major_gridlines_set_visible(true).
    *        minor_gridlines_set_visible(true).
    *        major_gridlines_set_line(line1).
    *        minor_gridlines_set_line(line2);
-   *  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).
+   *  chart.y_axis().
    *        major_gridlines_set_visible(true).
    *        minor_gridlines_set_visible(true).
    *        major_gridlines_set_line(line3).
@@ -3901,23 +3898,32 @@ public:
   void set_table_font(const chart_font_t& font);
 
   /**
-   * @brief Get an axis pointer from a chart.
+   * @brief Get reference to main X-axis if a chart.
    *
-   * @param axis_type The axis type (X or Y): `chart_axis_type_t`.
-   *
-   * The `%get_axis()` function returns a reference to a chart axis based
-   * on the `chart_axis_type_t`:
+   * The `%x_axis()` function returns a reference to a chart main X-axis:
    *
    * @code
-   *  xwpp::chart_axis_t& x_axis = chart.get_axis(xwpp::chart_axis_type_t::TYPE_X);
-   *  xwpp::chart_axis_t& y_axis = chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y);
+   *  xwpp::chart_axis_t& x_axis = chart.x_axis();
    *
    *  // Use the axis pointer in other functions.
    *  x_axis.major_gridlines_set_visible(true);
+   * @endcode
+   */
+  [[nodiscard]] chart_axis_t& x_axis();
+
+  /**
+   * @brief Get reference to main Y-axis if a chart.
+   *
+   * The `%y_axis()` function returns a reference to a chart main Y-axis:
+   *
+   * @code
+   *  xwpp::chart_axis_t& y_axis = chart.y_axis();
+   *
+   *  // Use the axis pointer in other functions.
    *  y_axis.major_gridlines_set_visible(true);
    * @endcode
    */
-  [[nodiscard]] chart_axis_t& get_axis(chart_axis_type_t axis_type);
+  [[nodiscard]] chart_axis_t& y_axis();
 
   [[nodiscard]] std::string assemble_xml_file();
 

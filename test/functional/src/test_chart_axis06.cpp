@@ -33,8 +33,8 @@ int main()
   chart.set_title("Title");
 
   // Axis formatting should be igmored.
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX");
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY");
+  chart.x_axis().set_name("XXX");
+  chart.y_axis().set_name("YYY");
 
   worksheet.insert_chart("E9", chart);
 

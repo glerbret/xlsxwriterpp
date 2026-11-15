@@ -41,10 +41,10 @@ int main()
   chart.set_title("Test Results", font1);
 
   // Write the Y axis with a font.
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Units").set_name_font(font2).set_num_font(font3);
+  chart.y_axis().set_name("Units").set_name_font(font2).set_num_font(font3);
 
   // Write the X axis with a font.
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Month").set_name_font(font4).set_num_font(font5);
+  chart.x_axis().set_name("Month").set_name_font(font4).set_num_font(font5);
 
   // Display the chart legend at the bottom of the chart.
   chart.set_legend_position(xwpp::chart_legend_position_t::BOTTOM);

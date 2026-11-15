@@ -35,8 +35,8 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_crossing(3);
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_crossing(8);
+  chart.x_axis().set_crossing(3);
+  chart.y_axis().set_crossing(8);
 
   worksheet.insert_chart("E9", chart);
 

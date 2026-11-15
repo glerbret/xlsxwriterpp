@@ -40,9 +40,9 @@ int main()
 
   chart.set_title("Sheet1", 0, 0, font1);
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Sheet1", 1, 0).set_name_font(font1);
+  chart.x_axis().set_name("Sheet1", 1, 0).set_name_font(font1);
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sheet1", 2, 0).set_name_font(font2);
+  chart.y_axis().set_name("Sheet1", 2, 0).set_name_font(font2);
 
   worksheet.insert_chart("E9", chart);
 

@@ -63,8 +63,8 @@ int main()
 
     // Add a chart title and some axis labels.
     chart.set_title("Chart with Data Table");
-    chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Test number");
-    chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sample length (mm)");
+    chart.x_axis().set_name("Test number");
+    chart.y_axis().set_name("Sample length (mm)");
 
     // Set a default data table on the X-axis.
     chart.set_table();
@@ -85,8 +85,8 @@ int main()
 
     // Add a chart title and some axis labels.
     chart.set_title("Data Table with legend keys");
-    chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Test number");
-    chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sample length (mm)");
+    chart.x_axis().set_name("Test number");
+    chart.y_axis().set_name("Sample length (mm)");
 
     // Set a data table on the X-axis with the legend keys shown.
     chart.set_table(true, true, true, true);

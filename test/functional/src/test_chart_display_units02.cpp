@@ -23,7 +23,7 @@ int main()
 
   chart.add_series("=Sheet1!$A$1:$A$5");
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_display_units(xwpp::chart_axis_display_unit_t::HUNDREDS, false);
+  chart.y_axis().set_display_units(xwpp::chart_axis_display_unit_t::HUNDREDS, false);
 
   worksheet.insert_chart("E9", chart);
 

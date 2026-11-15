@@ -34,9 +34,7 @@ int main()
   const xwpp::chart_line_t line{.color = xwpp::color_t::red(), .dash_type = xwpp::chart_line_dash_type_t::ROUND_DOT};
 
   xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y)
-    .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0)
-    .set_line(line);
+  series.y_error_bars().enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0).set_line(line);
 
   chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$C$1:$C$5");
 

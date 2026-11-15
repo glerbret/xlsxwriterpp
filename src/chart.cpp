@@ -511,16 +511,14 @@ chart_series_t& chart_series_t::set_trendline_line(const chart_line_t& line)
   return *this;
 }
 
-series_error_bars_t& chart_series_t::get_error_bars(chart_axis_type_t axis)
+series_error_bars_t& chart_series_t::x_error_bars()
 {
-  if(axis == chart_axis_type_t::TYPE_X)
-  {
-    return x_error_bars_;
-  }
-  else
-  {
-    return y_error_bars_;
-  }
+  return x_error_bars_;
+}
+
+series_error_bars_t& chart_series_t::y_error_bars()
+{
+  return y_error_bars_;
 }
 
 // Verify that a X/Y error bar property is supported for the chart type.
@@ -1122,16 +1120,14 @@ void chart_t::set_table_font(const chart_font_t& font)
   table_font_ = convert_font_args(font);
 }
 
-chart_axis_t& chart_t::get_axis(chart_axis_type_t axis_type)
+chart_axis_t& chart_t::x_axis()
 {
-  if(axis_type == chart_axis_type_t::TYPE_X)
-  {
-    return x_axis_;
-  }
-  else
-  {
-    return y_axis_;
-  }
+  return x_axis_;
+}
+
+chart_axis_t& chart_t::y_axis()
+{
+  return y_axis_;
 }
 
 std::string chart_t::assemble_xml_file()

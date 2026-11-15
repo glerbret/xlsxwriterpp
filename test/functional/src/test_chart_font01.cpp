@@ -40,8 +40,8 @@ int main()
   const xwpp::chart_font_t font1{.size = 11, .bold = true, .italic = true};
   const xwpp::chart_font_t font2{.size = 9, .italic = true};
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("XXX").set_num_font(font1);
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("YYY").set_num_font(font2);
+  chart.x_axis().set_name("XXX").set_num_font(font1);
+  chart.y_axis().set_name("YYY").set_num_font(font2);
 
   worksheet.insert_chart("E9", chart);
 

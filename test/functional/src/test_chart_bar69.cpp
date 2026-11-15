@@ -35,8 +35,8 @@ int main()
   chart.add_series(xwpp::build_series_range("Sheet1", 0, 1, 4, 1));
   chart.add_series(xwpp::build_series_range("Sheet1", 0, 2, 4, 2));
 
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_X).set_name("Sheet1", 1, 0);
-  chart.get_axis(xwpp::chart_axis_type_t::TYPE_Y).set_name("Sheet1", 2, 0);
+  chart.x_axis().set_name("Sheet1", 1, 0);
+  chart.y_axis().set_name("Sheet1", 2, 0);
   chart.set_title("Sheet1", 0, 0);
 
   worksheet.insert_chart("E9", chart);
