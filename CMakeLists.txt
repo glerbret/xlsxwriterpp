@@ -358,10 +358,9 @@ endif()
 # ------------------------------------
 # Compile and run the example programs
 # ------------------------------------
-
-file(GLOB XWPP_EXAMPLE_SOURCES examples/*.cpp)
-
 if(BUILD_EXAMPLES)
+  file(GLOB XWPP_EXAMPLE_SOURCES examples/*.cpp)
+
   foreach(source ${XWPP_EXAMPLE_SOURCES})
     get_filename_component(basename ${source} NAME_WE)
     add_executable(${basename} ${source})
@@ -376,23 +375,19 @@ if(BUILD_EXAMPLES)
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images  ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin
   )
 
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples RESULT res)
-
-  file(GLOB EXAMPLES_IMAGES ${CMAKE_SOURCE_DIR}/examples/*.png)
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_images
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${EXAMPLES_IMAGES}
-            ${CMAKE_CURRENT_BINARY_DIR}/examples)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            ${CMAKE_SOURCE_DIR}/examples/images.d
+            ${CMAKE_CURRENT_BINARY_DIR}/examples/images.d)
 
-  file(GLOB EXAMPLES_BIN ${CMAKE_SOURCE_DIR}/examples/*.bin)
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin PROPERTIES SYMBOLIC 1)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__example_copy_bin
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${EXAMPLES_BIN}
-            ${CMAKE_CURRENT_BINARY_DIR}/examples)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            ${CMAKE_SOURCE_DIR}/examples/macros.d
+            ${CMAKE_CURRENT_BINARY_DIR}/examples/macros.d)
 endif()
 
 # -------------------

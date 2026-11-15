@@ -31,7 +31,7 @@ int main()
   worksheet.write(3, 0, 123.456);
 
   // Insert an image.
-  worksheet.insert_image(1, 2, "logo.png");
+  worksheet.insert_image(1, 2, "images.d/logo.png");
 
   workbook.save("demo.xlsx");
 }

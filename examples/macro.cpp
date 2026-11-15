@@ -24,7 +24,7 @@ int main()
   worksheet.set_column("A:A", 30);
 
   // Add a macro file extracted from an Excel workbook.
-  workbook.add_vba_project("vbaProject.bin");
+  workbook.add_vba_project("macros.d/vbaProject.bin");
 
   worksheet.write(2, 0, "Press the button to say hello.");
 
