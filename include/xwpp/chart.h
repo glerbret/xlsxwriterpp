@@ -486,20 +486,6 @@ enum class chart_label_separator_t
   SPACE
 };
 
-/**
- * @brief Chart axis types.
- *
- * Chart axis types.
- */
-enum class chart_axis_type_t
-{
-  /** Chart X axis. */
-  TYPE_X,
-
-  /** Chart Y axis. */
-  TYPE_Y
-};
-
 enum class chart_subtype_t
 {
   NONE,
