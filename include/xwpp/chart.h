@@ -1126,8 +1126,7 @@ public:
    *
    * @code
    *  xwpp::chart_series_t& series = chart.add_series("=Sheet1!$A$1:$A$5", "=Sheet1!$B$1:$B$5");
-   *  series.get_error_bars(xwpp::chart_axis_type_t::TYPE_Y)
-   *        .enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
+   *  series.y_error_bars().enable_error_bars(xwpp::chart_error_bar_type_t::STD_ERROR, 0);
    * @endcode
    *
    * @image html chart_error_bars1.png
@@ -2212,20 +2211,32 @@ public:
   }
 
   /**
-   * @brief Get reference to an error bar of the series.
-   *
-   * @param axis   The axis of error bar.
+   * @brief Get reference to the X-error bar of the series.
    *
    * @return Reference to the error bar.
    *
-   * The `%get_error_bars()` function is used to get the
-   * reference to an error bar of the series:
+   * The `%x_error_bars()` function is used to get the
+   * reference to the X-error bar of the series:
    *
    * @code
-   *  series_error_bars_t error_bar = series.get_error_bars(xwpp::chart_axis_type_t::TYPE_X);
+   *  series_error_bars_t error_bar = series.x_error_bars();
    * @endcode
    */
-  series_error_bars_t& get_error_bars(chart_axis_type_t axis);
+  series_error_bars_t& x_error_bars();
+
+  /**
+   * @brief Get reference to the Y-error bar of the series.
+   *
+   * @return Reference to the error bar.
+   *
+   * The `%y_error_bars()` function is used to get the
+   * reference to the Y-error bar of the series:
+   *
+   * @code
+   *  series_error_bars_t error_bar = series.y_error_bars();
+   * @endcode
+   */
+  series_error_bars_t& y_error_bars();
 
 private:
   friend class chart_t;
